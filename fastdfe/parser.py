@@ -1,3 +1,11 @@
+"""
+Parser module.
+"""
+
+__author__ = "Janek Sendrowski"
+__contact__ = "sendrowski.janek@gmail.com"
+__date__ = "2023-03-26"
+
 import gzip
 import itertools
 import logging

@@ -1,3 +1,7 @@
+"""
+Shared inference module.
+"""
+
 __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-02-26"

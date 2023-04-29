@@ -1,3 +1,7 @@
+"""
+Abstract inference class and static utilities.
+"""
+
 __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-03-12"
@@ -17,6 +21,9 @@ from .visualization import Visualization
 
 
 class Inference:
+    """
+    Static utility methods for inference objects.
+    """
 
     @staticmethod
     def plot_discretized(

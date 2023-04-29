@@ -1,5 +1,5 @@
 """
-Infer the DFE from the SFS using discretized DFE.
+Base inference class.
 """
 
 __author__ = "Janek Sendrowski"
@@ -40,9 +40,8 @@ logger = logging.getLogger('fastdfe')
 
 class BaseInference(AbstractInference):
     """
-    Base inference class for inferring the SFS given one
-    neutral and one selected SFS.
-    Note that Inference is by default seeded.
+    Base inference class for inferring the SFS given one neutral and one selected SFS.
+    Note that BaseInference is by default seeded.
 
     .. warning::
         TODO add confidence intervals for inferred SFS.

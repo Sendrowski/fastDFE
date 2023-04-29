@@ -1,5 +1,5 @@
 """
-Infer the DFE from the SFS using discretized DFE.
+Bootstrap utilities.
 """
 
 __author__ = "Janek Sendrowski"
@@ -17,6 +17,10 @@ logger = logging.getLogger('fastdfe')
 
 
 class Bootstrap:
+    """
+    Bootstrap utilities.
+    """
+
     @staticmethod
     def get_bounds_from_quantile(data: list | np.ndarray, a1: float, a2: float, n: int) -> (float, float):
         """

@@ -1,5 +1,5 @@
 """
-Infer the DFE from the SFS using discretized DFE.
+JSON handlers.
 """
 
 __author__ = "Janek Sendrowski"

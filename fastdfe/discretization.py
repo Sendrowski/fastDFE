@@ -1,3 +1,11 @@
+"""
+Discretization of DFE to SFS transformation.
+"""
+
+__author__ = "Janek Sendrowski"
+__contact__ = "sendrowski.janek@gmail.com"
+__date__ = "2023-02-26"
+
 import logging
 from functools import cached_property, wraps
 from typing import Literal

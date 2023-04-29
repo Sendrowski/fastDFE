@@ -1,5 +1,5 @@
 """
-Infer the DFE from the SFS using discretized DFE.
+Configuration class.
 """
 
 __author__ = "Janek Sendrowski"
@@ -21,9 +21,11 @@ from .spectrum import Spectra, parse_polydfe_sfs_config
 
 logger = logging.getLogger('fastdfe')
 
+
 class Config:
     """
-    Configuration class to be used for Inference and polyDFE.
+    Configuration class to be used for :class:``~fastdfe.base_inference.BaseInference`` and
+    :class:``fastdfe.shared_inference.SharedInference``.
     """
 
     def __init__(

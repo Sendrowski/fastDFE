@@ -1,3 +1,11 @@
+"""
+Optimization module.
+"""
+
+__author__ = "Janek Sendrowski"
+__contact__ = "sendrowski.janek@gmail.com"
+__date__ = "2023-02-26"
+
 import copy
 import logging
 from dataclasses import dataclass

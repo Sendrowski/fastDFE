@@ -1,9 +1,21 @@
+"""
+MLE utilities.
+"""
+
+__author__ = "Janek Sendrowski"
+__contact__ = "sendrowski.janek@gmail.com"
+__date__ = "2023-02-26"
+
 import numpy as np
 from typing import Union
 from scipy.special import factorial
 
 
 class MLE:
+    """
+    MLE utilities.
+    """
+
     @staticmethod
     def log_poisson(mu, k):
         """
