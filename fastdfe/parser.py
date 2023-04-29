@@ -14,16 +14,15 @@ from .spectrum import Spectra
 # get logger
 logger = logging.getLogger('fastdfe')
 
+#: the DNA bases
+bases = ["A", "C", "G", "T"]
+
 
 class NoTypeException(BaseException):
     """
     Exception thrown when no type can be determined.
     """
     pass
-
-
-# the DNA bases
-bases = ["A", "C", "G", "T"]
 
 
 class Stratification(ABC):
