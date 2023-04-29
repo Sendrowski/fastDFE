@@ -1,0 +1,2 @@
+polydfe_postprocessing_source: ../resources/polydfe/postprocessing/script.R
+n_chunks_vcf: 20

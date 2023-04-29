@@ -1,0 +1,7 @@
+name: samtools-fastdfe
+channels:
+  - bioconda
+dependencies:
+  - python
+  # getting samtools: error while loading shared libraries: libcrypto.so.1.0.0. for the latest version
+  - samtools=1.9

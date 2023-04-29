@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quickstart &mdash; fastDFE beta documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Installation" href="../installation.html" />
+    <link rel="prev" title="Introduction" href="../introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            fastDFE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-inference">Basic inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bootstrapping">Bootstrapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#serialization">Serialization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spectra.html">Manipulating site-frequency spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing SFS from VCF file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/logging.html">Logging</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules/inference.html">Inference classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/config.html">Configuration class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/parametrization.html">Parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/spectrum.html">Spectrum class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/spectra.html">Spectra class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/parser.html">VCF Parsing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fastDFE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quickstart</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/quickstart.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading"></a></h1>
+<section id="basic-inference">
+<h2>Basic inference<a class="headerlink" href="#basic-inference" title="Permalink to this heading"></a></h2>
+<p>The easiest way to get started is by using the <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> class which infers the DFE from a single pairs of SFSs, one neutral and one selected. In this example we create <a class="reference internal" href="../modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a> objects holding the SFS counts and pass it to BaseInference. Note that we are required to specify the number of monomorphic sites (the first entry).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">BaseInference</span><span class="p">,</span> <span class="n">Spectrum</span>
+
+<span class="n">inf</span> <span class="o">=</span> <span class="n">BaseInference</span><span class="p">(</span>
+    <span class="n">sfs_neut</span><span class="o">=</span><span class="n">Spectrum</span><span class="p">([</span><span class="mi">177130</span><span class="p">,</span> <span class="mi">997</span><span class="p">,</span> <span class="mi">441</span><span class="p">,</span> <span class="mi">228</span><span class="p">,</span> <span class="mi">156</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">83</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">652</span><span class="p">]),</span>
+    <span class="n">sfs_sel</span><span class="o">=</span><span class="n">Spectrum</span><span class="p">([</span><span class="mi">797939</span><span class="p">,</span> <span class="mi">1329</span><span class="p">,</span> <span class="mi">499</span><span class="p">,</span> <span class="mi">265</span><span class="p">,</span> <span class="mi">162</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">94</span><span class="p">,</span> <span class="mi">119</span><span class="p">,</span> <span class="mi">794</span><span class="p">])</span>
+<span class="p">)</span>
+
+<span class="c1"># run inference</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">run</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Starting numerical optimization of 10 independently initialized samples which are run in parallel.
+INFO:fastdfe:Precomputing linear DFE-SFS transformation using midpoint integration.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.
+INFO:fastdfe:Successfully finished optimization after 103 iterations and 948 function evaluations, obtaining a log-likelihood of -34.783850731873144.
+INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -1666.3678382406779, &#39;all.b&#39;: 0.3187694314011719, &#39;all.p_b&#39;: 0.1451331788478119, &#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0.00534555988772589}.
+</pre></div>
+</div>
+</div>
+</div>
+<p>fastDFE uses maximum likelihood estimation (MLE) to find the DFE. By default, 10 local optimization runs are carried out to make sure a reasonably good global optimum has been bound. The DFE furthermore needs to parametrized where <a class="reference internal" href="../modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization" title="fastdfe.parametrization.GammaExpParametrization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammaExpParametrization</span></code></a> is used by default.</p>
+<p>We can now plot the inferred DFE in discretized form (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.plot_discretized" title="fastdfe.base_inference.BaseInference.plot_discretized"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_discretized()</span></code></a>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/9b9b723e8c3837489b0e6fe67aa5c07fd5698c18e44cce7e10cac97da4a8422e.png" src="../_images/9b9b723e8c3837489b0e6fe67aa5c07fd5698c18e44cce7e10cac97da4a8422e.png" />
+</div>
+</div>
+<p>We can also plot a comparison of the (selected) modelled and observed SFS (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.plot_sfs_comparison" title="fastdfe.base_inference.BaseInference.plot_sfs_comparison"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_sfs_comparison()</span></code></a>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_sfs_comparison</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
+</pre></div>
+</div>
+<img alt="../_images/e520c01d288c3aad0eb9ba4f923048e5c788b5b47af21c6db5f86079fa7f9ba0.png" src="../_images/e520c01d288c3aad0eb9ba4f923048e5c788b5b47af21c6db5f86079fa7f9ba0.png" />
+</div>
+</div>
+</section>
+<section id="bootstrapping">
+<h2>Bootstrapping<a class="headerlink" href="#bootstrapping" title="Permalink to this heading"></a></h2>
+<p>We can perform parametric bootstrapping (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.bootstrap" title="fastdfe.base_inference.BaseInference.bootstrap"><code class="xref py py-func docutils literal notranslate"><span class="pre">bootstrap()</span></code></a>)</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># redo the plotting</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Running 100 bootstrap samples in parallel on 10 cores.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:06&lt;00:00, 16.38it/s]
+</pre></div>
+</div>
+<img alt="../_images/a1449cf027867c31573cfaa87366950006f1fe06af4a913f0ff199a2c74173af.png" src="../_images/a1449cf027867c31573cfaa87366950006f1fe06af4a913f0ff199a2c74173af.png" />
+</div>
+</div>
+</section>
+<section id="serialization">
+<h2>Serialization<a class="headerlink" href="#serialization" title="Permalink to this heading"></a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># save the inference object to the file</span>
+<span class="c1"># we can unserialized the inference by using BaseInference.from_file</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s2">&quot;out/serialized.json&quot;</span><span class="p">)</span>
+
+<span class="c1"># alternatively we can also save a summary to file</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">get_summary</span><span class="p">()</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s2">&quot;out/summary.json&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Janek Sendrowski.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

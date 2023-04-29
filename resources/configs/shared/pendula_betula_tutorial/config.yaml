@@ -1,0 +1,79 @@
+model: GammaExpParametrization
+# parameter b is shared among all types
+shared_params:
+  - types: all
+    params:
+      - b
+fixed_params:
+  # eps is fixed for all types
+  all:
+    eps: 0
+  # S_b is fixed for pubescens
+  pubescens:
+    S_b: 90
+# paramter S_d has covariates
+covariates:
+  - param: S_d
+    values:
+      pendula: -32623.595481483513
+      pubescens: -426.59080558648185
+bounds: { }
+x0: { }
+do_bootstrap: true
+linearized: true
+loss_type: likelihood
+n_bootstraps: 100
+n_runs: 10
+opts_mle: { }
+parallelize: true
+seed: 0
+sfs_neut:
+  pendula:
+    - 177130
+    - 997
+    - 441
+    - 228
+    - 156
+    - 117
+    - 114
+    - 83
+    - 105
+    - 109
+    - 652
+  pubescens:
+    - 172528
+    - 3612
+    - 1359
+    - 790
+    - 584
+    - 427
+    - 325
+    - 234
+    - 166
+    - 76
+    - 31
+sfs_sel:
+  pendula:
+    - 797939
+    - 1329
+    - 499
+    - 265
+    - 162
+    - 104
+    - 117
+    - 90
+    - 94
+    - 119
+    - 794
+  pubescens:
+    - 791106
+    - 5326
+    - 1741
+    - 1005
+    - 756
+    - 546
+    - 416
+    - 294
+    - 177
+    - 104
+    - 41

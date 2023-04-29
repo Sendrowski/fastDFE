@@ -1,0 +1,6 @@
+name: tabix-fastdfe
+channels:
+  - bioconda
+dependencies:
+  - python
+  - tabix

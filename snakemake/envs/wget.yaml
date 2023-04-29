@@ -1,0 +1,5 @@
+name: wget-fastdfe
+channels:
+  - conda-forge
+dependencies:
+  - wget

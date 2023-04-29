@@ -1,0 +1,537 @@
+from typing import List
+import re
+
+configfile: "config.yaml"
+
+# whether we run snakemake locally
+is_local = config.get('local',False)
+
+# currently we are using macOS locally
+is_macos = is_local
+
+# whether we are using macOS
+is_macos = config.get('macos',is_macos)
+
+if is_macos:
+    # we installed it locally
+    base_env = 'envs/base.yaml'
+else:
+    # this only works on Linux
+    base_env = 'envs/base_with_polydfe.yaml'
+
+
+def extract_opt(str: str, name, default_value=None) -> str:
+    """
+    Extract named option from string.
+
+    :param str: String to extract from
+    :param name: Name of option
+    :param default_value: Default value if option is not found
+    :return: Extracted option or default value
+    """
+    # named options have the following signature
+    match = re.search(f"[_./-]{name}[_:]([^_./-]*)",str)
+
+    if match:
+        return match.groups()[0]
+
+    return default_value
+
+
+def expand_comparisons(path) -> (List[str], List[str]):
+    """
+    Expand over the comma separated lists in 'path'
+
+    :param path: Path to expand
+    :return: Expanded paths and labels
+    """
+    matches = re.finditer("\[(.*?)\]",path)
+
+    def expand(strings: List[str], match: re.Match) -> (List[str], List[str]):
+        """
+        Expand by substituting first match in given strings.
+        Also attempt to parse labels enclosed in <> tags.
+
+        :param strings: Strings to expand
+        :param match: Match to expand with
+        :return: Expanded strings and labels
+        """
+        elements = match.groups()[0].split(',')
+
+        expanded, labels = [], []
+        for string in strings:
+            for e in elements:
+                # attempt to match explicit label
+                if matched_name := re.search("<(.*)>",e):
+                    # remove label tags
+                    e = re.sub("<.*>",'',e)
+
+                    label = matched_name.groups()[0]
+                else:
+                    label = e
+
+                expanded.append(re.sub(match.re.pattern,e,string,1))
+                labels.append(label)
+
+        return expanded, labels
+
+    expanded = [path]
+    labels = []
+    for match in matches:
+        expanded, labels = expand(expanded,match)
+
+    # set labels to None if first one evaluates to false
+    if not labels[0]:
+        labels = None
+
+    # prepend base path to strings
+    return ["results/graphs/" + s for s in expanded], labels
+
+
+configs = expand(
+    "{species}_{model}_{type}",
+    species=['pendula', 'pubescens', 'example_1', 'example_2', 'example_3'],
+    model=['C'],
+    type=['full', 'full_anc', 'deleterious', 'deleterious_anc']
+)
+
+# model mapping
+polydfe_models = {
+    'A': 'DisplacedGammaParametrization',
+    'B': 'GammaDiscreteParametrization',
+    'C': 'GammaExpParametrization',
+    'D': 'DiscreteParametrization'
+}
+
+ruleorder:
+    merge_bootstraps_polyDFE > infer_dfe_polyDFE >
+    create_config > create_config_from_spectra
+
+wildcard_constraints:
+    opts=r'[^/]*'  # match several optional options not separated by /
+
+
+rule all:
+    input:
+        (
+            #expand("results/configs/{config}_bootstrapped_100/config.yaml",config=configs),
+            #expand("results/fastdfe/{config}_bootstrapped_100/serialized.json",config=configs),
+            #expand("results/configs/{config}/config.yaml",config=['pendula.pubescens.example_1.example_2.example_3_C_full_anc']),
+            #expand("results/graphs/fastdfe/{config}_bootstrapped_100/dfe_discretized.png",config=configs),
+            #expand("results/spectra/{species}.csv", species=['pendula.pubescens', 'pendula.pubescens.example_1.example_2.example_3'])
+            #expand("results/polydfe/{config}_bootstrapped_100/serialized.json",config=configs),
+            expand("results/graphs/comp/[fastdfe<fastDFE>,polydfe<polyDFE>]/{config}_bootstrapped_100/{type}.png",
+                config=configs,
+                type=['mle_params', 'dfe_discretized']
+            ),
+            expand("results/graphs/tool_comp/{config}_bootstrapped_100/discretized.png",config=configs),
+            expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
+            expand("results/sfs/betula/pendula/{s}/all.csv",
+                s=[
+                    'DegeneracyStratification',
+                    'DegeneracyStratification.BaseContextStratification',
+                    'DegeneracyStratification.BaseTransitionStratification',
+                    'DegeneracyStratification.BaseContextStratification.BaseTransitionStratification'
+                ]
+            )
+            #expand(f"results/graphs/comp/tool_comp/[{','.join([f'{n}_bootstrapped_100' for n in configs])}]/discretized.png"),
+            #expand("results/fastdfe/{species}_{model}_{type}/config.yaml",species=['pendula', 'pubescens'],model=['C'],type=['full', 'full_anc']),
+            #expand("results/graphs/fastdfe/{config}/dfe_discretized.png",config=['pendula_C_full', 'pendula_C_full_anc', 'pubescens_C_full', 'pubescens_C_full_anc']),
+            #expand("results/polydfe/{config}/bootstrapped_{n}/serialized.json",config=['pendula_C_full_anc'],n=10),
+
+            # tests
+            #expand("results/testing/{config}_bootstrapped_100/overlapping_confidence_intervals.txt",config=configs)
+        )
+
+# fetch the postprocessing script from the GitHub repository
+rule fetch_postprocessing_script_polyDFE:
+    output:
+        config['polydfe_postprocessing_source']
+    params:
+        url="https://github.com/paula-tataru/polyDFE/raw/master/postprocessing.R"
+    conda:
+        "envs/wget.yaml"
+    shell:
+        "wget {params.url} -O {output}"
+
+# create a configuration file for DFE inference
+rule create_config:
+    input:
+        sfs="../resources/polydfe/{species}/spectra/sfs.txt",
+        init="../resources/polydfe/init/{model}.{type}_init"
+    output:
+        "results/configs/{species,pendula|pubescens|example_1|example_2|example_3}_{model,[ABCD]}_{type,full_anc|full|deleterious|deleterious_anc}/config.yaml"
+    params:
+        model=lambda w: polydfe_models[w.model]
+    conda:
+        base_env
+    script:
+        "scripts/create_config.py"
+
+# modify an existing config file
+rule modify_config_do_bootstrap:
+    input:
+        "results/configs/{config}/config.yaml"
+    output:
+        "results/configs/{config}_bootstrapped_{n}/config.yaml"
+    params:
+        opts=lambda w: dict(
+            do_bootstrap=True,
+            n_bootstraps=int(w.n)
+        )
+    conda:
+        base_env
+    script:
+        "scripts/modify_config.py"
+
+# modify an existing config file
+rule modify_config_seeded:
+    input:
+        "results/configs/{config}/config.yaml"
+    output:
+        "results/configs/{config}_seeded_{seed}/config.yaml"
+    params:
+        opts=lambda w: dict(
+            seed=int(w.seed)
+        )
+    conda:
+        base_env
+    script:
+        "scripts/modify_config.py"
+
+# infer DFE from SFS
+rule infer_dfe:
+    input:
+        "results/configs/{config}/config.yaml"
+    output:
+        summary="results/fastdfe/{config}/summary.json",
+        serialized="results/fastdfe/{config}/serialized.json"
+    conda:
+        base_env
+    script:
+        "scripts/infer_dfe.py"
+
+# infer DFE from SFS using polyDFE
+rule infer_dfe_polyDFE:
+    input:
+        "results/configs/{config}/config.yaml",
+        config['polydfe_postprocessing_source']
+    output:
+        polydfe="results/polydfe/{config}/out.txt",
+        summary="results/polydfe/{config}/summary.json",
+        wrapper="results/polydfe/{config}/serialized.json"
+    params:
+        bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
+    conda:
+        base_env
+    script:
+        "scripts/infer_dfe_polydfe.py"
+
+# infer DFE from bootstrapped SFS using polyDFE
+rule infer_dfe_polyDFE_bootstrap:
+    input:
+        "results/polydfe/{config}/bootstraps/{i}/config.yaml",
+        config['polydfe_postprocessing_source']
+    output:
+        polydfe="results/polydfe/{config}/bootstraps/{i}/out.txt",
+        summary="results/polydfe/{config}/bootstraps/{i}/summary.json",
+        wrapper="results/polydfe/{config}/bootstraps/{i}/serialized.json"
+    params:
+        bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
+    conda:
+        base_env
+    script:
+        "scripts/infer_dfe_polydfe.py"
+
+# infer DFE from SFS
+rule visualize_DFE_inference:
+    input:
+        "results/fastdfe/{config}/serialized.json"
+    output:
+        dfe_discretized="results/graphs/fastdfe/{config}/dfe_discretized.png",
+        dfe_log="results/graphs/fastdfe/{config}/fastdfe_log.png",
+        sfs_comparison="results/graphs/fastdfe/{config}/sfs_comparison.png",
+        mle_params="results/graphs/fastdfe/{config}/mle_params.png",
+        bucket_sizes="results/graphs/fastdfe/{config}/bucket_sizes.png"
+    conda:
+        base_env
+    script:
+        "scripts/plot_dfe_inference.py"
+
+# create config file for bootstrapped samples to be run with polyDFE
+rule create_bootstrap_polyDFE:
+    input:
+        "results/polydfe/{config}/serialized.json",
+        config['polydfe_postprocessing_source']
+    output:
+        "results/polydfe/{config}/bootstraps/{i}/config.yaml"
+    conda:
+        base_env
+    script:
+        "scripts/create_bootstrap_polydfe.py"
+
+# merge bootstraps and original inference result
+rule merge_bootstraps_polyDFE:
+    input:
+        config['polydfe_postprocessing_source'],
+        original="results/polydfe/{config}/serialized.json",
+        bootstraps=lambda w: expand("results/polydfe/{config}/bootstraps/{i}/serialized.json",
+            i=range(int(w.n)),allow_missing=True)
+    output:
+        "results/polydfe/{config}_bootstrapped_{n}/serialized.json"
+    conda:
+        base_env
+    script:
+        "scripts/merge_bootstraps_polydfe.py"
+
+# infer DFE from SFS
+rule visualize_polyDFE_inference:
+    input:
+        "results/polydfe/{config}/serialized.json"
+    output:
+        dfe_discretized="results/graphs/polydfe/{config}/dfe_discretized.png",
+        mle_params="results/graphs/polydfe/{config}/mle_params.png"
+    conda:
+        base_env
+    script:
+        "scripts/plot_polydfe_inference.py"
+
+# combine a number of plots in a new plot
+# comma-separated strings are expanded
+rule combine_plots:
+    input:
+        lambda w: expand_comparisons(w.path)[0]
+    output:
+        "results/graphs/comp/{path}"
+    params:
+        titles=lambda w: expand_comparisons(w.path)[1]
+    conda:
+        base_env
+    script:
+        "scripts/combine_plots.py"
+
+# test whether the confidence intervals of the discretized DFEs overlap
+rule test_overlapping_confidence_intervals:
+    input:
+        fastdfe='results/fastdfe/{config}/serialized.json',
+        polydfe='results/polydfe/{config}/serialized.json'
+    output:
+        touch("results/testing/{config}/overlapping_confidence_intervals.txt")
+    conda:
+        base_env
+    script:
+        "scripts/check_overlapping_confidence_intervals.py"
+
+# copy to cache for testing
+rule copy_to_testing:
+    input:
+        "results/{all}"
+    output:
+        "../testing/{all}"
+    conda:
+        base_env
+    shell:
+        "cp -r {input} {output}"
+
+# renew test cache used for comparison
+rule renew_test_file_cache:
+    input:
+        "../testing/fastdfe/pendula_C_full_anc/serialized.json",
+        "../testing/polydfe/pendula_C_full_anc/serialized.json",
+        "../testing/configs/pendula_C_full_anc/config.yaml",
+        "../testing/fastdfe/templates/shared/shared_example_1/serialized.json",
+        "../testing/fastdfe/templates/shared/shared_example_2/serialized.json",
+        "../testing/fastdfe/templates/shared/covariates_dummy_example_1/serialized.json",
+        "../testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json",
+        "../testing/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
+    output:
+        touch("../testing/renew_cache.txt")
+
+# merge spectra from several species
+rule merge_spectra_species:
+    input:
+        lambda w: expand("../resources/polydfe/{s}/spectra/sfs.txt",s=w.species.split('.'))
+    output:
+        "results/spectra/{species}.csv"
+    params:
+        names=lambda w: w.species.split('.')
+    conda:
+        base_env
+    script:
+        "scripts/combine_spectra.py"
+
+# create a configuration file from a serialized spectra object
+rule create_config_from_spectra:
+    input:
+        spectra="results/spectra/{species}.csv",
+        # take init file for first species
+        init=lambda w: f"../resources/polydfe/init/{w.model}.{w.type}_init"
+    output:
+        "results/configs/{species}_{model,[ABCD]}_{type,full_anc|full|deleterious|deleterious_anc}/config.yaml"
+    params:
+        model=lambda w: polydfe_models[w.model]
+    conda:
+        base_env
+    script:
+        "scripts/create_config_from_spectra.py"
+
+# plot tool comparison
+rule plot_tool_comparison:
+    input:
+        fastdfe='results/fastdfe/{config}/serialized.json',
+        polydfe='results/polydfe/{config}/serialized.json'
+    output:
+        discretized='results/graphs/tool_comp/{config}/discretized.png',
+        inferred_params='results/graphs/tool_comp/{config}/inferred_params.png'
+    conda:
+        base_env
+    script:
+        "scripts/plot_tool_comparison.py"
+
+# plot fastdfe/polydfe collage
+# file names get too long when trying to use combine_plots
+rule tool_comparison_collage:
+    input:
+        lambda w:
+        expand_comparisons(f"tool_comp/[{','.join([f'{n}_bootstrapped_100' for n in configs])}]/{w.type}.png")[0]
+    output:
+        "results/graphs/comp/tool_comparison_collage/{type}.png"
+    params:
+        titles=lambda w: [f'{n}_bootstrapped_100' for n in configs],
+        title_size_rel=15
+    conda:
+        base_env
+    script:
+        "scripts/combine_plots.py"
+
+# create a tbi index for a vcf file
+rule create_tbi:
+    input:
+        "{path}.vcf.gz"
+    output:
+        "{path}.vcf.gz.tbi"
+    conda:
+        "envs/gatk.yaml"
+    shell:
+        "gatk IndexFeatureFile -I {input}"
+
+# index a fasta file using samtools
+rule create_fai:
+    input:
+        "{path}.fasta"
+    output:
+        "{path}.fasta.fai"
+    conda:
+        "envs/samtools.yaml"
+    shell:
+        "samtools faidx {input}"
+
+# create a dict file for a fasta file
+rule create_dict:
+    input:
+        "{path}.fasta"
+    output:
+        "{path}.dict"
+    conda:
+        "envs/gatk.yaml"
+    shell:
+        "gatk CreateSequenceDictionary R={input} O={output}"
+
+# filter VCF by sample set
+rule filter_sample_set:
+    input:
+        vcf="../resources/genome/betula/all.vcf.gz",
+        tbi="../resources/genome/betula/all.vcf.gz.tbi",
+        ref="../resources/genome/betula/genome.fasta",
+        index="../resources/genome/betula/genome.fasta.fai",
+        dict="../resources/genome/betula/genome.dict",
+        sample_set="../resources/genome/sample_sets/{sample_set}.args"
+    output:
+        "results/vcf/betula/{sample_set,\w+}.vcf.gz"
+    params:
+        command="SelectVariants",
+        flags=lambda w: {
+            "-R": "../resources/genome/betula/genome.fasta",
+            "-V": "../resources/genome/betula/all.vcf.gz",
+            "--sample-name": f"../resources/genome/sample_sets/{w.sample_set}.args",
+            "--remove-unused-alternates": True
+        }
+    conda:
+        "envs/gatk.yaml"
+    script:
+        "scripts/run_gatk.py"
+
+# get the interval lists of the chunks to be created
+rule split_intervals:
+    input:
+        ref="../resources/genome/betula/genome.fasta",
+        index="../resources/genome/betula/genome.fasta.fai",
+        vcf="results/vcf/betula/{sample_set}.vcf.gz",
+        tbi="results/vcf/betula/{sample_set}.vcf.gz.tbi"
+    output:
+        [f"results/vcf/betula/{{sample_set}}/interval_lists/{str(i).zfill(4)}-scattered.interval_list" for i
+         in range(config['n_chunks_vcf'])]
+    params:
+        n=config['n_chunks_vcf'],
+        out_prefix='results/vcf/betula/{sample_set}/interval_lists'
+    conda:
+        "envs/gatk.yaml"
+    shell:
+        "gatk SplitIntervals -R {input.ref} -L {input.vcf} --scatter-count {params.n} -O {params.out_prefix}"
+
+# split the VCF file into chunks
+rule split_vcf:
+    input:
+        vcf="results/vcf/betula/{sample_set}.vcf.gz",
+        tbi="results/vcf/betula/{sample_set}.vcf.gz.tbi",
+        ref="../resources/genome/betula/genome.fasta",
+        index="../resources/genome/betula/genome.fasta.fai",
+        dict="../resources/genome/betula/genome.dict",
+        list=lambda w: f"results/vcf/betula/{{sample_set}}/interval_lists/{str(w.i).zfill(4)}-scattered.interval_list"
+    output:
+        "results/vcf/betula/{sample_set}/vcf/{i}.vcf.gz"
+    conda:
+        "envs/gatk.yaml"
+    shell:
+        "gatk SelectVariants -R {input.ref} -V {input.vcf} -L {input.list} -O {output}"
+
+# parse SFS from VCF
+rule parse_vcf:
+    input:
+        vcf="results/vcf/betula/{sample_set}/vcf/{i}.vcf.gz",
+        ref="../resources/genome/betula/genome.fasta"
+    output:
+        "results/sfs/betula/{sample_set}/{stratifications}/{n}/{i,\d+}.csv"
+    params:
+        n=lambda w: int(w.n),
+        stratifications=lambda w: w.stratifications.split('.')
+    conda:
+        base_env
+    script:
+        "scripts/parse_vcf.py"
+
+# parse SFS from VCF
+rule merge_spectra:
+    input:
+        lambda w: expand("results/sfs/betula/{sample_set}/{stratifications}/{n}/{i}.csv",i=range(
+            config['n_chunks_vcf']),allow_missing=True)
+    output:
+        "results/sfs/betula/{sample_set}/{stratifications}/{n}/all.csv"
+    conda:
+        base_env
+    script:
+        "scripts/merge_spectra.py"
+
+# run shared inference from template
+rule run_shared_inference_from_templates:
+    input:
+        "../resources/configs/shared/{config}/config.yaml"
+    output:
+        summary="results/fastdfe/templates/shared/{config}/summary.json",
+        serialized="results/fastdfe/templates/shared/{config}/serialized.json"
+    conda:
+        base_env
+    script:
+        "scripts/infer_shared_dfe.py"
+
+

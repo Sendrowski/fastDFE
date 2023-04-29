@@ -1,0 +1,67 @@
+# The DFE parametrization to be used.
+# GammaExpParametrization is parametrized by S_b, S_d, p_b, and b
+model: GammaExpParametrization
+# The parameters held fixed. Note that we need to
+# specify a type, even when only one type is present.
+# For BaseInference we thus resort to the 'all' type
+fixed_params:
+  all:
+    eps: 0
+# The initial values. This is not very important
+# as fastDFE is fast and usually runs the numerical
+# optimization multiple times for different initial values
+x0:
+  all:
+    S_b: 2
+    S_d: -10000
+    p_b: 0.1
+    b: 0.2
+    eps: 0
+# The number of independent runs
+n_runs: 10
+# The parameter bounds. Note that we do not specify the
+# type here. This property should be left untouched in
+# most cases.
+bounds: { }
+# Whether to perform bootstraps directly when invoking
+# Inference.run()
+do_bootstrap: true
+# The number of bootstraps
+n_bootstraps: 100
+# Whether to parallelize the computations across all
+# available cores
+parallelize: true
+# The seed for the random number generator which is
+# used for sampling the bootstraps and changing the
+# initial values among other this. Fixing the seed
+# guarantees deterministic behaviour
+seed: 0
+# The neutral SFS for the different types. Here we just
+# have the 'all' type.
+sfs_neut:
+  all:
+    - 173705
+    - 3294
+    - 1115
+    - 534
+    - 326
+    - 239
+    - 225
+    - 214
+    - 231
+    - 176
+    - 73
+# The selected SFS for the different types.
+sfs_sel:
+  all:
+    - 792884
+    - 4762
+    - 1397
+    - 720
+    - 423
+    - 259
+    - 247
+    - 256
+    - 265
+    - 209
+    - 90

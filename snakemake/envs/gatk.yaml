@@ -1,0 +1,7 @@
+name: gatk-fastdfe
+channels:
+  - bioconda
+dependencies:
+  - python
+  - gatk4
+  - snakemake-wrapper-utils

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DFE Inference &mdash; fastDFE beta documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Configuration files" href="../reference/config.html" />
+    <link rel="prev" title="Installation" href="../installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            fastDFE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DFE Inference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#base-inference">Base inference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bootstrapping">Bootstrapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fixing-parameters">Fixing parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nested-model-comparison">Nested model comparison</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#visualize-likelihoods">Visualize likelihoods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#shared-inference">Shared inference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#model-comparison">Model comparison</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#covariates">Covariates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Model comparison</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spectra.html">Manipulating site-frequency spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing SFS from VCF file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/logging.html">Logging</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules/inference.html">Inference classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/config.html">Configuration class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/parametrization.html">Parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/spectrum.html">Spectrum class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/spectra.html">Spectra class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/parser.html">VCF Parsing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fastDFE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">DFE Inference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/inference.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dfe-inference">
+<h1>DFE Inference<a class="headerlink" href="#dfe-inference" title="Permalink to this heading"></a></h1>
+<section id="base-inference">
+<h2>Base inference<a class="headerlink" href="#base-inference" title="Permalink to this heading"></a></h2>
+<p>In order to infer the DFE of a single pair, one neutral and one selected, we can use <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>. In this example we create <a class="reference internal" href="../modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a> objects holding the SFS counts and pass it to BaseInference. Note that we are required to specify the number of monomorphic sites (the first entry).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">BaseInference</span><span class="p">,</span> <span class="n">Spectrum</span>
+
+<span class="n">sfs_neut</span> <span class="o">=</span> <span class="n">Spectrum</span><span class="p">([</span><span class="mi">177130</span><span class="p">,</span> <span class="mi">997</span><span class="p">,</span> <span class="mi">441</span><span class="p">,</span> <span class="mi">228</span><span class="p">,</span> <span class="mi">156</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">83</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">652</span><span class="p">])</span>
+<span class="n">sfs_sel</span> <span class="o">=</span> <span class="n">Spectrum</span><span class="p">([</span><span class="mi">797939</span><span class="p">,</span> <span class="mi">1329</span><span class="p">,</span> <span class="mi">499</span><span class="p">,</span> <span class="mi">265</span><span class="p">,</span> <span class="mi">162</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">94</span><span class="p">,</span> <span class="mi">119</span><span class="p">,</span> <span class="mi">794</span><span class="p">])</span>
+
+<span class="c1"># create inference object</span>
+<span class="n">inf</span> <span class="o">=</span> <span class="n">BaseInference</span><span class="p">(</span>
+    <span class="n">sfs_neut</span><span class="o">=</span><span class="n">sfs_neut</span><span class="p">,</span>
+    <span class="n">sfs_sel</span><span class="o">=</span><span class="n">sfs_sel</span>
+<span class="p">)</span>
+
+<span class="c1"># run inference</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">run</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Starting numerical optimization of 10 independently initialized samples which are run in parallel.
+INFO:fastdfe:Precomputing linear DFE-SFS transformation using midpoint integration.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.
+INFO:fastdfe:Successfully finished optimization after 34 iterations and 252 function evaluations, obtaining a log-likelihood of -34.719718789150534.
+INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -2586.3539552883835, &#39;all.b&#39;: 0.25939981739231877, &#39;all.p_b&#39;: 0.11535210445006201, &#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0.00589010030036535}.
+</pre></div>
+</div>
+</div>
+</div>
+<p>fastDFE uses maximum likelihood estimation (MLE) to find the DFE. By default, 10 local optimization runs are carried out to make sure a reasonably good global optimum has been bound (see <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> for all configuration options). The DFE furthermore needs to parametrized where <a class="reference internal" href="../modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization" title="fastdfe.parametrization.GammaExpParametrization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammaExpParametrization</span></code></a> is used by default.</p>
+<p>We can now plot the inferred DFE in discretized form (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.plot_discretized" title="fastdfe.base_inference.BaseInference.plot_discretized"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_discretized()</span></code></a>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/55137a818cb29f2fcdc2285cafa232bb60e3b95c4d59f1b69b808f0dfd7cbde9.png" src="../_images/55137a818cb29f2fcdc2285cafa232bb60e3b95c4d59f1b69b808f0dfd7cbde9.png" />
+</div>
+</div>
+<p>We can also plot a comparison of the (selected) modelled and observed SFS (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.plot_sfs_comparison" title="fastdfe.base_inference.BaseInference.plot_sfs_comparison"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_sfs_comparison()</span></code></a>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_sfs_comparison</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
+</pre></div>
+</div>
+<img alt="../_images/97ede660efbf5ceb88644daa65f3119fb6798467227cb47799c483393ee6562f.png" src="../_images/97ede660efbf5ceb88644daa65f3119fb6798467227cb47799c483393ee6562f.png" />
+</div>
+</div>
+<section id="bootstrapping">
+<h3>Bootstrapping<a class="headerlink" href="#bootstrapping" title="Permalink to this heading"></a></h3>
+<p>We can perform parametric bootstrapping (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.bootstrap" title="fastdfe.base_inference.BaseInference.bootstrap"><code class="xref py py-func docutils literal notranslate"><span class="pre">bootstrap()</span></code></a>) to estimate the uncertainty of the inferred DFE. This is done by sampling new SFSs from the inferred DFE and re-running the inference.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># run bootstrapping</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># redo the plotting</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Running 100 bootstrap samples in parallel on 10 cores.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:01&lt;00:00, 75.50it/s]
+</pre></div>
+</div>
+<img alt="../_images/564652d6f00a98e6b5bba71b555614d3b3237d17a923be98fe05452b4a634de4.png" src="../_images/564652d6f00a98e6b5bba71b555614d3b3237d17a923be98fe05452b4a634de4.png" />
+</div>
+</div>
+<p>The bars indicate 95% confidence intervals. We can adjust the confidence level among other things (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.plot_discretized" title="fastdfe.base_inference.BaseInference.plot_discretized"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_discretized()</span></code></a>).</p>
+</section>
+<section id="fixing-parameters">
+<h3>Fixing parameters<a class="headerlink" href="#fixing-parameters" title="Permalink to this heading"></a></h3>
+<p>We can hold parameters fixed during the maximum likelihood optimization. This is useful, for example, if only using a subset of the parameters has a reasonable interpretation. In this example, we fix ancestral-allele mis-identification rate <code class="docutils literal notranslate"><span class="pre">eps</span></code> to 0. We also force the DFE to be purely deleterious, by fixing <code class="docutils literal notranslate"><span class="pre">S_b</span></code> to some arbitrary value and setting <code class="docutils literal notranslate"><span class="pre">p_b</span></code> to 0 (cf. <a class="reference internal" href="../modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization" title="fastdfe.parametrization.GammaExpParametrization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammaExpParametrization</span></code></a>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># create inference object</span>
+<span class="n">inf</span> <span class="o">=</span> <span class="n">BaseInference</span><span class="p">(</span>
+    <span class="n">sfs_neut</span><span class="o">=</span><span class="n">sfs_neut</span><span class="p">,</span>
+    <span class="n">sfs_sel</span><span class="o">=</span><span class="n">sfs_sel</span><span class="p">,</span>
+    <span class="c1"># Fix parameters, note that we need to use</span>
+    <span class="c1"># type &#39;all&#39; if only one type is used.</span>
+    <span class="n">fixed_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">S_b</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">p_b</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="p">)</span>
+
+<span class="c1"># run inference</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Starting numerical optimization of 10 independently initialized samples which are run in parallel.
+INFO:fastdfe:Precomputing linear DFE-SFS transformation using midpoint integration.
+INFO:fastdfe:Successfully finished optimization after 49 iterations and 249 function evaluations, obtaining a log-likelihood of -35.5928911918121.
+INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -15899.609858769645, &#39;all.b&#39;: 0.14201985977072357, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 1.0, &#39;all.eps&#39;: 0.0}.
+</pre></div>
+</div>
+<img alt="../_images/773cbc167c5348621df5b59fce3b1efe1ec35c179c588722a90a4124315753b6.png" src="../_images/773cbc167c5348621df5b59fce3b1efe1ec35c179c588722a90a4124315753b6.png" />
+</div>
+</div>
+</section>
+<section id="nested-model-comparison">
+<h3>Nested model comparison<a class="headerlink" href="#nested-model-comparison" title="Permalink to this heading"></a></h3>
+<p>We can automatically check for the significance of include ancestral-allele mis-idenfication and beneficial fitness affects using likelihood ratio test (LRTs). This is done with <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.plot_nested_likelihoods" title="fastdfe.base_inference.BaseInference.plot_nested_likelihoods"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_nested_likelihoods()</span></code></a>. The LRTs are performed by comparing the likelihood of the inferred DFE to the likelihood of a nested model where some parameters are held fixed.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_nested_likelihoods</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Holding parameters fixed to {&#39;all&#39;: {&#39;eps&#39;: 0}}.
+INFO:fastdfe:Starting numerical optimization of 10 independently initialized samples which are run in parallel.
+INFO:fastdfe:Successfully finished optimization after 40 iterations and 400 function evaluations, obtaining a log-likelihood of -35.054181364454905.
+INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -3548.9173499186445, &#39;all.b&#39;: 0.20814120412844353, &#39;all.p_b&#39;: 0.05583478056236137, &#39;all.S_b&#39;: 1.0949192867028816, &#39;all.eps&#39;: 0.0}.
+INFO:fastdfe:Holding parameters fixed to {&#39;all&#39;: {}}.
+INFO:fastdfe:Starting numerical optimization of 10 independently initialized samples which are run in parallel.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.
+INFO:fastdfe:Successfully finished optimization after 51 iterations and 438 function evaluations, obtaining a log-likelihood of -34.63824907148995.
+INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -8135.5264093927535, &#39;all.b&#39;: 0.16020045109703812, &#39;all.p_b&#39;: 0.014332645095904546, &#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0.006912630503687684}.
+INFO:fastdfe:Holding parameters fixed to {&#39;all&#39;: {&#39;p_b&#39;: 0, &#39;S_b&#39;: 1, &#39;eps&#39;: 0}}.
+INFO:fastdfe:Starting numerical optimization of 10 independently initialized samples which are run in parallel.
+INFO:fastdfe:Successfully finished optimization after 55 iterations and 306 function evaluations, obtaining a log-likelihood of -35.61473097130448.
+INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -15191.97321167945, &#39;all.b&#39;: 0.14280452672076754, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 1.0, &#39;all.eps&#39;: 0.0}.
+INFO:fastdfe:Holding parameters fixed to {&#39;all&#39;: {&#39;p_b&#39;: 0, &#39;S_b&#39;: 1}}.
+INFO:fastdfe:Starting numerical optimization of 10 independently initialized samples which are run in parallel.
+INFO:fastdfe:Successfully finished optimization after 48 iterations and 360 function evaluations, obtaining a log-likelihood of -34.652723262881466.
+INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -7702.692818700697, &#39;all.b&#39;: 0.15563971422293008, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 1.0, &#39;all.eps&#39;: 0.007556909780233235}.
+INFO:fastdfe:Simple model likelihood: -35.054181364454905, complex model likelihood: -34.63824907148995, degrees of freedom: 1.
+INFO:fastdfe:Simple model likelihood: -35.61473097130448, complex model likelihood: -35.054181364454905, degrees of freedom: 2.
+INFO:fastdfe:Simple model likelihood: -35.61473097130448, complex model likelihood: -34.63824907148995, degrees of freedom: 3.
+INFO:fastdfe:Simple model likelihood: -35.61473097130448, complex model likelihood: -34.652723262881466, degrees of freedom: 1.
+INFO:fastdfe:Simple model likelihood: -34.652723262881466, complex model likelihood: -34.63824907148995, degrees of freedom: 2.
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
+</pre></div>
+</div>
+<img alt="../_images/6d4d33d48c8e8af73446a34e1afcb2c4b3ada0ab0ecdb1d4c5823cb33cb2449e.png" src="../_images/6d4d33d48c8e8af73446a34e1afcb2c4b3ada0ab0ecdb1d4c5823cb33cb2449e.png" />
+</div>
+</div>
+<p>The full DFE appears to explain the data significantly better than the deleterious DFE. However, including ancestral-allele mis-identification does not appear to be significant.</p>
+</section>
+<section id="visualize-likelihoods">
+<h3>Visualize likelihoods<a class="headerlink" href="#visualize-likelihoods" title="Permalink to this heading"></a></h3>
+<p>We can visualize the likelihoods of the differently-initialized optimization runs. This can give us some information on how good an optimum could be found.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_likelihoods</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="s1">&#39;lin&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/ee52c4c6d1339384c6ac6717a030bf053bfc8b33c10bdae7f131011f3fa90507.png" src="../_images/ee52c4c6d1339384c6ac6717a030bf053bfc8b33c10bdae7f131011f3fa90507.png" />
+</div>
+</div>
+<p>There might be some room for improvement as the likelihoods do show some variation. We could consider increasing the <code class="docutils literal notranslate"><span class="pre">n_runs</span></code> argument.</p>
+</section>
+<section id="serialization">
+<h3>Serialization<a class="headerlink" href="#serialization" title="Permalink to this heading"></a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># save the inference object to the file</span>
+<span class="c1"># we can unserialized the inference by using BaseInference.from_file</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s2">&quot;out/serialized.json&quot;</span><span class="p">)</span>
+
+<span class="c1"># we can also save a summary to file</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">get_summary</span><span class="p">()</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s2">&quot;out/summary.json&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="shared-inference">
+<h2>Shared inference<a class="headerlink" href="#shared-inference" title="Permalink to this heading"></a></h2>
+<p>fastDFE supports joint inference of several SFS types, where any parameters can be shared between types. In this example, we create a <a class="reference internal" href="../modules/inference.html#fastdfe.shared_inference.SharedInference" title="fastdfe.shared_inference.SharedInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">SharedInference</span></code></a> object with two types, where we share <code class="docutils literal notranslate"><span class="pre">eps</span></code>, the rate of ancestral misidentification and <code class="docutils literal notranslate"><span class="pre">S_d</span></code>, the mean selection coefficient for deleterious mutations (cf. <a class="reference internal" href="../modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization" title="fastdfe.parametrization.GammaExpParametrization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammaExpParametrization</span></code></a>). For more complex stratifications, see the <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>) module.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">fastdfe</span>
+<span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">SharedInference</span><span class="p">,</span> <span class="n">Spectra</span><span class="p">,</span> <span class="n">SharedParams</span>
+
+<span class="c1"># disable progress bar and set logging level to warning  to avoid cluttering</span>
+<span class="n">fastdfe</span><span class="o">.</span><span class="n">disable_pbar</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;fastdfe&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+
+<span class="c1"># neutral SFS for two types</span>
+<span class="n">sfs_neut</span> <span class="o">=</span> <span class="n">Spectra</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
+    <span class="n">pendula</span><span class="o">=</span><span class="p">[</span><span class="mi">177130</span><span class="p">,</span> <span class="mi">997</span><span class="p">,</span> <span class="mi">441</span><span class="p">,</span> <span class="mi">228</span><span class="p">,</span> <span class="mi">156</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">83</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">652</span><span class="p">],</span>
+    <span class="n">pubescens</span><span class="o">=</span><span class="p">[</span><span class="mi">172528</span><span class="p">,</span> <span class="mi">3612</span><span class="p">,</span> <span class="mi">1359</span><span class="p">,</span> <span class="mi">790</span><span class="p">,</span> <span class="mi">584</span><span class="p">,</span> <span class="mi">427</span><span class="p">,</span> <span class="mi">325</span><span class="p">,</span> <span class="mi">234</span><span class="p">,</span> <span class="mi">166</span><span class="p">,</span> <span class="mi">76</span><span class="p">,</span> <span class="mi">31</span><span class="p">]</span>
+<span class="p">))</span>
+
+<span class="c1"># selected SFS for two types</span>
+<span class="n">sfs_sel</span> <span class="o">=</span> <span class="n">Spectra</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
+    <span class="n">pendula</span><span class="o">=</span><span class="p">[</span><span class="mi">797939</span><span class="p">,</span> <span class="mi">1329</span><span class="p">,</span> <span class="mi">499</span><span class="p">,</span> <span class="mi">265</span><span class="p">,</span> <span class="mi">162</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">94</span><span class="p">,</span> <span class="mi">119</span><span class="p">,</span> <span class="mi">794</span><span class="p">],</span>
+    <span class="n">pubescens</span><span class="o">=</span><span class="p">[</span><span class="mi">791106</span><span class="p">,</span> <span class="mi">5326</span><span class="p">,</span> <span class="mi">1741</span><span class="p">,</span> <span class="mi">1005</span><span class="p">,</span> <span class="mi">756</span><span class="p">,</span> <span class="mi">546</span><span class="p">,</span> <span class="mi">416</span><span class="p">,</span> <span class="mi">294</span><span class="p">,</span> <span class="mi">177</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">41</span><span class="p">]</span>
+<span class="p">))</span>
+
+<span class="c1"># create inference object</span>
+<span class="n">inf</span> <span class="o">=</span> <span class="n">SharedInference</span><span class="p">(</span>
+    <span class="n">sfs_neut</span><span class="o">=</span><span class="n">sfs_neut</span><span class="p">,</span>
+    <span class="n">sfs_sel</span><span class="o">=</span><span class="n">sfs_sel</span><span class="p">,</span>
+    <span class="n">shared_params</span><span class="o">=</span><span class="p">[</span><span class="n">SharedParams</span><span class="p">(</span><span class="n">types</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pendula&quot;</span><span class="p">,</span> <span class="s2">&quot;pubescens&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;eps&quot;</span><span class="p">,</span> <span class="s2">&quot;S_d&quot;</span><span class="p">])],</span>
+    <span class="n">do_bootstrap</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># run inference</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">run</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01} and lower bound for {&#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01} and lower bound for {&#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;pendula:pubescens.S_d&#39;: -0.01} and lower bound for {&#39;pendula.S_b&#39;: 0.0001, &#39;pubescens.S_b&#39;: 0.0001, &#39;pendula:pubescens.eps&#39;: 0}, but this might be nothing to worry about.
+WARNING:fastdfe:57 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
+</pre></div>
+</div>
+</div>
+</div>
+<p><a class="reference internal" href="../modules/inference.html#fastdfe.shared_inference.SharedInference" title="fastdfe.shared_inference.SharedInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">SharedInference</span></code></a> both runs the joint inference and marginal inference where each type is inferred separately. To see this better we can plot the inferred parameters for the different inference types.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_inferred_parameters</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
+</pre></div>
+</div>
+<img alt="../_images/f8a8804f42b76f7f78299f6cbe1b0501d6b98fc75f33ed6da717f99ac20c88d5.png" src="../_images/f8a8804f42b76f7f78299f6cbe1b0501d6b98fc75f33ed6da717f99ac20c88d5.png" />
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">marginal.pendula</span></code> and <code class="docutils literal notranslate"><span class="pre">marginal.pubescens</span></code> are the marginal inferences for the respective type. <code class="docutils literal notranslate"><span class="pre">marginal.all</span></code> is the marginal inference obtaining by adding up the spectra of all types. <code class="docutils literal notranslate"><span class="pre">joint.pendula</span></code> and <code class="docutils literal notranslate"><span class="pre">join.pubescens</span></code> are the joint inferences for the respective type. We can see that <code class="docutils literal notranslate"><span class="pre">eps</span></code> and <code class="docutils literal notranslate"><span class="pre">S_d</span></code> are indeed shared between the two. The parameter <code class="docutils literal notranslate"><span class="pre">alpha</span></code> in the plot denotes the proportion of beneficial non-synonymous substitutions. Each marginal inference is a <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> object itself and can be accessed via <code class="docutils literal notranslate"><span class="pre">inf.marginal_inferences[type]</span></code>.</p>
+<p>Looking at the discretized DFE we can see the different between the inference types:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/350498a25c752cc6bd04d083e1a5ca84ad9b85006e4a200b8c075f30344d2019.png" src="../_images/350498a25c752cc6bd04d083e1a5ca84ad9b85006e4a200b8c075f30344d2019.png" />
+</div>
+</div>
+<section id="model-comparison">
+<h3>Model comparison<a class="headerlink" href="#model-comparison" title="Permalink to this heading"></a></h3>
+<p>We can obtain information about the goodness of fit achieved by sharing the parameter by performing a likelihood ratio test (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.shared_inference.SharedInference.perform_lrt_shared" title="fastdfe.shared_inference.SharedInference.perform_lrt_shared"><code class="xref py py-func docutils literal notranslate"><span class="pre">perform_lrt_shared()</span></code></a>). This compares the likelihood of the joint inference with the product of the marginal likelihoods.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">perform_lrt_shared</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.5262104318851502
+</pre></div>
+</div>
+</div>
+</div>
+<p>The test is not significant, indicating that the simpler model of sharing the parameters explains the data sufficiently well. Indeed, we do not observe a lot of differences between the inferred parameters of the marginal inferences.</p>
+</section>
+</section>
+<section id="covariates">
+<h2>Covariates<a class="headerlink" href="#covariates" title="Permalink to this heading"></a></h2>
+<p><a class="reference internal" href="../modules/inference.html#fastdfe.shared_inference.SharedInference" title="fastdfe.shared_inference.SharedInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">SharedInference</span></code></a> also supports the inclusion of covariates associates with the different SFS types. This provides more powerful model testing and reduces the number of parameters that need to be estimated for the joint inference. For a more interesting example we stratify the SFS of <code class="docutils literal notranslate"><span class="pre">B.</span> <span class="pre">pendula</span></code> by the sites’ reference base as is described in more detail in the <code class="xref py py-mod docutils literal notranslate"><span class="pre">parser</span></code> module.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">Parser</span><span class="p">,</span> <span class="n">Spectra</span><span class="p">,</span> <span class="n">ReferenceBaseStratification</span><span class="p">,</span> <span class="n">DegeneracyStratification</span>
+
+<span class="c1"># instantiate parser</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span>
+    <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">vcf_file</span><span class="o">=</span><span class="s2">&quot;../../snakemake/results/vcf/betula/pendula.vcf.gz&quot;</span><span class="p">,</span>
+    <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span><span class="n">DegeneracyStratification</span><span class="p">(),</span> <span class="n">ReferenceBaseStratification</span><span class="p">()]</span>
+<span class="p">)</span>
+
+<span class="c1"># parse SFS</span>
+<span class="n">spectra</span><span class="p">:</span> <span class="n">Spectra</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+
+<span class="c1"># visualize spectra</span>
+<span class="n">spectra</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
+</pre></div>
+</div>
+<img alt="../_images/a6a6f39bd8ff0ce7d2d842b89b7b23d48bdf6b5e08ed5493cc80c9749832335f.png" src="../_images/a6a6f39bd8ff0ce7d2d842b89b7b23d48bdf6b5e08ed5493cc80c9749832335f.png" />
+</div>
+</div>
+<p>We now create the inference object from the spectra. In this contrived example we make up some covariates that covary with <code class="docutils literal notranslate"><span class="pre">S_d</span></code>, the mean strength of negative selection. Covariates introduce a linear relationship by default but this can be modified by specifying a custom callback function (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.optimization.Covariate" title="fastdfe.optimization.Covariate"><code class="xref py py-class docutils literal notranslate"><span class="pre">Covariate</span></code></a>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">Covariate</span>
+
+<span class="c1"># create inference object</span>
+<span class="n">inf</span> <span class="o">=</span> <span class="n">SharedInference</span><span class="p">(</span>
+    <span class="n">sfs_neut</span><span class="o">=</span><span class="n">spectra</span><span class="p">[[</span><span class="s1">&#39;neutral.*&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">merge_groups</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">sfs_sel</span><span class="o">=</span><span class="n">spectra</span><span class="p">[[</span><span class="s1">&#39;selected.*&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">merge_groups</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">covariates</span><span class="o">=</span><span class="p">[</span><span class="n">Covariate</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="s1">&#39;S_d&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">A</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="mi">4</span><span class="p">))],</span>
+    <span class="n">do_bootstrap</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># run inference</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">run</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01} and lower bound for {&#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.eps&#39;: 0}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01, &#39;all.b&#39;: 10} and lower bound for {&#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01} and lower bound for {&#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0}, but this might be nothing to worry about.
+WARNING:fastdfe:A large number of parameters is optimized jointly (18). Please be aware that this makes it harder to find a good optimum.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;A.b&#39;: 10, &#39;T.b&#39;: 10, &#39;A:C:G:T.S_d&#39;: -0.01} and lower bound for {&#39;A.eps&#39;: 0, &#39;C.S_b&#39;: 0.0001, &#39;C.eps&#39;: 0, &#39;G.S_b&#39;: 0.0001, &#39;T.S_b&#39;: 0.0001, &#39;T.eps&#39;: 0, &#39;A:C:G:T.c0&#39;: -10}, but this might be nothing to worry about.
+WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
+WARNING:fastdfe:48 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s visualize the covariates</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_covariates</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
+</pre></div>
+</div>
+<img alt="../_images/86c4589b2fc8013c6858a4cfe39bdbf0666adeb3ce80141d8b50eecfb40a61e3.png" src="../_images/86c4589b2fc8013c6858a4cfe39bdbf0666adeb3ce80141d8b50eecfb40a61e3.png" />
+</div>
+</div>
+<section id="id1">
+<h3>Model comparison<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<p>Covariates receive the parameter names <code class="docutils literal notranslate"><span class="pre">c{i}</span></code> in order of definition. We do see that <code class="docutils literal notranslate"><span class="pre">S_b</span></code> indeed varies among the types and this is due to the linear relationship with the covariate values introduced. We can perform a likelihood ratio test to see whether including the covariates produce a significantly better fit than simply sharing the parameter in question among the types (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.shared_inference.SharedInference.perform_lrt_covariates" title="fastdfe.shared_inference.SharedInference.perform_lrt_covariates"><code class="xref py py-func docutils literal notranslate"><span class="pre">perform_lrt_covariates()</span></code></a>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">perform_lrt_covariates</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:fastdfe:A large number of parameters is optimized jointly (18). Please be aware that this makes it harder to find a good optimum.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;A.b&#39;: 10, &#39;T.b&#39;: 10, &#39;A:C:G:T.S_d&#39;: -0.01} and lower bound for {&#39;A.eps&#39;: 0, &#39;C.S_b&#39;: 0.0001, &#39;C.eps&#39;: 0, &#39;G.S_b&#39;: 0.0001, &#39;T.S_b&#39;: 0.0001, &#39;T.eps&#39;: 0}, but this might be nothing to worry about.
+WARNING:fastdfe:51 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.8073729452826015
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../reference/config.html" class="btn btn-neutral float-right" title="Configuration files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Janek Sendrowski.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+name: testing-pypi-fastdfe
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - dadi
+  - r-base
+  - rpy2
+  - r-rjsonio
+  - pytest-xdist
+  - coverage
+  - pip
+  - pip:
+      - fastdfe==0.1.2-beta

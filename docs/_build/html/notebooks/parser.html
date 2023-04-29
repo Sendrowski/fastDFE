@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parsing SFS from VCF file &mdash; fastDFE beta documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Logging" href="../reference/logging.html" />
+    <link rel="prev" title="Manipulating site-frequency spectra" href="spectra.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            fastDFE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spectra.html">Manipulating site-frequency spectra</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Parsing SFS from VCF file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/logging.html">Logging</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules/inference.html">Inference classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/config.html">Configuration class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/parametrization.html">Parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/spectrum.html">Spectrum class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/spectra.html">Spectra class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/parser.html">VCF Parsing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fastDFE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Parsing SFS from VCF file</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/parser.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="parsing-sfs-from-vcf-file">
+<h1>Parsing SFS from VCF file<a class="headerlink" href="#parsing-sfs-from-vcf-file" title="Permalink to this heading"></a></h1>
+<p>fastDFE provides parser utilities that enable convenient parsing of frequency spectra from VCF files. We also might want to stratify the SFS by some property of the sites, such as synonymous vs. non-synonymous mutations. This is done by specifying a list of stratifications to the parser. In this example, we will stratify the SFS by synonymous vs. non-synonymous mutations using a VCF file for <code class="docutils literal notranslate"><span class="pre">Betula</span> <span class="pre">spp.</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">Parser</span><span class="p">,</span> <span class="n">DegeneracyStratification</span><span class="p">,</span> <span class="n">Spectra</span>
+
+<span class="n">vcf_file</span> <span class="o">=</span> <span class="s2">&quot;../../resources/genome/betula/all.vcf.gz&quot;</span>
+
+<span class="c1"># instantiate parser</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span>
+    <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">vcf_file</span><span class="o">=</span><span class="n">vcf_file</span><span class="p">,</span>
+    <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span><span class="n">DegeneracyStratification</span><span class="p">()]</span>
+<span class="p">)</span>
+
+<span class="c1"># parse SFS</span>
+<span class="n">spectra</span><span class="p">:</span> <span class="n">Spectra</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Using stratification: [neutral,selected].
+INFO:fastdfe:Counting number of sites.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2439037it [00:41, 58179.14it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Starting to parse.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2439037/2439037 [01:50&lt;00:00, 22171.54it/s]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># visualize SFS</span>
+<span class="n">spectra</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
+</pre></div>
+</div>
+<img alt="../_images/aacc6e2117a6933b1bb115c5d5f2731b9555bb990843275f4031759cf3448008.png" src="../_images/aacc6e2117a6933b1bb115c5d5f2731b9555bb990843275f4031759cf3448008.png" />
+</div>
+</div>
+<p>fastDFE relies on VCF info tags to determine the degeneracy of a site but this behaviour can be customized (cf. <a class="reference internal" href="../modules/parser.html#fastdfe.parser.DegeneracyStratification" title="fastdfe.parser.DegeneracyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyStratification</span></code></a>).</p>
+<p>We can also increase the number of stratifications by specifying a list of stratifications. In this example, we will stratify the SFS by synonymous vs. non-synonymous mutations and by base transitions.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">ReferenceBaseStratification</span>
+
+<span class="c1"># instantiate parser</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span>
+    <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">vcf_file</span><span class="o">=</span><span class="n">vcf_file</span><span class="p">,</span>
+    <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span><span class="n">DegeneracyStratification</span><span class="p">(),</span> <span class="n">ReferenceBaseStratification</span><span class="p">()]</span>
+<span class="p">)</span>
+
+<span class="c1"># parse SFS</span>
+<span class="n">spectra</span><span class="p">:</span> <span class="n">Spectra</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Using stratification: [neutral,selected].[A,C,G,T].
+INFO:fastdfe:Counting number of sites.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2439037it [00:42, 57016.95it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Starting to parse.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2439037/2439037 [02:00&lt;00:00, 20291.49it/s]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># visualize SFS</span>
+<span class="n">spectra</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
+</pre></div>
+</div>
+<img alt="../_images/25511f9652c30bdf101ed352ef1297d808d0d93620418a528c01c396eb72c433.png" src="../_images/25511f9652c30bdf101ed352ef1297d808d0d93620418a528c01c396eb72c433.png" />
+</div>
+</div>
+<p>Note that fastDFE required the ancestral state of sites to be determined. <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a> does this by looking at the ``AA<code class="docutils literal notranslate"> <span class="pre">field</span> <span class="pre">but</span> <span class="pre">this</span> <span class="pre">can</span> <span class="pre">be</span> <span class="pre">customized.</span> <span class="pre">We</span> <span class="pre">admit</span> <span class="pre">there</span> <span class="pre">is</span> <span class="pre">currently</span> <span class="pre">no</span> <span class="pre">easy</span> <span class="pre">method</span> <span class="pre">for</span> <span class="pre">determining</span> <span class="pre">the</span> <span class="pre">ancestral</span> <span class="pre">states</span> <span class="pre">directly</span> <span class="pre">from</span> <span class="pre">a</span> <span class="pre">VCF</span> <span class="pre">file</span> <span class="pre">and</span> <span class="pre">are</span> <span class="pre">working</span> <span class="pre">on</span> <span class="pre">implementing</span> <span class="pre">one.</span> <span class="pre">You</span> <span class="pre">can</span> <span class="pre">also</span> <span class="pre">define</span> <span class="pre">custom</span> <span class="pre">Stratifications</span> <span class="pre">by</span> <span class="pre">extending</span> <span class="pre">{class}</span></code>~fastdfe.parser.Stratification`).</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="spectra.html" class="btn btn-neutral float-left" title="Manipulating site-frequency spectra" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../reference/logging.html" class="btn btn-neutral float-right" title="Logging" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Janek Sendrowski.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
