@@ -10,7 +10,7 @@ import gzip
 import itertools
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Callable, Literal, Optional
+from typing import List, Callable, Literal, Optional, TextIO
 
 import numpy as np
 from cyvcf2 import VCF, Variant
@@ -268,13 +268,21 @@ class Parser:
         self.sfs = self.create_sfs_dictionary()
 
     @staticmethod
-    def open_file(file: str):
+    def open_file(file: str) -> TextIO:
+        """
+        Open a file, either gzipped or not.
+        :param file:
+        :return: stream
+        """
         if file.endswith('.gz'):
             return gzip.open(file, "rt")
 
         return open(file, 'r')
 
     def count_lines_vcf(self):
+        """
+        Count the number of sites in the VCF file.
+        """
         from . import disable_pbar
 
         i = 0
