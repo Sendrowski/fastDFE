@@ -16,7 +16,7 @@ from .json_handlers import CustomEncoder
 from .optimization import Covariate
 from .optimization import SharedParams, merge_dicts
 from .parametrization import Parametrization, from_string, to_string
-from .polydfe import parse_init_file, models, create_sfs_config, create_init_file
+from .polydfe_utils import create_sfs_config, parse_init_file, create_init_file, models
 from .spectrum import Spectra, parse_polydfe_sfs_config
 
 logger = logging.getLogger('fastdfe')
