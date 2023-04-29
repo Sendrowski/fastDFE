@@ -105,10 +105,12 @@
 </section>
 <section id="fastdfe-abstract-inference-module">
 <h2>fastdfe.abstract_inference module<a class="headerlink" href="#fastdfe-abstract-inference-module" title="Permalink to this heading"></a></h2>
+<p>Abstract inference class and static utilities.</p>
 <dl class="py class">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.abstract_inference.</span></span><span class="sig-name descname"><span class="pre">Inference</span></span></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Static utility methods for inference objects.</p>
 <dl class="py method">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot_discretized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inferences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">fastdfe.abstract_inference.AbstractInference</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([-inf,</span> <span class="pre">-100.,</span> <span class="pre">-10.,</span> <span class="pre">-1.,</span> <span class="pre">0.,</span> <span class="pre">1.,</span> <span class="pre">inf])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_intervals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bootstrap_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'percentile'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'bca'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'percentile'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'discretized</span> <span class="pre">DFEs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">matplotlib.axes._axes.Axes</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
@@ -430,14 +432,13 @@ Note that the DFE parametrization needs to be the same for all inference objects
 </section>
 <section id="fastdfe-base-inference-module">
 <h2>fastdfe.base_inference module<a class="headerlink" href="#fastdfe-base-inference-module" title="Permalink to this heading"></a></h2>
-<p>Infer the DFE from the SFS using discretized DFE.</p>
+<p>Base inference class.</p>
 <dl class="py class">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.base_inference.</span></span><span class="sig-name descname"><span class="pre">BaseInference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sfs_neut:</span> <span class="pre">fastdfe.spectrum.Spectra</span> <span class="pre">|</span> <span class="pre">fastdfe.spectrum.Spectrum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sfs_sel:</span> <span class="pre">fastdfe.spectrum.Spectra</span> <span class="pre">|</span> <span class="pre">fastdfe.spectrum.Spectrum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals_del:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span> <span class="pre">=</span> <span class="pre">(-100000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">-1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals_ben:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span> <span class="pre">=</span> <span class="pre">(1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">10000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_mode:</span> <span class="pre">typing.Literal['midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'quad']</span> <span class="pre">=</span> <span class="pre">'midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linearized:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">fastdfe.parametrization.Parametrization</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GammaExpParametrization'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tuple]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type:</span> <span class="pre">typing.Literal['likelihood'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'L2']</span> <span class="pre">=</span> <span class="pre">'likelihood'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts_mle:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_runs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_bootstrap:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bootstraps:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallelize:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discretization:</span> <span class="pre">typing.Optional[fastdfe.discretization.Discretization]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization:</span> <span class="pre">typing.Optional[fastdfe.optimization.Optimization]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locked:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractInference</span></code></p>
-<p>Base inference class for inferring the SFS given one
-neutral and one selected SFS.
-Note that Inference is by default seeded.</p>
+<p>Base inference class for inferring the SFS given one neutral and one selected SFS.
+Note that BaseInference is by default seeded.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>TODO add confidence intervals for inferred SFS.</p>
@@ -1343,11 +1344,12 @@ model using likelihood ratio tests.</p>
 </section>
 <section id="fastdfe-bootstrap-module">
 <h2>fastdfe.bootstrap module<a class="headerlink" href="#fastdfe-bootstrap-module" title="Permalink to this heading"></a></h2>
-<p>Infer the DFE from the SFS using discretized DFE.</p>
+<p>Bootstrap utilities.</p>
 <dl class="py class">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.bootstrap.</span></span><span class="sig-name descname"><span class="pre">Bootstrap</span></span></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Bootstrap utilities.</p>
 <dl class="py method">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_bounds_from_quantile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span></dt>
@@ -1440,12 +1442,13 @@ values and its bootstraps for a list of parameters.</p>
 </section>
 <section id="fastdfe-config-module">
 <h2>fastdfe.config module<a class="headerlink" href="#fastdfe-config-module" title="Permalink to this heading"></a></h2>
-<p>Infer the DFE from the SFS using discretized DFE.</p>
+<p>Configuration class.</p>
 <dl class="py class">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.config.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polydfe_spectra_config:</span> <span class="pre">typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polydfe_init_file:</span> <span class="pre">typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polydfe_init_file_id:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sfs_neut:</span> <span class="pre">typing.Optional[fastdfe.spectrum.Spectra]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sfs_sel:</span> <span class="pre">typing.Optional[fastdfe.spectrum.Spectra]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals_del:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span> <span class="pre">=</span> <span class="pre">(-100000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">-1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals_ben:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span> <span class="pre">=</span> <span class="pre">(1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">10000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_mode:</span> <span class="pre">typing.Literal['midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'quad']</span> <span class="pre">=</span> <span class="pre">'midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linearized:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">fastdfe.parametrization.Parametrization</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GammaExpParametrization'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tuple]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type:</span> <span class="pre">typing.Literal['likelihood'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'L2']</span> <span class="pre">=</span> <span class="pre">'likelihood'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts_mle:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_runs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_params:</span> <span class="pre">typing.List[fastdfe.optimization.SharedParams]</span> <span class="pre">=</span> <span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates:</span> <span class="pre">typing.List[fastdfe.optimization.Covariate]</span> <span class="pre">=</span> <span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_bootstrap:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bootstraps:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallelize:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Configuration class to be used for Inference and polyDFE.</p>
+<p>Configuration class to be used for :class:<code class="docutils literal notranslate"><span class="pre">~fastdfe.base_inference.BaseInference</span></code> and
+:class:<code class="docutils literal notranslate"><span class="pre">fastdfe.shared_inference.SharedInference</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
@@ -1650,6 +1653,7 @@ to the configured DFE parametrization.</p>
 </section>
 <section id="fastdfe-discretization-module">
 <h2>fastdfe.discretization module<a class="headerlink" href="#fastdfe-discretization-module" title="Permalink to this heading"></a></h2>
+<p>Discretization of DFE to SFS transformation.</p>
 <dl class="py function">
 <dt class="sig sig-object py">
 <span class="sig-prename descclassname"><span class="pre">fastdfe.discretization.</span></span><span class="sig-name descname"><span class="pre">get_midpoints_and_spacing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span></dt>
@@ -2009,7 +2013,7 @@ Note that demography is not included here.</p>
 </section>
 <section id="fastdfe-json-handlers-module">
 <h2>fastdfe.json_handlers module<a class="headerlink" href="#fastdfe-json-handlers-module" title="Permalink to this heading"></a></h2>
-<p>Infer the DFE from the SFS using discretized DFE.</p>
+<p>JSON handlers.</p>
 <dl class="py class">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.json_handlers.</span></span><span class="sig-name descname"><span class="pre">NumpyArrayHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span></dt>
@@ -2210,10 +2214,12 @@ Note that demography is not included here.</p>
 </section>
 <section id="fastdfe-mle-module">
 <h2>fastdfe.mle module<a class="headerlink" href="#fastdfe-mle-module" title="Permalink to this heading"></a></h2>
+<p>MLE utilities.</p>
 <dl class="py class">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.mle.</span></span><span class="sig-name descname"><span class="pre">MLE</span></span></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>MLE utilities.</p>
 <dl class="py method">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">log_poisson</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span></dt>
@@ -2268,6 +2274,7 @@ Note that demography is not included here.</p>
 </section>
 <section id="fastdfe-optimization-module">
 <h2>fastdfe.optimization module<a class="headerlink" href="#fastdfe-optimization-module" title="Permalink to this heading"></a></h2>
+<p>Optimization module.</p>
 <dl class="py function">
 <dt class="sig sig-object py">
 <span class="sig-prename descclassname"><span class="pre">fastdfe.optimization.</span></span><span class="sig-name descname"><span class="pre">parallelize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallelize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
@@ -2774,7 +2781,7 @@ This function works for positive, negative, and mixed bounds.</p>
 </section>
 <section id="fastdfe-parametrization-module">
 <h2>fastdfe.parametrization module<a class="headerlink" href="#fastdfe-parametrization-module" title="Permalink to this heading"></a></h2>
-<p>Infer the DFE from the SFS using discretized DFE.</p>
+<p>DFE parametrizations.</p>
 <dl class="py function">
 <dt class="sig sig-object py">
 <span class="sig-prename descclassname"><span class="pre">fastdfe.parametrization.</span></span><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization" title="fastdfe.parametrization.Parametrization"><span class="pre">fastdfe.parametrization.Parametrization</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span></dt>
@@ -3271,6 +3278,13 @@ the parameters sum up to 1.</p>
 </section>
 <section id="fastdfe-parser-module">
 <h2>fastdfe.parser module<a class="headerlink" href="#fastdfe-parser-module" title="Permalink to this heading"></a></h2>
+<p>Parser module.</p>
+<dl class="py data">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fastdfe.parser.</span></span><span class="sig-name descname"><span class="pre">bases</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['A',</span> <span class="pre">'C',</span> <span class="pre">'G',</span> <span class="pre">'T']</span></em></dt>
+<dd><p>the DNA bases</p>
+</dd></dl>
+
 <dl class="py exception">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.parser.</span></span><span class="sig-name descname"><span class="pre">NoTypeException</span></span></dt>
@@ -3532,12 +3546,18 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <dl class="py method">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">open_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
+<dd><p>Open a file, either gzipped or not.
+:type file: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>
+:param file:
+:rtype: <code class="xref py py-class docutils literal notranslate"><span class="pre">TextIO</span></code>
+:return: stream</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">count_lines_vcf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
+<dd><p>Count the number of sites in the VCF file.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py">
@@ -3564,373 +3584,9 @@ If self.use_transitions is True, include the transition to the alternate base.</
 </dd></dl>
 
 </section>
-<section id="fastdfe-polydfe-module">
-<h2>fastdfe.polydfe module<a class="headerlink" href="#fastdfe-polydfe-module" title="Permalink to this heading"></a></h2>
-<p>Infer the DFE from the SFS using discretized DFE.</p>
-<dl class="py function">
-<dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">fastdfe.polydfe.</span></span><span class="sig-name descname"><span class="pre">create_sfs_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sfs_neut</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><span class="pre">fastdfe.spectrum.Spectrum</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sfs_sel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><span class="pre">fastdfe.spectrum.Spectrum</span></a></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Create a sfs config file for polyDFE.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sfs_sel</strong> (<a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a>) – Selected sfs</p></li>
-<li><p><strong>sfs_neut</strong> (<a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a>) – Neutral sfs</p></li>
-<li><p><strong>file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Path to config file</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">fastdfe.polydfe.</span></span><span class="sig-name descname"><span class="pre">parse_init_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dfe_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['eps_deprecated',</span> <span class="pre">'r']</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Parse polyDFE init file.
-This will define the initial parameters and
-which ones will be held fixed during the optimization.
-We do not support fixing some of the polyDFE’s parameters
-like theta and the nuisance parameters. Some other parameters
-are not supported altogether.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>dfe_params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of dfe parameters</p></li>
-<li><p><strong>file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Path to init file</p></li>
-<li><p><strong>id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Init id</p></li>
-<li><p><strong>ignore</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of parameters to ignore</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>(<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>)</p>
-</dd>
-</dl>
-<p>:return Dictionary of fixed parameters and dictionary of initial values</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">fastdfe.polydfe.</span></span><span class="sig-name descname"><span class="pre">create_init_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dfe_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Create an init file for polyDFE.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Init id</p></li>
-<li><p><strong>n</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – SFS sample size</p></li>
-<li><p><strong>dfe_params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>) – List of dfe parameters</p></li>
-<li><p><strong>x0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Dictionary of initial values</p></li>
-<li><p><strong>fixed_params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>) – List of fixed parameters</p></li>
-<li><p><strong>file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – File path to write init file to</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.polydfe.</span></span><span class="sig-name descname"><span class="pre">PolyDFEResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocessing_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'resources/polydfe/postprocessing/script.R'</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">default_postprocessing_source</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'resources/polydfe/postprocessing/script.R'</span></em></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">param_mapping</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'eps_an':</span> <span class="pre">'eps'}</span></em></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">map_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Map polyDFE parameter name to new name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – polyDFE parameter name</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>New name</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">parse_output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Parse output from polyDFE output file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionary of parsed data</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">get_alpha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parsed_output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">rpy2.robjects.vectors.ListVector</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Get alpha, the proportion of beneficial non-synonymous substitutions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Parsed output from polyDFE</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">get_postprocessing_wrapper</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Get the wrapped polyDFE postprocessing source.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">R</span></code></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>R object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Convert object to JSON.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>JSON string</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Save object to file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>File path to save to</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.polydfe.</span></span><span class="sig-name descname"><span class="pre">PolyDFE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="modules/config.html#fastdfe.config.Config" title="fastdfe.config.Config"><span class="pre">fastdfe.config.Config</span></a></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractInference</span></code></p>
-<p>polyDFE wrapper.
-Currently only model C is fully implemented.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['eps',</span> <span class="pre">'eps_deprecated',</span> <span class="pre">'lambda',</span> <span class="pre">'theta_bar',</span> <span class="pre">'a']</span></em></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ParamMode</span></span></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Parameter modes in polyDFE input files.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">independent</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">fixed</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">shared</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">map_polydfe_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Map polyDFE model name to native equivalent.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>model</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – polyDFE model name</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Native model name</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="modules/config.html#fastdfe.config.Config" title="fastdfe.config.Config"><span class="pre">Config</span></a></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Load from config object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="modules/config.html#fastdfe.config.Config" title="fastdfe.config.Config"><em>Config</em></a>) – Config object</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Load from config object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'polydfe'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execute</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocessing_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'resources/polydfe/postprocessing/script.R'</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Run polyDFE.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>postprocessing_source</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – polyDFE postprocessing source</p></li>
-<li><p><strong>execute</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – Function for executing shell commands</p></li>
-<li><p><strong>wd</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Working directory</p></li>
-<li><p><strong>bin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – polyDFE binary</p></li>
-<li><p><strong>output_file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Output file</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">PolyDFEResult</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>polyDFE summary</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">create_bootstrap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Create a bootstrap sample using polyDFE’s resampling.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="modules/config.html#fastdfe.config.Config" title="fastdfe.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Config object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">add_bootstraps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bootstraps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">fastdfe.polydfe.PolyDFE</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Add bootstraps samples.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>bootstraps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">PolyDFE</span></code>]) – List of bootstrap samples</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">plot_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Plot everything.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">plot_inferred_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'lin'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'log'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'log'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">matplotlib.axes._axes.Axes</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Visualize the inferred parameters and their confidence intervals.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>scale</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'lin'</span></code>, <code class="docutils literal notranslate"><span class="pre">'log'</span></code>]) – Scale of the y-axis</p></li>
-<li><p><strong>file</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – File to save the plot to</p></li>
-<li><p><strong>show</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Show the plot</p></li>
-<li><p><strong>ax</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code>]) – Axes object</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Axes object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">get_bootstrap_param_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Parameter names for parameters included in bootstraps.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List of parameter names</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">get_bootstrap_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Get the parameters to be included in the bootstraps.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dict of parameters</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">params_mle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em></dt>
-<dd><p>Get the maximum likelihood estimate of the parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict of parameters</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization" title="fastdfe.parametrization.Parametrization"><span class="pre">Parametrization</span></a></em></dt>
-<dd><p>Get the DFE parametrization.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Parametrization</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</section>
 <section id="fastdfe-shared-inference-module">
 <h2>fastdfe.shared_inference module<a class="headerlink" href="#fastdfe-shared-inference-module" title="Permalink to this heading"></a></h2>
+<p>Shared inference module.</p>
 <dl class="py class">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.shared_inference.</span></span><span class="sig-name descname"><span class="pre">SharedInference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sfs_neut:</span> <span class="pre">fastdfe.spectrum.Spectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sfs_sel:</span> <span class="pre">fastdfe.spectrum.Spectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_divergence:</span> <span class="pre">typing.Optional[bool]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals_del:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span> <span class="pre">=</span> <span class="pre">(-100000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">-1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals_ben:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span> <span class="pre">=</span> <span class="pre">(1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">10000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_mode:</span> <span class="pre">typing.Literal['midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'quad']</span> <span class="pre">=</span> <span class="pre">'midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linearized:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">fastdfe.parametrization.Parametrization</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GammaExpParametrization'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tuple]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type:</span> <span class="pre">typing.Literal['likelihood'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'L2']</span> <span class="pre">=</span> <span class="pre">'likelihood'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts_mle:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_runs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_params:</span> <span class="pre">typing.List[fastdfe.optimization.SharedParams]</span> <span class="pre">=</span> <span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates:</span> <span class="pre">typing.List[fastdfe.optimization.Covariate]</span> <span class="pre">=</span> <span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_bootstrap:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bootstraps:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallelize:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
@@ -5022,7 +4678,7 @@ polyDFE configuration file.</p>
 </section>
 <section id="fastdfe-visualization-module">
 <h2>fastdfe.visualization module<a class="headerlink" href="#fastdfe-visualization-module" title="Permalink to this heading"></a></h2>
-<p>Infer the DFE from the SFS using discretized DFE.</p>
+<p>Visualization module.</p>
 <dl class="py class">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.visualization.</span></span><span class="sig-name descname"><span class="pre">Visualization</span></span></dt>
@@ -5987,7 +5643,8 @@ fewer parameters.</p>
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polydfe_spectra_config:</span> <span class="pre">typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polydfe_init_file:</span> <span class="pre">typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polydfe_init_file_id:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sfs_neut:</span> <span class="pre">typing.Optional[fastdfe.spectrum.Spectra]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sfs_sel:</span> <span class="pre">typing.Optional[fastdfe.spectrum.Spectra]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals_del:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span> <span class="pre">=</span> <span class="pre">(-100000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">-1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals_ben:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span> <span class="pre">=</span> <span class="pre">(1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">10000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_mode:</span> <span class="pre">typing.Literal['midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'quad']</span> <span class="pre">=</span> <span class="pre">'midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linearized:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">fastdfe.parametrization.Parametrization</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GammaExpParametrization'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tuple]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type:</span> <span class="pre">typing.Literal['likelihood'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'L2']</span> <span class="pre">=</span> <span class="pre">'likelihood'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts_mle:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_runs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_params:</span> <span class="pre">typing.List[fastdfe.optimization.SharedParams]</span> <span class="pre">=</span> <span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates:</span> <span class="pre">typing.List[fastdfe.optimization.Covariate]</span> <span class="pre">=</span> <span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_bootstrap:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bootstraps:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallelize:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Configuration class to be used for Inference and polyDFE.</p>
+<p>Configuration class to be used for :class:<code class="docutils literal notranslate"><span class="pre">~fastdfe.base_inference.BaseInference</span></code> and
+:class:<code class="docutils literal notranslate"><span class="pre">fastdfe.shared_inference.SharedInference</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
@@ -6193,6 +5850,7 @@ to the configured DFE parametrization.</p>
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.</span></span><span class="sig-name descname"><span class="pre">Inference</span></span></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Static utility methods for inference objects.</p>
 <dl class="py method">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot_discretized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inferences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">fastdfe.abstract_inference.AbstractInference</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([-inf,</span> <span class="pre">-100.,</span> <span class="pre">-10.,</span> <span class="pre">-1.,</span> <span class="pre">0.,</span> <span class="pre">1.,</span> <span class="pre">inf])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_intervals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bootstrap_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'percentile'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'bca'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'percentile'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'discretized</span> <span class="pre">DFEs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">matplotlib.axes._axes.Axes</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
@@ -6366,9 +6024,8 @@ Note that the DFE parametrization needs to be the same for all inference objects
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.</span></span><span class="sig-name descname"><span class="pre">BaseInference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sfs_neut:</span> <span class="pre">fastdfe.spectrum.Spectra</span> <span class="pre">|</span> <span class="pre">fastdfe.spectrum.Spectrum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sfs_sel:</span> <span class="pre">fastdfe.spectrum.Spectra</span> <span class="pre">|</span> <span class="pre">fastdfe.spectrum.Spectrum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals_del:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span> <span class="pre">=</span> <span class="pre">(-100000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">-1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals_ben:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span> <span class="pre">=</span> <span class="pre">(1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">10000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_mode:</span> <span class="pre">typing.Literal['midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'quad']</span> <span class="pre">=</span> <span class="pre">'midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linearized:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">fastdfe.parametrization.Parametrization</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GammaExpParametrization'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tuple]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type:</span> <span class="pre">typing.Literal['likelihood'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'L2']</span> <span class="pre">=</span> <span class="pre">'likelihood'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts_mle:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_runs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_bootstrap:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bootstraps:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallelize:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discretization:</span> <span class="pre">typing.Optional[fastdfe.discretization.Discretization]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization:</span> <span class="pre">typing.Optional[fastdfe.optimization.Optimization]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locked:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractInference</span></code></p>
-<p>Base inference class for inferring the SFS given one
-neutral and one selected SFS.
-Note that Inference is by default seeded.</p>
+<p>Base inference class for inferring the SFS given one neutral and one selected SFS.
+Note that BaseInference is by default seeded.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>TODO add confidence intervals for inferred SFS.</p>
@@ -7959,229 +7616,6 @@ with the given covariate.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.</span></span><span class="sig-name descname"><span class="pre">PolyDFE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="modules/config.html#fastdfe.config.Config" title="fastdfe.config.Config"><span class="pre">fastdfe.config.Config</span></a></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractInference</span></code></p>
-<p>polyDFE wrapper.
-Currently only model C is fully implemented.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['eps',</span> <span class="pre">'eps_deprecated',</span> <span class="pre">'lambda',</span> <span class="pre">'theta_bar',</span> <span class="pre">'a']</span></em></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ParamMode</span></span></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Parameter modes in polyDFE input files.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">independent</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">fixed</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">shared</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">output_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">execution_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">summary</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">PolyDFEResult</span></code><span class="pre">]</span></em></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">bootstraps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code><span class="pre">]</span></em></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">map_polydfe_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Map polyDFE model name to native equivalent.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>model</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – polyDFE model name</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Native model name</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="modules/config.html#fastdfe.config.Config" title="fastdfe.config.Config"><span class="pre">Config</span></a></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Load from config object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="modules/config.html#fastdfe.config.Config" title="fastdfe.config.Config"><em>Config</em></a>) – Config object</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Load from config object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'polydfe'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execute</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocessing_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'resources/polydfe/postprocessing/script.R'</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Run polyDFE.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>postprocessing_source</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – polyDFE postprocessing source</p></li>
-<li><p><strong>execute</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – Function for executing shell commands</p></li>
-<li><p><strong>wd</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Working directory</p></li>
-<li><p><strong>bin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – polyDFE binary</p></li>
-<li><p><strong>output_file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Output file</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">PolyDFEResult</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>polyDFE summary</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">create_bootstrap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Create a bootstrap sample using polyDFE’s resampling.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="modules/config.html#fastdfe.config.Config" title="fastdfe.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Config object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">add_bootstraps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bootstraps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">fastdfe.polydfe.PolyDFE</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Add bootstraps samples.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>bootstraps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">PolyDFE</span></code>]) – List of bootstrap samples</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">plot_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Plot everything.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">plot_inferred_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'lin'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'log'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'log'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">matplotlib.axes._axes.Axes</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Visualize the inferred parameters and their confidence intervals.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>scale</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'lin'</span></code>, <code class="docutils literal notranslate"><span class="pre">'log'</span></code>]) – Scale of the y-axis</p></li>
-<li><p><strong>file</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – File to save the plot to</p></li>
-<li><p><strong>show</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Show the plot</p></li>
-<li><p><strong>ax</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code>]) – Axes object</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Axes object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">get_bootstrap_param_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Parameter names for parameters included in bootstraps.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List of parameter names</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">get_bootstrap_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Get the parameters to be included in the bootstraps.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dict of parameters</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">params_mle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em></dt>
-<dd><p>Get the maximum likelihood estimate of the parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict of parameters</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization" title="fastdfe.parametrization.Parametrization"><span class="pre">Parametrization</span></a></em></dt>
-<dd><p>Get the DFE parametrization.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Parametrization</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.</span></span><span class="sig-name descname"><span class="pre">Visualization</span></span></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Visualization class.</p>
@@ -9211,12 +8645,18 @@ Note that we ignore zero counts in the last entry i.e. fixed derived alleles.</p
 <dl class="py method">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">open_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
+<dd><p>Open a file, either gzipped or not.
+:type file: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>
+:param file:
+:rtype: <code class="xref py py-class docutils literal notranslate"><span class="pre">TextIO</span></code>
+:return: stream</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">count_lines_vcf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
+<dd><p>Count the number of sites in the VCF file.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py">
