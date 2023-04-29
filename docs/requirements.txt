@@ -3,4 +3,16 @@ sphinx_rtd_theme
 sphinx-autodoc-typehints
 sphinx-copybutton
 myst-nb
-fastdfe
+typing-extensions
+matplotlib
+seaborn
+numpy
+pandas
+scipy
+jsonpickle
+multiprocess
+pyyaml
+cyvcf2
+pyfaidx
+tqdm
+mpmath
