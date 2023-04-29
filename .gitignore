@@ -1,5 +1,10 @@
-/snakemake/slurm/logs/
 /resources/genome/
 /snakemake/results/vcf/
-/snakemake/.snakemake/
+.snakemake/
+.snakemake_timestamp
 /dist/
+.DS_Store
+.idea/
+__pycache__/
+scratch/
+slurm/
