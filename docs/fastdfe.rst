@@ -94,15 +94,6 @@ fastdfe.parser module
    :show-inheritance:
    :noindex:
 
-fastdfe.polydfe module
-----------------------
-
-.. automodule:: fastdfe.polydfe
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :noindex:
-
 fastdfe.shared\_inference module
 --------------------------------
 
