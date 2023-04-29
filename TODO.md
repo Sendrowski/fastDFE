@@ -2,3 +2,4 @@
 - add annotator
 - add snakefile for EST-SFS
 - bootstraps don't terminate normally for SharedInference in docs
+- module index not working
