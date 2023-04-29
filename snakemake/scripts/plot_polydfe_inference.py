@@ -24,9 +24,9 @@ except NameError:
     out_dfe_discretized = "scratch/dfe_discretized.png"
     out_mle_params = "scratch/mle_params.png"
 
-import fastdfe
+from fastdfe.polydfe import PolyDFE
 
-inference = fastdfe.PolyDFE.from_file(input)
+inference = PolyDFE.from_file(input)
 
 inference.plot_inferred_parameters(out_mle_params, show=testing)
 inference.plot_discretized(out_dfe_discretized, show=testing)

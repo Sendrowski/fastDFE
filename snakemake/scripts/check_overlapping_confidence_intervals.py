@@ -25,10 +25,11 @@ except ModuleNotFoundError:
     input_fastdfe = 'results/fastdfe/pendula_C_full_bootstrapped_100/serialized.json'
     input_polydfe = 'results/polydfe/pendula_C_full_bootstrapped_100/serialized.json'
 
-import fastdfe
+from fastdfe import BaseInference
+from fastdfe.polydfe import PolyDFE
 
-fastdfe = fastdfe.BaseInference.from_file(input_fastdfe)
-polydfe = fastdfe.PolyDFE.from_file(input_polydfe)
+fastdfe = BaseInference.from_file(input_fastdfe)
+polydfe = PolyDFE.from_file(input_polydfe)
 
 res = dict(
     fastdfe=fastdfe.get_errors_discretized_dfe(),

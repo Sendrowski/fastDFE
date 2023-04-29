@@ -36,12 +36,13 @@ except ModuleNotFoundError:
     # set log level to debug
     logging.getLogger('fastdfe').setLevel(logging.DEBUG)
 
-import fastdfe
+from fastdfe import Config
+from fastdfe.polydfe import PolyDFE
 import os
 
-config = fastdfe.Config.from_file(config_file)
+config = Config.from_file(config_file)
 
-polydfe = fastdfe.PolyDFE(config)
+polydfe = PolyDFE(config)
 summary = polydfe.run(out, bin=bin, wd=os.getcwd(), execute=execute)
 
 # save summary to file

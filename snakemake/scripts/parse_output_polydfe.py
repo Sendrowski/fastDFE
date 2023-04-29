@@ -26,7 +26,7 @@ except NameError:
     out = 'scratch/polydfe_out.json'
 
 import json
-import fastdfe
+from fastdfe.polydfe import PolyDFE
 
 with open(out, 'w') as fh:
-    json.dump(fastdfe.PolyDFE.parse_output(input, postprocessing_source), fh, indent=4)
+    json.dump(PolyDFE.parse_output(input, postprocessing_source), fh, indent=4)

@@ -3,12 +3,12 @@ from unittest import TestCase
 
 import pytest
 
-import fastdfe
+from fastdfe.polydfe import PolyDFEResult, PolyDFE
 
 
 class PolyDFEWrapperTestCase(TestCase):
     polydfe_bin = 'resources/polydfe/bin/polyDFE-2.0-macOS-64-bit'
-    postprocessing_source = os.getcwd() + '/' + fastdfe.PolyDFEResult.default_postprocessing_source
+    postprocessing_source = os.getcwd() + '/' + PolyDFEResult.default_postprocessing_source
 
     config = "testing/configs/pendula_C_full_anc/config.yaml"
     serialized = "testing/polydfe/pendula_C_full_anc/serialized.json"
@@ -18,7 +18,7 @@ class PolyDFEWrapperTestCase(TestCase):
         Run polyDFE from config.
         """
         # run polyDFE
-        polydfe = fastdfe.PolyDFE.from_config_file(self.config)
+        polydfe = PolyDFE.from_config_file(self.config)
         polydfe.run(f"scratch/test_run_polydfe_from_config.txt",
                     bin=self.polydfe_bin, postprocessing_source=self.postprocessing_source)
 
@@ -29,7 +29,7 @@ class PolyDFEWrapperTestCase(TestCase):
         Serialize polyDFE wrapper and restore.
         """
         # run polyDFE
-        polydfe = fastdfe.PolyDFE.from_config_file(self.config)
+        polydfe = PolyDFE.from_config_file(self.config)
 
         polydfe.run(
             output_file="scratch/test_restore_serialized_wrapper.json",
@@ -49,11 +49,11 @@ class PolyDFEWrapperTestCase(TestCase):
         Serialize polyDFE wrapper and restore.
         """
         # run polyDFE
-        polydfe = fastdfe.PolyDFE.from_file(self.serialized)
+        polydfe = PolyDFE.from_file(self.serialized)
 
         config = polydfe.create_bootstrap()
 
-        bootstrap = fastdfe.PolyDFE(config)
+        bootstrap = PolyDFE(config)
 
         bootstrap.run(
             output_file="scratch/test_run_bootstrap_sample.json",
@@ -65,6 +65,6 @@ class PolyDFEWrapperTestCase(TestCase):
         """
         Plot everything possible.
         """
-        polydfe = fastdfe.PolyDFE.from_file(self.serialized)
+        polydfe = PolyDFE.from_file(self.serialized)
 
         polydfe.plot_all()

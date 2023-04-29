@@ -23,10 +23,10 @@ except NameError:
     input = 'scratch/polydfe_wrapper.json'
     out = 'scratch/polydfe_config.yaml'
 
-import fastdfe
+from fastdfe.polydfe import PolyDFE
 
 # restore polyDFE wrapper from file
-polydfe = fastdfe.PolyDFE.from_file(input)
+polydfe = PolyDFE.from_file(input)
 
 # create bootstrap
 config = polydfe.create_bootstrap()

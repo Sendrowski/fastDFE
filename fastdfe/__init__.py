@@ -57,7 +57,6 @@ from .abstract_inference import Inference
 from .base_inference import BaseInference, InferenceResults
 from .shared_inference import SharedInference, SharedParams
 from .optimization import Covariate
-from .polydfe import PolyDFE, PolyDFEResult
 from .visualization import Visualization
 from .spectrum import Spectrum, Spectra
 from .parser import Parser, BaseTransitionStratification, BaseContextStratification, DegeneracyStratification, \
@@ -75,7 +74,6 @@ __all__ = [
     'SharedInference',
     'SharedParams',
     'Covariate',
-    'PolyDFE',
     'Visualization',
     'Spectrum',
     'Spectra',

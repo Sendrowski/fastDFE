@@ -25,7 +25,8 @@ except NameError:
     out_discretized = "scratch/comp_discretized.png"
     out_params = "scratch/comp_inferred_params.png"
 
-from fastdfe import BaseInference, Inference, PolyDFE
+from fastdfe import BaseInference, Inference
+from fastdfe.polydfe import PolyDFE
 
 inferences = [BaseInference.from_file(input_fastdfe), PolyDFE.from_file(input_polydfe)]
 

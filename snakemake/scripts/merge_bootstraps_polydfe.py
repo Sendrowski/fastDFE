@@ -25,11 +25,11 @@ except NameError:
     files_bootstrap = ['results/polydfe/pendula_C_full_anc/serialized.json' for i in range(10)]
     out = 'scratch/polydfe_bs.json'
 
-import fastdfe
+from fastdfe.polydfe import PolyDFE
 
 # load from file
-original = fastdfe.PolyDFE.from_file(file_original)
-bootstraps = [fastdfe.PolyDFE.from_file(f) for f in files_bootstrap]
+original = PolyDFE.from_file(file_original)
+bootstraps = [PolyDFE.from_file(f) for f in files_bootstrap]
 
 # add bootstraps
 original.add_bootstraps(bootstraps)
