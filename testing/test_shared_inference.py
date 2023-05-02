@@ -1,3 +1,7 @@
+from testing import prioritize_installed_packages
+
+prioritize_installed_packages()
+
 import pytest
 
 from fastdfe import SharedInference, Config, SharedParams, Covariate

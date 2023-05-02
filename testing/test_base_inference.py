@@ -1,5 +1,9 @@
+from testing import prioritize_installed_packages
+
+prioritize_installed_packages()
+
 import copy
-from unittest import TestCase, mock
+from unittest import mock, TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -319,15 +323,27 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         # bootstrap
         inference.bootstrap(2)
 
-    def test_compare_nested_likelihoods(self):
+    def test_compare_nested_likelihoods_with_bootstrap(self):
         """
         Compare nested likelihoods.
         """
         # unserialize
         inference = BaseInference.from_config_file(self.config_file)
 
-        # bootstrap
         inference.compare_nested_models()
+
+        inference.plot_nested_likelihoods()
+
+    def test_compare_nested_likelihoods_without_bootstrap(self):
+        """
+        Compare nested likelihoods.
+        """
+        # unserialize
+        inference = BaseInference.from_config_file(self.config_file)
+
+        inference.compare_nested_models(do_bootstrap=False)
+
+        inference.plot_nested_likelihoods(do_bootstrap=False)
 
     def test_plot_nested_model_comparison_without_running(self):
         """
@@ -337,7 +353,6 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         # unserialize
         inference = BaseInference.from_config_file(self.config_file)
 
-        # bootstrap
         inference.plot_nested_likelihoods()
 
     def test_cached_result(self):

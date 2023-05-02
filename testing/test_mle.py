@@ -1,3 +1,7 @@
+from testing import prioritize_installed_packages
+
+prioritize_installed_packages()
+
 from unittest import TestCase
 
 from scipy.special import factorial

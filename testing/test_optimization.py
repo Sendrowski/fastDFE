@@ -1,3 +1,7 @@
+from testing import prioritize_installed_packages
+
+prioritize_installed_packages()
+
 from typing import Literal, List
 from unittest import TestCase
 

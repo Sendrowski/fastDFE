@@ -988,11 +988,12 @@ class BaseInference(AbstractInference):
 
     @run_if_required_wrapper
     @functools.lru_cache
-    def compare_nested_models(self) -> (np.ndarray, Dict[str, 'BaseInference']):
+    def compare_nested_models(self, do_bootstrap: bool = True) -> (np.ndarray, Dict[str, 'BaseInference']):
         """
         Compare the various nested versions of the specified
         model using likelihood ratio tests.
 
+        :param do_bootstrap: Whether to perform bootstrapping. This is recommended to get more accurate p-values.
         :return: Matrix of p-values, dict of base inference objects
         """
 
@@ -1010,7 +1011,7 @@ class BaseInference(AbstractInference):
             inference = copy.deepcopy(self)
 
             # disable bootstraps
-            inference.do_bootstrap = False
+            inference.do_bootstrap = do_bootstrap
 
             # dict of params to be fixed
             params = dict(all=submodels_dfe[p[0]] | submodels_outer[p[1]])
@@ -1053,6 +1054,7 @@ class BaseInference(AbstractInference):
             cmap: str = None,
             title: str = 'nested model comparison',
             ax: plt.Axes = None,
+            do_bootstrap: bool = True
 
     ) -> plt.Axes:
         """
@@ -1065,10 +1067,11 @@ class BaseInference(AbstractInference):
         :param cmap: Colormap to use.
         :param title: Plot title.
         :param ax: Axes object to plot on.
+        :param do_bootstrap: Whether to perform bootstrapping. This is recommended to get more accurate p-values.
         :return: Axes object
         """
         # get p-values and names
-        P, inferences = self.compare_nested_models()
+        P, inferences = self.compare_nested_models(do_bootstrap=do_bootstrap)
 
         # define labels
         labels_x = np.array(list(inferences.keys()))
