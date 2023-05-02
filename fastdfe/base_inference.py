@@ -460,12 +460,17 @@ class BaseInference(AbstractInference):
             if value is not None:
                 setattr(self, key, value)
 
-    def bootstrap(self, n_samples: int = None, parallelize: bool = None) -> pd.DataFrame:
+    def bootstrap(
+            self, n_samples: int = None,
+            parallelize: bool = None,
+            update_likelihood: bool = True
+    ) -> pd.DataFrame:
         """
         Perform the parametric bootstrap.
 
         :param n_samples: Number of bootstrap samples.
         :param parallelize: Whether to parallelize the bootstrap.
+        :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples.
         :return: Dataframe with bootstrap results.
         """
         # check if locked
@@ -522,6 +527,10 @@ class BaseInference(AbstractInference):
 
         # add execution time
         self.execution_time += time.time() - start_time
+
+        # determine average likelihood of successful runs
+        if update_likelihood:
+            self.likelihood = np.mean([-res.fun for res in result[:, 0] if res.success] + [self.likelihood])
 
         return self.bootstraps
 

@@ -516,12 +516,18 @@ class SharedInference(BaseInference):
 
         return params
 
-    def bootstrap(self, n_samples: int = None, parallelize: bool = None) -> Optional[pd.DataFrame]:
+    def bootstrap(
+            self,
+            n_samples: int = None,
+            parallelize: bool = None,
+            update_likelihood: bool = True
+    ) -> Optional[pd.DataFrame]:
         """
         Perform the parametric bootstrap both for the marginal and joint inferences.
 
         :param n_samples: Number of bootstrap samples
         :param parallelize: Whether to parallelize computations
+        :param update_likelihood: Whether to update the likelihood
         :return: DataFrame with bootstrap samples
         """
         # perform inference first if not done yet
@@ -590,6 +596,10 @@ class SharedInference(BaseInference):
 
         # add execution time
         self.execution_time += time.time() - start_time
+
+        # determine average likelihood of successful runs
+        if update_likelihood:
+            self.likelihood = np.mean([-res.fun for res in result[:, 0] if res.success] + [self.likelihood])
 
         return self.bootstraps
 
