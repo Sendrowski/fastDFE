@@ -1,3 +1,4 @@
+import copy
 from unittest import TestCase, mock
 
 import matplotlib.pyplot as plt
@@ -6,7 +7,7 @@ import pandas as pd
 from numpy.random._generator import Generator
 from scipy.optimize import OptimizeResult
 
-from fastdfe import Spectrum, BaseInference, Config, Spectra
+from fastdfe import Spectrum, BaseInference, Config, Spectra, GammaExpParametrization
 
 
 class AbstractInferenceTestCase(TestCase):
@@ -68,12 +69,134 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
     maxDiff = None
 
-    def test_run_inference_from_config(self):
+    def test_run_inference_from_config_parallelized(self):
         """
         Successfully run inference from config file.
         """
-        inference = BaseInference.from_config_file(self.config_file)
+        config = Config.from_file(self.config_file)
+        config.update(parallelize=True)
+
+        inference = BaseInference.from_config(config)
         inference.run()
+
+    def test_run_inference_from_config_not_parallelized(self):
+        """
+        Successfully run inference from config file.
+        """
+        config = Config.from_file(self.config_file)
+        config.update(parallelize=False)
+
+        inference = BaseInference.from_config(config)
+        inference.run()
+
+    def test_compare_inference_with_log_scales_vs_lin_scales(self):
+        """
+        Compare inference with log scales vs linear scales.
+        """
+        config = Config.from_file(self.config_file)
+
+        model = GammaExpParametrization()
+        model.scales = dict(
+            S_d='log',
+            b='log',
+            p_b='lin',
+            S_b='log'
+        )
+
+        config.update(
+            model=model,
+            do_bootstrap=True
+        )
+
+        inference_log = BaseInference.from_config(config)
+        inference_log.run()
+
+        model = copy.copy(model)
+        model.scales = dict(
+            S_d='lin',
+            b='lin',
+            p_b='lin',
+            S_b='lin'
+        )
+
+        config.update(model=model)
+        inference_lin = BaseInference.from_config(config)
+        inference_lin.run()
+
+        fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+        inference_lin.plot_inferred_parameters(ax=axs[0], show=False)
+        inference_log.plot_inferred_parameters(ax=axs[1], show=False)
+
+        axs[0].set_title('Linear scales')
+        axs[1].set_title('Log scales')
+
+        plt.tight_layout()
+        plt.show()
+
+        # get confidence intervals
+        cis_lin = inference_lin.get_errors_discretized_dfe()[1]
+        cis_log = inference_log.get_errors_discretized_dfe()[1]
+
+        # assert that the confidence intervals overlap
+        assert np.all(cis_lin[0] < cis_log[1])
+        assert np.all(cis_log[0] < cis_lin[1])
+
+    def test_compare_inference_with_log_scales_vs_lin_scales_tutorial(self):
+        """
+        Compare inference with log scales vs linear scales.
+        """
+        model = GammaExpParametrization()
+        model.scales = dict(
+            S_d='log',
+            b='log',
+            p_b='lin',
+            S_b='log'
+        )
+
+        inference_log = BaseInference(
+            sfs_neut=Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            model=model,
+            do_bootstrap=True
+        )
+        inference_log.run()
+
+        model = copy.copy(model)
+        model.scales = dict(
+            S_d='lin',
+            b='lin',
+            p_b='lin',
+            S_b='lin'
+        )
+
+        inference_lin = BaseInference(
+            sfs_neut=Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            model=model,
+            do_bootstrap=True,
+        )
+        inference_lin.run()
+
+        fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+        inference_lin.plot_discretized(ax=axs[0], show=False)
+        inference_log.plot_discretized(ax=axs[1], show=False)
+
+        axs[0].set_title('Linear scales')
+        axs[1].set_title('Log scales')
+
+        plt.tight_layout()
+        plt.show()
+
+        # get confidence intervals
+        cis_lin = inference_lin.get_errors_discretized_dfe()[1]
+        cis_log = inference_log.get_errors_discretized_dfe()[1]
+
+        # assert that the confidence intervals overlap
+        assert np.all(cis_lin[0] < cis_log[1])
+        assert np.all(cis_log[0] < cis_lin[1])
+
+        # the likelihood is indeed how when optimizing on the log sclae
+        assert inference_log.likelihood > inference_lin.likelihood
 
     def test_restore_serialized_inference(self):
         """
@@ -98,7 +221,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
         self.assertIsNone(inference.bootstraps)
 
-        inference.bootstrap(1, parallelize=False)
+        inference.bootstrap(100, parallelize=False)
 
         self.assertIsNotNone(inference.bootstraps)
 
@@ -112,12 +235,32 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
         assert inference.evaluate_likelihood(dict(all=inference.params_mle)) == inference.likelihood
 
-    def test_visualize_inference(self):
+    def test_visualize_inference_without_bootstraps(self):
         """
         Plot everything possible.
         """
-        # unserialize
-        inference = BaseInference.from_file(self.serialized)
+        config = Config.from_file(self.config_file)
+
+        config.update(
+            do_bootstrap=False
+        )
+
+        inference = BaseInference.from_config(config)
+
+        inference.plot_all(show=self.show_plots)
+        inference.plot_bucket_sizes(show=self.show_plots)
+
+    def test_visualize_inference_with_bootstraps(self):
+        """
+        Plot everything possible.
+        """
+        config = Config.from_file(self.config_file)
+
+        config.update(
+            do_bootstrap=True
+        )
+
+        inference = BaseInference.from_config(config)
 
         inference.plot_all(show=self.show_plots)
         inference.plot_bucket_sizes(show=self.show_plots)

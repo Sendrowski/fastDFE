@@ -103,7 +103,7 @@ def unflatten_dict(d: dict, separator='.'):
     return res
 
 
-def unpack_params(x: np.ndarray, original: Dict[str, dict]) -> Dict[str, dict]:
+def unpack_params(x: np.ndarray, original: Dict[str, dict | tuple | float]) -> Dict[str, dict | tuple | float]:
     """
     Unpack params from numpy array. This is the inverse of pack_params and is used
     as scipy.optimize.minimize only accepts numpy arrays as parameters.
@@ -117,7 +117,7 @@ def unpack_params(x: np.ndarray, original: Dict[str, dict]) -> Dict[str, dict]:
     return unflatten_dict(dict(zip(keys, x)))
 
 
-def pack_params(params: Dict[str, dict]) -> np.ndarray:
+def pack_params(params: Dict[str, dict | tuple | float]) -> np.ndarray:
     """
     Pack params into numpy array. This is used as scipy.optimize.minimize only accepts
     numpy arrays as parameters. This is the inverse of unpack_params.
@@ -337,6 +337,231 @@ def evaluate_counts(get_counts: dict, params: dict):
     return counts
 
 
+def to_symlog(x: float, linthresh: float = 1e-5) -> float:
+    """
+    Convert a value to the symlog scale.
+
+    :param x: The input value on the original scale.
+    :param linthresh: The positive value that determines the range within which the
+                      symlog scale is linear. Must be greater than 0.
+    :return: The value on the symlog scale.
+    """
+    sign = np.sign(x)
+    abs_x = np.abs(x)
+    log_x = np.log10(abs_x + linthresh) - np.log10(linthresh)
+
+    return sign * (abs_x / linthresh if abs_x <= linthresh else log_x)
+
+
+def from_symlog(y: float, linthresh: float = 1e-5) -> float:
+    """
+    Convert a value from the symlog scale back to the original scale.
+
+    :param y: The input value on the symlog scale.
+    :param linthresh: The positive value that determines the range within which the
+                      symlog scale is linear. Must be greater than 0.
+    :return: The value on the original scale.
+    """
+    sign = np.sign(y)
+    abs_y = np.abs(y)
+    exp_y = np.power(10, abs_y + np.log10(linthresh)) - linthresh
+
+    return sign * (abs_y * linthresh if abs_y <= 1 else exp_y)
+
+
+def scale_bound(bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']):
+    """
+    Convert a bound to the specified scale. For symlog scale we assume the symmetric bounds,
+    so that the upper bound denotes the boundaries and the lower bound the linear threshold.
+
+    :param bounds: The bound to convert
+    :param scale: The scale to convert to
+    :return: The converted bound
+    :raises ValueError: if the scale is unknown
+    """
+    if scale == 'lin':
+        return bounds
+
+    if scale == 'log':
+        if bounds[1] < 0:
+            return -np.log10(-bounds[0]), -np.log10(-bounds[1])
+
+        if bounds[0] > 0:
+            return np.log10(bounds[0]), np.log10(bounds[1])
+
+        raise ValueError('Bounds must not span zero for log scale.')
+
+    if scale == 'symlog':
+
+        if bounds[0] <= 0 or bounds[1] <= 0:
+            raise ValueError('Both bounds must be positive for symlog scale.')
+
+        return to_symlog(-bounds[1], linthresh=bounds[0]), to_symlog(bounds[1], linthresh=bounds[0])
+
+    raise ValueError(f'Unknown scale {scale}.')
+
+
+def unscale_bound(
+        scaled_bounds: Tuple[float, float],
+        scale: Literal['lin', 'log', 'symlog'],
+        linthresh: float = 1e-5
+) -> Tuple[float, float]:
+    """
+    Convert a bound from the specified scale back to the original scale. For symlog scale,
+    we assume symmetric bounds, so that the upper bound denotes the boundaries and
+    the lower bound the linear threshold, i.e. ``bounds = (-bounds[1], bounds[1])`` and ``linthresh = bounds[0]``.
+    Note that we cannot reliably recover negative bounds that were log scaled.
+
+    :param linthresh:
+    :param scaled_bounds: The bound to convert
+    :param scale: The scale to convert from
+    :return: The converted bound
+    :raises ValueError: if the scale is unknown
+    """
+    if scale == 'lin':
+        return scaled_bounds
+
+    if scale == 'log':
+        return np.power(10, scaled_bounds[0]), np.power(10, scaled_bounds[1])
+
+    if scale == 'symlog':
+        upper_bound = from_symlog(scaled_bounds[1], linthresh=linthresh)
+
+        return linthresh, upper_bound
+
+    raise ValueError(f'Unknown scale {scale}.')
+
+
+def scale_bounds(
+        bounds: Dict[str, Tuple[float, float]],
+        scales: Dict[str, Literal['lin', 'log', 'symlog']]
+) -> Dict[str, Tuple[float, float]]:
+    """
+    Convert bounds to the specified scale. For symlog scale we assume the symmetric bounds,
+    so that the upper bound denotes the boundaries and the lower bound the linear threshold.
+
+    :param bounds: Flattened dictionary of bounds to convert index by type and parameter
+    :param scales: Dictionary of scales indexed by parameter
+    :return: The converted bounds
+    :raises ValueError: if the scale is unknown
+    """
+    scaled_bounds = {}
+
+    for key, value in bounds.items():
+        scaled_bounds[key] = scale_bound(value, scale=scales[get_basename(key)])
+
+    return scaled_bounds
+
+
+def scale_value(value: float, bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']) -> float:
+    """
+    Convert a value to the specified scale. For symlog scale, the untransformed bounds are needed,
+    so that the upper bound denotes the boundaries and the lower bound the linear threshold.
+
+    :param value: The value to convert.
+    :param bounds: The untransformed bounds for the symlog scale.
+    :param scale: The scale to convert to.
+    :return: The converted value.
+    :raises ValueError: if the scale is unknown.
+    """
+    if scale == 'lin':
+        return value
+
+    if scale == 'log':
+
+        if value < 0:
+            return -np.log10(-value)
+
+        return np.log10(value)
+
+    if scale == 'symlog':
+        return to_symlog(value, linthresh=bounds[0])
+
+    raise ValueError(f'Unknown scale {scale}.')
+
+
+def unscale_value(scaled_value: float, bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']) -> float:
+    """
+    Convert a value from the specified scale back to the original scale. For symlog scale,
+    the untransformed bounds are needed, so that the upper bound denotes the boundaries
+    and the lower bound the linear threshold.
+
+    :param scaled_value: The value to convert.
+    :param bounds: The untransformed bounds for the symlog scale.
+    :param scale: The scale to convert from.
+    :return: The converted value.
+    :raises ValueError: if the scale is unknown.
+    """
+    if scale == 'lin':
+        return scaled_value
+
+    if scale == 'log':
+
+        if bounds[1] < 0:
+            return -np.power(10, -scaled_value)
+
+        return np.power(10, scaled_value)
+
+    if scale == 'symlog':
+        return from_symlog(scaled_value, linthresh=bounds[0])
+
+    raise ValueError(f'Unknown scale {scale}.')
+
+
+def scale_values(
+        params: Dict[str, Dict[str, float]],
+        bounds: Dict[str, Tuple[float, float]],
+        scales: Dict[str, Literal['lin', 'log', 'symlog']]
+) -> Dict[str, Dict[str, float]]:
+    """
+    Scale values according to the given scales.
+
+    :param params: Nested dictionary of parameters indexed by type and parameter
+    :param scales: Dictionary of scales indexed by parameter name
+    :param bounds: Dictionary of bounds indexed by parameter name
+    :return: Nested dictionary of scaled parameters indexed by type and parameter
+    """
+    scaled = {}
+
+    for key, value in flatten_dict(params).items():
+        # scale value
+        scaled[key] = scale_value(value, bounds[get_basename(key)], scales[get_basename(key)])
+
+    return unflatten_dict(scaled)
+
+
+def unscale_values(
+        params: Dict[str, Dict[str, float]],
+        bounds: Dict[str, Tuple[float, float]],
+        scales: Dict[str, Literal['lin', 'log', 'symlog']]
+) -> Dict[str, Dict[str, float]]:
+    """
+    Unscale values according to the given scales.
+
+    :param params: Nested dictionary of parameters indexed by type and parameter
+    :param scales: Dictionary of scales indexed by parameter name
+    :param bounds: Dictionary of scales indexed by parameter name
+    :return: Nested dictionary of unscaled parameters indexed by type and parameter
+    """
+    unscaled = {}
+
+    for key, value in flatten_dict(params).items():
+        # unscale value
+        unscaled[key] = unscale_value(value, bounds[get_basename(key)], scales[get_basename(key)])
+
+    return unflatten_dict(unscaled)
+
+
+def get_basename(name: str) -> str:
+    """
+    Get the basename of parameter string, i.e. type.param -> param.
+
+    :param name: The string to get the basename from.
+    :return: The basename.
+    """
+    return name.split('.')[-1]
+
+
 @dataclass
 class SharedParams:
     """
@@ -357,9 +582,6 @@ class Covariate:
     with one or many parameters. The relationship is defined
     by a callback function which modifies the parameters. The
     default callback introduces a linear relationship.
-
-    .. warning::
-        TODO let covariate vary on log scale?
     """
 
     #: The parameter to modify
@@ -372,13 +594,13 @@ class Covariate:
     callback: Optional[Callable] = None
 
     #: The bounds of the covariate parameter to be estimated
-    bounds: tuple = (-10, 10)
+    bounds: tuple = (1e-4, 1e4)
 
     #: The initial value of the covariate
     x0: float = 0
 
-    # the scale of the bounds
-    bounds_scale: Literal['lin', 'log'] = 'lin'
+    #: The scale of the bounds. See :func:`scale_value` for details.
+    bounds_scale: Literal['lin', 'log', 'symlog'] = 'symlog'
 
     def __post_init__(self):
         """
@@ -429,12 +651,12 @@ class Optimization:
     def __init__(
             self,
             bounds: Dict[str, tuple],
-            scales: dict,
             param_names: List[str],
             loss_type: Literal['likelihood', 'L2'] = 'likelihood',
             opts_mle: dict = {},
             parallelize: bool = True,
             fixed_params: Dict[str, Dict[str, float]] = {},
+            scales: Dict[str, Literal['lin', 'log', 'symlog']] = {},
             seed: int = None
     ):
         """
@@ -445,6 +667,7 @@ class Optimization:
         :param opts_mle: Dictionary of options for the optimizer
         :param loss_type: Type of loss function to use
         :param fixed_params: Dictionary of fixed parameters
+        :param scales: Dictionary of scales
         :param param_names: List of parameter names
         """
         self.bounds = bounds
@@ -479,6 +702,7 @@ class Optimization:
             self,
             get_counts: Dict[str, Callable],
             x0: Dict[str, Dict[str, float]] = {},
+            scales: Dict[str, Literal['lin', 'log', 'symlog']] = {},
             n_runs: int = 1,
             debug_iterations: bool = True,
             print_info: bool = True,
@@ -487,6 +711,7 @@ class Optimization:
         """
         Perform the optimization procedure.
 
+        :param scales: Scales of the parameters
         :param pbar: Whether to show a progress bar
         :param print_info: Whether to inform the user about the bounds
         :param n_runs: Number of optimization runs
@@ -497,6 +722,9 @@ class Optimization:
         """
         # number of optimization runs
         self.n_runs = n_runs
+
+        # store the scales of the parameters
+        self.scales = scales
 
         # filter out unneeded values
         # this also holds the fixed parameters
@@ -524,7 +752,7 @@ class Optimization:
         # determine parameter bounds
         bounds = self.get_bounds(flatten_dict(self.x0))
 
-        def optimize(x0: Dict[str, dict]) -> OptimizeResult:
+        def optimize(x0: Dict[str, Dict[str, float]]) -> OptimizeResult:
             """
             Perform numerical minimization.
 
@@ -538,9 +766,9 @@ class Optimization:
                     get_counts=get_counts,
                     print_debug=debug_iterations
                 ),
-                x0=pack_params(x0),
+                x0=pack_params(self.scale_values(x0)),
                 method="L-BFGS-B",
-                bounds=pack_params(bounds),
+                bounds=pack_params(scale_bounds(bounds, self.scales)),
                 options=self.opts_mle
             )
 
@@ -559,6 +787,9 @@ class Optimization:
         # unpack MLE params array into a dictionary
         params_mle = unpack_params(result.x, self.x0)
 
+        # unscale parameters
+        params_mle = unscale_values(params_mle, self.bounds, self.scales)
+
         # check if the MLE reached one of the bounds
         if print_info:
             self.check_bounds(flatten_dict(params_mle))
@@ -567,6 +798,15 @@ class Optimization:
         params_mle = unpack_shared(params_mle)
 
         return result, params_mle
+
+    def scale_values(self, x0: Dict[str, Dict[str, float]]) -> Dict[str, Dict[str, float]]:
+        """
+        Scale the values of the parameters.
+
+        :param x0: Dictionary of initial values
+        :return: Dictionary of scaled initial values
+        """
+        return scale_values(x0, self.bounds, self.scales)
 
     def get_loss_function(
             self,
@@ -588,8 +828,11 @@ class Optimization:
             :param x: Parameters
             :return: The loss
             """
-            # unpack parameters into dictionary use the keys of self.x0
+            # unpack parameters into dictionary using the keys of self.x0
             params = unpack_params(x, self.x0)
+
+            # unscale parameters
+            params = unscale_values(params, self.bounds, self.scales)
 
             # Model SFS from parameters.
             # Here the order of types does not matter.
@@ -649,10 +892,12 @@ class Optimization:
         return sample
 
     @staticmethod
-    def sample_value(bounds: Tuple[float, float], scale: Literal['lin', 'log']) -> float:
+    def sample_value(bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']) -> float:
         """
         Sample a value between given bounds using the given scaling.
         This function works for positive, negative, and mixed bounds.
+        Note that when ``scale == 'symlog'``, ``bounds[0]`` defines the linear threshold and
+        the actual bounds are ``(-bounds[1], bounds[1])``.
 
         :param bounds: Tuple of lower and upper bounds
         :param scale: Scaling of the parameter.
@@ -660,11 +905,32 @@ class Optimization:
         """
 
         def flip(bounds: Tuple[float, float]) -> Tuple[float, float]:
+            """
+            Flip the bounds.
+
+            :param bounds:
+            :return: flipped bounds
+            """
             return -bounds[1], -bounds[0]
 
+        def symlog_rvs(lower: float, upper: float) -> float:
+            """
+            Sample from a symmetric log-uniform distribution.
+
+            :param lower: lower bound which is the linear threshold
+            :param upper: upper bound so that the actual bounds are (-upper, upper)
+            :return: sampled value
+            """
+            val = loguniform.rvs(lower, upper)
+
+            # flip sign with 50% probability
+            return val if uniform.rvs() < 0.5 else -val
+
+        # dictionary of scaling functions
         scaling_functions = {
             'lin': uniform.rvs,
-            'log': loguniform.rvs
+            'log': loguniform.rvs,
+            'symlog': symlog_rvs
         }
 
         # raise an error if the scale is not valid
@@ -673,7 +939,11 @@ class Optimization:
 
         # raise an error if bounds span 0 and scale is 'log'
         if bounds[0] < 0 < bounds[1] and scale == 'log':
-            raise ValueError('Log scale not possible for bounds that span 0.')
+            raise ValueError(f"Log scale not possible for bounds that span 0.")
+
+        # raise an error if bounds are negative and scale is 'symlog'
+        if bounds[0] < 0 and scale == 'symlog':
+            raise ValueError(f"Symlog scale not possible for negative bounds.")
 
         # flip bounds if they are negative
         flipped = bounds[0] < 0
@@ -686,11 +956,11 @@ class Optimization:
         # return the sampled value, flipping back if necessary
         return -sample if flipped else sample
 
-    def get_bounds(self, x0: dict) -> dict:
+    def get_bounds(self, x0: Dict[str, float]) -> Dict[str, Tuple[float, float]]:
         """
         Get a nested dictionary of bounds the same structure as the given initial values.
 
-        :param x0: Initial values
+        :param x0: Flattened dictionary of initial values
         :return: A dictionary of initial values
         """
         bounds = {}

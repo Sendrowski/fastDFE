@@ -13,7 +13,6 @@ from typing import Callable, List, Literal, Dict
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import seaborn as sns
 from matplotlib import colors
 from matplotlib.colors import LogNorm
@@ -22,7 +21,6 @@ from matplotlib.ticker import MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from . import Parametrization
-from .bootstrap import Bootstrap
 from .spectrum import Spectrum
 
 # get logger
@@ -318,7 +316,6 @@ class Visualization:
         ax.set_xticklabels(ticks_new)
 
     @staticmethod
-    @clear_show_save
     def plot_sfs_comparison(
             ax: plt.Axes,
             spectra: List[Spectrum] | np.ndarray,
@@ -348,77 +345,54 @@ class Visualization:
             labels=labels,
             use_subplots=use_subplots,
             show_monomorphic=show_monomorphic,
+            title=title,
             ax=ax
         )
-
-        # set title
-        ax.set_title(title)
 
         return ax
 
     @staticmethod
     @clear_show_save
     def plot_inferred_parameters(
-            params: List[dict],
-            bootstraps: List[pd.DataFrame],
             ax: plt.Axes,
+            values: Dict[str, np.ndarray],
+            labels: list | np.ndarray,
+            param_names: list | np.ndarray,
+            errors: Dict[str, np.ndarray | None],
             file: str = None,
             show: bool = True,
-            confidence_intervals: bool = True,
-            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
-            ci_level: float = 0.05,
             title: str = 'parameter estimates',
-            scale: Literal['lin', 'log'] = 'log',
-            labels: List[str] = None,
-            **kwargs
+            legend: bool = True,
+            scale: Literal['lin', 'log', 'symlog'] = 'log'
     ) -> plt.Axes:
         """
         Visualize the inferred parameters and their confidence intervals.
-        using a bar plot.
+        using a bar plot. Note that there problems with parameters that span 0.
 
-        :param labels: Labels for the parameters
+        :param labels: Unique labels for the DFEs
+        :param param_names: Labels for the parameters
         :param scale: Whether to use a linear or log scale
         :param title: Title of the plot
-        :param ci_level: Confidence level
-        :param bootstrap_type: Type of bootstrap to use
-        :param confidence_intervals: Whether to show confidence intervals
-        :param params: List of parameter dictionaries in the same order as the labels
-        :param bootstraps: List of dataframes containing bootstrapped parameter values in the same order as the labels
+        :param legend: Whether to show the legend
+        :param errors: Dictionary of errors with the parameter in the same order as ``labels``
+        :param values: Dictionary of parameter values with the parameter in the same order as ``labels``
         :param file: File path to save plot to
         :param show: Whether to show plot
         :param ax: Axes to plot on
         :return: Axes
         """
-        n_types = len(params)
+        n_types = len(values)
 
         width_total = 0.9
         width = width_total / n_types
 
-        # get keys of first element which we use to order the rest
-        keys = sorted(list(params[0].keys()))
-        n_values = len(keys)
+        # number of parameters
+        n_params = len(param_names)
 
         # iterate over types
-        for i, param, bs in zip(range(n_types), params, bootstraps):
+        for i, vals, errs in zip(range(n_types), values.values(), errors.values()):
 
-            values = list(param[k] for k in keys)
-
-            # determine confidence interval if bootstraps were given
-            if confidence_intervals and bs is not None:
-                errors, _ = Bootstrap.get_errors(
-                    values=np.abs(values),
-                    bs=np.abs(bs[keys].to_numpy()),
-                    bootstrap_type=bootstrap_type,
-                    ci_level=ci_level
-                )
-            else:
-                errors = None
-
-            # whether to use the mean of all bootstraps instead of the original values
-            use_means = confidence_intervals and bs is not None and bootstrap_type == 'percentile'
-
-            x = np.arange(n_values) + i * width
-            y = np.abs(bs[keys].mean().to_list() if use_means else values)
+            x = np.arange(n_params) + i * width
 
             def name_to_label(key: str) -> str:
                 """
@@ -436,23 +410,32 @@ class Visualization:
                 # map to new name
                 label = label_mapping[key] if key in label_mapping else key
 
+                # get index of parameter
+                k = np.where(np.array(param_names) == key)[0][0]
+
                 # check parameter value and add minus sign if negative
-                if param[key] >= 0:
+                if vals[k] >= 0:
                     return '$' + label + '$'
 
                 return '$-' + key + '$'
 
             # append a minus sign to negative parameters values
-            xlabels = np.array([name_to_label(key) for key in keys])
+            xlabels = np.array([name_to_label(key) for key in param_names])
 
+            # flip errors for negative parameters
+            if errs is not None:
+                errs = np.array([err if vals[i] >= 0 else err[::-1] for i, err in enumerate(errs.T)]).T
+
+            # Plot bars.
+            # Note that we plot the absolute value of the parameter
             bars = ax.bar(
                 x=x,
-                height=y,
-                yerr=errors,
+                height=np.abs(vals),
+                yerr=errs,
                 error_kw=dict(
                     capsize=width * 7
                 ),
-                label=labels[i] if labels is not None else None,
+                label=labels[i],
                 width=width,
                 linewidth=0,
                 hatch=Visualization.get_hatch(i, labels),
@@ -462,12 +445,12 @@ class Visualization:
             Visualization.darken_edge_colors(bars)
 
             # customize x-ticks
-            x = np.arange(n_values)
+            x = np.arange(n_params)
             ax.set_xticks([i + (width_total - width) / 2 for i in x], x)
             ax.set_xticklabels(xlabels)
 
         # show legend if specified
-        if labels is not None:
+        if legend:
             plt.legend(prop=dict(size=8), loc='upper right')
 
         # set title
@@ -539,6 +522,7 @@ class Visualization:
             log_scale: bool = False,
             use_subplots: bool = False,
             show_monomorphic: bool = False,
+            title: str = None,
             n_ticks=10,
             file: str = None,
             show: bool = True
@@ -550,6 +534,7 @@ class Visualization:
         :param n_ticks: Number of x-ticks to use
         :param ax: Axes to plot on
         :param use_subplots: Whether to use subplots
+        :param title: Title of plot
         :param spectra: List of spectra to plot
         :param labels: List of labels for each spectrum
         :param log_scale: Whether to use logarithmic y-scale
@@ -557,6 +542,10 @@ class Visualization:
         :param show: Whether to show the plot
         :return: Axes
         """
+        if ax is None:
+            plt.clf()
+            _, ax = plt.subplots()
+
         if use_subplots:
             n_plots = len(spectra)
             n_rows = int(np.ceil(np.sqrt(n_plots)))
@@ -627,7 +616,11 @@ class Visualization:
         if len(labels) == 1:
             ax.set_title(labels[0])
         elif len(labels) > 1:
-            plt.legend(prop=dict(size=8))
+
+            # set title
+            ax.set_title(title)
+
+            ax.legend(prop=dict(size=8))
 
         # show and save plot
         Visualization.show_and_save(file, show)
@@ -728,7 +721,7 @@ class Visualization:
             file: str, show: bool,
             title: str,
             ax: plt.Axes,
-            scale: Literal['lin', 'log'] = 'lin'
+            scale: Literal['lin', 'log', 'symlog'] = 'lin'
     ) -> plt.Axes:
         """
         A scatter plot of the likelihoods specified.
@@ -886,7 +879,7 @@ class Visualization:
             params_marginal: Dict[str, Dict[str, float]],
             params_joint: Dict[str, Dict[str, float]],
             axs: List[plt.Axes],
-            scale: Literal['lin', 'log'] = 'log',
+            scale: Literal['lin', 'log', 'symlog'] = 'log',
             file: str = None,
             show: bool = True,
             **kwargs
@@ -947,7 +940,7 @@ class Visualization:
             )
 
             # proper representation of parameter
-            param_repr = f'${cov.param}' if params_marginal[types[0]][cov.param] >= 0 else f'$-{cov.param}'
+            param_repr = f'${cov.param}$' if params_marginal[types[0]][cov.param] >= 0 else f'$-{cov.param}$'
 
             # set title
             ax.set_title(f"param={param_repr}, {p}={params_joint[types[0]][p]}")

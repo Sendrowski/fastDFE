@@ -210,8 +210,9 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -2586.3539552883835, &#39;
 <span class="n">inf</span> <span class="o">=</span> <span class="n">BaseInference</span><span class="p">(</span>
     <span class="n">sfs_neut</span><span class="o">=</span><span class="n">sfs_neut</span><span class="p">,</span>
     <span class="n">sfs_sel</span><span class="o">=</span><span class="n">sfs_sel</span><span class="p">,</span>
-    <span class="c1"># Fix parameters, note that we need to use</span>
-    <span class="c1"># type &#39;all&#39; if only one type is used.</span>
+    <span class="c1"># Fix parameters, note that we need specify type &#39;all&#39;</span>
+    <span class="c1"># if only one type is used. Later we will work with</span>
+    <span class="c1"># more than one type.</span>
     <span class="n">fixed_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">S_b</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">p_b</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
 <span class="p">)</span>
 
@@ -476,7 +477,7 @@ WARNING:fastdfe:48 out of 100 bootstrap samples did not terminate normally durin
 </div>
 <section id="id1">
 <h3>Model comparison<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
-<p>Covariates receive the parameter names <code class="docutils literal notranslate"><span class="pre">c{i}</span></code> in order of definition. We do see that <code class="docutils literal notranslate"><span class="pre">S_b</span></code> indeed varies among the types and this is due to the linear relationship with the covariate values introduced. We can perform a likelihood ratio test to see whether including the covariates produce a significantly better fit than simply sharing the parameter in question among the types (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.shared_inference.SharedInference.perform_lrt_covariates" title="fastdfe.shared_inference.SharedInference.perform_lrt_covariates"><code class="xref py py-func docutils literal notranslate"><span class="pre">perform_lrt_covariates()</span></code></a>).</p>
+<p>Covariates receive the parameter names <code class="docutils literal notranslate"><span class="pre">c{i}</span></code> in order of definition. We do see that <code class="docutils literal notranslate"><span class="pre">S_b</span></code> indeed varies among the types and this is due to the linear relationship with the covariate values introduced. We can perform a likelihood ratio test to see whether including the covariates produces a significantly better fit than simply sharing the parameter in question among the types (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.shared_inference.SharedInference.perform_lrt_covariates" title="fastdfe.shared_inference.SharedInference.perform_lrt_covariates"><code class="xref py py-func docutils literal notranslate"><span class="pre">perform_lrt_covariates()</span></code></a>).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">perform_lrt_covariates</span><span class="p">()</span>

@@ -17,9 +17,9 @@ fastDFE offers a range of features to facilitate DFE inference, including:
 * Joint inference of DFE among different types with shared parameters
 * Parametric bootstrapping
 * Easy and flexible visualization of results
-* Inclusion ofcovariates and likelihood ratio tests (LRTs) to assess their significance
+* Inclusion of covariates and likelihood ratio tests (LRTs) to assess their significance
 * Nested model comparison with LRTs
-* Customizable DFE parameterizations
+* Customizable DFE parametrizations
 * Estimation of α, the proportion of beneficial substitutions
 * Serialization of objects and result summaries
 * Support for YAML configuration files facilitating usage

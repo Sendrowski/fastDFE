@@ -1,6 +1,6 @@
 .. _modules.base_inference:
 
-Inference classes
+Inference
 =================
 
 .. autoclass:: fastdfe.base_inference.BaseInference

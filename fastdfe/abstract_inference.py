@@ -93,7 +93,7 @@ class Inference:
             show: bool = True,
             title: str = 'continuous DFEs',
             labels: list | np.ndarray = None,
-            scale: Literal['lin', 'log'] = 'lin',
+            scale: Literal['lin', 'log', 'symlog'] = 'lin',
             scale_density: bool = False,
             ax: plt.Axes = None,
             **kwargs
@@ -146,14 +146,14 @@ class Inference:
     @staticmethod
     def plot_inferred_parameters(
             inferences: List['AbstractInference'],
+            labels: list | np.ndarray,
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
             file: str = None,
             show: bool = True,
             title: str = 'parameter estimates',
-            labels: list | np.ndarray = None,
-            scale: Literal['lin', 'log'] = 'log',
+            scale: Literal['lin', 'log', 'symlog'] = 'log',
             legend: bool = True,
             ax: plt.Axes = None,
             **kwargs
@@ -163,24 +163,64 @@ class Inference:
         Visualize several discretized DFEs given by the list of inference objects.
         Note that the DFE parametrization needs to be the same for all inference objects.
 
+        :param inferences: List of inference objects.
+        :param labels: Unique labels for the DFEs.
         :param scale: y-scale of the plot.
         :param legend: Whether to show a legend.
-        :param inferences: List of inference objects.
         :param confidence_intervals: Whether to plot confidence intervals.
         :param ci_level: Confidence level for confidence intervals.
         :param bootstrap_type: Type of bootstrap to use for confidence intervals.
         :param file: Path to file to save the plot to.
         :param show: Whether to show the plot.
         :param title: Title of the plot.
-        :param labels: Labels for the DFEs.
         :param ax: Axes of the plot.
         :param kwargs: Additional arguments for the plot.
         :return: Axes of the plot.
+        :raises ValueError: If no inference objects are given.
         """
+        if len(inferences) == 0:
+            raise ValueError('No inference objects given.')
+
+        # get sorted list of parameter names
+        param_names = sorted(inferences[0].get_bootstrap_param_names())
+
+        if labels is None:
+            labels = list()
+
+        errors = {}
+        values = {}
+        for label, inf in zip(labels, inferences):
+
+            values[label] = list(inf.get_bootstrap_params()[k] for k in param_names)
+
+            # whether to compute errors
+            if confidence_intervals and inf.bootstraps is not None:
+
+                # use mean of bootstraps instead of original values
+                if bootstrap_type == 'percentile':
+                    values[label] = inf.bootstraps[param_names].mean().to_list()
+
+                # compute errors
+                errors[label], _ = Bootstrap.get_errors(
+                    values=values[label],
+                    bs=inf.bootstraps[param_names].to_numpy(),
+                    bootstrap_type=bootstrap_type,
+                    ci_level=ci_level
+                )
+            else:
+                errors[label] = None
+
         return Visualization.plot_inferred_parameters(
-            params=[inf.get_bootstrap_params() for inf in inferences],
-            bootstraps=[inf.bootstraps for inf in inferences],
-            **locals()
+            values=values,
+            errors=errors,
+            param_names=param_names,
+            file=file,
+            show=show,
+            title=title,
+            labels=labels,
+            scale=scale,
+            legend=len(labels) > 1,
+            ax=ax
         )
 
     @staticmethod
@@ -242,7 +282,7 @@ class Inference:
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
 
-    ) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+    ) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
         """
         Compute errors and confidence interval for a discretized DFE.
 
@@ -441,3 +481,10 @@ class AbstractInference(ABC):
         """
         with open(file, 'r') as fh:
             return cls.from_json(fh.read(), classes)
+
+    @abstractmethod
+    def get_bootstrap_param_names(self) -> List[str]:
+        """
+        Get the names of the parameters to be included in the bootstraps.
+        """
+        pass

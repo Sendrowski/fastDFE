@@ -22,11 +22,10 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import ListVector
 from typing_extensions import Self
 
+from .abstract_inference import AbstractInference, Inference
 from .config import Config
-from .abstract_inference import AbstractInference
 from .parametrization import from_string, Parametrization, DiscreteParametrization
 from .polydfe_utils import create_sfs_config, models
-from .visualization import Visualization
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -37,7 +36,7 @@ class PolyDFEResult:
     Class for parsing polyDFE output.
     """
     # default postprocessing source
-    default_postprocessing_source = 'resources/polydfe/postprocessing/script.R'
+    default_postprocessing_source = '../resources/polydfe/postprocessing/script.R'
 
     # mapping of polyDFE params to new name
     param_mapping = dict(
@@ -328,28 +327,40 @@ class PolyDFE(AbstractInference):
 
     def plot_inferred_parameters(
             self,
+            confidence_intervals: bool = True,
+            ci_level: float = 0.05,
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
             file: str = None,
             show: bool = True,
-            scale: Literal['lin', 'log'] = 'log',
-            ax: plt.Axes = None
+            title: str = 'parameter estimates',
+            scale: Literal['lin', 'log', 'symlog'] = 'log',
+            legend: bool = True,
+            ax: plt.Axes = None,
     ) -> plt.Axes:
         """
         Visualize the inferred parameters and their confidence intervals.
 
         :param scale: Scale of the y-axis
+        :param legend: Show legend
+        :param ax: Axes object
+        :param title: Title of the plot
+        :param show: Show the plot
         :param file: File to save the plot to
         :param show: Show the plot
         :param ax: Axes object
         :return: Axes object
         """
-        param_names = self.get_bootstrap_param_names()
-
-        return Visualization.plot_inferred_parameters(
-            params=[self.get_bootstrap_params()],
-            bootstraps=[self.bootstraps[param_names]] if self.bootstraps is not None else [None],
-            scale=scale,
+        return Inference.plot_inferred_parameters(
+            inferences=[self],
+            labels=['all'],
+            confidence_intervals=confidence_intervals,
+            ci_level=ci_level,
+            bootstrap_type=bootstrap_type,
             file=file,
             show=show,
+            title=title,
+            legend=legend,
+            scale=scale,
             ax=ax
         )
 

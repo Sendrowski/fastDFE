@@ -28,11 +28,11 @@ except ModuleNotFoundError:
 from fastdfe import BaseInference
 from fastdfe.polydfe import PolyDFE
 
-fastdfe = BaseInference.from_file(input_fastdfe)
+native = BaseInference.from_file(input_fastdfe)
 polydfe = PolyDFE.from_file(input_polydfe)
 
 res = dict(
-    fastdfe=fastdfe.get_errors_discretized_dfe(),
+    fastdfe=native.get_errors_discretized_dfe(),
     polydfe=polydfe.get_errors_discretized_dfe()
 )
 

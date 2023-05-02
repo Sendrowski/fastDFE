@@ -14,6 +14,7 @@ import logging
 import time
 from typing import List, Optional, Dict, Literal, cast
 
+import jsonpickle
 import multiprocess as mp
 import numpy as np
 import pandas as pd
@@ -28,7 +29,7 @@ from .abstract_inference import AbstractInference, Inference
 from .config import Config
 from .discretization import Discretization
 from .json_handlers import CustomEncoder
-from .optimization import Optimization, flatten_dict, pack_params, expand_fixed
+from .optimization import Optimization, flatten_dict, pack_params, expand_fixed, scale_values
 from .parametrization import Parametrization, from_string
 from .spectrum import Spectrum, Spectra
 from .spectrum import standard_kingman
@@ -45,6 +46,7 @@ class BaseInference(AbstractInference):
 
     .. warning::
         TODO add confidence intervals for inferred SFS.
+        TODO take average of likelihood after bootstrapping?
     """
 
     #: Default parameters not connected to the DFE parametrization
@@ -58,7 +60,7 @@ class BaseInference(AbstractInference):
     )
 
     #: Scales for the parameters not connected to the DFE parametrization
-    scales = dict(
+    default_scales = dict(
         eps='lin'
     )
 
@@ -191,13 +193,16 @@ class BaseInference(AbstractInference):
         # check that the fixed parameters are valid
         self.check_fixed_params_exist()
 
+        #: scale for all parameters
+        self.scales = self.model.scales | self.default_scales
+
         if optimization is None:
             # create optimization instance
             # merge with default values of inference and model
             #: Optimization instance
             self.optimization: Optimization = Optimization(
                 bounds=self.model.bounds | self.default_bounds | bounds,
-                scales=self.model.scales | self.scales,
+                scales=self.scales,
                 opts_mle=self.default_opts_mle | opts_mle,
                 loss_type=loss_type,
                 param_names=self.param_names,
@@ -306,7 +311,8 @@ class BaseInference(AbstractInference):
     def run(
             self,
             do_bootstrap: bool = None,
-            pbar: bool = None
+            pbar: bool = None,
+            **kwargs
 
     ) -> Spectrum:
         """
@@ -314,6 +320,7 @@ class BaseInference(AbstractInference):
 
         :param pbar: Whether to show a progress bar.
         :param do_bootstrap: Whether to perform bootstrapping.
+        :param kwargs: Keyword arguments.
         :return: Modelled SFS.
         """
         # check if locked
@@ -341,6 +348,7 @@ class BaseInference(AbstractInference):
         # perform numerical minimization
         result, params_mle = self.optimization.run(
             x0=self.x0,
+            scales=self.scales,
             get_counts=self.get_counts(),
             n_runs=self.n_runs,
             pbar=pbar
@@ -385,9 +393,17 @@ class BaseInference(AbstractInference):
 
         :return: The likelihood.
         """
+        x0_cached = self.optimization.x0
         self.optimization.x0 = params
 
-        return -self.optimization.get_loss_function(self.get_counts())(pack_params(flatten_dict(params)))
+        # prepare parameters
+        params = pack_params(self.optimization.scale_values(flatten_dict(params)))
+
+        lk = -self.optimization.get_loss_function(self.get_counts())(params)
+
+        self.optimization.x0 = x0_cached
+
+        return lk
 
     def assign_result(self, result: OptimizeResult, params_mle: dict):
         """
@@ -552,6 +568,7 @@ class BaseInference(AbstractInference):
         # perform numerical minimization
         result, params_mle = self.optimization.run(
             x0=dict(all=self.params_mle),
+            scales=self.get_scales_linear(),
             n_runs=1,
             debug_iterations=False,
             print_info=False,
@@ -566,6 +583,14 @@ class BaseInference(AbstractInference):
         params_mle['all'] = self.model.normalize(params_mle['all'])
 
         return result, params_mle
+
+    def get_scales_linear(self) -> Dict[str, Literal['lin']]:
+        """
+        Get linear scales for all parameters. We do this for the bootstraps as x0 should be close to MLE.
+
+        :return: Dictionary of scales.
+        """
+        return cast(Dict[str, Literal['lin']], dict((p, 'lin') for p in self.scales.keys()))
 
     def model_sfs(self, params: dict, sfs_neut: Spectrum, sfs_sel: Spectrum) -> (np.ndarray, np.ndarray):
         """
@@ -635,7 +660,7 @@ class BaseInference(AbstractInference):
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
             scale_density: bool = False,
-            scale: Literal['lin', 'log'] = 'lin',
+            scale: Literal['lin', 'log', 'symlog'] = 'lin',
             title: str = 'DFE',
             ax: plt.Axes = None
 
@@ -818,16 +843,40 @@ class BaseInference(AbstractInference):
         self.plot_interval_density(show=show)
         self.plot_likelihoods(show=show)
 
+    def get_errors_discretized_dfe(
+            self,
+            ci_level: float = 0.05,
+            intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
+    ) -> np.ndarray:
+        """
+        Get the discretized DFE errors.
+
+        :param ci_level: Confidence interval level.
+        :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
+        :param bootstrap_type: Type of bootstrap to use.
+        :return: Arrays of errors, confidence intervals, bootstraps, means and values
+        """
+        return Inference.get_errors_discretized_dfe(
+            params=self.params_mle,
+            bootstraps=self.bootstraps,
+            model=self.model,
+            ci_level=ci_level,
+            intervals=intervals,
+            bootstrap_type=bootstrap_type
+        )
+
     @run_if_required_wrapper
     def plot_inferred_parameters(
             self,
-            file: str = None,
             confidence_intervals: bool = True,
-            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
             ci_level: float = 0.05,
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            file: str = None,
             show: bool = True,
-            title: str = 'inferred parameters',
-            scale: Literal['lin', 'log'] = 'log',
+            title: str = 'parameter estimates',
+            scale: Literal['lin', 'log', 'symlog'] = 'log',
+            legend: bool = True,
             ax: plt.Axes = None,
             **kwargs
     ) -> plt.Axes:
@@ -836,6 +885,7 @@ class BaseInference(AbstractInference):
 
         :param scale: y-scale of the plot.
         :param title: Plot title.
+        :param legend: Whether to show the legend.
         :param confidence_intervals: Whether to show confidence intervals.
         :param bootstrap_type: Type of bootstrap to use.
         :param ci_level: Confidence level for the confidence intervals.
@@ -844,9 +894,9 @@ class BaseInference(AbstractInference):
         :param ax: Axes object to plot on.
         :return: Axes object
         """
-        return Visualization.plot_inferred_parameters(
-            params=[self.get_bootstrap_params()],
-            bootstraps=[self.bootstraps],
+        return Inference.plot_inferred_parameters(
+            inferences=[self],
+            labels=['all'],
             file=file,
             show=show,
             title=title,
@@ -863,7 +913,7 @@ class BaseInference(AbstractInference):
             file: str = None,
             show: bool = True,
             title: str = 'likelihoods',
-            scale: Literal['lin', 'log'] = 'lin',
+            scale: Literal['lin', 'log', 'symlog'] = 'lin',
             ax: plt.Axes = None,
             **kwargs
     ) -> plt.Axes:
@@ -1068,6 +1118,14 @@ class BaseInference(AbstractInference):
         """
         return self.params_mle | dict(alpha=self.alpha)
 
+    def get_bootstrap_param_names(self) -> List[str]:
+        """
+        Get the parameters to be included in the bootstraps.
+
+        :return: Parameters to be included in the bootstraps.
+        """
+        return list(self.get_bootstrap_params().keys())
+
     def get_optimized_param_names(self) -> List[str]:
         """
         Get the parameters names for the parameters that are optimized.
@@ -1166,6 +1224,15 @@ class BaseInference(AbstractInference):
         self.fixed_params = expand_fixed(params, ['all'])
 
         self.optimization.set_fixed_params(self.fixed_params)
+
+    def to_json(self) -> str:
+        """
+        Serialize object.
+
+        :return: JSON string
+        """
+        # using make_ref=True resulted in weird behaviour when unserializing.
+        return jsonpickle.encode(self, indent=4, warn=True, make_refs=False)
 
 
 class InferenceResults:

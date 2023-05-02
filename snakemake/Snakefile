@@ -223,7 +223,7 @@ rule infer_dfe_polyDFE:
     params:
         bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
     conda:
-        base_env
+        "envs/testing.yaml"
     script:
         "scripts/infer_dfe_polydfe.py"
 
@@ -239,7 +239,7 @@ rule infer_dfe_polyDFE_bootstrap:
     params:
         bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
     conda:
-        base_env
+        "envs/testing.yaml"
     script:
         "scripts/infer_dfe_polydfe.py"
 
@@ -266,7 +266,7 @@ rule create_bootstrap_polyDFE:
     output:
         "results/polydfe/{config}/bootstraps/{i}/config.yaml"
     conda:
-        base_env
+        "envs/testing.yaml"
     script:
         "scripts/create_bootstrap_polydfe.py"
 
@@ -280,7 +280,7 @@ rule merge_bootstraps_polyDFE:
     output:
         "results/polydfe/{config}_bootstrapped_{n}/serialized.json"
     conda:
-        base_env
+        "envs/testing.yaml"
     script:
         "scripts/merge_bootstraps_polydfe.py"
 
@@ -292,7 +292,7 @@ rule visualize_polyDFE_inference:
         dfe_discretized="results/graphs/polydfe/{config}/dfe_discretized.png",
         mle_params="results/graphs/polydfe/{config}/mle_params.png"
     conda:
-        base_env
+        "envs/testing.yaml"
     script:
         "scripts/plot_polydfe_inference.py"
 
@@ -318,7 +318,7 @@ rule test_overlapping_confidence_intervals:
     output:
         touch("results/testing/{config}/overlapping_confidence_intervals.txt")
     conda:
-        base_env
+        "envs/testing.yaml"
     script:
         "scripts/check_overlapping_confidence_intervals.py"
 

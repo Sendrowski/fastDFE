@@ -3,3 +3,4 @@
 - add snakefile for EST-SFS
 - bootstraps don't terminate normally for SharedInference in docs
 - module index not working
+- add documentation for visualization, introducing subplots and some of the function arguments

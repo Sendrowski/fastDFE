@@ -66,7 +66,7 @@ class Parametrization:
         """
         Initialize parametrization.
         """
-        # determine argument names
+        #: argument names
         self.param_names: List = list(self.x0.keys())
 
     @staticmethod

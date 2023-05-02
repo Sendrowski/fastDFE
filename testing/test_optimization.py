@@ -1,14 +1,16 @@
+from typing import Literal, List
 from unittest import TestCase
 
+import matplotlib.pyplot as plt
+import numpy as np
+
 from fastdfe.optimization import pack_params, unpack_params, flatten_dict, unflatten_dict, filter_dict, Optimization, \
-    merge_dicts, correct_values
+    merge_dicts, correct_values, to_symlog, from_symlog, scale_bound, scale_value, unscale_value, unscale_bound
+
+from numpy import testing
 
 
 class OptimizationTestCase(TestCase):
-    """
-    TODO there might be less padding for np.float128 on windows machines
-    cd. https://numpy.org/doc/stable/user/basics.types.html
-    """
 
     def test_pack_unpack_restores_dict(self):
         """
@@ -169,3 +171,162 @@ class OptimizationTestCase(TestCase):
 
         corrected_no_correction = correct_values(x0_no_correction, bounds)
         self.assertEqual(corrected_no_correction, x0_no_correction)
+
+    def test_symlog_scale(self):
+        """
+        Test the symlog scale.
+        """
+        testing.assert_almost_equal(4, from_symlog(to_symlog(4)))
+        testing.assert_almost_equal(-4, from_symlog(to_symlog(-4)))
+
+        y = np.array([to_symlog(x) for x in range(-100, 100)])
+
+        # check that the sequence is strictly increasing
+        self.assert_strictly_increasing(y)
+
+        # plot the sequence
+        plt.plot(y)
+        plt.show()
+
+    def assert_strictly_increasing(self, y: np.ndarray):
+        """
+        Check that the sequence is strictly increasing.
+
+        :raises AssertionError: if the sequence is not strictly increasing
+        """
+        if not np.all(np.diff(y) > 0):
+            raise AssertionError("The sequence is not strictly increasing.")
+
+    def test_convert_bound(self):
+        """
+        Test the conversion of bounds to the various scales.
+        """
+        testing.assert_almost_equal(
+            scale_bound((-10, 10), 'lin'),
+            (-10, 10)
+        )
+
+        testing.assert_almost_equal(
+            scale_bound((0.1, 10), 'log'),
+            (-1, 1)
+        )
+
+        symlog_bounds = (-2.0043213737826426, 2.0043213737826426)
+        bounds = (0.1, 10)
+        testing.assert_almost_equal(
+            scale_bound(bounds, 'symlog'),
+            symlog_bounds
+        )
+
+        x = np.linspace(*symlog_bounds, 100)
+        y = np.array([from_symlog(i, linthresh=bounds[0]) for i in x])
+
+        # check that the sequence is strictly increasing
+        self.assert_strictly_increasing(y)
+
+        plt.plot(x, y)
+        plt.show()
+
+    def test_scale_value_inverse(self):
+        """
+        Make sure that scaling and then unscaling a value returns the original value.
+        """
+        # Test parameters
+        test_values = np.array([-1e4, -1e2, -1e0, 1e0, 1e2, 1e4])
+
+        # only used to define linthresh
+        bounds = np.array([
+            (-1e5, -1e-5),
+            (-1e3, -1e-3),
+            (-1e1, -1e-1),
+            (1e-1, 1e1),
+            (1e-3, 1e3),
+            (1e-5, 1e5)
+        ])
+
+        scales: List[Literal['lin', 'log', 'symlog']] = ['lin', 'log', 'symlog']
+        tolerance = 1e-10
+
+        for scale in scales:
+            for value, bound in zip(test_values, bounds):
+
+                if scale == 'symlog' and bound[1] < 0:
+                    # doesn't work for negative bounds
+                    continue
+
+                # Scale and then unscale the value
+                scaled_value = scale_value(value, bound, scale)
+                unscaled_value = unscale_value(scaled_value, bound, scale)
+
+                # Check if the original value and unscaled_value are close within the tolerance
+                assert np.isclose(value, unscaled_value, atol=tolerance, rtol=0)
+
+    def test_scale_bounds_inverse(self):
+        """
+        Make sure that scaling and then unscaling bounds returns the original bounds.
+        """
+        # Test parameters
+        test_bounds = [(1e-5, 1e6), (1e-1, 1e4), (1e-3, 1e1)]
+        scales: List[Literal['lin', 'log', 'symlog']] = ['lin', 'log', 'symlog']
+
+        for scale in scales:
+            for bounds in test_bounds:
+                # Scale and then unscale the bounds
+                scaled_bounds = scale_bound(bounds, scale)
+                unscaled_bounds = unscale_bound(scaled_bounds, scale, linthresh=bounds[0])
+
+                # Check if the original bounds and unscaled_bounds are close within the tolerance
+                assert np.allclose(bounds, unscaled_bounds, atol=1e-7, rtol=0)
+
+    def test_scale_bounds_raises_error(self):
+        """
+        Test that scale_bounds raises an error when the bounds or the scale are not valid.
+        """
+        with self.assertRaises(ValueError):
+            scale_bound((-1, 1), 'log')
+
+        with self.assertRaises(ValueError):
+            scale_bound((0, 1), 'log')
+
+        with self.assertRaises(ValueError):
+            scale_bound((-1, 1), 'symlog')
+
+        with self.assertRaises(ValueError):
+            scale_bound((1, 2), 'foo')
+
+    def test_plot_scaled_values(self):
+        """
+        Test plotting the scaled values within the untransformed bounds for the different scales.
+        """
+        bounds = dict(
+            lin=(-10, 10),
+            log=(0.1, 10),
+            symlog=(0.001, 10)
+        )
+
+        fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+        scale: Literal['lin', 'log', 'symlog']
+        for i, scale in enumerate(['lin', 'log', 'symlog']):
+            bounds_scaled = scale_bound(bounds[scale], scale)
+            x_scaled = [unscale_value(x, bounds=bounds[scale], scale=scale) for x in np.linspace(*bounds_scaled, 100)]
+            y_scaled = np.array([scale_value(x, bounds=bounds[scale], scale=scale) for x in x_scaled])
+
+            x_unscaled = np.linspace(*unscale_bound(bounds_scaled, scale=scale, linthresh=bounds[scale][0]), 100)
+            y_unscaled = np.array([unscale_value(i, bounds=bounds[scale], scale=scale) for i in y_scaled])
+            axes[i].plot(x_unscaled, y_unscaled, label=scale)
+            axes[i].set_title(scale)
+
+        plt.show()
+
+    def test_sample_value_symlog_scale(self):
+        """
+        Sample a value from the symlog scale.
+        """
+        y = [Optimization.sample_value(scale='symlog', bounds=(0.1, 10)) for _ in range(10000)]
+
+        plt.hist(y, bins=50)
+        plt.show()
+
+        # check that we both have positive and negative values
+        assert np.any(np.array(y) > 0) and np.any(np.array(y) < 0)

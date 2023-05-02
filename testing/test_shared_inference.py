@@ -89,13 +89,25 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
 
         inference.plot_covariates()
 
-    def test_plot_all(self):
+    def test_plot_all_without_bootstraps(self):
         """
         Test that the plot_all method works.
         """
         inference = SharedInference.from_file(
             "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
         )
+
+        inference.plot_all()
+
+    def test_plot_all_with_bootstraps(self):
+        """
+        Test that the plot_all method works.
+        """
+        inference = SharedInference.from_file(
+            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+        )
+
+        inference.bootstrap(20)
 
         inference.plot_all()
 
@@ -178,7 +190,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         assert params_mle['pubescens']['b'] != config.data['x0']['all']['b']
 
         # check that S_b is fixed for pendula, but not for the others
-        assert params_mle['pendula']['S_b'] == config.data['fixed_params']['pendula']['S_b']
+        self.assertAlmostEqual(params_mle['pendula']['S_b'], config.data['fixed_params']['pendula']['S_b'])
         assert params_mle['pubescens']['S_b'] != config.data['x0']['all']['S_b']
 
     def test_shared_same_parameter_twice_among_different_types(self):

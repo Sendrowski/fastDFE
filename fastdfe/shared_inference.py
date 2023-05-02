@@ -161,13 +161,16 @@ class SharedInference(BaseInference):
         # check if the fixed parameters are compatible with the shared parameters
         self.check_no_shared_params_fixed()
 
+        # scales for all parameters
+        self.scales = self.model.scales | self.default_scales | scales_cov
+
         # create optimization instance for joint inference
         # take initial values and bounds from marginal inferences
         # and from this inference for type 'all'
         #: Joint optimization instance
         self.optimization: Optimization = Optimization(
             bounds=self.model.bounds | self.default_bounds | bounds | bounds_cov,
-            scales=self.model.scales | self.scales | scales_cov,
+            scales=self.scales,
             opts_mle=self.optimization.opts_mle,
             loss_type=self.optimization.loss_type,
             param_names=self.model.param_names + ['eps'] + args_cov,
@@ -301,13 +304,15 @@ class SharedInference(BaseInference):
     def run(
             self,
             do_bootstrap: bool = None,
-            pbar: bool = True
+            pbar: bool = True,
+            **kwargs
     ) -> Spectrum:
         """
         Run inference.
 
         :param do_bootstrap: Whether to perform bootstrapping.
         :param pbar: Whether to show progress bar.
+        :param kwargs: Additional keyword arguments passed to
         :return: Modelled SFS.
         """
 
@@ -398,6 +403,7 @@ class SharedInference(BaseInference):
         # Perform joint optimization.
         self.result, self.params_mle = self.optimization.run(
             x0=self.get_x0(),
+            scales=self.scales,
             n_runs=self.n_runs,
             get_counts=self.get_counts()
         )
@@ -602,6 +608,7 @@ class SharedInference(BaseInference):
         # at the time of creation.
         result, params_mle = self.optimization.run(
             x0=self.params_mle_shared,
+            scales=self.get_scales_linear(),
             n_runs=1,
             debug_iterations=False,
             print_info=False,
@@ -837,7 +844,7 @@ class SharedInference(BaseInference):
             title: str = 'DFE comparison',
             labels: List[str] = None,
             scale_density: bool = False,
-            scale: Literal['lin', 'log'] = 'lin',
+            scale: Literal['lin', 'log', 'symlog'] = 'lin',
             ax: plt.Axes = None
     ) -> plt.Axes:
         """
@@ -935,8 +942,7 @@ class SharedInference(BaseInference):
 
         :return: JSON string
         """
-        # using make_ref=True resulted in weird behaviour
-        # when unserializing.
+        # using make_ref=True resulted in weird behaviour when unserializing.
         return jsonpickle.encode(self, indent=4, warn=True, make_refs=False)
 
     @functools.cached_property
