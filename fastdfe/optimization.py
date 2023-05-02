@@ -14,6 +14,7 @@ from typing import Callable, List, Dict, Literal, Tuple, Optional
 import multiprocess as mp
 import numpy as np
 from numpy.linalg import norm
+from numpy.random import Generator
 from scipy.optimize import minimize, OptimizeResult
 from scipy.stats import loguniform, uniform
 from tqdm import tqdm
@@ -887,12 +888,16 @@ class Optimization:
             if isinstance(value, dict):
                 sample[key] = self.sample_x0(value)
             else:
-                sample[key] = self.sample_value(self.bounds[key], self.scales[key])
+                sample[key] = self.sample_value(self.bounds[key], self.scales[key], random_state=self.rng)
 
         return sample
 
     @staticmethod
-    def sample_value(bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']) -> float:
+    def sample_value(
+            bounds: Tuple[float, float],
+            scale: Literal['lin', 'log', 'symlog'],
+            random_state: int | Generator = None
+    ) -> float:
         """
         Sample a value between given bounds using the given scaling.
         This function works for positive, negative, and mixed bounds.
@@ -901,6 +906,7 @@ class Optimization:
 
         :param bounds: Tuple of lower and upper bounds
         :param scale: Scaling of the parameter.
+        :param random_state: Random state
         :return: Sampled value
         """
 
@@ -908,20 +914,21 @@ class Optimization:
             """
             Flip the bounds.
 
-            :param bounds:
-            :return: flipped bounds
+            :param bounds: Tuple of lower and upper bounds
+            :return: Flipped bounds
             """
             return -bounds[1], -bounds[0]
 
-        def symlog_rvs(lower: float, upper: float) -> float:
+        def symlog_rvs(lower: float, upper: float, random_state: int | Generator = None) -> float:
             """
             Sample from a symmetric log-uniform distribution.
 
-            :param lower: lower bound which is the linear threshold
-            :param upper: upper bound so that the actual bounds are (-upper, upper)
-            :return: sampled value
+            :param lower: Lower bound which is the linear threshold
+            :param upper: Upper bound so that the actual bounds are (-upper, upper)
+            :param random_state: Random state
+            :return: Sampled value
             """
-            val = loguniform.rvs(lower, upper)
+            val = loguniform.rvs(lower, upper, random_state=random_state)
 
             # flip sign with 50% probability
             return val if uniform.rvs() < 0.5 else -val
@@ -951,7 +958,7 @@ class Optimization:
             bounds = flip(bounds)
 
         # sample a value using the appropriate scaling function
-        sample = scaling_functions[scale](bounds[0], bounds[1] - bounds[0])
+        sample = scaling_functions[scale](bounds[0], bounds[1] - bounds[0], random_state=random_state)
 
         # return the sampled value, flipping back if necessary
         return -sample if flipped else sample

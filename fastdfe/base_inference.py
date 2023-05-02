@@ -46,7 +46,6 @@ class BaseInference(AbstractInference):
 
     .. warning::
         TODO add confidence intervals for inferred SFS.
-        TODO take average of likelihood after bootstrapping?
     """
 
     #: Default parameters not connected to the DFE parametrization
@@ -166,7 +165,7 @@ class BaseInference(AbstractInference):
         #: Modelled MLE SFS
         self.sfs_mle: Optional[Spectrum] = None
 
-        #: Likelihood of the MLE
+        #: Likelihood of the MLE, this value may be updated after bootstrapping
         self.likelihood: Optional[float] = None
 
         #: Number of MLE runs to perform
@@ -175,7 +174,7 @@ class BaseInference(AbstractInference):
         #: Numerical optimization result
         self.result: Optional[OptimizeResult] = None
 
-        # bootstrap options
+        # Bootstrap options
 
         #: Whether to do bootstrapping
         self.do_bootstrap: bool = do_bootstrap
@@ -543,15 +542,21 @@ class BaseInference(AbstractInference):
         # add alpha estimates
         self.bootstraps['alpha'] = self.bootstraps.apply(lambda r: self.get_alpha(dict(r)), axis=1)
 
-    def resample_sfs(self, sfs: Spectrum) -> Spectrum:
+    def resample_sfs(self, sfs: Spectrum, seed: int = None) -> Spectrum:
         """
         Resample SFS assuming independent Poisson counts.
 
         :param sfs: Spectrum to resample.
+        :param seed: Seed for random number generator.
         :return: Resampled spectrum.
         """
+        if seed is not None:
+            rng = np.random.default_rng(seed=seed)
+        else:
+            rng = self.rng
+
         # resample polymorphic sites only
-        polymorphic = self.rng.poisson(lam=sfs.polymorphic)
+        polymorphic = rng.poisson(lam=sfs.polymorphic)
 
         return Spectrum.from_polydfe(
             polymorphic=polymorphic,
@@ -567,12 +572,9 @@ class BaseInference(AbstractInference):
         :param seed: Seed for random number generator.
         :return: Optimization result and MLE parameters.
         """
-        if seed is not None:
-            self.rng = np.random.default_rng(seed=seed)
-
         # resample spectra
-        sfs_sel = self.resample_sfs(self.sfs_sel)
-        sfs_neut = self.resample_sfs(self.sfs_neut)
+        sfs_sel = self.resample_sfs(self.sfs_sel, seed=seed)
+        sfs_neut = self.resample_sfs(self.sfs_neut, seed=seed)
 
         # perform numerical minimization
         result, params_mle = self.optimization.run(

@@ -610,9 +610,6 @@ class SharedInference(BaseInference):
 
         :return: Optimization result and dictionary of MLE params
         """
-        if seed is not None:
-            self.rng = np.random.default_rng(seed=seed)
-
         # perform joint optimization
         # Note that it's important we bind t into the lambda function
         # at the time of creation.
@@ -624,8 +621,8 @@ class SharedInference(BaseInference):
             print_info=False,
             get_counts=dict((t, lambda params, t=t: inf.model_sfs(
                 correct_values(self.add_covariates(params, t), self.optimization.bounds),
-                sfs_neut=self.resample_sfs(self.marginal_inferences[t].sfs_neut),
-                sfs_sel=self.resample_sfs(self.marginal_inferences[t].sfs_sel)
+                sfs_neut=self.resample_sfs(self.marginal_inferences[t].sfs_neut, seed=seed),
+                sfs_sel=self.resample_sfs(self.marginal_inferences[t].sfs_sel, seed=seed)
             )) for t, inf in self.marginals_without_all().items())
         )
 
