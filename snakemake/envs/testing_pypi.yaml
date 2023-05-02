@@ -11,4 +11,5 @@ dependencies:
   - coverage
   - pip
   - pip:
-      - fastdfe==0.1.2-beta
+      - pytest-pycharm
+      - fastdfe==0.1.3-beta
