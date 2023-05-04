@@ -67,7 +67,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#shared-inference">Shared inference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#joint-inference">Joint inference</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#model-comparison">Model comparison</a></li>
 </ul>
 </li>
@@ -194,7 +194,7 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -9868.036855350932, &#39;a
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Running 100 bootstrap samples in parallel on 10 cores.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:07&lt;00:00, 13.87it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:06&lt;00:00, 14.41it/s]
 </pre></div>
 </div>
 <img alt="../_images/4c2ad59070ff70d9a2d19a6b1fae91339f378ed3ea94fb38bf971e143b83c557.png" src="../_images/4c2ad59070ff70d9a2d19a6b1fae91339f378ed3ea94fb38bf971e143b83c557.png" />
@@ -233,7 +233,7 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -33215.6469691796, &#39;al
 INFO:fastdfe:Running 100 bootstrap samples in parallel on 10 cores.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:02&lt;00:00, 37.57it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:01&lt;00:00, 53.97it/s]
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
@@ -305,12 +305,12 @@ WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during
 </div>
 </section>
 </section>
-<section id="shared-inference">
-<h2>Shared inference<a class="headerlink" href="#shared-inference" title="Permalink to this heading"></a></h2>
-<p>fastDFE supports joint inference of several SFS types, where any parameters can be shared between types. In this example, we create a <a class="reference internal" href="../modules/inference.html#fastdfe.shared_inference.SharedInference" title="fastdfe.shared_inference.SharedInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">SharedInference</span></code></a> object with two types, where we share <code class="docutils literal notranslate"><span class="pre">eps</span></code>, the rate of ancestral misidentification and <code class="docutils literal notranslate"><span class="pre">S_d</span></code>, the mean selection coefficient for deleterious mutations (cf. <a class="reference internal" href="../modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization" title="fastdfe.parametrization.GammaExpParametrization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammaExpParametrization</span></code></a>). For more complex stratifications, see the <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>) module.</p>
+<section id="joint-inference">
+<h2>Joint inference<a class="headerlink" href="#joint-inference" title="Permalink to this heading"></a></h2>
+<p>fastDFE supports joint inference of several SFS types, where any parameters can be shared between types. In this example, we create a <a class="reference internal" href="../modules/inference.html#fastdfe.joint_inference.JointInference" title="fastdfe.joint_inference.JointInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">JointInference</span></code></a> object with two types, where we share <code class="docutils literal notranslate"><span class="pre">eps</span></code>, the rate of ancestral misidentification and <code class="docutils literal notranslate"><span class="pre">S_d</span></code>, the mean selection coefficient for deleterious mutations (cf. <a class="reference internal" href="../modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization" title="fastdfe.parametrization.GammaExpParametrization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammaExpParametrization</span></code></a>). For more complex stratifications, see the <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>) module.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">SharedInference</span><span class="p">,</span> <span class="n">Spectra</span><span class="p">,</span> <span class="n">SharedParams</span>
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">JointInference</span><span class="p">,</span> <span class="n">Spectra</span><span class="p">,</span> <span class="n">SharedParams</span>
 
 <span class="c1"># neutral SFS for two types</span>
 <span class="n">sfs_neut</span> <span class="o">=</span> <span class="n">Spectra</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
@@ -325,7 +325,7 @@ WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during
 <span class="p">))</span>
 
 <span class="c1"># create inference object</span>
-<span class="n">inf</span> <span class="o">=</span> <span class="n">SharedInference</span><span class="p">(</span>
+<span class="n">inf</span> <span class="o">=</span> <span class="n">JointInference</span><span class="p">(</span>
     <span class="n">sfs_neut</span><span class="o">=</span><span class="n">sfs_neut</span><span class="p">,</span>
     <span class="n">sfs_sel</span><span class="o">=</span><span class="n">sfs_sel</span><span class="p">,</span>
     <span class="n">shared_params</span><span class="o">=</span><span class="p">[</span><span class="n">SharedParams</span><span class="p">(</span><span class="n">types</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pendula&quot;</span><span class="p">,</span> <span class="s2">&quot;pubescens&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;eps&quot;</span><span class="p">,</span> <span class="s2">&quot;S_d&quot;</span><span class="p">])],</span>
@@ -346,7 +346,7 @@ WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;pendu
 </div>
 </div>
 </div>
-<p><a class="reference internal" href="../modules/inference.html#fastdfe.shared_inference.SharedInference" title="fastdfe.shared_inference.SharedInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">SharedInference</span></code></a> both runs the joint inference and marginal inference where each type is inferred separately. To see this better we can plot the inferred parameters for the different inference types.</p>
+<p><a class="reference internal" href="../modules/inference.html#fastdfe.joint_inference.JointInference" title="fastdfe.joint_inference.JointInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">JointInference</span></code></a> both runs the joint inference and marginal inference where each type is inferred separately. To see this better we can plot the inferred parameters for the different inference types.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_inferred_parameters</span><span class="p">();</span>
@@ -354,7 +354,7 @@ WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;pendu
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/4ff8e0810f6692f0de832b37910e08f591dabcc073194517991a3f5128c15480.png" src="../_images/4ff8e0810f6692f0de832b37910e08f591dabcc073194517991a3f5128c15480.png" />
+<img alt="../_images/2cdb9c3c0a3b6e145d164676cd655011a2572961b346cb876d46199395a68b3c.png" src="../_images/2cdb9c3c0a3b6e145d164676cd655011a2572961b346cb876d46199395a68b3c.png" />
 </div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">marginal.pendula</span></code> and <code class="docutils literal notranslate"><span class="pre">marginal.pubescens</span></code> are the marginal inferences for the respective type. <code class="docutils literal notranslate"><span class="pre">marginal.all</span></code> is the marginal inference obtaining by adding up the spectra of all types. <code class="docutils literal notranslate"><span class="pre">joint.pendula</span></code> and <code class="docutils literal notranslate"><span class="pre">join.pubescens</span></code> are the joint inferences for the respective type. We can see that <code class="docutils literal notranslate"><span class="pre">eps</span></code> and <code class="docutils literal notranslate"><span class="pre">S_d</span></code> are indeed shared between the two. The parameter <code class="docutils literal notranslate"><span class="pre">alpha</span></code> in the plot denotes the proportion of beneficial non-synonymous substitutions. Each marginal inference is a <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> object itself and can be accessed via <code class="docutils literal notranslate"><span class="pre">inf.marginal_inferences[type]</span></code>.</p>
@@ -366,12 +366,12 @@ WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;pendu
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/9720c40f1ccf834898418b0ec429ecd2247df5557527b9663f0ddd377b19829c.png" src="../_images/9720c40f1ccf834898418b0ec429ecd2247df5557527b9663f0ddd377b19829c.png" />
+<img alt="../_images/c99076707b02c658aeabab6c26de516c7e53999fd3073b10e04725c336309141.png" src="../_images/c99076707b02c658aeabab6c26de516c7e53999fd3073b10e04725c336309141.png" />
 </div>
 </div>
 <section id="model-comparison">
 <h3>Model comparison<a class="headerlink" href="#model-comparison" title="Permalink to this heading"></a></h3>
-<p>We can obtain information about the goodness of fit achieved by sharing the parameter by performing a likelihood ratio test (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.shared_inference.SharedInference.perform_lrt_shared" title="fastdfe.shared_inference.SharedInference.perform_lrt_shared"><code class="xref py py-func docutils literal notranslate"><span class="pre">perform_lrt_shared()</span></code></a>). This compares the likelihood of the joint inference with the product of the marginal likelihoods.</p>
+<p>We can obtain information about the goodness of fit achieved by sharing the parameter by performing a likelihood ratio test (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.joint_inference.JointInference.perform_lrt_shared" title="fastdfe.joint_inference.JointInference.perform_lrt_shared"><code class="xref py py-func docutils literal notranslate"><span class="pre">perform_lrt_shared()</span></code></a>). This compares the likelihood of the joint inference with the product of the marginal likelihoods.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">perform_lrt_shared</span><span class="p">()</span>
@@ -389,7 +389,7 @@ WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;pendu
 </section>
 <section id="covariates">
 <h2>Covariates<a class="headerlink" href="#covariates" title="Permalink to this heading"></a></h2>
-<p><a class="reference internal" href="../modules/inference.html#fastdfe.shared_inference.SharedInference" title="fastdfe.shared_inference.SharedInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">SharedInference</span></code></a> also supports the inclusion of covariates associates with the different SFS types. This provides more powerful model testing and reduces the number of parameters that need to be estimated for the joint inference. For a more interesting example we stratify the SFS of <code class="docutils literal notranslate"><span class="pre">B.</span> <span class="pre">pendula</span></code> by the sites’ reference base as is described in more detail in the <code class="xref py py-mod docutils literal notranslate"><span class="pre">parser</span></code> module.</p>
+<p><a class="reference internal" href="../modules/inference.html#fastdfe.joint_inference.JointInference" title="fastdfe.joint_inference.JointInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">JointInference</span></code></a> also supports the inclusion of covariates associates with the different SFS types. This provides more powerful model testing and reduces the number of parameters that need to be estimated for the joint inference. For a more interesting example we stratify the SFS of <code class="docutils literal notranslate"><span class="pre">B.</span> <span class="pre">pendula</span></code> by the sites’ reference base as is described in more detail in the <code class="xref py py-mod docutils literal notranslate"><span class="pre">parser</span></code> module.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">Parser</span><span class="p">,</span> <span class="n">Spectra</span><span class="p">,</span> <span class="n">ReferenceBaseStratification</span><span class="p">,</span> <span class="n">DegeneracyStratification</span>
@@ -413,7 +413,7 @@ WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;pendu
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/a87389590ffbb45adfa5b8d6220987d1d4dfd3729981e970efbae4cb4651d68e.png" src="../_images/a87389590ffbb45adfa5b8d6220987d1d4dfd3729981e970efbae4cb4651d68e.png" />
+<img alt="../_images/a6a6f39bd8ff0ce7d2d842b89b7b23d48bdf6b5e08ed5493cc80c9749832335f.png" src="../_images/a6a6f39bd8ff0ce7d2d842b89b7b23d48bdf6b5e08ed5493cc80c9749832335f.png" />
 </div>
 </div>
 <p>We now create the inference object from the spectra. In this contrived example we make up some covariates that covary with <code class="docutils literal notranslate"><span class="pre">S_d</span></code>, the mean strength of negative selection. Covariates introduce a linear relationship by default but this can be modified by specifying a custom callback function (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.optimization.Covariate" title="fastdfe.optimization.Covariate"><code class="xref py py-class docutils literal notranslate"><span class="pre">Covariate</span></code></a>).</p>
@@ -422,7 +422,7 @@ WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;pendu
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">Covariate</span>
 
 <span class="c1"># create inference object</span>
-<span class="n">inf</span> <span class="o">=</span> <span class="n">SharedInference</span><span class="p">(</span>
+<span class="n">inf</span> <span class="o">=</span> <span class="n">JointInference</span><span class="p">(</span>
     <span class="n">sfs_neut</span><span class="o">=</span><span class="n">spectra</span><span class="p">[[</span><span class="s1">&#39;neutral.*&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">merge_groups</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
     <span class="n">sfs_sel</span><span class="o">=</span><span class="n">spectra</span><span class="p">[[</span><span class="s1">&#39;selected.*&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">merge_groups</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
     <span class="n">covariates</span><span class="o">=</span><span class="p">[</span><span class="n">Covariate</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="s1">&#39;S_d&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">A</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="mi">4</span><span class="p">))],</span>
@@ -436,11 +436,11 @@ WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;pendu
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01} and lower bound for {}, but this might be nothing to worry about.
-WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01, &#39;all.b&#39;: 10} and lower bound for {}, but this might be nothing to worry about.
-WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01} and lower bound for {}, but this might be nothing to worry about.
-WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0}, but this might be nothing to worry about.
-WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;A.b&#39;: 10, &#39;A:C:G:T.S_d&#39;: -0.01} and lower bound for {&#39;A:C:G:T.c0&#39;: 0.0001}, but this might be nothing to worry about.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0, &#39;all.b&#39;: 0.01}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;A:C:G:T.c0&#39;: 0.0001}, but this might be nothing to worry about.
+WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
+WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
+WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
 </pre></div>
 </div>
 </div>
@@ -456,12 +456,12 @@ WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;A.b&#
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/d7bdc81d0344b4f68a1bca39987e5ac2c03220cba4bc547d8d45c87c66d18ff1.png" src="../_images/d7bdc81d0344b4f68a1bca39987e5ac2c03220cba4bc547d8d45c87c66d18ff1.png" />
+<img alt="../_images/ee5a54a78e55a948b659b9a369e1e98cb12d6a881315779918972e40a4e61c02.png" src="../_images/ee5a54a78e55a948b659b9a369e1e98cb12d6a881315779918972e40a4e61c02.png" />
 </div>
 </div>
 <section id="id1">
 <h3>Model comparison<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
-<p>Covariates receive the parameter names <code class="docutils literal notranslate"><span class="pre">c{i}</span></code> in order of definition. We do see that <code class="docutils literal notranslate"><span class="pre">S_b</span></code> indeed varies among the types and this is due to the linear relationship with the covariate values introduced. We can perform a likelihood ratio test to see whether including the covariates produces a significantly better fit than simply sharing the parameter in question among the types (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.shared_inference.SharedInference.perform_lrt_covariates" title="fastdfe.shared_inference.SharedInference.perform_lrt_covariates"><code class="xref py py-func docutils literal notranslate"><span class="pre">perform_lrt_covariates()</span></code></a>).</p>
+<p>Covariates receive the parameter names <code class="docutils literal notranslate"><span class="pre">c{i}</span></code> in order of definition. We do see that <code class="docutils literal notranslate"><span class="pre">S_b</span></code> indeed varies among the types and this is due to the linear relationship with the covariate values introduced. We can perform a likelihood ratio test to see whether including the covariates produces a significantly better fit than simply sharing the parameter in question among the types (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.joint_inference.JointInference.perform_lrt_covariates" title="fastdfe.joint_inference.JointInference.perform_lrt_covariates"><code class="xref py py-func docutils literal notranslate"><span class="pre">perform_lrt_covariates()</span></code></a>).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">perform_lrt_covariates</span><span class="p">()</span>
@@ -469,14 +469,13 @@ WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;A.b&#
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01} and lower bound for {}, but this might be nothing to worry about.
-WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01, &#39;all.b&#39;: 10} and lower bound for {}, but this might be nothing to worry about.
-WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01} and lower bound for {}, but this might be nothing to worry about.
-WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0}, but this might be nothing to worry about.
-WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;A.b&#39;: 10, &#39;A:C:G:T.S_d&#39;: -0.01} and lower bound for {}, but this might be nothing to worry about.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0, &#39;all.b&#39;: 0.01}, but this might be nothing to worry about.
+WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
+WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
+WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
 </pre></div>
 </div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.8809089488732782
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.9986441741133472
 </pre></div>
 </div>
 </div>

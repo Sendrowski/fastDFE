@@ -536,8 +536,8 @@ rule merge_spectra:
     script:
         "scripts/merge_spectra.py"
 
-# run shared inference from template
-rule run_shared_inference_from_templates:
+# run joint inference from template
+rule run_joint_inference_from_templates:
     input:
         "../resources/configs/shared/{config}/config.yaml"
     output:

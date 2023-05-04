@@ -55,7 +55,7 @@ from .parametrization import Parametrization, GammaExpParametrization, DiscreteP
 from .config import Config
 from .abstract_inference import Inference
 from .base_inference import BaseInference, InferenceResults
-from .shared_inference import SharedInference, SharedParams
+from .joint_inference import JointInference, SharedParams
 from .optimization import Covariate
 from .visualization import Visualization
 from .spectrum import Spectrum, Spectra
@@ -71,7 +71,7 @@ __all__ = [
     'Config',
     'Inference',
     'BaseInference',
-    'SharedInference',
+    'JointInference',
     'SharedParams',
     'Covariate',
     'Visualization',

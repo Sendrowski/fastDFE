@@ -25,7 +25,7 @@ logger = logging.getLogger('fastdfe')
 class Config:
     """
     Configuration class to be used for :class:``~fastdfe.base_inference.BaseInference`` and
-    :class:``fastdfe.shared_inference.SharedInference``.
+    :class:``fastdfe.joint_inference.JointInference``.
     """
 
     def __init__(

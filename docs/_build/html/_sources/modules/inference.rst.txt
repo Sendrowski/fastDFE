@@ -8,7 +8,7 @@ Inference
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: fastdfe.shared_inference.SharedInference
+.. autoclass:: fastdfe.joint_inference.JointInference
    :inherited-members:
    :undoc-members:
    :show-inheritance:

@@ -4,13 +4,13 @@ prioritize_installed_packages()
 
 import pytest
 
-from fastdfe import SharedInference, Config, SharedParams, Covariate, Parser, DegeneracyStratification, \
+from fastdfe import JointInference, Config, SharedParams, Covariate, Parser, DegeneracyStratification, \
     ReferenceBaseStratification, Spectra
 from fastdfe.optimization import flatten_dict
 from testing.test_base_inference import AbstractInferenceTestCase
 
 
-class SharedInferenceTestCase(AbstractInferenceTestCase):
+class JointInferenceTestCase(AbstractInferenceTestCase):
     config_file = "testing/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
 
     show_plots = False
@@ -19,9 +19,9 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
 
     def test_run_and_restore_from_file(self):
         """
-        Test that shared inference can be restored from file.
+        Test that joint inference can be restored from file.
         """
-        inference = SharedInference.from_config_file(
+        inference = JointInference.from_config_file(
             "resources/configs/shared/covariates_Sd_fixed_params/config.yaml"
         )
 
@@ -31,7 +31,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
 
         inference.to_file(out)
 
-        inference2 = SharedInference.from_file(out)
+        inference2 = JointInference.from_file(out)
 
         self.assertEqualInference(inference, inference2)
 
@@ -39,17 +39,17 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         """
         Test whether inference can be recreated from config.
         """
-        inf = SharedInference.from_config_file(self.config_file)
+        inf = JointInference.from_config_file(self.config_file)
 
-        inf2 = SharedInference.from_config(inf.create_config())
+        inf2 = JointInference.from_config(inf.create_config())
 
         self.assertEqualInference(inf, inf2, ignore_keys=['fixed_params'])
 
-    def test_bootstrap_shared_inference(self):
+    def test_bootstrap_joint_inference(self):
         """
         Test that the bootstrap method works.
         """
-        inference = SharedInference.from_file(
+        inference = JointInference.from_file(
             "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
@@ -59,7 +59,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         """
         Test that the perform_lrt_shared method works.
         """
-        inference = SharedInference.from_file(
+        inference = JointInference.from_file(
             "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
@@ -74,7 +74,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         """
         Test that the perform_lrt_covariates method works.
         """
-        inference = SharedInference.from_file(
+        inference = JointInference.from_file(
             "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
@@ -85,10 +85,10 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         """
         Test that the perform_lrt_covariates method works.
         """
-        # inf = SharedInference.from_config_file("resources/configs/shared/covariates_Sd_example_1/config.yaml")
+        # inf = JointInference.from_config_file("resources/configs/shared/covariates_Sd_example_1/config.yaml")
         # inf.run()
 
-        inf = SharedInference.from_file(
+        inf = JointInference.from_file(
             "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
         )
 
@@ -98,7 +98,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         """
         Test that the plot_covariates method works.
         """
-        inference = SharedInference.from_file(
+        inference = JointInference.from_file(
             "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
         )
 
@@ -108,7 +108,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         """
         Test that the plot_all method works.
         """
-        inference = SharedInference.from_file(
+        inference = JointInference.from_file(
             "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
         )
 
@@ -118,7 +118,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         """
         Test that the plot_all method works.
         """
-        inference = SharedInference.from_file(
+        inference = JointInference.from_file(
             "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
         )
 
@@ -132,7 +132,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         yields the same likelihood as the one reported.
         """
         # unserialize
-        inference = SharedInference.from_file(
+        inference = JointInference.from_file(
             "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
@@ -148,7 +148,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
             assert inference.joint_inferences[t].evaluate_likelihood(
                 dict(all=inference.joint_inferences[t].params_mle)) != inference.joint_inferences[t].likelihood
 
-            # make sure all joint likelihoods coincide with likelihood of shared inference
+            # make sure all joint likelihoods coincide with likelihood of joint inference
             inference.joint_inferences[t].likelihood = inference.likelihood
 
     def test_fixed_parameters(self):
@@ -172,7 +172,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
             SharedParams(types='all', params=['S_d', 'p_b'])
         ]
 
-        inf = SharedInference.from_config(config)
+        inf = JointInference.from_config(config)
 
         inf.run()
 
@@ -222,7 +222,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
             SharedParams(types=['pendula', 'pubescens'], params=['b'])
         ]
 
-        inf = SharedInference.from_config(config)
+        inf = JointInference.from_config(config)
 
         inf.run()
 
@@ -254,13 +254,13 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         ]
 
         with pytest.raises(ValueError):
-            SharedInference.from_config(config)
+            JointInference.from_config(config)
 
     def test_compared_nested_models(self):
         """
         Test nested model comparison.
         """
-        inf = SharedInference.from_config_file(
+        inf = JointInference.from_config_file(
             "resources/configs/shared/covariates_Sd_fixed_params/config.yaml"
         )
 
@@ -282,19 +282,19 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         """
         Test get number of parameters to be optimized.
         """
-        inf = SharedInference.from_config_file(
+        inf = JointInference.from_config_file(
             "resources/configs/shared/covariates_Sd_fixed_params/config.yaml"
         )
 
         assert inf.get_n_optimized() == 11
 
-        inf = SharedInference.from_config_file(
+        inf = JointInference.from_config_file(
             "resources/configs/shared/covariates_Sd_example_1/config.yaml"
         )
 
         assert inf.get_n_optimized() == 18
 
-        inf = SharedInference.from_config_file(
+        inf = JointInference.from_config_file(
             "resources/configs/shared/covariates_dummy_example_1/config.yaml"
         )
 
@@ -314,7 +314,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         ]
 
         with pytest.raises(ValueError):
-            SharedInference.from_config(config)
+            JointInference.from_config(config)
 
     def test_non_existing_covariate_raises_error(self):
         """
@@ -332,7 +332,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         ]
 
         with pytest.raises(ValueError):
-            SharedInference.from_config(config)
+            JointInference.from_config(config)
 
     def test_covariate_random_covariates(self):
         """
@@ -342,7 +342,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         spectra = Spectra.from_file("resources/SFS/spectra/pendula_degeneracy_ref_base_tutorial.csv")
 
         # create inference object
-        inf = SharedInference(
+        inf = JointInference(
             sfs_neut=spectra[['neutral.*']].merge_groups(1),
             sfs_sel=spectra[['selected.*']].merge_groups(1),
             covariates=[Covariate(param='S_d', values=dict(A=1, C=2, T=3, G=4))],
@@ -371,7 +371,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         spectra = Spectra.from_file("resources/SFS/spectra/pendula_degeneracy_ref_base_tutorial.csv")
 
         # create inference object
-        inf = SharedInference(
+        inf = JointInference(
             sfs_neut=spectra[['neutral.*']].merge_groups(1),
             sfs_sel=spectra[['selected.*']].merge_groups(1),
             covariates=[Covariate(param='S_d', values=dict(A=-100000, C=-2045, T=-60504, G=-5024))],
@@ -406,7 +406,7 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         spectra = Spectra.from_file("resources/SFS/spectra/pendula_degeneracy_ref_base_tutorial.csv")
 
         # create inference object
-        inf = SharedInference(
+        inf = JointInference(
             sfs_neut=spectra[['neutral.*']].merge_groups(1),
             sfs_sel=spectra[['selected.*']].merge_groups(1),
             covariates=[Covariate(param='S_d', values=dict(A=-100000, C=-2045, T=-60504, G=-5024))],

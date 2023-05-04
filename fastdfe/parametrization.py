@@ -50,6 +50,7 @@ class Parametrization:
     Note that :func:`get_pdf` is not required to be implemented, provided that the
     linearized mode of fastDFE is used (which is highly recommended).
     """
+
     #: Default initial parameters
     x0 = {}
 
