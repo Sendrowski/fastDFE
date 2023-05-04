@@ -72,7 +72,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../modules/inference.html">Inference classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/config.html">Configuration class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/parametrization.html">Parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/spectrum.html">Spectrum class</a></li>
@@ -142,6 +142,9 @@
 <span class="c1"># type here. This property should be left untouched in</span>
 <span class="c1"># most cases.</span>
 <span class="nt">bounds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="c1"># The scales over which the parameters are optimized,</span>
+<span class="c1"># i.e. &#39;lin&#39;, &#39;log&#39;, or &#39;symlog&#39;.</span>
+<span class="nt">scales</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="p p-Indicator">}</span>
 <span class="c1"># Whether to perform bootstraps directly when invoking</span>
 <span class="c1"># Inference.run()</span>
 <span class="nt">do_bootstrap</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
@@ -213,6 +216,7 @@
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="nt">&quot;n_runs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;bounds&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">  </span><span class="nt">&quot;scales&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
 <span class="w">  </span><span class="nt">&quot;do_bootstrap&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;n_bootstraps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;parallelize&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
@@ -274,6 +278,7 @@
 <span class="w">      </span><span class="nt">pendula</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-32623.595481483513</span>
 <span class="w">      </span><span class="nt">pubescens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-426.59080558648185</span>
 <span class="nt">bounds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="nt">scales</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="p p-Indicator">}</span>
 <span class="nt">x0</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="p p-Indicator">}</span>
 <span class="nt">do_bootstrap</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="nt">linearized</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>

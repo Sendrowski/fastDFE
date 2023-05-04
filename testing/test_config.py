@@ -100,7 +100,7 @@ class ConfigTestCase(TestCase):
 
         # 'bounds' and 'opts_mle' will be different
         # because of the default specific to Inference.
-        self.assert_config_equal(config, config2, ['bounds', 'opts_mle', 'sfs_neut', 'sfs_sel', 'x0'])
+        self.assert_config_equal(config, config2, ['bounds', 'scales', 'opts_mle', 'sfs_neut', 'sfs_sel', 'x0'])
 
     def test_restore_shared_params(self):
         """

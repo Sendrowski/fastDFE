@@ -19,6 +19,7 @@ n_bootstraps: 100
 n_runs: 10
 opts_mle: {}
 parallelize: true
+scales: {}
 seed: 0
 sfs_neut:
   example_1:

@@ -43,6 +43,9 @@ A configuration file typically looks like this:
     # type here. This property should be left untouched in
     # most cases.
     bounds: { }
+    # The scales over which the parameters are optimized,
+    # i.e. 'lin', 'log', or 'symlog'.
+    scales: { }
     # Whether to perform bootstraps directly when invoking
     # Inference.run()
     do_bootstrap: true
@@ -117,6 +120,7 @@ You can also use JSON by calling :meth:`~fastdfe.config.Config.from_json` which 
       },
       "n_runs": 10,
       "bounds": {},
+      "scales": {},
       "do_bootstrap": true,
       "n_bootstraps": 100,
       "parallelize": true,
@@ -180,6 +184,7 @@ A more involved configuration files configuring a joint inference with a number 
           pendula: -32623.595481483513
           pubescens: -426.59080558648185
     bounds: { }
+    scales: { }
     x0: { }
     do_bootstrap: true
     linearized: true

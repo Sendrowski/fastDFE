@@ -12,7 +12,7 @@ import itertools
 import json
 import logging
 import time
-from typing import List, Optional, Dict, Literal, cast
+from typing import List, Optional, Dict, Literal, cast, Tuple
 
 import jsonpickle
 import multiprocess as mp
@@ -29,7 +29,7 @@ from .abstract_inference import AbstractInference, Inference
 from .config import Config
 from .discretization import Discretization
 from .json_handlers import CustomEncoder
-from .optimization import Optimization, flatten_dict, pack_params, expand_fixed, scale_values
+from .optimization import Optimization, flatten_dict, pack_params, expand_fixed, scale_values, unpack_shared
 from .parametrization import Parametrization, from_string
 from .spectrum import Spectrum, Spectra
 from .spectrum import standard_kingman
@@ -80,7 +80,8 @@ class BaseInference(AbstractInference):
             model: Parametrization | str = 'GammaExpParametrization',
             seed: int = 0,
             x0: Dict[str, Dict[str, float]] = {},
-            bounds: Dict[str, tuple] = {},
+            bounds: Dict[str, Tuple[float, float]] = {},
+            scales: Dict[str, Literal['lin', 'log', 'symlog']] = {},
             loss_type: Literal['likelihood', 'L2'] = 'likelihood',
             opts_mle: dict = {},
             n_runs: int = 10,
@@ -98,16 +99,17 @@ class BaseInference(AbstractInference):
 
         :param sfs_neut: The neutral SFS. Spectra | Spectrum
         :param sfs_sel: The selected SFS.
-        :param intervals_del: (start, stop, n_interval) for deleterious population-scaled
+        :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
         selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as for intervals_del but for beneficial selection coefficients.
         :param model: Instance of DFEParametrization which parametrized the DFE
         :param seed: Seed for the random number generator.
-        :param x0: Initial values for the optimization.
-        :param bounds: Bounds for the optimization.
+        :param x0: Dictionary of initial values in the form {'all': {param: value}}
+        :param bounds: Bounds for the optimization in the form {param: (lower, upper)}
+        :param scales: Scales for the optimization in the form {param: scale}
         :param loss_type: Type of loss function to use for optimization.
         :param opts_mle: Options for the optimization.
-        :param n_runs: Number of optimization runs.
+        :param n_runs: Number of optimization runs. The first run will use the initial values if provided.
         :param fixed_params: Fixed parameters for the optimization.
         :param do_bootstrap: Whether to do bootstrapping.
         :param n_bootstraps: Number of bootstraps.
@@ -159,7 +161,7 @@ class BaseInference(AbstractInference):
         #: Estimate of theta from neutral SFS
         self.theta: float = self.sfs_neut.theta
 
-        #: MLE params
+        #: MLE estimates of the initial optimization
         self.params_mle: Optional[Dict[str, float]] = None
 
         #: Modelled MLE SFS
@@ -167,6 +169,9 @@ class BaseInference(AbstractInference):
 
         #: Likelihood of the MLE, this value may be updated after bootstrapping
         self.likelihood: Optional[float] = None
+
+        #: Likelihoods of the different ML runs, controlled by ``n_runs``
+        self.likelihoods: Optional[List[float]] = None
 
         #: Number of MLE runs to perform
         self.n_runs: int = n_runs
@@ -192,15 +197,18 @@ class BaseInference(AbstractInference):
         # check that the fixed parameters are valid
         self.check_fixed_params_exist()
 
-        #: scale for all parameters
-        self.scales = self.model.scales | self.default_scales
+        #: parameter scales
+        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = self.model.scales | self.default_scales | scales
+
+        #: parameter bounds
+        self.bounds: Dict[str, Tuple[float, float]] = self.model.bounds | self.default_bounds | bounds
 
         if optimization is None:
             # create optimization instance
             # merge with default values of inference and model
             #: Optimization instance
             self.optimization: Optimization = Optimization(
-                bounds=self.model.bounds | self.default_bounds | bounds,
+                bounds=self.bounds,
                 scales=self.scales,
                 opts_mle=self.default_opts_mle | opts_mle,
                 loss_type=loss_type,
@@ -348,10 +356,17 @@ class BaseInference(AbstractInference):
         result, params_mle = self.optimization.run(
             x0=self.x0,
             scales=self.scales,
+            bounds=self.bounds,
             get_counts=self.get_counts(),
             n_runs=self.n_runs,
             pbar=pbar
         )
+
+        # assign likelihoods
+        self.likelihoods = self.optimization.likelihoods
+
+        # unpack shared parameters
+        params_mle = unpack_shared(params_mle)
 
         # normalize parameters
         params_mle['all'] = self.model.normalize(params_mle['all'])
@@ -527,7 +542,7 @@ class BaseInference(AbstractInference):
         # add execution time
         self.execution_time += time.time() - start_time
 
-        # determine average likelihood of successful runs
+        # assign average likelihood of successful runs
         if update_likelihood:
             self.likelihood = np.mean([-res.fun for res in result[:, 0] if res.success] + [self.likelihood])
 
@@ -580,6 +595,7 @@ class BaseInference(AbstractInference):
         result, params_mle = self.optimization.run(
             x0=dict(all=self.params_mle),
             scales=self.get_scales_linear(),
+            bounds=self.get_bounds_linear(),
             n_runs=1,
             debug_iterations=False,
             print_info=False,
@@ -589,6 +605,9 @@ class BaseInference(AbstractInference):
                 sfs_sel=sfs_sel
             ))
         )
+
+        # unpack shared parameters
+        params_mle = unpack_shared(params_mle)
 
         # normalize MLE estimates
         params_mle['all'] = self.model.normalize(params_mle['all'])
@@ -602,6 +621,24 @@ class BaseInference(AbstractInference):
         :return: Dictionary of scales.
         """
         return cast(Dict[str, Literal['lin']], dict((p, 'lin') for p in self.scales.keys()))
+
+    def get_bounds_linear(self) -> Dict[str, Tuple[float, float]]:
+        """
+        Get linear bounds for all parameters. We do this for the bootstraps as x0 should be close to MLE.
+
+        :return: Dictionary of bounds.
+        """
+        scaled_bounds = {}
+
+        for key, bounds in self.bounds.items():
+
+            # for symlog we need to convert the bounds to linear scale
+            if self.scales[key] == 'symlog':
+                scaled_bounds[key] = (-bounds[1], bounds[1])
+            else:
+                scaled_bounds[key] = bounds
+
+        return scaled_bounds
 
     def model_sfs(self, params: dict, sfs_neut: Spectrum, sfs_sel: Spectrum) -> (np.ndarray, np.ndarray):
         """
@@ -939,7 +976,7 @@ class BaseInference(AbstractInference):
         :return: Axes object
         """
         return Visualization.plot_likelihoods(
-            likelihoods=self.optimization.likelihoods,
+            likelihoods=self.likelihoods,
             file=file,
             show=show,
             title=title,
@@ -1124,7 +1161,7 @@ class BaseInference(AbstractInference):
         """
         return self.get_alpha()
 
-    def get_bootstrap_params(self) -> dict:
+    def get_bootstrap_params(self) -> Dict[str, float]:
         """
         Get the parameters to be included in the bootstraps.
 
@@ -1172,9 +1209,12 @@ class BaseInference(AbstractInference):
             linearized=self.discretization.linearized,
             model=self.model.__class__.__name__,
             seed=self.seed,
-            opts_mle=self.optimization.opts_mle,
             x0=self.x0,
-            bounds=self.optimization.bounds,
+            bounds=self.bounds,
+            scales=self.scales,
+            loss_type=self.optimization.loss_type,
+            opts_mle=self.optimization.opts_mle,
+            n_runs=self.n_runs,
             fixed_params=self.fixed_params,
             do_bootstrap=self.do_bootstrap,
             n_bootstraps=self.n_bootstraps,

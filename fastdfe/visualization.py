@@ -873,7 +873,6 @@ class Visualization:
         return ax
 
     @staticmethod
-    @clear_show_save
     def plot_covariates(
             covariates: Dict[str, 'Covariate'],
             params_marginal: Dict[str, Dict[str, float]],
@@ -908,7 +907,9 @@ class Visualization:
         n_cols = min(3, num_covariates)
         n_rows = int(np.ceil(num_covariates / n_cols))
 
+        # create axes if not provided
         if not isinstance(axs, np.ndarray | list):
+            plt.clf()
             _, axs = plt.subplots(n_rows, n_cols, figsize=(6.4 * n_cols, 4.8 * n_rows), squeeze=False)
 
         n_intervals = len(types)
@@ -955,6 +956,9 @@ class Visualization:
             # set y-scale
             if scale == 'log':
                 ax.set_yscale('log')
+
+        # show and save plot
+        Visualization.show_and_save(file, show)
 
         return axs
 

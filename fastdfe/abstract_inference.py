@@ -182,11 +182,51 @@ class Inference:
             raise ValueError('No inference objects given.')
 
         # get sorted list of parameter names
-        param_names = sorted(inferences[0].get_bootstrap_param_names())
+        param_names = sorted(list(inferences[0].get_bootstrap_param_names()))
 
-        if labels is None:
-            labels = list()
+        # get errors and values
+        errors, values = Inference.get_errors_and_values(
+            bootstrap_type=bootstrap_type,
+            ci_level=ci_level,
+            confidence_intervals=confidence_intervals,
+            inferences=inferences,
+            labels=labels,
+            param_names=param_names
+        )
 
+        return Visualization.plot_inferred_parameters(
+            values=values,
+            errors=errors,
+            param_names=param_names,
+            file=file,
+            show=show,
+            title=title,
+            labels=labels,
+            scale=scale,
+            legend=len(labels) > 1,
+            ax=ax
+        )
+
+    @staticmethod
+    def get_errors_and_values(
+            bootstrap_type: Literal['percentile', 'bca'],
+            ci_level: float,
+            confidence_intervals: bool,
+            inferences: List['AbstractInference'],
+            labels: list | np.ndarray,
+            param_names: list | np.ndarray
+    ):
+        """
+        Get errors and values for inferences.
+
+        :param bootstrap_type: Type of bootstrap to use.
+        :param ci_level: Confidence level for confidence intervals.
+        :param confidence_intervals: Whether to compute confidence intervals.
+        :param inferences: List of inference objects.
+        :param labels: Labels for the inferences.
+        :param param_names: Names of the parameters to get errors and values for.
+        :return: dictionary of errors and dictionary of values
+        """
         errors = {}
         values = {}
         for label, inf in zip(labels, inferences):
@@ -210,18 +250,7 @@ class Inference:
             else:
                 errors[label] = None
 
-        return Visualization.plot_inferred_parameters(
-            values=values,
-            errors=errors,
-            param_names=param_names,
-            file=file,
-            show=show,
-            title=title,
-            labels=labels,
-            scale=scale,
-            legend=len(labels) > 1,
-            ax=ax
-        )
+        return errors, values
 
     @staticmethod
     def get_discretized(

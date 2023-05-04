@@ -240,7 +240,7 @@ def expand_fixed(
     """
     Expand 'all' type for shared parameters.
 
-    :param fixed_params: Dictionary of fixed parameters
+    :param fixed_params: Dictionary of fixed parameters indexed by type and parameter
     :param types: List of types
     :return: Expanded dictionary of fixed parameters
     """
@@ -260,6 +260,33 @@ def expand_fixed(
                 expanded[t][param] = value
 
     return expanded
+
+
+def collapse_fixed(
+        expanded_params: Dict[str, Dict[str, float]],
+        types: List[str]
+) -> Dict[str, Dict[str, float]]:
+    """
+    Collapse expanded fixed parameters to 'all' type if all types have the same fixed parameter.
+
+    :param expanded_params: Expanded dictionary of fixed parameters
+    :param types: List of types
+    :return: Collapsed dictionary of fixed parameters
+    """
+    all_params = {param: [] for params in expanded_params.values() for param in params}
+
+    # Collect parameter values for all types
+    for params in expanded_params.values():
+        for param, value in params.items():
+            all_params[param].append(value)
+
+    # Calculate the mean and check if parameters can be collapsed
+    collapsed = {}
+    for param, values in all_params.items():
+        if len(values) == len(types):
+            collapsed[param] = np.mean(values)
+
+    return {'all': collapsed} if len(collapsed) > 0 else expanded_params
 
 
 def merge_dicts(dict1: dict, dict2: dict) -> dict:
@@ -289,31 +316,58 @@ def merge_dicts(dict1: dict, dict2: dict) -> dict:
     return result
 
 
-def correct_values(params: Dict[str, float], bounds: Dict[str, tuple], warn: bool = False) -> Dict[str, float]:
+def correct_values(
+        params: Dict[str, float],
+        bounds: Dict[str, Tuple[float, float]],
+        scales: Dict[str, Literal['lin', 'log', 'symlog']],
+        warn: bool = False
+) -> Dict[str, float]:
     """
     Correct initial values so that they are within the specified bounds.
 
     :param bounds: Dictionary of bounds
-    :param params: Dictionary of initial values
+    :param params: Flattened dictionary of parameters
+    :param scales: Dictionary of scales
     :param warn: Whether to warn if values are corrected
     :return: Corrected dictionary
     """
-    # create a copy of x0
+    # create a copy of params
     corrected = params.copy()
 
     for key, value in params.items():
         # get base name
         name = key.split('.')[-1]
 
-        if value < bounds[name][0]:
-            corrected[key] = bounds[name][0]
-        elif value > bounds[name][1]:
-            corrected[key] = bounds[name][1]
+        # get real bounds
+        bound = get_real_bounds(bounds[name], scale=scales[name])
 
-    if corrected != params and warn:
-        logger.warning(f'Given initial values outside bounds. Adjusting {params} to {corrected}.')
+        # correct value if outside bounds
+        if value < bound[0]:
+            corrected[key] = bound[0]
+        elif value > bound[1]:
+            corrected[key] = bound[1]
+
+    # differences between the original and corrected dictionaries
+    differences = {key: f"{params[key]} -> {corrected[key]}" for key in params if params[key] != corrected[key]}
+
+    # warn if there are differences
+    if differences and warn:
+        logger.warning(f'Given initial values outside bounds. Adjusting {differences}.')
 
     return corrected
+
+
+def get_real_bounds(bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']) -> Tuple[float, float]:
+    """
+    Get real bounds from the given bounds.
+
+    :param bounds:
+    :return:
+    """
+    if scale == 'symlog':
+        return -bounds[1], bounds[1]
+
+    return bounds
 
 
 def evaluate_counts(get_counts: dict, params: dict):
@@ -651,7 +705,7 @@ class Optimization:
 
     def __init__(
             self,
-            bounds: Dict[str, tuple],
+            bounds: Dict[str, Tuple[float, float]],
             param_names: List[str],
             loss_type: Literal['likelihood', 'L2'] = 'likelihood',
             opts_mle: dict = {},
@@ -680,7 +734,7 @@ class Optimization:
         self.fixed_params = flatten_dict(fixed_params)
 
         # check if fixed parameters are within the specified bounds
-        if correct_values(self.fixed_params, self.bounds, warn=False) != self.fixed_params:
+        if correct_values(self.fixed_params, self.bounds, warn=False, scales=scales) != self.fixed_params:
             raise ValueError('Fixed parameters are outside the specified bounds. '
                              f'Fixed params: {self.fixed_params}, bounds: {self.bounds}.')
 
@@ -704,6 +758,7 @@ class Optimization:
             get_counts: Dict[str, Callable],
             x0: Dict[str, Dict[str, float]] = {},
             scales: Dict[str, Literal['lin', 'log', 'symlog']] = {},
+            bounds: Dict[str, Tuple[float, float]] = {},
             n_runs: int = 1,
             debug_iterations: bool = True,
             print_info: bool = True,
@@ -713,10 +768,12 @@ class Optimization:
         Perform the optimization procedure.
 
         :param scales: Scales of the parameters
+        :param bounds: Bounds of the parameters
         :param pbar: Whether to show a progress bar
         :param print_info: Whether to inform the user about the bounds
-        :param n_runs: Number of optimization runs
-        :param x0: Dictionary of initial values
+        :param n_runs: Number of optimization runs. Number of optimization runs. The first run will use the
+        initial values if provided.
+        :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
         :param get_counts: Dictionary of functions to evaluate counts for each type
         :param debug_iterations: Whether to print debug messages for each iteration
         :return: The optimization result and the likelihoods
@@ -725,7 +782,12 @@ class Optimization:
         self.n_runs = n_runs
 
         # store the scales of the parameters
-        self.scales = scales
+        if scales:
+            self.scales = scales
+
+        # store the bounds of the parameters
+        if bounds:
+            self.bounds = bounds
 
         # filter out unneeded values
         # this also holds the fixed parameters
@@ -748,7 +810,7 @@ class Optimization:
                            f'Please be aware that this makes it harder to find a good optimum.')
 
         # correct initial values to be within bounds
-        self.x0 = unflatten_dict(correct_values(flattened, self.bounds, warn=True))
+        self.x0 = unflatten_dict(correct_values(flattened, self.bounds, warn=True, scales=self.scales))
 
         # determine parameter bounds
         bounds = self.get_bounds(flatten_dict(self.x0))
@@ -757,7 +819,7 @@ class Optimization:
             """
             Perform numerical minimization.
 
-            :param x0: Initial values
+            :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
             :return: Optimization result
             """
             logger.debug(f"Initial parameters: {x0}.")
@@ -795,16 +857,13 @@ class Optimization:
         if print_info:
             self.check_bounds(flatten_dict(params_mle))
 
-        # unpack shared parameters
-        params_mle = unpack_shared(params_mle)
-
         return result, params_mle
 
     def scale_values(self, x0: Dict[str, Dict[str, float]]) -> Dict[str, Dict[str, float]]:
         """
         Scale the values of the parameters.
 
-        :param x0: Dictionary of initial values
+        :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
         :return: Dictionary of scaled initial values
         """
         return scale_values(x0, self.bounds, self.scales)

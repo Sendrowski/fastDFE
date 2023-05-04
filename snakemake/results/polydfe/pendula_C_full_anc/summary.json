@@ -1,5 +1,5 @@
 {
-    "output_file": "/var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/tmpvsltxxzg",
+    "output_file": "/var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/tmpfuffedzf",
     "model": "C",
     "likelihood": -128.7977,
     "criteria": 8e-05,
@@ -84,5 +84,5 @@
         }
     ],
     "alpha": 0.47931662785688917,
-    "execution_time": 2596.412425994873
+    "execution_time": 2705.9462921619415
 }

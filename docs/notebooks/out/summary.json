@@ -33,7 +33,7 @@
         "success": true,
         "hess_inv": null
     },
-    "execution_time": 3.5028836727142334,
+    "execution_time": 4.878573179244995,
     "sfs_mle": [
         0.0,
         1321.4516483794037,
@@ -121,6 +121,13 @@
                 0,
                 0.15
             ]
+        },
+        "scales": {
+            "S_d": "log",
+            "b": "log",
+            "p_b": "lin",
+            "S_b": "log",
+            "eps": "lin"
         },
         "fixed_params": {
             "all": {

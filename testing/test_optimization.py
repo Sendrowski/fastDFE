@@ -2,7 +2,7 @@ from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
 
-from typing import Literal, List
+from typing import Literal, List, Dict, cast
 from unittest import TestCase
 
 import matplotlib.pyplot as plt
@@ -152,6 +152,12 @@ class OptimizationTestCase(TestCase):
             "c": (1, 100)
         }
 
+        scales = cast(Dict[str, Literal['lin']], {
+            "a": "lin",
+            "b": "lin",
+            "c": "lin"
+        })
+
         x0 = {
             "some.prefix.a": -2,
             "another.prefix.b": 7,
@@ -164,7 +170,7 @@ class OptimizationTestCase(TestCase):
             "yet.another.prefix.c": 50
         }
 
-        corrected = correct_values(x0, bounds)
+        corrected = correct_values(x0, bounds, scales=scales)
         self.assertEqual(corrected, expected_corrected)
 
         x0_no_correction = {
@@ -173,7 +179,7 @@ class OptimizationTestCase(TestCase):
             "yet.another.prefix.c": 30
         }
 
-        corrected_no_correction = correct_values(x0_no_correction, bounds)
+        corrected_no_correction = correct_values(x0_no_correction, bounds, scales=scales)
         self.assertEqual(corrected_no_correction, x0_no_correction)
 
     def test_symlog_scale(self):

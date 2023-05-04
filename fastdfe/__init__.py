@@ -6,7 +6,7 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-03-10"
 
-__version__ = '0.1.3-beta'
+__version__ = '0.1.4-beta'
 
 import logging
 import sys
@@ -32,7 +32,7 @@ handler.setFormatter(logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
-# whether to show progress bar
+# whether to disable the progress bar
 disable_pbar = False
 
 

@@ -18,6 +18,7 @@ covariates:
       pendula: -32623.595481483513
       pubescens: -426.59080558648185
 bounds: { }
+scales: { }
 x0: { }
 do_bootstrap: true
 linearized: true

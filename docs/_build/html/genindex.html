@@ -64,7 +64,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="modules/inference.html">Inference classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/config.html">Configuration class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/parametrization.html">Parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/spectrum.html">Spectrum class</a></li>
@@ -188,6 +188,8 @@
         <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.bootstrap">(fastdfe.shared_inference.SharedInference method)</a>
 </li>
       </ul></li>
+      <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.bootstrap_if_required">bootstrap_if_required() (fastdfe.shared_inference.SharedInference method)</a>
+</li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.bootstraps">bootstraps (fastdfe.base_inference.BaseInference attribute)</a>
 
       <ul>
@@ -196,9 +198,11 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modules/inference.html#fastdfe.optimization.Covariate.bounds">bounds (fastdfe.optimization.Covariate attribute)</a>
+      <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.bounds">bounds (fastdfe.base_inference.BaseInference attribute)</a>
 
       <ul>
+        <li><a href="modules/inference.html#fastdfe.optimization.Covariate.bounds">(fastdfe.optimization.Covariate attribute)</a>
+</li>
         <li><a href="modules/parametrization.html#fastdfe.parametrization.DisplacedGammaParametrization.bounds">(fastdfe.parametrization.DisplacedGammaParametrization attribute)</a>
 </li>
         <li><a href="modules/parametrization.html#fastdfe.parametrization.GammaDiscreteParametrization.bounds">(fastdfe.parametrization.GammaDiscreteParametrization attribute)</a>
@@ -206,6 +210,8 @@
         <li><a href="modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization.bounds">(fastdfe.parametrization.GammaExpParametrization attribute)</a>
 </li>
         <li><a href="modules/parametrization.html#fastdfe.parametrization.Parametrization.bounds">(fastdfe.parametrization.Parametrization attribute)</a>
+</li>
+        <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.bounds">(fastdfe.shared_inference.SharedInference attribute)</a>
 </li>
       </ul></li>
       <li><a href="modules/inference.html#fastdfe.optimization.Covariate.bounds_scale">bounds_scale (fastdfe.optimization.Covariate attribute)</a>
@@ -301,6 +307,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/parser.html#fastdfe.parser.DegeneracyStratification">DegeneracyStratification (class in fastdfe.parser)</a>
+</li>
+      <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.determine_unshared_covariates">determine_unshared_covariates() (fastdfe.shared_inference.SharedInference method)</a>
 </li>
       <li><a href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization">DiscreteParametrization (class in fastdfe.parametrization)</a>
 </li>
@@ -426,10 +434,22 @@
         <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.get_alpha">(fastdfe.shared_inference.SharedInference method)</a>
 </li>
       </ul></li>
+      <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.get_bootstrap_param_names">get_bootstrap_param_names() (fastdfe.base_inference.BaseInference method)</a>
+
+      <ul>
+        <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.get_bootstrap_param_names">(fastdfe.shared_inference.SharedInference method)</a>
+</li>
+      </ul></li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.get_bootstrap_params">get_bootstrap_params() (fastdfe.base_inference.BaseInference method)</a>
 
       <ul>
         <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.get_bootstrap_params">(fastdfe.shared_inference.SharedInference method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.get_bounds_linear">get_bounds_linear() (fastdfe.base_inference.BaseInference method)</a>
+
+      <ul>
+        <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.get_bounds_linear">(fastdfe.shared_inference.SharedInference method)</a>
 </li>
       </ul></li>
       <li><a href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.get_cdf">get_cdf() (fastdfe.parametrization.DiscreteParametrization method)</a>
@@ -462,6 +482,8 @@
       </ul></li>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.get_empty">get_empty() (fastdfe.spectrum.Spectra method)</a>
 </li>
+      <li><a href="modules/inference.html#fastdfe.abstract_inference.Inference.get_errors_and_values">get_errors_and_values() (fastdfe.abstract_inference.Inference static method)</a>
+</li>
       <li><a href="modules/inference.html#fastdfe.abstract_inference.Inference.get_errors_discretized_dfe">get_errors_discretized_dfe() (fastdfe.abstract_inference.Inference static method)</a>
 
       <ul>
@@ -478,14 +500,16 @@
       </ul></li>
       <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.get_inferences">get_inferences() (fastdfe.shared_inference.SharedInference method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.get_L2_residual">get_L2_residual() (fastdfe.shared_inference.SharedInference method)</a>
+</li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.get_n_optimized">get_n_optimized() (fastdfe.base_inference.BaseInference method)</a>
 
       <ul>
         <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.get_n_optimized">(fastdfe.shared_inference.SharedInference method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.get_optimized_param_names">get_optimized_param_names() (fastdfe.base_inference.BaseInference method)</a>
 
       <ul>
@@ -620,6 +644,12 @@
 
       <ul>
         <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.likelihood">(fastdfe.shared_inference.SharedInference attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.likelihoods">likelihoods (fastdfe.base_inference.BaseInference attribute)</a>
+
+      <ul>
+        <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.likelihoods">(fastdfe.shared_inference.SharedInference attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -786,7 +816,7 @@
         <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.params_mle">(fastdfe.shared_inference.SharedInference attribute)</a>
 </li>
       </ul></li>
-      <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.params_mle_shared">params_mle_shared (fastdfe.shared_inference.SharedInference property)</a>
+      <li><a href="modules/inference.html#fastdfe.shared_inference.SharedInference.params_mle_raw">params_mle_raw (fastdfe.shared_inference.SharedInference attribute)</a>
 </li>
       <li><a href="modules/parser.html#fastdfe.parser.Parser.parse">parse() (fastdfe.parser.Parser method)</a>
 </li>

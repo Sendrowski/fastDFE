@@ -18,11 +18,14 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.optimize import OptimizeResult
+from numpy.linalg import norm
 
-from .base_inference import BaseInference
+from . import Config
 from .abstract_inference import Inference
+from .base_inference import BaseInference
 from .optimization import Optimization, SharedParams, pack_shared, expand_shared, \
-    Covariate, flatten_dict, merge_dicts, correct_values, parallelize as parallelize_func, expand_fixed
+    Covariate, flatten_dict, merge_dicts, correct_values, parallelize as parallelize_func, expand_fixed, collapse_fixed, \
+    unpack_shared
 from .parametrization import Parametrization
 from .spectrum import Spectrum, Spectra
 
@@ -47,7 +50,8 @@ class SharedInference(BaseInference):
             model: Parametrization | str = 'GammaExpParametrization',
             seed: int = 0,
             x0: Dict[str, Dict[str, float]] = {},
-            bounds: Dict[str, tuple] = {},
+            bounds: Dict[str, Tuple[float, float]] = {},
+            scales: Dict[str, Literal['lin', 'log', 'symlog']] = {},
             loss_type: Literal['likelihood', 'L2'] = 'likelihood',
             opts_mle: dict = {},
             n_runs: int = 10,
@@ -64,19 +68,20 @@ class SharedInference(BaseInference):
         :param sfs_neut: Neutral SFS
         :param sfs_sel: Selected SFS
         :param include_divergence: Whether to include divergence in the likelihood
-        :param intervals_del: (start, stop, n_interval) for deleterious population-scaled
+        :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
         selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as intervals_del but for beneficial selection coefficients
         :param integration_mode: Integration mode
         :param linearized: Whether to use the linearized model
         :param model: DFE parametrization
         :param seed: Random seed
-        :param x0: dictionary of initial values in the form {type: {param: Value}}
-        :param bounds: Bounds for the parameters in the form {param: (lower, upper)}
+        :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
+        :param bounds: Bounds for the optimization in the form {param: (lower, upper)}
+        :param scales: Scales for the optimization in the form {param: scale}
         :param loss_type: Loss type
         :param opts_mle: Options for the optimization
         :param n_runs: Number of independent optimization runs
-        :param fixed_params: dictionary of fixed parameters in the form {type: {param: Value}}
+        :param fixed_params: dictionary of fixed parameters in the form ``{type: {param: value}}``
         :param shared_params: List of shared parameters
         :param do_bootstrap: Whether to perform bootstrapping
         :param n_bootstraps: Number of bootstraps
@@ -91,6 +96,9 @@ class SharedInference(BaseInference):
 
         # initialize parent
         BaseInference.__init__(**locals())
+
+        #: original MLE parameters before adding covariates and unpacked shared
+        self.params_mle_raw: Optional[Dict[str, Dict[str, float]]] = None
 
         #: Shared parameters with expanded 'all' type
         self.shared_params = expand_shared(shared_params, self.types, self.optimization.param_names)
@@ -131,6 +139,12 @@ class SharedInference(BaseInference):
         # use linear scale for covariates
         scales_cov = dict((k, cov.bounds_scale) for k, cov in self.covariates.items())
 
+        #: fixed parameters with expanded 'all' type
+        self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, self.types)
+
+        # collapse fixed parameters
+        fixed_collapsed = collapse_fixed(self.fixed_params, self.types)
+
         # include 'all' type with infers the DFE for all spectra added together
         #: Dictionary of marginal inferences indexed by type
         self.marginal_inferences: Dict[str, BaseInference] = dict(
@@ -143,17 +157,15 @@ class SharedInference(BaseInference):
                 seed=seed,
                 x0=x0,
                 bounds=bounds,
+                scales=scales,
                 loss_type=loss_type,
                 opts_mle=opts_mle,
-                fixed_params=dict(all=fixed_params['all']) if 'all' in fixed_params else {},
+                fixed_params=dict(all=fixed_collapsed['all']) if 'all' in fixed_collapsed else {},
                 do_bootstrap=do_bootstrap,
                 n_bootstraps=n_bootstraps,
                 parallelize=parallelize,
                 n_runs=n_runs)
         )
-
-        #: fixed parameters with expanded 'all' type
-        self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, self.types)
 
         # check that the fixed parameters are valid
         self.check_fixed_params_exist()
@@ -161,15 +173,19 @@ class SharedInference(BaseInference):
         # check if the fixed parameters are compatible with the shared parameters
         self.check_no_shared_params_fixed()
 
-        # scales for all parameters
-        self.scales = self.model.scales | self.default_scales | scales_cov
+        #: parameter scales
+        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = \
+            self.model.scales | self.default_scales | scales_cov | scales
+
+        #: parameter bounds
+        self.bounds: Dict[str, Tuple[float, float]] = self.model.bounds | self.default_bounds | bounds | bounds_cov
 
         # create optimization instance for joint inference
         # take initial values and bounds from marginal inferences
         # and from this inference for type 'all'
         #: Joint optimization instance
         self.optimization: Optimization = Optimization(
-            bounds=self.model.bounds | self.default_bounds | bounds | bounds_cov,
+            bounds=self.bounds,
             scales=self.scales,
             opts_mle=self.optimization.opts_mle,
             loss_type=self.optimization.loss_type,
@@ -194,6 +210,7 @@ class SharedInference(BaseInference):
                 seed=seed,
                 x0=x0,
                 bounds=bounds,
+                scales=scales,
                 loss_type=loss_type,
                 opts_mle=opts_mle,
                 fixed_params=dict(all=self.fixed_params[t]) if t in self.fixed_params else {},
@@ -219,6 +236,7 @@ class SharedInference(BaseInference):
                     seed=seed,
                     x0=x0,
                     bounds=bounds,
+                    scales=scales,
                     loss_type=loss_type,
                     opts_mle=opts_mle,
                     fixed_params=dict(all=self.fixed_params[t]) if t in self.fixed_params else {},
@@ -280,6 +298,23 @@ class SharedInference(BaseInference):
 
         :param covariates: List of covariates.
         """
+        cov_but_not_shared = self.determine_unshared_covariates(covariates)
+
+        # add parameters with covariates to shared parameters
+        if len(cov_but_not_shared) > 0:
+            logger.info(f'Parameters {cov_but_not_shared} have '
+                        f'covariates and thus need to be shared. '
+                        f'Adding them to shared parameters.')
+
+            # add to shared parameters
+            self.shared_params.append(SharedParams(params=cov_but_not_shared, types=self.types))
+
+    def determine_unshared_covariates(self, covariates):
+        """
+        Determine which covariates are not shared.
+        :param covariates:
+        :return:
+        """
         # determine completely shared parameters
         completely_shared = []
         for shared in self.shared_params:
@@ -290,16 +325,7 @@ class SharedInference(BaseInference):
         params_with_covariates = [cov.param for cov in covariates]
 
         # determine parameters with covariates that are not shared
-        cov_but_not_shared = list(set(params_with_covariates) - set(completely_shared))
-
-        # add parameters with covariates to shared parameters
-        if len(cov_but_not_shared) > 0:
-            logger.info(f'Parameters {cov_but_not_shared} have '
-                        f'covariates and thus need to be shared. '
-                        f'Adding them to shared parameters.')
-
-            # add to shared parameters
-            self.shared_params.append(SharedParams(params=cov_but_not_shared, types=self.types))
+        return list(set(params_with_covariates) - set(completely_shared))
 
     def run(
             self,
@@ -401,35 +427,52 @@ class SharedInference(BaseInference):
         start_time = time.time()
 
         # Perform joint optimization.
-        self.result, self.params_mle = self.optimization.run(
+        self.result, params_mle = self.optimization.run(
             x0=self.get_x0(),
             scales=self.scales,
+            bounds=self.bounds,
             n_runs=self.n_runs,
             get_counts=self.get_counts()
         )
 
+        # assign likelihoods
+        self.likelihoods = self.optimization.likelihoods
+
+        # store packed MLE params for later usage
+        self.params_mle_raw = copy.deepcopy(params_mle)
+
+        # unpack shared parameters
+        params_mle = unpack_shared(params_mle)
+
         # normalize parameters for each type
         for t in self.types:
-            self.params_mle[t] = self.model.normalize(self.params_mle[t])
+            params_mle[t] = self.model.normalize(params_mle[t])
 
         # report on optimization result
-        self.report_result(self.result, self.params_mle)
+        self.report_result(self.result, params_mle)
 
         # assign optimization result and MLE parameters for each type
         for t, inf in self.joint_inferences.items():
-            self.params_mle[t] = correct_values(
-                params=self.add_covariates(self.params_mle[t], t),
-                bounds=self.optimization.bounds
+            params_mle[t] = correct_values(
+                params=self.add_covariates(params_mle[t], t),
+                bounds=self.bounds,
+                scales=self.scales
             )
 
             # remove effect of covariates and assign result
-            inf.assign_result(self.result, self.params_mle[t])
+            inf.assign_result(self.result, params_mle[t])
 
             # assign execution time
             inf.execution_time = time.time() - start_time
 
+        # assign MLE params
+        self.params_mle = params_mle
+
         # assign joint likelihood
         self.likelihood = -self.result.fun
+
+        # calculate L2 residual
+        self.L2_residual = self.get_L2_residual()
 
         # add execution time
         self.execution_time += time.time() - start_time
@@ -457,45 +500,88 @@ class SharedInference(BaseInference):
         # Note that it's important we bind t into the lambda function
         # at the time of creation.
         return dict((t, (lambda params, t=t: inf.model_sfs(
-            correct_values(self.add_covariates(params, t), self.optimization.bounds),
+            correct_values(self.add_covariates(params, t), self.bounds, self.scales),
             sfs_neut=self.joint_inferences[t].sfs_neut,
             sfs_sel=self.joint_inferences[t].sfs_sel
         ))) for t, inf in self.joint_inferences.items())
 
+    @BaseInference.run_if_required_wrapper
     @functools.lru_cache
-    def run_joint_without_covariates(self) -> 'SharedInference':
+    def run_joint_without_covariates(self, do_bootstrap: bool = True) -> 'SharedInference':
         """
         Run joint inference without covariates. Note that the result of this function is cached.
 
         :return: Joint inference instance devoid of covariates.
         """
-        # create copy
-        other = copy.deepcopy(self)
+        config = self.create_config()
 
-        # remove covariates
-        other.covariates = {}
+        # retain shared parameters but remove covariates
+        config.update(
+            shared_params=self.shared_params,
+            covariates={},
+            do_bootstrap=do_bootstrap
+        )
+
+        # create copy
+        other = SharedInference.from_config(config)
 
         # issue notice
         logger.info('Running joint inference without covariates.')
 
-        # run joint inference
-        other.run_joint()
+        # run inference
+        other.run()
 
         return other
 
+    def create_config(self) -> 'Config':
+        """
+        Create a config object from the inference object.
+
+        :return: Config object.
+        """
+        return Config(
+            sfs_neut=Spectra.from_spectra(dict((t, inf.sfs_neut) for t, inf in self.marginals_without_all().items())),
+            sfs_sel=Spectra.from_spectra(dict((t, inf.sfs_sel) for t, inf in self.marginals_without_all().items())),
+            intervals_ben=self.discretization.intervals_ben,
+            intervals_del=self.discretization.intervals_del,
+            integration_mode=self.discretization.integration_mode,
+            linearized=self.discretization.linearized,
+            model=self.model.__class__.__name__,
+            seed=self.seed,
+            opts_mle=self.optimization.opts_mle,
+            x0=self.x0,
+            bounds=self.bounds,
+            scales=self.scales,
+            loss_type=self.optimization.loss_type,
+            fixed_params=self.fixed_params,
+            covariates=[c for c in self.covariates.values()],
+            shared_params=self.shared_params,
+            do_bootstrap=self.do_bootstrap,
+            n_bootstraps=self.n_bootstraps,
+            parallelize=self.parallelize,
+            n_runs=self.n_runs
+        )
+
     @BaseInference.run_if_required_wrapper
-    def perform_lrt_covariates(self) -> float:
+    def perform_lrt_covariates(self, do_bootstrap: bool = True) -> float:
         """
         Perform likelihood ratio test against joint inference without covariates.
-        In the simple model we share parameters across types.
+        In the simple model we share parameters across types. Low p-values indicate that
+        the covariates provide a significant improvement in the fit.
 
+        :param do_bootstrap: Whether to bootstrap. This improves the accuracy of the p-value. Note
+        that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
         :return: Likelihood ratio test statistic.
         """
         if len(self.covariates) == 0:
             raise ValueError('No covariates were specified.')
 
+        # bootstrap if required
+        if do_bootstrap:
+            self.bootstrap_if_required()
+
         # run joint inference without covariates
-        simple = self.run_joint_without_covariates()
+        simple = self.run_joint_without_covariates(do_bootstrap=do_bootstrap)
 
         return self.lrt(simple.likelihood, self.likelihood, len(self.covariates))
 
@@ -545,7 +631,8 @@ class SharedInference(BaseInference):
         for inf in self.marginal_inferences.values():
             inf.bootstrap(
                 n_samples=n_samples,
-                parallelize=self.parallelize
+                parallelize=self.parallelize,
+                update_likelihood=update_likelihood
             )
 
         start_time = time.time()
@@ -585,11 +672,11 @@ class SharedInference(BaseInference):
                            "The confidence intervals might thus be unreliable.")
 
         # dataframe of MLE estimates in flattened format
-        bootstraps = pd.DataFrame([flatten_dict(r) for r in result[:, 1]])
+        self.bootstraps = pd.DataFrame([flatten_dict(r) for r in result[:, 1]])
 
         # assign bootstrap parameters to joint inferences
         for t, inf in self.joint_inferences.items():
-            inf.bootstraps = bootstraps.filter(regex=f'{t}.*').rename(columns=lambda x: x.split('.')[-1])
+            inf.bootstraps = self.bootstraps.filter(regex=f'{t}.*').rename(columns=lambda x: x.split('.')[-1])
 
             # add estimates for alpha to the bootstraps
             inf.add_alpha_to_bootstraps()
@@ -597,11 +684,18 @@ class SharedInference(BaseInference):
         # add execution time
         self.execution_time += time.time() - start_time
 
-        # determine average likelihood of successful runs
+        # assign average likelihood of successful runs
         if update_likelihood:
             self.likelihood = np.mean([-res.fun for res in result[:, 0] if res.success] + [self.likelihood])
 
         return self.bootstraps
+
+    def bootstrap_if_required(self):
+        """
+        Bootstrap if not done yet.
+        """
+        if self.bootstraps is None:
+            self.bootstrap()
 
     def run_joint_bootstrap_sample(self, seed: int = None) -> (OptimizeResult, dict):
         """
@@ -614,54 +708,34 @@ class SharedInference(BaseInference):
         # Note that it's important we bind t into the lambda function
         # at the time of creation.
         result, params_mle = self.optimization.run(
-            x0=self.params_mle_shared,
+            x0=self.params_mle_raw,
             scales=self.get_scales_linear(),
+            bounds=self.get_bounds_linear(),
             n_runs=1,
             debug_iterations=False,
             print_info=False,
             get_counts=dict((t, lambda params, t=t: inf.model_sfs(
-                correct_values(self.add_covariates(params, t), self.optimization.bounds),
+                correct_values(self.add_covariates(params, t), self.bounds, self.scales),
                 sfs_neut=self.resample_sfs(self.marginal_inferences[t].sfs_neut, seed=seed),
                 sfs_sel=self.resample_sfs(self.marginal_inferences[t].sfs_sel, seed=seed)
             )) for t, inf in self.marginals_without_all().items())
         )
 
-        # normalize parameters for each type
+        # unpack shared parameters
+        params_mle = unpack_shared(params_mle)
+
         for t in self.types:
-            self.params_mle[t] = self.model.normalize(self.params_mle[t])
+            # normalize parameters for each type
+            params_mle[t] = self.model.normalize(params_mle[t])
+
+            # add covariates for each type
+            params_mle[t] = correct_values(
+                params=self.add_covariates(params_mle[t], t),
+                bounds=self.bounds,
+                scales=self.scales
+            )
 
         return result, params_mle
-
-    @property
-    def params_mle_shared(self) -> Dict[str, Dict[str, float]]:
-        """
-        Get MLE parameters with shared parameters.
-
-        :return: Dictionary of MLE parameters with shared parameters as joint-types
-        """
-        shared = {}
-
-        # get dict of shared parameters
-        for s in self.shared_params:
-            for p in s.params:
-                # simply take value of first type as representative
-                shared[':'.join(s.types) + '.' + p] = self.params_mle[s.types[0]][p]
-
-        # create copy of MLE params
-        params_mle = self.params_mle.copy()
-
-        # remove covariates from types
-        for t in params_mle:
-            for p in self.covariates.keys():
-                params_mle[t].pop(p)
-
-        # pack shared parameters
-        packed = pack_shared(self.params_mle, self.shared_params, shared)
-
-        # add parameters for covariates
-        packed = merge_dicts(packed, {':'.join(self.types): self.x0_cov})
-
-        return packed
 
     def get_x0(self) -> Dict[str, Dict[str, float]]:
         """
@@ -697,15 +771,23 @@ class SharedInference(BaseInference):
         return merge_dicts(packed, {':'.join(self.types): self.x0_cov})
 
     @BaseInference.run_if_required_wrapper
-    def perform_lrt_shared(self) -> float:
+    def perform_lrt_shared(self, do_bootstrap: bool = True) -> float:
         """
         Compare likelihood of shared inference with product of marginal likelihoods.
         This provides information about the goodness of fit achieved by the parameter sharing.
-        Note that it is more difficult to properly optimize the joint likelihood, which makes
-        this test conservative, i.e. the p-value might be larger than it should be.
+        Low p-values indicate that parameter sharing is not justified, i.e., that the marginal
+        inferences provide a better fit to the data. Note that it is more difficult to properly
+        optimize the joint likelihood, which makes this test conservative, i.e., the p-value
+        might be larger than it should be.
 
+        :param do_bootstrap: Whether to perform bootstrapping. This improves the accuracy of the p-value. Note
+        that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
         :return: p-value
         """
+        if do_bootstrap:
+            self.bootstrap_if_required()
+
+        # determine likelihood of marginal inferences
         ll_marginal = sum([inf.likelihood for inf in self.marginals_without_all().values()])
 
         # determine number of parameters
@@ -915,6 +997,14 @@ class SharedInference(BaseInference):
 
         return Inference.plot_inferred_parameters(**locals())
 
+    def get_bootstrap_params(self) -> Dict[str, float]:
+        """
+        Get bootstrap parameters.
+
+        :return: Bootstrap parameters
+        """
+        return flatten_dict(dict((t, self.joint_inferences[t].get_bootstrap_params()) for t in self.types))
+
     @BaseInference.run_if_required_wrapper
     def plot_covariates(
             self,
@@ -984,3 +1074,13 @@ class SharedInference(BaseInference):
 
         # check if the fixed parameters are compatible with the shared parameters
         self.check_no_shared_params_fixed()
+
+    def get_L2_residual(self) -> float:
+        """
+        L2 residual of joint inference. We calculate the residual over
+        the jointly inferred SFS for all types.
+        """
+        counts_mle = np.array([inf.sfs_mle.polymorphic for inf in self.joint_inferences.values()]).flatten()
+        counts_sel = np.array([inf.sfs_sel.polymorphic for inf in self.joint_inferences.values()]).flatten()
+
+        return norm(counts_mle - counts_sel, 2)

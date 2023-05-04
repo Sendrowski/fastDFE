@@ -320,11 +320,17 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         # unserialize
         inference = BaseInference.from_file(self.serialized)
 
+        # make sure the likelihoods of the different runs are cached
+        self.assertEqual(len(inference.likelihoods), inference.n_runs)
+
         self.assertIsNone(inference.bootstraps)
 
         inference.bootstrap(100, parallelize=False)
 
         self.assertIsNotNone(inference.bootstraps)
+
+        # make sure the likelihoods of the different runs are not overwritten
+        self.assertEqual(len(inference.likelihoods), inference.n_runs)
 
     def test_evaluate_likelihood_same_as_mle_results(self):
         """
@@ -449,6 +455,16 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         inference = BaseInference.from_config_file(self.config_file)
 
         inference.plot_nested_likelihoods()
+
+    def test_recreate_from_config(self):
+        """
+        Test whether inference can be recreated from config.
+        """
+        inf = BaseInference.from_config_file(self.config_file)
+
+        inf2 = BaseInference.from_config(inf.create_config())
+
+        self.assertEqualInference(inf, inf2)
 
     def test_cached_result(self):
         """

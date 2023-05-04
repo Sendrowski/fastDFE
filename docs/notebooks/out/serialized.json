@@ -25030,6 +25030,21 @@
             }
         ]
     },
+    "likelihoods": {
+        "py/object": "numpy.ndarray",
+        "data": [
+            -35.43798126967255,
+            -35.43798127460968,
+            -35.437981269655495,
+            -35.4379812714792,
+            -35.43798127101735,
+            -35.43798127347469,
+            -35.43798127084625,
+            -35.437981269657314,
+            -35.43798126920569,
+            -35.43798127001304
+        ]
+    },
     "n_runs": 10,
     "result": {
         "py/object": "scipy.optimize._optimize.OptimizeResult",
@@ -25079,6 +25094,38 @@
         "p_b": "lin",
         "S_b": "log",
         "eps": "lin"
+    },
+    "bounds": {
+        "S_d": {
+            "py/tuple": [
+                -100000.0,
+                -0.01
+            ]
+        },
+        "b": {
+            "py/tuple": [
+                0.01,
+                10
+            ]
+        },
+        "p_b": {
+            "py/tuple": [
+                0,
+                0.5
+            ]
+        },
+        "S_b": {
+            "py/tuple": [
+                0.0001,
+                100
+            ]
+        },
+        "eps": {
+            "py/tuple": [
+                0,
+                0.15
+            ]
+        }
     },
     "optimization": {
         "py/object": "fastdfe.optimization.Optimization",
@@ -25260,7 +25307,7 @@
             }
         ]
     },
-    "execution_time": 3.5028836727142334,
+    "execution_time": 4.878573179244995,
     "locked": false,
     "alpha": {
         "py/reduce": [

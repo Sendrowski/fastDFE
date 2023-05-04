@@ -4,7 +4,8 @@ prioritize_installed_packages()
 
 import pytest
 
-from fastdfe import SharedInference, Config, SharedParams, Covariate
+from fastdfe import SharedInference, Config, SharedParams, Covariate, Parser, DegeneracyStratification, \
+    ReferenceBaseStratification, Spectra
 from fastdfe.optimization import flatten_dict
 from testing.test_base_inference import AbstractInferenceTestCase
 
@@ -33,6 +34,16 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
         inference2 = SharedInference.from_file(out)
 
         self.assertEqualInference(inference, inference2)
+
+    def test_recreate_from_config(self):
+        """
+        Test whether inference can be recreated from config.
+        """
+        inf = SharedInference.from_config_file(self.config_file)
+
+        inf2 = SharedInference.from_config(inf.create_config())
+
+        self.assertEqualInference(inf, inf2, ignore_keys=['fixed_params'])
 
     def test_bootstrap_shared_inference(self):
         """
@@ -322,3 +333,88 @@ class SharedInferenceTestCase(AbstractInferenceTestCase):
 
         with pytest.raises(ValueError):
             SharedInference.from_config(config)
+
+    def test_covariate_random_covariates(self):
+        """
+        Check that random covariates are not significant.
+        """
+        # parse SFS
+        spectra = Spectra.from_file("resources/SFS/spectra/pendula_degeneracy_ref_base_tutorial.csv")
+
+        # create inference object
+        inf = SharedInference(
+            sfs_neut=spectra[['neutral.*']].merge_groups(1),
+            sfs_sel=spectra[['selected.*']].merge_groups(1),
+            covariates=[Covariate(param='S_d', values=dict(A=1, C=2, T=3, G=4))],
+            fixed_params={'all': dict(S_b=1, eps=0)},
+            parallelize=True,
+            do_bootstrap=True
+        )
+
+        # run inference
+        inf.run()
+
+        inf_no_cov = inf.run_joint_without_covariates(do_bootstrap=True)
+
+        p = inf.perform_lrt_covariates(do_bootstrap=True)
+
+        inf.plot_covariates()
+
+        # the test should be non-significant as we chose random covariates
+        assert p > 0.05
+
+    def test_covariates_strong_correlation(self):
+        """
+        Check that strong correlation between covariates is detected as significant.
+        """
+        # parse SFS
+        spectra = Spectra.from_file("resources/SFS/spectra/pendula_degeneracy_ref_base_tutorial.csv")
+
+        # create inference object
+        inf = SharedInference(
+            sfs_neut=spectra[['neutral.*']].merge_groups(1),
+            sfs_sel=spectra[['selected.*']].merge_groups(1),
+            covariates=[Covariate(param='S_d', values=dict(A=-100000, C=-2045, T=-60504, G=-5024))],
+            fixed_params={'all': dict(S_b=1, eps=0, p_b=0)},
+            parallelize=True,
+            do_bootstrap=True,
+            n_runs=100
+        )
+
+        # run inference
+        inf.run()
+
+        inf_no_cov = inf.run_joint_without_covariates(do_bootstrap=True)
+
+        p = inf.perform_lrt_covariates(do_bootstrap=True)
+
+        inf.plot_covariates()
+
+        inf.plot_inferred_parameters()
+
+        # we expect 'c0' to be close to 1
+        self.assertAlmostEqual(inf.params_mle['T']['c0'], 1, places=2)
+
+        # the test should be highly significant as we chose good covariates
+        assert p < 0.05
+
+    def test_covariates_plot_inferred_parameters(self):
+        """
+        Check that covariates are plotted correctly.
+        """
+        # parse SFS
+        spectra = Spectra.from_file("resources/SFS/spectra/pendula_degeneracy_ref_base_tutorial.csv")
+
+        # create inference object
+        inf = SharedInference(
+            sfs_neut=spectra[['neutral.*']].merge_groups(1),
+            sfs_sel=spectra[['selected.*']].merge_groups(1),
+            covariates=[Covariate(param='S_d', values=dict(A=-100000, C=-2045, T=-60504, G=-5024))],
+            fixed_params={'all': dict(S_b=1, eps=0, p_b=0)},
+            parallelize=True,
+            do_bootstrap=True,
+            n_runs=10,
+            n_bootstraps=10
+        )
+
+        inf.plot_inferred_parameters()
