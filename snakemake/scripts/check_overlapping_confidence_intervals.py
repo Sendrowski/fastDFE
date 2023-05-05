@@ -32,8 +32,8 @@ native = BaseInference.from_file(input_fastdfe)
 polydfe = PolyDFE.from_file(input_polydfe)
 
 res = dict(
-    fastdfe=native.get_errors_discretized_dfe(),
-    polydfe=polydfe.get_errors_discretized_dfe()
+    fastdfe=native.get_discretized(),
+    polydfe=polydfe.get_discretized()
 )
 
 # fastdfe.plot_discretized(title='fastDFE')

@@ -585,3 +585,43 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
         with self.assertRaises(ValueError):
             BaseInference.from_config(config)
+
+    def test_get_cis_params_mle_no_boostraps(self):
+        """
+        Get the MLE parameters from the cis inference.
+        """
+        inference = BaseInference.from_file(self.serialized)
+
+        cis = inference.get_cis_params_mle()
+
+        assert cis is None
+
+    def test_get_cis_params_mle_with_boostraps(self):
+        """
+        Get the MLE parameters from the cis inference.
+        """
+        inference = BaseInference.from_file(self.serialized)
+
+        inference.bootstrap()
+
+        cis = inference.get_cis_params_mle()
+
+    def test_get_discretized_errors_with_boostraps(self):
+        """
+        Get the discretized DFE errors.
+        """
+        inference = BaseInference.from_file(self.serialized)
+
+        inference.bootstrap()
+
+        res = inference.get_discretized()
+
+    def test_get_discretized_errors_no_boostraps(self):
+        """
+        Get the discretized DFE errors.
+        """
+        inference = BaseInference.from_file(self.serialized)
+
+        values, errors = inference.get_discretized()
+
+        assert errors is None

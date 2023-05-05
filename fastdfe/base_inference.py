@@ -29,7 +29,7 @@ from .abstract_inference import AbstractInference, Inference
 from .config import Config
 from .discretization import Discretization
 from .json_handlers import CustomEncoder
-from .optimization import Optimization, flatten_dict, pack_params, expand_fixed, scale_values, unpack_shared
+from .optimization import Optimization, flatten_dict, pack_params, expand_fixed, unpack_shared
 from .parametrization import Parametrization, from_string
 from .spectrum import Spectrum, Spectra
 from .spectrum import standard_kingman
@@ -905,7 +905,7 @@ class BaseInference(AbstractInference):
         :param bootstrap_type: Type of bootstrap to use.
         :return: Arrays of errors, confidence intervals, bootstraps, means and values
         """
-        return Inference.get_errors_discretized_dfe(
+        return Inference.get_stats_discretized(
             params=self.params_mle,
             bootstraps=self.bootstraps,
             model=self.model,

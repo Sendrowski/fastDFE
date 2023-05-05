@@ -24,8 +24,8 @@ from . import Config
 from .abstract_inference import Inference
 from .base_inference import BaseInference
 from .optimization import Optimization, SharedParams, pack_shared, expand_shared, \
-    Covariate, flatten_dict, merge_dicts, correct_values, parallelize as parallelize_func, expand_fixed, collapse_fixed, \
-    unpack_shared
+    Covariate, flatten_dict, merge_dicts, correct_values, parallelize as parallelize_func, expand_fixed, \
+    collapse_fixed, unpack_shared
 from .parametrization import Parametrization
 from .spectrum import Spectrum, Spectra
 
@@ -996,6 +996,57 @@ class JointInference(BaseInference):
         labels, inferences = zip(*self.get_inferences(labels=labels).items())
 
         return Inference.plot_inferred_parameters(**locals())
+
+    def get_cis_params_mle(
+            self,
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            ci_level: float = 0.05,
+            param_names: Optional[list[str]] = None
+    ):
+        """
+        Get confidence intervals for the parameters.
+
+        :return: Confidence intervals for the parameters
+        """
+        # get dict of inferences
+        inferences = self.get_inferences()
+
+        # get param names if not given
+        if param_names is None:
+            param_names = list(inferences.values())[0].get_bootstrap_param_names()
+
+        return Inference.get_cis_params_mle(
+            inferences=list(inferences.values()),
+            bootstrap_type=bootstrap_type,
+            ci_level=ci_level,
+            param_names=param_names,
+            labels=list(inferences.keys())
+        )
+
+    def get_discretized(
+            self,
+            intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            confidence_intervals: bool = True,
+            ci_level: float = 0.05,
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
+    ) -> Dict[str, Tuple[np.ndarray, np.ndarray]]:
+        """
+        Get discretized DFEs.
+
+        :param bootstrap_type: Type of bootstrap
+        :param ci_level: Confidence interval level
+        :param confidence_intervals: Whether to return confidence intervals
+        :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
+        :return: Dictionary of array of values and array of errors indexed by inference type
+        """
+        return Inference.get_discretized(
+            inferences=list(self.get_inferences().values()),
+            labels=list(self.get_inferences().keys()),
+            intervals=intervals,
+            confidence_intervals=confidence_intervals,
+            ci_level=ci_level,
+            bootstrap_type=bootstrap_type
+        )
 
     def get_bootstrap_params(self) -> Dict[str, float]:
         """

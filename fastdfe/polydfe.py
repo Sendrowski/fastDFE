@@ -12,7 +12,7 @@ import logging
 import subprocess
 import tempfile
 import time
-from typing import Callable, List, Optional, Literal
+from typing import Callable, List, Optional, Literal, Dict
 
 import numpy as np
 import pandas as pd
@@ -372,7 +372,7 @@ class PolyDFE(AbstractInference):
         """
         return from_string(self.config.data['model']).param_names + ['eps', 'alpha']
 
-    def get_bootstrap_params(self) -> dict:
+    def get_bootstrap_params(self) -> Dict[str, float]:
         """
         Get the parameters to be included in the bootstraps.
 

@@ -46,6 +46,9 @@ class Bootstrap:
         :param a: Confidence level
         :return: lower bound and upper bound
         """
+        if not 0 <= a <= 0.5:
+            raise ValueError('Confidence level must be between 0 and 0.5.')
+
         return Bootstrap.get_bounds_from_quantile(np.sort(bootstraps), a, 1 - a, len(bootstraps))
 
     @staticmethod

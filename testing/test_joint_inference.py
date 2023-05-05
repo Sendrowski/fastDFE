@@ -418,3 +418,55 @@ class JointInferenceTestCase(AbstractInferenceTestCase):
         )
 
         inf.plot_inferred_parameters()
+
+    def test_get_cis_params_mle_with_boostraps(self):
+        """
+        Get the MLE parameters from the cis inference.
+        """
+        inference = JointInference.from_file(
+            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+        )
+
+        inference.bootstrap(10)
+
+        cis = inference.get_cis_params_mle()
+
+    def test_get_cis_params_mle_no_boostraps(self):
+        """
+        Get the MLE parameters from the cis inference.
+        """
+        inference = JointInference.from_file(
+            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+        )
+
+        cis = inference.get_cis_params_mle()
+
+        # check that all values are None
+        for inf in cis.values():
+            assert inf is None
+
+    def test_get_discretized_errors_with_bootstraps(self):
+        """
+        Get the discretized DFE errors.
+        """
+        inference = JointInference.from_file(
+            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+        )
+
+        inference.bootstrap(10)
+
+        res = inference.get_discretized()
+
+    def test_get_discretized_errors_no_bootstraps(self):
+        """
+        Get the discretized DFE errors.
+        """
+        inference = JointInference.from_file(
+            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+        )
+
+        values, errors = inference.get_discretized()
+
+        # check that all errors are None
+        for err in errors.values():
+            assert err is None
