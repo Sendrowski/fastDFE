@@ -1,4 +1,4 @@
-name: fastdfe
+name: testing-fastdfe
 channels:
   - conda-forge
   - bioconda
