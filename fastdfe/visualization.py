@@ -341,12 +341,14 @@ class Visualization:
         """
         # plot modelled vs observed non-neutral SFS
         ax = Visualization.plot_spectra(
+            ax=ax,
             spectra=spectra,
             labels=labels,
             use_subplots=use_subplots,
             show_monomorphic=show_monomorphic,
             title=title,
-            ax=ax
+            file=file,
+            show=show
         )
 
         return ax
@@ -516,8 +518,8 @@ class Visualization:
 
     @staticmethod
     def plot_spectra(
-            spectra: List[Spectrum],
             ax: plt.Axes,
+            spectra: List[Spectrum],
             labels: List[str] = [],
             log_scale: bool = False,
             use_subplots: bool = False,
@@ -532,7 +534,7 @@ class Visualization:
 
         :param show_monomorphic: Whether to show monomorphic site counts
         :param n_ticks: Number of x-ticks to use
-        :param ax: Axes to plot on
+        :param ax: Axes to plot on, only if ``use_subplots`` is ``False``
         :param use_subplots: Whether to use subplots
         :param title: Title of plot
         :param spectra: List of spectra to plot
@@ -542,10 +544,6 @@ class Visualization:
         :param show: Whether to show the plot
         :return: Axes
         """
-        if ax is None:
-            plt.clf()
-            _, ax = plt.subplots()
-
         if use_subplots:
             n_plots = len(spectra)
             n_rows = int(np.ceil(np.sqrt(n_plots)))
@@ -561,7 +559,8 @@ class Visualization:
                     ax=axes[i],
                     n_ticks=15 // min(2, n_cols),
                     log_scale=log_scale,
-                    show_monomorphic=show_monomorphic
+                    show_monomorphic=show_monomorphic,
+                    show=False
                 )
 
             # make empty plots invisible
@@ -571,6 +570,10 @@ class Visualization:
             Visualization.show_and_save(file, show)
 
             return plt.gca()
+
+        if ax is None:
+            plt.clf()
+            _, ax = plt.subplots()
 
         # determine sample size and width
         n = spectra[0].n
