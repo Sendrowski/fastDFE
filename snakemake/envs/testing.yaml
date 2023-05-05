@@ -21,5 +21,6 @@ dependencies:
   - r-base
   - rpy2
   - r-rjsonio
+  - pytest
   - pytest-xdist
   - coverage
