@@ -390,6 +390,15 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
         inference.plot_interval_density(show=self.show_plots)
 
+    def test_plot_observed_sfs(self):
+        """
+        Plot likelihoods.
+        """
+        # unserialize
+        inference = BaseInference.from_file(self.serialized)
+
+        inference.plot_observed_sfs(show=self.show_plots)
+
     def test_plot_provide_axes(self):
         """
         Plot likelihoods.
@@ -434,6 +443,8 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         inference.compare_nested_models()
 
         inference.plot_nested_likelihoods()
+        inference.plot_nested_likelihoods(remove_empty=True)
+        inference.plot_nested_likelihoods(transpose=True)
 
     def test_compare_nested_likelihoods_without_bootstrap(self):
         """

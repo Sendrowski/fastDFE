@@ -14,7 +14,7 @@ from fastdfe import spectrum, Spectra, Spectrum
 class SpectraTestCase(TestCase):
     n = 20
 
-    show_plots = None
+    show_plots = True
 
     def test_multiply_by_scalar(self):
         s = Spectra(dict(
@@ -147,6 +147,12 @@ class SpectraTestCase(TestCase):
             all=spectrum.standard_kingman(self.n) * 4,
             sub=spectrum.standard_kingman(self.n) * 2
         )).plot(show=self.show_plots)
+
+    def test_plot_spectra_use_subplots(self):
+        Spectra.from_spectra(dict(
+            all=spectrum.standard_kingman(self.n) * 4,
+            sub=spectrum.standard_kingman(self.n) * 2
+        )).plot(show=self.show_plots, use_subplots=True)
 
     def test_select_wildcard(self):
         s = Spectra.from_spectra(dict(

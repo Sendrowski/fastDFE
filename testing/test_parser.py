@@ -8,7 +8,8 @@ import dadi
 import numpy as np
 
 import fastdfe
-from fastdfe import DegeneracyStratification
+from fastdfe import DegeneracyStratification, BaseTransitionStratification, TransitionTransversionStratification, \
+    BaseContextStratification, ReferenceBaseStratification
 
 
 class InferenceTestCase(TestCase):
@@ -16,6 +17,7 @@ class InferenceTestCase(TestCase):
     TODO test stratifications.
     """
     vcf_file = 'resources/genome/betula/biallelic.vcf.gz'
+    fasta_file = 'resources/genome/betula/genome.fasta'
     pop_file = 'resources/genome/betula/pops_dadi.txt'
 
     def test_compare_sfs_with_data(self):
@@ -25,6 +27,8 @@ class InferenceTestCase(TestCase):
         p = fastdfe.Parser(vcf_file=self.vcf_file, n=20, stratifications=[])
 
         sfs = p.parse().all
+
+        sfs.plot()
 
         data_dict = dadi.Misc.make_data_dict_vcf(self.vcf_file, self.pop_file)
 
@@ -41,7 +45,57 @@ class InferenceTestCase(TestCase):
 
         sfs = p.parse()
 
+        sfs.plot()
+
         assert sfs['neutral'].to_list() == [22776.0, 4075.0, 1413.0, 803.0, 532.0, 365.0, 282.0, 180.0, 136.0, 125.0,
                                             112.0, 93.0, 94.0, 111.0, 130.0, 130.0, 131.0, 109.0, 84.0, 43.0, 15.0]
         assert sfs['selected'].to_list() == [47250.0, 6100.0, 1876.0, 1036.0, 684.0, 438.0, 321.0, 232.0, 173.0, 138.0,
                                              105.0, 112.0, 125.0, 140.0, 145.0, 161.0, 154.0, 144.0, 98.0, 37.0, 17.0]
+
+    def test_base_transition_stratification(self):
+        """
+        Test the base transition stratification.
+        """
+        p = fastdfe.Parser(vcf_file=self.vcf_file, n=20, stratifications=[BaseTransitionStratification()])
+
+        sfs = p.parse()
+
+        sfs.plot()
+
+    def test_transition_transversion_stratification(self):
+        """
+        Test the transition transversion stratification.
+        """
+        p = fastdfe.Parser(vcf_file=self.vcf_file, n=20, stratifications=[TransitionTransversionStratification()])
+
+        sfs = p.parse()
+
+        sfs.plot()
+
+    def test_base_context_stratification(self):
+        """
+        Test the base context stratification.
+        """
+        p = fastdfe.Parser(
+            vcf_file=self.vcf_file,
+            n=20,
+            stratifications=[BaseContextStratification(fasta_file=self.fasta_file)]
+        )
+
+        sfs = p.parse()
+
+        sfs.plot()
+
+    def test_reference_base_stratification(self):
+        """
+        Test the reference base stratification.
+        """
+        p = fastdfe.Parser(
+            vcf_file=self.vcf_file,
+            n=20,
+            stratifications=[ReferenceBaseStratification()]
+        )
+
+        sfs = p.parse()
+
+        sfs.plot()
