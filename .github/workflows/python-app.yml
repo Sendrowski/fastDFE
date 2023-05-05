@@ -32,4 +32,5 @@ jobs:
 
     - name: Run tests
       run: |
+        conda activate testing-fastdfe
         pytest --path testing
