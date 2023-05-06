@@ -320,7 +320,8 @@ def correct_values(
         params: Dict[str, float],
         bounds: Dict[str, Tuple[float, float]],
         scales: Dict[str, Literal['lin', 'log', 'symlog']],
-        warn: bool = False
+        warn: bool = False,
+        threshold: float = 1e-6
 ) -> Dict[str, float]:
     """
     Correct initial values so that they are within the specified bounds.
@@ -329,6 +330,7 @@ def correct_values(
     :param params: Flattened dictionary of parameters
     :param scales: Dictionary of scales
     :param warn: Whether to warn if values are corrected
+    :param threshold: Threshold for the error to trigger a warning
     :return: Corrected dictionary
     """
     # create a copy of params
@@ -348,11 +350,21 @@ def correct_values(
             corrected[key] = bound[1]
 
     # differences between the original and corrected dictionaries
-    differences = {key: f"{params[key]} -> {corrected[key]}" for key in params if params[key] != corrected[key]}
+    differences = {key: (params[key], corrected[key]) for key in params if params[key] != corrected[key]}
 
-    # warn if there are differences
-    if differences and warn:
-        logger.warning(f'Given initial values outside bounds. Adjusting {differences}.')
+    # warn if there are differences that exceed the threshold
+    exceeded_threshold = {}
+    for key, (old_val, new_val) in differences.items():
+
+        # calculate relative error
+        err = np.abs(new_val - old_val)
+
+        # add if it exceeds the relative error
+        if err > threshold:
+            exceeded_threshold[key] = f"{old_val} -> {new_val}"
+
+    if exceeded_threshold and warn:
+        logger.warning(f'Given initial values outside bounds. Adjusting {exceeded_threshold}.')
 
     return corrected
 

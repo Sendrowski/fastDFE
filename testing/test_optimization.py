@@ -30,6 +30,9 @@ class OptimizationTestCase(TestCase):
         self.assertDictEqual(params, restored)
 
     def test_flatten_dict(self):
+        """
+        Test that flatten_dict works as expected.
+        """
         d = {'a': 1, 'b': {'c': 2, 'd': {'e': 3}}}
         expected = {'a': 1, 'b.c': 2, 'b.d.e': 3}
         assert flatten_dict(d) == expected
@@ -39,6 +42,9 @@ class OptimizationTestCase(TestCase):
         assert flatten_dict(d) == expected
 
     def test_unflatten_dict(self):
+        """
+        Test that unflatten_dict works as expected.
+        """
         d = {'a': 1, 'b.c': 2, 'b.d.e': 3}
         expected = {'a': 1, 'b': {'c': 2, 'd': {'e': 3}}}
         assert unflatten_dict(d) == expected
@@ -48,6 +54,9 @@ class OptimizationTestCase(TestCase):
         assert unflatten_dict(d) == expected
 
     def test_flatten_unflatten_dict(self):
+        """
+        Test that flatten_dict and unflatten_dict are inverse operations.
+        """
         d = {'a': 1, 'b': {'c': 2, 'd': {'e': 3}}}
         expected = d
         flattened = flatten_dict(d)
@@ -55,12 +64,18 @@ class OptimizationTestCase(TestCase):
         assert unflattened == expected
 
     def test_filter_dict(self):
+        """
+        Test that filter_dict works as expected.
+        """
         d = {'a': 1, 'b': {'c': 2, 'd': {'e': 3, 'f': {'g': 4}}}, 'c': {'g': 1, 'b': 2}}
         keys = ['a', 'c']
         expected = {'a': 1, 'b': {'c': 2}}
         assert filter_dict(d, keys) == expected
 
     def test_sample_x0_nested_dict(self):
+        """
+        Test that sample_x0 works as expected when the initial parameters are a nested dict.
+        """
         x0 = {'a': 1, 'b': {'c': 2, 'd': 4}}
 
         o = Optimization(
@@ -75,6 +90,9 @@ class OptimizationTestCase(TestCase):
         assert sample == expected
 
     def test_merge_dicts(self):
+        """
+        Test that merge_dicts works as expected.
+        """
         dict1 = {'a': 1, 'b': {'c': 2, 'd': 3}}
         dict2 = {'b': {'d': 4, 'e': 5}, 'f': 6}
         expected_result = {'a': 1, 'b': {'c': 2, 'd': 4, 'e': 5}, 'f': 6}
@@ -100,6 +118,9 @@ class OptimizationTestCase(TestCase):
         assert merge_dicts(dict7, dict8) == expected_result4
 
     def test_positive_bounds(self):
+        """
+        Test that ValueError is raised when bounds are positive.
+        """
         bounds = (1, 10)
         scale = 'lin'
         for _ in range(100):
@@ -108,6 +129,9 @@ class OptimizationTestCase(TestCase):
             self.assertLessEqual(sample, bounds[1])
 
     def test_negative_bounds(self):
+        """
+        Test that ValueError is raised when bounds are negative.
+        """
         bounds = (-10, -1)
         scale = 'lin'
         for _ in range(100):
@@ -116,6 +140,9 @@ class OptimizationTestCase(TestCase):
             self.assertLessEqual(sample, bounds[1])
 
     def test_mixed_bounds(self):
+        """
+        Test that ValueError is raised when bounds are mixed.
+        """
         bounds = (-5, 5)
         scale = 'lin'
         for _ in range(100):
@@ -124,6 +151,9 @@ class OptimizationTestCase(TestCase):
             self.assertLessEqual(sample, bounds[1])
 
     def test_positive_bounds_log_scale(self):
+        """
+        Test that ValueError is raised when bounds are positive and scale is log.
+        """
         bounds = (1, 10)
         scale = 'log'
         for _ in range(100):
@@ -132,6 +162,9 @@ class OptimizationTestCase(TestCase):
             self.assertLessEqual(sample, bounds[1])
 
     def test_negative_bounds_log_scale(self):
+        """
+        Test that ValueError is raised when bounds are negative and scale is log.
+        """
         bounds = (-10, -1)
         scale = 'log'
         for _ in range(100):
@@ -140,47 +173,48 @@ class OptimizationTestCase(TestCase):
             self.assertLessEqual(sample, bounds[1])
 
     def test_mixed_bounds_log_scale(self):
+        """
+        Test that ValueError is raised when bounds are mixed and scale is log.
+        """
         bounds = (-5, 5)
         scale = 'log'
         with self.assertRaises(ValueError):
             Optimization.sample_value(bounds, scale)
 
-    def test_correct_x0(self):
-        bounds = {
-            "a": (0, 10),
-            "b": (-5, 5),
-            "c": (1, 100)
-        }
+    def test_correct_values_no_changes(self):
+        """
+        Test that values are not changed when they are within bounds.
+        """
+        params = {"a.a": 2, "a.b": 5, "a.c": 10}
+        bounds = {"a": (1, 3), "b": (4, 6), "c": (8, 12)}
+        scales = {"a": "lin", "b": "lin", "c": "lin"}
 
-        scales = cast(Dict[str, Literal['lin']], {
-            "a": "lin",
-            "b": "lin",
-            "c": "lin"
-        })
+        expected = params.copy()
+        actual = correct_values(params, bounds, scales)
+        self.assertEqual(expected, actual)
 
-        x0 = {
-            "some.prefix.a": -2,
-            "another.prefix.b": 7,
-            "yet.another.prefix.c": 50
-        }
+    def test_correct_values_corrections(self):
+        """
+        Test that values are corrected when they are out of bounds.
+        """
+        params = {"a.a": 0, "a.b": 7, "a.c": 20}
+        bounds = {"a": (1, 3), "b": (4, 6), "c": (8, 12)}
+        scales = {"a": "lin", "b": "lin", "c": "lin"}
 
-        expected_corrected = {
-            "some.prefix.a": 0,
-            "another.prefix.b": 5,
-            "yet.another.prefix.c": 50
-        }
+        expected = {"a.a": 1, "a.b": 6, "a.c": 12}
+        actual = correct_values(params, bounds, scales)
+        self.assertEqual(expected, actual)
 
-        corrected = correct_values(x0, bounds, scales=scales)
-        self.assertEqual(corrected, expected_corrected)
+    def test_correct_values_threshold_warning(self):
+        """
+        Test that a warning is raised when the threshold is exceeded.
+        """
+        params = {"a.a": 0, "a.b": 7, "a.c": 20}
+        bounds = {"a": (1, 3), "b": (4, 6), "c": (8, 12)}
+        scales = {"a": "lin", "b": "lin", "c": "lin"}
 
-        x0_no_correction = {
-            "some.prefix.a": 4,
-            "another.prefix.b": -3,
-            "yet.another.prefix.c": 30
-        }
-
-        corrected_no_correction = correct_values(x0_no_correction, bounds, scales=scales)
-        self.assertEqual(corrected_no_correction, x0_no_correction)
+        with self.assertLogs(level="WARNING"):
+            correct_values(params, bounds, scales, warn=True, threshold=0.05)
 
     def test_symlog_scale(self):
         """
