@@ -398,13 +398,11 @@ class BaseInference(AbstractInference):
             sfs_sel=self.sfs_sel
         ))
 
-    def evaluate_likelihood(self, params: dict) -> float:
+    def evaluate_likelihood(self, params: Dict[str, Dict[str, float]]) -> float:
         """
-        Get loss function.
-        Note that the order of the parameters has to be the same as in
-        params_mle. The types also need to be specified here. For a
-        BaseInference objects, the mean we need to pass dict(all=...).
+        Evaluate likelihood function at given parameters.
 
+        :param params: Parameters indexed by type and parameter name.
         :return: The likelihood.
         """
         x0_cached = self.optimization.x0
