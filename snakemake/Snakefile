@@ -459,7 +459,7 @@ rule filter_sample_set:
         ref="../resources/genome/betula/genome.fasta",
         index="../resources/genome/betula/genome.fasta.fai",
         dict="../resources/genome/betula/genome.dict",
-        sample_set="../resources/genome/sample_sets/{sample_set}.args"
+        sample_set="../resources/genome/betula/sample_sets/{sample_set}.args"
     output:
         "results/vcf/betula/{sample_set,\w+}.vcf.gz"
     params:
@@ -467,7 +467,7 @@ rule filter_sample_set:
         flags=lambda w: {
             "-R": "../resources/genome/betula/genome.fasta",
             "-V": "../resources/genome/betula/all.vcf.gz",
-            "--sample-name": f"../resources/genome/sample_sets/{w.sample_set}.args",
+            "--sample-name": f"../resources/genome/betula/sample_sets/{w.sample_set}.args",
             "--remove-unused-alternates": True
         }
     conda:

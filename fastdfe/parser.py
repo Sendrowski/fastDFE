@@ -240,6 +240,12 @@ class DegeneracyStratification(Stratification):
 
 
 class Parser:
+    """
+    Parse a VCF file and create a SFS.
+
+    :warning: Not tested for polyploids.
+    """
+
     def __init__(
             self,
             vcf_file: str,
@@ -248,9 +254,19 @@ class Parser:
             stratifications: List[Stratification] = [
                 DegeneracyStratification()
             ],
-            max_sites=np.inf,
-            seed: int = 0
+            max_sites: int = np.inf,
+            seed: int | None = 0
     ):
+        """
+        Initialize the parser.
+
+        :param vcf_file: The VCF file to parse
+        :param n: The number of individuals in the sample
+        :param info_ancestral: The tag in the INFO field that contains the ancestral allele
+        :param stratifications: List of stratifications to use
+        :param max_sites: Maximum number of sites to parse
+        :param seed: Seed for the random number generator
+        """
 
         self.n = n
         self.vcf_file = vcf_file
@@ -271,7 +287,8 @@ class Parser:
     def open_file(file: str) -> TextIO:
         """
         Open a file, either gzipped or not.
-        :param file:
+
+        :param file: File to open
         :return: stream
         """
         if file.endswith('.gz'):
@@ -323,6 +340,7 @@ class Parser:
     def parse(self) -> Spectra:
         """
         Parse the VCF file and return the SFS.
+
         :return: the spectra for the different stratifications
         """
 
@@ -330,9 +348,13 @@ class Parser:
 
         sfs = self.create_sfs_dictionary()
 
+        # create a string representation of the stratifications
         representation = '.'.join(['[' + ','.join(s.get_types()) + ']' for s in self.stratifications])
+
+        # log the stratifications
         logger.info(f'Using stratification: {representation}.')
 
+        # count the number of sites
         n_sites = self.count_lines_vcf()
 
         # parse VCF file
@@ -350,8 +372,10 @@ class Parser:
                 # just update beforehand
                 pbar.update()
 
+                # number of samples
                 n_samples = variant.ploidy * variant.num_called
 
+                # skip if not enough samples
                 if n_samples < self.n:
                     continue
 
@@ -366,13 +390,19 @@ class Parser:
                 if aa is None:
                     logger.warning(f'No ancestral allele defined for {variant.CHROM}:{variant.POS}.')
                 else:
-                    # adjust orientation if different
+                    # adjust orientation if the ancestral allele is not the reference
                     if aa != variant.REF:
-                        variant.REF = aa
 
+                        # change alternative allele if defined
                         if len(variant.ALT) != 0:
+
+                            # we only consider the first alternative allele
                             variant.ALT[0] = variant.REF
 
+                        # change reference allele
+                        variant.REF = aa
+
+                        # change reference count
                         n_ref = n_samples - n_ref
 
                 # determine down-projected allele count
