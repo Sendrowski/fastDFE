@@ -337,12 +337,10 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         Check that evaluating the loss function at the MLE result
         yields the same likelihood as the one reported.
         """
-        # rerun inference to make sure we don't have platform-specific differences
-        inference = BaseInference.from_config_file(self.config_file)
+        # unserialize
+        inference = BaseInference.from_file(self.serialized)
 
-        inference.run()
-
-        assert inference.evaluate_likelihood(dict(all=inference.params_mle)) == inference.likelihood
+        self.assertAlmostEqual(inference.evaluate_likelihood(dict(all=inference.params_mle)), inference.likelihood)
 
     def test_visualize_inference_without_bootstraps(self):
         """

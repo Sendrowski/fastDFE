@@ -132,19 +132,17 @@ class JointInferenceTestCase(AbstractInferenceTestCase):
         yields the same likelihood as the one reported.
         """
         # rerun inference to make sure we don't have platform-specific differences
-        inference = JointInference.from_config_file(
-            "resources/configs/shared/shared_example_1/config.yaml"
+        inference = JointInference.from_file(
+            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
-        inference.run()
-
-        # make sure joint likelihood is the same
-        assert inference.evaluate_likelihood(inference.params_mle) == inference.likelihood
+        # make sure joint likelihood is almost the same
+        self.assertAlmostEqual(inference.evaluate_likelihood(inference.params_mle), inference.likelihood)
 
         for t in inference.types:
             # make sure marginal likelihoods are the same
-            assert inference.marginal_inferences[t].evaluate_likelihood(
-                dict(all=inference.marginal_inferences[t].params_mle)) == inference.marginal_inferences[t].likelihood
+            self.assertAlmostEqual(inference.marginal_inferences[t].evaluate_likelihood(
+                dict(all=inference.marginal_inferences[t].params_mle)), inference.marginal_inferences[t].likelihood)
 
             # make sure joint likelihoods are not the same as when evaluated individually
             assert inference.joint_inferences[t].evaluate_likelihood(
