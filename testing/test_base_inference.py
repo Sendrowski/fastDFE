@@ -337,8 +337,10 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         Check that evaluating the loss function at the MLE result
         yields the same likelihood as the one reported.
         """
-        # unserialize
-        inference = BaseInference.from_file(self.serialized)
+        # rerun inference to make sure we don't have platform-specific differences
+        inference = BaseInference.from_config_file(self.config_file)
+
+        inference.run()
 
         assert inference.evaluate_likelihood(dict(all=inference.params_mle)) == inference.likelihood
 

@@ -131,10 +131,12 @@ class JointInferenceTestCase(AbstractInferenceTestCase):
         Check that evaluating the loss function at the MLE results
         yields the same likelihood as the one reported.
         """
-        # unserialize
-        inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+        # rerun inference to make sure we don't have platform-specific differences
+        inference = JointInference.from_config_file(
+            "resources/configs/shared/shared_example_1/config.yaml"
         )
+
+        inference.run()
 
         # make sure joint likelihood is the same
         assert inference.evaluate_likelihood(inference.params_mle) == inference.likelihood
@@ -149,7 +151,7 @@ class JointInferenceTestCase(AbstractInferenceTestCase):
                 dict(all=inference.joint_inferences[t].params_mle)) != inference.joint_inferences[t].likelihood
 
             # make sure all joint likelihoods coincide with likelihood of joint inference
-            inference.joint_inferences[t].likelihood = inference.likelihood
+            assert inference.joint_inferences[t].likelihood == inference.likelihood
 
     def test_fixed_parameters(self):
         """
