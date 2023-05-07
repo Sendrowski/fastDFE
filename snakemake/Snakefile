@@ -562,11 +562,11 @@ module est_sfs:
             'basepath': "results/est-sfs/",
             'basepath_vcf': "results/est-sfs/",
             'max_sites': 1000000,
-            'batch_size': 1000000,
             'n_samples': 50,
             'n_outgroup': 3,
             'model': 1,
-            'nrandom': 10
+            'nrandom': 10,
+            'log_level': 20
         }
 
 # load all rules from EST-SFS module
