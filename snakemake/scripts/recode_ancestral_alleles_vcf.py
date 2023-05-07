@@ -36,10 +36,13 @@ except NameError:
 
 # configure logger to log stdout
 logger = logging.getLogger()
-logger.setLevel(log_level)
 
 logger.addHandler(logging.FileHandler(log))
 logger.addHandler(logging.StreamHandler(sys.stdout))
+
+stream_handler = logging.StreamHandler(sys.stdout)
+stream_handler.setLevel(log_level)
+logger.addHandler(stream_handler)
 
 
 def get_called_bases(calls: np.ndarray) -> np.ndarray:
@@ -112,11 +115,11 @@ for variant in tqdm(vcf_reader):
         variant.INFO['EST_SFS_output'] = line.replace('\n', '').replace(' ', '|')
         variant.INFO['EST_SFS_input'] = est_input.replace('\n', '').replace(' ', '|').replace(',', ':')
 
-        # log change
+        # only log if major allele, ancestral allele and reference allele are not the same
         if not (major_allele == ancestral_allele == variant.REF):
-            logging.debug(f"site: {variant.CHROM}:{variant.POS}, ancestral allele: {ancestral_allele}, "
-                          f"major allele: {major_allele}, reference: {variant.REF}, "
-                          f"prob major allele: {prob_major_allele}")
+            logger.debug(f"site: {variant.CHROM}:{variant.POS}, ancestral allele: {ancestral_allele}, "
+                         f"major allele: {major_allele}, reference: {variant.REF}, "
+                         f"prob major allele: {prob_major_allele}")
     else:
 
         # simply assign the ancestral allele to be the reference allele
