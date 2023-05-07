@@ -39,7 +39,9 @@ The path names support wildcards which need to be specified explicitly.
 
     'model': 1 # substitution model used for EST-SFS
     'nrandom': 10 # number of ML runs
-    'debug': False # whether to print local variables
+    'debug': False # whether to print local variables in this snakefile
+
+    'log_level' # log level for snakemake
 }``
 """
 from typing import List

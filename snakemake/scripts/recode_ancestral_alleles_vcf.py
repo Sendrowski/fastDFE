@@ -23,6 +23,7 @@ try:
     samples_file = snakemake.input.samples
     log = snakemake.log[0]
     out = snakemake.output.vcf
+    log_level = snakemake.config.get('log_level', 20)
 except NameError:
     # testing
     vcf_file = "../resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz"
@@ -31,10 +32,11 @@ except NameError:
     samples_file = "../resources/genome/betula/sample_sets/birch.args"
     log = "scratch/est-sfs.log"
     out = "scratch/1.polarized.vcf"
+    log_level = logging.DEBUG
 
 # configure logger to log stdout
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(log_level)
 
 logger.addHandler(logging.FileHandler(log))
 logger.addHandler(logging.StreamHandler(sys.stdout))
