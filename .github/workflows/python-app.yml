@@ -29,4 +29,5 @@ jobs:
         auto-activate-base: false
         activate-environment: testing-fastdfe
     - run: |
-        pytest testing/
+          pytest --cov fastdfe --cov-report=xml testing/
+    - uses: codecov/codecov-action@v3
