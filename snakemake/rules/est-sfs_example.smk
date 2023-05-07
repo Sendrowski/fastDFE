@@ -3,6 +3,10 @@ Example configuration file for EST-SFS module.
 """
 import logging
 
+rule all:
+    input:
+        "../resources/genome/betula/all.with_outgroups.subset.10000.polarized.vcf.gz"
+
 # load EST-SFS module
 module est_sfs:
     snakefile:
