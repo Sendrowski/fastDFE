@@ -23,4 +23,4 @@ dependencies:
   - r-rjsonio
   - pytest
   - pytest-xdist
-  - coverage
+  - pytest-cov

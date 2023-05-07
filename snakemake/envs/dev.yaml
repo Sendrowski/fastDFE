@@ -22,7 +22,7 @@ dependencies:
   - rpy2
   - r-rjsonio
   - pytest-xdist
-  - coverage
+  - pytest-cov
   - sphinx
   - sphinx_rtd_theme
   - sphinx-autodoc-typehints

@@ -8,7 +8,7 @@ dependencies:
   - rpy2
   - r-rjsonio
   - pytest-xdist
-  - coverage
+  - pytest-cov
   - pip
   - pip:
       - pytest-pycharm
