@@ -1,0 +1,133 @@
+"""
+Prepare the input for est-sfs.
+"""
+
+__author__ = "Janek Sendrowski"
+__contact__ = "j.sendrowski18@gmail.com"
+__date__ = "2022-05-31"
+
+import os
+from typing import Dict
+
+import numpy as np
+import pandas as pd
+from cyvcf2 import VCF
+from tqdm import tqdm
+
+try:
+    vcf_file = snakemake.input.vcf
+    ingroups_file = snakemake.input.ingroups
+    outgroups_file = snakemake.input.outgroups
+    out_data = snakemake.output.data
+    n_outgroups = snakemake.config['n_outgroup']
+    n_max_subsamples = snakemake.config['n_samples']
+    seed = snakemake.config.get('seed', 0)
+except NameError:
+    # testing
+    vcf_file = "../resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz"
+    ingroups_file = "../resources/genome/betula/sample_sets/birch.args"
+    outgroups_file = "../resources/genome/betula/sample_sets/outgroups.args"
+    out_data = "scratch/est-sfs.data.txt"
+    n_outgroups = 2
+    n_max_subsamples = 50
+    seed = 0
+
+rng = np.random.default_rng(seed=seed)
+
+
+def subsample(bases: np.ndarray[str], size: int) -> np.ndarray[str]:
+    """
+    Subsample a set of bases.
+
+    :param bases: A list of bases.
+    :param size: The size of the subsample.
+    :return: A subsample of the bases.
+    """
+    # return an empty array when there are no haplotypes
+    # this can happen for an uncalled outgroup site
+    if len(bases) == 0:
+        return np.array([])
+
+    return np.array(bases)[np.random.choice(len(bases), size=size, replace=False)]
+
+
+def count(bases: np.ndarray[str]) -> Dict[str, int]:
+    """
+    Count the number of bases in a list of haplotypes.
+
+    :param bases: Array of bases.
+    :return: A dictionary of base counts.
+    """
+    counts = {'A': 0, 'C': 0, 'G': 0, 'T': 0}
+
+    for key, value in zip(*np.unique(bases, return_counts=True)):
+        counts[key] = value
+
+    return counts
+
+
+def base_dict_to_string(d: Dict[str, int]) -> str:
+    """
+    Convert a dictionary of bases to a string.
+
+    :param d: A dictionary of base counts.
+    :return: A string of base counts.
+    """
+    return ','.join(map(str, [d['A'], d['C'], d['G'], d['T']]))
+
+
+def get_called_bases(calls: np.ndarray[str]) -> np.ndarray[str]:
+    """
+    Get the called bases from a list of calls.
+
+    :param calls: Array of calls.
+    :return: Array of called bases.
+    """
+    return np.array([b for b in '/'.join(calls).replace('|', '/') if b in 'ACGT'])
+
+
+# load ingroup and outgroup samples
+ingroups = pd.read_csv(ingroups_file, header=None, index_col=False)[0].tolist()
+outgroups = pd.read_csv(outgroups_file, header=None, index_col=False)[0].tolist()
+
+# seed rng
+np.random.seed(seed=0)
+
+# number of subsamples to sample from haplotypes
+n_subsamples = min(n_max_subsamples, len(ingroups))
+
+# write to data file
+with open(out_data, 'w') as f:
+    i = 0
+    vcf_reader = VCF(vcf_file)
+
+    # get indices of ingroup samples
+    ingroup_mask = [sample in ingroups for sample in vcf_reader.samples]
+
+    # raise error if outgroup samples are not in VCF
+    if not set(outgroups).issubset(set(vcf_reader.samples)):
+        raise ValueError("Outgroup samples not in VCF.")
+
+    # get indices of outgroup samples
+    i_outgroups = np.zeros(n_outgroups, dtype=int)
+    for i, sample in enumerate(outgroups):
+        i_outgroups[i] = np.where(np.array(vcf_reader.samples) == sample)[0][0]
+
+    for variant in tqdm(vcf_reader):
+
+        # only do inference SNPs
+        if variant.is_snp:
+
+            # get counts for ingroup samples
+            ingroup_counts = count(subsample(get_called_bases(variant.gt_bases[ingroup_mask]), n_subsamples))
+
+            # get counts for outgroup samples
+            outgroup_counts = []
+            for j in i_outgroups:
+                # try to sample more than one haplotype?
+                outgroup_counts.append(count(subsample(get_called_bases(np.array([variant.gt_bases[j]])), 1)))
+
+            f.write(' '.join([base_dict_to_string(r) for r in [ingroup_counts] + outgroup_counts]) + os.linesep)
+
+        i += 1
+        if i % 1000 == 0: print(f"Processed sites: {i}", flush=True);
