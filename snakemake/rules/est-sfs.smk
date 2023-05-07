@@ -1,17 +1,20 @@
 """
 Module for running EST-SFS on a set of VCF files.
-EST-SFS is limit by the number of sites it can handle,
+EST-SFS is limited by the number of sites it can handle,
 so we scatter and gather the input files so as not
-to exceed this limit. We furthermore scatter and gather
-the VCF file independent of to allow for parallelization
-during the recoding of the INFO field.
+to exceed this limit (given by ``max_sites``).
+The EST-SFS are automatically fetched and installed.
+This workflow only infers ancestral allele of bi-allelic sites.
+The `AA` info tag is added to the VCF files to indicate the ancestral allele.
+The additional info tags `EST_SFS_input` and `EST_SFS_output` denote the
+EST-SFS input and output as described in the manual.
 
 Note that EST-SFS only runs on Linux and that the wildcard values specifying
 the set of VCF files need to be specified explicitly.
 
 config example:
 
-The path names support wildcards but these need to be specified explicitly.
+The path names support wildcards which need to be specified explicitly.
 
 ``{
     'vcf_in': "vcf/all/{chunk}.{opts}.vcf.gz", # input VCF
@@ -25,10 +28,7 @@ The path names support wildcards but these need to be specified explicitly.
     # maximum number of sites used for EST-SFS
     # this number is hard-coded and has to be replaced at compilation time
     # the compilation seems to fail for values larger than around 1000000
-
     'max_sites': 1000000
-
-    'batch_size': 1000000 # number of sites used for each run of EST-SFS
 
     # maximum number of samples
     # EST-SFS doesn't allow more than 200 alleles (including the outgroups)
@@ -38,7 +38,7 @@ The path names support wildcards but these need to be specified explicitly.
     'n_outgroup': 3 # number of outgroups
 
     'model': 1 # substitution model used for EST-SFS
-    'nrandom': 10
+    'nrandom': 10 # number of ML runs
     'debug': False # whether to print local variables
 }``
 """
@@ -161,7 +161,7 @@ def get_n_chunks(w) -> int:
     data_file = checkpoints.gather_input_est_sfs.get(**w).output[0]
 
     n_lines = sum(1 for _ in open(data_file))
-    return int(np.ceil(n_lines / config['batch_size']))
+    return int(np.ceil(n_lines / config['max_sites']))
 
 
 # get the names of chunked files containing the probabilities

@@ -35,7 +35,7 @@ except NameError:
 rng = np.random.default_rng(seed=seed)
 
 
-def subsample(bases: np.ndarray[str], size: int) -> np.ndarray[str]:
+def subsample(bases: np.ndarray, size: int) -> np.ndarray:
     """
     Subsample a set of bases.
 
@@ -51,7 +51,7 @@ def subsample(bases: np.ndarray[str], size: int) -> np.ndarray[str]:
     return np.array(bases)[np.random.choice(len(bases), size=size, replace=False)]
 
 
-def count(bases: np.ndarray[str]) -> Dict[str, int]:
+def count(bases: np.ndarray) -> Dict[str, int]:
     """
     Count the number of bases in a list of haplotypes.
 
@@ -76,7 +76,7 @@ def base_dict_to_string(d: Dict[str, int]) -> str:
     return ','.join(map(str, [d['A'], d['C'], d['G'], d['T']]))
 
 
-def get_called_bases(calls: np.ndarray[str]) -> np.ndarray[str]:
+def get_called_bases(calls: np.ndarray) -> np.ndarray:
     """
     Get the called bases from a list of calls.
 
@@ -98,7 +98,7 @@ n_subsamples = min(n_max_subsamples, len(ingroups))
 
 # write to data file
 with open(out_data, 'w') as f:
-    i = 0
+    # create reader
     vcf_reader = VCF(vcf_file)
 
     # get indices of ingroup samples
@@ -115,8 +115,10 @@ with open(out_data, 'w') as f:
 
     for variant in tqdm(vcf_reader):
 
-        # only do inference SNPs
-        if variant.is_snp:
+        # Only do inference for bi-allelic SNPs.
+        # Since EST-SFS only reports the probability of
+        # the major allele being ancestral, we cannot do more.
+        if variant.is_snp and len(variant.ALT) == 1:
 
             # get counts for ingroup samples
             ingroup_counts = count(subsample(get_called_bases(variant.gt_bases[ingroup_mask]), n_subsamples))
@@ -128,6 +130,3 @@ with open(out_data, 'w') as f:
                 outgroup_counts.append(count(subsample(get_called_bases(np.array([variant.gt_bases[j]])), 1)))
 
             f.write(' '.join([base_dict_to_string(r) for r in [ingroup_counts] + outgroup_counts]) + os.linesep)
-
-        i += 1
-        if i % 1000 == 0: print(f"Processed sites: {i}", flush=True);
