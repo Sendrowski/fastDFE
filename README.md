@@ -1,4 +1,5 @@
 [![fastDFE](https://github.com/Sendrowski/fastDFE/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/Sendrowski/fastDFE/actions/workflows/python-app.yml)
+[![Documentation Status](https://readthedocs.org/projects/fastdfe/badge/?version=latest)](https://fastdfe.readthedocs.io/en/latest/?badge=latest)
 
 fastDFE is a new package designed for inferring the distribution of fitness effects (DFE) from site-frequency spectra (SFS). As it is currently in its beta phase, we are continuously working to improve and refine its features.
 
