@@ -37,9 +37,12 @@ except NameError:
 # configure logger to log stdout
 logger = logging.getLogger()
 
-logger.addHandler(logging.FileHandler(log))
-logger.addHandler(logging.StreamHandler(sys.stdout))
+# add file handler
+file_handler = logging.FileHandler(log)
+file_handler.setLevel(logging.DEBUG)
+logger.addHandler(file_handler)
 
+# add stream handler
 stream_handler = logging.StreamHandler(sys.stdout)
 stream_handler.setLevel(log_level)
 logger.addHandler(stream_handler)
