@@ -1,6 +1,15 @@
 Welcome to fastDFE's documentation
 ===================================
 
+.. image:: https://github.com/Sendrowski/fastDFE/actions/workflows/python-app.yml/badge.svg?branch=master
+    :target: https://github.com/Sendrowski/fastDFE/actions/workflows/python-app.yml
+    :alt: Build Status
+.. image:: https://readthedocs.org/projects/fastdfe/badge/?version=latest
+    :target: https://fastdfe.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
+fastDFE is a package for fast, flexible, and hierarchical inference of the distribution of fitness effects (DFE) from site frequency spectra (SFS).
+
 .. toctree::
    :maxdepth: 2
 
@@ -39,3 +48,4 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
+* :ref:`modindex`

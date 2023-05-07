@@ -8,7 +8,7 @@ __date__ = "2023-02-26"
 
 import json
 import logging
-from typing import List, Literal, Dict
+from typing import List, Literal, Dict, Tuple
 
 import yaml
 
@@ -25,7 +25,7 @@ logger = logging.getLogger('fastdfe')
 class Config:
     """
     Configuration class to be used for :class:``~fastdfe.base_inference.BaseInference`` and
-    :class:``fastdfe.shared_inference.SharedInference``.
+    :class:``fastdfe.joint_inference.JointInference``.
     """
 
     def __init__(
@@ -42,7 +42,8 @@ class Config:
             model: Parametrization | str = 'GammaExpParametrization',
             seed: int = 0,
             x0: Dict[str, Dict[str, float]] = {},
-            bounds: Dict[str, tuple] = {},
+            bounds: Dict[str, Tuple[float, float]] = {},
+            scales: Dict[str, Literal['lin', 'log', 'symlog']] = {},
             loss_type: Literal['likelihood', 'L2'] = 'likelihood',
             opts_mle: dict = {},
             n_runs: int = 10,
@@ -67,11 +68,13 @@ class Config:
         :param linearized: Whether to use the linearized version of the DFE.
         :param model: Parametrization of the DFE.
         :param seed: Seed for the random number generator.
-        :param x0: Initial parameters for the optimization.
-        :param bounds: Bounds for the optimization.
+        :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
+        :param bounds: Bounds for the optimization in the form {param: (lower, upper)}
+        :param scales: Scales for the optimization in the form {param: scale}
         :param loss_type: Loss function to use.
         :param opts_mle: Options for the optimization.
-        :param n_runs: Number of optimization runs.
+        :param n_runs: Number of optimization runs. Number of optimization runs.
+        The first run will use the initial values if provided.
         :param fixed_params: Fixed parameters for the optimization.
         :param shared_params: Shared parameters for the optimization.
         :param covariates: Covariates for the optimization.
@@ -92,6 +95,7 @@ class Config:
             n_runs=n_runs,
             x0=x0,
             bounds=bounds,
+            scales=scales,
             fixed_params=fixed_params,
             shared_params=shared_params,
             covariates=covariates,

@@ -37,6 +37,7 @@
                 }
             },
             "bounds": {},
+            "scales": {},
             "fixed_params": {
                 "all": {}
             },
@@ -105,13 +106,13 @@
         }
     },
     "output_file": null,
-    "execution_time": 10811.45306801796,
+    "execution_time": 2705.9462921619415,
     "summary": {
         "py/object": "fastdfe.polydfe.PolyDFEResult",
         "output_file": "results/polydfe/pendula_C_full_anc/out.txt",
         "postprocessing_source": "../resources/polydfe/postprocessing/script.R",
         "data": {
-            "output_file": "/var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/tmpwsrioxbi",
+            "output_file": "/var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/tmpfuffedzf",
             "model": "C",
             "likelihood": -128.7977,
             "criteria": 8e-05,
@@ -196,7 +197,7 @@
                 }
             ],
             "alpha": 0.47931662785688917,
-            "execution_time": 10811.45306801796
+            "execution_time": 2705.9462921619415
         }
     }
 }

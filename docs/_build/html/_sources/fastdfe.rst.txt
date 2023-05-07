@@ -94,10 +94,10 @@ fastdfe.parser module
    :show-inheritance:
    :noindex:
 
-fastdfe.shared\_inference module
+fastdfe.joint\_inference module
 --------------------------------
 
-.. automodule:: fastdfe.shared_inference
+.. automodule:: fastdfe.joint_inference
    :members:
    :undoc-members:
    :show-inheritance:

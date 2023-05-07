@@ -1,6 +1,6 @@
 .. _modules.base_inference:
 
-Inference classes
+Inference
 =================
 
 .. autoclass:: fastdfe.base_inference.BaseInference
@@ -8,7 +8,7 @@ Inference classes
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: fastdfe.shared_inference.SharedInference
+.. autoclass:: fastdfe.joint_inference.JointInference
    :inherited-members:
    :undoc-members:
    :show-inheritance:

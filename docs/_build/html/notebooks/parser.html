@@ -67,7 +67,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../modules/inference.html">Inference classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/config.html">Configuration class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/parametrization.html">Parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/spectrum.html">Spectrum class</a></li>
@@ -125,13 +125,13 @@
 INFO:fastdfe:Counting number of sites.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2439037it [00:41, 58179.14it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2439037it [00:56, 43135.21it/s]
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Starting to parse.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2439037/2439037 [01:50&lt;00:00, 22171.54it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2439037/2439037 [02:54&lt;00:00, 14013.47it/s]
 </pre></div>
 </div>
 </div>
@@ -147,7 +147,7 @@ INFO:fastdfe:Counting number of sites.
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/aacc6e2117a6933b1bb115c5d5f2731b9555bb990843275f4031759cf3448008.png" src="../_images/aacc6e2117a6933b1bb115c5d5f2731b9555bb990843275f4031759cf3448008.png" />
+<img alt="../_images/41b0c2c5c280b54f3d1dd515d2bad74a07448fda993d291ddf01127235826ff3.png" src="../_images/41b0c2c5c280b54f3d1dd515d2bad74a07448fda993d291ddf01127235826ff3.png" />
 </div>
 </div>
 <p>fastDFE relies on VCF info tags to determine the degeneracy of a site but this behaviour can be customized (cf. <a class="reference internal" href="../modules/parser.html#fastdfe.parser.DegeneracyStratification" title="fastdfe.parser.DegeneracyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyStratification</span></code></a>).</p>
@@ -173,13 +173,13 @@ INFO:fastdfe:Counting number of sites.
 INFO:fastdfe:Counting number of sites.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2439037it [00:42, 57016.95it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2439037it [00:45, 53268.04it/s]
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Starting to parse.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2439037/2439037 [02:00&lt;00:00, 20291.49it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2439037/2439037 [02:44&lt;00:00, 14789.53it/s]
 </pre></div>
 </div>
 </div>
@@ -195,7 +195,7 @@ INFO:fastdfe:Counting number of sites.
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/25511f9652c30bdf101ed352ef1297d808d0d93620418a528c01c396eb72c433.png" src="../_images/25511f9652c30bdf101ed352ef1297d808d0d93620418a528c01c396eb72c433.png" />
+<img alt="../_images/466c14ca4c637809a6c7a2b7baff6dfc52522d8b0eab30ddceb8ec30cc216fd5.png" src="../_images/466c14ca4c637809a6c7a2b7baff6dfc52522d8b0eab30ddceb8ec30cc216fd5.png" />
 </div>
 </div>
 <p>Note that fastDFE required the ancestral state of sites to be determined. <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a> does this by looking at the <code class="docutils literal notranslate"><span class="pre">AA</span></code> field but this can be customized. We admit there is currently no easy method for determining the ancestral states directly from a VCF file and are working on implementing one. You can also define custom Stratifications by extending <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a>).</p>

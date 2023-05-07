@@ -1,4 +1,4 @@
-name: fastdfe
+name: testing-fastdfe
 channels:
   - conda-forge
   - bioconda
@@ -21,5 +21,6 @@ dependencies:
   - r-base
   - rpy2
   - r-rjsonio
+  - pytest
   - pytest-xdist
-  - coverage
+  - pytest-cov

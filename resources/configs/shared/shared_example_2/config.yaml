@@ -1,4 +1,5 @@
 bounds: { }
+scales: { }
 covariates: [ ]
 do_bootstrap: false
 fixed_params: { }

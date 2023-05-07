@@ -6,7 +6,7 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-03-10"
 
-__version__ = 'beta'
+__version__ = '0.1.4-beta'
 
 import logging
 import sys
@@ -32,7 +32,7 @@ handler.setFormatter(logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
-# whether to show progress bar
+# whether to disable the progress bar
 disable_pbar = False
 
 
@@ -55,7 +55,7 @@ from .parametrization import Parametrization, GammaExpParametrization, DiscreteP
 from .config import Config
 from .abstract_inference import Inference
 from .base_inference import BaseInference, InferenceResults
-from .shared_inference import SharedInference, SharedParams
+from .joint_inference import JointInference, SharedParams
 from .optimization import Covariate
 from .visualization import Visualization
 from .spectrum import Spectrum, Spectra
@@ -71,7 +71,7 @@ __all__ = [
     'Config',
     'Inference',
     'BaseInference',
-    'SharedInference',
+    'JointInference',
     'SharedParams',
     'Covariate',
     'Visualization',

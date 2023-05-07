@@ -1,4 +1,5 @@
 bounds: { }
+scales: { }
 covariates:
   - param: S_d
     values:

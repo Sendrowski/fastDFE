@@ -1,3 +1,7 @@
+from testing import prioritize_installed_packages
+
+prioritize_installed_packages()
+
 import os
 from unittest import TestCase
 
@@ -43,7 +47,7 @@ class PolyDFEWrapperTestCase(TestCase):
         # compare JSON representation
         self.assertEqual(polydfe.to_json(), polydfe_restored.to_json())
 
-    @pytest.mark.skip(reason="takes too long")
+    # @pytest.mark.skip(reason="takes too long")
     def test_run_bootstrap_sample(self):
         """
         Serialize polyDFE wrapper and restore.

@@ -223,7 +223,7 @@ rule infer_dfe_polyDFE:
     params:
         bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
     conda:
-        base_env
+        "envs/testing.yaml"
     script:
         "scripts/infer_dfe_polydfe.py"
 
@@ -239,7 +239,7 @@ rule infer_dfe_polyDFE_bootstrap:
     params:
         bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
     conda:
-        base_env
+        "envs/testing.yaml"
     script:
         "scripts/infer_dfe_polydfe.py"
 
@@ -266,7 +266,7 @@ rule create_bootstrap_polyDFE:
     output:
         "results/polydfe/{config}/bootstraps/{i}/config.yaml"
     conda:
-        base_env
+        "envs/testing.yaml"
     script:
         "scripts/create_bootstrap_polydfe.py"
 
@@ -280,7 +280,7 @@ rule merge_bootstraps_polyDFE:
     output:
         "results/polydfe/{config}_bootstrapped_{n}/serialized.json"
     conda:
-        base_env
+        "envs/testing.yaml"
     script:
         "scripts/merge_bootstraps_polydfe.py"
 
@@ -292,7 +292,7 @@ rule visualize_polyDFE_inference:
         dfe_discretized="results/graphs/polydfe/{config}/dfe_discretized.png",
         mle_params="results/graphs/polydfe/{config}/mle_params.png"
     conda:
-        base_env
+        "envs/testing.yaml"
     script:
         "scripts/plot_polydfe_inference.py"
 
@@ -318,7 +318,7 @@ rule test_overlapping_confidence_intervals:
     output:
         touch("results/testing/{config}/overlapping_confidence_intervals.txt")
     conda:
-        base_env
+        "envs/testing.yaml"
     script:
         "scripts/check_overlapping_confidence_intervals.py"
 
@@ -334,16 +334,30 @@ rule copy_to_testing:
         "cp -r {input} {output}"
 
 # renew test cache used for comparison
-rule renew_test_file_cache:
+rule renew_test_file_cache_fastdfe:
     input:
-        "../testing/fastdfe/pendula_C_full_anc/serialized.json",
-        "../testing/polydfe/pendula_C_full_anc/serialized.json",
         "../testing/configs/pendula_C_full_anc/config.yaml",
+        "../testing/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml",
+        "../testing/fastdfe/pendula_C_full_anc/serialized.json",
         "../testing/fastdfe/templates/shared/shared_example_1/serialized.json",
         "../testing/fastdfe/templates/shared/shared_example_2/serialized.json",
         "../testing/fastdfe/templates/shared/covariates_dummy_example_1/serialized.json",
-        "../testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json",
-        "../testing/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
+        "../testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+    output:
+        touch("../testing/renew_cache_fastdfe.txt")
+
+# renew test cache used for comparison
+rule renew_test_file_cache_polydfe:
+    input:
+        "../testing/polydfe/pendula_C_full_anc/serialized.json"
+    output:
+        touch("../testing/renew_cache_polydfe.txt")
+
+# renew test cache used for comparison
+rule renew_test_file_cache:
+    input:
+        "../testing/renew_cache_fastdfe.txt",
+        "../testing/renew_cache_polydfe.txt"
     output:
         touch("../testing/renew_cache.txt")
 
@@ -445,7 +459,7 @@ rule filter_sample_set:
         ref="../resources/genome/betula/genome.fasta",
         index="../resources/genome/betula/genome.fasta.fai",
         dict="../resources/genome/betula/genome.dict",
-        sample_set="../resources/genome/sample_sets/{sample_set}.args"
+        sample_set="../resources/genome/betula/sample_sets/{sample_set}.args"
     output:
         "results/vcf/betula/{sample_set,\w+}.vcf.gz"
     params:
@@ -453,7 +467,7 @@ rule filter_sample_set:
         flags=lambda w: {
             "-R": "../resources/genome/betula/genome.fasta",
             "-V": "../resources/genome/betula/all.vcf.gz",
-            "--sample-name": f"../resources/genome/sample_sets/{w.sample_set}.args",
+            "--sample-name": f"../resources/genome/betula/sample_sets/{w.sample_set}.args",
             "--remove-unused-alternates": True
         }
     conda:
@@ -522,8 +536,8 @@ rule merge_spectra:
     script:
         "scripts/merge_spectra.py"
 
-# run shared inference from template
-rule run_shared_inference_from_templates:
+# run joint inference from template
+rule run_joint_inference_from_templates:
     input:
         "../resources/configs/shared/{config}/config.yaml"
     output:
@@ -533,5 +547,3 @@ rule run_shared_inference_from_templates:
         base_env
     script:
         "scripts/infer_shared_dfe.py"
-
-

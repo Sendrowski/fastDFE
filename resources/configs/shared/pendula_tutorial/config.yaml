@@ -23,6 +23,9 @@ n_runs: 10
 # type here. This property should be left untouched in
 # most cases.
 bounds: { }
+# The scales over which the parameters are optimized,
+# i.e. 'lin', 'log', or 'symlog'.
+scales: { }
 # Whether to perform bootstraps directly when invoking
 # Inference.run()
 do_bootstrap: true

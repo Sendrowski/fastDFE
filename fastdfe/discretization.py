@@ -210,8 +210,8 @@ class Discretization:
         Create Discretization instance.
 
         :return: Number of individuals
-        :param intervals_del: (start, stop, n_interval) for deleterious population-scaled selection coefficients.
-        :param intervals_ben: (start, stop, n_interval) for beneficial population-scaled selection coefficients.
+        :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled selection coefficients.
+        :param intervals_ben: ``(start, stop, n_interval)`` for beneficial population-scaled selection coefficients.
         :param integration_mode : 'midpoint' or 'quad' for midpoint integration or Scipy's quad method.
         :return: Whether to linearize the integral
         """

@@ -12,8 +12,9 @@ import itertools
 import json
 import logging
 import time
-from typing import List, Optional, Dict, Literal, cast
+from typing import List, Optional, Dict, Literal, cast, Tuple
 
+import jsonpickle
 import multiprocess as mp
 import numpy as np
 import pandas as pd
@@ -28,7 +29,7 @@ from .abstract_inference import AbstractInference, Inference
 from .config import Config
 from .discretization import Discretization
 from .json_handlers import CustomEncoder
-from .optimization import Optimization, flatten_dict, pack_params, expand_fixed
+from .optimization import Optimization, flatten_dict, pack_params, expand_fixed, unpack_shared
 from .parametrization import Parametrization, from_string
 from .spectrum import Spectrum, Spectra
 from .spectrum import standard_kingman
@@ -58,7 +59,7 @@ class BaseInference(AbstractInference):
     )
 
     #: Scales for the parameters not connected to the DFE parametrization
-    scales = dict(
+    default_scales = dict(
         eps='lin'
     )
 
@@ -79,7 +80,8 @@ class BaseInference(AbstractInference):
             model: Parametrization | str = 'GammaExpParametrization',
             seed: int = 0,
             x0: Dict[str, Dict[str, float]] = {},
-            bounds: Dict[str, tuple] = {},
+            bounds: Dict[str, Tuple[float, float]] = {},
+            scales: Dict[str, Literal['lin', 'log', 'symlog']] = {},
             loss_type: Literal['likelihood', 'L2'] = 'likelihood',
             opts_mle: dict = {},
             n_runs: int = 10,
@@ -97,16 +99,17 @@ class BaseInference(AbstractInference):
 
         :param sfs_neut: The neutral SFS. Spectra | Spectrum
         :param sfs_sel: The selected SFS.
-        :param intervals_del: (start, stop, n_interval) for deleterious population-scaled
+        :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
         selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as for intervals_del but for beneficial selection coefficients.
         :param model: Instance of DFEParametrization which parametrized the DFE
         :param seed: Seed for the random number generator.
-        :param x0: Initial values for the optimization.
-        :param bounds: Bounds for the optimization.
+        :param x0: Dictionary of initial values in the form {'all': {param: value}}
+        :param bounds: Bounds for the optimization in the form {param: (lower, upper)}
+        :param scales: Scales for the optimization in the form {param: scale}
         :param loss_type: Type of loss function to use for optimization.
         :param opts_mle: Options for the optimization.
-        :param n_runs: Number of optimization runs.
+        :param n_runs: Number of optimization runs. The first run will use the initial values if provided.
         :param fixed_params: Fixed parameters for the optimization.
         :param do_bootstrap: Whether to do bootstrapping.
         :param n_bootstraps: Number of bootstraps.
@@ -158,14 +161,17 @@ class BaseInference(AbstractInference):
         #: Estimate of theta from neutral SFS
         self.theta: float = self.sfs_neut.theta
 
-        #: MLE params
+        #: MLE estimates of the initial optimization
         self.params_mle: Optional[Dict[str, float]] = None
 
         #: Modelled MLE SFS
         self.sfs_mle: Optional[Spectrum] = None
 
-        #: Likelihood of the MLE
+        #: Likelihood of the MLE, this value may be updated after bootstrapping
         self.likelihood: Optional[float] = None
+
+        #: Likelihoods of the different ML runs, controlled by ``n_runs``
+        self.likelihoods: Optional[List[float]] = None
 
         #: Number of MLE runs to perform
         self.n_runs: int = n_runs
@@ -173,7 +179,7 @@ class BaseInference(AbstractInference):
         #: Numerical optimization result
         self.result: Optional[OptimizeResult] = None
 
-        # bootstrap options
+        # Bootstrap options
 
         #: Whether to do bootstrapping
         self.do_bootstrap: bool = do_bootstrap
@@ -191,13 +197,19 @@ class BaseInference(AbstractInference):
         # check that the fixed parameters are valid
         self.check_fixed_params_exist()
 
+        #: parameter scales
+        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = self.model.scales | self.default_scales | scales
+
+        #: parameter bounds
+        self.bounds: Dict[str, Tuple[float, float]] = self.model.bounds | self.default_bounds | bounds
+
         if optimization is None:
             # create optimization instance
             # merge with default values of inference and model
             #: Optimization instance
             self.optimization: Optimization = Optimization(
-                bounds=self.model.bounds | self.default_bounds | bounds,
-                scales=self.model.scales | self.scales,
+                bounds=self.bounds,
+                scales=self.scales,
                 opts_mle=self.default_opts_mle | opts_mle,
                 loss_type=loss_type,
                 param_names=self.param_names,
@@ -306,7 +318,8 @@ class BaseInference(AbstractInference):
     def run(
             self,
             do_bootstrap: bool = None,
-            pbar: bool = None
+            pbar: bool = None,
+            **kwargs
 
     ) -> Spectrum:
         """
@@ -314,6 +327,7 @@ class BaseInference(AbstractInference):
 
         :param pbar: Whether to show a progress bar.
         :param do_bootstrap: Whether to perform bootstrapping.
+        :param kwargs: Keyword arguments.
         :return: Modelled SFS.
         """
         # check if locked
@@ -341,10 +355,18 @@ class BaseInference(AbstractInference):
         # perform numerical minimization
         result, params_mle = self.optimization.run(
             x0=self.x0,
+            scales=self.scales,
+            bounds=self.bounds,
             get_counts=self.get_counts(),
             n_runs=self.n_runs,
             pbar=pbar
         )
+
+        # assign likelihoods
+        self.likelihoods = self.optimization.likelihoods
+
+        # unpack shared parameters
+        params_mle = unpack_shared(params_mle)
 
         # normalize parameters
         params_mle['all'] = self.model.normalize(params_mle['all'])
@@ -376,18 +398,24 @@ class BaseInference(AbstractInference):
             sfs_sel=self.sfs_sel
         ))
 
-    def evaluate_likelihood(self, params: dict) -> float:
+    def evaluate_likelihood(self, params: Dict[str, Dict[str, float]]) -> float:
         """
-        Get loss function.
-        Note that the order of the parameters has to be the same as in
-        params_mle. The types also need to be specified here. For a
-        BaseInference objects, the mean we need to pass dict(all=...).
+        Evaluate likelihood function at given parameters.
 
+        :param params: Parameters indexed by type and parameter name.
         :return: The likelihood.
         """
+        x0_cached = self.optimization.x0
         self.optimization.x0 = params
 
-        return -self.optimization.get_loss_function(self.get_counts())(pack_params(flatten_dict(params)))
+        # prepare parameters
+        params = pack_params(self.optimization.scale_values(flatten_dict(params)))
+
+        lk = -self.optimization.get_loss_function(self.get_counts())(params)
+
+        self.optimization.x0 = x0_cached
+
+        return lk
 
     def assign_result(self, result: OptimizeResult, params_mle: dict):
         """
@@ -444,12 +472,17 @@ class BaseInference(AbstractInference):
             if value is not None:
                 setattr(self, key, value)
 
-    def bootstrap(self, n_samples: int = None, parallelize: bool = None) -> pd.DataFrame:
+    def bootstrap(
+            self, n_samples: int = None,
+            parallelize: bool = None,
+            update_likelihood: bool = True
+    ) -> pd.DataFrame:
         """
         Perform the parametric bootstrap.
 
         :param n_samples: Number of bootstrap samples.
         :param parallelize: Whether to parallelize the bootstrap.
+        :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples.
         :return: Dataframe with bootstrap results.
         """
         # check if locked
@@ -507,6 +540,10 @@ class BaseInference(AbstractInference):
         # add execution time
         self.execution_time += time.time() - start_time
 
+        # assign average likelihood of successful runs
+        if update_likelihood:
+            self.likelihood = np.mean([-res.fun for res in result[:, 0] if res.success] + [self.likelihood])
+
         return self.bootstraps
 
     def add_alpha_to_bootstraps(self):
@@ -518,15 +555,21 @@ class BaseInference(AbstractInference):
         # add alpha estimates
         self.bootstraps['alpha'] = self.bootstraps.apply(lambda r: self.get_alpha(dict(r)), axis=1)
 
-    def resample_sfs(self, sfs: Spectrum) -> Spectrum:
+    def resample_sfs(self, sfs: Spectrum, seed: int = None) -> Spectrum:
         """
         Resample SFS assuming independent Poisson counts.
 
         :param sfs: Spectrum to resample.
+        :param seed: Seed for random number generator.
         :return: Resampled spectrum.
         """
+        if seed is not None:
+            rng = np.random.default_rng(seed=seed)
+        else:
+            rng = self.rng
+
         # resample polymorphic sites only
-        polymorphic = self.rng.poisson(lam=sfs.polymorphic)
+        polymorphic = rng.poisson(lam=sfs.polymorphic)
 
         return Spectrum.from_polydfe(
             polymorphic=polymorphic,
@@ -542,16 +585,15 @@ class BaseInference(AbstractInference):
         :param seed: Seed for random number generator.
         :return: Optimization result and MLE parameters.
         """
-        if seed is not None:
-            self.rng = np.random.default_rng(seed=seed)
-
         # resample spectra
-        sfs_sel = self.resample_sfs(self.sfs_sel)
-        sfs_neut = self.resample_sfs(self.sfs_neut)
+        sfs_sel = self.resample_sfs(self.sfs_sel, seed=seed)
+        sfs_neut = self.resample_sfs(self.sfs_neut, seed=seed)
 
         # perform numerical minimization
         result, params_mle = self.optimization.run(
             x0=dict(all=self.params_mle),
+            scales=self.get_scales_linear(),
+            bounds=self.get_bounds_linear(),
             n_runs=1,
             debug_iterations=False,
             print_info=False,
@@ -562,10 +604,39 @@ class BaseInference(AbstractInference):
             ))
         )
 
+        # unpack shared parameters
+        params_mle = unpack_shared(params_mle)
+
         # normalize MLE estimates
         params_mle['all'] = self.model.normalize(params_mle['all'])
 
         return result, params_mle
+
+    def get_scales_linear(self) -> Dict[str, Literal['lin']]:
+        """
+        Get linear scales for all parameters. We do this for the bootstraps as x0 should be close to MLE.
+
+        :return: Dictionary of scales.
+        """
+        return cast(Dict[str, Literal['lin']], dict((p, 'lin') for p in self.scales.keys()))
+
+    def get_bounds_linear(self) -> Dict[str, Tuple[float, float]]:
+        """
+        Get linear bounds for all parameters. We do this for the bootstraps as x0 should be close to MLE.
+
+        :return: Dictionary of bounds.
+        """
+        scaled_bounds = {}
+
+        for key, bounds in self.bounds.items():
+
+            # for symlog we need to convert the bounds to linear scale
+            if self.scales[key] == 'symlog':
+                scaled_bounds[key] = (-bounds[1], bounds[1])
+            else:
+                scaled_bounds[key] = bounds
+
+        return scaled_bounds
 
     def model_sfs(self, params: dict, sfs_neut: Spectrum, sfs_sel: Spectrum) -> (np.ndarray, np.ndarray):
         """
@@ -635,7 +706,7 @@ class BaseInference(AbstractInference):
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
             scale_density: bool = False,
-            scale: Literal['lin', 'log'] = 'lin',
+            scale: Literal['lin', 'log', 'symlog'] = 'lin',
             title: str = 'DFE',
             ax: plt.Axes = None
 
@@ -818,16 +889,40 @@ class BaseInference(AbstractInference):
         self.plot_interval_density(show=show)
         self.plot_likelihoods(show=show)
 
+    def get_errors_discretized_dfe(
+            self,
+            ci_level: float = 0.05,
+            intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
+    ) -> np.ndarray:
+        """
+        Get the discretized DFE errors.
+
+        :param ci_level: Confidence interval level.
+        :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
+        :param bootstrap_type: Type of bootstrap to use.
+        :return: Arrays of errors, confidence intervals, bootstraps, means and values
+        """
+        return Inference.get_stats_discretized(
+            params=self.params_mle,
+            bootstraps=self.bootstraps,
+            model=self.model,
+            ci_level=ci_level,
+            intervals=intervals,
+            bootstrap_type=bootstrap_type
+        )
+
     @run_if_required_wrapper
     def plot_inferred_parameters(
             self,
-            file: str = None,
             confidence_intervals: bool = True,
-            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
             ci_level: float = 0.05,
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            file: str = None,
             show: bool = True,
-            title: str = 'inferred parameters',
-            scale: Literal['lin', 'log'] = 'log',
+            title: str = 'parameter estimates',
+            scale: Literal['lin', 'log', 'symlog'] = 'log',
+            legend: bool = True,
             ax: plt.Axes = None,
             **kwargs
     ) -> plt.Axes:
@@ -836,6 +931,7 @@ class BaseInference(AbstractInference):
 
         :param scale: y-scale of the plot.
         :param title: Plot title.
+        :param legend: Whether to show the legend.
         :param confidence_intervals: Whether to show confidence intervals.
         :param bootstrap_type: Type of bootstrap to use.
         :param ci_level: Confidence level for the confidence intervals.
@@ -844,9 +940,9 @@ class BaseInference(AbstractInference):
         :param ax: Axes object to plot on.
         :return: Axes object
         """
-        return Visualization.plot_inferred_parameters(
-            params=[self.get_bootstrap_params()],
-            bootstraps=[self.bootstraps],
+        return Inference.plot_inferred_parameters(
+            inferences=[self],
+            labels=['all'],
             file=file,
             show=show,
             title=title,
@@ -863,7 +959,7 @@ class BaseInference(AbstractInference):
             file: str = None,
             show: bool = True,
             title: str = 'likelihoods',
-            scale: Literal['lin', 'log'] = 'lin',
+            scale: Literal['lin', 'log', 'symlog'] = 'lin',
             ax: plt.Axes = None,
             **kwargs
     ) -> plt.Axes:
@@ -878,7 +974,7 @@ class BaseInference(AbstractInference):
         :return: Axes object
         """
         return Visualization.plot_likelihoods(
-            likelihoods=self.optimization.likelihoods,
+            likelihoods=self.likelihoods,
             file=file,
             show=show,
             title=title,
@@ -929,11 +1025,12 @@ class BaseInference(AbstractInference):
 
     @run_if_required_wrapper
     @functools.lru_cache
-    def compare_nested_models(self) -> (np.ndarray, Dict[str, 'BaseInference']):
+    def compare_nested_models(self, do_bootstrap: bool = True) -> (np.ndarray, Dict[str, 'BaseInference']):
         """
         Compare the various nested versions of the specified
         model using likelihood ratio tests.
 
+        :param do_bootstrap: Whether to perform bootstrapping. This is recommended to get more accurate p-values.
         :return: Matrix of p-values, dict of base inference objects
         """
 
@@ -951,7 +1048,7 @@ class BaseInference(AbstractInference):
             inference = copy.deepcopy(self)
 
             # disable bootstraps
-            inference.do_bootstrap = False
+            inference.do_bootstrap = do_bootstrap
 
             # dict of params to be fixed
             params = dict(all=submodels_dfe[p[0]] | submodels_outer[p[1]])
@@ -994,6 +1091,7 @@ class BaseInference(AbstractInference):
             cmap: str = None,
             title: str = 'nested model comparison',
             ax: plt.Axes = None,
+            do_bootstrap: bool = True
 
     ) -> plt.Axes:
         """
@@ -1006,10 +1104,11 @@ class BaseInference(AbstractInference):
         :param cmap: Colormap to use.
         :param title: Plot title.
         :param ax: Axes object to plot on.
+        :param do_bootstrap: Whether to perform bootstrapping. This is recommended to get more accurate p-values.
         :return: Axes object
         """
         # get p-values and names
-        P, inferences = self.compare_nested_models()
+        P, inferences = self.compare_nested_models(do_bootstrap=do_bootstrap)
 
         # define labels
         labels_x = np.array(list(inferences.keys()))
@@ -1060,13 +1159,21 @@ class BaseInference(AbstractInference):
         """
         return self.get_alpha()
 
-    def get_bootstrap_params(self) -> dict:
+    def get_bootstrap_params(self) -> Dict[str, float]:
         """
         Get the parameters to be included in the bootstraps.
 
         :return: Parameters to be included in the bootstraps.
         """
         return self.params_mle | dict(alpha=self.alpha)
+
+    def get_bootstrap_param_names(self) -> List[str]:
+        """
+        Get the parameters to be included in the bootstraps.
+
+        :return: Parameters to be included in the bootstraps.
+        """
+        return list(self.get_bootstrap_params().keys())
 
     def get_optimized_param_names(self) -> List[str]:
         """
@@ -1100,9 +1207,12 @@ class BaseInference(AbstractInference):
             linearized=self.discretization.linearized,
             model=self.model.__class__.__name__,
             seed=self.seed,
-            opts_mle=self.optimization.opts_mle,
             x0=self.x0,
-            bounds=self.optimization.bounds,
+            bounds=self.bounds,
+            scales=self.scales,
+            loss_type=self.optimization.loss_type,
+            opts_mle=self.optimization.opts_mle,
+            n_runs=self.n_runs,
             fixed_params=self.fixed_params,
             do_bootstrap=self.do_bootstrap,
             n_bootstraps=self.n_bootstraps,
@@ -1166,6 +1276,15 @@ class BaseInference(AbstractInference):
         self.fixed_params = expand_fixed(params, ['all'])
 
         self.optimization.set_fixed_params(self.fixed_params)
+
+    def to_json(self) -> str:
+        """
+        Serialize object.
+
+        :return: JSON string
+        """
+        # using make_ref=True resulted in weird behaviour when unserializing.
+        return jsonpickle.encode(self, indent=4, warn=True, make_refs=False)
 
 
 class InferenceResults:

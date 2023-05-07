@@ -8,9 +8,10 @@ dependencies:
   - rpy2
   - r-rjsonio
   - pytest-xdist
-  - coverage
+  - pytest-cov
   - pip
   - pip:
+      - pytest-pycharm
       - --index-url https://test.pypi.org/simple/
       - --extra-index-url https://pypi.org/simple
-      - fastdfe==0.1.2-beta
+      - fastdfe

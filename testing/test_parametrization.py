@@ -1,11 +1,14 @@
+from testing import prioritize_installed_packages
+
+prioritize_installed_packages()
+
 from unittest import TestCase
 
 import numpy as np
-import pytest
 from matplotlib import pyplot as plt
 
-from fastdfe import GammaExpParametrization, BaseInference, Config
-from fastdfe.discretization import Discretization, get_midpoints_and_spacing
+from fastdfe import GammaExpParametrization, BaseInference, Config, Visualization
+from fastdfe.discretization import Discretization
 from fastdfe.parametrization import DiscreteParametrization, GammaDiscreteParametrization, DisplacedGammaParametrization
 
 
@@ -357,3 +360,19 @@ class ParametrizationTestCase(TestCase):
 
         inf.plot_continuous()
         inf.plot_discretized()
+
+    def test_plot_pdf(self):
+        """
+        Test that plotting the PDF works.
+        """
+        model = GammaExpParametrization()
+
+        Visualization.plot_pdf(model, model.x0, s=np.linspace(-100, 100, 1000))
+
+    def test_plot_cdf(self):
+        """
+        Test that plotting the CDF works.
+        """
+        model = GammaExpParametrization()
+
+        Visualization.plot_cdf(model, model.x0, s=np.linspace(-100, 100, 1000))

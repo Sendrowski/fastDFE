@@ -1,4 +1,10 @@
-from unittest import TestCase, mock
+from testing import prioritize_installed_packages
+
+prioritize_installed_packages()
+
+import copy
+from unittest import mock, TestCase
+from pandas.testing import assert_frame_equal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -6,7 +12,7 @@ import pandas as pd
 from numpy.random._generator import Generator
 from scipy.optimize import OptimizeResult
 
-from fastdfe import Spectrum, BaseInference, Config, Spectra
+from fastdfe import Spectrum, BaseInference, Config, Spectra, GammaExpParametrization
 
 
 class AbstractInferenceTestCase(TestCase):
@@ -68,12 +74,230 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
     maxDiff = None
 
-    def test_run_inference_from_config(self):
+    def test_run_inference_from_config_parallelized(self):
         """
         Successfully run inference from config file.
         """
-        inference = BaseInference.from_config_file(self.config_file)
+        config = Config.from_file(self.config_file)
+        config.update(parallelize=True)
+
+        inference = BaseInference.from_config(config)
         inference.run()
+
+    def test_run_inference_from_config_not_parallelized(self):
+        """
+        Successfully run inference from config file.
+        """
+        config = Config.from_file(self.config_file)
+        config.update(parallelize=False)
+
+        inference = BaseInference.from_config(config)
+        inference.run()
+
+    def test_seeded_inference_is_deterministic_non_parallelized(self):
+        """
+        Check that inference is deterministic when seeded and not parallelized.
+        """
+        config = Config.from_file(self.config_file)
+
+        config.update(
+            seed=0,
+            do_bootstrap=True,
+            parallelize=False,
+            n_bootstraps=10
+        )
+
+        inference = BaseInference.from_config(config)
+        inference.run()
+
+        inference2 = BaseInference.from_config(config)
+        inference2.run()
+
+        self.assertEqual(inference.params_mle, inference2.params_mle)
+        assert_frame_equal(inference.bootstraps, inference2.bootstraps)
+
+    def test_seeded_inference_is_deterministic_parallelized(self):
+        """
+        Check that seeded inference is deterministic when parallelized.
+        """
+        config = Config.from_file(self.config_file)
+
+        config.update(
+            seed=0,
+            do_bootstrap=True,
+            parallelize=True,
+            n_bootstraps=10
+        )
+
+        inference = BaseInference.from_config(config)
+        inference.run()
+
+        inference2 = BaseInference.from_config(config)
+        inference2.run()
+
+        self.assertEqual(inference.params_mle, inference2.params_mle)
+        assert_frame_equal(inference.bootstraps, inference2.bootstraps)
+
+    def test_non_seeded_inference_is_not_deterministic_not_parallelized(self):
+        """
+        Check that non-seeded inference is not deterministic when not parallelized.
+        """
+        config = Config.from_file(self.config_file)
+
+        config.update(
+            seed=None,
+            do_bootstrap=True,
+            parallelize=False,
+            n_bootstraps=10
+        )
+
+        inference = BaseInference.from_config(config)
+        inference.run()
+
+        inference2 = BaseInference.from_config(config)
+        inference2.run()
+
+        self.assertNotEqual(inference.params_mle, inference2.params_mle)
+
+        with self.assertRaises(AssertionError):
+            assert_frame_equal(inference.bootstraps, inference2.bootstraps)
+
+    def test_non_seeded_inference_is_not_deterministic_parallelized(self):
+        """
+        Check that a non-seeded inference is not deterministic when parallelized.
+        """
+        config = Config.from_file(self.config_file)
+
+        config.update(
+            seed=None,
+            do_bootstrap=True,
+            parallelize=True,
+            n_bootstraps=10,
+            x0={}
+        )
+
+        inference = BaseInference.from_config(config)
+        inference.run()
+
+        inference2 = BaseInference.from_config(config)
+        inference2.run()
+
+        self.assertNotEqual(inference.params_mle, inference2.params_mle)
+
+        with self.assertRaises(AssertionError):
+            assert_frame_equal(inference.bootstraps, inference2.bootstraps)
+
+    def test_compare_inference_with_log_scales_vs_lin_scales(self):
+        """
+        Compare inference with log scales vs linear scales.
+        """
+        config = Config.from_file(self.config_file)
+
+        model = GammaExpParametrization()
+        model.scales = dict(
+            S_d='log',
+            b='log',
+            p_b='lin',
+            S_b='log'
+        )
+
+        config.update(
+            model=model,
+            do_bootstrap=True
+        )
+
+        inference_log = BaseInference.from_config(config)
+        inference_log.run()
+
+        model = copy.copy(model)
+        model.scales = dict(
+            S_d='lin',
+            b='lin',
+            p_b='lin',
+            S_b='lin'
+        )
+
+        config.update(model=model)
+        inference_lin = BaseInference.from_config(config)
+        inference_lin.run()
+
+        fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+        inference_lin.plot_inferred_parameters(ax=axs[0], show=False)
+        inference_log.plot_inferred_parameters(ax=axs[1], show=False)
+
+        axs[0].set_title('Linear scales')
+        axs[1].set_title('Log scales')
+
+        plt.tight_layout()
+        plt.show()
+
+        # get confidence intervals
+        cis_lin = inference_lin.get_errors_discretized_dfe()[1]
+        cis_log = inference_log.get_errors_discretized_dfe()[1]
+
+        # assert that the confidence intervals overlap
+        assert np.all(cis_lin[0] < cis_log[1])
+        assert np.all(cis_log[0] < cis_lin[1])
+
+        # this is not generally true, but it is for this particular example
+        assert inference_log.likelihood > inference_lin.likelihood
+
+    def test_compare_inference_with_log_scales_vs_lin_scales_tutorial(self):
+        """
+        Compare inference with log scales vs linear scales.
+        """
+        model = GammaExpParametrization()
+        model.scales = dict(
+            S_d='log',
+            b='log',
+            p_b='lin',
+            S_b='log'
+        )
+
+        inference_log = BaseInference(
+            sfs_neut=Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            model=model,
+            do_bootstrap=True
+        )
+        inference_log.run()
+
+        model = copy.copy(model)
+        model.scales = dict(
+            S_d='lin',
+            b='lin',
+            p_b='lin',
+            S_b='lin'
+        )
+
+        inference_lin = BaseInference(
+            sfs_neut=Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            model=model,
+            do_bootstrap=True,
+        )
+        inference_lin.run()
+
+        fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+        inference_lin.plot_discretized(ax=axs[0], show=False)
+        inference_log.plot_discretized(ax=axs[1], show=False)
+
+        axs[0].set_title('Linear scales')
+        axs[1].set_title('Log scales')
+
+        plt.tight_layout()
+        plt.show()
+
+        # get confidence intervals
+        cis_lin = inference_lin.get_errors_discretized_dfe()[1]
+        cis_log = inference_log.get_errors_discretized_dfe()[1]
+
+        # assert that the confidence intervals overlap
+        # assert np.all(cis_lin[0] < cis_log[1])
+        # assert np.all(cis_log[0] < cis_lin[1])
+
+        # this is not generally true, but it is for this particular example
+        assert inference_log.likelihood > inference_lin.likelihood
 
     def test_restore_serialized_inference(self):
         """
@@ -96,11 +320,17 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         # unserialize
         inference = BaseInference.from_file(self.serialized)
 
+        # make sure the likelihoods of the different runs are cached
+        self.assertEqual(len(inference.likelihoods), inference.n_runs)
+
         self.assertIsNone(inference.bootstraps)
 
-        inference.bootstrap(1, parallelize=False)
+        inference.bootstrap(100, parallelize=False)
 
         self.assertIsNotNone(inference.bootstraps)
+
+        # make sure the likelihoods of the different runs are not overwritten
+        self.assertEqual(len(inference.likelihoods), inference.n_runs)
 
     def test_evaluate_likelihood_same_as_mle_results(self):
         """
@@ -110,14 +340,34 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         # unserialize
         inference = BaseInference.from_file(self.serialized)
 
-        assert inference.evaluate_likelihood(dict(all=inference.params_mle)) == inference.likelihood
+        self.assertAlmostEqual(inference.evaluate_likelihood(dict(all=inference.params_mle)), inference.likelihood)
 
-    def test_visualize_inference(self):
+    def test_visualize_inference_without_bootstraps(self):
         """
         Plot everything possible.
         """
-        # unserialize
-        inference = BaseInference.from_file(self.serialized)
+        config = Config.from_file(self.config_file)
+
+        config.update(
+            do_bootstrap=False
+        )
+
+        inference = BaseInference.from_config(config)
+
+        inference.plot_all(show=self.show_plots)
+        inference.plot_bucket_sizes(show=self.show_plots)
+
+    def test_visualize_inference_with_bootstraps(self):
+        """
+        Plot everything possible.
+        """
+        config = Config.from_file(self.config_file)
+
+        config.update(
+            do_bootstrap=True
+        )
+
+        inference = BaseInference.from_config(config)
 
         inference.plot_all(show=self.show_plots)
         inference.plot_bucket_sizes(show=self.show_plots)
@@ -139,6 +389,15 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         inference = BaseInference.from_file(self.serialized)
 
         inference.plot_interval_density(show=self.show_plots)
+
+    def test_plot_observed_sfs(self):
+        """
+        Plot likelihoods.
+        """
+        # unserialize
+        inference = BaseInference.from_file(self.serialized)
+
+        inference.plot_observed_sfs(show=self.show_plots)
 
     def test_plot_provide_axes(self):
         """
@@ -174,15 +433,29 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         # bootstrap
         inference.bootstrap(2)
 
-    def test_compare_nested_likelihoods(self):
+    def test_compare_nested_likelihoods_with_bootstrap(self):
         """
         Compare nested likelihoods.
         """
         # unserialize
         inference = BaseInference.from_config_file(self.config_file)
 
-        # bootstrap
         inference.compare_nested_models()
+
+        inference.plot_nested_likelihoods()
+        inference.plot_nested_likelihoods(remove_empty=True)
+        inference.plot_nested_likelihoods(transpose=True)
+
+    def test_compare_nested_likelihoods_without_bootstrap(self):
+        """
+        Compare nested likelihoods.
+        """
+        # unserialize
+        inference = BaseInference.from_config_file(self.config_file)
+
+        inference.compare_nested_models(do_bootstrap=False)
+
+        inference.plot_nested_likelihoods(do_bootstrap=False)
 
     def test_plot_nested_model_comparison_without_running(self):
         """
@@ -192,8 +465,17 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         # unserialize
         inference = BaseInference.from_config_file(self.config_file)
 
-        # bootstrap
         inference.plot_nested_likelihoods()
+
+    def test_recreate_from_config(self):
+        """
+        Test whether inference can be recreated from config.
+        """
+        inf = BaseInference.from_config_file(self.config_file)
+
+        inf2 = BaseInference.from_config(inf.create_config())
+
+        self.assertEqualInference(inf, inf2)
 
     def test_cached_result(self):
         """
@@ -314,3 +596,43 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
         with self.assertRaises(ValueError):
             BaseInference.from_config(config)
+
+    def test_get_cis_params_mle_no_boostraps(self):
+        """
+        Get the MLE parameters from the cis inference.
+        """
+        inference = BaseInference.from_file(self.serialized)
+
+        cis = inference.get_cis_params_mle()
+
+        assert cis is None
+
+    def test_get_cis_params_mle_with_boostraps(self):
+        """
+        Get the MLE parameters from the cis inference.
+        """
+        inference = BaseInference.from_file(self.serialized)
+
+        inference.bootstrap()
+
+        cis = inference.get_cis_params_mle()
+
+    def test_get_discretized_errors_with_boostraps(self):
+        """
+        Get the discretized DFE errors.
+        """
+        inference = BaseInference.from_file(self.serialized)
+
+        inference.bootstrap()
+
+        res = inference.get_discretized()
+
+    def test_get_discretized_errors_no_boostraps(self):
+        """
+        Get the discretized DFE errors.
+        """
+        inference = BaseInference.from_file(self.serialized)
+
+        values, errors = inference.get_discretized()
+
+        assert errors is None

@@ -1,5 +1,5 @@
 """
-Perform shared inference.
+Perform joint inference.
 """
 
 __author__ = "Janek Sendrowski"
@@ -26,7 +26,7 @@ except NameError:
 
 import logging
 
-from fastdfe import Config, SharedInference
+from fastdfe import Config, JointInference
 
 # set log level to debug
 logging.getLogger('fastdfe').setLevel(logging.INFO)
@@ -45,7 +45,7 @@ config = Config.from_file(config_file)
 )"""
 
 # create from config
-inference = SharedInference.from_config(config)
+inference = JointInference.from_config(config)
 
 # perform inference
 inference.run()

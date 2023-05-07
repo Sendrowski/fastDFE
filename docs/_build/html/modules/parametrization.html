@@ -68,7 +68,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="inference.html">Inference classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration class</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Parametrizations</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.parametrization.GammaExpParametrization"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization</span></code></a><ul>
@@ -250,7 +250,8 @@ provides a good amount of flexibility to accommodate this.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.GammaExpParametrization.param_names">
 <span class="sig-name descname"><span class="pre">param_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></em><a class="headerlink" href="#fastdfe.parametrization.GammaExpParametrization.param_names" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>argument names</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -268,7 +269,7 @@ such that <span class="math notranslate nohighlight">\(\sum_{i=1}^{k} S_i = 1,\)
 <p>This parametrization has the advantage of not imposing a shape on the DFE. For a reasonably fine parametrization,
 the number of parameters is larger than those of the other models, however. We generally also observe larger
 confidence intervals for this parametrization, and the optimization procedure may well be less efficient as
-we have to renormalize the parameters to make sure they sum up to 1.</p>
+we have to re-normalize the parameters to make sure they sum up to 1.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.intervals">
 <span class="sig-name descname"><span class="pre">intervals</span></span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.intervals" title="Permalink to this definition"></a></dt>
@@ -427,7 +428,8 @@ fewer parameters.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DisplacedGammaParametrization.param_names">
 <span class="sig-name descname"><span class="pre">param_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></em><a class="headerlink" href="#fastdfe.parametrization.DisplacedGammaParametrization.param_names" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>argument names</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -515,7 +517,8 @@ selection coefficients. The results should be rather similar in most cases.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.GammaDiscreteParametrization.param_names">
 <span class="sig-name descname"><span class="pre">param_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></em><a class="headerlink" href="#fastdfe.parametrization.GammaDiscreteParametrization.param_names" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>argument names</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -553,7 +556,8 @@ linearized mode of fastDFE is used (which is highly recommended).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.Parametrization.param_names">
 <span class="sig-name descname"><span class="pre">param_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></em><a class="headerlink" href="#fastdfe.parametrization.Parametrization.param_names" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>argument names</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parametrization.Parametrization.accepts_scalars">

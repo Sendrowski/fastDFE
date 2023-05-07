@@ -67,7 +67,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../modules/inference.html">Inference classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/config.html">Configuration class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/parametrization.html">Parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/spectrum.html">Spectrum class</a></li>
@@ -122,7 +122,7 @@
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/27ac585cc59319a5bec9064293d48034356fed5be0b8fec6497ad9efad7ffd77.png" src="../_images/27ac585cc59319a5bec9064293d48034356fed5be0b8fec6497ad9efad7ffd77.png" />
+<img alt="../_images/12373754e0ded56c6a608eb9a95b3f375182efc09d085e5d531229d17045d647.png" src="../_images/12373754e0ded56c6a608eb9a95b3f375182efc09d085e5d531229d17045d647.png" />
 </div>
 </div>
 <p>We access types by their index from which we obtain a <a class="reference internal" href="../modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a> object.</p>
@@ -138,7 +138,7 @@
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/64233b457af91b4bf75728615fd209add7fda2d85a76c90b20b74d453a46c0fc.png" src="../_images/64233b457af91b4bf75728615fd209add7fda2d85a76c90b20b74d453a46c0fc.png" />
+<img alt="../_images/02bcc0cb25d1dbca299db414d624ef923215fb9d7eea9176feaae25b5ccd7ae0.png" src="../_images/02bcc0cb25d1dbca299db414d624ef923215fb9d7eea9176feaae25b5ccd7ae0.png" />
 </div>
 </div>
 <p>We can also use wildcards to access multiple types at once.</p>
@@ -155,13 +155,13 @@
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/9ff746eb6afd4d422f15040c8d0d808a5c3fa66dd1e4eedba36ab1357b50af33.png" src="../_images/9ff746eb6afd4d422f15040c8d0d808a5c3fa66dd1e4eedba36ab1357b50af33.png" />
+<img alt="../_images/8769f6cc41d8766bc539ebcbbf3c85018158c9a658f26e429eda698a7b71f4d1.png" src="../_images/8769f6cc41d8766bc539ebcbbf3c85018158c9a658f26e429eda698a7b71f4d1.png" />
 </div>
 </div>
 <p>To get rid of the subtypes, we can merge the spectra over the specified number of groups.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">spectra</span><span class="o">.</span><span class="n">merge_groups</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">spectra</span><span class="o">.</span><span class="n">merge_groups</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -172,11 +172,11 @@
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/448189446439107575f063b04abc9f7dfafd1bd5481702ad439d7d6f741a1292.png" src="../_images/448189446439107575f063b04abc9f7dfafd1bd5481702ad439d7d6f741a1292.png" />
+<img alt="../_images/9f169e69922a72dc0eec2adf2fb37694ae2ebfc50585e91a6b068835549eaefd.png" src="../_images/9f169e69922a72dc0eec2adf2fb37694ae2ebfc50585e91a6b068835549eaefd.png" />
 </div>
 </div>
-<p>Note that we collapsed the types and retained the subtypes. All types for each subtype are thus merged into a single spectrum by adding them upp.</p>
-<p>We can also serialize the spectra to a file and restore them from a file.</p>
+<p>All subtypes for each type are merged into a single spectrum by adding them upp.</p>
+<p>We can also save the spectra to a file and restore them again.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">spectra</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s2">&quot;out/spectra.csv&quot;</span><span class="p">)</span>
@@ -200,7 +200,7 @@
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/57330d25eea71b430bc13c28d3b096fb340a692f0607fa1376a383f014780c2a.png" src="../_images/57330d25eea71b430bc13c28d3b096fb340a692f0607fa1376a383f014780c2a.png" />
+<img alt="../_images/e0ae63f3673c6f7c486f6465774e16057470eca3ebb746d08c8b027bb2409922.png" src="../_images/e0ae63f3673c6f7c486f6465774e16057470eca3ebb746d08c8b027bb2409922.png" />
 </div>
 </div>
 <p>For a complete reference of the available methods and properties, see <a class="reference internal" href="../modules/spectra.html#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a> and <a class="reference internal" href="../modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a>.</p>

@@ -72,7 +72,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../modules/inference.html">Inference classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/config.html">Configuration class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/parametrization.html">Parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/spectrum.html">Spectrum class</a></li>
@@ -126,9 +126,9 @@
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Starting numerical optimization of 10 independently initialized samples which are run in parallel.
 INFO:fastdfe:Precomputing linear DFE-SFS transformation using midpoint integration.
-WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.
-INFO:fastdfe:Successfully finished optimization after 103 iterations and 948 function evaluations, obtaining a log-likelihood of -34.783850731873144.
-INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -1666.3678382406779, &#39;all.b&#39;: 0.3187694314011719, &#39;all.p_b&#39;: 0.1451331788478119, &#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0.00534555988772589}.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.
+INFO:fastdfe:Successfully finished optimization after 25 iterations and 210 function evaluations, obtaining a log-likelihood of -34.63216290439465.
+INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -9867.953988403298, &#39;all.b&#39;: 0.15081039113091074, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 0.00015452607236660556, &#39;all.eps&#39;: 0.006854735740429099}.
 </pre></div>
 </div>
 </div>
@@ -142,7 +142,7 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -1666.3678382406779, &#39;
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/9b9b723e8c3837489b0e6fe67aa5c07fd5698c18e44cce7e10cac97da4a8422e.png" src="../_images/9b9b723e8c3837489b0e6fe67aa5c07fd5698c18e44cce7e10cac97da4a8422e.png" />
+<img alt="../_images/a4d662651e234c3fc9779994415b641076abb36921477336f798b00804f80525.png" src="../_images/a4d662651e234c3fc9779994415b641076abb36921477336f798b00804f80525.png" />
 </div>
 </div>
 <p>We can also plot a comparison of the (selected) modelled and observed SFS (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.plot_sfs_comparison" title="fastdfe.base_inference.BaseInference.plot_sfs_comparison"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_sfs_comparison()</span></code></a>).</p>
@@ -156,7 +156,7 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -1666.3678382406779, &#39;
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/e520c01d288c3aad0eb9ba4f923048e5c788b5b47af21c6db5f86079fa7f9ba0.png" src="../_images/e520c01d288c3aad0eb9ba4f923048e5c788b5b47af21c6db5f86079fa7f9ba0.png" />
+<img alt="../_images/3462472dbf261699183ecf62bd24a921a1d4c2ae74da4bdbc7d5e6420e1a6f91.png" src="../_images/3462472dbf261699183ecf62bd24a921a1d4c2ae74da4bdbc7d5e6420e1a6f91.png" />
 </div>
 </div>
 </section>
@@ -176,10 +176,10 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -1666.3678382406779, &#39;
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Running 100 bootstrap samples in parallel on 10 cores.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:06&lt;00:00, 16.38it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:17&lt;00:00,  5.80it/s]
 </pre></div>
 </div>
-<img alt="../_images/a1449cf027867c31573cfaa87366950006f1fe06af4a913f0ff199a2c74173af.png" src="../_images/a1449cf027867c31573cfaa87366950006f1fe06af4a913f0ff199a2c74173af.png" />
+<img alt="../_images/05c5372f85abf864ac20522afa670c3bd3053302ee0ce73b63bc51d4a9bbd90b.png" src="../_images/05c5372f85abf864ac20522afa670c3bd3053302ee0ce73b63bc51d4a9bbd90b.png" />
 </div>
 </div>
 </section>

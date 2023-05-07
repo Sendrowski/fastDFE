@@ -50,6 +50,7 @@ class Parametrization:
     Note that :func:`get_pdf` is not required to be implemented, provided that the
     linearized mode of fastDFE is used (which is highly recommended).
     """
+
     #: Default initial parameters
     x0 = {}
 
@@ -66,7 +67,7 @@ class Parametrization:
         """
         Initialize parametrization.
         """
-        # determine argument names
+        #: argument names
         self.param_names: List = list(self.x0.keys())
 
     @staticmethod
@@ -518,7 +519,7 @@ class DiscreteParametrization(Parametrization):
     This parametrization has the advantage of not imposing a shape on the DFE. For a reasonably fine parametrization,
     the number of parameters is larger than those of the other models, however. We generally also observe larger
     confidence intervals for this parametrization, and the optimization procedure may well be less efficient as
-    we have to renormalize the parameters to make sure they sum up to 1.
+    we have to re-normalize the parameters to make sure they sum up to 1.
     """
 
     def __init__(
