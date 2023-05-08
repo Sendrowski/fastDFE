@@ -130,7 +130,7 @@ with open(out_data, 'w') as f:
                 outgroup_subsamples = subsample(outgroup_counts, n_outgroups)
 
                 # create a base count dictionary for each haplotype
-                outgroup_dicts = [dict(A=0, C=0, G=0, T=0)] * n_outgroups
+                outgroup_dicts = [dict(A=0, C=0, G=0, T=0) for _ in range(n_outgroups)]
                 for i, sub in enumerate(outgroup_subsamples):
                     outgroup_dicts[i][sub] = 1
 
