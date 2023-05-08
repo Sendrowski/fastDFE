@@ -137,6 +137,11 @@ class BaseInference(AbstractInference):
             # assume we have Spectrum object
             self.sfs_sel: Spectrum = sfs_sel
 
+        # check that we have monomorphic counts
+        if self.sfs_neut.to_list()[0] == 0 or self.sfs_sel.to_list()[0] == 0:
+            raise ValueError('Some of the provided SFS have zero ancestral monomorphic counts. '
+                             'Note that we require monomorphic counts in order to infer the mutation rate.')
+
         #: Sample size
         self.n: int = sfs_neut.n
 
@@ -435,7 +440,7 @@ class BaseInference(AbstractInference):
             sfs_sel=self.sfs_sel
         )
 
-        # add monomorphic classes and create Spectrum object
+        # create spectrum object from polymorphic counts
         self.sfs_mle = Spectrum.from_polymorphic(counts_mle)
 
         # L2 norm of fit minus observed SFS
