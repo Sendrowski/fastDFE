@@ -15,6 +15,8 @@ from fastdfe import DegeneracyStratification, BaseTransitionStratification, Tran
 class ParserTestCase(TestCase):
     """
     Test the inference.
+
+    TODO test parser in more detail?
     """
     vcf_file = 'resources/genome/betula/biallelic.subset.10000.vcf.gz'
     fasta_file = 'resources/genome/betula/genome.subset.2.fasta'
