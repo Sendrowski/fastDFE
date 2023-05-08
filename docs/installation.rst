@@ -2,34 +2,37 @@
 
 Installation
 ------------
-To install the `fastdfe`, you can use pip, the standard Python package manager:
+To install the `fastdfe`, you can use pip:
 
 .. code-block:: bash
 
    pip install fastdfe
 
-Although it is possible to use the package directly after this step, it is highly recommended to use conda for a better management of dependencies and to avoid potential conflicts:
+To avoid potential conflicts with other packages, it is recommended to install `fastdfe` in an isolated environment. The easiest way to do this is to use conda:
 
-.. code-block:: bash
+1. Create a new file called ``environment.yml`` with the following content:
 
-   conda create -n fastdfe-env
+   .. code-block:: yaml
 
-Next, activate the newly created conda environment:
+      name: fastdfe-env
+      channels:
+        - defaults
+      dependencies:
+        - python
+        - pip
+        - pip:
+            - fastdfe
 
-.. code-block:: bash
+2. Run the following command to create a new conda environment using the ``environment.yml`` file:
 
-   conda activate fastdfe-env
+   .. code-block:: bash
 
-Now, install pip within the conda environment:
+      conda env create -f environment.yml
 
-.. code-block:: bash
+3. Activate the newly created conda environment:
 
-   conda install pip
+   .. code-block:: bash
 
-Finally, install the `fastdfe` package using the pip installed within the conda environment:
+      conda activate fastdfe-env
 
-.. code-block:: bash
-
-   pip install fastdfe
-
-You are now ready to use `fastdfe` in your code within the isolated conda environment.
+You are now ready to use the ``fastdfe`` package within the isolated conda environment.

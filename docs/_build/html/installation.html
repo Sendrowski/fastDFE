@@ -101,18 +101,36 @@
              
   <section id="installation">
 <span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
-<p>The recommended way to install the <code class="docutils literal notranslate"><span class="pre">fastdfe</span></code> package is by using pip within a conda environment. Follow these steps:</p>
-<p>First, open a terminal (or an Anaconda Prompt on Windows) and create a new conda environment:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>fastdfe-env
-
-conda<span class="w"> </span>activate<span class="w"> </span>fastdfe-env
-</pre></div>
-</div>
-<p>Next, install the <code class="docutils literal notranslate"><span class="pre">fastdfe</span></code> package using pip:</p>
+<p>To install the <cite>fastdfe</cite>, you can use pip:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>fastdfe
 </pre></div>
 </div>
-<p>You are now ready to use <code class="docutils literal notranslate"><span class="pre">fastdfe</span></code> in your code.</p>
+<p>To avoid potential conflicts with other packages, it is recommended to install <cite>fastdfe</cite> in an isolated environment. The easiest way to do this is to use conda:</p>
+<ol class="arabic">
+<li><p>Create a new file called <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> with the following content:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fastdfe-env</span>
+<span class="nt">channels</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">defaults</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pip</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pip</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fastdfe</span>
+</pre></div>
+</div>
+</li>
+<li><p>Run the following command to create a new conda environment using the <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>environment.yml
+</pre></div>
+</div>
+</li>
+<li><p>Activate the newly created conda environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>fastdfe-env
+</pre></div>
+</div>
+</li>
+</ol>
+<p>You are now ready to use the <code class="docutils literal notranslate"><span class="pre">fastdfe</span></code> package within the isolated conda environment.</p>
 </section>
 
 
