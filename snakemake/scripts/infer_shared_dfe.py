@@ -63,7 +63,6 @@ if testing:
     inference.plot_discretized()
     inference.plot_continuous()
     inference.plot_inferred_parameters()
-    inference.plot_covariates()
     inference.perform_lrt_covariates()
     inference.perform_lrt_shared()
 

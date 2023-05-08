@@ -416,7 +416,7 @@ WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;pendu
 <img alt="../_images/2563c87042ad719c043b00ae722a5cae3ea6f0c5455f204a2fb4ad26b30f2670.png" src="../_images/2563c87042ad719c043b00ae722a5cae3ea6f0c5455f204a2fb4ad26b30f2670.png" />
 </div>
 </div>
-<p>We now create the inference object from the spectra. In this contrived example we make up some covariates that covary with <code class="docutils literal notranslate"><span class="pre">S_d</span></code>, the mean strength of negative selection. Covariates introduce a linear relationship by default but this can be modified by specifying a custom callback function (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.optimization.Covariate" title="fastdfe.optimization.Covariate"><code class="xref py py-class docutils literal notranslate"><span class="pre">Covariate</span></code></a>).</p>
+<p>We now create the inference object from the spectra. In this contrived example we make up some covariates that covary with <code class="docutils literal notranslate"><span class="pre">S_d</span></code>, the mean strength of negative selection. Covariates introduce a linear relationship by default but this can be modified by specifying a custom callback function (see <a class="reference internal" href="../modules/inference.html#fastdfe.optimization.Covariate" title="fastdfe.optimization.Covariate"><code class="xref py py-class docutils literal notranslate"><span class="pre">Covariate</span></code></a>).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">Covariate</span>
@@ -447,23 +447,21 @@ WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during
 </div>
 </div>
 </div>
-<p>Let’s visualize the covariates</p>
+<p>Let’s visualize the inferred parameters</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_covariates</span><span class="p">();</span>
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_inferred_parameters</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
-</pre></div>
-</div>
-<img alt="../_images/5e0978646c573c38b24194f0a9b49e550bff62a1c1413ba7bf07bfa04a2bc0af.png" src="../_images/5e0978646c573c38b24194f0a9b49e550bff62a1c1413ba7bf07bfa04a2bc0af.png" />
+<img alt="../_images/5a9fd2afdd8e9443b6bfd40f5f8ecaf33d0ea8125338644a5239f51b07de3964.png" src="../_images/5a9fd2afdd8e9443b6bfd40f5f8ecaf33d0ea8125338644a5239f51b07de3964.png" />
 </div>
 </div>
+<p>We do see that <code class="docutils literal notranslate"><span class="pre">S_b</span></code> indeed varies among the jointly-inferred types and this is due to the linear relationship with the covariate values introduced.</p>
 <section id="id1">
 <h3>Model comparison<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
-<p>Covariates receive the parameter names <code class="docutils literal notranslate"><span class="pre">c{i}</span></code> in order of definition. We do see that <code class="docutils literal notranslate"><span class="pre">S_b</span></code> indeed varies among the types and this is due to the linear relationship with the covariate values introduced. We can perform a likelihood ratio test to see whether including the covariates produces a significantly better fit than simply sharing the parameter in question among the types (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.joint_inference.JointInference.perform_lrt_covariates" title="fastdfe.joint_inference.JointInference.perform_lrt_covariates"><code class="xref py py-func docutils literal notranslate"><span class="pre">perform_lrt_covariates()</span></code></a>).</p>
+<p>We can perform a likelihood ratio test to see whether including the covariates produces a significantly better fit than simply sharing the parameter in question among the types (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.joint_inference.JointInference.perform_lrt_covariates" title="fastdfe.joint_inference.JointInference.perform_lrt_covariates"><code class="xref py py-func docutils literal notranslate"><span class="pre">perform_lrt_covariates()</span></code></a>).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">perform_lrt_covariates</span><span class="p">()</span>

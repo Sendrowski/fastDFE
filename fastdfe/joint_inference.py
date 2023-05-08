@@ -1056,33 +1056,6 @@ class JointInference(BaseInference):
         """
         return flatten_dict(dict((t, self.joint_inferences[t].get_bootstrap_params()) for t in self.types))
 
-    @BaseInference.run_if_required_wrapper
-    def plot_covariates(
-            self,
-            file: str = None,
-            show: bool = True,
-            axs: List[plt.Axes] = None
-    ) -> List[plt.Axes]:
-        """
-        Plot inferred parameters of joint inference vs inferred
-        parameters of marginal inferences side by side.
-
-        :param file: File to save plot to
-        :param show: Whether to show plot
-        :param axs: List of axes object, one for each covariate
-        :return: Axes object
-        """
-        from . import Visualization
-
-        return Visualization.plot_covariates(
-            covariates=self.covariates,
-            params_marginal=dict((t, inf.params_mle) for t, inf in self.marginal_inferences.items()),
-            params_joint=self.params_mle,
-            file=file,
-            show=show,
-            axs=axs
-        )
-
     def to_json(self) -> str:
         """
         Serialize object. Note that the deserialized inference objects no
