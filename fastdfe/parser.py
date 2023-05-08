@@ -76,10 +76,10 @@ class BaseContextStratification(Stratification):
 
     def get_type(self, variant: Variant) -> str:
         """
-        Get the base context for a given mutation with k flanking bases.
+        Get the base context for a given mutation with ``k`` flanking bases.
 
         :param variant: The vcf site
-        :return: Base context of the mutation with k flanking bases
+        :return: Base context of the mutation with ``k`` flanking bases
         """
         pos = variant.POS - 1
         ref = variant.REF
@@ -100,8 +100,7 @@ class BaseContextStratification(Stratification):
 
     def get_types(self) -> List[str]:
         """
-        Create all possible base context with for self.k flanking bases.
-        If self.use_transitions is True, include the transition to the alternate base.
+        Create all possible base context with for ``k`` flanking bases.
 
         :return: List of contexts
         """
@@ -110,15 +109,18 @@ class BaseContextStratification(Stratification):
 
 class BaseTransitionStratification(Stratification):
     """
-    Stratify the SFS by the base transition of the mutation, i.e. A>T.
+    Stratify the SFS by the base transition of the mutation, i.e., ``A>T``.
+
+    :warning:
+        TODO count monomorphic sites properly
     """
 
     def get_type(self, variant: Variant) -> str:
         """
-        Get the base context for a given mutation with k flanking bases.
+        Get the base context for a given mutation with ``k`` flanking bases.
 
         :param variant: The vcf site
-        :return: Base context of the mutation with k flanking bases
+        :return: Base context of the mutation with ``k`` flanking bases
         """
         # assume there is at most one alternate allele
         alt = variant.ALT[0] if len(variant.ALT) != 0 else variant.REF
@@ -127,7 +129,7 @@ class BaseTransitionStratification(Stratification):
 
     def get_types(self) -> List[str]:
         """
-        Create all possible base context with for self.k flanking bases.
+        Create all possible base context with for ``k`` flanking bases.
 
         :return: List of contexts
         """
@@ -144,13 +146,13 @@ class ReferenceBaseStratification(Stratification):
         Get the base of the reference allele.
 
         :param variant: The vcf site
-        :return: Base context of the mutation with k flanking bases
+        :return: Base context of the mutation with ``k`` flanking bases
         """
         return variant.REF
 
     def get_types(self) -> List[str]:
         """
-        Create all possible base context with for self.k flanking bases.
+        Create all possible base context with for ``k`` flanking bases.
 
         :return: List of contexts
         """
@@ -160,6 +162,9 @@ class ReferenceBaseStratification(Stratification):
 class TransitionTransversionStratification(BaseTransitionStratification):
     """
     Stratify the SFS by whether we have a transition or transversion.
+
+    :warning:
+        TODO count monomorphic sites properly
     """
 
     def get_type(self, variant: Variant) -> str:
@@ -167,7 +172,7 @@ class TransitionTransversionStratification(BaseTransitionStratification):
         Get the mutation type (transition or transversion) for a given mutation.
 
         :param variant: The vcf site
-        :return: Mutation type ("transition" or "transversion")
+        :return: Mutation type
         """
         # assume there is at most one alternate allele
         alt = variant.ALT[0] if len(variant.ALT) != 0 else variant.REF
@@ -223,7 +228,7 @@ class DegeneracyStratification(Stratification):
 
     def get_type(self, variant: Variant) -> Literal['neutral', 'selected']:
         """
-        Get the base context for a given mutation with k flanking bases.
+        Get the base context for a given mutation with ``k`` flanking bases.
 
         :param variant: The vcf site
         :return: Type of the mutation
@@ -241,7 +246,12 @@ class DegeneracyStratification(Stratification):
 
 class Parser:
     """
-    Parse a VCF file and create a SFS.
+    Parse site-frequency spectra from VCF files.
+
+    By default, the parser looks at the ``AA`` tag in the VCF file's info field to retrieve
+    the correct polarization. Sites for which this tag is not well-defined are by default
+    ignored. Note that non-polarized frequency spectra provide little information on the
+    distribution of beneficial mutations.
 
     :warning: Not tested for polyploids.
     """
@@ -251,6 +261,7 @@ class Parser:
             vcf_file: str,
             n: int,
             info_ancestral: str = 'AA',
+            skip_not_polarized: bool = True,
             stratifications: List[Stratification] = [
                 DegeneracyStratification()
             ],
@@ -263,6 +274,8 @@ class Parser:
         :param vcf_file: The VCF file to parse
         :param n: The number of individuals in the sample
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
+        :param skip_not_polarized: Whether to skip sites that are not polarized, i.e., without a valid info tag
+        providing the ancestral allele
         :param stratifications: List of stratifications to use
         :param max_sites: Maximum number of sites to parse
         :param seed: Seed for the random number generator
@@ -272,6 +285,7 @@ class Parser:
         self.vcf_file = vcf_file
 
         self.info_ancestral = info_ancestral
+        self.skip_not_polarized = skip_not_polarized
 
         self.stratifications = stratifications
 
@@ -387,17 +401,13 @@ class Parser:
                 # is defined and indicates so
                 aa = variant.INFO.get(self.info_ancestral)
 
-                if aa is None:
+                if aa is None or aa not in bases:
 
                     # log a warning
-                    logger.warning(f'No ancestral allele defined for {variant.CHROM}:{variant.POS}.')
+                    logger.debug(f'No valid ancestral allele defined for {variant.CHROM}:{variant.POS}.')
 
-                elif aa not in bases:  # pragma: no cover
-
-                    # skip if ancestral allele is not a DNA base
-                    logger.debug(f'Ancestral allele is not a valid DNA base for {variant.CHROM}:{variant.POS}.')
-
-                    continue
+                    if self.skip_not_polarized:
+                        continue
                 else:
                     # adjust orientation if the ancestral allele is not the reference
                     if aa != variant.REF:
