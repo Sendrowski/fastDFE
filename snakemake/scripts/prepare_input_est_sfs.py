@@ -51,9 +51,9 @@ def subsample(bases: np.ndarray, size: int) -> np.ndarray:
 
     # sample with replacement if the number of haplotypes is less than the subsample size
     if len(bases) < size:
-        return np.array(bases)[np.random.choice(len(bases), size=size, replace=True)]
+        return np.array(bases)[rng.choice(len(bases), size=size, replace=True)]
 
-    return np.array(bases)[np.random.choice(len(bases), size=size, replace=False)]
+    return np.array(bases)[rng.choice(len(bases), size=size, replace=False)]
 
 
 def count(bases: np.ndarray) -> Dict[str, int]:
