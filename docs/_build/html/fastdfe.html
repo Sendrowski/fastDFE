@@ -3789,7 +3789,7 @@ can be configured.</p>
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Get the base context for a given mutation with k flanking bases.</p>
+<dd><p>Get the base context for a given mutation with <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
@@ -3798,7 +3798,7 @@ can be configured.</p>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Base context of the mutation with k flanking bases</p>
+<dd class="field-odd"><p>Base context of the mutation with <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases</p>
 </dd>
 </dl>
 </dd></dl>
@@ -3806,8 +3806,7 @@ can be configured.</p>
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Create all possible base context with for self.k flanking bases.
-If self.use_transitions is True, include the transition to the alternate base.</p>
+<dd><p>Create all possible base context with for <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
@@ -3824,11 +3823,16 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.parser.</span></span><span class="sig-name descname"><span class="pre">BaseTransitionStratification</span></span></dt>
 <dd><p>Bases: <a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a></p>
-<p>Stratify the SFS by the base transition of the mutation, i.e. A&gt;T.</p>
+<p>Stratify the SFS by the base transition of the mutation, i.e., <code class="docutils literal notranslate"><span class="pre">A&gt;T</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Warning<span class="colon">:</span></dt>
+<dd class="field-odd"><p>TODO count monomorphic sites properly</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Get the base context for a given mutation with k flanking bases.</p>
+<dd><p>Get the base context for a given mutation with <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
@@ -3837,7 +3841,7 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Base context of the mutation with k flanking bases</p>
+<dd class="field-odd"><p>Base context of the mutation with <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases</p>
 </dd>
 </dl>
 </dd></dl>
@@ -3845,7 +3849,7 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Create all possible base context with for self.k flanking bases.</p>
+<dd><p>Create all possible base context with for <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
@@ -3875,7 +3879,7 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Base context of the mutation with k flanking bases</p>
+<dd class="field-odd"><p>Base context of the mutation with <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases</p>
 </dd>
 </dl>
 </dd></dl>
@@ -3883,7 +3887,7 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Create all possible base context with for self.k flanking bases.</p>
+<dd><p>Create all possible base context with for <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
@@ -3901,6 +3905,11 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.parser.</span></span><span class="sig-name descname"><span class="pre">TransitionTransversionStratification</span></span></dt>
 <dd><p>Bases: <a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseTransitionStratification" title="fastdfe.parser.BaseTransitionStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTransitionStratification</span></code></a></p>
 <p>Stratify the SFS by whether we have a transition or transversion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Warning<span class="colon">:</span></dt>
+<dd class="field-odd"><p>TODO count monomorphic sites properly</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span></dt>
@@ -3913,7 +3922,7 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Mutation type (“transition” or “transversion”)</p>
+<dd class="field-odd"><p>Mutation type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -3959,7 +3968,7 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Get the base context for a given mutation with k flanking bases.</p>
+<dd><p>Get the base context for a given mutation with <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
@@ -9537,11 +9546,16 @@ distribution of beneficial mutations.</p>
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.</span></span><span class="sig-name descname"><span class="pre">BaseTransitionStratification</span></span></dt>
 <dd><p>Bases: <a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a></p>
-<p>Stratify the SFS by the base transition of the mutation, i.e. A&gt;T.</p>
+<p>Stratify the SFS by the base transition of the mutation, i.e., <code class="docutils literal notranslate"><span class="pre">A&gt;T</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Warning<span class="colon">:</span></dt>
+<dd class="field-odd"><p>TODO count monomorphic sites properly</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Get the base context for a given mutation with k flanking bases.</p>
+<dd><p>Get the base context for a given mutation with <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
@@ -9550,7 +9564,7 @@ distribution of beneficial mutations.</p>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Base context of the mutation with k flanking bases</p>
+<dd class="field-odd"><p>Base context of the mutation with <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases</p>
 </dd>
 </dl>
 </dd></dl>
@@ -9558,7 +9572,7 @@ distribution of beneficial mutations.</p>
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Create all possible base context with for self.k flanking bases.</p>
+<dd><p>Create all possible base context with for <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
@@ -9580,7 +9594,7 @@ can be configured.</p>
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Get the base context for a given mutation with k flanking bases.</p>
+<dd><p>Get the base context for a given mutation with <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
@@ -9589,7 +9603,7 @@ can be configured.</p>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Base context of the mutation with k flanking bases</p>
+<dd class="field-odd"><p>Base context of the mutation with <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases</p>
 </dd>
 </dl>
 </dd></dl>
@@ -9597,8 +9611,7 @@ can be configured.</p>
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Create all possible base context with for self.k flanking bases.
-If self.use_transitions is True, include the transition to the alternate base.</p>
+<dd><p>Create all possible base context with for <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
@@ -9636,7 +9649,7 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Get the base context for a given mutation with k flanking bases.</p>
+<dd><p>Get the base context for a given mutation with <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
@@ -9668,6 +9681,11 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.</span></span><span class="sig-name descname"><span class="pre">TransitionTransversionStratification</span></span></dt>
 <dd><p>Bases: <a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseTransitionStratification" title="fastdfe.parser.BaseTransitionStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTransitionStratification</span></code></a></p>
 <p>Stratify the SFS by whether we have a transition or transversion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Warning<span class="colon">:</span></dt>
+<dd class="field-odd"><p>TODO count monomorphic sites properly</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span></dt>
@@ -9680,7 +9698,7 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Mutation type (“transition” or “transversion”)</p>
+<dd class="field-odd"><p>Mutation type</p>
 </dd>
 </dl>
 </dd></dl>
@@ -9718,7 +9736,7 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Base context of the mutation with k flanking bases</p>
+<dd class="field-odd"><p>Base context of the mutation with <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases</p>
 </dd>
 </dl>
 </dd></dl>
@@ -9726,7 +9744,7 @@ If self.use_transitions is True, include the transition to the alternate base.</
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Create all possible base context with for self.k flanking bases.</p>
+<dd><p>Create all possible base context with for <code class="docutils literal notranslate"><span class="pre">k</span></code> flanking bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>

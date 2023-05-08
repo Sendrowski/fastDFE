@@ -194,7 +194,7 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -9868.036855350932, &#39;a
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Running 100 bootstrap samples in parallel on 10 cores.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:06&lt;00:00, 14.41it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:00&lt;00:00, 122.56it/s]
 </pre></div>
 </div>
 <img alt="../_images/4c2ad59070ff70d9a2d19a6b1fae91339f378ed3ea94fb38bf971e143b83c557.png" src="../_images/4c2ad59070ff70d9a2d19a6b1fae91339f378ed3ea94fb38bf971e143b83c557.png" />
@@ -233,7 +233,7 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -33215.6469691796, &#39;al
 INFO:fastdfe:Running 100 bootstrap samples in parallel on 10 cores.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:01&lt;00:00, 53.97it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:00&lt;00:00, 319.12it/s]
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
@@ -413,7 +413,7 @@ WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;pendu
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/a6a6f39bd8ff0ce7d2d842b89b7b23d48bdf6b5e08ed5493cc80c9749832335f.png" src="../_images/a6a6f39bd8ff0ce7d2d842b89b7b23d48bdf6b5e08ed5493cc80c9749832335f.png" />
+<img alt="../_images/2563c87042ad719c043b00ae722a5cae3ea6f0c5455f204a2fb4ad26b30f2670.png" src="../_images/2563c87042ad719c043b00ae722a5cae3ea6f0c5455f204a2fb4ad26b30f2670.png" />
 </div>
 </div>
 <p>We now create the inference object from the spectra. In this contrived example we make up some covariates that covary with <code class="docutils literal notranslate"><span class="pre">S_d</span></code>, the mean strength of negative selection. Covariates introduce a linear relationship by default but this can be modified by specifying a custom callback function (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.optimization.Covariate" title="fastdfe.optimization.Covariate"><code class="xref py py-class docutils literal notranslate"><span class="pre">Covariate</span></code></a>).</p>
@@ -437,9 +437,11 @@ WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;pendu
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0, &#39;all.b&#39;: 0.01}, but this might be nothing to worry about.
-WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;A:C:G:T.c0&#39;: 0.0001}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0, &#39;all.b&#39;: 0.01}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;A.b&#39;: 0.01, &#39;A:C:G:T.c0&#39;: 0.0001}, but this might be nothing to worry about.
 WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
-WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
+WARNING:fastdfe:4 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
 WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
 </pre></div>
 </div>
@@ -456,7 +458,7 @@ WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/ee5a54a78e55a948b659b9a369e1e98cb12d6a881315779918972e40a4e61c02.png" src="../_images/ee5a54a78e55a948b659b9a369e1e98cb12d6a881315779918972e40a4e61c02.png" />
+<img alt="../_images/5e0978646c573c38b24194f0a9b49e550bff62a1c1413ba7bf07bfa04a2bc0af.png" src="../_images/5e0978646c573c38b24194f0a9b49e550bff62a1c1413ba7bf07bfa04a2bc0af.png" />
 </div>
 </div>
 <section id="id1">
@@ -470,12 +472,15 @@ WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0, &#39;all.b&#39;: 0.01}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0, &#39;all.b&#39;: 0.01}, but this might be nothing to worry about.
+WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;A.b&#39;: 0.01}, but this might be nothing to worry about.
 WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
-WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
+WARNING:fastdfe:4 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
 WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.
 </pre></div>
 </div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.9986441741133472
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.9020932811608515
 </pre></div>
 </div>
 </div>
