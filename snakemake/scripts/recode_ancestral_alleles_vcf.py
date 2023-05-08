@@ -167,7 +167,7 @@ for variant in tqdm(vcf_reader):
 
 # raise error if there are lines left from the EST-SFS output
 if next(probs_reader, None) is not None:
-    raise AssertionError("Number of sites don't match.")
+    raise AssertionError("There are more lines in the EST-SFS output than there are variants in the VCF file.")
 
 # raise error if there are lines left from the EST-SFS input
 probs_reader.close()
