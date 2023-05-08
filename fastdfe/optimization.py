@@ -410,7 +410,7 @@ def to_symlog(x: float, linthresh: float = 1e-5) -> float:
 
     :param x: The input value on the original scale.
     :param linthresh: The positive value that determines the range within which the
-                      symlog scale is linear. Must be greater than 0.
+        symlog scale is linear. Must be greater than 0.
     :return: The value on the symlog scale.
     """
     sign = np.sign(x)
@@ -426,7 +426,7 @@ def from_symlog(y: float, linthresh: float = 1e-5) -> float:
 
     :param y: The input value on the symlog scale.
     :param linthresh: The positive value that determines the range within which the
-                      symlog scale is linear. Must be greater than 0.
+        symlog scale is linear. Must be greater than 0.
     :return: The value on the original scale.
     """
     sign = np.sign(y)
@@ -784,7 +784,7 @@ class Optimization:
         :param pbar: Whether to show a progress bar
         :param print_info: Whether to inform the user about the bounds
         :param n_runs: Number of optimization runs. Number of optimization runs. The first run will use the
-        initial values if provided.
+            initial values if provided.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
         :param get_counts: Dictionary of functions to evaluate counts for each type
         :param debug_iterations: Whether to print debug messages for each iteration

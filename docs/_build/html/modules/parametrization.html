@@ -82,6 +82,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization.__init__"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization.intervals"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.intervals</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization.interval_sizes"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.interval_sizes</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization.k"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.k</span></code></a></li>
@@ -116,6 +117,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.bounds"><code class="docutils literal notranslate"><span class="pre">Parametrization.bounds</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.submodels"><code class="docutils literal notranslate"><span class="pre">Parametrization.submodels</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.scales"><code class="docutils literal notranslate"><span class="pre">Parametrization.scales</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.__init__"><code class="docutils literal notranslate"><span class="pre">Parametrization.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.param_names"><code class="docutils literal notranslate"><span class="pre">Parametrization.param_names</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.accepts_scalars"><code class="docutils literal notranslate"><span class="pre">Parametrization.accepts_scalars()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">Parametrization.get_pdf()</span></code></a></li>
@@ -270,6 +272,17 @@ such that <span class="math notranslate nohighlight">\(\sum_{i=1}^{k} S_i = 1,\)
 the number of parameters is larger than those of the other models, however. We generally also observe larger
 confidence intervals for this parametrization, and the optimization procedure may well be less efficient as
 we have to re-normalize the parameters to make sure they sum up to 1.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intervals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([-100000,</span> <span class="pre">-100,</span> <span class="pre">-10,</span> <span class="pre">-1,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">1000])</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>intervals</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The intervals of the discrete distribution.</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.intervals">
 <span class="sig-name descname"><span class="pre">intervals</span></span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.intervals" title="Permalink to this definition"></a></dt>
@@ -551,6 +564,12 @@ linearized mode of fastDFE is used (which is highly recommended).</p>
 <dt class="sig sig-object py" id="fastdfe.parametrization.Parametrization.scales">
 <span class="sig-name descname"><span class="pre">scales</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#fastdfe.parametrization.Parametrization.scales" title="Permalink to this definition"></a></dt>
 <dd><p>Scales over which to optimize the parameters, either ‘log’ or ‘lin’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.parametrization.Parametrization.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.Parametrization.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize parametrization.</p>
 </dd></dl>
 
 <dl class="py attribute">

@@ -275,7 +275,7 @@ class Parser:
         :param n: The number of individuals in the sample
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
         :param skip_not_polarized: Whether to skip sites that are not polarized, i.e., without a valid info tag
-        providing the ancestral allele
+            providing the ancestral allele
         :param stratifications: List of stratifications to use
         :param max_sites: Maximum number of sites to parse
         :param seed: Seed for the random number generator

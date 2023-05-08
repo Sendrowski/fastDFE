@@ -97,10 +97,12 @@ class BaseInference(AbstractInference):
         """
         Create BaseInference instance.
 
-        :param sfs_neut: The neutral SFS. Spectra | Spectrum
-        :param sfs_sel: The selected SFS.
+        :param sfs_neut: The neutral SFS. Note that we require monomorphic counts to be specified in order to infer
+            the mutation rate.
+        :param sfs_sel: The selected SFS. Note that we require monomorphic counts to be specified in order to infer
+            the mutation rate.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
-        selection coefficients. The intervals will be log10-spaced.
+            selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as for intervals_del but for beneficial selection coefficients.
         :param model: Instance of DFEParametrization which parametrized the DFE
         :param seed: Seed for the random number generator.

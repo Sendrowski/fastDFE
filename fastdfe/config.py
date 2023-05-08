@@ -60,8 +60,10 @@ class Config:
         :param polydfe_spectra_config: Path to polyDFE SFS config file.
         :param polydfe_init_file: Path to polyDFE init file.
         :param polydfe_init_file_id: ID of polyDFE init file.
-        :param sfs_neut: Neutral SFS.
-        :param sfs_sel: Selected SFS.
+        :param sfs_neut: Neutral SFS. Note that we require monomorphic counts to be specified in order to infer
+            the mutation rate.
+        :param sfs_sel: Selected SFS. Note that we require monomorphic counts to be specified in order to infer
+            the mutation rate.
         :param intervals_del: Integration intervals for deleterious mutations in log space.
         :param intervals_ben: Integration intervals for beneficial mutations in log space.
         :param integration_mode: Integration mode.
@@ -74,7 +76,7 @@ class Config:
         :param loss_type: Loss function to use.
         :param opts_mle: Options for the optimization.
         :param n_runs: Number of optimization runs. Number of optimization runs.
-        The first run will use the initial values if provided.
+            The first run will use the initial values if provided.
         :param fixed_params: Fixed parameters for the optimization.
         :param shared_params: Shared parameters for the optimization.
         :param covariates: Covariates for the optimization.

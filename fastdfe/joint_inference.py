@@ -65,11 +65,13 @@ class JointInference(BaseInference):
         """
         Create instance.
 
-        :param sfs_neut: Neutral SFS
-        :param sfs_sel: Selected SFS
+        :param sfs_neut: Neutral SFS. Note that we require monomorphic counts to be specified in order to infer
+            the mutation rate.
+        :param sfs_sel: Selected SFS. Note that we require monomorphic counts to be specified in order to infer
+            the mutation rate.
         :param include_divergence: Whether to include divergence in the likelihood
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
-        selection coefficients. The intervals will be log10-spaced.
+            selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as intervals_del but for beneficial selection coefficients
         :param integration_mode: Integration mode
         :param linearized: Whether to use the linearized model
@@ -570,7 +572,7 @@ class JointInference(BaseInference):
         the covariates provide a significant improvement in the fit.
 
         :param do_bootstrap: Whether to bootstrap. This improves the accuracy of the p-value. Note
-        that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
+            that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
         :return: Likelihood ratio test statistic.
         """
         if len(self.covariates) == 0:
@@ -781,7 +783,7 @@ class JointInference(BaseInference):
         might be larger than it should be.
 
         :param do_bootstrap: Whether to perform bootstrapping. This improves the accuracy of the p-value. Note
-        that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
+            that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
         :return: p-value
         """
         if do_bootstrap:
