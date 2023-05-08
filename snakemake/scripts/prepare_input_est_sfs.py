@@ -41,12 +41,17 @@ def subsample(bases: np.ndarray, size: int) -> np.ndarray:
 
     :param bases: A list of bases.
     :param size: The size of the subsample.
+    :param allow_less: Whether to allow a subsample smaller than the requested size.
     :return: A subsample of the bases.
     """
     # return an empty array when there are no haplotypes
     # this can happen for an uncalled outgroup site
     if len(bases) == 0:
         return np.array([])
+
+    # sample with replacement if the number of haplotypes is less than the subsample size
+    if len(bases) < size:
+        return np.array(bases)[np.random.choice(len(bases), size=size, replace=True)]
 
     return np.array(bases)[np.random.choice(len(bases), size=size, replace=False)]
 
@@ -90,9 +95,6 @@ def get_called_bases(calls: np.ndarray) -> np.ndarray:
 ingroups = pd.read_csv(ingroups_file, header=None, index_col=False)[0].tolist()
 outgroups = pd.read_csv(outgroups_file, header=None, index_col=False)[0].tolist()
 
-# seed rng
-np.random.seed(seed=0)
-
 # number of subsamples to sample from haplotypes
 n_subsamples = min(n_max_subsamples, len(ingroups))
 
@@ -101,32 +103,35 @@ with open(out_data, 'w') as f:
     # create reader
     vcf_reader = VCF(vcf_file)
 
-    # get indices of ingroup samples
-    ingroup_mask = [sample in ingroups for sample in vcf_reader.samples]
-
     # raise error if outgroup samples are not in VCF
     if not set(outgroups).issubset(set(vcf_reader.samples)):
         raise ValueError("Outgroup samples not in VCF.")
 
-    # get indices of outgroup samples
-    i_outgroups = np.zeros(n_outgroups, dtype=int)
-    for i, sample in enumerate(outgroups):
-        i_outgroups[i] = np.where(np.array(vcf_reader.samples) == sample)[0][0]
+    # get indices of ingroup and outgroup samples
+    ingroup_mask = [sample in ingroups for sample in vcf_reader.samples]
+    outgroup_mask = [sample in outgroups for sample in vcf_reader.samples]
 
     for variant in tqdm(vcf_reader):
 
         # Only do inference for bi-allelic SNPs.
-        # Since EST-SFS only reports the probability of
-        # the major allele being ancestral, we cannot do more.
-        if variant.is_snp and len(variant.ALT) == 1:
+        if variant.is_snp:
 
-            # get counts for ingroup samples
-            ingroup_counts = count(subsample(get_called_bases(variant.gt_bases[ingroup_mask]), n_subsamples))
+            # get base counts for outgroup samples
+            outgroup_counts = get_called_bases(variant.gt_bases[outgroup_mask])
 
-            # get counts for outgroup samples
-            outgroup_counts = []
-            for j in i_outgroups:
-                # try to sample more than one haplotype?
-                outgroup_counts.append(count(subsample(get_called_bases(np.array([variant.gt_bases[j]])), 1)))
+            # Only do inference for bi-allelic SNPs for which
+            # at least ``n_outgroups`` outgroup samples are called
+            if len(variant.ALT) == 1 and len(outgroup_counts) >= n_outgroups:
 
-            f.write(' '.join([base_dict_to_string(r) for r in [ingroup_counts] + outgroup_counts]) + os.linesep)
+                # get base counts for ingroup samples
+                ingroup_counts = count(subsample(get_called_bases(variant.gt_bases[ingroup_mask]), n_subsamples))
+
+                # subsample outgroup samples
+                outgroup_subsamples = subsample(outgroup_counts, n_outgroups)
+
+                # create a base count dictionary for each haplotype
+                outgroup_dicts = [dict(A=0, C=0, G=0, T=0)] * n_outgroups
+                for i, sub in enumerate(outgroup_subsamples):
+                    outgroup_dicts[i][sub] = 1
+
+                f.write(' '.join([base_dict_to_string(r) for r in [ingroup_counts] + outgroup_dicts]) + os.linesep)

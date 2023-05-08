@@ -388,14 +388,22 @@ class Parser:
                 aa = variant.INFO.get(self.info_ancestral)
 
                 if aa is None:
+
+                    # log a warning
                     logger.warning(f'No ancestral allele defined for {variant.CHROM}:{variant.POS}.')
+
+                elif aa not in bases:  # pragma: no cover
+
+                    # skip if ancestral allele is not a DNA base
+                    logger.debug(f'Ancestral allele is not a valid DNA base for {variant.CHROM}:{variant.POS}.')
+
+                    continue
                 else:
                     # adjust orientation if the ancestral allele is not the reference
                     if aa != variant.REF:
 
                         # change alternative allele if defined
                         if len(variant.ALT) != 0:
-
                             # we only consider the first alternative allele
                             variant.ALT[0] = variant.REF
 

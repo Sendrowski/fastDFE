@@ -25,6 +25,7 @@ module est_sfs:
             'n_outgroup': 3,
             'model': 1,
             'nrandom': 10,
+            'seed': 0,
             'log_level': logging.INFO,
         }
 

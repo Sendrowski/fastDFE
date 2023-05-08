@@ -4,8 +4,11 @@ EST-SFS is limited by the number of sites it can handle,
 so we scatter and gather the input files so as not
 to exceed this limit (given by ``max_sites``).
 The EST-SFS are automatically fetched and installed.
-This workflow only infers ancestral allele of bi-allelic sites.
+This workflow only infers ancestral allele of bi-allelic sites that
+have at least `n_outgroup` called haplotypes. This is to make sure
+enough information is available to reliably infer the ancestral allele.
 The `AA` info tag is added to the VCF files to indicate the ancestral allele.
+If not enough outgroup haplotypes are available, `AA` is set to '.'.
 The additional info tags `EST_SFS_input` and `EST_SFS_output` denote the
 EST-SFS input and output as described in the manual.
 
@@ -35,11 +38,16 @@ The path names support wildcards which need to be specified explicitly.
     # a size of 50 produces an SFS sufficiently smooth
     'n_samples': 50
 
-    'n_outgroup': 3 # number of outgroups
+    # Number of outgroup haplotypes used, max 3.
+    # Note that even one outgroup individual may have more
+    # one haplotype depending on its ploidy. The haplotypes
+    # are randomly sampled from the given set of outgroups species.
+    'n_outgroup': 3
 
     'model': 1 # substitution model used for EST-SFS
     'nrandom': 10 # number of ML runs
     'debug': False # whether to print local variables in this snakefile
+    'seed': 0 # seed for random number generator
 
     'log_level' # log level for snakemake
 }``
@@ -212,7 +220,8 @@ rule recode_ancestral_alleles_vcf:
         vcf=config['vcf_in'],
         probs=basepath_vcf + '.probs.txt',
         data=basepath_vcf + '.data.txt',
-        samples=config['ingroups']
+        ingroups=config['ingroups'],
+        outgroups=config['outgroups']
     log:
         basepath_vcf + '.log'
     output:
