@@ -1,0 +1,33 @@
+# This workflow will install Python dependencies, and run tests
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: fastDFE
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    name: run tests on linux
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        miniconda-version: "latest"
+        python-version: "3.10"
+        environment-file: snakemake/envs/testing.yaml
+        auto-activate-base: false
+        activate-environment: testing-fastdfe
+    - run: |
+          pytest --cov fastdfe --cov-report=xml testing/
+    - uses: codecov/codecov-action@v3
