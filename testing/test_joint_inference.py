@@ -5,7 +5,7 @@ prioritize_installed_packages()
 import pytest
 
 from fastdfe import JointInference, Config, SharedParams, Covariate, Parser, DegeneracyStratification, \
-    ReferenceBaseStratification, Spectra
+    AncestralBaseStratification, Spectra
 from fastdfe.optimization import flatten_dict
 from testing.test_base_inference import AbstractInferenceTestCase
 
