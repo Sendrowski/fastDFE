@@ -5,7 +5,7 @@ prioritize_installed_packages()
 import pytest
 
 from fastdfe import JointInference, Config, SharedParams, Covariate, Parser, DegeneracyStratification, \
-    ReferenceBaseStratification, Spectra
+    AncestralBaseStratification, Spectra
 from fastdfe.optimization import flatten_dict
 from testing.test_base_inference import AbstractInferenceTestCase
 
@@ -93,16 +93,6 @@ class JointInferenceTestCase(AbstractInferenceTestCase):
         )
 
         assert inf.perform_lrt_covariates() < 1
-
-    def test_plot_covariates(self):
-        """
-        Test that the plot_covariates method works.
-        """
-        inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
-        )
-
-        inference.plot_covariates()
 
     def test_plot_all_without_bootstraps(self):
         """
@@ -358,7 +348,7 @@ class JointInferenceTestCase(AbstractInferenceTestCase):
 
         p = inf.perform_lrt_covariates(do_bootstrap=True)
 
-        inf.plot_covariates()
+        inf.plot_inferred_parameters()
 
         # the test should be non-significant as we chose random covariates
         assert p > 0.05
@@ -387,8 +377,6 @@ class JointInferenceTestCase(AbstractInferenceTestCase):
         inf_no_cov = inf.run_joint_without_covariates(do_bootstrap=True)
 
         p = inf.perform_lrt_covariates(do_bootstrap=True)
-
-        inf.plot_covariates()
 
         inf.plot_inferred_parameters()
 

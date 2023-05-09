@@ -23,3 +23,4 @@ fastDFE offers a range of features to facilitate DFE inference, including:
 * Estimation of α, the proportion of beneficial substitutions
 * Serialization of objects and result summaries
 * Support for YAML configuration files facilitating usage
+* Built-in VCF parser for extracting site frequency spectra (SFS) with support for versatile stratification options

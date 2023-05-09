@@ -65,11 +65,13 @@ class JointInference(BaseInference):
         """
         Create instance.
 
-        :param sfs_neut: Neutral SFS
-        :param sfs_sel: Selected SFS
+        :param sfs_neut: Neutral SFS. Note that we require monomorphic counts to be specified in order to infer
+            the mutation rate.
+        :param sfs_sel: Selected SFS. Note that we require monomorphic counts to be specified in order to infer
+            the mutation rate.
         :param include_divergence: Whether to include divergence in the likelihood
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
-        selection coefficients. The intervals will be log10-spaced.
+            selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as intervals_del but for beneficial selection coefficients
         :param integration_mode: Integration mode
         :param linearized: Whether to use the linearized model
@@ -570,7 +572,7 @@ class JointInference(BaseInference):
         the covariates provide a significant improvement in the fit.
 
         :param do_bootstrap: Whether to bootstrap. This improves the accuracy of the p-value. Note
-        that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
+            that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
         :return: Likelihood ratio test statistic.
         """
         if len(self.covariates) == 0:
@@ -781,7 +783,7 @@ class JointInference(BaseInference):
         might be larger than it should be.
 
         :param do_bootstrap: Whether to perform bootstrapping. This improves the accuracy of the p-value. Note
-        that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
+            that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
         :return: p-value
         """
         if do_bootstrap:
@@ -1055,33 +1057,6 @@ class JointInference(BaseInference):
         :return: Bootstrap parameters
         """
         return flatten_dict(dict((t, self.joint_inferences[t].get_bootstrap_params()) for t in self.types))
-
-    @BaseInference.run_if_required_wrapper
-    def plot_covariates(
-            self,
-            file: str = None,
-            show: bool = True,
-            axs: List[plt.Axes] = None
-    ) -> List[plt.Axes]:
-        """
-        Plot inferred parameters of joint inference vs inferred
-        parameters of marginal inferences side by side.
-
-        :param file: File to save plot to
-        :param show: Whether to show plot
-        :param axs: List of axes object, one for each covariate
-        :return: Axes object
-        """
-        from . import Visualization
-
-        return Visualization.plot_covariates(
-            covariates=self.covariates,
-            params_marginal=dict((t, inf.params_mle) for t, inf in self.marginal_inferences.items()),
-            params_joint=self.params_mle,
-            file=file,
-            show=show,
-            axs=axs
-        )
 
     def to_json(self) -> str:
         """

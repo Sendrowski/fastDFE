@@ -4,6 +4,8 @@ Welcome to fastDFE's documentation
 .. image:: https://github.com/Sendrowski/fastDFE/actions/workflows/python-app.yml/badge.svg?branch=master
     :target: https://github.com/Sendrowski/fastDFE/actions/workflows/python-app.yml
     :alt: Build Status
+.. image:: https://codecov.io/gh/Sendrowski/fastDFE/branch/master/graph/badge.svg?token=0LUE8SZYBJ
+ :target: https://codecov.io/gh/Sendrowski/fastDFE
 .. image:: https://readthedocs.org/projects/fastdfe/badge/?version=latest
     :target: https://fastdfe.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status

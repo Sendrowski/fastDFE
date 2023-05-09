@@ -60,7 +60,7 @@ from .optimization import Covariate
 from .visualization import Visualization
 from .spectrum import Spectrum, Spectra
 from .parser import Parser, BaseTransitionStratification, BaseContextStratification, DegeneracyStratification, \
-    TransitionTransversionStratification, ReferenceBaseStratification
+    TransitionTransversionStratification, AncestralBaseStratification
 
 __all__ = [
     'Parametrization',
@@ -82,5 +82,5 @@ __all__ = [
     'BaseContextStratification',
     'DegeneracyStratification',
     'TransitionTransversionStratification',
-    'ReferenceBaseStratification'
+    'AncestralBaseStratification'
 ]

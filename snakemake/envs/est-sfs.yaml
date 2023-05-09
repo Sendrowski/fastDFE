@@ -1,0 +1,14 @@
+name: est-sfs-fastdfe
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - gsl=2.7
+  - python
+  - numpy
+  - pandas
+  - cyvcf2
+  - pyvcf
+  - wget
+  - tqdm
+  - julia=1.7.3

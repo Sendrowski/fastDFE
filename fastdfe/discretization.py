@@ -37,10 +37,10 @@ def get_midpoints_and_spacing(bins: np.ndarray) -> (np.ndarray, np.ndarray):
 def get_bins(intervals_del: tuple, intervals_ben: tuple) -> np.ndarray:
     """
     Get bins using log-spaced distances for positive and negative
-    values of S given by intervals_ben and intervals_del, respectively.
+    values of S given by ``intervals_ben`` and ``intervals_del``, respectively.
 
-    :param intervals_del: (min, max, n) for negative values of S where we use log-spaced distances
-    :param intervals_ben: (min, max, n) for positive values of S where we use log-spaced distances
+    :param intervals_del: ``(min, max, n)`` for negative values of S where we use log-spaced distances
+    :param intervals_ben: ``(min, max, n)`` for positive values of S where we use log-spaced distances
     :return: Bins
     """
     bins_del = -np.logspace(np.log10(np.abs(intervals_del[0])),

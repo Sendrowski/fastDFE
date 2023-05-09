@@ -49,7 +49,7 @@ for i, s in enumerate(stratifications):
 # instantiate parser
 p = Parser(
     n=n,
-    vcf_file=vcf_file,
+    vcf=vcf_file,
     max_sites=max_sites,
     stratifications=stratifications
 )

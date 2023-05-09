@@ -97,10 +97,12 @@ class BaseInference(AbstractInference):
         """
         Create BaseInference instance.
 
-        :param sfs_neut: The neutral SFS. Spectra | Spectrum
-        :param sfs_sel: The selected SFS.
+        :param sfs_neut: The neutral SFS. Note that we require monomorphic counts to be specified in order to infer
+            the mutation rate.
+        :param sfs_sel: The selected SFS. Note that we require monomorphic counts to be specified in order to infer
+            the mutation rate.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
-        selection coefficients. The intervals will be log10-spaced.
+            selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as for intervals_del but for beneficial selection coefficients.
         :param model: Instance of DFEParametrization which parametrized the DFE
         :param seed: Seed for the random number generator.
@@ -136,6 +138,11 @@ class BaseInference(AbstractInference):
         else:
             # assume we have Spectrum object
             self.sfs_sel: Spectrum = sfs_sel
+
+        # check that we have monomorphic counts
+        if self.sfs_neut.to_list()[0] == 0 or self.sfs_sel.to_list()[0] == 0:
+            raise ValueError('Some of the provided SFS have zero ancestral monomorphic counts. '
+                             'Note that we require monomorphic counts in order to infer the mutation rate.')
 
         #: Sample size
         self.n: int = sfs_neut.n
@@ -435,7 +442,7 @@ class BaseInference(AbstractInference):
             sfs_sel=self.sfs_sel
         )
 
-        # add monomorphic classes and create Spectrum object
+        # create spectrum object from polymorphic counts
         self.sfs_mle = Spectrum.from_polymorphic(counts_mle)
 
         # L2 norm of fit minus observed SFS

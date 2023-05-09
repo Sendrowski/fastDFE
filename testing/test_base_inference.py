@@ -636,3 +636,16 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         values, errors = inference.get_discretized()
 
         assert errors is None
+
+    def test_spectrum_with_zero_monomorphic_counts_throws_error(self):
+        """
+        Test whether a spectrum with zero monomorphic counts throws an error.
+        """
+        sfs_neut = Spectrum([0, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+        sfs_sel = Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+
+        with self.assertRaises(ValueError):
+            BaseInference(
+                sfs_neut=sfs_neut,
+                sfs_sel=sfs_sel,
+            )
