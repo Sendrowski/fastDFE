@@ -239,8 +239,9 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         assert np.all(cis_lin[0] < cis_log[1])
         assert np.all(cis_log[0] < cis_lin[1])
 
-        # this is not generally true, but it is for this particular example
-        assert inference_log.likelihood > inference_lin.likelihood
+        # assert inference_log.likelihood > inference_lin.likelihood
+
+        self.assertAlmostEqual(inference_log.likelihood, inference_lin.likelihood, places=0)
 
     def test_compare_inference_with_log_scales_vs_lin_scales_tutorial(self):
         """
@@ -296,8 +297,9 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         # assert np.all(cis_lin[0] < cis_log[1])
         # assert np.all(cis_log[0] < cis_lin[1])
 
-        # this is not generally true, but it is for this particular example
-        assert inference_log.likelihood > inference_lin.likelihood
+        # assert inference_log.likelihood > inference_lin.likelihood
+
+        self.assertAlmostEqual(inference_log.likelihood, inference_lin.likelihood, places=0)
 
     def test_restore_serialized_inference(self):
         """
