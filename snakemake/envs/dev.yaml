@@ -1,4 +1,4 @@
-name: fastdfe
+name: dev-fastdfe
 channels:
   - conda-forge
   - bioconda
@@ -30,6 +30,7 @@ dependencies:
   - myst-nb
   - jupyter
   - poetry
+  - python-dotenv
   - pip
   - pip:
     - pytest-pycharm
