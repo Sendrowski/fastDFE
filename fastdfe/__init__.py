@@ -61,6 +61,7 @@ from .visualization import Visualization
 from .spectrum import Spectrum, Spectra
 from .parser import Parser, BaseTransitionStratification, BaseContextStratification, DegeneracyStratification, \
     TransitionTransversionStratification, AncestralBaseStratification
+from .annotation import Annotator, MaximumParsimonyAnnotation
 
 __all__ = [
     'Parametrization',
@@ -82,5 +83,7 @@ __all__ = [
     'BaseContextStratification',
     'DegeneracyStratification',
     'TransitionTransversionStratification',
-    'AncestralBaseStratification'
+    'AncestralBaseStratification',
+    'Annotator',
+    'MaximumParsimonyAnnotation',
 ]

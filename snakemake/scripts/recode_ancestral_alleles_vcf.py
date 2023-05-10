@@ -71,7 +71,7 @@ vcf_reader = VCF(vcf_file)
 vcf_reader.add_info_to_header({
     'ID': 'AA',
     'Number': 1,
-    'Type': 'String',
+    'Type': 'Character',
     'Description': 'Ancestral Allele'}
 )
 

@@ -10,7 +10,7 @@ import gzip
 import itertools
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Callable, Literal, Optional, TextIO, Iterable
+from typing import List, Callable, Literal, Optional, TextIO, Iterable, Dict
 
 import numpy as np
 from cyvcf2 import VCF, Variant
@@ -19,6 +19,7 @@ from pyfaidx import Fasta
 from tqdm import tqdm
 
 from .spectrum import Spectra
+from .vcf import VCFHandler
 
 #: Logger
 logger = logging.getLogger('fastdfe')
@@ -355,7 +356,7 @@ class DegeneracyStratification(Stratification):
         degeneracy = variant.INFO.get('Degeneracy')
 
         if degeneracy is None:
-            raise NoTypeException("Degeneracy tag not found.")
+            raise NoTypeException("No degeneracy tag found.")
         else:
             if degeneracy == 4:
                 return 'neutral'
@@ -384,7 +385,7 @@ class DegeneracyStratification(Stratification):
         return ['neutral', 'selected']
 
 
-class Parser:
+class Parser(VCFHandler):
     """
     Parse site-frequency spectra from VCF files.
 
@@ -421,15 +422,15 @@ class Parser:
         :param max_sites: Maximum number of sites to parse
         :param seed: Seed for the random number generator
         """
+        super().__init__(
+            vcf=vcf,
+            max_sites=max_sites,
+            seed=seed,
+            info_ancestral=info_ancestral
+        )
 
         #: The number of individuals in the sample
         self.n = n
-
-        #: The path to the VCF file or an iterable of variants
-        self.vcf = vcf
-
-        #: The tag in the INFO field that contains the ancestral allele
-        self.info_ancestral: str = info_ancestral
 
         #: Whether to ignore sites that are not polarized, i.e., without a valid info tag providing the ancestral allele
         self.ignore_not_polarized: bool = ignore_not_polarized
@@ -437,64 +438,13 @@ class Parser:
         #: List of stratifications to use
         self.stratifications: List[Stratification] = stratifications
 
-        #: Maximum number of sites to parse
-        self.max_sites: int = max_sites
-
-        #: Seed for the random number generator
-        self.seed: Optional[int] = seed
-
-        #: Random generator instance
-        self.rng = np.random.default_rng(seed=seed)
-
-        #: Number of sites to be parsed
-        self.n_sites: Optional[int] = None
-
         #: The number of sites that were skipped when parsing
         self.n_skipped: int = 0
 
-    @staticmethod
-    def open_file(file: str) -> TextIO:
-        """
-        Open a file, either gzipped or not.
+        #: Dictionary of SFS indexed by type
+        self.sfs: Dict[str, np.ndarray] = {}
 
-        :param file: File to open
-        :return: stream
-        """
-        if file.endswith('.gz'):
-            return gzip.open(file, "rt")
-
-        return open(file, 'r')
-
-    def count_lines_vcf(self) -> int:
-        """
-        Count the number of sites in the VCF.
-
-        :return: Number of sites
-        """
-        from . import disable_pbar
-
-        logger.info('Counting number of sites.')
-
-        # if we don't have a file path, we can just count the number of variants
-        if not isinstance(self.vcf, str):
-            return len(list(self.vcf))
-
-        i = 0
-        with self.open_file(self.vcf) as f:
-
-            with tqdm(disable=disable_pbar) as pbar:
-                for line in f:
-                    if not line.startswith('#'):
-                        i += 1
-                        pbar.update()
-
-                    # stop counting if max_sites was reached
-                    if i >= self.max_sites:
-                        break
-
-        return i
-
-    def create_sfs_dictionary(self) -> dict:
+    def create_sfs_dictionary(self):
         """
         Create an SFS dictionary initialized with all possible base contexts.
 
@@ -509,22 +459,69 @@ class Parser:
         for context in contexts:
             sfs[context] = np.zeros(self.n + 1)
 
-        return sfs
+        self.sfs = sfs
 
-    def get_sites(self) -> Iterable[Variant]:
+    def parse_site(self, variant: Variant):
         """
-        Return an iterable object over the VCF file's sites.
+        Parse a single site.
 
-        :return: iterable
+        :param variant: The variant
         """
-        from . import disable_pbar
 
-        vcf = self.vcf
+        # number of samples
+        n_samples = variant.ploidy * variant.num_called
 
-        if isinstance(vcf, str):
-            vcf = VCF(vcf)
+        # skip if not enough samples
+        if n_samples < self.n:
+            logger.debug(f'Skipping site due to too few samples {str(variant).strip()}.')
+            self.n_skipped += 1
+            return
 
-        return tqdm(vcf, total=self.n_sites, disable=disable_pbar)
+        # determine reference allele count
+        # this doesn't work for polyploids
+        n_ref = variant.ploidy * variant.num_hom_ref + variant.num_het
+
+        # swap reference and alternative allele if the AA info field
+        # is defined and indicates so
+        aa = variant.INFO.get(self.info_ancestral)
+
+        if aa not in bases:
+
+            # log a warning
+            logger.debug(f'No valid ancestral allele defined for {str(variant).strip()}.')
+
+            if self.ignore_not_polarized:
+                self.n_skipped += 1
+                return
+        else:
+            # adjust orientation if the ancestral allele is not the reference
+            if aa != variant.REF:
+
+                # change alternative allele if defined
+                if len(variant.ALT) != 0:
+                    # we only consider the first alternative allele
+                    variant.ALT[0] = variant.REF
+
+                # change reference allele
+                variant.REF = aa
+
+                # change reference count
+                n_ref = n_samples - n_ref
+
+        # determine down-projected allele count
+        k = self.rng.hypergeometric(ngood=n_samples - n_ref, nbad=n_ref, nsample=self.n)
+
+        # try to obtain type
+        try:
+            t = '.'.join([s.get_type(variant) for s in self.stratifications])
+
+            # add count by 1 if context is defined
+            if t in self.sfs:
+                self.sfs[t][k] += 1
+
+        except NoTypeException as e:
+            self.n_skipped += 1
+            logger.debug(str(e) + ' ' + str(variant).strip())
 
     def parse(self) -> Spectra:
         """
@@ -532,7 +529,7 @@ class Parser:
 
         :return: The spectra for the different stratifications
         """
-        sfs = self.create_sfs_dictionary()
+        self.create_sfs_dictionary()
 
         # create a string representation of the stratifications
         representation = '.'.join(['[' + ','.join(s.get_types()) + ']' for s in self.stratifications])
@@ -558,59 +555,7 @@ class Parser:
             if i >= self.max_sites:
                 break
 
-            # number of samples
-            n_samples = variant.ploidy * variant.num_called
+            # parse site
+            self.parse_site(variant)
 
-            # skip if not enough samples
-            if n_samples < self.n:
-                logger.debug(f'Skipping site due to too few samples {str(variant).strip()}.')
-                self.n_skipped += 1
-                continue
-
-            # determine reference allele count
-            # this doesn't work for polyploids
-            n_ref = variant.ploidy * variant.num_hom_ref + variant.num_het
-
-            # swap reference and alternative allele if the AA info field
-            # is defined and indicates so
-            aa = variant.INFO.get(self.info_ancestral)
-
-            if aa not in bases:
-
-                # log a warning
-                logger.debug(f'No valid ancestral allele defined for {str(variant).strip()}.')
-
-                if self.ignore_not_polarized:
-                    self.n_skipped += 1
-                    continue
-            else:
-                # adjust orientation if the ancestral allele is not the reference
-                if aa != variant.REF:
-
-                    # change alternative allele if defined
-                    if len(variant.ALT) != 0:
-                        # we only consider the first alternative allele
-                        variant.ALT[0] = variant.REF
-
-                    # change reference allele
-                    variant.REF = aa
-
-                    # change reference count
-                    n_ref = n_samples - n_ref
-
-            # determine down-projected allele count
-            k = self.rng.hypergeometric(ngood=n_samples - n_ref, nbad=n_ref, nsample=self.n)
-
-            # try to obtain type
-            try:
-                t = '.'.join([s.get_type(variant) for s in self.stratifications])
-
-                # add count by 1 if context is defined
-                if t in sfs:
-                    sfs[t][k] += 1
-
-            except NoTypeException as e:
-                self.n_skipped += 1
-                logger.debug(str(e) + ' ' + str(variant).strip())
-
-        return Spectra(sfs)
+        return Spectra(self.sfs)
