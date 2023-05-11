@@ -31,7 +31,7 @@ except NameError:
     max_sites = np.inf
     stratifications = [
         'DegeneracyStratification',
-        'ReferenceBaseStratification'
+        'AncestralBaseStratification'
     ]
     out = "scratch/sfs_parsed.csv"
 

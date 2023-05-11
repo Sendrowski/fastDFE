@@ -610,13 +610,13 @@
     }
    ],
    "source": [
-    "from fastdfe import Parser, Spectra, ReferenceBaseStratification, DegeneracyStratification\n",
+    "from fastdfe import Parser, Spectra, AncestralBaseStratification, DegeneracyStratification\n",
     "\n",
     "# instantiate parser\n",
     "p = Parser(\n",
     "    n=10,\n",
     "    vcf_file=\"../../snakemake/results/vcf/betula/pendula.vcf.gz\",\n",
-    "    stratifications=[DegeneracyStratification(), ReferenceBaseStratification()]\n",
+    "    stratifications=[DegeneracyStratification(), AncestralBaseStratification()]\n",
     ")\n",
     "\n",
     "# parse SFS\n",

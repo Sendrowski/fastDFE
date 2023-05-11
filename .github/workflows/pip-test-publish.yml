@@ -1,4 +1,4 @@
-name: publish on PyPI test
+name: Publish on PyPI test
 on:
   release:
     types: [created]

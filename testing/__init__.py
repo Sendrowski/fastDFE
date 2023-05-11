@@ -24,3 +24,6 @@ def prioritize_installed_packages():
         sys.path.remove(cwd)
         # Append the current working directory to the end of sys.path
         sys.path.append(cwd)
+
+
+prioritize_installed_packages()
