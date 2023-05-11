@@ -1,8 +1,7 @@
-name: Python test package
+name: publish on PyPI test
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  release:
+    types: [created]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -11,6 +10,6 @@ jobs:
       - name: Build and publish to pypi
         uses: JRubics/poetry-publish@v1.16
         with:
-          pypi_token: ${{ secrets.PYPI_TOKEN }}
+          pypi_token: ${{ secrets.PYPI_TEST_TOKEN }}
           repository_name: "testpypi"
           repository_url: "https://test.pypi.org/legacy/"
