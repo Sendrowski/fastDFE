@@ -28,7 +28,7 @@ VCF Parsing
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: fastdfe.parser.ReferenceBaseStratification
+.. autoclass:: fastdfe.parser.AncestralBaseStratification
    :members:
    :undoc-members:
    :show-inheritance:

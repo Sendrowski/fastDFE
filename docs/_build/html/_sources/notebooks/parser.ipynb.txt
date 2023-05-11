@@ -5,7 +5,7 @@
    "source": [
     "# Parsing SFS from VCF file\n",
     "\n",
-    "fastDFE provides parser utilities that enable convenient parsing of frequency spectra from VCF files. By default, {class}`~fastdfe.parser.Parser` looks at the ``AA`` tag in the VCF file's info field to retrieve the correct polarization. Sites for which this tag is not well-defined are by default ignored (see {class}`~fastdfe.parser.Parser`). Note that non-polarized frequency spectra provide little information on the distribution of beneficial mutations.\n",
+    "fastDFE provides parser utilities that enable convenient parsing of frequency spectra from VCF files. By default, {class}`~fastdfe.parser.Parser` looks at the ``AA`` tag in the VCF file's info field to retrieve the correct polarization. Sites for which this tag is not well-defined are by default included (see {attr}`~fastdfe.parser.Parser.skip_not_polarized`). Note that non-polarized frequency spectra provide little information on the distribution of beneficial mutations.\n",
     "\n",
     "We also might want to stratify the SFS by some property of the sites, such as synonymous vs. non-synonymous mutations. This is done by specifying a list of stratifications to the parser. In this example, we will stratify the SFS by synonymous vs. non-synonymous mutations using a VCF file for `Betula spp.`."
    ],
@@ -157,13 +157,13 @@
     }
    ],
    "source": [
-    "from fastdfe import ReferenceBaseStratification\n",
+    "from fastdfe import AncestralBaseStratification\n",
     "\n",
     "# instantiate parser\n",
     "p = Parser(\n",
     "    n=10,\n",
     "    vcf_file=vcf_file,\n",
-    "    stratifications=[DegeneracyStratification(), ReferenceBaseStratification()]\n",
+    "    stratifications=[DegeneracyStratification(), AncestralBaseStratification()]\n",
     ")\n",
     "\n",
     "# parse SFS\n",
