@@ -1,6 +1,7 @@
 name: publish on PyPI test
 on:
-  release
+  release:
+    types: [created, edited]
 jobs:
   build:
     runs-on: ubuntu-latest
