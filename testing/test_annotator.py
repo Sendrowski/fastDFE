@@ -1,12 +1,14 @@
 import logging
 
+from cyvcf2 import VCF, Writer
+
 from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
 
 from unittest import TestCase
 
-from fastdfe import Annotator, MaximumParsimonyAnnotation
+from fastdfe import Annotator, MaximumParsimonyAnnotation, Parser
 
 logging.getLogger('fastdfe').setLevel(logging.DEBUG)
 
@@ -18,7 +20,7 @@ class AnnotatorTestCase(TestCase):
 
     vcf_file = 'resources/genome/betula/biallelic.subset.10000.vcf.gz'
 
-    def test_maximum_parsimony_annotator(self):
+    def test_maximum_parsimony_annotator_different_info_field(self):
         """
         Test the maximum parsimony annotator.
         """
@@ -31,4 +33,6 @@ class AnnotatorTestCase(TestCase):
 
         ann.annotate()
 
-        pass
+        Parser(self.vcf_file, 20).parse().plot(title="Original")
+        Parser(ann.output, 20).parse().plot(title="Annotated")
+

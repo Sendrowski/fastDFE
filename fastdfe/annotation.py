@@ -64,7 +64,7 @@ class AncestralAlleleAnnotation(Annotation, ABC):
         """
         reader.add_info_to_header({
             'ID': self.annotator.info_ancestral,
-            'Number': 1,
+            'Number': '.',
             'Type': 'Character',
             'Description': 'Ancestral Allele'
         })
@@ -146,7 +146,7 @@ class Annotator(VCFHandler):
         writer = Writer(self.output, reader)
 
         # iterate over the sites
-        for i, variant in enumerate(self.get_sites()):
+        for i, variant in enumerate(self.get_sites(reader)):
 
             # stop if max_sites was reached
             if i >= self.max_sites:

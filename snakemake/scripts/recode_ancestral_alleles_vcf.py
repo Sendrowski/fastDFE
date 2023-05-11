@@ -70,21 +70,21 @@ vcf_reader = VCF(vcf_file)
 # Add AA info field to the header
 vcf_reader.add_info_to_header({
     'ID': 'AA',
-    'Number': 1,
+    'Number': '.',
     'Type': 'Character',
     'Description': 'Ancestral Allele'}
 )
 
 vcf_reader.add_info_to_header({
     'ID': 'EST_SFS_output',
-    'Number': 1,
+    'Number': '.',
     'Type': 'String',
     'Description': 'EST-SFS probabilities'}
 )
 
 vcf_reader.add_info_to_header({
     'ID': 'EST_SFS_input',
-    'Number': 1,
+    'Number': '.',
     'Type': 'String',
     'Description': 'EST-SFS input'}
 )

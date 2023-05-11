@@ -110,15 +110,17 @@ class VCFHandler:
 
         return i
 
-    def get_sites(self) -> Iterable[Variant]:
+    def get_sites(self, vcf: Iterable[Variant] = None) -> Iterable[Variant]:
         """
         Return an iterable object over the VCF file's sites.
 
+        :param vcf: The VCF file to iterate over.
         :return: iterable
         """
         from . import disable_pbar
 
-        vcf = self.vcf
+        if vcf is None:
+            vcf = self.vcf
 
         if isinstance(vcf, str):
             vcf = VCF(vcf)

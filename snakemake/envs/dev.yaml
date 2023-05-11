@@ -13,7 +13,7 @@ dependencies:
   - jsonpickle>=3.0.0
   - multiprocess>=0.70.12
   - pyyaml>=6.0
-  - cyvcf2>=0.30.9
+  - cyvcf2>=0.30.15
   - pyfaidx>=0.7.1
   - tqdm>=4.60.0
   - mpmath>=1.3.0
