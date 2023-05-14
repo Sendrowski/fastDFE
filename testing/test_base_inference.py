@@ -182,6 +182,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         inference2 = BaseInference.from_config(config)
         inference2.run()
 
+        # this apparently fails sometimes
         self.assertNotEqual(inference.params_mle, inference2.params_mle)
 
         with self.assertRaises(AssertionError):

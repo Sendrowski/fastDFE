@@ -8,6 +8,7 @@ __date__ = "2023-03-10"
 
 __version__ = '0.1.5-beta'
 
+import io
 import logging
 import sys
 import warnings
@@ -15,6 +16,7 @@ import warnings
 import jsonpickle
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 from .json_handlers import DataframeHandler, SpectrumHandler, SpectraHandler, NumpyArrayHandler
 from .spectrum import Spectrum, Spectra
@@ -25,10 +27,70 @@ jsonpickle.handlers.registry.register(Spectrum, SpectrumHandler)
 jsonpickle.handlers.registry.register(Spectra, SpectraHandler)
 jsonpickle.handlers.registry.register(np.ndarray, NumpyArrayHandler)
 
+
+class TqdmLoggingHandler(logging.Handler):
+    def __init__(self, level=logging.NOTSET):
+        """
+        Initialize the handler.
+
+        :param level:
+        """
+        super().__init__(level)
+
+    def emit(self, record):
+        """
+        Emit a record.
+        """
+        try:
+            msg = self.format(record)
+
+            # we write to stderr to avoid as the progress bar
+            # to make the two work together
+            tqdm.write(msg, file=sys.stderr)
+            self.flush()
+        except Exception:
+            self.handleError(record)
+
+
+class ColoredFormatter(logging.Formatter):
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the formatter.
+        """
+        super().__init__(*args, **kwargs)
+        self.colors = {
+            "DEBUG": "\033[36m",  # Cyan
+            "INFO": "\033[32m",  # Green
+            "WARNING": "\033[33m",  # Yellow
+            "ERROR": "\033[31m",  # Red
+            "CRITICAL": "\033[31m",  # Red
+        }
+        self.reset = "\033[0m"
+
+    def format(self, record):
+        """
+        Format the record.
+        """
+        log_color = self.colors.get(record.levelname, self.reset)
+
+        formatted_record = super().format(record)
+
+        return f"{log_color}{formatted_record}{self.reset}"
+
+
 # configure logger
 logger = logging.getLogger('fastdfe')
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
+
+# set to INFO by default
+logger.setLevel(logging.INFO)
+
+# let TQDM handle the logging
+handler = TqdmLoggingHandler()
+
+# define a Formatter with colors
+formatter = ColoredFormatter('%(levelname)s:%(name)s:%(message)s')
+
+handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 # whether to disable the progress bar
@@ -58,9 +120,10 @@ from .joint_inference import JointInference, SharedParams
 from .optimization import Covariate
 from .visualization import Visualization
 from .spectrum import Spectrum, Spectra
-from .parser import Parser, BaseTransitionStratification, BaseContextStratification, DegeneracyStratification, \
-    TransitionTransversionStratification, AncestralBaseStratification
-from .annotation import Annotator, MaximumParsimonyAnnotation
+from .parser import Parser, Stratification, BaseTransitionStratification, BaseContextStratification, \
+    DegeneracyStratification, TransitionTransversionStratification, AncestralBaseStratification
+from .annotation import Annotator, Annotation, MaximumParsimonyAnnotation, DegeneracyAnnotation, SynonymyAnnotation
+from .filtration import Filterer, Filtration, SNPFiltration, NoPolyAllelicFiltration, CodingSequenceFiltration
 
 __all__ = [
     'Parametrization',
@@ -84,5 +147,14 @@ __all__ = [
     'TransitionTransversionStratification',
     'AncestralBaseStratification',
     'Annotator',
+    'Annotation',
     'MaximumParsimonyAnnotation',
+    'DegeneracyAnnotation',
+    'SynonymyAnnotation',
+    'Filtration',
+    'CodingSequenceFiltration',
+    'Filterer',
+    'SNPFiltration',
+    'NoPolyAllelicFiltration',
+    'Filterer',
 ]

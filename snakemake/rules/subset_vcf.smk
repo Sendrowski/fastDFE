@@ -10,4 +10,6 @@ rule subset_vcf:
     conda:
         "../envs/tabix.yaml"
     shell:
-        "head -n {params.n} < <(zcat < {input}) | bgzip -c > {output}"
+        """
+        (zcat < {input} | grep "^#" ; zcat < {input} | grep -v "^#" | head -n {params.n} || true) | bgzip -c > {output}
+        """

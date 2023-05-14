@@ -43,9 +43,6 @@ class BaseInference(AbstractInference):
     """
     Base inference class for inferring the SFS given one neutral and one selected SFS.
     Note that BaseInference is by default seeded.
-
-    .. warning::
-        TODO add confidence intervals for inferred SFS.
     """
 
     #: Default parameters not connected to the DFE parametrization
@@ -98,17 +95,19 @@ class BaseInference(AbstractInference):
         Create BaseInference instance.
 
         :param sfs_neut: The neutral SFS. Note that we require monomorphic counts to be specified in order to infer
-            the mutation rate.
+            the mutation rate. If a ``Spectra``object with more than one SFS is provided, the ``all`` attribute will be
+            used.
         :param sfs_sel: The selected SFS. Note that we require monomorphic counts to be specified in order to infer
-            the mutation rate.
+            the mutation rate. If a ``Spectra``object with more than one SFS is provided, the ``all`` attribute will be
+            used.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as for intervals_del but for beneficial selection coefficients.
         :param model: Instance of DFEParametrization which parametrized the DFE
         :param seed: Seed for the random number generator.
-        :param x0: Dictionary of initial values in the form {'all': {param: value}}
-        :param bounds: Bounds for the optimization in the form {param: (lower, upper)}
-        :param scales: Scales for the optimization in the form {param: scale}
+        :param x0: Dictionary of initial values in the form ``{'all': {param: value}}``
+        :param bounds: Bounds for the optimization in the form ``{param: (lower, upper)}``
+        :param scales: Scales for the optimization in the form ``{param: scale}`
         :param loss_type: Type of loss function to use for optimization.
         :param opts_mle: Options for the optimization.
         :param n_runs: Number of optimization runs. The first run will use the initial values if provided.

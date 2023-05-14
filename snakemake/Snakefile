@@ -419,7 +419,7 @@ rule tool_comparison_collage:
         "scripts/combine_plots.py"
 
 # create a tbi index for a vcf file
-rule create_tbi:
+rule create_tbi_vcf:
     input:
         "{path}.vcf.gz"
     output:
@@ -428,6 +428,17 @@ rule create_tbi:
         "envs/gatk.yaml"
     shell:
         "gatk IndexFeatureFile -I {input}"
+
+# create a tbi index for a gff file
+rule create_tbi_gff:
+    input:
+        "{path}.{exp}.gz"
+    output:
+        "{path}.{exp,gff|gtf}.gz.tbi"
+    conda:
+        "envs/tabix.yaml"
+    shell:
+        "tabix -p gff {input}"
 
 # index a fasta file using samtools
 rule create_fai:
@@ -571,3 +582,46 @@ module est_sfs:
 
 # load all rules from EST-SFS module
 use rule * from est_sfs as *
+
+# annotate synonymy
+rule annotate_synonymy:
+    input:
+        vcf="../resources/genome/{species}/{name}.vcf.gz",
+        ref="../resources/genome/{species}/genome.fasta",
+        gff="../resources/genome/{species}/genome.gff.gz"
+    output:
+        "results/vcf/{species}/{name}.synonymy.vcf.gz"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/annotate_synonymy.py"
+
+# annotate degeneracy
+rule annotate_degeneracy:
+    input:
+        vcf="../resources/genome/{species}/{name}.vcf.gz",
+        ref="../resources/genome/{species}/genome.fasta",
+        gff="../resources/genome/{species}/genome.gff.gz"
+    output:
+        "results/vcf/{species}/{name}.degeneracy.vcf.gz"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/annotate_degeneracy.py"
+
+# predict the variants' effects with VEP
+rule annotate_vep:
+    input:
+        vcf="../resources/genome/{species}/{name}.vcf.gz",
+        ref="../resources/genome/{species}/genome.fasta",
+        gff="../resources/genome/{species}/genome.gff.gz",
+        tbi="../resources/genome/{species}/genome.gff.gz.tbi"
+    output:
+        "results/vcf/{species}/{name}.vep.vcf.gz",
+        "results/vcf/{species}/{name}.vep.vcf.gz_summary.html"
+    params:
+        species="{species}"
+    conda:
+        "envs/vep.yaml"
+    script:
+        "scripts/annotate_vep.py"

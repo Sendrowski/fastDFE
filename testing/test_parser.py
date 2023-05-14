@@ -9,9 +9,9 @@ from unittest import TestCase
 import dadi
 import numpy as np
 
-import fastdfe
 from fastdfe import DegeneracyStratification, BaseTransitionStratification, TransitionTransversionStratification, \
-    BaseContextStratification, AncestralBaseStratification
+    BaseContextStratification, AncestralBaseStratification, Parser, DegeneracyAnnotation, MaximumParsimonyAnnotation, \
+    CodingSequenceFiltration
 
 logging.getLogger('fastdfe').setLevel(logging.DEBUG)
 
@@ -24,14 +24,14 @@ class ParserTestCase(TestCase):
     """
     vcf_file = 'resources/genome/betula/biallelic.subset.10000.vcf.gz'
     vcf_file_with_monomorphic = 'resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz'
-    fasta_file = 'resources/genome/betula/genome.subset.2.fasta'
+    fasta_file = 'resources/genome/betula/genome.subset.20.fasta'
     pop_file = 'resources/genome/betula/pops_dadi.txt'
 
     def test_compare_sfs_with_data(self):
         """
         Compare the sfs from dadi with the one from the data.
         """
-        p = fastdfe.Parser(vcf=self.vcf_file, n=20, stratifications=[], seed=2)
+        p = Parser(vcf=self.vcf_file, n=20, stratifications=[], seed=2)
 
         sfs = p.parse().all
 
@@ -44,7 +44,7 @@ class ParserTestCase(TestCase):
         diff_rel = np.abs(sfs.to_numpy() - sfs2.data) / sfs2.data
 
         # assert total number of sites
-        assert np.sum(sfs.data) == 4304 - p.n_skipped
+        assert np.sum(sfs.data) == 10000 - p.n_skipped
 
         # check that the sum of the sfs is the same
         self.assertAlmostEqual(np.sum(sfs.data), np.sum(sfs2.data))
@@ -56,20 +56,20 @@ class ParserTestCase(TestCase):
         """
         Test the degeneracy stratification.
         """
-        p = fastdfe.Parser(vcf=self.vcf_file, n=20, stratifications=[DegeneracyStratification()])
+        p = Parser(vcf=self.vcf_file, n=20, stratifications=[DegeneracyStratification()])
 
         sfs = p.parse()
 
         sfs.plot()
 
         # assert total number of sites
-        assert np.sum(sfs.all.data) == 4304 - p.n_skipped
+        assert sfs.all.data.sum() == 10000 - p.n_skipped
 
     def test_base_transition_stratification(self):
         """
         Test the base transition stratification.
         """
-        p = fastdfe.Parser(
+        p = Parser(
             vcf=self.vcf_file_with_monomorphic,
             n=20,
             stratifications=[BaseTransitionStratification()]
@@ -83,13 +83,13 @@ class ParserTestCase(TestCase):
         sfs.plot()
 
         # assert total number of sites
-        assert np.sum(sfs.all.data) == 4306 - p.n_skipped
+        assert sfs.all.data.sum() == 10000 - p.n_skipped
 
     def test_transition_transversion_stratification(self):
         """
         Test the transition transversion stratification.
         """
-        p = fastdfe.Parser(
+        p = Parser(
             vcf=self.vcf_file_with_monomorphic,
             n=20,
             stratifications=[TransitionTransversionStratification()]
@@ -103,13 +103,13 @@ class ParserTestCase(TestCase):
         sfs.plot()
 
         # assert total number of sites
-        assert np.sum(sfs.all.data) == 4306 - p.n_skipped
+        assert sfs.all.data.sum() == 10000 - p.n_skipped
 
     def test_base_context_stratification(self):
         """
         Test the base context stratification.
         """
-        p = fastdfe.Parser(
+        p = Parser(
             vcf=self.vcf_file,
             n=20,
             stratifications=[BaseContextStratification(fasta_file=self.fasta_file)]
@@ -120,13 +120,13 @@ class ParserTestCase(TestCase):
         sfs.plot()
 
         # assert total number of sites
-        assert np.sum(sfs.all.data) == 4304 - p.n_skipped
+        assert sfs.all.data.sum() == 10000 - p.n_skipped
 
     def test_reference_base_stratification(self):
         """
         Test the reference base stratification.
         """
-        p = fastdfe.Parser(
+        p = Parser(
             vcf=self.vcf_file,
             n=20,
             stratifications=[AncestralBaseStratification()]
@@ -137,4 +137,60 @@ class ParserTestCase(TestCase):
         sfs.plot()
 
         # assert total number of sites
-        assert np.sum(sfs.all.data) == 4304 - p.n_skipped
+        assert sfs.all.data.sum() == 10000 - p.n_skipped
+
+    def test_parser_load_vcf_from_url(self):
+        """
+        Test the parser loading a VCF from a URL.
+        """
+        p = Parser(
+            vcf='https://github.com/Sendrowski/fastDFE/blob/master/resources/genome/betula/biallelic.subset.10000.vcf.gz?raw=true',
+            n=20
+        )
+
+        sfs = p.parse()
+
+        assert sfs.all.data.sum() == 10000 - p.n_skipped
+
+    def test_parse_vcf_without_AA_yields_empty_sfs(self):
+        """
+        Test that parsing a VCF file without AA info field yields an empty SFS
+        """
+        p = Parser(
+            vcf="resources/genome/sapiens/chr21_test.vcf.gz",
+            n=20,
+            ignore_not_polarized=True
+        )
+
+        sfs = p.parse()
+
+        # assert total number of sites is 0
+        assert sfs.all.data.sum() == 0
+
+    def test_parse_vcf(self):
+        """
+        Parse the VCF file using a remote fasta
+        :return:
+        """
+        deg = DegeneracyAnnotation(
+            fasta_file="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
+            gff_file="resources/genome/sapiens/hg38.gtf"
+        )
+
+        aa = MaximumParsimonyAnnotation()
+
+        f = CodingSequenceFiltration(
+            gff_file="resources/genome/sapiens/hg38.gtf"
+        )
+
+        p = Parser(
+            vcf="resources/genome/sapiens/chr21_test.vcf.gz",
+            n=20,
+            ignore_not_polarized=True,
+            annotations=[deg, aa],
+            filtrations=[f],
+        )
+
+        sfs = p.parse()
+
+        assert sfs.all.data.sum() == 6

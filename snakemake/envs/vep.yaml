@@ -1,0 +1,6 @@
+name: vep-fastdfe
+channels:
+  - bioconda
+dependencies:
+  - python
+  - ensembl-vep

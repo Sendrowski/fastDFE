@@ -6,18 +6,17 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-03-26"
 
-import gzip
 import itertools
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Callable, Literal, Optional, TextIO, Iterable, Dict
+from typing import List, Callable, Literal, Optional, Iterable, Dict
 
 import numpy as np
-from cyvcf2 import VCF, Variant
-from numpy.random import Generator
+from cyvcf2 import Variant, VCF
 from pyfaidx import Fasta
-from tqdm import tqdm
 
+from .annotation import Annotation, Annotator
+from .filtration import Filtration, NoPolyAllelicFiltration
 from .spectrum import Spectra
 from .vcf import VCFHandler
 
@@ -112,14 +111,14 @@ class BaseContextStratification(Stratification):
         Create instance. Note that we require a fasta file to be specified
         for base context to be able to be inferred
 
-        :param fasta_file: The fasta file path
+        :param fasta_file: The fasta file path, possibly gzipped and possibly a URL starting with ``https://``
         :param n_flanking: The number of flanking bases
         """
         self.fasta_file = fasta_file
         self.n_flanking = n_flanking
 
         # load reference genome
-        self.reference = Fasta(self.fasta_file)
+        self.reference = Fasta(VCFHandler.download_if_url(self.fasta_file))
 
     def get_type(self, variant: Variant) -> str:
         """
@@ -244,6 +243,9 @@ class AncestralBaseStratification(Stratification):
     Stratify the SFS by the base context of the mutation: the reference base.
     If ``ignore_not_polarized`` is set to ``True``, we skip sites
     that are not polarized, otherwise we use the reference allele as ancestral base.
+    By default, we use the ``AA`` tag to determine the ancestral allele.
+
+    Any subclass of ``AncestralAnnotation`` can be used to annotate the ancestral allele.
     """
 
     def get_type(self, variant: Variant) -> str:
@@ -333,7 +335,10 @@ class TransitionTransversionStratification(BaseTransitionStratification):
 
 class DegeneracyStratification(Stratification):
     """
-    Stratify SFS by degeneracy, i.e. whether a site is 4-fold degenerate (neutral) or 0-fold degenerate (selected).
+    Stratify SFS by degeneracy. We only consider sides which 4-fold degenerate (neutral) or
+    0-fold degenerate (selected) which facilitates counting.
+
+    ``DegeneracyAnnotation`` can be used to annotate the degeneracy of a site.
     """
 
     def __init__(self, custom_callback: Callable[[Variant], str] = None):
@@ -364,7 +369,7 @@ class DegeneracyStratification(Stratification):
             if degeneracy == 0:
                 return 'selected'
 
-            raise NoTypeException(f"Degeneracy tag has invalid value: {degeneracy}")
+            raise NoTypeException(f"Degeneracy tag has invalid value: '{degeneracy}' at {variant.CHROM}:{variant.POS}")
 
     def get_type(self, variant: Variant) -> Literal['neutral', 'selected']:
         """
@@ -394,6 +399,14 @@ class Parser(VCFHandler):
     included. Note that non-polarized frequency spectra provide little information on the
     distribution of beneficial mutations.
 
+    We can also annotate the SFS with additional information, such as the degeneracy of the
+    sites and their ancestral alleles. This is done by providing a list of annotations to
+    the parser. The annotations are applied in the order they are provided.
+
+    The parser also allows to filter sites based on their annotations. This is done by
+    providing a list of filtrations to the parser. By default, we filter out poly-allelic
+    sites which is highly recommended as some stratifications assume sites to be at most bi-allelic.
+
     :warning: Not tested for polyploids.
     """
 
@@ -406,19 +419,24 @@ class Parser(VCFHandler):
             stratifications: List[Stratification] = [
                 DegeneracyStratification()
             ],
+            annotations: List[Annotation] = [],
+            filtrations: List[Filtration] = [NoPolyAllelicFiltration()],
             max_sites: int = np.inf,
             seed: int | None = 0
     ):
         """
         Initialize the parser.
 
-        :param vcf: The path to the VCF file or an iterable of variants
+        :param vcf: The path to the VCF file or an iterable of variants, can be gzipped, urls are also supported
+            but have to start with ``https://``
         :param n: The number of individuals in the sample. We down-sample to this number by drawing without replacement.
             Sites with fewer than ``n`` individuals are skipped.
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
         :param ignore_not_polarized: Whether to ignore sites that are not polarized, i.e., without a valid info tag
             providing the ancestral allele
         :param stratifications: List of stratifications to use
+        :param annotations: List of annotations to use
+        :param filtrations: List of filtrations to use.
         :param max_sites: Maximum number of sites to parse
         :param seed: Seed for the random number generator
         """
@@ -437,6 +455,12 @@ class Parser(VCFHandler):
 
         #: List of stratifications to use
         self.stratifications: List[Stratification] = stratifications
+
+        #: List of annotations to use
+        self.annotations: List[Annotation] = annotations
+
+        #: List of filtrations to use
+        self.filtrations: List[Filtration] = filtrations
 
         #: The number of sites that were skipped when parsing
         self.n_skipped: int = 0
@@ -473,7 +497,7 @@ class Parser(VCFHandler):
 
         # skip if not enough samples
         if n_samples < self.n:
-            logger.debug(f'Skipping site due to too few samples {str(variant).strip()}.')
+            logger.debug(f'Skipping site due to too few samples at {variant.CHROM}:{variant.POS}.')
             self.n_skipped += 1
             return
 
@@ -488,7 +512,7 @@ class Parser(VCFHandler):
         if aa not in bases:
 
             # log a warning
-            logger.debug(f'No valid ancestral allele defined for {str(variant).strip()}.')
+            logger.debug(f'No valid ancestral allele defined at {variant.CHROM}:{variant.POS}.')
 
             if self.ignore_not_polarized:
                 self.n_skipped += 1
@@ -521,7 +545,25 @@ class Parser(VCFHandler):
 
         except NoTypeException as e:
             self.n_skipped += 1
-            logger.debug(str(e) + ' ' + str(variant).strip())
+            logger.debug(e)
+
+    def handle_site(self, variant: Variant):
+        """
+        Handle a single site.
+
+        :param variant: The variant
+        """
+        # filter the variant
+        for filtration in self.filtrations:
+            if not filtration.filter_site(variant):
+                return
+
+        # apply annotations
+        for annotation in self.annotations:
+            annotation.annotate_site(variant)
+
+        # parse site
+        self.parse_site(variant)
 
     def parse(self) -> Spectra:
         """
@@ -538,24 +580,45 @@ class Parser(VCFHandler):
         logger.info(f'Using stratification: {representation}.')
 
         # count the number of sites
-        self.n_sites = self.count_lines_vcf()
+        self.n_sites = self.count_sites()
 
         # make parser available to stratifications
         for s in self.stratifications:
             s.provide_context(self)
+
+        # instantiate annotator
+        ann = Annotator(
+            vcf=self.vcf,
+            max_sites=self.max_sites,
+            seed=self.seed,
+            info_ancestral=self.info_ancestral,
+            annotations=[],
+            output=''
+        )
+
+        # create reader
+        reader = VCF(self.vcf_local_path)
+
+        # provide annotator to annotations and add info fields
+        for annotation in self.annotations:
+            annotation.provide_context(ann)
+            annotation.add_info(reader)
 
         # reset the number of skipped sites
         self.n_skipped = 0
 
         logger.info(f'Starting to parse.')
 
-        for i, variant in enumerate(self.get_sites()):
+        for i, variant in enumerate(self.get_sites(reader)):
 
             # stop if max_sites was reached
             if i >= self.max_sites:
                 break
 
-            # parse site
-            self.parse_site(variant)
+            # handle site
+            self.handle_site(variant)
+
+        logger.info(f'Finished parsing.')
+
 
         return Spectra(self.sfs)
