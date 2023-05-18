@@ -61,6 +61,8 @@ class JointInference(BaseInference):
             do_bootstrap: bool = False,
             n_bootstraps: int = 100,
             parallelize: bool = True,
+            folded: bool = None,
+            **kwargs
     ):
         """
         Create instance.
@@ -73,8 +75,8 @@ class JointInference(BaseInference):
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as intervals_del but for beneficial selection coefficients
-        :param integration_mode: Integration mode
-        :param linearized: Whether to use the linearized model
+        :param integration_mode: Integration mode, ``quad`` not recommmended
+        :param linearized: Whether to use the linearized model, ``False`` not recommended
         :param model: DFE parametrization
         :param seed: Random seed
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
@@ -83,11 +85,14 @@ class JointInference(BaseInference):
         :param loss_type: Loss type
         :param opts_mle: Options for the optimization
         :param n_runs: Number of independent optimization runs
-        :param fixed_params: dictionary of fixed parameters in the form ``{type: {param: value}}``
+        :param fixed_params: Dictionary of fixed parameters in the form ``{type: {param: value}}``
         :param shared_params: List of shared parameters
         :param do_bootstrap: Whether to perform bootstrapping
         :param n_bootstraps: Number of bootstraps
         :param parallelize: Whether to parallelize the optimization
+        :param folded: Whether the SFS are folded. If not specified, the SFS will be folded if all of the given
+            SFS appear to be folded.
+        :param kwargs: Additional keyword arguments which are ignored.
         """
         # check whether types are equal
         if set(sfs_neut.types) != set(sfs_sel.types):
@@ -97,6 +102,8 @@ class JointInference(BaseInference):
         self.types: List[str] = sfs_neut.types
 
         # initialize parent
+        # the `self.folded` property will generalize nicely as we
+        # evaluate ``sfs_sel.all.is_folded and sfs_neut.all.is_folded``
         BaseInference.__init__(**locals())
 
         #: original MLE parameters before adding covariates and unpacked shared
@@ -166,6 +173,7 @@ class JointInference(BaseInference):
                 do_bootstrap=do_bootstrap,
                 n_bootstraps=n_bootstraps,
                 parallelize=parallelize,
+                folded=self.folded,
                 n_runs=n_runs)
         )
 
@@ -219,6 +227,7 @@ class JointInference(BaseInference):
                 do_bootstrap=do_bootstrap,
                 n_bootstraps=n_bootstraps,
                 parallelize=parallelize,
+                folded=self.folded,
                 n_runs=n_runs
             )
 
@@ -245,6 +254,7 @@ class JointInference(BaseInference):
                     do_bootstrap=do_bootstrap,
                     n_bootstraps=n_bootstraps,
                     parallelize=parallelize,
+                    folded=self.folded,
                     n_runs=n_runs,
                     locked=True
                 )

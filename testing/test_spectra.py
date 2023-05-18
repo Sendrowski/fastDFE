@@ -210,3 +210,61 @@ class SpectraTestCase(TestCase):
         spectra = spectra.prefix("subsub")
 
         assert spectra.types == ["subsub.subtype1.type1", "subsub.subtype1.type2", "subsub.subtype2.type1"]
+
+    def test_fold_spectrum(self):
+        """
+        Test that the folding of spectra works as expected
+        """
+        spectra = [
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            [1, 2, 3, 4, 5, 6, 7, 8, 9],
+            [2, 1, 4, 4, 325, 5, 213, 515]
+        ]
+
+        for s in spectra:
+            np.testing.assert_array_equal(Spectrum(s).fold().data, dadi.Spectrum(s).fold().data)
+
+    def test_spectrum_is_folded(self):
+        """
+        Test that the is_folded property works as expected
+        """
+        data = [
+            dict(s=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], folded=False),
+            dict(s=[1, 1, 0, 0], folded=True),
+            dict(s=[1, 1, 5, 0, 0], folded=True),
+            dict(s=[0, 0, 0, 0, 1], folded=False),
+        ]
+
+        for d in data:
+            self.assertEqual(Spectrum(d['s']).is_folded(), d['folded'])
+
+    def test_folding_folded_spectrum_has_no_effect(self):
+        """
+        Test that folding a folded spectrum has no effect
+        """
+        data = [
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            [1, 1, 0, 0],
+            [1, 1, 5, 0, 0],
+            [0, 0, 0, 0, 1],
+        ]
+
+        for s in data:
+            np.testing.assert_array_equal(Spectrum(s).fold().fold().data, Spectrum(s).fold().data)
+
+    def test_fold_spectra(self):
+        """
+        Test that the folding of spectra works as expected
+        """
+        s = Spectra.from_spectra(dict(
+            type1=Spectrum([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+            type2=Spectrum([1, 2, 3, 4, 5, 6, 7, 8, 9, 65])
+        ))
+
+        s_folded = s.fold()
+
+        for t in s.types:
+            np.testing.assert_array_equal(s[t].fold().data, s_folded[t].data)
+
+        assert not np.array(list(s.is_folded().values())).all()
+        assert np.array(list(s_folded.is_folded().values())).all()

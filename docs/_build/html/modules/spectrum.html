@@ -83,6 +83,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.to_list"><code class="docutils literal notranslate"><span class="pre">Spectrum.to_list()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.to_numpy"><code class="docutils literal notranslate"><span class="pre">Spectrum.to_numpy()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.theta"><code class="docutils literal notranslate"><span class="pre">Spectrum.theta</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.fold"><code class="docutils literal notranslate"><span class="pre">Spectrum.fold()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.is_folded"><code class="docutils literal notranslate"><span class="pre">Spectrum.is_folded()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.copy"><code class="docutils literal notranslate"><span class="pre">Spectrum.copy()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.from_polymorphic"><code class="docutils literal notranslate"><span class="pre">Spectrum.from_polymorphic()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.from_list"><code class="docutils literal notranslate"><span class="pre">Spectrum.from_list()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.from_polydfe"><code class="docutils literal notranslate"><span class="pre">Spectrum.from_polydfe()</span></code></a></li>
@@ -215,6 +218,48 @@
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Site-wise theta</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectrum.fold">
+<span class="sig-name descname"><span class="pre">fold</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectrum.fold" title="Permalink to this definition"></a></dt>
+<dd><p>Fold the site-frequency spectrum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Folded spectrum</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectrum.is_folded">
+<span class="sig-name descname"><span class="pre">is_folded</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectrum.is_folded" title="Permalink to this definition"></a></dt>
+<dd><p>Check if the site-frequency spectrum is folded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if folded, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectrum.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectrum.copy" title="Permalink to this definition"></a></dt>
+<dd><p>Copy the spectrum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Copy of the spectrum</p>
 </dd>
 </dl>
 </dd></dl>

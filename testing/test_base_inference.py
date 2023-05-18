@@ -1,3 +1,5 @@
+import logging
+
 from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
@@ -12,7 +14,8 @@ import pandas as pd
 from numpy.random._generator import Generator
 from scipy.optimize import OptimizeResult
 
-from fastdfe import Spectrum, BaseInference, Config, Spectra, GammaExpParametrization
+from fastdfe import Spectrum, BaseInference, Config, Spectra, GammaExpParametrization, DisplacedGammaParametrization, \
+    DiscreteParametrization, GammaDiscreteParametrization
 
 
 class AbstractInferenceTestCase(TestCase):
@@ -470,6 +473,30 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
         inference.plot_nested_likelihoods()
 
+    def test_plot_nested_model_comparison_different_parametrizations(self):
+        """
+        Perform nested model comparison before having run the main inference.
+        We just make sure this triggers a run.
+        """
+        parametrizations = [
+            GammaExpParametrization(),
+            DisplacedGammaParametrization(),
+            DiscreteParametrization(),
+            GammaDiscreteParametrization()
+        ]
+
+        for p in parametrizations:
+            config = Config.from_file(self.config_file).update(
+                model=p,
+                do_bootstrap=True,
+                n_bootstraps=10
+            )
+
+            # unserialize
+            inference = BaseInference.from_config(config)
+
+            inference.plot_nested_likelihoods(title=p.__class__.__name__)
+
     def test_recreate_from_config(self):
         """
         Test whether inference can be recreated from config.
@@ -531,6 +558,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         """
         config = Config.from_file(self.config_file)
 
+        # set neutral SFS entry to zero
         sfs = config.data['sfs_neut']['all'].to_list()
         sfs[3] = 0
         sfs = Spectrum(sfs)
@@ -540,7 +568,10 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
         inference.run()
 
-        inference.plot_all(show=self.show_plots)
+        # here both the nuisance parameters and epsilon cause the high number of high-frequency variants
+        inference.plot_sfs_comparison(show=self.show_plots)
+
+        inference.plot_discretized(show=self.show_plots)
 
     def test_run_with_sfs_sel_zero_entry(self):
         """
@@ -548,6 +579,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         """
         config = Config.from_file(self.config_file)
 
+        # set selected SFS entry to zero
         sfs = config.data['sfs_sel']['all'].to_list()
         sfs[3] = 0
         sfs = Spectrum(sfs)
@@ -557,7 +589,37 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
         inference.run()
 
-        inference.plot_all(show=self.show_plots)
+        # this looks as expected, i.e. we reduce the overall distance between the modelled and observed SFS
+        inference.plot_sfs_comparison(show=self.show_plots)
+
+        inference.plot_discretized(show=self.show_plots)
+
+    def test_run_with_both_sfs_zero_entry(self):
+        """
+        Test whether inference can be run with both SFS that have a zero entry.
+        """
+        config = Config.from_file(self.config_file)
+
+        # set neutral SFS entry to zero
+        sfs = config.data['sfs_neut']['all'].to_list()
+        sfs[3] = 0
+        sfs = Spectrum(sfs)
+        config.data['sfs_neut'] = Spectra.from_spectrum(sfs)
+
+        # set selected SFS entry to zero
+        sfs = config.data['sfs_sel']['all'].to_list()
+        sfs[3] = 0
+        sfs = Spectrum(sfs)
+        config.data['sfs_sel'] = Spectra.from_spectrum(sfs)
+
+        inference = BaseInference.from_config(config)
+
+        inference.run()
+
+        # the nuisance parameters cause the zero entry in the modelled SFS
+        inference.plot_sfs_comparison(show=self.show_plots)
+
+        inference.plot_discretized(show=self.show_plots)
 
     def test_fixed_parameters(self):
         """
@@ -652,3 +714,87 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
                 sfs_neut=sfs_neut,
                 sfs_sel=sfs_sel,
             )
+
+    def test_spectrum_with_few_monomorphic_counts_raises_warning(self):
+        """
+        Test whether a spectrum with zero monomorphic counts throws an error.
+        """
+        sfs_neut = Spectrum([1000, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+        sfs_sel = Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+
+        with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')):
+            BaseInference(
+                sfs_neut=sfs_neut,
+                sfs_sel=sfs_sel,
+            )
+
+    @staticmethod
+    def test_adjust_polarization():
+        counts_list = [np.array([1, 2, 3, 4, 5]), np.array([2, 3, 5, 7, 11])]
+        eps_list = [0, 0.1, 0.5, 1]
+
+        expected_counts_list = [
+            [
+                np.array([1, 2, 3, 4, 5]),
+                np.array([1.4, 2.2, 3.0, 3.8, 4.6]),
+                np.array([3.0, 3.0, 3.0, 3.0, 3.0]),
+                np.array([5, 4, 3, 2, 1])
+            ],
+            [
+                np.array([2, 3, 5, 7, 11]),
+                np.array([2.9, 3.4, 5, 6.6, 10.1]),
+                np.array([6.5, 5.0, 5.0, 5.0, 6.5]),
+                np.array([11, 7, 5, 3, 2])
+            ]
+        ]
+
+        for i, counts in enumerate(counts_list):
+            for j, eps in enumerate(eps_list):
+                adjusted_counts = BaseInference.adjust_polarization(counts, eps)
+                assert np.isclose(np.sum(counts), np.sum(adjusted_counts))
+                assert np.allclose(adjusted_counts, expected_counts_list[i][j])
+
+    def test_estimating_full_dfe_with_folded_sfs_raises_warning(self):
+        """
+        Test whether estimating the full DFE with a folded SFS raises a warning.
+        """
+        sfs_neut = Spectrum([1, 1, 0, 0])
+        sfs_sel = Spectrum([1, 1, 0, 0])
+
+        with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')):
+            BaseInference(
+                sfs_neut=sfs_neut,
+                sfs_sel=sfs_sel,
+            )
+
+    def test_folded_inference_even_sample_size(self):
+        """
+        Test whether a spectrum with zero monomorphic counts throws an error.
+        """
+        sfs_neut = Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]).fold()
+        sfs_sel = Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]).fold()
+
+        inf = BaseInference(
+            sfs_neut=sfs_neut,
+            sfs_sel=sfs_sel,
+            fixed_params=dict(all=dict(S_b=1, p_b=0))
+        )
+
+        inf.plot_discretized()
+
+    def test_folded_inference_odd_sample_size(self):
+        """
+        Test whether a spectrum with zero monomorphic counts throws an error.
+        """
+        sfs_neut = Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 652]).fold()
+        sfs_sel = Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 794]).fold()
+
+        inf = BaseInference(
+            sfs_neut=sfs_neut,
+            sfs_sel=sfs_sel,
+            fixed_params=dict(all=dict(S_b=1, p_b=0))
+        )
+
+        inf.plot_discretized()
+
+        pass

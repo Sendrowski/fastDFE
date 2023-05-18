@@ -86,6 +86,7 @@ class BaseInference(AbstractInference):
             do_bootstrap: bool = False,
             n_bootstraps: int = 100,
             parallelize: bool = True,
+            folded: bool = None,
             discretization: Discretization = None,
             optimization: Optimization = None,
             locked: bool = False,
@@ -95,13 +96,15 @@ class BaseInference(AbstractInference):
         Create BaseInference instance.
 
         :param sfs_neut: The neutral SFS. Note that we require monomorphic counts to be specified in order to infer
-            the mutation rate. If a ``Spectra``object with more than one SFS is provided, the ``all`` attribute will be
+            the mutation rate. If a ``Spectra`` object with more than one SFS is provided, the ``all`` attribute will be
             used.
         :param sfs_sel: The selected SFS. Note that we require monomorphic counts to be specified in order to infer
-            the mutation rate. If a ``Spectra``object with more than one SFS is provided, the ``all`` attribute will be
+            the mutation rate. If a ``Spectra`` object with more than one SFS is provided, the ``all`` attribute will be
             used.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
+        :param integration_mode: Integration mode for the DFE, ``quad`` not recommended
+        :param linearized: Whether to use the linearized DFE, ``False`` not recommended
         :param intervals_ben: Same as for intervals_del but for beneficial selection coefficients.
         :param model: Instance of DFEParametrization which parametrized the DFE
         :param seed: Seed for the random number generator.
@@ -111,14 +114,16 @@ class BaseInference(AbstractInference):
         :param loss_type: Type of loss function to use for optimization.
         :param opts_mle: Options for the optimization.
         :param n_runs: Number of optimization runs. The first run will use the initial values if provided.
-        :param fixed_params: Fixed parameters for the optimization.
+        :param fixed_params: Parameters held fixed when optimization, i.e., ``{'all': {param: value}}``
         :param do_bootstrap: Whether to do bootstrapping.
         :param n_bootstraps: Number of bootstraps.
         :param parallelize: Whether to parallelize the bootstrapping.
+        :param folded: Whether the SFS are folded. If not specified, the SFS will be folded if both of the given
+            SFS appear to be folded.
         :param discretization: Discretization instance. Mainly intended for internal use.
         :param optimization: Optimization instance. Mainly intended for internal use.
         :param locked: Whether to lock the instance.
-        :param kwargs: Additional arguments.
+        :param kwargs: Additional keyword arguments which are ignored.
         """
         super().__init__()
 
@@ -143,11 +148,17 @@ class BaseInference(AbstractInference):
             raise ValueError('Some of the provided SFS have zero ancestral monomorphic counts. '
                              'Note that we require monomorphic counts in order to infer the mutation rate.')
 
-        #: Sample size
-        self.n: int = sfs_neut.n
-
         #: The DFE parametrization
         self.model: Parametrization = parametrization.from_string(model)
+
+        if folded is None:
+            #: Whether the SFS are folded
+            self.folded: bool = self.sfs_sel.is_folded() and self.sfs_neut.is_folded()
+        else:
+            self.folded = folded
+
+        #: Sample size
+        self.n: int = sfs_neut.n
 
         if discretization is None:
             # create discretization instance
@@ -166,6 +177,10 @@ class BaseInference(AbstractInference):
 
         #: Estimate of theta from neutral SFS
         self.theta: float = self.sfs_neut.theta
+
+        # raise warning if theta is unusually large
+        if self.theta > 0.05 or self.sfs_sel.theta > 0.05:
+            logger.warning("Mutation rate is unusually highly. This is a reminder to provide monomorphic counts.")
 
         #: MLE estimates of the initial optimization
         self.params_mle: Optional[Dict[str, float]] = None
@@ -226,6 +241,16 @@ class BaseInference(AbstractInference):
         else:
             # otherwise assign instance
             self.optimization: Optimization = optimization
+
+        # warn if folded is true, and we estimate the full DFE
+        if self.folded:
+            fixed_dele = set(self.model.submodels['dele'].keys()) if 'dele' in self.model.submodels else set()
+            fixed = set(self.fixed_params['all'].keys()) if 'all' in self.fixed_params else set()
+
+            if not fixed_dele.issubset(fixed):
+                logger.warning("You are estimating the full DFE, but the SFS are folded. "
+                               "This is not recommend as the folded SFS contains little information"
+                               "on beneficial mutations.")
 
         #: Initial values
         self.x0 = dict(all=self.model.x0 | self.default_x0 | (x0['all'] if 'all' in x0 else {}))
@@ -467,16 +492,19 @@ class BaseInference(AbstractInference):
 
         logger.info(f"Inferred parameters: {flatten_dict(params)}.")
 
-    def update_properties(self, **kwargs):
+    def update_properties(self, **kwargs) -> Self:
         """
         Update the properties of this class with the given dictionary
         given that its entries are not None.
 
         :param kwargs: Dictionary of properties to update.
+        :return: Self.
         """
         for key, value in kwargs.items():
             if value is not None:
                 setattr(self, key, value)
+
+        return self
 
     def bootstrap(
             self, n_samples: int = None,
@@ -662,16 +690,23 @@ class BaseInference(AbstractInference):
         # add contribution of demography and polarization error
         counts_modelled = self.add_demography(sfs_neut, counts_modelled, eps=params['eps'])
 
-        return counts_modelled, sfs_sel.polymorphic
+        # fold if necessary
+        if self.folded:
+            counts_sel = sfs_sel.fold().polymorphic
+            counts_modelled = Spectrum.from_polymorphic(counts_modelled).fold().polymorphic
+        else:
+            counts_sel = sfs_sel.polymorphic
+
+        return counts_modelled, counts_sel
 
     @staticmethod
     def adjust_polarization(counts: np.ndarray, eps: float) -> np.ndarray:
         """
         Adjust the polarization of the given SFS where
-        eps is the rate of wrong ancestral misidentification.
+        eps is the rate of ancestral misidentification.
 
         :param counts: Polymorphic SFS counts to adjust.
-        :param eps: Rate of wrong ancestral misidentification.
+        :param eps: Rate of ancestral misidentification.
         :return: Adjusted SFS counts.
         """
         return (1 - eps) * counts + eps * counts[::-1]
@@ -684,7 +719,7 @@ class BaseInference(AbstractInference):
 
         :param sfs_neut: Observed spectrum of neutral sites.
         :param counts_sel: Modelled counts of selected sites.
-        :param eps: Rate of wrong ancestral misidentification.
+        :param eps: Rate of ancestral misidentification.
         :return: Adjusted counts of selected sites.
         """
         # normalized counts of the standard coalescent
@@ -887,6 +922,8 @@ class BaseInference(AbstractInference):
     def plot_all(self, show: bool = True):
         """
         Plot everything.
+
+        :param show: Whether to show plot.
         """
         self.plot_inferred_parameters(show=show)
         self.plot_discretized(show=show)
@@ -1146,6 +1183,11 @@ class BaseInference(AbstractInference):
             title=title,
             ax=ax
         )
+
+    @functools.wraps(AbstractInference.plot_discretized)
+    @run_if_required_wrapper
+    def plot_discretized(self, *args, **kwargs):
+        return super().plot_discretized(*args, **kwargs)
 
     def get_alpha(self, params: dict = None) -> float:
         """

@@ -1,7 +1,6 @@
 name: testing-pypi-test-fastdfe
 channels:
   - conda-forge
-  - bioconda
 dependencies:
   - dadi
   - r-base

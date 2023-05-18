@@ -264,6 +264,46 @@
             0.0
         ]
     },
+    "folded": {
+        "py/reduce": [
+            {
+                "py/function": "numpy.core.multiarray.scalar"
+            },
+            {
+                "py/tuple": [
+                    {
+                        "py/reduce": [
+                            {
+                                "py/type": "numpy.dtype"
+                            },
+                            {
+                                "py/tuple": [
+                                    "b1",
+                                    false,
+                                    true
+                                ]
+                            },
+                            {
+                                "py/tuple": [
+                                    3,
+                                    "|",
+                                    null,
+                                    null,
+                                    null,
+                                    -1,
+                                    -1,
+                                    0
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "py/b64": "AA=="
+                    }
+                ]
+            }
+        ]
+    },
     "n": 20,
     "discretization": {
         "py/object": "fastdfe.discretization.Discretization",
@@ -44985,6 +45025,6 @@
             }
         ]
     },
-    "execution_time": 4.333811044692993,
+    "execution_time": 3.749680995941162,
     "locked": false
 }

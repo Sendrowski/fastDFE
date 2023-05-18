@@ -98,6 +98,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DisplacedGammaParametrization.x0"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.x0</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DisplacedGammaParametrization.bounds"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.bounds</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DisplacedGammaParametrization.scales"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.scales</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DisplacedGammaParametrization.submodels"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.submodels</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DisplacedGammaParametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.get_pdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DisplacedGammaParametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.get_cdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DisplacedGammaParametrization.param_names"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.param_names</span></code></a></li>
@@ -107,6 +108,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaDiscreteParametrization.x0"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.x0</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaDiscreteParametrization.bounds"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.bounds</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaDiscreteParametrization.scales"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.scales</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaDiscreteParametrization.submodels"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.submodels</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaDiscreteParametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.get_pdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaDiscreteParametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.get_cdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaDiscreteParametrization.param_names"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.param_names</span></code></a></li>
@@ -286,37 +288,37 @@ we have to re-normalize the parameters to make sure they sum up to 1.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.intervals">
 <span class="sig-name descname"><span class="pre">intervals</span></span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.intervals" title="Permalink to this definition"></a></dt>
-<dd><p>intervals</p>
+<dd><p>Intervals</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.interval_sizes">
 <span class="sig-name descname"><span class="pre">interval_sizes</span></span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.interval_sizes" title="Permalink to this definition"></a></dt>
-<dd><p>compute the interval sizes</p>
+<dd><p>Interval sizes</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.k">
 <span class="sig-name descname"><span class="pre">k</span></span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.k" title="Permalink to this definition"></a></dt>
-<dd><p>number of intervals</p>
+<dd><p>Number of intervals</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.params">
 <span class="sig-name descname"><span class="pre">params</span></span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.params" title="Permalink to this definition"></a></dt>
-<dd><p>all parameter names</p>
+<dd><p>All parameter names</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.param_names">
 <span class="sig-name descname"><span class="pre">param_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></em><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.param_names" title="Permalink to this definition"></a></dt>
-<dd><p>parameter names without bounds</p>
+<dd><p>Parameter names without bounds</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.fixed_params">
 <span class="sig-name descname"><span class="pre">fixed_params</span></span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.fixed_params" title="Permalink to this definition"></a></dt>
-<dd><p>fixed parameters</p>
+<dd><p>Fixed parameters</p>
 </dd></dl>
 
 <dl class="py method">
@@ -391,7 +393,7 @@ the parameters sum up to 1.</p>
 </ul>
 <p>This parametrization uses a single gamma distribution for both positive and negative selection coefficients.
 This is a less flexible parametrization, which may produce results similar to the other models while requiring
-fewer parameters.</p>
+fewer parameters. It also does not allow for a purely deleterious sub-parametrization.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DisplacedGammaParametrization.x0">
 <span class="sig-name descname"><span class="pre">x0</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'S_max':</span> <span class="pre">1,</span> <span class="pre">'S_mean':</span> <span class="pre">-100,</span> <span class="pre">'b':</span> <span class="pre">1}</span></em><a class="headerlink" href="#fastdfe.parametrization.DisplacedGammaParametrization.x0" title="Permalink to this definition"></a></dt>
@@ -408,6 +410,12 @@ fewer parameters.</p>
 <dt class="sig sig-object py" id="fastdfe.parametrization.DisplacedGammaParametrization.scales">
 <span class="sig-name descname"><span class="pre">scales</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'S_max':</span> <span class="pre">'log',</span> <span class="pre">'S_mean':</span> <span class="pre">'log',</span> <span class="pre">'b':</span> <span class="pre">'lin'}</span></em><a class="headerlink" href="#fastdfe.parametrization.DisplacedGammaParametrization.scales" title="Permalink to this definition"></a></dt>
 <dd><p>Scales over which to optimize the parameters</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.parametrization.DisplacedGammaParametrization.submodels">
+<span class="sig-name descname"><span class="pre">submodels</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'dele':</span> <span class="pre">{},</span> <span class="pre">'full':</span> <span class="pre">{}}</span></em><a class="headerlink" href="#fastdfe.parametrization.DisplacedGammaParametrization.submodels" title="Permalink to this definition"></a></dt>
+<dd><p>The kind of submodels supported by holding some parameters fixed</p>
 </dd></dl>
 
 <dl class="py method">
@@ -483,6 +491,12 @@ selection coefficients. The results should be rather similar in most cases.</p>
 <dd><p>scales over which to optimize the parameters</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.parametrization.GammaDiscreteParametrization.submodels">
+<span class="sig-name descname"><span class="pre">submodels</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'dele':</span> <span class="pre">{'S_b':</span> <span class="pre">1,</span> <span class="pre">'p_b':</span> <span class="pre">0},</span> <span class="pre">'full':</span> <span class="pre">{}}</span></em><a class="headerlink" href="#fastdfe.parametrization.GammaDiscreteParametrization.submodels" title="Permalink to this definition"></a></dt>
+<dd><p>The kind of submodels supported by holding some parameters fixed</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parametrization.GammaDiscreteParametrization.get_pdf">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S_d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.GammaDiscreteParametrization.get_pdf" title="Permalink to this definition"></a></dt>
@@ -556,7 +570,7 @@ linearized mode of fastDFE is used (which is highly recommended).</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.Parametrization.submodels">
-<span class="sig-name descname"><span class="pre">submodels</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#fastdfe.parametrization.Parametrization.submodels" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">submodels</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'dele':</span> <span class="pre">{},</span> <span class="pre">'full':</span> <span class="pre">{}}</span></em><a class="headerlink" href="#fastdfe.parametrization.Parametrization.submodels" title="Permalink to this definition"></a></dt>
 <dd><p>The kind of submodels supported by holding some parameters fixed</p>
 </dd></dl>
 

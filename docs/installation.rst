@@ -8,7 +8,7 @@ To install the `fastdfe`, you can use pip:
 
    pip install fastdfe
 
-However, to avoid potential conflicts with other packages, it is recommended to install `fastdfe` in an isolated environment. The easiest way to do this is to use conda:
+However, to avoid potential conflicts with other packages, it is recommended to install `fastdfe` in an isolated environment. The easiest way to do this is to use `conda` (or `mamba`):
 
 1. Create a new file called ``environment.yml`` with the following content:
 
@@ -23,7 +23,7 @@ However, to avoid potential conflicts with other packages, it is recommended to 
         - pip:
             - fastdfe
 
-2. Run the following command to create a new conda environment using the ``environment.yml`` file:
+2. Run the following command to create a new `conda` environment using the ``environment.yml`` file:
 
    .. code-block:: bash
 

@@ -1,3 +1,5 @@
+import logging
+
 from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
@@ -213,7 +215,7 @@ class OptimizationTestCase(TestCase):
         bounds = {"a": (1, 3), "b": (4, 6), "c": (8, 12)}
         scales = {"a": "lin", "b": "lin", "c": "lin"}
 
-        with self.assertLogs(level="WARNING"):
+        with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')):
             correct_values(params, bounds, scales, warn=True, threshold=0.05)
 
     def test_symlog_scale(self):

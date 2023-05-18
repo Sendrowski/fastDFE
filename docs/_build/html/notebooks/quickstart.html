@@ -111,7 +111,7 @@
 <p>The easiest way to get started is by using the <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> class which infers the DFE from a single pairs of SFSs, one neutral and one selected. In this example we create <a class="reference internal" href="../modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a> objects holding the SFS counts and pass it to BaseInference. Note that we are required to specify the number of monomorphic sites (the first entry).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">BaseInference</span><span class="p">,</span> <span class="n">Spectrum</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">BaseInference</span><span class="p">,</span> <span class="n">Spectrum</span>
 
 <span class="n">inf</span> <span class="o">=</span> <span class="n">BaseInference</span><span class="p">(</span>
     <span class="n">sfs_neut</span><span class="o">=</span><span class="n">Spectrum</span><span class="p">([</span><span class="mi">177130</span><span class="p">,</span> <span class="mi">997</span><span class="p">,</span> <span class="mi">441</span><span class="p">,</span> <span class="mi">228</span><span class="p">,</span> <span class="mi">156</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">83</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">652</span><span class="p">]),</span>
@@ -124,11 +124,11 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Starting numerical optimization of 10 independently initialized samples which are run in parallel.
-INFO:fastdfe:Precomputing linear DFE-SFS transformation using midpoint integration.
-WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.
-INFO:fastdfe:Successfully finished optimization after 25 iterations and 210 function evaluations, obtaining a log-likelihood of -34.63216290439465.
-INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -9867.953988403298, &#39;all.b&#39;: 0.15081039113091074, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 0.00015452607236660556, &#39;all.eps&#39;: 0.006854735740429099}.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe:Starting numerical optimization of 10 independently initialized samples which are run in parallel.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe:Precomputing linear DFE-SFS transformation using midpoint integration.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe:Successfully finished optimization after 79 iterations and 594 function evaluations, obtaining a log-likelihood of -34.63216290448145.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -9867.852019677897, &#39;all.b&#39;: 0.15081059927802082, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 0.00010000034366964345, &#39;all.eps&#39;: 0.006854767570905897}.</span>
 </pre></div>
 </div>
 </div>
@@ -137,18 +137,18 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -9867.953988403298, &#39;a
 <p>We can now plot the inferred DFE in discretized form (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.plot_discretized" title="fastdfe.base_inference.BaseInference.plot_discretized"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_discretized()</span></code></a>).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">();</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/a4d662651e234c3fc9779994415b641076abb36921477336f798b00804f80525.png" src="../_images/a4d662651e234c3fc9779994415b641076abb36921477336f798b00804f80525.png" />
+<img alt="../_images/49dd45c38ad4ae9e1dcb3f980050fd1a2f9eee5549b56ba17a124e49560a309b.png" src="../_images/49dd45c38ad4ae9e1dcb3f980050fd1a2f9eee5549b56ba17a124e49560a309b.png" />
 </div>
 </div>
 <p>We can also plot a comparison of the (selected) modelled and observed SFS (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.plot_sfs_comparison" title="fastdfe.base_inference.BaseInference.plot_sfs_comparison"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_sfs_comparison()</span></code></a>).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_sfs_comparison</span><span class="p">();</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_sfs_comparison</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -156,7 +156,7 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -9867.953988403298, &#39;a
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/3462472dbf261699183ecf62bd24a921a1d4c2ae74da4bdbc7d5e6420e1a6f91.png" src="../_images/3462472dbf261699183ecf62bd24a921a1d4c2ae74da4bdbc7d5e6420e1a6f91.png" />
+<img alt="../_images/15c3a88e187108edd2dbc609fd80f6e2216bf3fb4f9476873fb476e0b1c5415b.png" src="../_images/15c3a88e187108edd2dbc609fd80f6e2216bf3fb4f9476873fb476e0b1c5415b.png" />
 </div>
 </div>
 </section>
@@ -165,7 +165,7 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -9867.953988403298, &#39;a
 <p>We can perform parametric bootstrapping (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.bootstrap" title="fastdfe.base_inference.BaseInference.bootstrap"><code class="xref py py-func docutils literal notranslate"><span class="pre">bootstrap()</span></code></a>)</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
 <span class="c1"># redo the plotting</span>
 <span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">();</span>
@@ -173,13 +173,12 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -9867.953988403298, &#39;a
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Running 100 bootstrap samples in parallel on 10 cores.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe:Running 100 bootstrap samples in parallel on 10 cores.</span>
+100%|██████████| 100/100 [00:01&lt;00:00, 59.14it/s]
+<span class=" -Color -Color-Yellow">WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable.</span>
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 100/100 [00:17&lt;00:00,  5.80it/s]
-</pre></div>
-</div>
-<img alt="../_images/05c5372f85abf864ac20522afa670c3bd3053302ee0ce73b63bc51d4a9bbd90b.png" src="../_images/05c5372f85abf864ac20522afa670c3bd3053302ee0ce73b63bc51d4a9bbd90b.png" />
+<img alt="../_images/7ab7b29f1711ce4cd7e701b23848aea8b39dad65fc8d79c1c227824174071df0.png" src="../_images/7ab7b29f1711ce4cd7e701b23848aea8b39dad65fc8d79c1c227824174071df0.png" />
 </div>
 </div>
 </section>
@@ -187,7 +186,7 @@ INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -9867.953988403298, &#39;a
 <h2>Serialization<a class="headerlink" href="#serialization" title="Permalink to this heading"></a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># save the inference object to the file</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># save the inference object to the file</span>
 <span class="c1"># we can unserialized the inference by using BaseInference.from_file</span>
 <span class="n">inf</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s2">&quot;out/serialized.json&quot;</span><span class="p">)</span>
 

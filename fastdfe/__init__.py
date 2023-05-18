@@ -8,7 +8,6 @@ __date__ = "2023-03-10"
 
 __version__ = '0.1.5-beta'
 
-import io
 import logging
 import sys
 import warnings
@@ -16,6 +15,7 @@ import warnings
 import jsonpickle
 import numpy as np
 import pandas as pd
+import requests_cache
 from tqdm import tqdm
 
 from .json_handlers import DataframeHandler, SpectrumHandler, SpectraHandler, NumpyArrayHandler
@@ -81,6 +81,9 @@ class ColoredFormatter(logging.Formatter):
 # configure logger
 logger = logging.getLogger('fastdfe')
 
+# don't propagate to the root logger
+logger.propagate = False
+
 # set to INFO by default
 logger.setLevel(logging.INFO)
 
@@ -95,6 +98,9 @@ logger.addHandler(handler)
 
 # whether to disable the progress bar
 disable_pbar = False
+
+# install cache
+requests_cache.install_cache('fastdfe_requests_cache', expire_after=3600 * 24)
 
 
 def raise_on_warning(message, category, filename, lineno, file=None, line=None):
@@ -123,7 +129,9 @@ from .spectrum import Spectrum, Spectra
 from .parser import Parser, Stratification, BaseTransitionStratification, BaseContextStratification, \
     DegeneracyStratification, TransitionTransversionStratification, AncestralBaseStratification
 from .annotation import Annotator, Annotation, MaximumParsimonyAnnotation, DegeneracyAnnotation, SynonymyAnnotation
-from .filtration import Filterer, Filtration, SNPFiltration, NoPolyAllelicFiltration, CodingSequenceFiltration
+from .filtration import Filterer, Filtration, SNPFiltration, PolyAllelicFiltration, CodingSequenceFiltration, \
+    SNVFiltration
+from .vcf import VCFHandler
 
 __all__ = [
     'Parametrization',
@@ -155,6 +163,8 @@ __all__ = [
     'CodingSequenceFiltration',
     'Filterer',
     'SNPFiltration',
-    'NoPolyAllelicFiltration',
+    'SNVFiltration',
+    'PolyAllelicFiltration',
     'Filterer',
+    'VCFHandler',
 ]

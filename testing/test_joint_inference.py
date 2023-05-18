@@ -1,3 +1,5 @@
+import numpy as np
+
 from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
@@ -458,3 +460,36 @@ class JointInferenceTestCase(AbstractInferenceTestCase):
         # check that all errors are None
         for err in errors.values():
             assert err is None
+
+    def test_joint_inference_with_folded_spectra(self):
+        """
+        Test that joint inference works with folded spectra.
+        """
+        # neutral SFS for two types
+        sfs_neut = Spectra(dict(
+            pendula=[177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+            pubescens=[172528, 3612, 1359, 790, 584, 427, 325, 234, 166, 76, 31]
+        )).fold()
+
+        # selected SFS for two types
+        sfs_sel = Spectra(dict(
+            pendula=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+            pubescens=[791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
+        )).fold()
+
+        # create inference object
+        inf = JointInference(
+            sfs_neut=sfs_neut,
+            sfs_sel=sfs_sel,
+            shared_params=[SharedParams(types=["pendula", "pubescens"], params=["eps", "S_d"])],
+            do_bootstrap=True
+        )
+
+        # run inference
+        inf.run()
+
+        # assert that all inferences are folded
+        assert inf.folded
+        assert np.array([v.folded for v in inf.get_inferences().values()]).all()
+
+        inf.plot_discretized()

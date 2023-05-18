@@ -28,7 +28,10 @@ def from_string(model: Union['Parametrization', str]) -> 'Parametrization':
     if isinstance(model, Parametrization):
         return model
 
-    return globals()[model]()
+    if isinstance(model, str):
+        return globals()[model]()
+
+    raise ValueError(f'Unknown parametrization: {model}')
 
 
 def to_string(model: Union['Parametrization', str]) -> str:
@@ -58,7 +61,10 @@ class Parametrization:
     bounds = {}
 
     #: The kind of submodels supported by holding some parameters fixed
-    submodels = {}
+    submodels = dict(
+        full=dict(),
+        dele=dict()
+    )
 
     #: Scales over which to optimize the parameters, either 'log' or 'lin'
     scales = {}
@@ -306,7 +312,7 @@ class DisplacedGammaParametrization(Parametrization):
 
     This parametrization uses a single gamma distribution for both positive and negative selection coefficients.
     This is a less flexible parametrization, which may produce results similar to the other models while requiring
-    fewer parameters.
+    fewer parameters. It also does not allow for a purely deleterious sub-parametrization.
 
     """
 
@@ -329,6 +335,12 @@ class DisplacedGammaParametrization(Parametrization):
         S_mean='log',
         b='lin',
         S_max='log'
+    )
+
+    #: The kind of submodels supported by holding some parameters fixed
+    submodels = dict(
+        full=dict(),
+        dele=dict()
     )
 
     @staticmethod
@@ -433,6 +445,15 @@ class GammaDiscreteParametrization(Parametrization):
         S_b='log'
     )
 
+    #: The kind of submodels supported by holding some parameters fixed
+    submodels = dict(
+        full=dict(),
+        dele=dict(
+            p_b=0,
+            S_b=1
+        )
+    )
+
     @staticmethod
     def get_pdf(S_d: float, b: float, p_b: float, S_b: float, **kwargs) -> Callable[[np.ndarray], np.ndarray]:
         """
@@ -533,34 +554,34 @@ class DiscreteParametrization(Parametrization):
         """
         super().__init__()
 
-        #: intervals
+        #: Intervals
         self.intervals = np.concatenate(([-np.inf], intervals, [np.inf]))
 
-        #: compute the interval sizes
+        #: Interval sizes
         self.interval_sizes = self.intervals[1:] - self.intervals[:-1]
 
-        #: number of intervals
+        #: Number of intervals
         self.k = self.intervals.shape[0] - 1
 
-        #: all parameter names
+        #: All parameter names
         self.params = np.array([f"S{i}" for i in range(self.k)])
 
-        #: parameter names without bounds
+        #: Parameter names without bounds
         self.param_names = self.params[1:-1].tolist()
 
-        #: fixed parameters
+        #: Fixed parameters
         self.fixed_params = {self.params[0]: 0, self.params[-1]: 0}
 
-        #: default initial parameters
+        #: Default initial parameters
         self.x0 = dict((p, 1 / self.k) for p in self.param_names)
 
-        #: default parameter bounds
+        #: Default parameter bounds
         self.bounds = dict((p, (0, 1)) for p in self.param_names)
 
-        #: scales
+        #: Scales
         self.scales = dict((p, 'lin') for p in self.param_names)
 
-        #: submodels
+        #: Submodels
         self.submodels = dict(
             full=dict(),
             dele=dict((p, 0) for p in self.params[1:-1][self.intervals[1:-2] < 0])

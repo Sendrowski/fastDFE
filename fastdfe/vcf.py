@@ -7,18 +7,20 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-05-09"
 
 import gzip
+import hashlib
 import logging
 import os
 import shutil
 import tempfile
 from functools import cached_property
-from typing import Optional, TextIO, Iterable
+from typing import Optional, TextIO, Iterable, Dict, List
 from urllib.parse import urlparse
 
 import numpy as np
 import requests
 from cyvcf2 import VCF, Variant
 from numpy.random import Generator
+from pyfaidx import Fasta, FastaRecord
 from tqdm import tqdm
 
 #: Logger
@@ -52,7 +54,8 @@ def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf, disable_p
     i = 0
     with open_file(vcf) as f:
 
-        with tqdm(disable=disable_pbar) as pbar:
+        with tqdm(total=max_sites, disable=disable_pbar, desc='Counting sites') as pbar:
+
             for line in f:
                 if not line.startswith('#'):
                     i += 1
@@ -94,7 +97,6 @@ class VCFHandler:
         Create a new VCF instance.
 
         :param vcf: The path to the VCF file or an iterable of variants, can be gzipped, urls are also supported
-            but have to start with ``https://``
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
         :param max_sites: Maximum number of sites to consider
         :param seed: Seed for the random number generator
@@ -126,21 +128,61 @@ class VCFHandler:
         """
         from . import disable_pbar
 
-        logger.info('Counting number of sites.')
+        return count_sites(self.download_if_url(self.vcf), max_sites=self.max_sites, disable_pbar=disable_pbar)
 
-        return count_sites(self.vcf_local_path, max_sites=self.max_sites, disable_pbar=disable_pbar)
-
-    @cached_property
-    def vcf_local_path(self) -> Optional[str]:
+    @staticmethod
+    def is_url(path: str) -> bool:
         """
-        Return the path to the given file if it is a local file, otherwise download it.
+        Check if the given path is a URL.
 
-        :return: Path to the file.
+        :param path: The path to check.
+        :return: ``True`` if the path is a URL, ``False`` otherwise.
         """
-        if isinstance(self.vcf, str):
-            return self.download_if_url(self.vcf)
+        try:
+            result = urlparse(path)
+            return all([result.scheme, result.netloc])
+        except ValueError:
+            return False
 
-        # return None if we don't have a file path
+    @staticmethod
+    def load_fasta(file: str) -> Fasta:
+        """
+        Load a FASTA file into a dictionary.
+
+        :param file: The path to The FASTA file path, possibly gzipped or a URL
+        :return: Iterator over the sequences.
+        """
+        # download and unzip if necessary
+        local_file = VCFHandler.unzip_if_zipped(VCFHandler.download_if_url(file))
+
+        return Fasta(local_file)
+
+    @staticmethod
+    def get_contig(fasta: Fasta, aliases) -> FastaRecord:
+        """
+        Get the contig from the FASTA file.
+
+        :param fasta: The FASTA file.
+        :param aliases: The contig aliases.
+        :return: The contig.
+        """
+        for alias in aliases:
+            if alias in fasta:
+                return fasta[alias]
+
+        raise LookupError(f'None of the contig aliases {aliases} were found in the FASTA file.')
+
+    @staticmethod
+    def get_aliases(contig: str, aliases: Dict[str, List[str]]) -> List[str]:
+        """
+        Get the alias for the given contig including the contig name itself.
+
+        :return: The aliases.
+        """
+        if contig in aliases:
+            return list(aliases[contig]) + [contig]
+
+        return [contig]
 
     @staticmethod
     def download_if_url(path: str) -> str:
@@ -150,7 +192,7 @@ class VCFHandler:
         :param path: The path to the VCF file.
         :return: The path to the downloaded file or the original path.
         """
-        if path.startswith('https://'):
+        if VCFHandler.is_url(path):
             # download the file and return path
             return VCFHandler.download_file(path)
 
@@ -194,9 +236,19 @@ class VCFHandler:
         return filename
 
     @staticmethod
+    def hash(s: str) -> str:
+        """
+        Return a truncated SHA1 hash of a string.
+
+        :param s: The string to hash.
+        :return: The SHA1 hash.
+        """
+        return hashlib.sha1(s.encode()).hexdigest()[:12]
+
+    @staticmethod
     def download_file(url: str) -> str:
         """
-        Download a file from a URL and return the path to the downloaded file.
+        Download a file from a URL.
 
         :param url: The URL to download the file from.
         :return: The path to the downloaded file.
@@ -214,23 +266,27 @@ class VCFHandler:
 
         # create a temporary file with the original file extension
         with tempfile.NamedTemporaryFile(suffix='.' + filename, delete=False) as tmp:
-            # download the response in chunks
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:  # filter out keep-alive chunks
-                    tmp.write(chunk)
+            total_size = int(response.headers.get('content-length', 0))
+            chunk_size = 8192
+
+            # fix bug of missing attribute
+            if not hasattr(response, '_content_consumed'):
+                response._content_consumed = 0
+
+            with tqdm(total=total_size, unit='B', unit_scale=True, desc="Downloading file") as pbar:
+                for chunk in response.iter_content(chunk_size=chunk_size):
+                    if chunk:
+                        tmp.write(chunk)
+                        pbar.update(len(chunk))
 
         return tmp.name
 
-    def get_sites(self, vcf: Iterable[Variant] = None) -> Iterable[Variant]:
+    def get_pbar(self) -> tqdm:
         """
-        Return an iterable object over the VCF file's sites.
+        Return a progress bar for the number of sites.
 
-        :param vcf: The VCF file to iterate over.
-        :return: iterable
+        :return: tqdm
         """
         from . import disable_pbar
 
-        if vcf is None:
-            vcf = VCF(self.vcf_local_path)
-
-        return tqdm(vcf, total=self.n_sites, disable=disable_pbar, colour="black")
+        return tqdm(total=self.n_sites, disable=disable_pbar, desc="Processing sites")

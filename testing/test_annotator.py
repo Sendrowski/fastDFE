@@ -12,7 +12,7 @@ from unittest import TestCase
 
 from fastdfe import Annotator, MaximumParsimonyAnnotation, Parser, DegeneracyAnnotation, SynonymyAnnotation
 
-logging.getLogger('fastdfe').setLevel(logging.DEBUG)
+logging.getLogger('fastdfe').setLevel(logging.INFO)
 
 
 class AnnotatorTestCase(TestCase):
@@ -92,11 +92,11 @@ class AnnotatorTestCase(TestCase):
         assert deg.n_annotated == 7
         assert ann.n_sites == 1517
 
-    def test_degeneracy_annotation_full_betula_genome(self):
+    def test_degeneracy_annotation_betula_subset(self):
         """
         Test the degeneracy annotator.
         """
-        vcf = "resources/genome/betula/all.vcf.gz"
+        vcf = "resources/genome/betula/all.subset.100000.vcf.gz"
 
         ann = Annotator(
             vcf=vcf,
@@ -119,7 +119,8 @@ class AnnotatorTestCase(TestCase):
         Test the annotator loading a VCF from a URL.
         """
         ann = Annotator(
-            vcf="https://github.com/Sendrowski/fastDFE/blob/master/resources/genome/betula/biallelic.subset.10000.vcf.gz?raw=true",
+            vcf="https://github.com/Sendrowski/fastDFE/blob/master/resources/genome/"
+                "betula/biallelic.subset.10000.vcf.gz?raw=true",
             output='scratch/test_degeneracy_annotation.vcf',
             annotations=[
                 DegeneracyAnnotation(
@@ -132,14 +133,15 @@ class AnnotatorTestCase(TestCase):
         ann.annotate()
 
         # assert number of sites is the same
-        assert ann.n_sites == 4304
+        assert ann.n_sites == 10000
+        assert count_sites(ann.output) == 10000
 
     def test_compare_synonymy_annotation_with_vep(self):
         """
         Compare the synonymy annotation with VEP.
         """
         ann = Annotator(
-            vcf="resources/genome/betula/biallelic.vcf.gz",
+            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
             output='scratch/test_compare_synonymy_annotation_with_vep.vcf',
             annotations=[
                 SynonymyAnnotation(
@@ -151,7 +153,8 @@ class AnnotatorTestCase(TestCase):
 
         ann.annotate()
 
-        pass
+        assert ann.annotations[0].n_vep_comparisons == 3566
+        assert len(ann.annotations[0].vep_mismatches) == 0
 
     def test_get_degeneracy(self):
         """
@@ -217,43 +220,3 @@ class AnnotatorTestCase(TestCase):
             with self.subTest(codon1=codon1, codon2=codon2):
                 synonymy = SynonymyAnnotation.is_synonymous(codon1, codon2)
                 self.assertEqual(synonymy, expected)
-
-    @patch('pandas.read_csv')
-    @patch('cyvcf2.Variant')
-    @patch('fastdfe.DegeneracyAnnotation.load_fasta')
-    def test_degeneracy_annotation(self, mock_load_fasta, mock_variant, mock_gff):
-        # Arrange
-        gff_file = 'test.gff'
-        fasta_file = 'test.fasta'
-
-        mock_gff.return_value = pd.DataFrame({
-            'seqname': ['chr1', 'chr1'],
-            'start': [1, 4],
-            'end': [3, 6],
-            'feature': ['CDS', 'CDS'],
-            'strand': ['+', '+'],
-            'phase': [0, 0],
-        })
-
-        mock_variant_instance = mock_variant.return_value
-        mock_variant_instance.CHROM = 'chr1'
-        mock_variant_instance.POS = 2
-
-        mock_load_fasta.return_value = iter([Mock(id='chr1', seq='ATGCGA')])
-
-        # Act
-        instance = DegeneracyAnnotation(gff_file, fasta_file)
-        instance.fetch(mock_variant_instance)
-
-        # Assert
-        self.assertEqual(instance.n_skipped, 0)
-        self.assertEqual(instance.cd.seqname, 'chr1')
-        self.assertEqual(instance.cd.start, 1)
-        self.assertEqual(instance.cd.end, 3)
-        self.assertEqual(instance.contig.id, 'chr1')
-        self.assertEqual(instance.seq, 'ATGCGA')
-
-        # Test degeneracy annotation
-        instance.annotate_site(mock_variant_instance)
-        self.assertEqual(instance.n_annotated, 1)
-        self.assertEqual(mock_variant_instance.INFO['Degeneracy'], 0)

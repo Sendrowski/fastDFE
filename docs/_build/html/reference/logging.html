@@ -101,13 +101,13 @@
              
   <section id="logging">
 <span id="reference-logging"></span><h1>Logging<a class="headerlink" href="#logging" title="Permalink to this heading"></a></h1>
-<p>fastDFE uses the standard Python <code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code> module for logging. By default, fastDFE logs to the console at the <code class="docutils literal notranslate"><span class="pre">INFO</span></code> level. To change the logging level, to <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> for example, use the following code:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<p>fastDFE uses the standard Python <code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code> module for logging. By default, fastDFE logs to the console at the <code class="docutils literal notranslate"><span class="pre">INFO</span></code> level. You can change the logging level, to <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> for example, <strong>after</strong> importing fastdfe as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fastdfe</span><span class="o">,</span> <span class="nn">logging</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;fastdfe&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Additionally, you can disable the progress bar like this:</p>
+<p>You can also disable the progress bar like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fastdfe</span><span class="o">.</span><span class="n">disable_pbar</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 </div>

@@ -52,7 +52,8 @@ class Config:
             covariates: List[Covariate] = [],
             do_bootstrap: bool = False,
             n_bootstraps: int = 100,
-            parallelize: bool = True
+            parallelize: bool = True,
+            **kwargs
     ):
         """
         Create config object.
@@ -66,8 +67,8 @@ class Config:
             the mutation rate.
         :param intervals_del: Integration intervals for deleterious mutations in log space.
         :param intervals_ben: Integration intervals for beneficial mutations in log space.
-        :param integration_mode: Integration mode.
-        :param linearized: Whether to use the linearized version of the DFE.
+        :param integration_mode: Integration mode, ``quad`` not recommended
+        :param linearized: Whether to use the linearized version of the DFE, ``False`` not recommended.
         :param model: Parametrization of the DFE.
         :param seed: Seed for the random number generator.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
@@ -83,6 +84,7 @@ class Config:
         :param do_bootstrap: Whether to do bootstrapping automatically.
         :param n_bootstraps: Number of bootstraps.
         :param parallelize: Whether to parallelize the optimization.
+        :param kwargs: Additional keyword arguments which are ignored.
         """
 
         # save options
@@ -117,13 +119,16 @@ class Config:
         if polydfe_init_file is not None:
             self.parse_polydfe_init_file(polydfe_init_file, polydfe_init_file_id)
 
-    def update(self, **kwargs):
+    def update(self, **kwargs) -> 'Config':
         """
         Update config with given data.
 
         :param kwargs: Data to update.
+        :return: Updated config.
         """
         self.data |= kwargs
+
+        return self
 
     def parse_polydfe_init_file(self, file: str, id: int = 1, type='all'):
         """

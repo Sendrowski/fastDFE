@@ -803,7 +803,10 @@ class Visualization:
             file: str = None,
             show: bool = True,
             cmap: str = None,
-            title: str = None
+            title: str = None,
+            vmin: float = 1e-10,
+            vmax: float = 1,
+
     ) -> plt.Axes:
         """
         Plot p-values of nested likelihoods.
@@ -816,12 +819,17 @@ class Visualization:
         :param cmap: Colormap to use
         :param title: Title of plot
         :param ax: Axes to plot on
+        :param vmin: Minimum value for colorbar
+        :param vmax: Maximum value for colorbar
         :return: Axes
         """
 
         def format_number(x: float | int | None) -> float | int | str:
             """
             Format number to be displayed.
+
+            :param x: Number to format
+            :return: Formatted number
             """
             if x == 0 or x is None:
                 return 0
@@ -832,11 +840,15 @@ class Visualization:
             return np.round(x, 4)
 
         # determine values to display
-        annot = np.vectorize(lambda x: str(format_number(x)))(P)
-        annot[np.equal(P, None)] = '-'
+        annotation = np.vectorize(lambda x: str(format_number(x)))(P)
+        annotation[np.equal(P, None)] = '-'
 
         # change to 1 to get a nicer color
         P[np.equal(P, None)] = 1
+
+        # keep within color bar bounds
+        P[P < vmin] = vmin
+        P[P > vmax] = vmax
 
         # make the cbar have the same height as the heatmap
         cbar_ax = make_axes_locatable(ax).new_horizontal(size="4%", pad=0.15)
@@ -853,10 +865,10 @@ class Visualization:
             cbar_ax=cbar_ax,
             cmap=cmap,
             norm=LogNorm(
-                vmin=1e-10,
-                vmax=1
+                vmin=vmin,
+                vmax=vmax
             ),
-            annot=annot,
+            annot=annotation,
             fmt="",
             square=True,
             linewidths=0.5,

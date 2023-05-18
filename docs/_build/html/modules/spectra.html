@@ -109,6 +109,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.rename"><code class="docutils literal notranslate"><span class="pre">Spectra.rename()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.prefix"><code class="docutils literal notranslate"><span class="pre">Spectra.prefix()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.print"><code class="docutils literal notranslate"><span class="pre">Spectra.print()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.fold"><code class="docutils literal notranslate"><span class="pre">Spectra.fold()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.is_folded"><code class="docutils literal notranslate"><span class="pre">Spectra.is_folded()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -523,6 +525,31 @@ Note that we ignore zero counts in the last entry i.e. fixed derived alleles.</p
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.print">
 <span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.print" title="Permalink to this definition"></a></dt>
 <dd><p>Print spectra.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.fold">
+<span class="sig-name descname"><span class="pre">fold</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.fold" title="Permalink to this definition"></a></dt>
+<dd><p>Fold spectra.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Folded spectra</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.is_folded">
+<span class="sig-name descname"><span class="pre">is_folded</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.is_folded" title="Permalink to this definition"></a></dt>
+<dd><p>Check whether spectra are folded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of types and whether they are folded</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

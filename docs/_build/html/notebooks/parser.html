@@ -107,12 +107,10 @@
 <div class="cell_input docutils container">
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">Parser</span><span class="p">,</span> <span class="n">DegeneracyStratification</span><span class="p">,</span> <span class="n">Spectra</span>
 
-<span class="n">vcf_file</span> <span class="o">=</span> <span class="s2">&quot;../../resources/genome/betula/all.vcf.gz&quot;</span>
-
 <span class="c1"># instantiate parser</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span>
     <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">vcf_file</span><span class="o">=</span><span class="n">vcf_file</span><span class="p">,</span>
+    <span class="n">vcf</span><span class="o">=</span><span class="s2">&quot;../../resources/genome/betula/all.vcf.gz&quot;</span><span class="p">,</span>
     <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span><span class="n">DegeneracyStratification</span><span class="p">()]</span>
 <span class="p">)</span>
 
@@ -122,17 +120,11 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Using stratification: [neutral,selected].
-INFO:fastdfe:Counting number of sites.
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2439037it [00:56, 43135.21it/s]
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Starting to parse.
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2439037/2439037 [02:54&lt;00:00, 14013.47it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe:Using stratification: [neutral,selected].</span>
+<span class=" -Color -Color-Green">INFO:fastdfe:Counting number of sites.</span>
+2439037it [00:44, 55274.25it/s]
+<span class=" -Color -Color-Green">INFO:fastdfe:Starting to parse.</span>
+100%|<span class=" -Color -Color-Black">██████████</span>| 2439037/2439037 [02:14&lt;00:00, 18170.60it/s]
 </pre></div>
 </div>
 </div>
@@ -148,7 +140,7 @@ INFO:fastdfe:Counting number of sites.
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/41b0c2c5c280b54f3d1dd515d2bad74a07448fda993d291ddf01127235826ff3.png" src="../_images/41b0c2c5c280b54f3d1dd515d2bad74a07448fda993d291ddf01127235826ff3.png" />
+<img alt="../_images/aacc6e2117a6933b1bb115c5d5f2731b9555bb990843275f4031759cf3448008.png" src="../_images/aacc6e2117a6933b1bb115c5d5f2731b9555bb990843275f4031759cf3448008.png" />
 </div>
 </div>
 <p>fastDFE relies on VCF info tags to determine the degeneracy of a site but this behaviour can be customized (cf. <a class="reference internal" href="../modules/parser.html#fastdfe.parser.DegeneracyStratification" title="fastdfe.parser.DegeneracyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyStratification</span></code></a>).</p>
@@ -160,7 +152,7 @@ INFO:fastdfe:Counting number of sites.
 <span class="c1"># instantiate parser</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span>
     <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">vcf_file</span><span class="o">=</span><span class="n">vcf_file</span><span class="p">,</span>
+    <span class="n">vcf</span><span class="o">=</span><span class="s2">&quot;../../resources/genome/betula/all.vcf.gz&quot;</span><span class="p">,</span>
     <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span><span class="n">DegeneracyStratification</span><span class="p">(),</span> <span class="n">AncestralBaseStratification</span><span class="p">()]</span>
 <span class="p">)</span>
 
@@ -170,17 +162,11 @@ INFO:fastdfe:Counting number of sites.
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Using stratification: [neutral,selected].[A,C,G,T].
-INFO:fastdfe:Counting number of sites.
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2439037it [00:45, 53268.04it/s]
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:fastdfe:Starting to parse.
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2439037/2439037 [02:44&lt;00:00, 14789.53it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe:Using stratification: [neutral,selected].[A,C,G,T].</span>
+<span class=" -Color -Color-Green">INFO:fastdfe:Counting number of sites.</span>
+2439037it [00:42, 57361.32it/s]
+<span class=" -Color -Color-Green">INFO:fastdfe:Starting to parse.</span>
+100%|<span class=" -Color -Color-Black">██████████</span>| 2439037/2439037 [02:12&lt;00:00, 18424.47it/s]
 </pre></div>
 </div>
 </div>
@@ -196,7 +182,7 @@ INFO:fastdfe:Counting number of sites.
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/466c14ca4c637809a6c7a2b7baff6dfc52522d8b0eab30ddceb8ec30cc216fd5.png" src="../_images/466c14ca4c637809a6c7a2b7baff6dfc52522d8b0eab30ddceb8ec30cc216fd5.png" />
+<img alt="../_images/11b7494dc988712fbdb3b857c9d41bafc7b22579f346c4de99a46cadd5897792.png" src="../_images/11b7494dc988712fbdb3b857c9d41bafc7b22579f346c4de99a46cadd5897792.png" />
 </div>
 </div>
 <p>Note that fastDFE required the ancestral state of sites to be determined. <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a> does this by looking at the <code class="docutils literal notranslate"><span class="pre">AA</span></code> field but this can be customized. We admit there is currently no easy method for determining the ancestral states directly from a VCF file and are working on implementing one. You can also define custom Stratifications by extending <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a>).</p>

@@ -737,12 +737,19 @@ class Optimization:
         :param scales: Dictionary of scales
         :param param_names: List of parameter names
         """
+        #: Parameter bounds
         self.bounds = bounds
+
+        #: Parameter scales to use
         self.scales = scales
 
+        #: additional options for the optimizer
         self.opts_mle = opts_mle
+
+        #: Type of loss function to use
         self.loss_type = loss_type
 
+        #: Fixed parameters
         self.fixed_params = flatten_dict(fixed_params)
 
         # check if fixed parameters are within the specified bounds
@@ -750,19 +757,22 @@ class Optimization:
             raise ValueError('Fixed parameters are outside the specified bounds. '
                              f'Fixed params: {self.fixed_params}, bounds: {self.bounds}.')
 
+        #: Parameter names
         self.param_names = param_names
+
+        #: Whether to parallelize the optimization
         self.parallelize = parallelize
 
-        # the initial values
+        #: Initial values
         self.x0: Optional[dict] = None
 
-        # the number of runs
+        #: Number of runs
         self.n_runs: Optional[int] = None
 
-        # store the likelihoods for each run
+        #: Likelihoods for each run
         self.likelihoods: Optional[np.ndarray] = None
 
-        # get a random generator instance
+        #: Random generator instance
         self.rng = np.random.default_rng(seed=seed)
 
     def run(
@@ -785,6 +795,7 @@ class Optimization:
         :param print_info: Whether to inform the user about the bounds
         :param n_runs: Number of optimization runs. Number of optimization runs. The first run will use the
             initial values if provided.
+        :param folded: Whether to fold the SFS
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
         :param get_counts: Dictionary of functions to evaluate counts for each type
         :param debug_iterations: Whether to print debug messages for each iteration

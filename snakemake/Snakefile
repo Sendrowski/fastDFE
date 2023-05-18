@@ -625,3 +625,23 @@ rule annotate_vep:
         "envs/vep.yaml"
     script:
         "scripts/annotate_vep.py"
+
+# generate a requirements.txt using poetry
+rule generate_requirements_poetry:
+    output:
+        base="envs/requirements.txt",
+        base_snakemake=".snakemake/conda/requirements.txt",
+        testing="envs/requirements_testing.txt",
+        testing_snakemake=".snakemake/conda/requirements_testing.txt",
+        docs="../docs/requirements.txt"
+    conda:
+        "envs/build.yaml"
+    shell:
+        """
+            poetry update
+            poetry export -f requirements.txt --without-hashes -o {output.base}
+            poetry export -f requirements.txt --without-hashes -o {output.base_snakemake}
+            poetry export --with dev -f requirements.txt --without-hashes -o {output.testing}
+            poetry export --with dev -f requirements.txt --without-hashes -o {output.testing_snakemake}
+            poetry export --with dev -f requirements.txt --without-hashes -o {output.docs}
+        """

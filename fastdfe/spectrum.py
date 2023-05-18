@@ -124,6 +124,38 @@ class Spectrum:
         """
         return self.n_polymorphic / np.sum(1 / np.arange(1, self.n)) / self.n_sites
 
+    def fold(self) -> 'Spectrum':
+        """
+        Fold the site-frequency spectrum.
+
+        :return: Folded spectrum
+        """
+        mid = (self.n + 1) // 2
+        data = self.data.copy()
+
+        data[:mid] += data[-mid:][::-1]
+        data[-mid:] = 0
+
+        return Spectrum(data)
+
+    def is_folded(self) -> bool:
+        """
+        Check if the site-frequency spectrum is folded.
+
+        :return: True if folded, False otherwise
+        """
+        mid = (self.n + 1) // 2
+
+        return np.all(self.data[-mid:] == 0)
+
+    def copy(self) -> 'Spectrum':
+        """
+        Copy the spectrum.
+
+        :return: Copy of the spectrum
+        """
+        return Spectrum(self.data.copy())
+
     @staticmethod
     def from_polymorphic(data: list | np.ndarray) -> 'Spectrum':
         """
@@ -612,6 +644,27 @@ class Spectra:
         Print spectra.
         """
         print(self.data.T)
+
+    def fold(self):
+        """
+        Fold spectra.
+
+        :return: Folded spectra
+        """
+        spectra = self.to_spectra()
+
+        for t, s in spectra.items():
+            spectra[t] = s.fold()
+
+        return Spectra.from_spectra(spectra)
+
+    def is_folded(self) -> Dict[str, bool]:
+        """
+        Check whether spectra are folded.
+
+        :return: Dictionary of types and whether they are folded
+        """
+        return {t: s.is_folded() for t, s in self.to_spectra().items()}
 
 
 def parse_polydfe_sfs_config(file: str) -> Spectra:

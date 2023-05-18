@@ -7,8 +7,8 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-02-26"
 
 import numpy as np
-from typing import Union
 from scipy.special import factorial
+from scipy.stats import poisson
 
 
 class MLE:
@@ -16,8 +16,41 @@ class MLE:
     MLE utilities.
     """
 
+    #: Epsilon for numerical stability
+    eps = 1e-50
+
     @staticmethod
-    def log_poisson(mu, k):
+    def add_epsilon(x: np.ndarray) -> np.ndarray:
+        """
+        Add epsilon to zero counts.
+
+        :param x: Array to add epsilon to
+        :return: Array with epsilon added to zero counts
+        """
+        # convert to float
+        x = x.astype(float)
+
+        # replace 0s with epsilon to avoid log(0)
+        x[x == 0] = MLE.eps
+
+        return x
+
+    @staticmethod
+    def poisson(mu: np.ndarray, k: np.ndarray) -> np.ndarray:
+        """
+        Compute Poisson(mu, k).
+
+        :param mu: Mean of Poisson distribution
+        :param k: Number of events
+        :return: Poisson(mu, k)
+        """
+        # add epsilon to zero counts
+        mu = MLE.add_epsilon(mu)
+
+        return poisson.pmf(k, mu)
+
+    @staticmethod
+    def log_poisson(mu: np.ndarray, k: np.ndarray) -> np.ndarray:
         """
         Compute log(Poisson(mu, k)).
 
@@ -25,10 +58,13 @@ class MLE:
         :param k: Number of events
         :return: log(Poisson(mu, k))
         """
+        # add epsilon to zero counts
+        mu = MLE.add_epsilon(mu)
+
         return k * np.log(mu) - mu - MLE.log_factorial(k)
 
     @staticmethod
-    def log_factorial_stirling(n: Union[int, np.ndarray]):
+    def log_factorial_stirling(n: np.ndarray | float) -> np.ndarray | float:
         """
         Use Stirling's approximation for values larger than n_threshold.
         https://en.wikipedia.org/wiki/Stirling%27s_approximation
@@ -40,7 +76,7 @@ class MLE:
         return 0.5 * np.log(2 * np.pi * n) + n * np.log(n / np.e) + np.log(1 + 1 / (12 * n))
 
     @staticmethod
-    def log_factorial(n: np.ndarray, n_threshold: int = 100):
+    def log_factorial(n: np.ndarray, n_threshold: int = 100) -> np.ndarray:
         """
         Compute log(n!).
 
