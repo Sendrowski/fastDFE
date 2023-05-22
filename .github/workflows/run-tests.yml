@@ -20,14 +20,15 @@ jobs:
       run:
         shell: bash -el {0}
     steps:
-    - uses: actions/checkout@v3
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        miniconda-version: "latest"
-        python-version: "3.10"
-        environment-file: snakemake/envs/testing.yaml
-        auto-activate-base: false
-        activate-environment: testing-fastdfe
-    - run: |
+      - uses: actions/checkout@v3
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: "latest"
+          python-version: "3.10"
+          environment-file: snakemake/envs/testing.yaml
+          auto-activate-base: false
+          activate-environment: testing-fastdfe
+      - run: |
+          cat testing/pytest.ini
           pytest --cov fastdfe --cov-report=xml testing/
-    - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v3
