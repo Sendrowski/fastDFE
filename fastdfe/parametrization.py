@@ -152,7 +152,7 @@ class Parametrization:
 
 
 class GammaExpParametrization(Parametrization):
-    """
+    r"""
     Parametrization for mixture of a gamma and exponential distribution. This corresponds to
     model C in polyDFE.
 
@@ -294,7 +294,7 @@ class GammaExpParametrization(Parametrization):
 
 
 class DisplacedGammaParametrization(Parametrization):
-    """
+    r"""
     Parametrization for a reflected displaced gamma distribution.
 
     We have the following probability density function:
@@ -400,7 +400,7 @@ class DisplacedGammaParametrization(Parametrization):
 
 
 class GammaDiscreteParametrization(Parametrization):
-    """
+    r"""
     Parametrization for a mixture of a gamma and discrete distribution. This corresponds to polyDFE's model B.
 
     We have the following probability density function:
@@ -525,7 +525,7 @@ class GammaDiscreteParametrization(Parametrization):
 
 
 class DiscreteParametrization(Parametrization):
-    """
+    r"""
     Parametrization for a discrete distribution. This corresponds to polyDFE's model D.
     By default we use 6 bins, but this can be changed by passing a different array to the constructor.
     The resulting parameter names are :math:`S_1, S_2, \dots, S_k`, where :math:`k` is the number of bins.
