@@ -218,7 +218,7 @@ class BaseTransitionStratification(Stratification):
 
         :param parser: The parser
         """
-        self.parser = parser
+        self._parser = parser
 
         logger.info(f'Determining base transition probabilities.')
 
@@ -256,7 +256,7 @@ class BaseTransitionStratification(Stratification):
             alt = variant.ALT[0]
 
             # obtain ancestral allele
-            aa = variant.INFO.get(self.parser.info_ancestral)
+            aa = variant.INFO.get(self._parser.info_ancestral)
 
             # swap reference and alternative allele
             # note that here we assume again the site is bi-allelic
@@ -264,7 +264,7 @@ class BaseTransitionStratification(Stratification):
                 ref, alt = alt, ref
 
             # report type if aa tag is valid or if we don't skip non-polarized sites
-            if aa in bases or not self.parser.ignore_not_polarized:
+            if aa in bases or not self._parser.ignore_not_polarized:
 
                 if ref == alt:
                     raise NoTypeException("Site marked as polymorphic, but reference "
@@ -275,7 +275,7 @@ class BaseTransitionStratification(Stratification):
             raise NoTypeException("No valid AA tag found.")
 
         # for mono-allelic sites, we sample from the base-transition probabilities
-        return self.parser.rng.choice(list(self.probabilities.keys()), p=list(self.probabilities.values()))
+        return self._parser.rng.choice(list(self.probabilities.keys()), p=list(self.probabilities.values()))
 
     def get_types(self) -> List[str]:
         """
@@ -339,7 +339,7 @@ class TransitionTransversionStratification(BaseTransitionStratification):
 
         :param parser: The parser
         """
-        self.parser = parser
+        self._parser = parser
 
         logger.info(f'Determining transition-transversion probabilities.')
 
@@ -376,7 +376,7 @@ class TransitionTransversionStratification(BaseTransitionStratification):
                 return "transversion"
 
         # for mono-allelic sites, we sample from the transition-transversion probabilities
-        return self.parser.rng.choice(list(self.probabilities.keys()), p=list(self.probabilities.values()))
+        return self._parser.rng.choice(list(self.probabilities.keys()), p=list(self.probabilities.values()))
 
     def get_types(self) -> List[str]:
         """
