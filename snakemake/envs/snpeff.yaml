@@ -1,0 +1,7 @@
+name: snpeff-fastdfe
+channels:
+  - bioconda
+dependencies:
+  - python
+  - tabix
+  - snpeff

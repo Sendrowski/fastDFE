@@ -1,0 +1,9 @@
+name: build-fastdfe
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - urllib3<2.0.0
+  - pip
+  - pip:
+      - poetry # experienced problems with poetry in conda-forge

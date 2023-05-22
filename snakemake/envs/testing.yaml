@@ -1,0 +1,12 @@
+name: testing-fastdfe
+channels:
+  - conda-forge
+dependencies:
+  - dadi
+  - pytest-xdist
+  - pytest-cov
+  - python-dotenv
+  - pip
+  - pip:
+    - pytest-pycharm
+    - -r requirements_testing.txt
