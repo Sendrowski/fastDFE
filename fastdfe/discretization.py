@@ -405,7 +405,7 @@ class Discretization:
         if self.linearized:
 
             # get discretized DFE
-            dfe = model.discretize(params, self.bins) / self.interval_sizes
+            dfe = model._discretize(params, self.bins) / self.interval_sizes
 
             # get SFS from DFE using linearization
             # the interval sizes are already included here
@@ -441,7 +441,7 @@ class Discretization:
         :param params: Parameters of the DFE
         :return: Estimated for alpha
         """
-        y = model.discretize(params, self.bins) * H_fixed_regularized(self.s)
+        y = model._discretize(params, self.bins) * H_fixed_regularized(self.s)
 
         return np.sum(y[self.s > 0]) / np.sum(y)
 

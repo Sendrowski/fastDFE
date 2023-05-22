@@ -563,6 +563,9 @@ class Visualization:
                     show=False
                 )
 
+                # set title
+                axes[i].set_title(labels[i] if len(labels) <= i else '')
+
             # make empty plots invisible
             [ax.set_visible(False) for ax in axes[n_plots:]]
 
@@ -660,8 +663,8 @@ class Visualization:
     def plot_pdf(
             model: Parametrization,
             params: dict,
-            s: np.array,
             ax: plt.Axes,
+            s: np.array = np.linspace(-100, 100, 1000),
             file: str = None,
             show: bool = True
     ) -> plt.Axes:
@@ -691,8 +694,8 @@ class Visualization:
     def plot_cdf(
             model: Parametrization,
             params: dict,
-            s: np.array,
             ax: plt.Axes,
+            s: np.array = np.linspace(-100, 100, 1000),
             file: str = None,
             show: bool = True
     ) -> plt.Axes:

@@ -12,6 +12,7 @@ from functools import wraps
 from typing import Callable, List, Union
 
 import numpy as np
+from matplotlib import pyplot as plt
 from scipy.stats import gamma, expon
 
 # get logger
@@ -77,7 +78,7 @@ class Parametrization:
         self.param_names: List = list(self.x0.keys())
 
     @staticmethod
-    def accepts_scalars(func: Callable) -> Callable[[np.ndarray | float], np.ndarray | float]:
+    def _accepts_scalars(func: Callable) -> Callable[[np.ndarray | float], np.ndarray | float]:
         """
         Make func accept scalar values.
 
@@ -119,7 +120,7 @@ class Parametrization:
         """
         pass
 
-    def discretize(self, params, bins: np.ndarray) -> np.ndarray:
+    def _discretize(self, params, bins: np.ndarray) -> np.ndarray:
         """
         Discretize by using the CDF.
 
@@ -140,7 +141,7 @@ class Parametrization:
 
         return hist
 
-    def normalize(self, params: dict) -> dict:
+    def _normalize(self, params: dict) -> dict:
         """
         Normalize parameters.
 
@@ -222,7 +223,7 @@ class GammaExpParametrization(Parametrization):
         :return: Function that accepts an array of selection coefficients and returns their probability density
         """
 
-        @Parametrization.accepts_scalars
+        @Parametrization._accepts_scalars
         def pdf(S: np.ndarray) -> np.ndarray:
             """
             The PDF.
@@ -265,7 +266,7 @@ class GammaExpParametrization(Parametrization):
         :return: Function that accepts an array of selection coefficients and returns their cumulative probability
         """
 
-        @Parametrization.accepts_scalars
+        @Parametrization._accepts_scalars
         def cdf(S: np.ndarray) -> np.ndarray:
             """
             The CDF.
@@ -351,7 +352,7 @@ class DisplacedGammaParametrization(Parametrization):
         :return: Function that accepts an array of selection coefficients and returns their probability density
         """
 
-        @Parametrization.accepts_scalars
+        @Parametrization._accepts_scalars
         def pdf(S: np.ndarray) -> np.ndarray:
             """
             The PDF.
@@ -377,7 +378,7 @@ class DisplacedGammaParametrization(Parametrization):
         :return: Function that accepts an array of selection coefficients and returns their cumulative probability
         """
 
-        @Parametrization.accepts_scalars
+        @Parametrization._accepts_scalars
         def cdf(S: np.ndarray) -> np.ndarray:
             """
             The CDF.
@@ -466,7 +467,7 @@ class GammaDiscreteParametrization(Parametrization):
         :return: Function that accepts an array of selection coefficients and returns their probability density
         """
 
-        @Parametrization.accepts_scalars
+        @Parametrization._accepts_scalars
         def pdf(S: np.ndarray) -> np.ndarray:
             """
             The PDF.
@@ -500,7 +501,7 @@ class GammaDiscreteParametrization(Parametrization):
         :return: Function that accepts an array of selection coefficients and returns their cumulative probability
         """
 
-        @Parametrization.accepts_scalars
+        @Parametrization._accepts_scalars
         def cdf(S: np.ndarray) -> np.ndarray:
             """
             The CDF.
@@ -587,7 +588,7 @@ class DiscreteParametrization(Parametrization):
             dele=dict((p, 0) for p in self.params[1:-1][self.intervals[1:-2] < 0])
         )
 
-    def normalize(self, params: dict) -> dict:
+    def _normalize(self, params: dict) -> dict:
         """
         Add params for boundaries and normalize so that
         the parameters sum up to 1.
@@ -613,9 +614,9 @@ class DiscreteParametrization(Parametrization):
         """
 
         # normalize and add boundary parameters
-        values = self.normalize(kwargs) | self.fixed_params
+        values = self._normalize(kwargs) | self.fixed_params
 
-        @Parametrization.accepts_scalars
+        @Parametrization._accepts_scalars
         def pdf(S: np.ndarray) -> np.ndarray:
             """
             The PDF.
@@ -642,7 +643,7 @@ class DiscreteParametrization(Parametrization):
         """
 
         # normalize and add boundary parameters
-        values = self.normalize(kwargs) | self.fixed_params
+        values = self._normalize(kwargs) | self.fixed_params
 
         # convert to numpy arrays
         intervals = np.array(self.intervals)
@@ -651,7 +652,7 @@ class DiscreteParametrization(Parametrization):
         # convert to ordered array values
         vals = np.array([values[self.params[i]] for i in range(self.k)])
 
-        @Parametrization.accepts_scalars
+        @Parametrization._accepts_scalars
         def cdf(S: np.ndarray) -> np.ndarray:
             """
             The CDF.

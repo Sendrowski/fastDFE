@@ -53,15 +53,16 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart_R.html">Quickstart in R</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/inference.html">DFE Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/spectra.html">Manipulating site-frequency spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/spectra.html">Working with site-frequency spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/parser.html">Parsing SFS from VCF file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/logging.html">Logging</a></li>
 </ul>
@@ -148,7 +149,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.get_summary"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_summary()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.get_x0"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_x0()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.param_names"><code class="docutils literal notranslate"><span class="pre">BaseInference.param_names</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.set_fixed_params"><code class="docutils literal notranslate"><span class="pre">BaseInference.set_fixed_params()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.to_json"><code class="docutils literal notranslate"><span class="pre">BaseInference.to_json()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.from_file"><code class="docutils literal notranslate"><span class="pre">BaseInference.from_file()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.from_json"><code class="docutils literal notranslate"><span class="pre">BaseInference.from_json()</span></code></a></li>
@@ -200,7 +200,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.get_bootstrap_params"><code class="docutils literal notranslate"><span class="pre">JointInference.get_bootstrap_params()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.to_json"><code class="docutils literal notranslate"><span class="pre">JointInference.to_json()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.alpha"><code class="docutils literal notranslate"><span class="pre">JointInference.alpha</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.set_fixed_params"><code class="docutils literal notranslate"><span class="pre">JointInference.set_fixed_params()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.get_L2_residual"><code class="docutils literal notranslate"><span class="pre">JointInference.get_L2_residual()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.add_alpha_to_bootstraps"><code class="docutils literal notranslate"><span class="pre">JointInference.add_alpha_to_bootstraps()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.add_demography"><code class="docutils literal notranslate"><span class="pre">JointInference.add_demography()</span></code></a></li>
@@ -306,6 +305,8 @@
 <li class="toctree-l1"><a class="reference internal" href="spectrum.html">Spectrum class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="spectra.html">Spectra class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annotation.html">VCF Annotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filtration.html">VCF Filtration</a></li>
 </ul>
 
         </div>
@@ -1403,17 +1404,6 @@ model using likelihood ratio tests.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.base_inference.BaseInference.set_fixed_params">
-<span class="sig-name descname"><span class="pre">set_fixed_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.base_inference.BaseInference.set_fixed_params" title="Permalink to this definition"></a></dt>
-<dd><p>Set fixed parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – Fixed parameters.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.base_inference.BaseInference.to_json">
 <span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.base_inference.BaseInference.to_json" title="Permalink to this definition"></a></dt>
 <dd><p>Serialize object.</p>
@@ -2129,17 +2119,6 @@ to the <code class="docutils literal notranslate"><span class="pre">self.joint_i
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.joint_inference.JointInference.set_fixed_params">
-<span class="sig-name descname"><span class="pre">set_fixed_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.joint_inference.JointInference.set_fixed_params" title="Permalink to this definition"></a></dt>
-<dd><p>Set fixed parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – Fixed parameters</p>
 </dd>
 </dl>
 </dd></dl>

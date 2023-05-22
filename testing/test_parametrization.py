@@ -100,7 +100,7 @@ class ParametrizationTestCase(TestCase):
         }
 
         d1 = p.get_pdf(**params)(d.s) * d.interval_sizes
-        d2 = p.discretize(params, d.bins)
+        d2 = p._discretize(params, d.bins)
 
         plt.plot(np.arange(d.n_intervals), d1, alpha=0.5, label='exact PDF')
         plt.plot(np.arange(d.n_intervals), d2, alpha=0.5, label='empirical PDF')
@@ -166,7 +166,7 @@ class ParametrizationTestCase(TestCase):
         params = {'S1': 0.25, 'S2': 0.35, 'S3': 0.2, 'S4': 0.1, 'S5': 0.05, 'S6': 0.05}
 
         d1 = p.get_pdf(**params)(d.s)
-        d2 = p.discretize(params, d.bins) / d.interval_sizes
+        d2 = p._discretize(params, d.bins) / d.interval_sizes
 
         plt.plot(np.arange(d.n_intervals), d1, alpha=0.5, label='exact PDF')
         plt.plot(np.arange(d.n_intervals), d2, alpha=0.5, label='empirical PDF')
@@ -217,7 +217,7 @@ class ParametrizationTestCase(TestCase):
         params = GammaDiscreteParametrization.x0
 
         d1 = p.get_pdf(**params)(d.s) * d.interval_sizes
-        d2 = p.discretize(params, d.bins)
+        d2 = p._discretize(params, d.bins)
 
         plt.plot(np.arange(d.n_intervals), d1, alpha=0.5, label='exact PDF')
         plt.plot(np.arange(d.n_intervals), d2, alpha=0.5, label='empirical PDF')
@@ -271,7 +271,7 @@ class ParametrizationTestCase(TestCase):
         params = DisplacedGammaParametrization.x0
 
         d1 = p.get_pdf(**params)(d.s) * d.interval_sizes
-        d2 = p.discretize(params, d.bins)
+        d2 = p._discretize(params, d.bins)
 
         plt.plot(np.arange(d.n_intervals), d1, alpha=0.5, label='exact PDF')
         plt.plot(np.arange(d.n_intervals), d2, alpha=0.5, label='empirical PDF')

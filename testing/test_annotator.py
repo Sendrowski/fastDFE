@@ -204,7 +204,7 @@ class AnnotatorTestCase(TestCase):
         ]
 
         for codon, pos, expected in test_cases:
-            degeneracy = DegeneracyAnnotation.get_degeneracy(codon, pos)
+            degeneracy = DegeneracyAnnotation._get_degeneracy(codon, pos)
             self.assertEqual(degeneracy, expected)
 
     def test_is_synonymous(self):

@@ -50,15 +50,16 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/quickstart_R.html">Quickstart in R</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/inference.html">DFE Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/parametrizations.html">DFE parametrizations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/spectra.html">Manipulating site-frequency spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/spectra.html">Working with site-frequency spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/parser.html">Parsing SFS from VCF file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/logging.html">Logging</a></li>
 </ul>
@@ -70,6 +71,8 @@
 <li class="toctree-l1"><a class="reference internal" href="modules/spectrum.html">Spectrum class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/spectra.html">Spectra class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/annotation.html">VCF Annotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/filtration.html">VCF Filtration</a></li>
 </ul>
 
         </div>
@@ -127,10 +130,22 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.__init__">__init__() (fastdfe.base_inference.BaseInference method)</a>
+      <li><a href="modules/annotation.html#fastdfe.annotation.Annotation.__init__">__init__() (fastdfe.annotation.Annotation method)</a>
 
       <ul>
+        <li><a href="modules/annotation.html#fastdfe.annotation.Annotator.__init__">(fastdfe.annotation.Annotator method)</a>
+</li>
+        <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.__init__">(fastdfe.annotation.DegeneracyAnnotation method)</a>
+</li>
+        <li><a href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.__init__">(fastdfe.annotation.SynonymyAnnotation method)</a>
+</li>
+        <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.__init__">(fastdfe.base_inference.BaseInference method)</a>
+</li>
         <li><a href="modules/config.html#fastdfe.config.Config.__init__">(fastdfe.config.Config method)</a>
+</li>
+        <li><a href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration.__init__">(fastdfe.filtration.CodingSequenceFiltration method)</a>
+</li>
+        <li><a href="modules/filtration.html#fastdfe.filtration.Filterer.__init__">(fastdfe.filtration.Filterer method)</a>
 </li>
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.__init__">(fastdfe.joint_inference.JointInference method)</a>
 </li>
@@ -159,8 +174,6 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modules/parametrization.html#fastdfe.parametrization.Parametrization.accepts_scalars">accepts_scalars() (fastdfe.parametrization.Parametrization static method)</a>
-</li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.add_alpha_to_bootstraps">add_alpha_to_bootstraps() (fastdfe.base_inference.BaseInference method)</a>
 
       <ul>
@@ -183,10 +196,16 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.adjust_polarization">(fastdfe.joint_inference.JointInference static method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modules/parser.html#fastdfe.parser.BaseContextStratification.aliases">aliases (fastdfe.parser.BaseContextStratification attribute)</a>
+      <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.aliases">aliases (fastdfe.annotation.DegeneracyAnnotation attribute)</a>
+
+      <ul>
+        <li><a href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.aliases">(fastdfe.annotation.SynonymyAnnotation attribute)</a>
 </li>
+        <li><a href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration.aliases">(fastdfe.filtration.CodingSequenceFiltration attribute)</a>
+</li>
+        <li><a href="modules/parser.html#fastdfe.parser.BaseContextStratification.aliases">(fastdfe.parser.BaseContextStratification attribute)</a>
+</li>
+      </ul></li>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.all">all (fastdfe.spectrum.Spectra property)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.alpha">alpha (fastdfe.base_inference.BaseInference property)</a>
@@ -195,9 +214,29 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.alpha">(fastdfe.joint_inference.JointInference property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/parser.html#fastdfe.parser.AncestralBaseStratification">AncestralBaseStratification (class in fastdfe.parser)</a>
 </li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.Annotator.annotate">annotate() (fastdfe.annotation.Annotator method)</a>
+</li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.Annotation.annotate_site">annotate_site() (fastdfe.annotation.Annotation method)</a>
+
+      <ul>
+        <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.annotate_site">(fastdfe.annotation.DegeneracyAnnotation method)</a>
+</li>
+        <li><a href="modules/annotation.html#fastdfe.annotation.MaximumParsimonyAnnotation.annotate_site">(fastdfe.annotation.MaximumParsimonyAnnotation method)</a>
+</li>
+        <li><a href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.annotate_site">(fastdfe.annotation.SynonymyAnnotation method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.Annotation">Annotation (class in fastdfe.annotation)</a>
+</li>
       <li><a href="modules/parser.html#fastdfe.parser.Parser.annotations">annotations (fastdfe.parser.Parser attribute)</a>
+</li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.Annotator">Annotator (class in fastdfe.annotation)</a>
+</li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.Annotation.annotator">annotator (fastdfe.annotation.Annotation attribute)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.optimization.Covariate.apply">apply() (fastdfe.optimization.Covariate method)</a>
 </li>
@@ -269,6 +308,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.optimization.Covariate.callback">callback (fastdfe.optimization.Covariate attribute)</a>
 </li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.cd">cd (fastdfe.annotation.DegeneracyAnnotation attribute)</a>
+
+      <ul>
+        <li><a href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration.cd">(fastdfe.filtration.CodingSequenceFiltration attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.cd_next">cd_next (fastdfe.annotation.DegeneracyAnnotation attribute)</a>
+</li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.cd_prev">cd_prev (fastdfe.annotation.DegeneracyAnnotation attribute)</a>
+</li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.check_fixed_params_exist">check_fixed_params_exist() (fastdfe.base_inference.BaseInference method)</a>
 
       <ul>
@@ -279,6 +328,8 @@
 </li>
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.check_shared_params">check_shared_params() (fastdfe.joint_inference.JointInference method)</a>
 </li>
+      <li><a href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration">CodingSequenceFiltration (class in fastdfe.filtration)</a>
+</li>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.combine">combine() (fastdfe.spectrum.Spectra method)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.compare_nested_likelihoods">compare_nested_likelihoods() (fastdfe.base_inference.BaseInference method)</a>
@@ -287,17 +338,19 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.compare_nested_likelihoods">(fastdfe.joint_inference.JointInference method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.compare_nested_models">compare_nested_models() (fastdfe.base_inference.BaseInference method)</a>
 
       <ul>
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.compare_nested_models">(fastdfe.joint_inference.JointInference method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.abstract_inference.Inference.compute_histogram">compute_histogram() (fastdfe.abstract_inference.Inference static method)</a>
 </li>
       <li><a href="modules/config.html#fastdfe.config.Config">Config (class in fastdfe.config)</a>
+</li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.contig">contig (fastdfe.annotation.DegeneracyAnnotation attribute)</a>
 </li>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.copy">copy() (fastdfe.spectrum.Spectra method)</a>
 
@@ -318,8 +371,6 @@
       <li><a href="modules/config.html#fastdfe.config.Config.create_polydfe_init_file">create_polydfe_init_file() (fastdfe.config.Config method)</a>
 </li>
       <li><a href="modules/config.html#fastdfe.config.Config.create_polydfe_sfs_config">create_polydfe_sfs_config() (fastdfe.config.Config method)</a>
-</li>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.create_sfs_dictionary">create_sfs_dictionary() (fastdfe.parser.Parser method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -353,6 +404,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation">DegeneracyAnnotation (class in fastdfe.annotation)</a>
+</li>
       <li><a href="modules/parser.html#fastdfe.parser.DegeneracyStratification">DegeneracyStratification (class in fastdfe.parser)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.determine_unshared_covariates">determine_unshared_covariates() (fastdfe.joint_inference.JointInference method)</a>
@@ -365,8 +418,6 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.discretization">(fastdfe.joint_inference.JointInference attribute)</a>
 </li>
       </ul></li>
-      <li><a href="modules/parametrization.html#fastdfe.parametrization.Parametrization.discretize">discretize() (fastdfe.parametrization.Parametrization method)</a>
-</li>
       <li><a href="modules/parametrization.html#fastdfe.parametrization.DisplacedGammaParametrization">DisplacedGammaParametrization (class in fastdfe.parametrization)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.do_bootstrap">do_bootstrap (fastdfe.base_inference.BaseInference attribute)</a>
@@ -381,6 +432,8 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.errors">errors (fastdfe.annotation.DegeneracyAnnotation attribute)</a>
+</li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.evaluate_likelihood">evaluate_likelihood() (fastdfe.base_inference.BaseInference method)</a>
 
       <ul>
@@ -401,10 +454,36 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modules/parser.html#fastdfe.parser.BaseContextStratification.fasta_file">fasta_file (fastdfe.parser.BaseContextStratification attribute)</a>
+      <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.fasta_file">fasta_file (fastdfe.annotation.DegeneracyAnnotation attribute)</a>
+
+      <ul>
+        <li><a href="modules/parser.html#fastdfe.parser.BaseContextStratification.fasta_file">(fastdfe.parser.BaseContextStratification attribute)</a>
 </li>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.filtrations">filtrations (fastdfe.parser.Parser attribute)</a>
+      </ul></li>
+      <li><a href="modules/filtration.html#fastdfe.filtration.Filterer.filter">filter() (fastdfe.filtration.Filterer method)</a>
 </li>
+      <li><a href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration.filter_site">filter_site() (fastdfe.filtration.CodingSequenceFiltration method)</a>
+
+      <ul>
+        <li><a href="modules/filtration.html#fastdfe.filtration.Filtration.filter_site">(fastdfe.filtration.Filtration method)</a>
+</li>
+        <li><a href="modules/filtration.html#fastdfe.filtration.PolyAllelicFiltration.filter_site">(fastdfe.filtration.PolyAllelicFiltration method)</a>
+</li>
+        <li><a href="modules/filtration.html#fastdfe.filtration.SNPFiltration.filter_site">(fastdfe.filtration.SNPFiltration method)</a>
+</li>
+        <li><a href="modules/filtration.html#fastdfe.filtration.SNVFiltration.filter_site">(fastdfe.filtration.SNVFiltration method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/filtration.html#fastdfe.filtration.Filterer">Filterer (class in fastdfe.filtration)</a>
+</li>
+      <li><a href="modules/filtration.html#fastdfe.filtration.Filtration">Filtration (class in fastdfe.filtration)</a>
+</li>
+      <li><a href="modules/filtration.html#fastdfe.filtration.Filterer.filtrations">filtrations (fastdfe.filtration.Filterer attribute)</a>
+
+      <ul>
+        <li><a href="modules/parser.html#fastdfe.parser.Parser.filtrations">(fastdfe.parser.Parser attribute)</a>
+</li>
+      </ul></li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.fixed_params">fixed_params (fastdfe.base_inference.BaseInference attribute)</a>
 
       <ul>
@@ -431,6 +510,8 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.from_config">(fastdfe.joint_inference.JointInference class method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.from_config_file">from_config_file() (fastdfe.base_inference.BaseInference class method)</a>
 
       <ul>
@@ -445,8 +526,6 @@
         <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.from_dict">(fastdfe.spectrum.Spectra static method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.from_file">from_file() (fastdfe.base_inference.BaseInference class method)</a>
 
       <ul>
@@ -497,8 +576,6 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.get_alpha">(fastdfe.joint_inference.JointInference method)</a>
 </li>
       </ul></li>
-      <li><a href="modules/parser.html#fastdfe.parser.Stratification.get_ancestral">get_ancestral() (fastdfe.parser.Stratification method)</a>
-</li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.get_bootstrap_param_names">get_bootstrap_param_names() (fastdfe.base_inference.BaseInference method)</a>
 
       <ul>
@@ -545,8 +622,6 @@
       </ul></li>
       <li><a href="modules/parser.html#fastdfe.parser.DegeneracyStratification.get_degeneracy">get_degeneracy (fastdfe.parser.DegeneracyStratification attribute)</a>
 </li>
-      <li><a href="modules/parser.html#fastdfe.parser.DegeneracyStratification.get_degeneracy_default">get_degeneracy_default() (fastdfe.parser.DegeneracyStratification static method)</a>
-</li>
       <li><a href="modules/inference.html#fastdfe.abstract_inference.Inference.get_discretized">get_discretized() (fastdfe.abstract_inference.Inference static method)</a>
 
       <ul>
@@ -571,12 +646,12 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.get_fixed_param_names">(fastdfe.joint_inference.JointInference method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.get_inferences">get_inferences() (fastdfe.joint_inference.JointInference method)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.get_L2_residual">get_L2_residual() (fastdfe.joint_inference.JointInference method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.get_n_optimized">get_n_optimized() (fastdfe.base_inference.BaseInference method)</a>
 
       <ul>
@@ -653,14 +728,18 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.get_x0">(fastdfe.joint_inference.JointInference method)</a>
 </li>
       </ul></li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.gff_file">gff_file (fastdfe.annotation.DegeneracyAnnotation attribute)</a>
+
+      <ul>
+        <li><a href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration.gff_file">(fastdfe.filtration.CodingSequenceFiltration attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.handle_site">handle_site() (fastdfe.parser.Parser method)</a>
-</li>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.has_div">has_div (fastdfe.spectrum.Spectra property)</a>
 
       <ul>
@@ -679,17 +758,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/parser.html#fastdfe.parser.Parser.ignore_not_polarized">ignore_not_polarized (fastdfe.parser.Parser attribute)</a>
 </li>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.infer_monomorphic_counts">infer_monomorphic_counts() (fastdfe.parser.Parser method)</a>
-</li>
       <li><a href="modules/inference.html#fastdfe.abstract_inference.Inference">Inference (class in fastdfe.abstract_inference)</a>
 </li>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.info_ancestral">info_ancestral (fastdfe.parser.Parser attribute)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.interval_sizes">interval_sizes (fastdfe.parametrization.DiscreteParametrization attribute)</a>
 </li>
       <li><a href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.intervals">intervals (fastdfe.parametrization.DiscreteParametrization attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/filtration.html#fastdfe.filtration.Filterer.is_filtered">is_filtered() (fastdfe.filtration.Filterer method)</a>
 </li>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.is_folded">is_folded() (fastdfe.spectrum.Spectra method)</a>
 
@@ -697,6 +774,8 @@
         <li><a href="modules/spectrum.html#fastdfe.spectrum.Spectrum.is_folded">(fastdfe.spectrum.Spectrum method)</a>
 </li>
       </ul></li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.is_synonymous">is_synonymous() (fastdfe.annotation.SynonymyAnnotation static method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -771,9 +850,11 @@
 </li>
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.marginals_without_all">marginals_without_all() (fastdfe.joint_inference.JointInference method)</a>
 </li>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.max_sites">max_sites (fastdfe.parser.Parser attribute)</a>
+      <li><a href="modules/annotation.html#fastdfe.annotation.MaximumParsimonyAnnotation">MaximumParsimonyAnnotation (class in fastdfe.annotation)</a>
 </li>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.merge_groups">merge_groups() (fastdfe.spectrum.Spectra method)</a>
+</li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.mismatches">mismatches (fastdfe.annotation.DegeneracyAnnotation attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -789,6 +870,8 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.model_sfs">(fastdfe.joint_inference.JointInference method)</a>
 </li>
       </ul></li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.mutate">mutate() (fastdfe.annotation.SynonymyAnnotation static method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -807,6 +890,8 @@
         <li><a href="modules/spectrum.html#fastdfe.spectrum.Spectrum.n">(fastdfe.spectrum.Spectrum property)</a>
 </li>
       </ul></li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.Annotation.n_annotated">n_annotated (fastdfe.annotation.Annotation attribute)</a>
+</li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.n_bootstraps">n_bootstraps (fastdfe.base_inference.BaseInference attribute)</a>
 
       <ul>
@@ -819,6 +904,12 @@
         <li><a href="modules/spectrum.html#fastdfe.spectrum.Spectrum.n_div">(fastdfe.spectrum.Spectrum property)</a>
 </li>
       </ul></li>
+      <li><a href="modules/filtration.html#fastdfe.filtration.Filterer.n_filtered">n_filtered (fastdfe.filtration.Filterer attribute)</a>
+
+      <ul>
+        <li><a href="modules/filtration.html#fastdfe.filtration.Filtration.n_filtered">(fastdfe.filtration.Filtration attribute)</a>
+</li>
+      </ul></li>
       <li><a href="modules/parser.html#fastdfe.parser.BaseContextStratification.n_flanking">n_flanking (fastdfe.parser.BaseContextStratification attribute)</a>
 </li>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.n_monomorphic">n_monomorphic (fastdfe.spectrum.Spectra property)</a>
@@ -827,8 +918,6 @@
         <li><a href="modules/spectrum.html#fastdfe.spectrum.Spectrum.n_monomorphic">(fastdfe.spectrum.Spectrum property)</a>
 </li>
       </ul></li>
-      <li><a href="modules/parser.html#fastdfe.parser.Stratification.n_no_type">n_no_type (fastdfe.parser.Stratification attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.n_polymorphic">n_polymorphic (fastdfe.spectrum.Spectra property)</a>
@@ -837,32 +926,32 @@
         <li><a href="modules/spectrum.html#fastdfe.spectrum.Spectrum.n_polymorphic">(fastdfe.spectrum.Spectrum property)</a>
 </li>
       </ul></li>
+      <li><a href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration.n_processed">n_processed (fastdfe.filtration.CodingSequenceFiltration attribute)</a>
+</li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.n_runs">n_runs (fastdfe.base_inference.BaseInference attribute)</a>
 
       <ul>
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.n_runs">(fastdfe.joint_inference.JointInference attribute)</a>
 </li>
       </ul></li>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.n_sites">n_sites (fastdfe.parser.Parser attribute)</a>
+      <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.n_sites">n_sites (fastdfe.spectrum.Spectra property)</a>
 
       <ul>
-        <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.n_sites">(fastdfe.spectrum.Spectra property)</a>
-</li>
         <li><a href="modules/spectrum.html#fastdfe.spectrum.Spectrum.n_sites">(fastdfe.spectrum.Spectrum property)</a>
 </li>
       </ul></li>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.n_skipped">n_skipped (fastdfe.parser.Parser attribute)</a>
-</li>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.n_target_sites">n_target_sites (fastdfe.parser.Parser attribute)</a>
-</li>
-      <li><a href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.normalize">normalize() (fastdfe.parametrization.DiscreteParametrization method)</a>
+      <li><a href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.n_skipped">n_skipped (fastdfe.annotation.DegeneracyAnnotation attribute)</a>
 
       <ul>
-        <li><a href="modules/parametrization.html#fastdfe.parametrization.Parametrization.normalize">(fastdfe.parametrization.Parametrization method)</a>
-</li>
-        <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.normalize">(fastdfe.spectrum.Spectra method)</a>
+        <li><a href="modules/parser.html#fastdfe.parser.Parser.n_skipped">(fastdfe.parser.Parser attribute)</a>
 </li>
       </ul></li>
+      <li><a href="modules/parser.html#fastdfe.parser.Parser.n_target_sites">n_target_sites (fastdfe.parser.Parser attribute)</a>
+</li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.n_vep_comparisons">n_vep_comparisons (fastdfe.annotation.SynonymyAnnotation attribute)</a>
+</li>
+      <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.normalize">normalize() (fastdfe.spectrum.Spectra method)</a>
+</li>
       <li><a href="modules/parser.html#fastdfe.parser.NoTypeException">NoTypeException (class in fastdfe.parser)</a>
 </li>
   </ul></td>
@@ -877,6 +966,10 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.optimization">(fastdfe.joint_inference.JointInference attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/filtration.html#fastdfe.filtration.Filterer.output">output (fastdfe.filtration.Filterer attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -897,12 +990,6 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.param_names">(fastdfe.joint_inference.JointInference property)</a>
 </li>
         <li><a href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.param_names">(fastdfe.parametrization.DiscreteParametrization attribute)</a>
-</li>
-        <li><a href="modules/parametrization.html#fastdfe.parametrization.DisplacedGammaParametrization.param_names">(fastdfe.parametrization.DisplacedGammaParametrization attribute)</a>
-</li>
-        <li><a href="modules/parametrization.html#fastdfe.parametrization.GammaDiscreteParametrization.param_names">(fastdfe.parametrization.GammaDiscreteParametrization attribute)</a>
-</li>
-        <li><a href="modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization.param_names">(fastdfe.parametrization.GammaExpParametrization attribute)</a>
 </li>
         <li><a href="modules/parametrization.html#fastdfe.parametrization.Parametrization.param_names">(fastdfe.parametrization.Parametrization attribute)</a>
 </li>
@@ -929,11 +1016,7 @@
 </li>
       <li><a href="modules/config.html#fastdfe.config.Config.parse_polydfe_sfs_config">parse_polydfe_sfs_config() (fastdfe.config.Config method)</a>
 </li>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.parse_site">parse_site() (fastdfe.parser.Parser method)</a>
-</li>
       <li><a href="modules/parser.html#fastdfe.parser.Parser">Parser (class in fastdfe.parser)</a>
-</li>
-      <li><a href="modules/parser.html#fastdfe.parser.Stratification.parser">parser (fastdfe.parser.Stratification attribute)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.perform_lrt_covariates">perform_lrt_covariates() (fastdfe.joint_inference.JointInference method)</a>
 </li>
@@ -951,14 +1034,14 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_all">(fastdfe.joint_inference.JointInference method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.plot_bucket_sizes">plot_bucket_sizes() (fastdfe.base_inference.BaseInference method)</a>
 
       <ul>
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_bucket_sizes">(fastdfe.joint_inference.JointInference method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.abstract_inference.Inference.plot_continuous">plot_continuous() (fastdfe.abstract_inference.Inference static method)</a>
 
       <ul>
@@ -1013,6 +1096,8 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_sfs_comparison">(fastdfe.joint_inference.JointInference method)</a>
 </li>
       </ul></li>
+      <li><a href="modules/filtration.html#fastdfe.filtration.PolyAllelicFiltration">PolyAllelicFiltration (class in fastdfe.filtration)</a>
+</li>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.polymorphic">polymorphic (fastdfe.spectrum.Spectra property)</a>
 
       <ul>
@@ -1042,8 +1127,6 @@
 </li>
       </ul></li>
       <li><a href="modules/parser.html#fastdfe.parser.Parser.reader">reader (fastdfe.parser.Parser attribute)</a>
-</li>
-      <li><a href="modules/parser.html#fastdfe.parser.BaseContextStratification.ref">ref (fastdfe.parser.BaseContextStratification property)</a>
 </li>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.remove_empty">remove_empty() (fastdfe.spectrum.Spectra method)</a>
 </li>
@@ -1136,22 +1219,6 @@
       <ul>
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.seed">(fastdfe.joint_inference.JointInference attribute)</a>
 </li>
-        <li><a href="modules/parser.html#fastdfe.parser.Parser.seed">(fastdfe.parser.Parser attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.set_fixed_params">set_fixed_params() (fastdfe.base_inference.BaseInference method)</a>
-
-      <ul>
-        <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.set_fixed_params">(fastdfe.joint_inference.JointInference method)</a>
-</li>
-      </ul></li>
-      <li><a href="modules/parser.html#fastdfe.parser.BaseTransitionStratification.setup">setup() (fastdfe.parser.BaseTransitionStratification method)</a>
-
-      <ul>
-        <li><a href="modules/parser.html#fastdfe.parser.Stratification.setup">(fastdfe.parser.Stratification method)</a>
-</li>
-        <li><a href="modules/parser.html#fastdfe.parser.TransitionTransversionStratification.setup">(fastdfe.parser.TransitionTransversionStratification method)</a>
-</li>
       </ul></li>
       <li><a href="modules/parser.html#fastdfe.parser.Parser.sfs">sfs (fastdfe.parser.Parser attribute)</a>
 </li>
@@ -1161,8 +1228,6 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.sfs_mle">(fastdfe.joint_inference.JointInference attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.sfs_neut">sfs_neut (fastdfe.base_inference.BaseInference attribute)</a>
 
       <ul>
@@ -1175,9 +1240,15 @@
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.sfs_sel">(fastdfe.joint_inference.JointInference attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.shared_params">shared_params (fastdfe.joint_inference.JointInference attribute)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.optimization.SharedParams">SharedParams (class in fastdfe.optimization)</a>
+</li>
+      <li><a href="modules/filtration.html#fastdfe.filtration.SNPFiltration">SNPFiltration (class in fastdfe.filtration)</a>
+</li>
+      <li><a href="modules/filtration.html#fastdfe.filtration.SNVFiltration">SNVFiltration (class in fastdfe.filtration)</a>
 </li>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra">Spectra (class in fastdfe.spectrum)</a>
 </li>
@@ -1199,18 +1270,14 @@
         <li><a href="modules/parametrization.html#fastdfe.parametrization.Parametrization.submodels">(fastdfe.parametrization.Parametrization attribute)</a>
 </li>
       </ul></li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation">SynonymyAnnotation (class in fastdfe.annotation)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.teardown">teardown() (fastdfe.parser.Parser method)</a>
-
-      <ul>
-        <li><a href="modules/parser.html#fastdfe.parser.Stratification.teardown">(fastdfe.parser.Stratification method)</a>
-</li>
-      </ul></li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.theta">theta (fastdfe.base_inference.BaseInference attribute)</a>
 
       <ul>
@@ -1300,6 +1367,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.optimization.Covariate.values">values (fastdfe.optimization.Covariate attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.vep_mismatches">vep_mismatches (fastdfe.annotation.SynonymyAnnotation attribute)</a>
 </li>
   </ul></td>
 </tr></table>

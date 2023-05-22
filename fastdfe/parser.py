@@ -37,7 +37,7 @@ def count_no_type(func: Callable) -> Callable:
         try:
             return func(self, variant)
         except NoTypeException as e:
-            self.n_no_type += 1
+            self._n_no_type += 1
             raise e
 
     return wrapper
@@ -57,30 +57,30 @@ class Stratification(ABC):
     """
 
     #: Parser instance
-    parser: Optional['Parser'] = None
+    _parser: Optional['Parser'] = None
 
     #: The number of sites that didn't have a type.
-    n_no_type: int = 0
+    _n_no_type: int = 0
 
-    def setup(self, parser: 'Parser'):
+    def _setup(self, parser: 'Parser'):
         """
         Provide the stratification with some context by specifying the parser.
-        This should be done before called ``get_type``.
+        This should be done before calling :meth:`get_type`.
 
         :param parser: The parser
         """
-        self.parser = parser
+        self._parser = parser
 
-    def teardown(self):
+    def _teardown(self):
         """
         Perform any necessary post-processing. This method is called after the actual stratification.
         """
-        n_total = self.parser.n_sites - self.parser.n_skipped + self.n_no_type
-        n_valid = n_total - self.n_no_type
+        n_total = self._parser.n_sites - self._parser.n_skipped + self._n_no_type
+        n_valid = n_total - self._n_no_type
 
         logger.info(f":{type(self).__name__} Number of sites with valid type: {n_valid} / {n_total}")
 
-    def get_ancestral(self, variant: Variant) -> str:
+    def _get_ancestral(self, variant: Variant) -> str:
         """
         Determine the ancestral allele.
 
@@ -90,14 +90,14 @@ class Stratification(ABC):
         """
         if variant.is_snp:
             # obtain ancestral allele
-            aa = variant.INFO.get(self.parser.info_ancestral)
+            aa = variant.INFO.get(self._parser.info_ancestral)
 
             # return the ancestral allele if it is a valid base
             if aa in bases:
                 return aa
 
             # if we don't skip non-polarized sites, we raise an error
-            if self.parser.ignore_not_polarized:
+            if self._parser.ignore_not_polarized:
                 raise ValueError("No valid AA tag found.")
 
         # if we don't skip non-polarized sites, or if the site is not an SNP
@@ -154,7 +154,7 @@ class BaseContextStratification(Stratification):
         self.aliases: Dict[str, List[str]] = aliases
 
     @cached_property
-    def ref(self) -> Fasta:
+    def _ref(self) -> Fasta:
         """
         Get the reference reader.
 
@@ -173,12 +173,12 @@ class BaseContextStratification(Stratification):
         pos = variant.POS - 1
 
         try:
-            ref = self.get_ancestral(variant)
+            ref = self._get_ancestral(variant)
         except ValueError:
             raise NoTypeException("Invalid ancestral allele: Ancestral allele must be a valid base.")
 
         # retrieve the sequence of the chromosome from the reference genome
-        sequence = VCFHandler.get_contig(self.ref, VCFHandler.get_aliases(variant.CHROM, self.aliases))
+        sequence = VCFHandler.get_contig(self._ref, VCFHandler.get_aliases(variant.CHROM, self.aliases))
 
         if pos < 0 or pos >= len(sequence):
             raise NoTypeException("Invalid position: Position must be within the bounds of the sequence.")
@@ -211,7 +211,7 @@ class BaseTransitionStratification(Stratification):
     #: Base-transition probabilities
     probabilities = dict()
 
-    def setup(self, parser: 'Parser'):
+    def _setup(self, parser: 'Parser'):
         """
         Determine base transition probabilities for polymorphic sites.
         We do this to calibrate the number of monomorphic sites.
@@ -305,7 +305,7 @@ class AncestralBaseStratification(Stratification):
         :return: reference allele
         """
         try:
-            return self.get_ancestral(variant)
+            return self._get_ancestral(variant)
         except ValueError:
             raise NoTypeException("Invalid ancestral allele: Ancestral allele must be a valid base.")
 
@@ -332,7 +332,7 @@ class TransitionTransversionStratification(BaseTransitionStratification):
         transversion=0.5
     )
 
-    def setup(self, parser: 'Parser'):
+    def _setup(self, parser: 'Parser'):
         """
         Determine transition-transversion probabilities for polymorphic sites.
         We do this to calibrate the number of monomorphic sites.
@@ -405,10 +405,10 @@ class DegeneracyStratification(Stratification):
         :param custom_callback: Custom callback to determine the type of mutation
         """
         #: Custom callback to determine the degeneracy of mutation
-        self.get_degeneracy = custom_callback if custom_callback is not None else self.get_degeneracy_default
+        self.get_degeneracy = custom_callback if custom_callback is not None else self._get_degeneracy_default
 
     @staticmethod
-    def get_degeneracy_default(variant: Variant) -> Optional[Literal['neutral', 'selected']]:
+    def _get_degeneracy_default(variant: Variant) -> Optional[Literal['neutral', 'selected']]:
         """
         Get degeneracy based on 'Degeneracy' tag.
 
@@ -452,8 +452,6 @@ class SynonymyStratification(Stratification):
     """
     Stratify SFS by synonymy (neutral or selected). Note that we extrapolate the number of monomorphic sites
     for each type from the relative number of types for polymorphic sites.
-
-    TODO implement
     """
 
     def get_types(self) -> List[str]:
@@ -556,7 +554,7 @@ class Parser(VCFHandler):
         #: The VCF reader
         self.reader: Optional[VCF] = None
 
-    def create_sfs_dictionary(self):
+    def _create_sfs_dictionary(self):
         """
         Create an SFS dictionary initialized with all possible base contexts.
 
@@ -573,7 +571,7 @@ class Parser(VCFHandler):
 
         self.sfs = sfs
 
-    def parse_site(self, variant: Variant):
+    def _parse_site(self, variant: Variant):
         """
         Parse a single site.
 
@@ -635,7 +633,7 @@ class Parser(VCFHandler):
             self.n_skipped += 1
             logger.debug(e)
 
-    def handle_site(self, variant: Variant):
+    def _handle_site(self, variant: Variant):
         """
         Handle a single site.
 
@@ -652,22 +650,22 @@ class Parser(VCFHandler):
             annotation.annotate_site(variant)
 
         # parse site
-        self.parse_site(variant)
+        self._parse_site(variant)
 
-    def teardown(self):
+    def _teardown(self):
         """
         Teardown the parser.
         """
         for f in self.filtrations:
-            f.teardown()
+            f._teardown()
 
         for s in self.stratifications:
-            s.teardown()
+            s._teardown()
 
         for a in self.annotations:
-            a.teardown()
+            a._teardown()
 
-    def infer_monomorphic_counts(self):
+    def _infer_monomorphic_counts(self):
         """
         Infer the number of monomorphic sites from the number of polymorphic sites.
         """
@@ -684,7 +682,7 @@ class Parser(VCFHandler):
 
         :return: The spectra for the different stratifications
         """
-        self.create_sfs_dictionary()
+        self._create_sfs_dictionary()
 
         # create a string representation of the stratifications
         representation = '.'.join(['[' + ', '.join(s.get_types()) + ']' for s in self.stratifications])
@@ -697,11 +695,11 @@ class Parser(VCFHandler):
 
         # make parser available to stratifications
         for s in self.stratifications:
-            s.setup(self)
+            s._setup(self)
 
         # touch all filtrations
         for f in self.filtrations:
-            f.setup()
+            f._setup()
 
         # instantiate annotator to provide context to annotations
         ann = Annotator(
@@ -718,8 +716,8 @@ class Parser(VCFHandler):
 
         # provide annotator to annotations and add info fields
         for annotation in self.annotations:
-            annotation.setup(ann)
-            annotation.add_info(reader)
+            annotation._setup(ann)
+            annotation._add_info(reader)
 
         logger.info(f'Starting to parse.')
 
@@ -729,7 +727,7 @@ class Parser(VCFHandler):
             for i, variant in enumerate(reader):
 
                 # handle site
-                self.handle_site(variant)
+                self._handle_site(variant)
 
                 pbar.update()
 
@@ -739,14 +737,14 @@ class Parser(VCFHandler):
                     break
 
         # tear down all objects
-        self.teardown()
+        self._teardown()
 
         # close reader
         reader.close()
 
         # correct monomorphic counts if number of target sites is defined
         if self.n_target_sites is not None:
-            self.infer_monomorphic_counts()
+            self._infer_monomorphic_counts()
 
         logger.info(f'Parsed {self.n_sites - self.n_skipped} out of {self.n_sites} sites in total.')
 

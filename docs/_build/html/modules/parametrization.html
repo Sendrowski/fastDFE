@@ -54,15 +54,16 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart_R.html">Quickstart in R</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/inference.html">DFE Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/spectra.html">Manipulating site-frequency spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/spectra.html">Working with site-frequency spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/parser.html">Parsing SFS from VCF file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/logging.html">Logging</a></li>
 </ul>
@@ -78,7 +79,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaExpParametrization.submodels"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization.submodels</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaExpParametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization.get_pdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaExpParametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization.get_cdf()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaExpParametrization.param_names"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization.param_names</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization</span></code></a><ul>
@@ -89,7 +89,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization.params"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.params</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization.param_names"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.param_names</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization.fixed_params"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.fixed_params</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization.normalize"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.normalize()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.get_pdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.get_cdf()</span></code></a></li>
 </ul>
@@ -101,7 +100,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DisplacedGammaParametrization.submodels"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.submodels</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DisplacedGammaParametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.get_pdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DisplacedGammaParametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.get_cdf()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DisplacedGammaParametrization.param_names"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.param_names</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.parametrization.GammaDiscreteParametrization"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization</span></code></a><ul>
@@ -111,7 +109,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaDiscreteParametrization.submodels"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.submodels</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaDiscreteParametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.get_pdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaDiscreteParametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.get_cdf()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.GammaDiscreteParametrization.param_names"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.param_names</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.parametrization.Parametrization"><code class="docutils literal notranslate"><span class="pre">Parametrization</span></code></a><ul>
@@ -121,11 +118,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.scales"><code class="docutils literal notranslate"><span class="pre">Parametrization.scales</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.__init__"><code class="docutils literal notranslate"><span class="pre">Parametrization.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.param_names"><code class="docutils literal notranslate"><span class="pre">Parametrization.param_names</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.accepts_scalars"><code class="docutils literal notranslate"><span class="pre">Parametrization.accepts_scalars()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">Parametrization.get_pdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">Parametrization.get_cdf()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.discretize"><code class="docutils literal notranslate"><span class="pre">Parametrization.discretize()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.normalize"><code class="docutils literal notranslate"><span class="pre">Parametrization.normalize()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -133,6 +127,8 @@
 <li class="toctree-l1"><a class="reference internal" href="spectrum.html">Spectrum class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="spectra.html">Spectra class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annotation.html">VCF Annotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filtration.html">VCF Filtration</a></li>
 </ul>
 
         </div>
@@ -251,12 +247,6 @@ provides a good amount of flexibility to accommodate this.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.parametrization.GammaExpParametrization.param_names">
-<span class="sig-name descname"><span class="pre">param_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></em><a class="headerlink" href="#fastdfe.parametrization.GammaExpParametrization.param_names" title="Permalink to this definition"></a></dt>
-<dd><p>argument names</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -319,24 +309,6 @@ we have to re-normalize the parameters to make sure they sum up to 1.</p>
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.fixed_params">
 <span class="sig-name descname"><span class="pre">fixed_params</span></span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.fixed_params" title="Permalink to this definition"></a></dt>
 <dd><p>Fixed parameters</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.normalize">
-<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.normalize" title="Permalink to this definition"></a></dt>
-<dd><p>Add params for boundaries and normalize so that
-the parameters sum up to 1.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Parameter values</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict of normalized values plus remaining parameters</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -446,12 +418,6 @@ fewer parameters. It also does not allow for a purely deleterious sub-parametriz
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.parametrization.DisplacedGammaParametrization.param_names">
-<span class="sig-name descname"><span class="pre">param_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></em><a class="headerlink" href="#fastdfe.parametrization.DisplacedGammaParametrization.param_names" title="Permalink to this definition"></a></dt>
-<dd><p>argument names</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -541,12 +507,6 @@ selection coefficients. The results should be rather similar in most cases.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.parametrization.GammaDiscreteParametrization.param_names">
-<span class="sig-name descname"><span class="pre">param_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></em><a class="headerlink" href="#fastdfe.parametrization.GammaDiscreteParametrization.param_names" title="Permalink to this definition"></a></dt>
-<dd><p>argument names</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -593,20 +553,6 @@ linearized mode of fastDFE is used (which is highly recommended).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.parametrization.Parametrization.accepts_scalars">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">accepts_scalars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.Parametrization.accepts_scalars" title="Permalink to this definition"></a></dt>
-<dd><p>Make func accept scalar values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Function that accepts scalars</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parametrization.Parametrization.get_pdf">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.Parametrization.get_pdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get probability distribution function of DFE.</p>
@@ -630,43 +576,6 @@ linearized mode of fastDFE is used (which is highly recommended).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Function that accepts an array of selection coefficients and returns their cumulative probability</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.parametrization.Parametrization.discretize">
-<span class="sig-name descname"><span class="pre">discretize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.Parametrization.discretize" title="Permalink to this definition"></a></dt>
-<dd><p>Discretize by using the CDF.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> – Parameters of the parametrization</p></li>
-<li><p><strong>bins</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Bins to use for discretization</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Histogram</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.parametrization.Parametrization.normalize">
-<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.Parametrization.normalize" title="Permalink to this definition"></a></dt>
-<dd><p>Normalize parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Parameters of the parametrization</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Normalized parameters</p>
 </dd>
 </dl>
 </dd></dl>

@@ -16,7 +16,7 @@ try:
 
     testing = False
     vcf_file = snakemake.input.vcf
-    fasta_file = snakemake.input.ref
+    fasta_file = snakemake.input._ref
     gff_file = snakemake.input.gff
     aliases = snakemake.params.aliases
     out = snakemake.output[0]

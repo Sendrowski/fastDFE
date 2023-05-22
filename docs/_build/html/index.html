@@ -52,15 +52,16 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/quickstart_R.html">Quickstart in R</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/inference.html">DFE Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/parametrizations.html">DFE parametrizations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/spectra.html">Manipulating site-frequency spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/spectra.html">Working with site-frequency spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/parser.html">Parsing SFS from VCF file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/logging.html">Logging</a></li>
 </ul>
@@ -72,6 +73,8 @@
 <li class="toctree-l1"><a class="reference internal" href="modules/spectrum.html">Spectrum class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/spectra.html">Spectra class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/annotation.html">VCF Annotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/filtration.html">VCF Filtration</a></li>
 </ul>
 
         </div>
@@ -118,22 +121,46 @@
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#pypi">PyPi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#conda">Conda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#r">R</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="notebooks/quickstart.html#basic-inference">Basic inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="notebooks/quickstart.html#bootstrapping">Bootstrapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="notebooks/quickstart.html#serialization">Serialization</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/quickstart_R.html">Quickstart in R</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/quickstart_R.html#basic-inference">Basic inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/quickstart_R.html#bootstrapping">Bootstrapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/quickstart_R.html#serialization">Serialization</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/inference.html">DFE Inference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/inference.html#base-inference">Base inference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/inference.html#joint-inference">Joint inference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/inference.html#covariates">Covariates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/inference.html#base-inference">Base inference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/inference.html#bootstrapping">Bootstrapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/inference.html#fixing-parameters">Fixing parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/inference.html#nested-model-comparison">Nested model comparison</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/inference.html#visualize-likelihoods">Visualize likelihoods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/inference.html#serialization">Serialization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/inference.html#joint-inference">Joint inference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/inference.html#model-comparison">Model comparison</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/inference.html#covariates">Covariates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/inference.html#id1">Model comparison</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="reference/config.html">Configuration files</a><ul>
@@ -143,7 +170,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="reference/parametrizations.html">DFE parametrizations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/spectra.html">Manipulating site-frequency spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/spectra.html">Working with site-frequency spectra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/spectra.html#subtypes">Subtypes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/spectra.html#grouping">Grouping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/spectra.html#serialization">Serialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/spectra.html#prefixing">Prefixing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/spectra.html#folded-spectra">Folded spectra</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/parser.html">Parsing SFS from VCF file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/logging.html">Logging</a></li>
 </ul>
@@ -152,42 +186,518 @@
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules/inference.html">Inference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference"><code class="docutils literal notranslate"><span class="pre">BaseInference</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference"><code class="docutils literal notranslate"><span class="pre">JointInference</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/inference.html#fastdfe.abstract_inference.Inference"><code class="docutils literal notranslate"><span class="pre">Inference</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.SharedParams"><code class="docutils literal notranslate"><span class="pre">SharedParams</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.Covariate"><code class="docutils literal notranslate"><span class="pre">Covariate</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference"><code class="docutils literal notranslate"><span class="pre">BaseInference</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.default_x0"><code class="docutils literal notranslate"><span class="pre">BaseInference.default_x0</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.default_bounds"><code class="docutils literal notranslate"><span class="pre">BaseInference.default_bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.default_scales"><code class="docutils literal notranslate"><span class="pre">BaseInference.default_scales</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.default_opts_mle"><code class="docutils literal notranslate"><span class="pre">BaseInference.default_opts_mle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.__init__"><code class="docutils literal notranslate"><span class="pre">BaseInference.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.sfs_neut"><code class="docutils literal notranslate"><span class="pre">BaseInference.sfs_neut</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.sfs_sel"><code class="docutils literal notranslate"><span class="pre">BaseInference.sfs_sel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.model"><code class="docutils literal notranslate"><span class="pre">BaseInference.model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.folded"><code class="docutils literal notranslate"><span class="pre">BaseInference.folded</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.n"><code class="docutils literal notranslate"><span class="pre">BaseInference.n</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.discretization"><code class="docutils literal notranslate"><span class="pre">BaseInference.discretization</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.theta"><code class="docutils literal notranslate"><span class="pre">BaseInference.theta</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.params_mle"><code class="docutils literal notranslate"><span class="pre">BaseInference.params_mle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.sfs_mle"><code class="docutils literal notranslate"><span class="pre">BaseInference.sfs_mle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.likelihood"><code class="docutils literal notranslate"><span class="pre">BaseInference.likelihood</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.likelihoods"><code class="docutils literal notranslate"><span class="pre">BaseInference.likelihoods</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.n_runs"><code class="docutils literal notranslate"><span class="pre">BaseInference.n_runs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.result"><code class="docutils literal notranslate"><span class="pre">BaseInference.result</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.do_bootstrap"><code class="docutils literal notranslate"><span class="pre">BaseInference.do_bootstrap</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.n_bootstraps"><code class="docutils literal notranslate"><span class="pre">BaseInference.n_bootstraps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.parallelize"><code class="docutils literal notranslate"><span class="pre">BaseInference.parallelize</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.fixed_params"><code class="docutils literal notranslate"><span class="pre">BaseInference.fixed_params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.scales"><code class="docutils literal notranslate"><span class="pre">BaseInference.scales</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.bounds"><code class="docutils literal notranslate"><span class="pre">BaseInference.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.optimization"><code class="docutils literal notranslate"><span class="pre">BaseInference.optimization</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.x0"><code class="docutils literal notranslate"><span class="pre">BaseInference.x0</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.bootstraps"><code class="docutils literal notranslate"><span class="pre">BaseInference.bootstraps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.bootstrap_results"><code class="docutils literal notranslate"><span class="pre">BaseInference.bootstrap_results</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.L2_residual"><code class="docutils literal notranslate"><span class="pre">BaseInference.L2_residual</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.seed"><code class="docutils literal notranslate"><span class="pre">BaseInference.seed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.rng"><code class="docutils literal notranslate"><span class="pre">BaseInference.rng</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.execution_time"><code class="docutils literal notranslate"><span class="pre">BaseInference.execution_time</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.locked"><code class="docutils literal notranslate"><span class="pre">BaseInference.locked</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_fixed_param_names"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_fixed_param_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.check_fixed_params_exist"><code class="docutils literal notranslate"><span class="pre">BaseInference.check_fixed_params_exist()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.raise_if_locked"><code class="docutils literal notranslate"><span class="pre">BaseInference.raise_if_locked()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.run_if_required"><code class="docutils literal notranslate"><span class="pre">BaseInference.run_if_required()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.run_if_required_wrapper"><code class="docutils literal notranslate"><span class="pre">BaseInference.run_if_required_wrapper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.run"><code class="docutils literal notranslate"><span class="pre">BaseInference.run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_counts"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_counts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.evaluate_likelihood"><code class="docutils literal notranslate"><span class="pre">BaseInference.evaluate_likelihood()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.assign_result"><code class="docutils literal notranslate"><span class="pre">BaseInference.assign_result()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.report_result"><code class="docutils literal notranslate"><span class="pre">BaseInference.report_result()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.update_properties"><code class="docutils literal notranslate"><span class="pre">BaseInference.update_properties()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.bootstrap"><code class="docutils literal notranslate"><span class="pre">BaseInference.bootstrap()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.add_alpha_to_bootstraps"><code class="docutils literal notranslate"><span class="pre">BaseInference.add_alpha_to_bootstraps()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.resample_sfs"><code class="docutils literal notranslate"><span class="pre">BaseInference.resample_sfs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.run_bootstrap_sample"><code class="docutils literal notranslate"><span class="pre">BaseInference.run_bootstrap_sample()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_scales_linear"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_scales_linear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_bounds_linear"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_bounds_linear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.model_sfs"><code class="docutils literal notranslate"><span class="pre">BaseInference.model_sfs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.adjust_polarization"><code class="docutils literal notranslate"><span class="pre">BaseInference.adjust_polarization()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.add_demography"><code class="docutils literal notranslate"><span class="pre">BaseInference.add_demography()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.plot_continuous"><code class="docutils literal notranslate"><span class="pre">BaseInference.plot_continuous()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.plot_bucket_sizes"><code class="docutils literal notranslate"><span class="pre">BaseInference.plot_bucket_sizes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.plot_interval_density"><code class="docutils literal notranslate"><span class="pre">BaseInference.plot_interval_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.plot_sfs_comparison"><code class="docutils literal notranslate"><span class="pre">BaseInference.plot_sfs_comparison()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.plot_observed_sfs"><code class="docutils literal notranslate"><span class="pre">BaseInference.plot_observed_sfs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.plot_all"><code class="docutils literal notranslate"><span class="pre">BaseInference.plot_all()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_errors_discretized_dfe"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_errors_discretized_dfe()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.plot_inferred_parameters"><code class="docutils literal notranslate"><span class="pre">BaseInference.plot_inferred_parameters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.plot_likelihoods"><code class="docutils literal notranslate"><span class="pre">BaseInference.plot_likelihoods()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.lrt"><code class="docutils literal notranslate"><span class="pre">BaseInference.lrt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.compare_nested_likelihoods"><code class="docutils literal notranslate"><span class="pre">BaseInference.compare_nested_likelihoods()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.compare_nested_models"><code class="docutils literal notranslate"><span class="pre">BaseInference.compare_nested_models()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.plot_nested_likelihoods"><code class="docutils literal notranslate"><span class="pre">BaseInference.plot_nested_likelihoods()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.plot_discretized"><code class="docutils literal notranslate"><span class="pre">BaseInference.plot_discretized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_alpha"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_alpha()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.alpha"><code class="docutils literal notranslate"><span class="pre">BaseInference.alpha</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_bootstrap_params"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_bootstrap_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_bootstrap_param_names"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_bootstrap_param_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_optimized_param_names"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_optimized_param_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_n_optimized"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_n_optimized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.create_config"><code class="docutils literal notranslate"><span class="pre">BaseInference.create_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.from_config"><code class="docutils literal notranslate"><span class="pre">BaseInference.from_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.from_config_file"><code class="docutils literal notranslate"><span class="pre">BaseInference.from_config_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_summary"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_summary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_x0"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_x0()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.param_names"><code class="docutils literal notranslate"><span class="pre">BaseInference.param_names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.to_json"><code class="docutils literal notranslate"><span class="pre">BaseInference.to_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.from_file"><code class="docutils literal notranslate"><span class="pre">BaseInference.from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.from_json"><code class="docutils literal notranslate"><span class="pre">BaseInference.from_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_cis_params_mle"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_cis_params_mle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.get_discretized"><code class="docutils literal notranslate"><span class="pre">BaseInference.get_discretized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.base_inference.BaseInference.to_file"><code class="docutils literal notranslate"><span class="pre">BaseInference.to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference"><code class="docutils literal notranslate"><span class="pre">JointInference</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.__init__"><code class="docutils literal notranslate"><span class="pre">JointInference.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.types"><code class="docutils literal notranslate"><span class="pre">JointInference.types</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.params_mle_raw"><code class="docutils literal notranslate"><span class="pre">JointInference.params_mle_raw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.shared_params"><code class="docutils literal notranslate"><span class="pre">JointInference.shared_params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.covariates"><code class="docutils literal notranslate"><span class="pre">JointInference.covariates</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.x0_cov"><code class="docutils literal notranslate"><span class="pre">JointInference.x0_cov</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.fixed_params"><code class="docutils literal notranslate"><span class="pre">JointInference.fixed_params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.marginal_inferences"><code class="docutils literal notranslate"><span class="pre">JointInference.marginal_inferences</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.scales"><code class="docutils literal notranslate"><span class="pre">JointInference.scales</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.bounds"><code class="docutils literal notranslate"><span class="pre">JointInference.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.optimization"><code class="docutils literal notranslate"><span class="pre">JointInference.optimization</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.joint_inferences"><code class="docutils literal notranslate"><span class="pre">JointInference.joint_inferences</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.check_shared_params"><code class="docutils literal notranslate"><span class="pre">JointInference.check_shared_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.check_no_shared_params_fixed"><code class="docutils literal notranslate"><span class="pre">JointInference.check_no_shared_params_fixed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_shared_param_names"><code class="docutils literal notranslate"><span class="pre">JointInference.get_shared_param_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.add_covariates_as_shared"><code class="docutils literal notranslate"><span class="pre">JointInference.add_covariates_as_shared()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.determine_unshared_covariates"><code class="docutils literal notranslate"><span class="pre">JointInference.determine_unshared_covariates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.run"><code class="docutils literal notranslate"><span class="pre">JointInference.run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.run_marginal"><code class="docutils literal notranslate"><span class="pre">JointInference.run_marginal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.marginals_without_all"><code class="docutils literal notranslate"><span class="pre">JointInference.marginals_without_all()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.run_joint"><code class="docutils literal notranslate"><span class="pre">JointInference.run_joint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.joint_inference_makes_sense"><code class="docutils literal notranslate"><span class="pre">JointInference.joint_inference_makes_sense()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_counts"><code class="docutils literal notranslate"><span class="pre">JointInference.get_counts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.run_joint_without_covariates"><code class="docutils literal notranslate"><span class="pre">JointInference.run_joint_without_covariates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.create_config"><code class="docutils literal notranslate"><span class="pre">JointInference.create_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.perform_lrt_covariates"><code class="docutils literal notranslate"><span class="pre">JointInference.perform_lrt_covariates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.add_covariates"><code class="docutils literal notranslate"><span class="pre">JointInference.add_covariates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.bootstrap"><code class="docutils literal notranslate"><span class="pre">JointInference.bootstrap()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.bootstrap_if_required"><code class="docutils literal notranslate"><span class="pre">JointInference.bootstrap_if_required()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.run_joint_bootstrap_sample"><code class="docutils literal notranslate"><span class="pre">JointInference.run_joint_bootstrap_sample()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_x0"><code class="docutils literal notranslate"><span class="pre">JointInference.get_x0()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.perform_lrt_shared"><code class="docutils literal notranslate"><span class="pre">JointInference.perform_lrt_shared()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_inferences"><code class="docutils literal notranslate"><span class="pre">JointInference.get_inferences()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_discretized"><code class="docutils literal notranslate"><span class="pre">JointInference.plot_discretized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_sfs_comparison"><code class="docutils literal notranslate"><span class="pre">JointInference.plot_sfs_comparison()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_continuous"><code class="docutils literal notranslate"><span class="pre">JointInference.plot_continuous()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_inferred_parameters"><code class="docutils literal notranslate"><span class="pre">JointInference.plot_inferred_parameters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_cis_params_mle"><code class="docutils literal notranslate"><span class="pre">JointInference.get_cis_params_mle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_discretized"><code class="docutils literal notranslate"><span class="pre">JointInference.get_discretized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_bootstrap_params"><code class="docutils literal notranslate"><span class="pre">JointInference.get_bootstrap_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.to_json"><code class="docutils literal notranslate"><span class="pre">JointInference.to_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.alpha"><code class="docutils literal notranslate"><span class="pre">JointInference.alpha</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_L2_residual"><code class="docutils literal notranslate"><span class="pre">JointInference.get_L2_residual()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.add_alpha_to_bootstraps"><code class="docutils literal notranslate"><span class="pre">JointInference.add_alpha_to_bootstraps()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.add_demography"><code class="docutils literal notranslate"><span class="pre">JointInference.add_demography()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.adjust_polarization"><code class="docutils literal notranslate"><span class="pre">JointInference.adjust_polarization()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.assign_result"><code class="docutils literal notranslate"><span class="pre">JointInference.assign_result()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.check_fixed_params_exist"><code class="docutils literal notranslate"><span class="pre">JointInference.check_fixed_params_exist()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.compare_nested_likelihoods"><code class="docutils literal notranslate"><span class="pre">JointInference.compare_nested_likelihoods()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.compare_nested_models"><code class="docutils literal notranslate"><span class="pre">JointInference.compare_nested_models()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.default_bounds"><code class="docutils literal notranslate"><span class="pre">JointInference.default_bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.default_opts_mle"><code class="docutils literal notranslate"><span class="pre">JointInference.default_opts_mle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.default_scales"><code class="docutils literal notranslate"><span class="pre">JointInference.default_scales</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.default_x0"><code class="docutils literal notranslate"><span class="pre">JointInference.default_x0</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.evaluate_likelihood"><code class="docutils literal notranslate"><span class="pre">JointInference.evaluate_likelihood()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.from_config"><code class="docutils literal notranslate"><span class="pre">JointInference.from_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.from_config_file"><code class="docutils literal notranslate"><span class="pre">JointInference.from_config_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.from_file"><code class="docutils literal notranslate"><span class="pre">JointInference.from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.from_json"><code class="docutils literal notranslate"><span class="pre">JointInference.from_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_alpha"><code class="docutils literal notranslate"><span class="pre">JointInference.get_alpha()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_bootstrap_param_names"><code class="docutils literal notranslate"><span class="pre">JointInference.get_bootstrap_param_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_bounds_linear"><code class="docutils literal notranslate"><span class="pre">JointInference.get_bounds_linear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_errors_discretized_dfe"><code class="docutils literal notranslate"><span class="pre">JointInference.get_errors_discretized_dfe()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_fixed_param_names"><code class="docutils literal notranslate"><span class="pre">JointInference.get_fixed_param_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_n_optimized"><code class="docutils literal notranslate"><span class="pre">JointInference.get_n_optimized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_optimized_param_names"><code class="docutils literal notranslate"><span class="pre">JointInference.get_optimized_param_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_scales_linear"><code class="docutils literal notranslate"><span class="pre">JointInference.get_scales_linear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.get_summary"><code class="docutils literal notranslate"><span class="pre">JointInference.get_summary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.lrt"><code class="docutils literal notranslate"><span class="pre">JointInference.lrt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.model_sfs"><code class="docutils literal notranslate"><span class="pre">JointInference.model_sfs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.param_names"><code class="docutils literal notranslate"><span class="pre">JointInference.param_names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_all"><code class="docutils literal notranslate"><span class="pre">JointInference.plot_all()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_bucket_sizes"><code class="docutils literal notranslate"><span class="pre">JointInference.plot_bucket_sizes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_interval_density"><code class="docutils literal notranslate"><span class="pre">JointInference.plot_interval_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_likelihoods"><code class="docutils literal notranslate"><span class="pre">JointInference.plot_likelihoods()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_nested_likelihoods"><code class="docutils literal notranslate"><span class="pre">JointInference.plot_nested_likelihoods()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.plot_observed_sfs"><code class="docutils literal notranslate"><span class="pre">JointInference.plot_observed_sfs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.raise_if_locked"><code class="docutils literal notranslate"><span class="pre">JointInference.raise_if_locked()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.report_result"><code class="docutils literal notranslate"><span class="pre">JointInference.report_result()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.resample_sfs"><code class="docutils literal notranslate"><span class="pre">JointInference.resample_sfs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.run_bootstrap_sample"><code class="docutils literal notranslate"><span class="pre">JointInference.run_bootstrap_sample()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.run_if_required"><code class="docutils literal notranslate"><span class="pre">JointInference.run_if_required()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.run_if_required_wrapper"><code class="docutils literal notranslate"><span class="pre">JointInference.run_if_required_wrapper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.to_file"><code class="docutils literal notranslate"><span class="pre">JointInference.to_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.update_properties"><code class="docutils literal notranslate"><span class="pre">JointInference.update_properties()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.sfs_neut"><code class="docutils literal notranslate"><span class="pre">JointInference.sfs_neut</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.sfs_sel"><code class="docutils literal notranslate"><span class="pre">JointInference.sfs_sel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.model"><code class="docutils literal notranslate"><span class="pre">JointInference.model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.folded"><code class="docutils literal notranslate"><span class="pre">JointInference.folded</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.n"><code class="docutils literal notranslate"><span class="pre">JointInference.n</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.discretization"><code class="docutils literal notranslate"><span class="pre">JointInference.discretization</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.theta"><code class="docutils literal notranslate"><span class="pre">JointInference.theta</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.params_mle"><code class="docutils literal notranslate"><span class="pre">JointInference.params_mle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.sfs_mle"><code class="docutils literal notranslate"><span class="pre">JointInference.sfs_mle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.likelihood"><code class="docutils literal notranslate"><span class="pre">JointInference.likelihood</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.likelihoods"><code class="docutils literal notranslate"><span class="pre">JointInference.likelihoods</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.n_runs"><code class="docutils literal notranslate"><span class="pre">JointInference.n_runs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.result"><code class="docutils literal notranslate"><span class="pre">JointInference.result</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.do_bootstrap"><code class="docutils literal notranslate"><span class="pre">JointInference.do_bootstrap</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.n_bootstraps"><code class="docutils literal notranslate"><span class="pre">JointInference.n_bootstraps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.parallelize"><code class="docutils literal notranslate"><span class="pre">JointInference.parallelize</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.bootstraps"><code class="docutils literal notranslate"><span class="pre">JointInference.bootstraps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.bootstrap_results"><code class="docutils literal notranslate"><span class="pre">JointInference.bootstrap_results</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.L2_residual"><code class="docutils literal notranslate"><span class="pre">JointInference.L2_residual</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.seed"><code class="docutils literal notranslate"><span class="pre">JointInference.seed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.execution_time"><code class="docutils literal notranslate"><span class="pre">JointInference.execution_time</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.locked"><code class="docutils literal notranslate"><span class="pre">JointInference.locked</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.x0"><code class="docutils literal notranslate"><span class="pre">JointInference.x0</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.joint_inference.JointInference.rng"><code class="docutils literal notranslate"><span class="pre">JointInference.rng</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/inference.html#fastdfe.abstract_inference.Inference"><code class="docutils literal notranslate"><span class="pre">Inference</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.abstract_inference.Inference.plot_discretized"><code class="docutils literal notranslate"><span class="pre">Inference.plot_discretized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.abstract_inference.Inference.plot_continuous"><code class="docutils literal notranslate"><span class="pre">Inference.plot_continuous()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.abstract_inference.Inference.plot_inferred_parameters"><code class="docutils literal notranslate"><span class="pre">Inference.plot_inferred_parameters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.abstract_inference.Inference.get_cis_params_mle"><code class="docutils literal notranslate"><span class="pre">Inference.get_cis_params_mle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.abstract_inference.Inference.get_errors_params_mle"><code class="docutils literal notranslate"><span class="pre">Inference.get_errors_params_mle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.abstract_inference.Inference.get_discretized"><code class="docutils literal notranslate"><span class="pre">Inference.get_discretized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.abstract_inference.Inference.get_stats_discretized"><code class="docutils literal notranslate"><span class="pre">Inference.get_stats_discretized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.abstract_inference.Inference.compute_histogram"><code class="docutils literal notranslate"><span class="pre">Inference.compute_histogram()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.SharedParams"><code class="docutils literal notranslate"><span class="pre">SharedParams</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.SharedParams.params"><code class="docutils literal notranslate"><span class="pre">SharedParams.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.SharedParams.types"><code class="docutils literal notranslate"><span class="pre">SharedParams.types</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.SharedParams.__init__"><code class="docutils literal notranslate"><span class="pre">SharedParams.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.Covariate"><code class="docutils literal notranslate"><span class="pre">Covariate</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.Covariate.param"><code class="docutils literal notranslate"><span class="pre">Covariate.param</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.Covariate.values"><code class="docutils literal notranslate"><span class="pre">Covariate.values</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.Covariate.callback"><code class="docutils literal notranslate"><span class="pre">Covariate.callback</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.Covariate.bounds"><code class="docutils literal notranslate"><span class="pre">Covariate.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.Covariate.x0"><code class="docutils literal notranslate"><span class="pre">Covariate.x0</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.Covariate.bounds_scale"><code class="docutils literal notranslate"><span class="pre">Covariate.bounds_scale</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.Covariate.apply"><code class="docutils literal notranslate"><span class="pre">Covariate.apply()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.Covariate.apply_default"><code class="docutils literal notranslate"><span class="pre">Covariate.apply_default()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/inference.html#fastdfe.optimization.Covariate.__init__"><code class="docutils literal notranslate"><span class="pre">Covariate.__init__()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules/config.html">Configuration class</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="modules/config.html#fastdfe.config.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/config.html#fastdfe.config.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.__init__"><code class="docutils literal notranslate"><span class="pre">Config.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.update"><code class="docutils literal notranslate"><span class="pre">Config.update()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.parse_polydfe_init_file"><code class="docutils literal notranslate"><span class="pre">Config.parse_polydfe_init_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.create_polydfe_init_file"><code class="docutils literal notranslate"><span class="pre">Config.create_polydfe_init_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.parse_polydfe_sfs_config"><code class="docutils literal notranslate"><span class="pre">Config.parse_polydfe_sfs_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.create_polydfe_sfs_config"><code class="docutils literal notranslate"><span class="pre">Config.create_polydfe_sfs_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.to_dict"><code class="docutils literal notranslate"><span class="pre">Config.to_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.to_json"><code class="docutils literal notranslate"><span class="pre">Config.to_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.to_yaml"><code class="docutils literal notranslate"><span class="pre">Config.to_yaml()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.to_file"><code class="docutils literal notranslate"><span class="pre">Config.to_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.from_dict"><code class="docutils literal notranslate"><span class="pre">Config.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.from_json"><code class="docutils literal notranslate"><span class="pre">Config.from_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.from_yaml"><code class="docutils literal notranslate"><span class="pre">Config.from_yaml()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.from_file"><code class="docutils literal notranslate"><span class="pre">Config.from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/config.html#fastdfe.config.Config.get_polydfe_model"><code class="docutils literal notranslate"><span class="pre">Config.get_polydfe_model()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules/parametrization.html">Parametrizations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DisplacedGammaParametrization"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaDiscreteParametrization"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization"><code class="docutils literal notranslate"><span class="pre">Parametrization</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization.x0"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization.x0</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization.bounds"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization.scales"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization.scales</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization.submodels"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization.submodels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization.get_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">GammaExpParametrization.get_cdf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.__init__"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.intervals"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.intervals</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.interval_sizes"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.interval_sizes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.k"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.k</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.params"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.param_names"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.param_names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.fixed_params"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.fixed_params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.get_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DiscreteParametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">DiscreteParametrization.get_cdf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DisplacedGammaParametrization"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DisplacedGammaParametrization.x0"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.x0</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DisplacedGammaParametrization.bounds"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DisplacedGammaParametrization.scales"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.scales</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DisplacedGammaParametrization.submodels"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.submodels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DisplacedGammaParametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.get_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.DisplacedGammaParametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">DisplacedGammaParametrization.get_cdf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaDiscreteParametrization"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaDiscreteParametrization.x0"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.x0</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaDiscreteParametrization.bounds"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaDiscreteParametrization.scales"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.scales</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaDiscreteParametrization.submodels"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.submodels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaDiscreteParametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.get_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.GammaDiscreteParametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">GammaDiscreteParametrization.get_cdf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization"><code class="docutils literal notranslate"><span class="pre">Parametrization</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization.x0"><code class="docutils literal notranslate"><span class="pre">Parametrization.x0</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization.bounds"><code class="docutils literal notranslate"><span class="pre">Parametrization.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization.submodels"><code class="docutils literal notranslate"><span class="pre">Parametrization.submodels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization.scales"><code class="docutils literal notranslate"><span class="pre">Parametrization.scales</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization.__init__"><code class="docutils literal notranslate"><span class="pre">Parametrization.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization.param_names"><code class="docutils literal notranslate"><span class="pre">Parametrization.param_names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">Parametrization.get_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parametrization.html#fastdfe.parametrization.Parametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">Parametrization.get_cdf()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules/spectrum.html">Spectrum class</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum"><code class="docutils literal notranslate"><span class="pre">Spectrum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum"><code class="docutils literal notranslate"><span class="pre">Spectrum</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.__init__"><code class="docutils literal notranslate"><span class="pre">Spectrum.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.n"><code class="docutils literal notranslate"><span class="pre">Spectrum.n</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.n_sites"><code class="docutils literal notranslate"><span class="pre">Spectrum.n_sites</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.n_div"><code class="docutils literal notranslate"><span class="pre">Spectrum.n_div</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.has_div"><code class="docutils literal notranslate"><span class="pre">Spectrum.has_div</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.n_monomorphic"><code class="docutils literal notranslate"><span class="pre">Spectrum.n_monomorphic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.polymorphic"><code class="docutils literal notranslate"><span class="pre">Spectrum.polymorphic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.n_polymorphic"><code class="docutils literal notranslate"><span class="pre">Spectrum.n_polymorphic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.to_list"><code class="docutils literal notranslate"><span class="pre">Spectrum.to_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.to_numpy"><code class="docutils literal notranslate"><span class="pre">Spectrum.to_numpy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.theta"><code class="docutils literal notranslate"><span class="pre">Spectrum.theta</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.fold"><code class="docutils literal notranslate"><span class="pre">Spectrum.fold()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.is_folded"><code class="docutils literal notranslate"><span class="pre">Spectrum.is_folded()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.copy"><code class="docutils literal notranslate"><span class="pre">Spectrum.copy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.from_polymorphic"><code class="docutils literal notranslate"><span class="pre">Spectrum.from_polymorphic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.from_list"><code class="docutils literal notranslate"><span class="pre">Spectrum.from_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.from_polydfe"><code class="docutils literal notranslate"><span class="pre">Spectrum.from_polydfe()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.plot"><code class="docutils literal notranslate"><span class="pre">Spectrum.plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectrum.html#fastdfe.spectrum.Spectrum.standard_kingman"><code class="docutils literal notranslate"><span class="pre">Spectrum.standard_kingman()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules/spectra.html">Spectra class</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra"><code class="docutils literal notranslate"><span class="pre">Spectra</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra"><code class="docutils literal notranslate"><span class="pre">Spectra</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.__init__"><code class="docutils literal notranslate"><span class="pre">Spectra.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.n"><code class="docutils literal notranslate"><span class="pre">Spectra.n</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.k"><code class="docutils literal notranslate"><span class="pre">Spectra.k</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.n_monomorphic"><code class="docutils literal notranslate"><span class="pre">Spectra.n_monomorphic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.polymorphic"><code class="docutils literal notranslate"><span class="pre">Spectra.polymorphic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.n_polymorphic"><code class="docutils literal notranslate"><span class="pre">Spectra.n_polymorphic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.from_list"><code class="docutils literal notranslate"><span class="pre">Spectra.from_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.types"><code class="docutils literal notranslate"><span class="pre">Spectra.types</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.n_sites"><code class="docutils literal notranslate"><span class="pre">Spectra.n_sites</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.n_div"><code class="docutils literal notranslate"><span class="pre">Spectra.n_div</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.has_div"><code class="docutils literal notranslate"><span class="pre">Spectra.has_div</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.normalize"><code class="docutils literal notranslate"><span class="pre">Spectra.normalize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.to_file"><code class="docutils literal notranslate"><span class="pre">Spectra.to_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.to_spectra"><code class="docutils literal notranslate"><span class="pre">Spectra.to_spectra()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.to_dataframe"><code class="docutils literal notranslate"><span class="pre">Spectra.to_dataframe()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.to_numpy"><code class="docutils literal notranslate"><span class="pre">Spectra.to_numpy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.to_list"><code class="docutils literal notranslate"><span class="pre">Spectra.to_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.to_dict"><code class="docutils literal notranslate"><span class="pre">Spectra.to_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.copy"><code class="docutils literal notranslate"><span class="pre">Spectra.copy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.to_multi_index"><code class="docutils literal notranslate"><span class="pre">Spectra.to_multi_index()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.to_single_index"><code class="docutils literal notranslate"><span class="pre">Spectra.to_single_index()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.get_empty"><code class="docutils literal notranslate"><span class="pre">Spectra.get_empty()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.merge_groups"><code class="docutils literal notranslate"><span class="pre">Spectra.merge_groups()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.has_dots"><code class="docutils literal notranslate"><span class="pre">Spectra.has_dots()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.replace_dots"><code class="docutils literal notranslate"><span class="pre">Spectra.replace_dots()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.all"><code class="docutils literal notranslate"><span class="pre">Spectra.all</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.combine"><code class="docutils literal notranslate"><span class="pre">Spectra.combine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.from_dict"><code class="docutils literal notranslate"><span class="pre">Spectra.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.from_dataframe"><code class="docutils literal notranslate"><span class="pre">Spectra.from_dataframe()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.from_file"><code class="docutils literal notranslate"><span class="pre">Spectra.from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.from_spectra"><code class="docutils literal notranslate"><span class="pre">Spectra.from_spectra()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.from_spectrum"><code class="docutils literal notranslate"><span class="pre">Spectra.from_spectrum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.plot"><code class="docutils literal notranslate"><span class="pre">Spectra.plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.remove_empty"><code class="docutils literal notranslate"><span class="pre">Spectra.remove_empty()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.remove_zero_entries"><code class="docutils literal notranslate"><span class="pre">Spectra.remove_zero_entries()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.rename"><code class="docutils literal notranslate"><span class="pre">Spectra.rename()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.prefix"><code class="docutils literal notranslate"><span class="pre">Spectra.prefix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.print"><code class="docutils literal notranslate"><span class="pre">Spectra.print()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.fold"><code class="docutils literal notranslate"><span class="pre">Spectra.fold()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/spectra.html#fastdfe.spectrum.Spectra.is_folded"><code class="docutils literal notranslate"><span class="pre">Spectra.is_folded()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules/parser.html">VCF Parsing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser"><code class="docutils literal notranslate"><span class="pre">Parser</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.DegeneracyStratification"><code class="docutils literal notranslate"><span class="pre">DegeneracyStratification</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseTransitionStratification"><code class="docutils literal notranslate"><span class="pre">BaseTransitionStratification</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseContextStratification"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.TransitionTransversionStratification"><code class="docutils literal notranslate"><span class="pre">TransitionTransversionStratification</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.AncestralBaseStratification"><code class="docutils literal notranslate"><span class="pre">AncestralBaseStratification</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification"><code class="docutils literal notranslate"><span class="pre">Stratification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser"><code class="docutils literal notranslate"><span class="pre">Parser</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser.__init__"><code class="docutils literal notranslate"><span class="pre">Parser.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser.n"><code class="docutils literal notranslate"><span class="pre">Parser.n</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser.n_target_sites"><code class="docutils literal notranslate"><span class="pre">Parser.n_target_sites</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser.ignore_not_polarized"><code class="docutils literal notranslate"><span class="pre">Parser.ignore_not_polarized</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser.stratifications"><code class="docutils literal notranslate"><span class="pre">Parser.stratifications</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser.annotations"><code class="docutils literal notranslate"><span class="pre">Parser.annotations</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser.filtrations"><code class="docutils literal notranslate"><span class="pre">Parser.filtrations</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser.n_skipped"><code class="docutils literal notranslate"><span class="pre">Parser.n_skipped</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser.sfs"><code class="docutils literal notranslate"><span class="pre">Parser.sfs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser.reader"><code class="docutils literal notranslate"><span class="pre">Parser.reader</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser.parse"><code class="docutils literal notranslate"><span class="pre">Parser.parse()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.DegeneracyStratification"><code class="docutils literal notranslate"><span class="pre">DegeneracyStratification</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.DegeneracyStratification.__init__"><code class="docutils literal notranslate"><span class="pre">DegeneracyStratification.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.DegeneracyStratification.get_degeneracy"><code class="docutils literal notranslate"><span class="pre">DegeneracyStratification.get_degeneracy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.DegeneracyStratification.get_type"><code class="docutils literal notranslate"><span class="pre">DegeneracyStratification.get_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.DegeneracyStratification.get_types"><code class="docutils literal notranslate"><span class="pre">DegeneracyStratification.get_types()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseTransitionStratification"><code class="docutils literal notranslate"><span class="pre">BaseTransitionStratification</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseTransitionStratification.probabilities"><code class="docutils literal notranslate"><span class="pre">BaseTransitionStratification.probabilities</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseTransitionStratification.get_type"><code class="docutils literal notranslate"><span class="pre">BaseTransitionStratification.get_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseTransitionStratification.get_types"><code class="docutils literal notranslate"><span class="pre">BaseTransitionStratification.get_types()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseContextStratification"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseContextStratification.__init__"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseContextStratification.fasta_file"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification.fasta_file</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseContextStratification.n_flanking"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification.n_flanking</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseContextStratification.aliases"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification.aliases</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseContextStratification.get_type"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification.get_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseContextStratification.get_types"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification.get_types()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.TransitionTransversionStratification"><code class="docutils literal notranslate"><span class="pre">TransitionTransversionStratification</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.TransitionTransversionStratification.probabilities"><code class="docutils literal notranslate"><span class="pre">TransitionTransversionStratification.probabilities</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.TransitionTransversionStratification.get_type"><code class="docutils literal notranslate"><span class="pre">TransitionTransversionStratification.get_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.TransitionTransversionStratification.get_types"><code class="docutils literal notranslate"><span class="pre">TransitionTransversionStratification.get_types()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.AncestralBaseStratification"><code class="docutils literal notranslate"><span class="pre">AncestralBaseStratification</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.AncestralBaseStratification.get_type"><code class="docutils literal notranslate"><span class="pre">AncestralBaseStratification.get_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.AncestralBaseStratification.get_types"><code class="docutils literal notranslate"><span class="pre">AncestralBaseStratification.get_types()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification"><code class="docutils literal notranslate"><span class="pre">Stratification</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification.get_type"><code class="docutils literal notranslate"><span class="pre">Stratification.get_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification.get_types"><code class="docutils literal notranslate"><span class="pre">Stratification.get_types()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.NoTypeException"><code class="docutils literal notranslate"><span class="pre">NoTypeException</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/annotation.html">VCF Annotation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotator"><code class="docutils literal notranslate"><span class="pre">Annotator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotator.__init__"><code class="docutils literal notranslate"><span class="pre">Annotator.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotator.annotate"><code class="docutils literal notranslate"><span class="pre">Annotator.annotate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumParsimonyAnnotation"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAnnotation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumParsimonyAnnotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAnnotation.annotate_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.__init__"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.gff_file"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.gff_file</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.fasta_file"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.fasta_file</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.aliases"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.aliases</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.cd"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.cd</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.cd_next"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.cd_next</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.cd_prev"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.cd_prev</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.contig"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.contig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.mismatches"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.mismatches</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.n_skipped"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.n_skipped</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.errors"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.errors</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.annotate_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.__init__"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.vep_mismatches"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.vep_mismatches</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.n_vep_comparisons"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.n_vep_comparisons</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.aliases"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.aliases</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.mutate"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.mutate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.is_synonymous"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.is_synonymous()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.annotate_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotation"><code class="docutils literal notranslate"><span class="pre">Annotation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotation.__init__"><code class="docutils literal notranslate"><span class="pre">Annotation.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotation.annotator"><code class="docutils literal notranslate"><span class="pre">Annotation.annotator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotation.n_annotated"><code class="docutils literal notranslate"><span class="pre">Annotation.n_annotated</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">Annotation.annotate_site()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/filtration.html">VCF Filtration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filterer"><code class="docutils literal notranslate"><span class="pre">Filterer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filterer.__init__"><code class="docutils literal notranslate"><span class="pre">Filterer.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filterer.filtrations"><code class="docutils literal notranslate"><span class="pre">Filterer.filtrations</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filterer.output"><code class="docutils literal notranslate"><span class="pre">Filterer.output</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filterer.n_filtered"><code class="docutils literal notranslate"><span class="pre">Filterer.n_filtered</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filterer.is_filtered"><code class="docutils literal notranslate"><span class="pre">Filterer.is_filtered()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filterer.filter"><code class="docutils literal notranslate"><span class="pre">Filterer.filter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.SNPFiltration"><code class="docutils literal notranslate"><span class="pre">SNPFiltration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.SNPFiltration.filter_site"><code class="docutils literal notranslate"><span class="pre">SNPFiltration.filter_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.SNVFiltration"><code class="docutils literal notranslate"><span class="pre">SNVFiltration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.SNVFiltration.filter_site"><code class="docutils literal notranslate"><span class="pre">SNVFiltration.filter_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.PolyAllelicFiltration"><code class="docutils literal notranslate"><span class="pre">PolyAllelicFiltration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.PolyAllelicFiltration.filter_site"><code class="docutils literal notranslate"><span class="pre">PolyAllelicFiltration.filter_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration.__init__"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration.gff_file"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration.gff_file</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration.cd"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration.cd</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration.n_processed"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration.n_processed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration.aliases"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration.aliases</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration.filter_site"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration.filter_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filtration"><code class="docutils literal notranslate"><span class="pre">Filtration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filtration.n_filtered"><code class="docutils literal notranslate"><span class="pre">Filtration.n_filtered</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filtration.filter_site"><code class="docutils literal notranslate"><span class="pre">Filtration.filter_site()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -197,7 +707,6 @@
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 </ul>
 </section>
 

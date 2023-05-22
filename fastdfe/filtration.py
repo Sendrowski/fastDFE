@@ -53,13 +53,13 @@ class Filtration:
         """
         pass
 
-    def setup(self):
+    def _setup(self):
         """
         Perform any necessary pre-processing. This method is called before the actual filtration.
         """
         pass
 
-    def teardown(self):
+    def _teardown(self):
         """
         Perform any necessary post-processing. This method is called after the actual filtration.
         """
@@ -143,21 +143,21 @@ class CodingSequenceFiltration(Filtration):
         #: The contig aliases.
         self.aliases: Dict[str, List[str]] = aliases
 
-    def setup(self):
+    def _setup(self):
         """
         Touch the GFF file to load it.
         """
         # noinspection PyStatementEffect
-        self.cds
+        self._cds
 
     @cached_property
-    def cds(self) -> pd.DataFrame:
+    def _cds(self) -> pd.DataFrame:
         """
         The coding sequences.
 
         :return: Dataframe with coding sequences.
         """
-        return Annotation.load_cds(self.gff_file)
+        return Annotation._load_cds(self.gff_file)
 
     @count_filtered
     def filter_site(self, v: Variant) -> bool:
@@ -175,12 +175,12 @@ class CodingSequenceFiltration(Filtration):
             # initialize mock coding sequence
             self.cd = pd.Series({
                 'seqid': v.CHROM,
-                'start': DegeneracyAnnotation.pos_mock,
-                'end': DegeneracyAnnotation.pos_mock
+                'start': DegeneracyAnnotation._pos_mock,
+                'end': DegeneracyAnnotation._pos_mock
             })
 
             # find coding sequences downstream
-            cds = self.cds[self.cds['seqid'].isin(aliases) & (self.cds['end'] >= v.POS)]
+            cds = self._cds[self._cds['seqid'].isin(aliases) & (self._cds['end'] >= v.POS)]
 
             if not cds.empty:
                 # take the last coding sequence
@@ -191,7 +191,7 @@ class CodingSequenceFiltration(Filtration):
                 else:
                     logger.debug(f'Found coding sequence downstream of {v.CHROM}:{v.POS}.')
 
-            if self.n_processed == 0 and self.cd.start == DegeneracyAnnotation.pos_mock:
+            if self.n_processed == 0 and self.cd.start == DegeneracyAnnotation._pos_mock:
                 logger.warning(f'No subsequent coding sequence found on the same contig as the first variant. '
                                f'Please make sure this is the correct GFF file with contig names matching '
                                f'the VCF file. You can use the aliases parameter to match contig names.')
@@ -243,7 +243,7 @@ class Filterer(VCFHandler):
         self.output: str = output
 
         #: The number of sites that did not pass the filters.
-        self.n_filtered = 0
+        self.n_filtered: int = 0
 
     def is_filtered(self, variant: Variant) -> bool:
         """
@@ -277,7 +277,7 @@ class Filterer(VCFHandler):
 
         # setup filtrations
         for f in self.filtrations:
-            f.setup()
+            f._setup()
 
         # get progress bar
         with self.get_pbar() as pbar:
@@ -298,7 +298,7 @@ class Filterer(VCFHandler):
 
         # teardown filtrations
         for f in self.filtrations:
-            f.teardown()
+            f._teardown()
 
         # close the writer and reader
         writer.close()

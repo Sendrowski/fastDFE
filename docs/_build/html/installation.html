@@ -25,8 +25,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="DFE Inference" href="notebooks/inference.html" />
-    <link rel="prev" title="Quickstart" href="notebooks/quickstart.html" /> 
+    <link rel="next" title="Quickstart" href="notebooks/quickstart.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -53,15 +53,21 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pypi">PyPi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conda">Conda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#r">R</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/quickstart.html">Quickstart</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/quickstart_R.html">Quickstart in R</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/inference.html">DFE Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/parametrizations.html">DFE parametrizations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/spectra.html">Manipulating site-frequency spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/spectra.html">Working with site-frequency spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/parser.html">Parsing SFS from VCF file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/logging.html">Logging</a></li>
 </ul>
@@ -73,6 +79,8 @@
 <li class="toctree-l1"><a class="reference internal" href="modules/spectrum.html">Spectrum class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/spectra.html">Spectra class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/annotation.html">VCF Annotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/filtration.html">VCF Filtration</a></li>
 </ul>
 
         </div>
@@ -101,14 +109,19 @@
              
   <section id="installation">
 <span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
+<section id="pypi">
+<h2>PyPi<a class="headerlink" href="#pypi" title="Permalink to this heading"></a></h2>
 <p>To install the <cite>fastdfe</cite>, you can use pip:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>fastdfe
 </pre></div>
 </div>
+</section>
+<section id="conda">
+<h2>Conda<a class="headerlink" href="#conda" title="Permalink to this heading"></a></h2>
 <p>However, to avoid potential conflicts with other packages, it is recommended to install <cite>fastdfe</cite> in an isolated environment. The easiest way to do this is to use <cite>conda</cite> (or <cite>mamba</cite>):</p>
-<ol class="arabic">
-<li><p>Create a new file called <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> with the following content:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fastdfe-env</span>
+<p>Create a new file called <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> with the following content:</p>
+<blockquote>
+<div><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fastdfe-env</span>
 <span class="nt">channels</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">defaults</span>
 <span class="nt">dependencies</span><span class="p">:</span>
@@ -118,27 +131,47 @@
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fastdfe</span>
 </pre></div>
 </div>
-</li>
-<li><p>Run the following command to create a new <cite>conda</cite> environment using the <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> file:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>environment.yml
+</div></blockquote>
+<p>Run the following command to create a new <cite>conda</cite> environment using the <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> file:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>environment.yml
 </pre></div>
 </div>
-</li>
-<li><p>Activate the newly created conda environment:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>fastdfe-env
+</div></blockquote>
+<p>Activate the newly created conda environment:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>fastdfe-env
 </pre></div>
 </div>
-</li>
-</ol>
+</div></blockquote>
 <p>You are now ready to use the <code class="docutils literal notranslate"><span class="pre">fastdfe</span></code> package within the isolated conda environment.</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="o">...</span>
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+<section id="r">
+<h2>R<a class="headerlink" href="#r" title="Permalink to this heading"></a></h2>
+<p>To install the <cite>fastdfe</cite> package in R, we first install and load the reticulate package in R, which allows us to interface with Python. We then use reticulate’s <code class="xref py py-meth docutils literal notranslate"><span class="pre">py_install()</span></code> function to install the <cite>fastdfe</cite> Python package, and subsequently import it into our <a href="#id2"><span class="problematic" id="id3">`</span></a>R environment for further use.</p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;reticulate&quot;</span><span class="p">)</span>
+
+<span class="nf">library</span><span class="p">(</span><span class="n">reticulate</span><span class="p">)</span>
+
+<span class="nf">py_install</span><span class="p">(</span><span class="s">&quot;fastdfe&quot;</span><span class="p">)</span>
+
+<span class="n">fastdfe</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">import</span><span class="p">(</span><span class="s">&quot;fastdfe&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="notebooks/quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="notebooks/inference.html" class="btn btn-neutral float-right" title="DFE Inference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="notebooks/quickstart.html" class="btn btn-neutral float-right" title="Quickstart" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

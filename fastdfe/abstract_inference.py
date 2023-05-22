@@ -401,7 +401,7 @@ class Inference:
         :return: Discretized DFE
         """
         # discrete DFE
-        y = from_string(model).discretize(params, intervals)
+        y = from_string(model)._discretize(params, intervals)
 
         # return normalized histogram
         return y / y.sum()

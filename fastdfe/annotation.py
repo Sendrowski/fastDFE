@@ -55,7 +55,7 @@ class Annotation:
         #: The number of annotated sites.
         self.n_annotated: int = 0
 
-    def setup(self, annotator: 'Annotator'):
+    def _setup(self, annotator: 'Annotator'):
         """
         Provide context by passing the annotator. This should be called before the annotation starts.
 
@@ -63,7 +63,7 @@ class Annotation:
         """
         self.annotator = annotator
 
-    def add_info(self, reader: VCF):
+    def _add_info(self, reader: VCF):
         """
         Add info fields to the header.
 
@@ -71,7 +71,7 @@ class Annotation:
         """
         pass
 
-    def teardown(self):
+    def _teardown(self):
         """
         Finalize the annotation. Called after all sites have been annotated.
         """
@@ -87,7 +87,7 @@ class Annotation:
         pass
 
     @staticmethod
-    def load_cds(file: str) -> pd.DataFrame:
+    def _load_cds(file: str) -> pd.DataFrame:
         """
         Load coding sequences from a GFF file.
 
@@ -138,7 +138,7 @@ class AncestralAlleleAnnotation(Annotation, ABC):
     Base class for ancestral allele annotation.
     """
 
-    def add_info(self, reader: VCF):
+    def _add_info(self, reader: VCF):
         """
         Add info fields to the header.
 
@@ -183,10 +183,11 @@ class MaximumParsimonyAnnotation(AncestralAlleleAnnotation):
 class DegeneracyAnnotation(Annotation):
     """
     Degeneracy annotation. We annotate the degeneracy by looking at each codon for coding variants.
+    This also annotates mono-allelic sites.
     """
 
     #: The genomic positions for coding sequences that are mocked.
-    pos_mock: int = 1e100
+    _pos_mock: int = 1e100
 
     def __init__(self, gff_file: str, fasta_file: str, aliases: Dict[str, List[str]] = {}):
         """
@@ -208,12 +209,7 @@ class DegeneracyAnnotation(Annotation):
         #: Dictionary of aliases for the contigs in the VCF file
         self.aliases: Dict[str, List[str]] = aliases
 
-        """
-        : The current coding sequence.
-        Note that by current we mean the coding sequence that contains
-        the current variant or the coding sequence that is closest to
-        the variant downstream if the variant is not in a coding sequence.
-        """
+        #: The current coding sequence or the closest coding sequence downstream.
         self.cd: Optional[pd.Series] = None
 
         #: The coding sequence following the current coding sequence.
@@ -235,7 +231,7 @@ class DegeneracyAnnotation(Annotation):
         self.errors: List[Variant] = []
 
     @cached_property
-    def ref(self) -> Fasta:
+    def _ref(self) -> Fasta:
         """
         Get the reference reader.
 
@@ -244,30 +240,30 @@ class DegeneracyAnnotation(Annotation):
         return VCFHandler.load_fasta(self.fasta_file)
 
     @cached_property
-    def cds(self) -> pd.DataFrame:
+    def _cds(self) -> pd.DataFrame:
         """
         The coding sequences.
 
         :return: The coding sequences.
         """
-        return Annotation.load_cds(self.gff_file)
+        return Annotation._load_cds(self.gff_file)
 
-    def setup(self, annotator: 'Annotator'):
+    def _setup(self, annotator: 'Annotator'):
         """
         Provide context to the annotator.
 
         :param annotator: The annotator.
         """
-        super().setup(annotator)
+        super()._setup(annotator)
 
         # touch the cached properties to make for a nicer logging experience
         # noinspection PyStatementEffect
-        self.cds
+        self._cds
 
         # noinspection PyStatementEffect
-        self.ref
+        self._ref
 
-    def add_info(self, reader: VCF):
+    def _add_info(self, reader: VCF):
         """
         Add info fields to the header.
 
@@ -287,7 +283,7 @@ class DegeneracyAnnotation(Annotation):
             'Description': 'Additional information about degeneracy annotation'
         })
 
-    def parse_codon_forward(self, variant: Variant):
+    def _parse_codon_forward(self, variant: Variant):
         """
         Parse the codon in forward direction.
 
@@ -336,7 +332,7 @@ class DegeneracyAnnotation(Annotation):
 
         return codon, codon_pos, codon_start, pos_codon, pos_rel
 
-    def parse_codon_backward(self, variant: Variant):
+    def _parse_codon_backward(self, variant: Variant):
         """
         Parse the codon in reverse direction.
 
@@ -388,7 +384,7 @@ class DegeneracyAnnotation(Annotation):
 
         return codon, codon_pos, codon_start, pos_codon, pos_rel
 
-    def parse_codon(self, variant: Variant):
+    def _parse_codon(self, variant: Variant):
         """
         Parse the codon for the given variant.
 
@@ -397,12 +393,12 @@ class DegeneracyAnnotation(Annotation):
         """
 
         if self.cd.strand == '+':
-            return self.parse_codon_forward(variant)
+            return self._parse_codon_forward(variant)
 
-        return self.parse_codon_backward(variant)
+        return self._parse_codon_backward(variant)
 
     @staticmethod
-    def get_degeneracy(codon: str, pos: int) -> int:
+    def _get_degeneracy(codon: str, pos: int) -> int:
         """
         Translate codon into amino acid.
 
@@ -424,7 +420,7 @@ class DegeneracyAnnotation(Annotation):
         return unique_to_degeneracy[sum(amino_acid == np.array(alt))]
 
     @staticmethod
-    def get_degeneracy_table() -> Dict[str, str]:
+    def _get_degeneracy_table() -> Dict[str, str]:
         """
         Create codon degeneracy table.
 
@@ -434,12 +430,12 @@ class DegeneracyAnnotation(Annotation):
         for codon in product(bases, repeat=3):
             codon = ''.join(codon)
             codon_degeneracy[codon] = ''.join(
-                [str(DegeneracyAnnotation.get_degeneracy(codon, pos)) for pos in range(0, 3)]
+                [str(DegeneracyAnnotation._get_degeneracy(codon, pos)) for pos in range(0, 3)]
             )
 
         return codon_degeneracy
 
-    def fetch_cds(self, v: Variant):
+    def _fetch_cds(self, v: Variant):
         """
         Fetch the coding sequence for the given variant.
 
@@ -455,11 +451,11 @@ class DegeneracyAnnotation(Annotation):
 
             # reset coding sequences to mocking positions
             self.cd_prev = None
-            self.cd = pd.Series({'seqid': v.CHROM, 'start': self.pos_mock, 'end': self.pos_mock})
-            self.cd_next = pd.Series({'seqid': v.CHROM, 'start': self.pos_mock, 'end': self.pos_mock})
+            self.cd = pd.Series({'seqid': v.CHROM, 'start': self._pos_mock, 'end': self._pos_mock})
+            self.cd_next = pd.Series({'seqid': v.CHROM, 'start': self._pos_mock, 'end': self._pos_mock})
 
             # filter for the current chromosome
-            on_contig = self.cds[(self.cds.seqid.isin(aliases))]
+            on_contig = self._cds[(self._cds.seqid.isin(aliases))]
 
             # filter for positions ending after the variant
             cds = on_contig[(on_contig.end >= v.POS)]
@@ -491,7 +487,7 @@ class DegeneracyAnnotation(Annotation):
         if self.cd is None or not (self.cd.start <= v.POS <= self.cd.end):
             raise LookupError(f"No coding sequence found, skipping record {v.CHROM}:{v.POS}")
 
-    def fetch_contig(self, v: Variant):
+    def _fetch_contig(self, v: Variant):
         """
         Fetch the contig for the given variant.
 
@@ -501,19 +497,19 @@ class DegeneracyAnnotation(Annotation):
 
         # fetch contig if not up to date
         if self.contig is None or self.contig.name not in aliases:
-            self.contig = VCFHandler.get_contig(self.ref, aliases)
+            self.contig = VCFHandler.get_contig(self._ref, aliases)
 
             logger.debug(f"Fetching contig '{self.contig.name}'.")
 
-    def fetch(self, variant: Variant):
+    def _fetch(self, variant: Variant):
         """
         Fetch all required data for the given variant.
 
         :param variant:
         :raises LookupError: if some data could not be found.
         """
-        self.fetch_cds(variant)
-        self.fetch_contig(variant)
+        self._fetch_cds(variant)
+        self._fetch_contig(variant)
 
     def annotate_site(self, v: Variant):
         """
@@ -524,7 +520,7 @@ class DegeneracyAnnotation(Annotation):
         v.INFO['Degeneracy'] = '.'
 
         try:
-            self.fetch(v)
+            self._fetch(v)
         except LookupError:
             self.n_skipped += 1
             return
@@ -539,7 +535,7 @@ class DegeneracyAnnotation(Annotation):
 
             try:
                 # parse codon
-                codon, codon_pos, codon_start, pos_codon, pos_rel = self.parse_codon(v)
+                codon, codon_pos, codon_start, pos_codon, pos_rel = self._parse_codon(v)
 
             except IndexError as e:
 
@@ -556,7 +552,7 @@ class DegeneracyAnnotation(Annotation):
 
             degeneracy = '.'
             if 'N' not in codon:
-                degeneracy = self.get_degeneracy(codon, pos_codon)
+                degeneracy = self._get_degeneracy(codon, pos_codon)
 
                 # increment counter of annotated sites
                 self.n_annotated += 1
@@ -574,6 +570,7 @@ class DegeneracyAnnotation(Annotation):
 class SynonymyAnnotation(DegeneracyAnnotation):
     """
     Synonymy annotation. This class annotates a variant with the synonymous/non-synonymous status.
+    Use this when mono-allelic sites are not present in the VCF file.
     """
 
     def __init__(self, gff_file: str, fasta_file: str, aliases: Dict[str, List[str]] = {}):
@@ -600,7 +597,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         #: The aliases for the contigs in the VCF file.
         self.aliases: Dict[str, List[str]] = aliases
 
-    def add_info(self, reader: VCF):
+    def _add_info(self, reader: VCF):
         """
         Add the INFO field to the VCF header.
 
@@ -620,7 +617,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
             'Description': 'Alt codon and extra information'
         })
 
-    def get_alt_allele(self, variant: Variant) -> str | None:
+    def _get_alt_allele(self, variant: Variant) -> str | None:
         """
         Get the alternative allele.
 
@@ -666,7 +663,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         return codon_table[codon1] == codon_table[codon2]
 
     @staticmethod
-    def parse_codons_vep(variant: Variant) -> List[str]:
+    def _parse_codons_vep(variant: Variant) -> List[str]:
         """
         Parse the codons from the VEP annotation if present.
 
@@ -681,11 +678,11 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
         return []
 
-    def teardown(self):
+    def _teardown(self):
         """
         Finalize the annotation.
         """
-        super().teardown()
+        super()._teardown()
 
         logger.info(f'Number of mismatches with VEP: {len(self.vep_mismatches)}')
 
@@ -700,7 +697,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
         if v.is_snp:
             try:
-                self.fetch(v)
+                self._fetch(v)
             except LookupError:
                 self.n_skipped += 1
                 return
@@ -710,7 +707,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
                 try:
                     # parse codon
-                    codon, codon_pos, codon_start, pos_codon, pos_rel = self.parse_codon(v)
+                    codon, codon_pos, codon_start, pos_codon, pos_rel = self._parse_codon(v)
 
                 except IndexError as e:
 
@@ -726,7 +723,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
                     return
 
                 # fetch the alternative allele if present
-                alt = self.get_alt_allele(v)
+                alt = self._get_alt_allele(v)
 
                 info = ''
                 synonymy, alt_codon, codons_vep = None, None, None
@@ -752,7 +749,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
                     if v.INFO['CSQ'] is not None:
 
                         # fetch the codons from the VEP annotation
-                        codons_vep = self.parse_codons_vep(v)
+                        codons_vep = self._parse_codons_vep(v)
 
                         if len(codons_vep) > 0:
                             # increase number of comparisons
@@ -821,8 +818,8 @@ class Annotator(VCFHandler):
 
         # provide annotator to annotations and add info fields
         for annotation in self.annotations:
-            annotation.setup(self)
-            annotation.add_info(reader)
+            annotation._setup(self)
+            annotation._add_info(reader)
 
         # create the writer
         writer = Writer(self.output, reader)
@@ -849,7 +846,7 @@ class Annotator(VCFHandler):
 
         # finalize annotations
         for annotation in self.annotations:
-            annotation.teardown()
+            annotation._teardown()
 
         # close the writer and reader
         writer.close()

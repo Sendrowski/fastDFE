@@ -494,7 +494,7 @@ class JointInference(BaseInference):
 
         # normalize parameters for each type
         for t in self.types:
-            params_mle[t] = self.model.normalize(params_mle[t])
+            params_mle[t] = self.model._normalize(params_mle[t])
 
         # report on optimization result
         self.report_result(self.result, params_mle)
@@ -779,7 +779,7 @@ class JointInference(BaseInference):
 
         for t in self.types:
             # normalize parameters for each type
-            params_mle[t] = self.model.normalize(params_mle[t])
+            params_mle[t] = self.model._normalize(params_mle[t])
 
             # add covariates for each type
             params_mle[t] = correct_values(
@@ -1129,22 +1129,22 @@ class JointInference(BaseInference):
         """
         return None
 
-    def set_fixed_params(self, params: Dict[str, Dict[str, float]]):
+    def _set_fixed_params(self, params: Dict[str, Dict[str, float]]):
         """
         Set fixed parameters.
 
         :param params: Fixed parameters
         """
         # set for 'all' type
-        self.marginal_inferences['all'].set_fixed_params(params)
+        self.marginal_inferences['all']._set_fixed_params(params)
 
         # expand types
         self.fixed_params = expand_fixed(params, self.types)
 
         # propagate to inference objects
         for t in self.types:
-            self.marginal_inferences[t].set_fixed_params(dict(all=self.fixed_params[t]))
-            self.joint_inferences[t].set_fixed_params(dict(all=self.fixed_params[t]))
+            self.marginal_inferences[t]._set_fixed_params(dict(all=self.fixed_params[t]))
+            self.joint_inferences[t]._set_fixed_params(dict(all=self.fixed_params[t]))
 
         # propagate to optimization
         self.optimization.set_fixed_params(self.fixed_params)

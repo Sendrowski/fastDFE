@@ -8,7 +8,7 @@ __date__ = "2023-05-13"
 
 from snakemake.shell import shell
 
-ref = snakemake.input.ref
+ref = snakemake.input._ref
 vcf = snakemake.input.vcf
 gff = snakemake.input.gff
 species = snakemake.params.species

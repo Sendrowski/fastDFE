@@ -44960,6 +44960,7 @@
             "theta_bar": 0.001
         }
     },
+    "bootstrap_results": null,
     "L2_residual": {
         "py/reduce": [
             {
@@ -45025,6 +45026,6 @@
             }
         ]
     },
-    "execution_time": 3.749680995941162,
+    "execution_time": 4.711967945098877,
     "locked": false
 }

@@ -15,19 +15,16 @@ Welcome to fastDFE's documentation
 fastDFE is a package for fast, flexible, and hierarchical inference of the distribution of fitness effects (DFE) from site frequency spectra (SFS).
 
 .. toctree::
-   :maxdepth: 2
-
    introduction
 
 .. toctree::
-   :maxdepth: 2
    :caption: Getting Started
 
-   notebooks/quickstart
    installation
+   notebooks/quickstart
+   notebooks/quickstart_R
 
 .. toctree::
-   :maxdepth: 2
    :caption: Reference
 
    notebooks/inference
@@ -38,7 +35,6 @@ fastDFE is a package for fast, flexible, and hierarchical inference of the distr
    reference/logging
 
 .. toctree::
-   :maxdepth: 2
    :caption: API Reference
 
    modules/inference
@@ -47,9 +43,10 @@ fastDFE is a package for fast, flexible, and hierarchical inference of the distr
    modules/spectrum
    modules/spectra
    modules/parser
+   modules/annotation
+   modules/filtration
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`

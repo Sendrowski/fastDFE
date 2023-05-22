@@ -16,7 +16,7 @@ try:
 
     testing = False
     vcf_file = snakemake.input.vcf
-    fasta_file = snakemake.input.ref
+    fasta_file = snakemake.input._ref
     n = snakemake.params.n
     max_sites = snakemake.params.get('max_sites', np.inf)
     stratifications = snakemake.params.get('stratifications', ['DegeneracyStratification'])

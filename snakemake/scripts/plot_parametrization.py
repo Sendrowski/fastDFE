@@ -44,7 +44,7 @@ d = Discretization(
 )
 
 d1 = p.get_pdf(**params)(d.s)
-d2 = p.discretize(params, d.bins) / d.interval_sizes
+d2 = p._discretize(params, d.bins) / d.interval_sizes
 
 plt.plot(np.arange(d.n_intervals), d1, alpha=0.5, label='midpoints')
 plt.plot(np.arange(d.n_intervals), d2, alpha=0.5, label='exact')

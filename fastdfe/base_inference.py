@@ -433,7 +433,7 @@ class BaseInference(AbstractInference):
         params_mle = unpack_shared(params_mle)
 
         # normalize parameters
-        params_mle['all'] = self.model.normalize(params_mle['all'])
+        params_mle['all'] = self.model._normalize(params_mle['all'])
 
         # assign optimization result and MLE parameters
         self.assign_result(result, params_mle['all'])
@@ -681,7 +681,7 @@ class BaseInference(AbstractInference):
         params_mle = unpack_shared(params_mle)
 
         # normalize MLE estimates
-        params_mle['all'] = self.model.normalize(params_mle['all'])
+        params_mle['all'] = self.model._normalize(params_mle['all'])
 
         return result, params_mle
 
@@ -851,7 +851,7 @@ class BaseInference(AbstractInference):
         :return: Axes object
         """
         # evaluate at fixed parameters
-        sizes = self.model.discretize(self.params_mle, self.discretization.bins)
+        sizes = self.model._discretize(self.params_mle, self.discretization.bins)
 
         return Visualization.plot_buckets_sizes(
             n_intervals=self.discretization.n_intervals,
@@ -1136,7 +1136,7 @@ class BaseInference(AbstractInference):
             params = dict(all=submodels_dfe[p[0]] | submodels_outer[p[1]])
 
             # assign fixed parameters
-            inference.set_fixed_params(params)
+            inference._set_fixed_params(params)
 
             # inform about fixed parameters
             logger.info(f'Holding parameters fixed to {params}.')
@@ -1354,7 +1354,7 @@ class BaseInference(AbstractInference):
         """
         return self.model.param_names + ['eps']
 
-    def set_fixed_params(self, params: Dict[str, Dict[str, float]]):
+    def _set_fixed_params(self, params: Dict[str, Dict[str, float]]):
         """
         Set fixed parameters.
 
