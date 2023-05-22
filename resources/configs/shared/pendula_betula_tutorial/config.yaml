@@ -23,7 +23,7 @@ x0: { }
 do_bootstrap: true
 linearized: true
 loss_type: likelihood
-n_bootstraps: 100
+n_bootstraps: 10
 n_runs: 10
 opts_mle: { }
 parallelize: true

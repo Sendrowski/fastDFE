@@ -23,6 +23,7 @@ def standard_kingman(n: int) -> 'Spectrum':
     Get standard Kingman SFS.
 
     :param n: Standard Kingman SFS
+    :return: Spectrum
     """
     return Spectrum(pad(1 / np.arange(1, n)))
 
@@ -54,6 +55,8 @@ class Spectrum:
     def n(self) -> int:
         """
         The sample size.
+
+        :return: Sample size
         """
         return self.data.shape[0] - 1
 
@@ -61,6 +64,8 @@ class Spectrum:
     def n_sites(self) -> float:
         """
         The total number of sites.
+
+        :return: Total number of sites
         """
         return sum(self.data)
 
@@ -68,6 +73,8 @@ class Spectrum:
     def n_div(self) -> float:
         """
         Number of divergence counts.
+
+        :return: Number of divergence counts
         """
         return self.data[-1]
 
@@ -75,6 +82,8 @@ class Spectrum:
     def has_div(self) -> bool:
         """
         Whether n_div was specified.
+
+        :return: Whether n_div was specified
         """
         return self.n_div != 0
 
@@ -82,6 +91,8 @@ class Spectrum:
     def n_monomorphic(self) -> float:
         """
         Number of monomorphic sites.
+
+        :return: Number of monomorphic sites
         """
         return self.data[0] + self.data[-1]
 
@@ -89,6 +100,8 @@ class Spectrum:
     def polymorphic(self) -> np.ndarray:
         """
         Get the polymorphic counts.
+
+        :return: Polymorphic counts
         """
         return self.data[1:-1]
 
@@ -96,6 +109,8 @@ class Spectrum:
     def n_polymorphic(self) -> np.ndarray:
         """
         Get the polymorphic counts.
+
+        :return: Polymorphic counts
         """
         return np.sum(self.polymorphic)
 
@@ -162,6 +177,7 @@ class Spectrum:
         Create Spectrum from polymorphic counts only.
 
         :param data: Polymorphic counts
+        :return: Spectrum
         """
         return Spectrum([0] + list(data) + [0])
 
@@ -169,6 +185,9 @@ class Spectrum:
     def from_list(data: list | np.ndarray) -> 'Spectrum':
         """
         Create Spectrum from list.
+
+        :param data: SFS counts
+        :return: Spectrum
         """
         return Spectrum(data)
 
@@ -186,6 +205,7 @@ class Spectrum:
         :param polymorphic: Polymorphic counts
         :param n_sites: Total number of sites
         :param n_div: Number of divergence counts
+        :return: Spectrum
         """
         # determine number of monomorphic ancestral counts
         n_monomorphic = n_sites - np.sum(list(polymorphic) + [n_div])
@@ -199,6 +219,7 @@ class Spectrum:
         Multiply spectrum.
 
         :param other: Scalar
+        :return: Spectrum
         """
         return Spectrum.from_list(self.data * other)
 
@@ -209,6 +230,7 @@ class Spectrum:
         Add spectrum.
 
         :param other: Spectrum
+        :return: Spectrum
         """
         return Spectrum.from_list(self.data * other)
 
@@ -217,6 +239,7 @@ class Spectrum:
         Divide spectrum.
 
         :param other: Scalar
+        :return: Spectrum
         """
         return Spectrum.from_list(self.data // other)
 
@@ -225,6 +248,7 @@ class Spectrum:
         Add spectrum.
 
         :param other: Scalar
+        :return: Spectrum
         """
         return Spectrum.from_list(self.data / other)
 
@@ -286,6 +310,8 @@ class Spectra:
     def n(self) -> int:
         """
         The sample size.
+
+        :return: Sample size
         """
         return self.data.shape[0] - 1
 
@@ -293,6 +319,8 @@ class Spectra:
     def k(self) -> int:
         """
         The number of types.
+
+        :return: Number of types
         """
         return self.data.shape[1]
 
@@ -300,6 +328,8 @@ class Spectra:
     def n_monomorphic(self) -> float:
         """
         The number of monomorphic sites.
+
+        :return: Number of monomorphic sites
         """
         return self.data[0] + self.data[-1]
 
@@ -307,6 +337,8 @@ class Spectra:
     def polymorphic(self) -> np.ndarray:
         """
         The polymorphic counts.
+
+        :return: Polymorphic counts
         """
         return self.data[1:-1]
 
@@ -314,6 +346,8 @@ class Spectra:
     def n_polymorphic(self) -> np.ndarray:
         """
         The total number of polymorphic counts.
+
+        :return: Total number of polymorphic counts for each type
         """
         return np.sum(self.polymorphic)
 
@@ -322,6 +356,10 @@ class Spectra:
         """
         Create from array of spectra.
         Note that data.ndim needs to be 2.
+
+        :param data: Array of spectra
+        :param types: Types
+        :return: Spectra
         """
         return Spectra(dict((t, d) for t, d in zip(types, data)))
 
@@ -329,6 +367,8 @@ class Spectra:
     def types(self) -> List[str]:
         """
         The types.
+
+        :return: Types
         """
         return self.data.columns.to_list()
 
@@ -336,6 +376,8 @@ class Spectra:
     def n_sites(self) -> pd.Series:
         """
         The number of mutational target sites which is the sum of all SFS entries.
+
+        :return: Number of mutational target sites for each type
         """
         return self.data.sum()
 
@@ -343,6 +385,8 @@ class Spectra:
     def n_div(self) -> pd.Series:
         """
         The number of divergence counts.
+
+        :return: Number of divergence counts for each type
         """
         return self.data.iloc[-1]
 
@@ -350,12 +394,16 @@ class Spectra:
     def has_div(self) -> pd.Series:
         """
         Whether n_div was specified.
+
+        :return: Whether n_div was specified for each type
         """
         return self.n_div != 0
 
     def normalize(self) -> 'Spectra':
         """
         Normalize spectra by sum of all entries.
+
+        :return: Normalized spectra
         """
         return self / self.data.sum()
 
@@ -370,30 +418,40 @@ class Spectra:
     def to_spectra(self) -> Dict[str, Spectrum]:
         """
         Convert to dictionary of spectrum objects.
+
+        :return: Dictionary of spectrum objects
         """
         return dict((t, self[t]) for t in self.types)
 
     def to_dataframe(self) -> pd.DataFrame:
         """
         Get representation as dataframe.
+
+        :return: Dataframe
         """
         return self.data
 
     def to_numpy(self) -> np.ndarray:
         """
         Convert to numpy array.
+
+        :return: Numpy array
         """
         return self.data.to_numpy().T
 
     def to_list(self) -> list:
         """
         Convert to nested list.
+
+        :return: Nested list
         """
         return list(list(d) for d in self.to_numpy())
 
     def to_dict(self) -> dict:
         """
         Convert to dictionary.
+
+        :return: Dictionary of lists
         """
         # return dictionary of lists
         return dict((k, list(v.values())) for k, v in self.data.to_dict().items())
@@ -403,6 +461,7 @@ class Spectra:
         Multiply Spectra.
 
         :param other: Scalar
+        :return: Spectra
         """
         return Spectra.from_dataframe(self.data * other)
 
@@ -413,6 +472,7 @@ class Spectra:
         Divide Spectra.
 
         :param other: Scalar
+        :return: Spectra
         """
         return Spectra.from_dataframe(self.data // other)
 
@@ -421,18 +481,24 @@ class Spectra:
         Divide Spectra.
 
         :param other: Scalar
+        :return: Spectra
         """
         return Spectra.from_dataframe(self.data / other)
 
     def __len__(self) -> int:
         """
         Get number of spectra.
+
+        :return: Number of spectra
         """
         return self.k
 
     def __add__(self, other: 'Spectra') -> 'Spectra':
         """
         Merge types of two spectra objects by adding up their counts entry-wise.
+
+        :param other: Spectra object
+        :return: Spectra object
         """
         return Spectra.from_dataframe(self.data.add(other.data, fill_value=0))
 
@@ -441,7 +507,7 @@ class Spectra:
         Get item.
 
         :param keys: string or list of strings
-        :return: Key or list of keys
+        :return: Spectrum or Spectra
         """
         # whether the input in an array
         is_array = isinstance(keys, (np.ndarray, list, tuple))
@@ -469,18 +535,24 @@ class Spectra:
     def __iter__(self):
         """
         Get iterator.
+
+        :return: Iterator
         """
         self.data.__iter__()
 
     def copy(self) -> 'Spectra':
         """
         Copy object.
+
+        :return: Copy of object
         """
         return Spectra.from_dataframe(self.data.copy())
 
     def to_multi_index(self) -> 'Spectra':
         """
         Convert to Spectra object with multi-indexed columns.
+
+        :return: Spectra object with multi-indexed columns
         """
         other = self.copy()
         columns = [tuple(col.split('.')) for col in other.data.columns]
@@ -491,6 +563,8 @@ class Spectra:
     def to_single_index(self) -> 'Spectra':
         """
         Convert to Spectra object with single-indexed columns (using dot notation).
+
+        :return: Spectra object with single-indexed columns
         """
         other = self.copy()
 
@@ -503,6 +577,8 @@ class Spectra:
     def get_empty(self) -> 'Spectra':
         """
         Get a Spectra object with zero counts but having the same shape and types as self.
+
+        :return: Spectra object with zero counts
         """
         return Spectra.from_dataframe(pd.DataFrame(0, index=self.data.index, columns=self.data.columns))
 
@@ -510,13 +586,38 @@ class Spectra:
         """
         Group over given levels and sum up spectra so the spectra
         are summed over the levels that were not specified.
+
+        :param level: Level(s) to group over
+        :return: Spectra object with merged groups
         """
         return Spectra.from_dataframe(self.to_multi_index().data.groupby(axis=1, level=level).sum()).to_single_index()
+
+    def has_dots(self) -> bool:
+        """
+        Check whether column names contain dots.
+
+        :return: True if column names contain dots, False otherwise
+        """
+        return any('.' in col for col in self.data.columns)
+
+    def replace_dots(self, replacement: str = '_') -> 'Spectra':
+        """
+        Replace dots in column names with a given string.
+
+        :param replacement: Replacement string
+        :return: Spectra object with replaced dots
+        """
+        other = self.copy()
+        other.data.columns = other.data.columns.str.replace('.', replacement)
+
+        return other
 
     @property
     def all(self) -> 'Spectrum':
         """
         The 'all' type equals the sum of all spectra.
+
+        :return: Spectrum object
         """
         return Spectrum.from_list(self.data.sum(axis=1).to_list())
 
@@ -525,6 +626,7 @@ class Spectra:
         Merge types of two Spectra objects.
 
         :param s: Other Spectra object
+        :return: Merged Spectra object
         """
         return Spectra(self.to_dict() | s.to_dict())
 
@@ -534,6 +636,7 @@ class Spectra:
         Load from dictionary.
 
         :param data: Dictionary of lists indexed by types
+        :return: Spectra object
         """
         lists = [list(v.values() if isinstance(v, dict) else v) for v in data.values()]
 
@@ -545,6 +648,7 @@ class Spectra:
         Load Spectra object from dataframe.
 
         :param data: Dataframe
+        :return: Spectra object
         """
         return Spectra.from_dict(data.to_dict())
 
@@ -554,6 +658,7 @@ class Spectra:
         Save object to file.
 
         :param file: File name
+        :return: Spectra object
         """
         return Spectra.from_dataframe(pd.read_csv(file))
 
@@ -561,6 +666,9 @@ class Spectra:
     def from_spectra(spectra: Dict[str, Spectrum]) -> 'Spectra':
         """
         Create from dict of spectrum objects indexed by types.
+
+        :param spectra: Dictionary of spectrum objects indexed by types
+        :return: Spectra object
         """
         return Spectra.from_list([sfs.to_list() for sfs in spectra.values()], types=list(spectra.keys()))
 
@@ -570,6 +678,7 @@ class Spectra:
         Create from single spectrum object. The type of the spectrum is set to 'all'.
 
         :param sfs: Spectrum
+        :return: Spectra object
         """
         return Spectra.from_spectra(dict(all=sfs))
 
@@ -610,6 +719,8 @@ class Spectra:
     def remove_empty(self) -> 'Spectra':
         """
         Remove types whose spectra have no counts.
+
+        :return: Spectra with non-empty types
         """
         return Spectra.from_dataframe(self.data.loc[:, self.data.any()])
 
@@ -617,6 +728,8 @@ class Spectra:
         """
         Remove types whose spectra have some zero entries.
         Note that we ignore zero counts in the last entry i.e. fixed derived alleles.
+
+        :return: Spectra with non-zero entries
         """
         return Spectra.from_dataframe(self.data.loc[:, self.data[:-1].all()])
 
@@ -624,7 +737,8 @@ class Spectra:
         """
         Rename types.
 
-        :return: New names
+        :param names: New names
+        :return: Spectra with renamed types
         """
         other = self.copy()
         other.data.columns = names
@@ -635,7 +749,8 @@ class Spectra:
         """
         Prefix types, i.e. 'type' -> 'prefix.type' for all types.
 
-        :return: Prefix
+        :param prefix: Prefix
+        :return: Spectra with prefixed types
         """
         return self.rename([prefix + '.' + col for col in self.types])
 
@@ -672,7 +787,8 @@ def parse_polydfe_sfs_config(file: str) -> Spectra:
     Parse frequency spectra and mutational target site from
     polyDFE configuration file.
 
-    :return: File name
+    :param file: File name
+    :return: Spectra object
     """
     df = pd.read_csv(file, header=None, comment='#')
 
@@ -695,7 +811,8 @@ def parse_polydfe_sfs_config(file: str) -> Spectra:
         We ignore the number of mutational target sites for divergence counts
         but include the divergence counts for completeness of the SFS.
 
-        :return: Data
+        :param data: Spectrum data
+        :return: Spectrum object
         """
         # iterate over spectra and merge them as we do not
         # support variable mutation rates

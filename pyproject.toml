@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fastdfe"
-version = "0.1.5-beta"
+version = "0.1.6-beta"
 description = "Fast, flexible, and hierarchical inference of the distribution of fitness effects"
 authors = ["Sendrowski <sendrowski.janek@gmail.com>"]
 license = "MIT"
@@ -32,6 +32,7 @@ sphinx-autodoc-typehints = "^1.23.0"
 sphinx-copybutton = "^0.5.2"
 myst-nb = "^0.17.2"
 sphinx = "5.3.0"
+pygments = "^2.15.1"
 
 [build-system]
 requires = ["poetry-core"]

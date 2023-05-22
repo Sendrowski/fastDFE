@@ -634,6 +634,36 @@ class SharedParams:
     """
     Class specifying the sharing of params among types.
     'all' means all available types or params.
+
+    Basic usage:
+
+    ::
+
+        from fastdfe import JointInference, Spectra, SharedParams
+
+        # neutral SFS for two types
+        sfs_neut = Spectra(dict(
+            pendula=[177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+            pubescens=[172528, 3612, 1359, 790, 584, 427, 325, 234, 166, 76, 31]
+        ))
+
+        # selected SFS for two types
+        sfs_sel = Spectra(dict(
+            pendula=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+            pubescens=[791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
+        ))
+
+        # create inference object
+        inf = JointInference(
+            sfs_neut=sfs_neut,
+            sfs_sel=sfs_sel,
+            shared_params=[SharedParams(types=["pendula", "pubescens"], params=["eps", "S_d"])],
+            do_bootstrap=True
+        )
+
+        # run inference
+        inf.run()
+
     """
     #: The params to share
     params: List[str] | Literal['all']
@@ -784,6 +814,7 @@ class Optimization:
             n_runs: int = 1,
             debug_iterations: bool = True,
             print_info: bool = True,
+            opts_mle: dict = None,
             pbar: bool = None
     ) -> (OptimizeResult, dict):
         """
@@ -791,14 +822,15 @@ class Optimization:
 
         :param scales: Scales of the parameters
         :param bounds: Bounds of the parameters
-        :param pbar: Whether to show a progress bar
-        :param print_info: Whether to inform the user about the bounds
-        :param n_runs: Number of optimization runs. Number of optimization runs. The first run will use the
-            initial values if provided.
-        :param folded: Whether to fold the SFS
+        :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
+            will use the initial values if specified. Consider increasing this number if the optimization does not
+            produce good results.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
         :param get_counts: Dictionary of functions to evaluate counts for each type
         :param debug_iterations: Whether to print debug messages for each iteration
+        :param opts_mle: Dictionary of options for the optimizer
+        :param print_info: Whether to print information about the bounds
+        :param pbar: Whether to show a progress bar
         :return: The optimization result and the likelihoods
         """
         # number of optimization runs
@@ -811,6 +843,10 @@ class Optimization:
         # store the bounds of the parameters
         if bounds:
             self.bounds = bounds
+
+        # store the options for the optimizer
+        if opts_mle:
+            self.opts_mle = opts_mle
 
         # filter out unneeded values
         # this also holds the fixed parameters

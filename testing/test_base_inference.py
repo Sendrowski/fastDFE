@@ -1,5 +1,6 @@
 import logging
 
+import fastdfe
 from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
@@ -798,3 +799,14 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         inf.plot_discretized()
 
         pass
+
+    def test_disable_pbar(self):
+        """
+        Test whether disabling the progress bar works.
+        """
+        # check default value
+        assert fastdfe.disable_pbar is False
+
+        fastdfe.disable_pbar = True
+
+        assert fastdfe.disable_pbar

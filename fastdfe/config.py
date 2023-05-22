@@ -76,8 +76,9 @@ class Config:
         :param scales: Scales for the optimization in the form {param: scale}
         :param loss_type: Loss function to use.
         :param opts_mle: Options for the optimization.
-        :param n_runs: Number of optimization runs. Number of optimization runs.
-            The first run will use the initial values if provided.
+        :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
+            will use the initial values if specified. Consider increasing this number if the optimization does not
+            produce good results.
         :param fixed_params: Fixed parameters for the optimization.
         :param shared_params: Shared parameters for the optimization.
         :param covariates: Covariates for the optimization.

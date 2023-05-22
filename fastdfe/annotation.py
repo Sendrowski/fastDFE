@@ -183,8 +183,6 @@ class MaximumParsimonyAnnotation(AncestralAlleleAnnotation):
 class DegeneracyAnnotation(Annotation):
     """
     Degeneracy annotation. We annotate the degeneracy by looking at each codon for coding variants.
-    Note that we construct a database for the GFF file which is cached. If you want to change the GFF file
-    you might have to delete the database file.
     """
 
     #: The genomic positions for coding sequences that are mocked.
@@ -551,7 +549,7 @@ class DegeneracyAnnotation(Annotation):
                 return
 
             # make sure the reference allele matches with the position on the reference genome
-            if self.contig[v.POS - 1] != v.REF:
+            if str(self.contig[v.POS - 1]).upper() != v.REF.upper():
                 logger.warning(f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}.")
                 self.mismatches.append(v)
                 return
@@ -576,13 +574,6 @@ class DegeneracyAnnotation(Annotation):
 class SynonymyAnnotation(DegeneracyAnnotation):
     """
     Synonymy annotation. This class annotates a variant with the synonymous/non-synonymous status.
-    However, as we also need to annotate monomorphic sites, this class is of limited use and mainly
-    used for testing purposes.
-
-    We also check for concordance with the prediction by VEP if present.
-
-    Note that we construct a database for the GFF file which is cached. If you want to change the GFF file
-    you might have to delete the database file.
     """
 
     def __init__(self, gff_file: str, fasta_file: str, aliases: Dict[str, List[str]] = {}):
@@ -608,6 +599,26 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
         #: The aliases for the contigs in the VCF file.
         self.aliases: Dict[str, List[str]] = aliases
+
+    def add_info(self, reader: VCF):
+        """
+        Add the INFO field to the VCF header.
+
+        :param reader: The VCF reader.
+        """
+        reader.add_info_to_header({
+            'ID': 'Synonymy',
+            'Number': '.',
+            'Type': 'Integer',
+            'Description': 'Synonymous (0) or non-synonymous (1)'
+        })
+
+        reader.add_info_to_header({
+            'ID': 'Synonymy_Info',
+            'Number': '.',
+            'Type': 'String',
+            'Description': 'Alt codon and extra information'
+        })
 
     def get_alt_allele(self, variant: Variant) -> str | None:
         """
@@ -709,7 +720,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
                     return
 
                 # make sure the reference allele matches with the position in the reference genome
-                if self.contig[v.POS - 1] != v.REF:
+                if str(self.contig[v.POS - 1]).upper() != v.REF.upper():
                     logger.warning(f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}.")
                     self.mismatches.append(v)
                     return
@@ -743,17 +754,17 @@ class SynonymyAnnotation(DegeneracyAnnotation):
                         # fetch the codons from the VEP annotation
                         codons_vep = self.parse_codons_vep(v)
 
-                        # increase number of comparisons
-                        self.n_vep_comparisons += 1
+                        if len(codons_vep) > 0:
+                            # increase number of comparisons
+                            self.n_vep_comparisons += 1
 
-                        # Make sure the codons determined by VEP are the same as our codons.
-                        # We can only do the comparison for variant sites.
-                        if not np.array_equal(codons_vep, [codon, alt_codon]):
-                            logger.warning(f'VEP codons do not match with codons determined by '
-                                           f'codon table for: {v}.')
+                            # make sure the codons determined by VEP are the same as our codons.
+                            if not np.array_equal(codons_vep, [codon, alt_codon]):
+                                logger.warning(f'VEP codons do not match with codons determined by '
+                                               f'codon table for: {v.CHROM}:{v.POS}')
 
-                            self.vep_mismatches.append(v)
-                            return
+                                self.vep_mismatches.append(v)
+                                return
 
                     # increase number of annotated sites
                     self.n_annotated += 1

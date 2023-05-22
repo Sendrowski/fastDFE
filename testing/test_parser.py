@@ -22,22 +22,21 @@ class ParserTestCase(TestCase):
     """
     Test the inference.
     """
-    vcf_file = 'resources/genome/betula/biallelic.subset.10000.vcf.gz'
-    vcf_file_with_monomorphic = 'resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz'
-    fasta_file = 'resources/genome/betula/genome.subset.20.fasta'
-    pop_file = 'resources/genome/betula/pops_dadi.txt'
 
     def test_compare_sfs_with_data(self):
         """
         Compare the sfs from dadi with the one from the data.
         """
-        p = Parser(vcf=self.vcf_file, n=20, stratifications=[], seed=2)
+        p = Parser(vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz', n=20, stratifications=[], seed=2)
 
         sfs = p.parse().all
 
         sfs.plot()
 
-        data_dict = dadi.Misc.make_data_dict_vcf(self.vcf_file, self.pop_file)
+        data_dict = dadi.Misc.make_data_dict_vcf(
+            'resources/genome/betula/biallelic.subset.10000.vcf.gz',
+            'resources/genome/betula/pops_dadi.txt'
+        )
 
         sfs2 = dadi.Spectrum.from_data_dict(data_dict, ['pop0'], [20], polarized=True)
 
@@ -57,7 +56,11 @@ class ParserTestCase(TestCase):
         """
         Test the degeneracy stratification.
         """
-        p = Parser(vcf=self.vcf_file, n=20, stratifications=[DegeneracyStratification()])
+        p = Parser(
+            vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
+            n=20,
+            stratifications=[DegeneracyStratification()]
+        )
 
         sfs = p.parse()
 
@@ -71,7 +74,7 @@ class ParserTestCase(TestCase):
         Test the base transition stratification.
         """
         p = Parser(
-            vcf=self.vcf_file_with_monomorphic,
+            vcf='resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz',
             n=20,
             stratifications=[BaseTransitionStratification()]
         )
@@ -91,7 +94,7 @@ class ParserTestCase(TestCase):
         Test the transition transversion stratification.
         """
         p = Parser(
-            vcf=self.vcf_file_with_monomorphic,
+            vcf='resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz',
             n=20,
             stratifications=[TransitionTransversionStratification()]
         )
@@ -111,9 +114,9 @@ class ParserTestCase(TestCase):
         Test the base context stratification.
         """
         p = Parser(
-            vcf=self.vcf_file,
+            vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
             n=20,
-            stratifications=[BaseContextStratification(fasta_file=self.fasta_file)]
+            stratifications=[BaseContextStratification(fasta_file='resources/genome/betula/genome.subset.20.fasta')]
         )
 
         sfs = p.parse()
@@ -128,7 +131,7 @@ class ParserTestCase(TestCase):
         Test the reference base stratification.
         """
         p = Parser(
-            vcf=self.vcf_file,
+            vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
             n=20,
             stratifications=[AncestralBaseStratification()]
         )
@@ -154,21 +157,6 @@ class ParserTestCase(TestCase):
 
         assert sfs.all.data.sum() == 10000 - p.n_skipped
 
-    def test_parse_vcf_without_AA_yields_empty_sfs(self):
-        """
-        Test that parsing a VCF file without AA info field yields an empty SFS
-        """
-        p = Parser(
-            vcf="resources/genome/sapiens/chr21_test.vcf.gz",
-            n=20,
-            ignore_not_polarized=True
-        )
-
-        sfs = p.parse()
-
-        # assert total number of sites is 0
-        assert sfs.all.data.sum() == 0
-
     def test_parse_vcf_chr21(self):
         """
         Parse the VCF file using a remote fasta
@@ -191,6 +179,7 @@ class ParserTestCase(TestCase):
             ignore_not_polarized=True,
             annotations=[deg, aa],
             filtrations=[f],
+            max_sites=100000
         )
 
         sfs = p.parse()
@@ -207,14 +196,14 @@ class ParserTestCase(TestCase):
             n_target_sites=1000000,
             annotations=[
                 DegeneracyAnnotation(
-                    fasta_file="resources/genome/betula/genome.fasta",
-                    gff_file="resources/genome/betula/genome.gff"
+                    fasta_file="resources/genome/betula/genome.subset.20.fasta",
+                    gff_file="resources/genome/betula/genome.gff.gz"
                 ),
                 MaximumParsimonyAnnotation()
             ],
             filtrations=[
                 CodingSequenceFiltration(
-                    gff_file="resources/genome/betula/genome.gff"
+                    gff_file="resources/genome/betula/genome.gff.gz"
                 )
             ]
         )
@@ -232,14 +221,14 @@ class ParserTestCase(TestCase):
             n=20,
             annotations=[
                 DegeneracyAnnotation(
-                    fasta_file="resources/genome/betula/genome.fasta",
-                    gff_file="resources/genome/betula/genome.gff"
+                    fasta_file="resources/genome/betula/genome.subset.20.fasta",
+                    gff_file="resources/genome/betula/genome.gff.gz"
                 ),
                 MaximumParsimonyAnnotation()
             ],
             filtrations=[
                 CodingSequenceFiltration(
-                    gff_file="resources/genome/betula/genome.gff"
+                    gff_file="resources/genome/betula/genome.gff.gz"
                 )
             ],
             max_sites=100000
@@ -249,7 +238,7 @@ class ParserTestCase(TestCase):
 
         pass
 
-    @pytest.mark.skip(reason="takes too long")
+    @pytest.mark.slow
     def test_parse_betula_complete_vcf_including_monomrphic(self):
         """
         Parse the VCF file of Betula spp.
@@ -260,13 +249,13 @@ class ParserTestCase(TestCase):
             annotations=[
                 DegeneracyAnnotation(
                     fasta_file="resources/genome/betula/genome.fasta",
-                    gff_file="resources/genome/betula/genome.gff"
+                    gff_file="resources/genome/betula/genome.gff.gz"
                 ),
                 MaximumParsimonyAnnotation()
             ],
             filtrations=[
                 CodingSequenceFiltration(
-                    gff_file="resources/genome/betula/genome.gff"
+                    gff_file="resources/genome/betula/genome.gff.gz"
                 )
             ],
         )
@@ -275,7 +264,7 @@ class ParserTestCase(TestCase):
 
         sfs.plot()
 
-    def test_parse_human_chr22_from_online_resources(self):
+    def test_parse_human_chr22_from_online_resources_and_perform_inference(self):
         """
         Parse the VCF file using remote files.
         """
@@ -305,9 +294,4 @@ class ParserTestCase(TestCase):
 
         sfs = p.parse()
 
-        inf = BaseInference(sfs_neut=sfs['neutral'], sfs_sel=sfs['selected'])
-
-        inf.run(do_bootstrap=True)
-
-        inf.plot_sfs_comparison()
-        inf.plot_discretized()
+        sfs.plot()

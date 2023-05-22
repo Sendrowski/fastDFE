@@ -36,6 +36,36 @@ logger = logging.getLogger('fastdfe')
 class JointInference(BaseInference):
     """
     Enabling the sharing of parameters among several Inference objects.
+
+    Basic usage:
+
+    ::
+
+        from fastdfe import JointInference, Spectra, SharedParams
+
+        # neutral SFS for two types
+        sfs_neut = Spectra(dict(
+            pendula=[177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+            pubescens=[172528, 3612, 1359, 790, 584, 427, 325, 234, 166, 76, 31]
+        ))
+
+        # selected SFS for two types
+        sfs_sel = Spectra(dict(
+            pendula=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+            pubescens=[791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
+        ))
+
+        # create inference object
+        inf = JointInference(
+            sfs_neut=sfs_neut,
+            sfs_sel=sfs_sel,
+            fixed_params=dict(eps=0), # fix eps to 0
+            do_bootstrap=True
+        )
+
+        # run inference
+        inf.run()
+
     """
 
     def __init__(
@@ -84,7 +114,9 @@ class JointInference(BaseInference):
         :param scales: Scales for the optimization in the form {param: scale}
         :param loss_type: Loss type
         :param opts_mle: Options for the optimization
-        :param n_runs: Number of independent optimization runs
+        :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
+            will use the initial values if specified. Consider increasing this number if the optimization does not
+            produce good results.
         :param fixed_params: Dictionary of fixed parameters in the form ``{type: {param: value}}``
         :param shared_params: List of shared parameters
         :param do_bootstrap: Whether to perform bootstrapping
@@ -94,9 +126,13 @@ class JointInference(BaseInference):
             SFS appear to be folded.
         :param kwargs: Additional keyword arguments which are ignored.
         """
+        if sfs_neut.has_dots() or sfs_sel.has_dots():
+            raise ValueError('Type names cannot contain dots are not allowed as they are used internally.'
+                             'You can use the `replace_dots` method to replace dots with another character.')
+
         # check whether types are equal
         if set(sfs_neut.types) != set(sfs_sel.types):
-            raise Exception('The neutral and selected spectra must have exactly the same types.')
+            raise ValueError('The neutral and selected spectra must have exactly the same types.')
 
         #: SFS types
         self.types: List[str] = sfs_neut.types
@@ -681,10 +717,15 @@ class JointInference(BaseInference):
         if n_success < self.n_bootstraps:
             logger.warning(f"{self.n_bootstraps - n_success} out of {self.n_bootstraps} bootstrap samples "
                            "did not terminate normally during numerical optimization. "
-                           "The confidence intervals might thus be unreliable.")
+                           "The confidence intervals might thus be unreliable. Consider adjusting "
+                           "the optimization parameters (increasing `gtol` or `n_runs`) "
+                           "or decrease the number of optimized parameters.")
 
         # dataframe of MLE estimates in flattened format
         self.bootstraps = pd.DataFrame([flatten_dict(r) for r in result[:, 1]])
+
+        # assign bootstrap results
+        self.bootstrap_results = list(result[:, 0])
 
         # assign bootstrap parameters to joint inferences
         for t, inf in self.joint_inferences.items():

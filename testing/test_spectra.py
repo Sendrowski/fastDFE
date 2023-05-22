@@ -268,3 +268,27 @@ class SpectraTestCase(TestCase):
 
         assert not np.array(list(s.is_folded().values())).all()
         assert np.array(list(s_folded.is_folded().values())).all()
+
+    def test_has_dots(self):
+        """
+        Test that the has_dots() method works as expected
+        """
+        assert Spectra.from_spectra(dict(
+            type1=Spectrum([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+            type2=Spectrum([1, 2, 3, 4, 5, 6, 7, 8, 9, 65])
+        )).has_dots() is False
+
+        assert Spectra.from_spectra({
+            'test.foo': Spectrum([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        }).has_dots() is True
+
+    def test_replace_dots(self):
+        """
+        Test that the replace_dots() method works as expected
+        """
+        s = Spectra.from_spectra({
+            'test.foo': Spectrum([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        }).replace_dots()
+
+        assert s.has_dots() is False
+        assert s.types == ['test_foo']

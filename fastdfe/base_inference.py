@@ -43,6 +43,34 @@ class BaseInference(AbstractInference):
     """
     Base inference class for inferring the SFS given one neutral and one selected SFS.
     Note that BaseInference is by default seeded.
+
+    Basic usage:
+
+    ::
+
+        from fastdfe import Spectrum, BaseInference
+
+        sfs_neut = Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+        sfs_sel = Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+
+        # create inference object
+        inf = BaseInference(
+            sfs_neut=sfs_neut,
+            sfs_sel=sfs_sel,
+            n_runs=10,
+            n_bootstraps=100,
+            do_bootstrap=True
+        )
+
+        # run inference
+        inf.run()
+
+        # plot discretized DFE
+        inf.plot_discretized()
+
+        # plot SFS comparison
+        inf.plot_sfs_comparison()
+
     """
 
     #: Default parameters not connected to the DFE parametrization
@@ -62,8 +90,8 @@ class BaseInference(AbstractInference):
 
     #: Default options for the MLE
     default_opts_mle = dict(
-        # ftol=1e-20,
-        # gtol=1e-20
+        # ftol=1e-10,
+        # gtol=1e-10
     )
 
     def __init__(
@@ -113,7 +141,9 @@ class BaseInference(AbstractInference):
         :param scales: Scales for the optimization in the form ``{param: scale}`
         :param loss_type: Type of loss function to use for optimization.
         :param opts_mle: Options for the optimization.
-        :param n_runs: Number of optimization runs. The first run will use the initial values if provided.
+        :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
+            will use the initial values if specified. Consider increasing this number if the optimization does not
+            produce good results.
         :param fixed_params: Parameters held fixed when optimization, i.e., ``{'all': {param: value}}``
         :param do_bootstrap: Whether to do bootstrapping.
         :param n_bootstraps: Number of bootstraps.
@@ -249,7 +279,7 @@ class BaseInference(AbstractInference):
 
             if not fixed_dele.issubset(fixed):
                 logger.warning("You are estimating the full DFE, but the SFS are folded. "
-                               "This is not recommend as the folded SFS contains little information"
+                               "This is not recommend as the folded SFS contains little information "
                                "on beneficial mutations.")
 
         #: Initial values
@@ -257,6 +287,9 @@ class BaseInference(AbstractInference):
 
         #: Bootstrapped MLE parameter estimates
         self.bootstraps: Optional[pd.DataFrame] = None
+
+        #: Bootstrap optimization results
+        self.bootstrap_results: Optional[List[OptimizeResult]] = None
 
         #: L2 norm of fit minus observed SFS
         self.L2_residual: Optional[float] = None
@@ -486,9 +519,10 @@ class BaseInference(AbstractInference):
                         f"and {result.nfev} function evaluations, obtaining a log-likelihood "
                         f"of -{result.fun}.")
         else:
-            logger.warning("Numerical optimization did not terminate normally "
-                           f"so result might be compromised. Number of iterations: {result.nit}."
-                           "Please check the result property for more information.")
+            logger.warning("Numerical optimization did not terminate normally, so "
+                           "the result might be compromised. Consider adjusting "
+                           "the optimization parameters (increasing `gtol` or `n_runs`) "
+                           "or decrease the number of optimized parameters.")
 
         logger.info(f"Inferred parameters: {flatten_dict(params)}.")
 
@@ -563,10 +597,15 @@ class BaseInference(AbstractInference):
         if n_success < self.n_bootstraps:
             logger.warning(f"{self.n_bootstraps - n_success} out of {self.n_bootstraps} bootstrap samples "
                            "did not terminate normally during numerical optimization. "
-                           "The confidence intervals might thus be unreliable.")
+                           "The confidence intervals might thus be unreliable. Consider adjusting "
+                           "the optimization parameters (increasing `gtol` or `n_runs`) "
+                           "or decrease the number of optimized parameters.")
 
-        # dataframe of MLE estimates
+            # dataframe of MLE estimates
         self.bootstraps = pd.DataFrame([r['all'] for r in result[:, 1]])
+
+        # assign bootstrap results
+        self.bootstrap_results = list(result[:, 0])
 
         # add estimates for alpha to the bootstraps
         self.add_alpha_to_bootstraps()

@@ -35,7 +35,7 @@ intervals_del:
 linearized: true
 loss_type: likelihood
 model: GammaExpParametrization
-n_bootstraps: 100
+n_bootstraps: 10
 n_runs: 1
 opts_mle: { }
 parallelize: false

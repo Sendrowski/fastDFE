@@ -9,6 +9,7 @@ from testing import prioritize_installed_packages
 prioritize_installed_packages()
 
 from unittest import TestCase
+import pytest
 
 from fastdfe import Annotator, MaximumParsimonyAnnotation, Parser, DegeneracyAnnotation, SynonymyAnnotation
 
@@ -21,7 +22,7 @@ class AnnotatorTestCase(TestCase):
     """
 
     vcf_file = 'resources/genome/betula/biallelic.subset.10000.vcf.gz'
-    fasta_file = 'resources/genome/betula/genome.subset.2.fasta'
+    fasta_file = 'resources/genome/betula/genome.subset.20.fasta'
     gff_file = 'resources/genome/betula/genome.gff.gz'
 
     def test_maximum_parsimony_annotation(self):
@@ -48,7 +49,7 @@ class AnnotatorTestCase(TestCase):
         Test the degeneracy annotator on a small human genome.
         """
         deg = DegeneracyAnnotation(
-            fasta_file="resources/genome/sapiens/chr21.fasta",
+            fasta_file="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
             gff_file="resources/genome/sapiens/hg38.gtf"
         )
 
@@ -103,7 +104,7 @@ class AnnotatorTestCase(TestCase):
             output='scratch/test_degeneracy_annotation.vcf',
             annotations=[
                 DegeneracyAnnotation(
-                    fasta_file="resources/genome/betula/genome.fasta",
+                    fasta_file="resources/genome/betula/genome.subset.20.fasta",
                     gff_file="resources/genome/betula/genome.gff.gz"
                 )
             ],
@@ -124,7 +125,7 @@ class AnnotatorTestCase(TestCase):
             output='scratch/test_degeneracy_annotation.vcf',
             annotations=[
                 DegeneracyAnnotation(
-                    fasta_file="resources/genome/betula/genome.fasta",
+                    fasta_file="resources/genome/betula/genome.subset.20.fasta",
                     gff_file="resources/genome/betula/genome.gff.gz"
                 )
             ],
@@ -136,25 +137,45 @@ class AnnotatorTestCase(TestCase):
         assert ann.n_sites == 10000
         assert count_sites(ann.output) == 10000
 
-    def test_compare_synonymy_annotation_with_vep(self):
+    def test_compare_synonymy_annotation_with_vep_betula(self):
         """
         Compare the synonymy annotation with VEP.
         """
+        syn = SynonymyAnnotation(
+            fasta_file="resources/genome/betula/genome.subset.20.fasta",
+            gff_file="resources/genome/betula/genome.gff.gz"
+        )
+
         ann = Annotator(
             vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
             output='scratch/test_compare_synonymy_annotation_with_vep.vcf',
-            annotations=[
-                SynonymyAnnotation(
-                    fasta_file="resources/genome/betula/genome.fasta",
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                )
-            ],
+            annotations=[syn],
         )
 
         ann.annotate()
 
-        assert ann.annotations[0].n_vep_comparisons == 3566
-        assert len(ann.annotations[0].vep_mismatches) == 0
+        assert syn.n_vep_comparisons == 3566
+        assert len(syn.vep_mismatches) == 0
+
+    @pytest.mark.slow
+    def test_compare_synonymy_annotation_with_vep_human_chr21(self):
+        """
+        Compare the synonymy annotation with VEP.
+        """
+        syn = SynonymyAnnotation(
+            fasta_file="resources/genome/sapiens/chr21.fasta",
+            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
+        )
+
+        ann = Annotator(
+            vcf="snakemake/results/vcf/sapiens/chr21.vep.vcf.gz",
+            output="test_compare_synonymy_annotation_with_vep_human_chr21.vcf",
+            annotations=[syn]
+        )
+
+        ann.annotate()
+
+        pass
 
     def test_get_degeneracy(self):
         """

@@ -96,6 +96,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.to_single_index"><code class="docutils literal notranslate"><span class="pre">Spectra.to_single_index()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.get_empty"><code class="docutils literal notranslate"><span class="pre">Spectra.get_empty()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.merge_groups"><code class="docutils literal notranslate"><span class="pre">Spectra.merge_groups()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.has_dots"><code class="docutils literal notranslate"><span class="pre">Spectra.has_dots()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.replace_dots"><code class="docutils literal notranslate"><span class="pre">Spectra.replace_dots()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.all"><code class="docutils literal notranslate"><span class="pre">Spectra.all</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.combine"><code class="docutils literal notranslate"><span class="pre">Spectra.combine()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.from_dict"><code class="docutils literal notranslate"><span class="pre">Spectra.from_dict()</span></code></a></li>
@@ -164,30 +166,55 @@
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.n">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#fastdfe.spectrum.Spectra.n" title="Permalink to this definition"></a></dt>
 <dd><p>The sample size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Sample size</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.k">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">k</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#fastdfe.spectrum.Spectra.k" title="Permalink to this definition"></a></dt>
 <dd><p>The number of types.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of types</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.n_monomorphic">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_monomorphic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#fastdfe.spectrum.Spectra.n_monomorphic" title="Permalink to this definition"></a></dt>
 <dd><p>The number of monomorphic sites.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of monomorphic sites</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.polymorphic">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">polymorphic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#fastdfe.spectrum.Spectra.polymorphic" title="Permalink to this definition"></a></dt>
 <dd><p>The polymorphic counts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Polymorphic counts</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.n_polymorphic">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_polymorphic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#fastdfe.spectrum.Spectra.n_polymorphic" title="Permalink to this definition"></a></dt>
 <dd><p>The total number of polymorphic counts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Total number of polymorphic counts for each type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -196,8 +223,17 @@
 <dd><p>Create from array of spectra.
 Note that data.ndim needs to be 2.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Array of spectra</p></li>
+<li><p><strong>types</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>) – Types</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Spectra</p>
 </dd>
 </dl>
 </dd></dl>
@@ -206,24 +242,44 @@ Note that data.ndim needs to be 2.</p>
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.types">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#fastdfe.spectrum.Spectra.types" title="Permalink to this definition"></a></dt>
 <dd><p>The types.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Types</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.n_sites">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_sites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Series</span></em><a class="headerlink" href="#fastdfe.spectrum.Spectra.n_sites" title="Permalink to this definition"></a></dt>
 <dd><p>The number of mutational target sites which is the sum of all SFS entries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of mutational target sites for each type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.n_div">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_div</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Series</span></em><a class="headerlink" href="#fastdfe.spectrum.Spectra.n_div" title="Permalink to this definition"></a></dt>
 <dd><p>The number of divergence counts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of divergence counts for each type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.has_div">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_div</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Series</span></em><a class="headerlink" href="#fastdfe.spectrum.Spectra.has_div" title="Permalink to this definition"></a></dt>
 <dd><p>Whether n_div was specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether n_div was specified for each type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -233,6 +289,9 @@ Note that data.ndim needs to be 2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Normalized spectra</p>
 </dd>
 </dl>
 </dd></dl>
@@ -256,6 +315,9 @@ Note that data.ndim needs to be 2.</p>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a>]</p>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of spectrum objects</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -266,6 +328,9 @@ Note that data.ndim needs to be 2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dataframe</p>
 </dd>
 </dl>
 </dd></dl>
@@ -278,6 +343,9 @@ Note that data.ndim needs to be 2.</p>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Numpy array</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -288,6 +356,9 @@ Note that data.ndim needs to be 2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Nested list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -300,6 +371,9 @@ Note that data.ndim needs to be 2.</p>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of lists</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -310,6 +384,9 @@ Note that data.ndim needs to be 2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Copy of object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -322,6 +399,9 @@ Note that data.ndim needs to be 2.</p>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Spectra object with multi-indexed columns</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -332,6 +412,9 @@ Note that data.ndim needs to be 2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Spectra object with single-indexed columns</p>
 </dd>
 </dl>
 </dd></dl>
@@ -344,6 +427,9 @@ Note that data.ndim needs to be 2.</p>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Spectra object with zero counts</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -353,8 +439,45 @@ Note that data.ndim needs to be 2.</p>
 <dd><p>Group over given levels and sum up spectra so the spectra
 are summed over the levels that were not specified.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>level</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Level(s) to group over</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Spectra object with merged groups</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.has_dots">
+<span class="sig-name descname"><span class="pre">has_dots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.has_dots" title="Permalink to this definition"></a></dt>
+<dd><p>Check whether column names contain dots.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if column names contain dots, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.replace_dots">
+<span class="sig-name descname"><span class="pre">replace_dots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">replacement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.replace_dots" title="Permalink to this definition"></a></dt>
+<dd><p>Replace dots in column names with a given string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>replacement</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Replacement string</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Spectra object with replaced dots</p>
 </dd>
 </dl>
 </dd></dl>
@@ -363,6 +486,11 @@ are summed over the levels that were not specified.</p>
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.all">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><span class="pre">Spectrum</span></a></em><a class="headerlink" href="#fastdfe.spectrum.Spectra.all" title="Permalink to this definition"></a></dt>
 <dd><p>The ‘all’ type equals the sum of all spectra.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Spectrum object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -375,6 +503,9 @@ are summed over the levels that were not specified.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Merged Spectra object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -390,6 +521,9 @@ are summed over the levels that were not specified.</p>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
 </dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Spectra object</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -403,6 +537,9 @@ are summed over the levels that were not specified.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Spectra object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -418,6 +555,9 @@ are summed over the levels that were not specified.</p>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
 </dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Spectra object</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -426,8 +566,14 @@ are summed over the levels that were not specified.</p>
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><span class="pre">fastdfe.spectrum.Spectrum</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.from_spectra" title="Permalink to this definition"></a></dt>
 <dd><p>Create from dict of spectrum objects indexed by types.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spectra</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a>]) – Dictionary of spectrum objects indexed by types</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Spectra object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -442,6 +588,9 @@ are summed over the levels that were not specified.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Spectra object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -478,6 +627,9 @@ are summed over the levels that were not specified.</p>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Spectra with non-empty types</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -490,6 +642,9 @@ Note that we ignore zero counts in the last entry i.e. fixed derived alleles.</p
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Spectra with non-zero entries</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -498,11 +653,14 @@ Note that we ignore zero counts in the last entry i.e. fixed derived alleles.</p
 <span class="sig-name descname"><span class="pre">rename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.rename" title="Permalink to this definition"></a></dt>
 <dd><p>Rename types.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – New names</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>New names</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Spectra with renamed types</p>
 </dd>
 </dl>
 </dd></dl>
@@ -512,11 +670,14 @@ Note that we ignore zero counts in the last entry i.e. fixed derived alleles.</p
 <span class="sig-name descname"><span class="pre">prefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.prefix" title="Permalink to this definition"></a></dt>
 <dd><p>Prefix types, i.e. ‘type’ -&gt; ‘prefix.type’ for all types.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prefix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Prefix</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Prefix</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Spectra with prefixed types</p>
 </dd>
 </dl>
 </dd></dl>

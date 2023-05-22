@@ -482,7 +482,8 @@ class JointInferenceTestCase(AbstractInferenceTestCase):
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
             shared_params=[SharedParams(types=["pendula", "pubescens"], params=["eps", "S_d"])],
-            do_bootstrap=True
+            do_bootstrap=True,
+            n_bootstraps=10
         )
 
         # run inference
@@ -493,3 +494,56 @@ class JointInferenceTestCase(AbstractInferenceTestCase):
         assert np.array([v.folded for v in inf.get_inferences().values()]).all()
 
         inf.plot_discretized()
+        inf.plot_sfs_comparison()
+
+    def test_joint_inference_types_with_dots_throws_error(self):
+        """
+        Test that joint inference with types containing dots throws an error.
+        """
+        # neutral SFS for two types
+        sfs_neut = Spectra({
+            'pendula.foo': [177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+            'pubescens.bar.foo': [172528, 3612, 1359, 790, 584, 427, 325, 234, 166, 76, 31]
+        })
+
+        # selected SFS for two types
+        sfs_sel = Spectra({
+            'pendula.foo': [797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+            'pubescens.bar.foo': [791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
+        })
+
+        # create inference object
+        with pytest.raises(ValueError):
+            JointInference(
+                sfs_neut=sfs_neut,
+                sfs_sel=sfs_sel,
+                fixed_params={'all': dict(eps=0)},
+                shared_params=[SharedParams(types=["pendula.foo", "pubescens.bar.foo"], params=["S_d", "S_b", "p_b"])],
+                do_bootstrap=True
+            )
+
+    def test_spectra_with_disparate_types_throws_error(self):
+        """
+        Test that joint inference with types containing dots throws an error.
+        """
+        # neutral SFS for two types
+        sfs_neut = Spectra({
+            'pendula': [177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+            'pubescens': [172528, 3612, 1359, 790, 584, 427, 325, 234, 166, 76, 31]
+        })
+
+        # selected SFS for two types
+        sfs_sel = Spectra({
+            'pendula': [797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+            'pubescens.bar.foo': [791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
+        })
+
+        # create inference object
+        with pytest.raises(ValueError):
+            JointInference(
+                sfs_neut=sfs_neut,
+                sfs_sel=sfs_sel,
+                fixed_params={'all': dict(eps=0)},
+                shared_params=[SharedParams(types=["pendula", "pubescens.bar.foo"], params=["S_d", "S_b", "p_b"])],
+                do_bootstrap=True
+            )

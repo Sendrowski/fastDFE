@@ -121,9 +121,6 @@ class CodingSequenceFiltration(Filtration):
     spectra for DFE inference as we only consider sites in coding sequences for this purpose.
     By using it, the annotation and parsing of unnecessary sites can be avoided which increases the speed.
     Note that we assume here that within contigs, sites in the GFF file are sorted by position in ascending order.
-
-    Note that we construct a database for the GFF file which is cached. If you want to change the GFF file
-    you might have to delete the database file.
     """
 
     def __init__(self, gff_file: str, aliases: Dict[str, List[str]] = {}):

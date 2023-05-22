@@ -30,7 +30,7 @@ scales: { }
 # Inference.run()
 do_bootstrap: true
 # The number of bootstraps
-n_bootstraps: 100
+n_bootstraps: 10
 # Whether to parallelize the computations across all
 # available cores
 parallelize: true

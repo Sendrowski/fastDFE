@@ -1,5 +1,8 @@
 from typing import List
 import re
+from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
+
+HTTP = HTTPRemoteProvider()
 
 configfile: "config.yaml"
 
@@ -432,13 +435,33 @@ rule create_tbi_vcf:
 # create a tbi index for a gff file
 rule create_tbi_gff:
     input:
-        "{path}.{exp}.gz"
+        "{path}.{ext}.gz"
     output:
-        "{path}.{exp,gff|gtf}.gz.tbi"
+        "{path}.{ext,gff|gtf}.gz.tbi"
     conda:
         "envs/tabix.yaml"
     shell:
         "tabix -p gff {input}"
+
+# create a tbi index for a gff file
+rule bgzip_gff:
+    input:
+        "{path}.{ext}"
+    output:
+        "{path}.{ext,gff|gtf}.gz"
+    conda:
+        "envs/tabix.yaml"
+    shell:
+        "bgzip -c {input} > {input}.gz"
+
+# sort GFF file
+rule sort_gff:
+    input:
+        "{path}.{ext}"
+    output:
+        "{path}.sorted.{ext,gff|gtf}"
+    shell:
+        "sort -k1,1 -k4,4n {input} > {output}"
 
 # index a fasta file using samtools
 rule create_fai:
@@ -610,21 +633,74 @@ rule annotate_degeneracy:
         "scripts/annotate_degeneracy.py"
 
 # predict the variants' effects with VEP
-rule annotate_vep:
+rule annotate_vep_betula:
     input:
-        vcf="../resources/genome/{species}/{name}.vcf.gz",
-        ref="../resources/genome/{species}/genome.fasta",
-        gff="../resources/genome/{species}/genome.gff.gz",
-        tbi="../resources/genome/{species}/genome.gff.gz.tbi"
+        vcf="../resources/genome/betula/{name}.vcf.gz",
+        ref="../resources/genome/betula/genome.fasta",
+        gff="../resources/genome/betula/genome.gff.gz",
+        tbi="../resources/genome/betula/genome.gff.gz.tbi"
     output:
-        "results/vcf/{species}/{name}.vep.vcf.gz",
-        "results/vcf/{species}/{name}.vep.vcf.gz_summary.html"
+        "results/vcf/betula/{name}.vep.vcf.gz",
+        "results/vcf/betula/{name}.vep.vcf.gz_summary.html"
     params:
-        species="{species}"
+        species="betula"
     conda:
         "envs/vep.yaml"
     script:
         "scripts/annotate_vep.py"
+
+# download human chromosome-level VCF
+rule download_vcf_chr_sapiens:
+    output:
+        "../resources/genome/sapiens/{chr}.vcf.gz"
+    params:
+        url="https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/"
+            "20181203_biallelic_SNV/ALL.{chr}.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz"
+    conda:
+        "envs/wget.yaml"
+    shell:
+        "wget -O {output} {params.url}"
+
+# download human chromosome-level FASTA
+rule download_fasta_chr_sapiens:
+    output:
+        "../resources/genome/sapiens/{chr}.fasta.gz"
+    params:
+        url="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/{chr}.fa.gz"
+    conda:
+        "envs/wget.yaml"
+    shell:
+        "wget -O {output} {params.url}"
+
+# predict the variants' effects with VEP
+rule annotate_vep_sapiens:
+    input:
+        vcf="../resources/genome/sapiens/{name}.vcf.gz",
+        ref="../resources/genome/sapiens/{name}.fasta.gz",
+        gff="../resources/genome/sapiens/hg38.sorted.gtf.gz",
+        tbi="../resources/genome/sapiens/hg38.sorted.gtf.gz.tbi"
+    output:
+        "results/vcf/sapiens/{name}.vep.vcf.gz",
+        "results/vcf/sapiens/{name}.vep.vcf.gz_summary.html"
+    params:
+        species="homo_sapiens"
+    conda:
+        "envs/vep.yaml"
+    script:
+        "scripts/annotate_vep.py"
+
+# predict the variants' effects with SNPEff
+rule annotate_snpeff_sapiens:
+    input:
+        vcf="../resources/genome/sapiens/{name}.vcf.gz"
+    output:
+        "results/vcf/sapiens/{name}.snpeff.vcf.gz"
+    params:
+        species="hg38"  # The name of the SNPEff database for the species
+    conda:
+        "envs/snpeff.yaml"
+    script:
+        "scripts/annotate_snpeff.py"
 
 # generate a requirements.txt using poetry
 rule generate_requirements_poetry:

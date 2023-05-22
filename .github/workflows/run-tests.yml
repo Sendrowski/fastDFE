@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, and run tests
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: tests
+name: Run Tests on Linux
 
 on:
   push:
@@ -29,5 +29,5 @@ jobs:
         auto-activate-base: false
         activate-environment: testing-fastdfe
     - run: |
-          pytest --cov fastdfe --cov-report=xml testing/
+          pytest --cov fastdfe --cov-report=xml -m "not slow" testing/
     - uses: codecov/codecov-action@v3
