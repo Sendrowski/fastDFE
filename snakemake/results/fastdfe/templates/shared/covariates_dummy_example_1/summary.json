@@ -101,7 +101,7 @@
         "success": true,
         "hess_inv": "<19x19 LbfgsInvHessProduct with dtype=float64>"
     },
-    "execution_time": 17.314106225967407,
+    "execution_time": 14.923346042633057,
     "sfs_mle": null,
     "fixed_params": {},
     "bounds": {

@@ -44802,7 +44802,7 @@
         "__dict__": {}
     },
     "do_bootstrap": null,
-    "n_bootstraps": 100,
+    "n_bootstraps": 10,
     "parallelize": true,
     "fixed_params": {
         "all": {}
@@ -45026,6 +45026,6 @@
             }
         ]
     },
-    "execution_time": 4.711967945098877,
+    "execution_time": 4.4424591064453125,
     "locked": false
 }

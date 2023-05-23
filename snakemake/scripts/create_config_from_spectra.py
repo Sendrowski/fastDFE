@@ -34,7 +34,8 @@ spectra = Spectra.from_file(spectra_file)
 config = Config(
     sfs_neut=spectra[['sfs_neut.*']].merge_groups(levels),
     sfs_sel=spectra[['sfs_sel.*']].merge_groups(levels),
-    polydfe_init_file=init_file
+    polydfe_init_file=init_file,
+    n_bootstraps=10
 )
 
 config.to_file(out)

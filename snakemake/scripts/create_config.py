@@ -37,6 +37,7 @@ config = fastdfe.Config(
     polydfe_spectra_config=spectra_file,
     polydfe_init_file=init_file,
     do_bootstrap=do_bootstrap,
+    n_bootstraps=10,
     model=model
 )
 

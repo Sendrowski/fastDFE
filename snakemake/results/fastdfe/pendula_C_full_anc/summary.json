@@ -33,7 +33,7 @@
         "success": true,
         "hess_inv": "<5x5 LbfgsInvHessProduct with dtype=float64>"
     },
-    "execution_time": 4.711967945098877,
+    "execution_time": 4.4424591064453125,
     "sfs_mle": [
         0.0,
         1909.3667685319633,
@@ -194,7 +194,7 @@
             ]
         },
         "do_bootstrap": null,
-        "n_bootstraps": 100,
+        "n_bootstraps": 10,
         "parallelize": true,
         "loss_type": "likelihood"
     }
