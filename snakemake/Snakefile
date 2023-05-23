@@ -437,7 +437,7 @@ rule create_tbi_gff:
     input:
         "{path}.{ext}.gz"
     output:
-        "{path}.{ext,gff|gtf}.gz.tbi"
+        "{path}.{ext,gff|gtf|gff3}.gz.tbi"
     conda:
         "envs/tabix.yaml"
     shell:
@@ -448,20 +448,11 @@ rule bgzip_gff:
     input:
         "{path}.{ext}"
     output:
-        "{path}.{ext,gff|gtf}.gz"
+        "{path}.{ext,gff|gtf|gff3}.gz"
     conda:
         "envs/tabix.yaml"
     shell:
         "bgzip -c {input} > {input}.gz"
-
-# sort GFF file
-rule sort_gff:
-    input:
-        "{path}.{ext}"
-    output:
-        "{path}.sorted.{ext,gff|gtf}"
-    shell:
-        "sort -k1,1 -k4,4n {input} > {output}"
 
 # index a fasta file using samtools
 rule create_fai:
@@ -672,15 +663,51 @@ rule download_fasta_chr_sapiens:
     shell:
         "wget -O {output} {params.url}"
 
+# download human chromosome-level GFF
+rule download_gff_chr_sapiens:
+    output:
+        "../resources/genome/sapiens/chr{name,\d+}.gff3.gz"
+    params:
+        url="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/Homo_sapiens.GRCh38.109.chromosome.{name}.gff3.gz"
+    conda:
+        "envs/wget.yaml"
+    shell:
+        "wget -O {output} {params.url}"
+
+# sort GFF
+rule sort_and_compress_gff:
+    input:
+        "{path}.{ext}.gz"
+    output:
+        "{path}.sorted.{ext,gtf|gff|gff3}"
+    conda:
+        "envs/tabix.yaml"
+    shell:
+        """
+        zgrep '^#' {input} > {output}
+        zgrep -v '^#' {input} | sort -V -k1,1 -k4,4n >> {output}
+        """
+
+# decompress fasta file
+rule decompress_bgzip_fasta:
+    input:
+        "{path}.fasta.gz"
+    output:
+        "{path,.*}.fasta"
+    conda:
+        "envs/tabix.yaml"
+    shell:
+        "bgzip {input} -cd > {output}"
+
 # predict the variants' effects with VEP
 rule annotate_vep_sapiens:
     input:
         vcf="../resources/genome/sapiens/{name}.vcf.gz",
-        ref="../resources/genome/sapiens/{name}.fasta.gz",
-        gff="../resources/genome/sapiens/hg38.sorted.gtf.gz",
-        tbi="../resources/genome/sapiens/hg38.sorted.gtf.gz.tbi"
+        ref="../resources/genome/sapiens/{name}.fasta",
+        gff="../resources/genome/sapiens/{name}.sorted.gff3.gz",
+        tbi="../resources/genome/sapiens/{name}.sorted.gff3.gz.tbi"
     output:
-        "results/vcf/sapiens/{name}.vep.vcf.gz",
+        "results/vcf/sapiens/{name,[a-z0-9]+}.vep.vcf.gz",
         "results/vcf/sapiens/{name}.vep.vcf.gz_summary.html"
     params:
         species="homo_sapiens"
@@ -689,14 +716,31 @@ rule annotate_vep_sapiens:
     script:
         "scripts/annotate_vep.py"
 
-# predict the variants' effects with SNPEff
+# predict the variants' effects with VEP
+rule annotate_vep_sapiens_test:
+    input:
+        vcf="../resources/genome/sapiens/{name}_test.vcf.gz",
+        ref="../resources/genome/sapiens/{name}.fasta",
+        gff="../resources/genome/sapiens/{name}.sorted.gff3.gz",
+        tbi="../resources/genome/sapiens/{name}.sorted.gff3.gz.tbi"
+    output:
+        "results/vcf/sapiens/{name}_test.vep.vcf.gz",
+        "results/vcf/sapiens/{name}_test.vep.vcf.gz_summary.html"
+    params:
+        species="homo_sapiens"
+    conda:
+        "envs/vep.yaml"
+    script:
+        "scripts/annotate_vep.py"
+
+# predict the variants' effects with SnpEff
 rule annotate_snpeff_sapiens:
     input:
         vcf="../resources/genome/sapiens/{name}.vcf.gz"
     output:
         "results/vcf/sapiens/{name}.snpeff.vcf.gz"
     params:
-        species="hg38"  # The name of the SNPEff database for the species
+        species="hg38"  # The name of the SnpEff database for the species
     conda:
         "envs/snpeff.yaml"
     script:

@@ -591,8 +591,14 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         #: The number of sites that did not match with VEP.
         self.vep_mismatches: List[Variant] = []
 
+        #: The number of sites that did not math with the annotation provided by SnpEff
+        self.snpeff_mismatches: List[Variant] = []
+
         #: The number of sites that were concordant with VEP.
         self.n_vep_comparisons: int = 0
+
+        #: The number of sites that were concordant with SnpEff.
+        self.n_snpeff_comparisons: int = 0
 
         #: The aliases for the contigs in the VCF file.
         self.aliases: Dict[str, List[str]] = aliases
@@ -671,12 +677,28 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         :return: The codons.
         """
         # match codons
-        match = re.search("([actgACTG]{3})/([actgACTG]{3})", variant.INFO['CSQ'])
+        match = re.search("([actgACTG]{3})/([actgACTG]{3})", variant.INFO.get('CSQ'))
 
         if match is not None:
             return [m.upper() for m in [match[1], match[2]]]
 
         return []
+
+    @staticmethod
+    def _parse_synonymy_snpeff(variant: Variant) -> int | None:
+        """
+        Parse the synonymy from the annotation provided by SnpEff
+
+        :param variant: The variant.
+        :return: The codons.
+        """
+        if 'synonymous_variant' in variant.INFO.get('ANN'):
+            return 1
+
+        if 'missense_variant' in variant.INFO.get('ANN'):
+            return 0
+
+        return 0
 
     def _teardown(self):
         """
@@ -746,7 +768,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
                     if alt_codon in stop_codons:
                         info += ',stop_gained'
 
-                    if v.INFO['CSQ'] is not None:
+                    if v.INFO.get('CSQ') is not None:
 
                         # fetch the codons from the VEP annotation
                         codons_vep = self._parse_codons_vep(v)
@@ -758,9 +780,22 @@ class SynonymyAnnotation(DegeneracyAnnotation):
                             # make sure the codons determined by VEP are the same as our codons.
                             if not np.array_equal(codons_vep, [codon, alt_codon]):
                                 logger.warning(f'VEP codons do not match with codons determined by '
-                                               f'codon table for: {v.CHROM}:{v.POS}')
+                                               f'codon table for {v.CHROM}:{v.POS}')
 
                                 self.vep_mismatches.append(v)
+                                return
+
+                    if v.INFO.get('ANN') is not None:
+                        synonymy_snpeff = self._parse_synonymy_snpeff(v)
+
+                        self.n_snpeff_comparisons += 1
+
+                        if synonymy_snpeff is not None:
+                            if synonymy_snpeff != synonymy:
+                                logger.warning(f'SnpEff annotation does not match with custom '
+                                               f'annotation for {v.CHROM}:{v.POS}')
+
+                                self.snpeff_mismatches.append(v)
                                 return
 
                     # increase number of annotated sites

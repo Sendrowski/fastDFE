@@ -16,7 +16,7 @@ try:
 
     testing = False
     vcf_file = snakemake.input.vcf
-    fasta_file = snakemake.input._ref
+    fasta_file = snakemake.input.ref
     gff_file = snakemake.input.gff
     out = snakemake.output[0]
 except ModuleNotFoundError:

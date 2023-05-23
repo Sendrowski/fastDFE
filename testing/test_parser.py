@@ -143,34 +143,20 @@ class ParserTestCase(TestCase):
         # assert total number of sites
         assert sfs.all.data.sum() == 10000 - p.n_skipped
 
-    def test_parser_betula_load_vcf_from_url(self):
-        """
-        Test the parser loading a VCF from a URL.
-        """
-        p = Parser(
-            vcf='https://github.com/Sendrowski/fastDFE/blob/master/resources'
-                '/genome/betula/biallelic.subset.10000.vcf.gz?raw=true',
-            n=20
-        )
-
-        sfs = p.parse()
-
-        assert sfs.all.data.sum() == 10000 - p.n_skipped
-
     def test_parse_vcf_chr21(self):
         """
         Parse the VCF file using a remote fasta
         :return:
         """
         deg = DegeneracyAnnotation(
-            fasta_file="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
-            gff_file="resources/genome/sapiens/hg38.gtf"
+            fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
+            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
         )
 
         aa = MaximumParsimonyAnnotation()
 
         f = CodingSequenceFiltration(
-            gff_file="resources/genome/sapiens/hg38.gtf"
+            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
         )
 
         p = Parser(
@@ -269,14 +255,14 @@ class ParserTestCase(TestCase):
         Parse the VCF file using remote files.
         """
         p = Parser(
-            vcf="https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/"
+            vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/"
                 "20181203_biallelic_SNV/ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
             n=10,
             annotations=[
                 DegeneracyAnnotation(
-                    fasta_file="https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
+                    fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
                                "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
-                    gff_file="https://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                    gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
                              "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
                     aliases=dict(chr21=['21'])
                 ),
@@ -284,7 +270,7 @@ class ParserTestCase(TestCase):
             ],
             filtrations=[
                 CodingSequenceFiltration(
-                    gff_file="https://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                    gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
                              "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
                     aliases=dict(chr21=['21'])
                 )

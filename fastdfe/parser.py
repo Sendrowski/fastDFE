@@ -37,7 +37,7 @@ def count_no_type(func: Callable) -> Callable:
         try:
             return func(self, variant)
         except NoTypeException as e:
-            self._n_no_type += 1
+            self.n_no_type += 1
             raise e
 
     return wrapper
@@ -57,10 +57,10 @@ class Stratification(ABC):
     """
 
     #: Parser instance
-    _parser: Optional['Parser'] = None
+    parser: Optional['Parser'] = None
 
     #: The number of sites that didn't have a type.
-    _n_no_type: int = 0
+    n_no_type: int = 0
 
     def _setup(self, parser: 'Parser'):
         """
@@ -69,14 +69,14 @@ class Stratification(ABC):
 
         :param parser: The parser
         """
-        self._parser = parser
+        self.parser = parser
 
     def _teardown(self):
         """
         Perform any necessary post-processing. This method is called after the actual stratification.
         """
-        n_total = self._parser.n_sites - self._parser.n_skipped + self._n_no_type
-        n_valid = n_total - self._n_no_type
+        n_total = self.parser.n_sites - self.parser.n_skipped + self.n_no_type
+        n_valid = n_total - self.n_no_type
 
         logger.info(f":{type(self).__name__} Number of sites with valid type: {n_valid} / {n_total}")
 
@@ -90,14 +90,14 @@ class Stratification(ABC):
         """
         if variant.is_snp:
             # obtain ancestral allele
-            aa = variant.INFO.get(self._parser.info_ancestral)
+            aa = variant.INFO.get(self.parser.info_ancestral)
 
             # return the ancestral allele if it is a valid base
             if aa in bases:
                 return aa
 
             # if we don't skip non-polarized sites, we raise an error
-            if self._parser.ignore_not_polarized:
+            if self.parser.ignore_not_polarized:
                 raise ValueError("No valid AA tag found.")
 
         # if we don't skip non-polarized sites, or if the site is not an SNP
@@ -218,7 +218,7 @@ class BaseTransitionStratification(Stratification):
 
         :param parser: The parser
         """
-        self._parser = parser
+        self.parser = parser
 
         logger.info(f'Determining base transition probabilities.')
 
@@ -256,7 +256,7 @@ class BaseTransitionStratification(Stratification):
             alt = variant.ALT[0]
 
             # obtain ancestral allele
-            aa = variant.INFO.get(self._parser.info_ancestral)
+            aa = variant.INFO.get(self.parser.info_ancestral)
 
             # swap reference and alternative allele
             # note that here we assume again the site is bi-allelic
@@ -264,7 +264,7 @@ class BaseTransitionStratification(Stratification):
                 ref, alt = alt, ref
 
             # report type if aa tag is valid or if we don't skip non-polarized sites
-            if aa in bases or not self._parser.ignore_not_polarized:
+            if aa in bases or not self.parser.ignore_not_polarized:
 
                 if ref == alt:
                     raise NoTypeException("Site marked as polymorphic, but reference "
@@ -275,7 +275,7 @@ class BaseTransitionStratification(Stratification):
             raise NoTypeException("No valid AA tag found.")
 
         # for mono-allelic sites, we sample from the base-transition probabilities
-        return self._parser.rng.choice(list(self.probabilities.keys()), p=list(self.probabilities.values()))
+        return self.parser.rng.choice(list(self.probabilities.keys()), p=list(self.probabilities.values()))
 
     def get_types(self) -> List[str]:
         """
@@ -339,7 +339,7 @@ class TransitionTransversionStratification(BaseTransitionStratification):
 
         :param parser: The parser
         """
-        self._parser = parser
+        self.parser = parser
 
         logger.info(f'Determining transition-transversion probabilities.')
 
@@ -376,7 +376,7 @@ class TransitionTransversionStratification(BaseTransitionStratification):
                 return "transversion"
 
         # for mono-allelic sites, we sample from the transition-transversion probabilities
-        return self._parser.rng.choice(list(self.probabilities.keys()), p=list(self.probabilities.values()))
+        return self.parser.rng.choice(list(self.probabilities.keys()), p=list(self.probabilities.values()))
 
     def get_types(self) -> List[str]:
         """

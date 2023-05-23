@@ -8,7 +8,7 @@ __date__ = "2023-05-13"
 
 from snakemake.shell import shell
 
-ref = snakemake.input._ref
+ref = snakemake.input.ref
 vcf = snakemake.input.vcf
 gff = snakemake.input.gff
 species = snakemake.params.species
@@ -24,5 +24,6 @@ shell(
     f"--allow_non_variant "
     f"-o {out} "
     f"--fields 'Consequence,Codons' "
-    f"--compress_output bgzip"
+    f"--compress_output bgzip "
+    f"--pick"
 )

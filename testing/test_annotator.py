@@ -49,8 +49,8 @@ class AnnotatorTestCase(TestCase):
         Test the degeneracy annotator on a small human genome.
         """
         deg = DegeneracyAnnotation(
-            fasta_file="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
-            gff_file="resources/genome/sapiens/hg38.gtf"
+            fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
+            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
         )
 
         vcf = "resources/genome/sapiens/chr21_test.vcf.gz"
@@ -75,8 +75,8 @@ class AnnotatorTestCase(TestCase):
         Test the degeneracy annotator on a small human genome with a remote gzipped fasta file.
         """
         deg = DegeneracyAnnotation(
-            fasta_file="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
-            gff_file="resources/genome/sapiens/hg38.gtf"
+            fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
+            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
         )
 
         vcf = "resources/genome/sapiens/chr21_test.vcf.gz"
@@ -120,7 +120,7 @@ class AnnotatorTestCase(TestCase):
         Test the annotator loading a VCF from a URL.
         """
         ann = Annotator(
-            vcf="https://github.com/Sendrowski/fastDFE/blob/master/resources/genome/"
+            vcf="http://github.com/Sendrowski/fastDFE/blob/master/resources/genome/"
                 "betula/biallelic.subset.10000.vcf.gz?raw=true",
             output='scratch/test_degeneracy_annotation.vcf',
             annotations=[
@@ -158,18 +158,38 @@ class AnnotatorTestCase(TestCase):
         assert len(syn.vep_mismatches) == 0
 
     @pytest.mark.slow
-    def test_compare_synonymy_annotation_with_vep_human_chr21(self):
+    def test_compare_synonymy_annotation_with_vep_human_chr22(self):
         """
         Compare the synonymy annotation with VEP.
         """
         syn = SynonymyAnnotation(
-            fasta_file="resources/genome/sapiens/chr21.fasta",
+            fasta_file="resources/genome/sapiens/chr22.fasta",
             gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
         )
 
         ann = Annotator(
-            vcf="snakemake/results/vcf/sapiens/chr21.vep.vcf.gz",
-            output="test_compare_synonymy_annotation_with_vep_human_chr21.vcf",
+            vcf="snakemake/results/vcf/sapiens/chr22.vep.vcf.gz",
+            output="scratch/test_compare_synonymy_annotation_with_vep_human_chr22.vcf",
+            annotations=[syn]
+        )
+
+        ann.annotate()
+
+        pass
+
+    @pytest.mark.slow
+    def test_compare_synonymy_annotation_with_snpeff_vep_human_chr21(self):
+        """
+        Compare the synonymy annotation with SnpEff and VEP.
+        """
+        syn = SynonymyAnnotation(
+            fasta_file="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
+            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
+        )
+
+        ann = Annotator(
+            vcf="snakemake/results/vcf/sapiens/chr21_test.vep.vcf.gz",
+            output="scratch/test_compare_synonymy_annotation_with_snpeff_human_chr21.vcf",
             annotations=[syn]
         )
 

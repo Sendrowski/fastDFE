@@ -1,5 +1,5 @@
 """
-Predict the variant effects with SNPEff.
+Predict the variant effects with SnpEff.
 """
 
 __author__ = "Janek Sendrowski"
