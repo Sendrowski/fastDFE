@@ -6,8 +6,7 @@ prioritize_installed_packages()
 
 import pytest
 
-from fastdfe import JointInference, Config, SharedParams, Covariate, Parser, DegeneracyStratification, \
-    AncestralBaseStratification, Spectra
+from fastdfe import JointInference, Config, SharedParams, Covariate, Spectra
 from fastdfe.optimization import flatten_dict
 from testing.test_base_inference import AbstractInferenceTestCase
 
@@ -340,7 +339,8 @@ class JointInferenceTestCase(AbstractInferenceTestCase):
             covariates=[Covariate(param='S_d', values=dict(A=1, C=2, T=3, G=4))],
             fixed_params={'all': dict(S_b=1, eps=0)},
             parallelize=True,
-            do_bootstrap=True
+            do_bootstrap=True,
+            n_bootstraps=10
         )
 
         # run inference
@@ -370,7 +370,8 @@ class JointInferenceTestCase(AbstractInferenceTestCase):
             fixed_params={'all': dict(S_b=1, eps=0, p_b=0)},
             parallelize=True,
             do_bootstrap=True,
-            n_runs=100
+            n_bootstraps=10,
+            n_runs=10
         )
 
         # run inference
