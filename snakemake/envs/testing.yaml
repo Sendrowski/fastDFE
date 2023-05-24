@@ -6,7 +6,6 @@ dependencies:
   - pytest
   - pytest-xdist
   - pytest-cov
-  - python-dotenv
   - pip
   - pip:
     - pytest-pycharm

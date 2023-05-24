@@ -154,7 +154,8 @@ class AncestralAlleleAnnotation(Annotation, ABC):
 
 class MaximumParsimonyAnnotation(AncestralAlleleAnnotation):
     """
-    Annotation of ancestral alleles using maximum parsimony.
+    Annotation of ancestral alleles using maximum parsimony. The info field ``AA`` is added to the VCF file,
+    which holds the ancestral allele. To be used with :class:`~fastdfe.parser.AncestralBaseStratification`.
     """
 
     def annotate_site(self, variant: Variant):
@@ -184,6 +185,10 @@ class DegeneracyAnnotation(Annotation):
     """
     Degeneracy annotation. We annotate the degeneracy by looking at each codon for coding variants.
     This also annotates mono-allelic sites.
+
+    This annotation adds the info fields ``Degeneracy`` and ``Degeneracy_Info``, which hold the degeneracy
+    of a site (0, 2, 4) and extra information about the degeneracy, respectively. To be used with
+    :class:`~fastdfe.parser.DegeneracyStratification`.
     """
 
     #: The genomic positions for coding sequences that are mocked.
@@ -196,7 +201,7 @@ class DegeneracyAnnotation(Annotation):
         :param gff_file: The GFF file path, possibly gzipped or a URL
         :param fasta_file: The FASTA file path, possibly gzipped or a URL
         :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
-            This is used to match the contig names in the VCF file to the contig names in the FASTA file and GFF file.
+            This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.
         """
         super().__init__()
 
@@ -306,8 +311,8 @@ class DegeneracyAnnotation(Annotation):
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
                              f'start position of current CDS and no previous CDS was given.')
 
-        # we assume here that cd_prev and cd_next have the same orientation
-        # use final positions from previous coding sequence if current codon
+        # We assume here that cd_prev and cd_next have the same orientation
+        # Use final positions from previous coding sequence if current codon
         # starts before start position of current coding sequence
         if codon_pos[1] == self.cd.start:
             codon_pos[0] = self.cd_prev.end
@@ -355,9 +360,9 @@ class DegeneracyAnnotation(Annotation):
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
                              f'start position of current CDS and no previous CDS was given.')
 
-        # we assume here that cd_prev and cd_next have the same orientation
-        # use final positions from previous coding sequence if current codon
-        # ends before start position of current coding sequence
+        # We assume here that cd_prev and cd_next have the same orientation.
+        # Use final positions from previous coding sequence if current codon
+        # ends before start position of current coding sequence.
         if codon_pos[1] == self.cd.start:
             codon_pos[2] = self.cd_prev.end
         elif codon_pos[0] == self.cd.start:
@@ -483,6 +488,12 @@ class DegeneracyAnnotation(Annotation):
                     # take the last coding sequence
                     self.cd_prev = cds.iloc[-1]
 
+            if self.cd.start == self._pos_mock and self.n_annotated == 0:
+                logger.warning(f"No coding sequence found on all of contig '{v.CHROM}' and no previous "
+                               f'sites were annotated. Are you sure that this is the correct GFF file '
+                               f'and that the contig names match the chromosome names in the VCF file? '
+                               f'Note that you can also specify aliases for contig names in the VCF file.')
+
         # check if variant is located within coding sequence
         if self.cd is None or not (self.cd.start <= v.POS <= self.cd.end):
             raise LookupError(f"No coding sequence found, skipping record {v.CHROM}:{v.POS}")
@@ -571,6 +582,10 @@ class SynonymyAnnotation(DegeneracyAnnotation):
     """
     Synonymy annotation. This class annotates a variant with the synonymous/non-synonymous status.
     Use this when mono-allelic sites are not present in the VCF file.
+
+    This annotation adds the info fields ``Synonymous`` and ``Synonymous_Info``, which hold
+    the synonymous status (Synonymous (0) or non-synonymous (1)) and the codon information, respectively.
+    To be used with :class:`~fastdfe.parser.SynonymyStratification`.
     """
 
     def __init__(self, gff_file: str, fasta_file: str, aliases: Dict[str, List[str]] = {}):
@@ -580,7 +595,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         :param gff_file: The GFF file path, possibly gzipped or a URL
         :param fasta_file: The FASTA file path, possibly gzipped or a URL
         :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
-            This is used to match the contig names in the VCF file to the contig names in the FASTA file and GFF file.
+            This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.
         """
         super().__init__(
             gff_file=gff_file,
@@ -680,6 +695,9 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         match = re.search("([actgACTG]{3})/([actgACTG]{3})", variant.INFO.get('CSQ'))
 
         if match is not None:
+            if len(match.groups()) != 2:
+                logger.info(f'VEP annotation has more than two codons: {variant.INFO.get("CSQ")}')
+
             return [m.upper() for m in [match[1], match[2]]]
 
         return []
@@ -698,7 +716,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         if 'missense_variant' in variant.INFO.get('ANN'):
             return 0
 
-        return 0
+        return None
 
     def _teardown(self):
         """
@@ -758,7 +776,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
                         synonymy = int(self.is_synonymous(codon, alt_codon))
 
                     # append alternative codon to info field
-                    info += f'{alt_codon}'
+                    info += f'{codon}/{alt_codon}'
 
                     # check if the alternative codon is a start codon
                     if alt_codon in start_codons:
@@ -778,32 +796,32 @@ class SynonymyAnnotation(DegeneracyAnnotation):
                             self.n_vep_comparisons += 1
 
                             # make sure the codons determined by VEP are the same as our codons.
-                            if not np.array_equal(codons_vep, [codon, alt_codon]):
+                            if set(codons_vep) != {codon, alt_codon}:
                                 logger.warning(f'VEP codons do not match with codons determined by '
                                                f'codon table for {v.CHROM}:{v.POS}')
 
                                 self.vep_mismatches.append(v)
                                 return
 
-                    if v.INFO.get('ANN') is not None:
-                        synonymy_snpeff = self._parse_synonymy_snpeff(v)
+                if v.INFO.get('ANN') is not None:
+                    synonymy_snpeff = self._parse_synonymy_snpeff(v)
 
-                        self.n_snpeff_comparisons += 1
+                    self.n_snpeff_comparisons += 1
 
-                        if synonymy_snpeff is not None:
-                            if synonymy_snpeff != synonymy:
-                                logger.warning(f'SnpEff annotation does not match with custom '
-                                               f'annotation for {v.CHROM}:{v.POS}')
+                    if synonymy_snpeff is not None:
+                        if synonymy_snpeff != synonymy:
+                            logger.warning(f'SnpEff annotation does not match with custom '
+                                           f'annotation for {v.CHROM}:{v.POS}')
 
-                                self.snpeff_mismatches.append(v)
-                                return
+                            self.snpeff_mismatches.append(v)
+                            return
 
-                    # increase number of annotated sites
-                    self.n_annotated += 1
+                # increase number of annotated sites
+                self.n_annotated += 1
 
-                    # add to info field
-                    v.INFO['Synonymy'] = synonymy
-                    v.INFO['Synonymy_Info'] = info
+                # add to info field
+                v.INFO['Synonymy'] = synonymy
+                v.INFO['Synonymy_Info'] = info
 
 
 class Annotator(VCFHandler):

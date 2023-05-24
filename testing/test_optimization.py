@@ -4,8 +4,8 @@ from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
 
-from typing import Literal, List, Dict, cast
-from unittest import TestCase
+from typing import Literal, List
+from testing import TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np

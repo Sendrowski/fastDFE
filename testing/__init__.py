@@ -2,14 +2,21 @@ import logging
 import os
 import sys
 from pathlib import Path
+from unittest import TestCase as BaseTestCase
 
-from dotenv import load_dotenv
+import matplotlib
+import pytest
+from matplotlib import pyplot as plt
 
-# load environment variables
-load_dotenv()
+import fastdfe
 
-# set the logging level
-logging.getLogger('fastdfe').setLevel(int(os.getenv('TESTING_LOG_LEVEL', logging.INFO)))
+# only be verbose when running on Pycharm
+if 'PYCHARM_HOSTED' not in os.environ:
+    matplotlib.use('Agg')
+    fastdfe.disable_pbar = True
+    logging.getLogger('fastdfe').setLevel(logging.WARNING)
+else:
+    logging.getLogger('fastdfe').setLevel(logging.INFO)
 
 
 def prioritize_installed_packages():
@@ -25,6 +32,13 @@ def prioritize_installed_packages():
         sys.path.remove(cwd)
         # Append the current working directory to the end of sys.path
         sys.path.append(cwd)
+
+
+class TestCase(BaseTestCase):
+    @pytest.fixture(autouse=True)
+    def cleanup(self):
+        yield
+        plt.close('all')
 
 
 prioritize_installed_packages()

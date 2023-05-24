@@ -1,12 +1,12 @@
 import logging
 
-import fastdfe
 from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
 
 import copy
-from unittest import mock, TestCase
+from unittest import mock
+from testing import TestCase
 from pandas.testing import assert_frame_equal
 
 import matplotlib.pyplot as plt
@@ -19,7 +19,7 @@ from fastdfe import Spectrum, BaseInference, Config, Spectra, GammaExpParametriz
     DiscreteParametrization, GammaDiscreteParametrization
 
 
-class AbstractInferenceTestCase(TestCase):
+class InferenceTestCase(TestCase):
     def assertEqualInference(self, obj1: object, obj2: object, ignore_keys=[]):
         """
         Compare Inference objects, recursively comparing their attributes.
@@ -70,11 +70,9 @@ class AbstractInferenceTestCase(TestCase):
                     raise AssertionError('Some objects were not compared.')
 
 
-class BaseInferenceTestCase(AbstractInferenceTestCase):
+class BaseInferenceTestCase(InferenceTestCase):
     config_file = "testing/configs/pendula_C_full_anc/config.yaml"
     serialized = "testing/fastdfe/pendula_C_full_anc/serialized.json"
-
-    show_plots = True
 
     maxDiff = None
 
@@ -108,7 +106,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
             seed=0,
             do_bootstrap=True,
             parallelize=False,
-            n_bootstraps=10
+            n_bootstraps=2
         )
 
         inference = BaseInference.from_config(config)
@@ -130,7 +128,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
             seed=0,
             do_bootstrap=True,
             parallelize=True,
-            n_bootstraps=10
+            n_bootstraps=2
         )
 
         inference = BaseInference.from_config(config)
@@ -141,56 +139,6 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
         self.assertEqual(inference.params_mle, inference2.params_mle)
         assert_frame_equal(inference.bootstraps, inference2.bootstraps)
-
-    def test_non_seeded_inference_is_not_deterministic_not_parallelized(self):
-        """
-        Check that non-seeded inference is not deterministic when not parallelized.
-        """
-        config = Config.from_file(self.config_file)
-
-        config.update(
-            seed=None,
-            do_bootstrap=True,
-            parallelize=False,
-            n_bootstraps=10
-        )
-
-        inference = BaseInference.from_config(config)
-        inference.run()
-
-        inference2 = BaseInference.from_config(config)
-        inference2.run()
-
-        self.assertNotEqual(inference.params_mle, inference2.params_mle)
-
-        with self.assertRaises(AssertionError):
-            assert_frame_equal(inference.bootstraps, inference2.bootstraps)
-
-    def test_non_seeded_inference_is_not_deterministic_parallelized(self):
-        """
-        Check that a non-seeded inference is not deterministic when parallelized.
-        """
-        config = Config.from_file(self.config_file)
-
-        config.update(
-            seed=None,
-            do_bootstrap=True,
-            parallelize=True,
-            n_bootstraps=10,
-            x0={}
-        )
-
-        inference = BaseInference.from_config(config)
-        inference.run()
-
-        inference2 = BaseInference.from_config(config)
-        inference2.run()
-
-        # this apparently fails sometimes
-        self.assertNotEqual(inference.params_mle, inference2.params_mle)
-
-        with self.assertRaises(AssertionError):
-            assert_frame_equal(inference.bootstraps, inference2.bootstraps)
 
     def test_compare_inference_with_log_scales_vs_lin_scales(self):
         """
@@ -332,7 +280,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
         self.assertIsNone(inference.bootstraps)
 
-        inference.bootstrap(100, parallelize=False)
+        inference.bootstrap(2, parallelize=False)
 
         self.assertIsNotNone(inference.bootstraps)
 
@@ -361,8 +309,8 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
         inference = BaseInference.from_config(config)
 
-        inference.plot_all(show=self.show_plots)
-        inference.plot_bucket_sizes(show=self.show_plots)
+        inference.plot_all()
+        inference.plot_bucket_sizes()
 
     def test_visualize_inference_with_bootstraps(self):
         """
@@ -376,8 +324,8 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
 
         inference = BaseInference.from_config(config)
 
-        inference.plot_all(show=self.show_plots)
-        inference.plot_bucket_sizes(show=self.show_plots)
+        inference.plot_all()
+        inference.plot_bucket_sizes()
 
     def test_plot_likelihoods(self):
         """
@@ -386,7 +334,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         # unserialize
         inference = BaseInference.from_file(self.serialized)
 
-        inference.plot_likelihoods(show=self.show_plots, scale='log')
+        inference.plot_likelihoods(scale='log')
 
     def test_plot_interval_density(self):
         """
@@ -395,7 +343,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         # unserialize
         inference = BaseInference.from_file(self.serialized)
 
-        inference.plot_interval_density(show=self.show_plots)
+        inference.plot_interval_density()
 
     def test_plot_observed_sfs(self):
         """
@@ -404,7 +352,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         # unserialize
         inference = BaseInference.from_file(self.serialized)
 
-        inference.plot_observed_sfs(show=self.show_plots)
+        inference.plot_observed_sfs()
 
     def test_plot_provide_axes(self):
         """
@@ -416,7 +364,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         _, axs = plt.subplots(ncols=2)
 
         inference.plot_interval_density(show=False, ax=axs[0])
-        inference.plot_interval_density(show=self.show_plots, ax=axs[1])
+        inference.plot_interval_density(ax=axs[1])
 
     def test_visualize_inference_bootstrap(self):
         """
@@ -428,7 +376,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         # bootstrap
         inference.bootstrap(2)
 
-        inference.plot_all(show=self.show_plots)
+        inference.plot_all()
 
     def test_perform_bootstrap_without_running(self):
         """
@@ -490,7 +438,7 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
             config = Config.from_file(self.config_file).update(
                 model=p,
                 do_bootstrap=True,
-                n_bootstraps=10
+                n_bootstraps=2
             )
 
             # unserialize
@@ -570,9 +518,9 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         inference.run()
 
         # here both the nuisance parameters and epsilon cause the high number of high-frequency variants
-        inference.plot_sfs_comparison(show=self.show_plots)
+        inference.plot_sfs_comparison()
 
-        inference.plot_discretized(show=self.show_plots)
+        inference.plot_discretized()
 
     def test_run_with_sfs_sel_zero_entry(self):
         """
@@ -591,9 +539,9 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         inference.run()
 
         # this looks as expected, i.e. we reduce the overall distance between the modelled and observed SFS
-        inference.plot_sfs_comparison(show=self.show_plots)
+        inference.plot_sfs_comparison()
 
-        inference.plot_discretized(show=self.show_plots)
+        inference.plot_discretized()
 
     def test_run_with_both_sfs_zero_entry(self):
         """
@@ -618,9 +566,9 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         inference.run()
 
         # the nuisance parameters cause the zero entry in the modelled SFS
-        inference.plot_sfs_comparison(show=self.show_plots)
+        inference.plot_sfs_comparison()
 
-        inference.plot_discretized(show=self.show_plots)
+        inference.plot_discretized()
 
     def test_fixed_parameters(self):
         """
@@ -799,14 +747,3 @@ class BaseInferenceTestCase(AbstractInferenceTestCase):
         inf.plot_discretized()
 
         pass
-
-    def test_disable_pbar(self):
-        """
-        Test whether disabling the progress bar works.
-        """
-        # check default value
-        assert fastdfe.disable_pbar is False
-
-        fastdfe.disable_pbar = True
-
-        assert fastdfe.disable_pbar

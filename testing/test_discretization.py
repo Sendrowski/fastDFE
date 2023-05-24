@@ -2,7 +2,7 @@ from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
 
-from unittest import TestCase
+from testing import TestCase
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -16,8 +16,6 @@ from fastdfe.discretization import H_fixed, H_fixed_regularized
 
 class DiscretizationTestCase(TestCase):
     n = 20
-
-    show_plots = True
 
     @staticmethod
     def diff(a, b):
@@ -43,10 +41,6 @@ class DiscretizationTestCase(TestCase):
         Maximum absolute relative difference.
         """
         return np.max(np.abs(self.diff_rel(a, b)))
-
-    def show_plot(self):
-        if self.show_plots:
-            plt.show()
 
     def test_dfe_to_sfs_linearization_midpoint_vs_quad(self):
         """
@@ -126,7 +120,7 @@ class DiscretizationTestCase(TestCase):
             ax.set_title('sojourn times')
 
         plt.legend()
-        self.show_plot()
+        plt.show()
 
     def test_allele_counts_large_negative_S(self):
         """
@@ -203,7 +197,7 @@ class DiscretizationTestCase(TestCase):
             ax1.set_title('regularized')
 
         plt.legend(prop=dict(size=5))
-        self.show_plot()
+        plt.show()
 
     def test_plot_H_fixed_with_regularized_negative(self):
 
@@ -217,7 +211,7 @@ class DiscretizationTestCase(TestCase):
         plt.plot(np.arange(len(d.s)), H_fixed(d.s), alpha=0.5, label='normal')
 
         plt.legend()
-        self.show_plot()
+        plt.show()
 
     def test_plot_H_fixed_with_regularized_positive(self):
 
@@ -232,4 +226,4 @@ class DiscretizationTestCase(TestCase):
         plt.plot(np.arange(len(d.s)), H_fixed(d.s), alpha=0.5, label='positive normal')
 
         plt.legend()
-        self.show_plot()
+        plt.show()

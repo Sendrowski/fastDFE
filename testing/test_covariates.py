@@ -3,7 +3,7 @@ from testing import prioritize_installed_packages
 prioritize_installed_packages()
 
 from typing import Dict
-from unittest import TestCase
+from testing import TestCase
 
 from fastdfe.optimization import Covariate
 

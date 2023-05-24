@@ -1,17 +1,12 @@
-import logging
-
 from fastdfe.vcf import count_sites
 from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
 from unittest.mock import Mock
 
-from unittest import TestCase
+from testing import TestCase
 
 from fastdfe import Filterer, PolyAllelicFiltration, SNPFiltration, SNVFiltration
-
-logging.getLogger('fastdfe').setLevel(logging.INFO)
-
 
 class FiltererTestCase(TestCase):
     """

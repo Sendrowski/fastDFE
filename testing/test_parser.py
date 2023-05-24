@@ -1,22 +1,17 @@
-import logging
-
 import pytest
 
 from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
 
-from unittest import TestCase
+from testing import TestCase
 
 import dadi
 import numpy as np
 
 from fastdfe import DegeneracyStratification, BaseTransitionStratification, TransitionTransversionStratification, \
     BaseContextStratification, AncestralBaseStratification, Parser, DegeneracyAnnotation, MaximumParsimonyAnnotation, \
-    CodingSequenceFiltration, BaseInference
-
-logging.getLogger('fastdfe').setLevel(logging.INFO)
-
+    CodingSequenceFiltration, VEPStratification
 
 class ParserTestCase(TestCase):
     """
@@ -68,6 +63,21 @@ class ParserTestCase(TestCase):
 
         # assert total number of sites
         assert sfs.all.data.sum() == 10000 - p.n_skipped
+
+    @pytest.mark.slow
+    def test_vep_stratification(self):
+        """
+        Test the synonymy stratification.
+        """
+        p = Parser(
+            vcf='snakemake/results/vcf/sapiens/chr21.vep.vcf.gz',
+            n=20,
+            stratifications=[VEPStratification()]
+        )
+
+        sfs = p.parse()
+
+        sfs.plot()
 
     def test_base_transition_stratification(self):
         """

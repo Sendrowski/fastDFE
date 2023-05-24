@@ -142,7 +142,7 @@ class BaseContextStratification(Stratification):
         :param fasta_file: The fasta file path, possibly gzipped or a URL
         :param n_flanking: The number of flanking bases
         :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
-            This is used to match the contig names in the VCF file to the contig names in the FASTA file and GFF file.
+            This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.
         """
         #: The fasta file
         self.fasta_file: str = fasta_file
@@ -293,7 +293,7 @@ class AncestralBaseStratification(Stratification):
     that are not polarized, otherwise we use the reference allele as ancestral base.
     By default, we use the ``AA`` tag to determine the ancestral allele.
 
-    Any subclass of ``AncestralAnnotation`` can be used to annotate the ancestral allele.
+    Any subclass of :class:`~fastdfe.parser.AncestralAnnotation` can be used to annotate the ancestral allele.
     """
 
     @count_no_type
@@ -392,7 +392,7 @@ class DegeneracyStratification(Stratification):
     Stratify SFS by degeneracy. We only consider sides which 4-fold degenerate (neutral) or
     0-fold degenerate (selected) which facilitates counting.
 
-    ``DegeneracyAnnotation`` can be used to annotate the degeneracy of a site.
+    :class:``~fastdfe.annotation.DegeneracyAnnotation`` can be used to annotate the degeneracy of a site.
     """
 
     def __init__(
@@ -452,14 +452,102 @@ class SynonymyStratification(Stratification):
     """
     Stratify SFS by synonymy (neutral or selected). Note that we extrapolate the number of monomorphic sites
     for each type from the relative number of types for polymorphic sites.
+
+    :class:``~fastdfe.annotation.SynonymyAnnotation`` can be used to annotate the synonymy of a site.
     """
 
     def get_types(self) -> List[str]:
-        pass
+        """
+        Get all possible synonymy types (``neutral`` and ``selected``).
+
+        :return: List of contexts
+        """
+        return ['neutral', 'selected']
 
     @count_no_type
-    def get_type(self, variant: Variant) -> Optional[str]:
-        pass
+    def get_type(self, variant: Variant) -> Literal['neutral', 'selected']:
+        """
+        Get the synonymy using the custom synonymy annotation.
+
+        :param variant: The vcf site
+        :return: Type of the mutation, either ``neutral`` or ``selected``
+        """
+        synonymy = variant.INFO.get('Synonymy')
+
+        if synonymy is None:
+            raise NoTypeException("No synonymy tag found.")
+        else:
+            if synonymy == 1:
+                return 'neutral'
+
+            if synonymy == 0:
+                return 'selected'
+
+            raise NoTypeException(f"Synonymy tag has invalid value: '{synonymy}' at {variant.CHROM}:{variant.POS}")
+
+
+class VEPStratification(SynonymyStratification):
+    """
+    Stratify SFS by synonymy (neutral or selected) based on annotation provided by VEP.
+    """
+
+    def get_types(self) -> List[str]:
+        """
+        Get all possible synonymy types (``neutral`` and ``selected``).
+
+        :return: List of contexts
+        """
+        return ['neutral', 'selected']
+
+    @count_no_type
+    def get_type(self, variant: Variant) -> Literal['neutral', 'selected']:
+        """
+        Get the synonymy of a site.
+
+        :param variant: The vcf site
+        :return: Type of the mutation, either ``neutral`` or ``selected``
+        """
+        synonymy = variant.INFO.get('CSQ')
+
+        if 'synonymous_variant' in synonymy:
+            return 'neutral'
+
+        if 'missense_variant' in synonymy:
+            return 'selected'
+
+        raise NoTypeException(f"Synonymy tag has invalid value: '{synonymy}' at {variant.CHROM}:{variant.POS}")
+
+
+class SnpEffStratification(SynonymyStratification):
+    """
+    Stratify SFS by synonymy (neutral or selected) based on annotation provided by SnpEff.
+    """
+
+    def get_types(self) -> List[str]:
+        """
+        Get all possible synonymy types (``neutral`` and ``selected``).
+
+        :return: List of contexts
+        """
+        return ['neutral', 'selected']
+
+    @count_no_type
+    def get_type(self, variant: Variant) -> Literal['neutral', 'selected']:
+        """
+        Get the synonymy of a site.
+
+        :param variant: The vcf site
+        :return: Type of the mutation, either ``neutral`` or ``selected``
+        """
+        synonymy = variant.INFO.get('CSQ')
+
+        if 'synonymous_variant' in synonymy:
+            return 'neutral'
+
+        if 'missense_variant' in synonymy:
+            return 'selected'
+
+        raise NoTypeException(f"Synonymy tag has invalid value: '{synonymy}' at {variant.CHROM}:{variant.POS}")
 
 
 class Parser(VCFHandler):

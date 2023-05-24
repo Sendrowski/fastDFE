@@ -10,7 +10,6 @@ dependencies:
   - jupyterlab
   - pytest-xdist
   - pytest-cov
-  - python-dotenv
   - pip
   - pip:
     - pytest-pycharm

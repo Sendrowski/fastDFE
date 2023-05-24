@@ -129,7 +129,7 @@ class CodingSequenceFiltration(Filtration):
 
         :param gff_file: The GFF file.
         :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
-            This is used to match the contig names in the VCF file to the contig names in the FASTA file.
+            This is used to match the contig names in the VCF file with the contig names in the FASTA file.
         """
         #: The GFF file.
         self.gff_file: str = gff_file

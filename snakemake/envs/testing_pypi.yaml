@@ -8,7 +8,6 @@ dependencies:
   - r-rjsonio
   - pytest-xdist
   - pytest-cov
-  - python-dotenv
   - pip
   - pip:
       - pytest-pycharm

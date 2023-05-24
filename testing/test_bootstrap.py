@@ -2,7 +2,7 @@ from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
 
-from unittest import TestCase
+from testing import TestCase
 
 import numpy as np
 from scipy import stats

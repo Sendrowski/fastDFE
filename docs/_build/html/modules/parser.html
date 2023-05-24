@@ -122,6 +122,8 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.parser.Stratification"><code class="docutils literal notranslate"><span class="pre">Stratification</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.Stratification.parser"><code class="docutils literal notranslate"><span class="pre">Stratification.parser</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.Stratification.n_no_type"><code class="docutils literal notranslate"><span class="pre">Stratification.n_no_type</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.Stratification.get_type"><code class="docutils literal notranslate"><span class="pre">Stratification.get_type()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.Stratification.get_types"><code class="docutils literal notranslate"><span class="pre">Stratification.get_types()</span></code></a></li>
 </ul>
@@ -286,7 +288,7 @@ coding regions over the sequence considered.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a></p>
 <p>Stratify SFS by degeneracy. We only consider sides which 4-fold degenerate (neutral) or
 0-fold degenerate (selected) which facilitates counting.</p>
-<p><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation</span></code> can be used to annotate the degeneracy of a site.</p>
+<p>:class:<code class="docutils literal notranslate"><span class="pre">~fastdfe.annotation.DegeneracyAnnotation</span></code> can be used to annotate the degeneracy of a site.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.DegeneracyStratification.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">custom_callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.DegeneracyStratification.__init__" title="Permalink to this definition"></a></dt>
@@ -511,7 +513,7 @@ no type could be determined.</p>
 If <code class="docutils literal notranslate"><span class="pre">ignore_not_polarized</span></code> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, we skip sites
 that are not polarized, otherwise we use the reference allele as ancestral base.
 By default, we use the <code class="docutils literal notranslate"><span class="pre">AA</span></code> tag to determine the ancestral allele.</p>
-<p>Any subclass of <code class="docutils literal notranslate"><span class="pre">AncestralAnnotation</span></code> can be used to annotate the ancestral allele.</p>
+<p>Any subclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralAnnotation</span></code> can be used to annotate the ancestral allele.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.AncestralBaseStratification.get_type">
 <span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.AncestralBaseStratification.get_type" title="Permalink to this definition"></a></dt>
@@ -550,6 +552,18 @@ no type could be determined.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Abstract class for Stratifying the SFS by determining
 a site’s type based on its properties.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.parser.Stratification.parser">
+<span class="sig-name descname"><span class="pre">parser</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#fastdfe.parser.Stratification.parser" title="Permalink to this definition"></a></dt>
+<dd><p>Parser instance</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.parser.Stratification.n_no_type">
+<span class="sig-name descname"><span class="pre">n_no_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#fastdfe.parser.Stratification.n_no_type" title="Permalink to this definition"></a></dt>
+<dd><p>The number of sites that didn’t have a type.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.Stratification.get_type">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.Stratification.get_type" title="Permalink to this definition"></a></dt>

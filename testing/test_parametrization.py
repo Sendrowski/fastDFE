@@ -2,7 +2,7 @@ from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
 
-from unittest import TestCase
+from testing import TestCase
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -13,12 +13,7 @@ from fastdfe.parametrization import DiscreteParametrization, GammaDiscreteParame
 
 
 class ParametrizationTestCase(TestCase):
-    """
-    TODO add integration tests for the different parametrizations
-    """
     n = 20
-
-    show_plots = True
 
     config_file = "testing/configs/pendula_C_full_anc/config.yaml"
 

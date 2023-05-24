@@ -8,21 +8,27 @@ permissions:
 
 jobs:
   setup:
-    name: run tests on ${{ matrix.os }}
+    name: run tests on ${{ matrix.os }} with Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: bash -el {0}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        python-version: [ "3.10", "3.11" ]  # Add this line
     steps:
-    - uses: actions/checkout@v3
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        environment-file: snakemake/envs/testing.yaml
-        auto-activate-base: false
-        activate-environment: testing-fastdfe
-    - run: |
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v2  # Use this action to setup Python
+        with:
+          python-version: ${{ matrix.python-version }}  # Specify the Python version here
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: "latest"
+          python-version: ${{ matrix.python-version }}  # Specify the Python version here
+          environment-file: snakemake/envs/testing.yaml
+          auto-activate-base: false
+          activate-environment: testing-fastdfe
+      - run: |
           pytest testing/
-    - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v3

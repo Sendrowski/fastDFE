@@ -102,7 +102,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation.__init__"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation.vep_mismatches"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.vep_mismatches</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation.snpeff_mismatches"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.snpeff_mismatches</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation.n_vep_comparisons"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.n_vep_comparisons</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation.n_snpeff_comparisons"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.n_snpeff_comparisons</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation.aliases"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.aliases</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation.mutate"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.mutate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation.is_synonymous"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.is_synonymous()</span></code></a></li>
@@ -182,7 +184,8 @@
 <dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAnnotation">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">MaximumParsimonyAnnotation</span></span><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAnnotation" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralAlleleAnnotation</span></code></p>
-<p>Annotation of ancestral alleles using maximum parsimony.</p>
+<p>Annotation of ancestral alleles using maximum parsimony. The info field <code class="docutils literal notranslate"><span class="pre">AA</span></code> is added to the VCF file,
+which holds the ancestral allele. To be used with <a class="reference internal" href="parser.html#fastdfe.parser.AncestralBaseStratification" title="fastdfe.parser.AncestralBaseStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralBaseStratification</span></code></a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAnnotation.annotate_site">
 <span class="sig-name descname"><span class="pre">annotate_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAnnotation.annotate_site" title="Permalink to this definition"></a></dt>
@@ -205,6 +208,9 @@
 <dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a></p>
 <p>Degeneracy annotation. We annotate the degeneracy by looking at each codon for coding variants.
 This also annotates mono-allelic sites.</p>
+<p>This annotation adds the info fields <code class="docutils literal notranslate"><span class="pre">Degeneracy</span></code> and <code class="docutils literal notranslate"><span class="pre">Degeneracy_Info</span></code>, which hold the degeneracy
+of a site (0, 2, 4) and extra information about the degeneracy, respectively. To be used with
+<a class="reference internal" href="parser.html#fastdfe.parser.DegeneracyStratification" title="fastdfe.parser.DegeneracyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyStratification</span></code></a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gff_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fasta_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.__init__" title="Permalink to this definition"></a></dt>
@@ -300,6 +306,9 @@ This is used to match the contig names in the VCF file to the contig names in th
 <dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation" title="fastdfe.annotation.DegeneracyAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyAnnotation</span></code></a></p>
 <p>Synonymy annotation. This class annotates a variant with the synonymous/non-synonymous status.
 Use this when mono-allelic sites are not present in the VCF file.</p>
+<p>This annotation adds the info fields <code class="docutils literal notranslate"><span class="pre">Synonymous</span></code> and <code class="docutils literal notranslate"><span class="pre">Synonymous_Info</span></code>, which hold
+the synonymous status (Synonymous (0) or non-synonymous (1)) and the codon information, respectively.
+To be used with <code class="xref py py-class docutils literal notranslate"><span class="pre">SynonymyStratification</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.annotation.SynonymyAnnotation.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gff_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fasta_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.SynonymyAnnotation.__init__" title="Permalink to this definition"></a></dt>
@@ -323,9 +332,21 @@ This is used to match the contig names in the VCF file to the contig names in th
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SynonymyAnnotation.snpeff_mismatches">
+<span class="sig-name descname"><span class="pre">snpeff_mismatches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.SynonymyAnnotation.snpeff_mismatches" title="Permalink to this definition"></a></dt>
+<dd><p>The number of sites that did not math with the annotation provided by SnpEff</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.annotation.SynonymyAnnotation.n_vep_comparisons">
 <span class="sig-name descname"><span class="pre">n_vep_comparisons</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#fastdfe.annotation.SynonymyAnnotation.n_vep_comparisons" title="Permalink to this definition"></a></dt>
 <dd><p>The number of sites that were concordant with VEP.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SynonymyAnnotation.n_snpeff_comparisons">
+<span class="sig-name descname"><span class="pre">n_snpeff_comparisons</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#fastdfe.annotation.SynonymyAnnotation.n_snpeff_comparisons" title="Permalink to this definition"></a></dt>
+<dd><p>The number of sites that were concordant with SnpEff.</p>
 </dd></dl>
 
 <dl class="py attribute">
