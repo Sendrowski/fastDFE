@@ -392,7 +392,7 @@ class DegeneracyStratification(Stratification):
     Stratify SFS by degeneracy. We only consider sides which 4-fold degenerate (neutral) or
     0-fold degenerate (selected) which facilitates counting.
 
-    :class:``~fastdfe.annotation.DegeneracyAnnotation`` can be used to annotate the degeneracy of a site.
+    :class:`~fastdfe.annotation.DegeneracyAnnotation` can be used to annotate the degeneracy of a site.
     """
 
     def __init__(
@@ -453,7 +453,7 @@ class SynonymyStratification(Stratification):
     Stratify SFS by synonymy (neutral or selected). Note that we extrapolate the number of monomorphic sites
     for each type from the relative number of types for polymorphic sites.
 
-    :class:``~fastdfe.annotation.SynonymyAnnotation`` can be used to annotate the synonymy of a site.
+    :class:`~fastdfe.annotation.SynonymyAnnotation` can be used to annotate the synonymy of a site.
     """
 
     def get_types(self) -> List[str]:

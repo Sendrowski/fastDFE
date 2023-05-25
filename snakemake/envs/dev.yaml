@@ -8,9 +8,6 @@ dependencies:
   - r-rjsonio
   - r-irkernel
   - jupyterlab
-  - pytest-xdist
-  - pytest-cov
   - pip
   - pip:
-    - pytest-pycharm
     - -r requirements_testing.txt

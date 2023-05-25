@@ -6,9 +6,6 @@ dependencies:
   - r-base
   - rpy2
   - r-rjsonio
-  - pytest-xdist
-  - pytest-cov
   - pip
   - pip:
-      - pytest-pycharm
       - fastdfe

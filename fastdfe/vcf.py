@@ -12,13 +12,12 @@ import logging
 import os
 import shutil
 import tempfile
-from functools import cached_property
 from typing import Optional, TextIO, Iterable, Dict, List
 from urllib.parse import urlparse
 
 import numpy as np
 import requests
-from cyvcf2 import VCF, Variant
+from cyvcf2 import Variant
 from numpy.random import Generator
 from pyfaidx import Fasta, FastaRecord
 from tqdm import tqdm
@@ -37,7 +36,7 @@ def get_called_bases(variant: Variant) -> np.ndarray:
     return np.array([b for b in '/'.join(variant.gt_bases).replace('|', '/') if b in 'ACGT'])
 
 
-def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf, disable_pbar: bool = False) -> int:
+def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf) -> int:
     """
     Count the number of sites in the VCF.
 
@@ -50,6 +49,9 @@ def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf, disable_p
     # if we don't have a file path, we can just count the number of variants
     if not isinstance(vcf, str):
         return len(list(vcf))
+
+    # whether to disable the progress bar
+    from . import disable_pbar
 
     i = 0
     with open_file(vcf) as f:
@@ -126,9 +128,7 @@ class VCFHandler:
 
         :return: Number of sites
         """
-        from . import disable_pbar
-
-        return count_sites(self.download_if_url(self.vcf), max_sites=self.max_sites, disable_pbar=disable_pbar)
+        return count_sites(self.download_if_url(self.vcf), max_sites=self.max_sites)
 
     @staticmethod
     def is_url(path: str) -> bool:
@@ -264,6 +264,8 @@ class VCFHandler:
         # extract the file extension from the URL
         filename = VCFHandler.get_filename(url)
 
+        from . import disable_pbar
+
         # create a temporary file with the original file extension
         with tempfile.NamedTemporaryFile(suffix='.' + filename, delete=False) as tmp:
             total_size = int(response.headers.get('content-length', 0))
@@ -273,7 +275,12 @@ class VCFHandler:
             if not hasattr(response, '_content_consumed'):
                 response._content_consumed = 0
 
-            with tqdm(total=total_size, unit='B', unit_scale=True, desc="Downloading file") as pbar:
+            with tqdm(total=total_size,
+                      unit='B',
+                      unit_scale=True,
+                      desc="Downloading file",
+                      disable=disable_pbar) as pbar:
+
                 for chunk in response.iter_content(chunk_size=chunk_size):
                     if chunk:
                         tmp.write(chunk)
