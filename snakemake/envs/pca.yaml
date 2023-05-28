@@ -1,0 +1,13 @@
+name: pca-fastdfe
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - matplotlib
+  - seaborn
+  - numpy
+  - pandas
+  - pandas-plink
+  - scikit-learn
+  - scipy
+  - umap-learn

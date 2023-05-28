@@ -1,0 +1,6 @@
+name: plink-fastdfe
+channels:
+  - bioconda
+dependencies:
+  - python
+  - plink
