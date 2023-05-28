@@ -8,6 +8,11 @@ dependencies:
   - r-rjsonio
   - pip
   - pip:
+      - pytest
+      - pytest-xdist
+      - pytest-cov
+      - pytest-sugar
+      - pytest-pycharm
       - --index-url https://test.pypi.org/simple/
       - --extra-index-url https://pypi.org/simple
       - fastdfe

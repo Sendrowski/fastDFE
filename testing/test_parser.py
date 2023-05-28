@@ -1,3 +1,6 @@
+import logging
+from typing import cast
+
 import pytest
 
 from testing import prioritize_installed_packages
@@ -11,14 +14,16 @@ import numpy as np
 
 from fastdfe import DegeneracyStratification, BaseTransitionStratification, TransitionTransversionStratification, \
     BaseContextStratification, AncestralBaseStratification, Parser, DegeneracyAnnotation, MaximumParsimonyAnnotation, \
-    CodingSequenceFiltration, VEPStratification
+    CodingSequenceFiltration, VEPStratification, SnpEffStratification, SynonymyAnnotation, ContigStratification, \
+    ChunkedStratification, AllFiltration
+
 
 class ParserTestCase(TestCase):
     """
     Test the inference.
     """
 
-    def test_compare_sfs_with_data(self):
+    def test_compare_sfs_with_dadi(self):
         """
         Compare the sfs from dadi with the one from the data.
         """
@@ -64,6 +69,58 @@ class ParserTestCase(TestCase):
         # assert total number of sites
         assert sfs.all.data.sum() == 10000 - p.n_skipped
 
+        # assert that all types are a subset of the stratification
+        assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
+
+    def test_contig_stratification(self):
+        """
+        Test the degeneracy stratification.
+        """
+        p = Parser(
+            vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
+            n=20,
+            stratifications=[ContigStratification()]
+        )
+
+        sfs = p.parse()
+
+        sfs.plot()
+
+        # assert total number of sites
+        assert sfs.all.data.sum() == 10000 - p.n_skipped
+
+        # assert that all types are a subset of the stratification
+        assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
+
+    def test_chunked_stratification(self):
+        """
+        Test the degeneracy stratification.
+        """
+        n_chunks = 7
+        strat = ChunkedStratification(n_chunks=n_chunks)
+
+        p = Parser(
+            vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
+            n=20,
+            stratifications=[strat]
+        )
+
+        sfs = p.parse()
+
+        sfs.plot()
+
+        # assert total number of sites
+        assert sfs.all.data.sum() == 10000
+
+        assert len(sfs.types) == n_chunks
+
+        # assert that all types are a subset of the stratification
+        assert set(sfs.types).issubset(set(strat.get_types()))
+
+        assert sum(strat.chunk_sizes) == 10000
+
+        assert (sfs.data.sum() == strat.chunk_sizes).all()
+
     @pytest.mark.slow
     def test_vep_stratification(self):
         """
@@ -79,6 +136,27 @@ class ParserTestCase(TestCase):
 
         sfs.plot()
 
+        # assert that all types are a subset of the stratification
+        assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
+
+    @pytest.mark.slow
+    def test_snpeff_stratification(self):
+        """
+        Test the synonymy stratification.
+        """
+        p = Parser(
+            vcf='snakemake/results/vcf/sapiens/chr21.snpeff.vcf.gz',
+            n=20,
+            stratifications=[SnpEffStratification()]
+        )
+
+        sfs = p.parse()
+
+        sfs.plot()
+
+        # assert that all types are a subset of the stratification
+        assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
+
     def test_base_transition_stratification(self):
         """
         Test the base transition stratification.
@@ -91,13 +169,13 @@ class ParserTestCase(TestCase):
 
         sfs = p.parse()
 
-        # check that probabilities sum up to 1
-        self.assertAlmostEqual(1, sum(p.stratifications[0].probabilities.values()))
-
         sfs.plot()
 
         # assert total number of sites
         assert sfs.all.data.sum() == 10000 - p.n_skipped
+
+        # assert that all types are a subset of the stratification
+        assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
 
     def test_transition_transversion_stratification(self):
         """
@@ -111,13 +189,13 @@ class ParserTestCase(TestCase):
 
         sfs = p.parse()
 
-        # check that probabilities sum up to 1
-        self.assertAlmostEqual(1, sum(p.stratifications[0].probabilities.values()))
-
         sfs.plot()
 
         # assert total number of sites
         assert sfs.all.data.sum() == 10000 - p.n_skipped
+
+        # assert that all types are a subset of the stratification
+        assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
 
     def test_base_context_stratification(self):
         """
@@ -136,6 +214,9 @@ class ParserTestCase(TestCase):
         # assert total number of sites
         assert sfs.all.data.sum() == 10000 - p.n_skipped
 
+        # assert that all types are a subset of the stratification
+        assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
+
     def test_reference_base_stratification(self):
         """
         Test the reference base stratification.
@@ -152,6 +233,9 @@ class ParserTestCase(TestCase):
 
         # assert total number of sites
         assert sfs.all.data.sum() == 10000 - p.n_skipped
+
+        # assert that all types are a subset of the stratification
+        assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
 
     def test_parse_vcf_chr21(self):
         """
@@ -172,9 +256,10 @@ class ParserTestCase(TestCase):
         p = Parser(
             vcf="resources/genome/sapiens/chr21_test.vcf.gz",
             n=20,
-            ignore_not_polarized=True,
+            skip_non_polarized=True,
             annotations=[deg, aa],
             filtrations=[f],
+            stratifications=[DegeneracyStratification()],
             max_sites=100000
         )
 
@@ -182,7 +267,7 @@ class ParserTestCase(TestCase):
 
         assert sfs.all.data.sum() == 6
 
-    def test_parse_betula_vcf_biallelic_adjust_mutational_target_sites(self):
+    def test_parse_betula_vcf_biallelic_adjust_mutational_target_sites_manually(self):
         """
         Parse the VCF file of Betula spp.
         """
@@ -201,12 +286,67 @@ class ParserTestCase(TestCase):
                 CodingSequenceFiltration(
                     gff_file="resources/genome/betula/genome.gff.gz"
                 )
-            ]
+            ],
+            stratifications=[DegeneracyStratification()]
         )
 
         sfs = p.parse()
 
         assert sfs.all.data.sum() == p.n_target_sites
+
+    def test_parse_betula_vcf_biallelic_adjust_mutational_target_sites_automatically(self):
+        """
+        Parse the VCF file of Betula spp.
+        """
+        p = Parser(
+            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            n=20,
+            annotations=[
+                SynonymyAnnotation(
+                    fasta_file="resources/genome/betula/genome.subset.20.fasta",
+                    gff_file="resources/genome/betula/genome.gff.gz"
+                ),
+                MaximumParsimonyAnnotation()
+            ],
+            filtrations=[
+                CodingSequenceFiltration(
+                    gff_file="resources/genome/betula/genome.gff.gz"
+                )
+            ],
+            stratifications=[DegeneracyStratification()]
+        )
+
+        sfs = p.parse()
+
+        # assert fixed number of target sites
+        assert p.n_target_sites == cast(SynonymyAnnotation, p.annotations[0]).n_target_sites == 815293
+
+    def test_filter_out_all_raises_warning(self):
+        """
+        Test that filtering out all sites logs a warning.
+        """
+        p = Parser(
+            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            n=20,
+            filtrations=[AllFiltration()]
+        )
+
+        with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')):
+            p.parse()
+
+    def test_parser_no_stratifications(self):
+        """
+        Test that filtering out all sites logs a warning.
+        """
+        p = Parser(
+            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            n=20,
+            stratifications=[]
+        )
+
+        sfs = p.parse()
+
+        assert 'all' in sfs.types
 
     def test_parse_betula_vcf(self):
         """
@@ -227,7 +367,7 @@ class ParserTestCase(TestCase):
                     gff_file="resources/genome/betula/genome.gff.gz"
                 )
             ],
-            max_sites=100000
+            stratifications=[DegeneracyStratification()]
         )
 
         sfs = p.parse()
@@ -254,6 +394,7 @@ class ParserTestCase(TestCase):
                     gff_file="resources/genome/betula/genome.gff.gz"
                 )
             ],
+            stratifications=[DegeneracyStratification()]
         )
 
         sfs = p.parse()
@@ -285,6 +426,7 @@ class ParserTestCase(TestCase):
                     aliases=dict(chr21=['21'])
                 )
             ],
+            stratifications=[DegeneracyStratification()],
             max_sites=100000
         )
 

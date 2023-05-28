@@ -15,7 +15,6 @@ import warnings
 import jsonpickle
 import numpy as np
 import pandas as pd
-import requests_cache
 from tqdm import tqdm
 
 from .json_handlers import DataframeHandler, SpectrumHandler, SpectraHandler, NumpyArrayHandler
@@ -91,16 +90,13 @@ logger.setLevel(logging.INFO)
 handler = TqdmLoggingHandler()
 
 # define a Formatter with colors
-formatter = ColoredFormatter('%(levelname)s:%(name)s:%(message)s')
+formatter = ColoredFormatter('%(levelname)s:%(name)s: %(message)s')
 
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 # whether to disable the progress bar
 disable_pbar = False
-
-# install cache
-requests_cache.install_cache('fastdfe_requests_cache', expire_after=3600 * 24)
 
 
 def raise_on_warning(message, category, filename, lineno, file=None, line=None):
@@ -128,10 +124,10 @@ from .visualization import Visualization
 from .spectrum import Spectrum, Spectra
 from .parser import Parser, Stratification, BaseTransitionStratification, BaseContextStratification, \
     DegeneracyStratification, TransitionTransversionStratification, AncestralBaseStratification, \
-    SynonymyStratification, VEPStratification, SnpEffStratification
+    SynonymyStratification, VEPStratification, SnpEffStratification, ContigStratification, ChunkedStratification
 from .annotation import Annotator, Annotation, MaximumParsimonyAnnotation, DegeneracyAnnotation, SynonymyAnnotation
 from .filtration import Filterer, Filtration, SNPFiltration, PolyAllelicFiltration, CodingSequenceFiltration, \
-    SNVFiltration
+    SNVFiltration, DeviantOutgroupFiltration, AllFiltration, NoFiltration
 from .vcf import VCFHandler
 
 __all__ = [
@@ -158,6 +154,8 @@ __all__ = [
     'SynonymyStratification',
     'VEPStratification',
     'SnpEffStratification',
+    'ContigStratification',
+    'ChunkedStratification',
     'Annotator',
     'Annotation',
     'MaximumParsimonyAnnotation',
@@ -165,6 +163,9 @@ __all__ = [
     'SynonymyAnnotation',
     'Filtration',
     'CodingSequenceFiltration',
+    'DeviantOutgroupFiltration',
+    'AllFiltration',
+    'NoFiltration',
     'Filterer',
     'SNPFiltration',
     'SNVFiltration',

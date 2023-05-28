@@ -19,7 +19,7 @@ from .parametrization import Parametrization, from_string, to_string
 from .polydfe_utils import create_sfs_config, parse_init_file, create_init_file, models
 from .spectrum import Spectra, parse_polydfe_sfs_config
 
-logger = logging.getLogger('fastdfe')
+logger = logging.getLogger('fastdfe').getChild('Config')
 
 
 class Config:

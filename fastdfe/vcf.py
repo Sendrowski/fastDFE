@@ -12,6 +12,7 @@ import logging
 import os
 import shutil
 import tempfile
+from collections import Counter
 from typing import Optional, TextIO, Iterable, Dict, List
 from urllib.parse import urlparse
 
@@ -26,14 +27,30 @@ from tqdm import tqdm
 logger = logging.getLogger('fastdfe')
 
 
-def get_called_bases(variant: Variant) -> np.ndarray:
+def get_called_bases(genotypes: np.ndarray | List[str]) -> np.ndarray:
     """
     Get the called bases from a list of calls.
 
-    :param variant: The variant to get the called bases from.
+    :param genotypes: Array of genotypes in the form of strings.
     :return: Array of called bases.
     """
-    return np.array([b for b in '/'.join(variant.gt_bases).replace('|', '/') if b in 'ACGT'])
+    return np.array([b for b in '/'.join(genotypes).replace('|', '/') if b in 'ACGT'])
+
+
+def get_major_base(genotypes: np.ndarray | List[str]) -> str | None:
+    """
+    Get the major base from a list of calls.
+
+    :param genotypes: Array of genotypes in the form of strings.
+    :return: Major base.
+    """
+    # get the called bases
+    bases = get_called_bases(genotypes)
+
+    if len(bases) > 0:
+        return Counter(bases).most_common()[0][0]
+
+    return None
 
 
 def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf) -> int:
@@ -42,7 +59,6 @@ def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf) -> int:
 
     :param vcf: The path to the VCF file or an iterable of variants
     :param max_sites: Maximum number of sites to consider
-    :param disable_pbar: Disable the progress bar
     :return: Number of sites
     """
 
@@ -70,6 +86,21 @@ def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf) -> int:
     return i
 
 
+def download_if_url(path: str, cache: bool = True) -> str:
+    """
+    Download the VCF file if it is a URL.
+
+    :param path: The path to the VCF file.
+    :param cache: Whether to cache the file.
+    :return: The path to the downloaded file or the original path.
+    """
+    if VCFHandler.is_url(path):
+        # download the file and return path
+        return VCFHandler.download_file(path, cache=cache)
+
+    return path
+
+
 def open_file(file: str) -> TextIO:
     """
     Open a file, either gzipped or not.
@@ -93,7 +124,8 @@ class VCFHandler:
             vcf: str | Iterable[Variant],
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
-            seed: int | None = 0
+            seed: int | None = 0,
+            cache: bool = True
     ):
         """
         Create a new VCF instance.
@@ -102,7 +134,9 @@ class VCFHandler:
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
         :param max_sites: Maximum number of sites to consider
         :param seed: Seed for the random number generator
+        :param cache: Whether to cache files that are downloaded from URLs
         """
+        self.logger = logger.getChild(self.__class__.__name__)
 
         #: The path to the VCF file or an iterable of variants
         self.vcf = vcf
@@ -115,6 +149,9 @@ class VCFHandler:
 
         #: Seed for the random number generator
         self.seed: Optional[int] = seed
+
+        #: Whether to cache files that are downloaded from URLs
+        self.cache: bool = cache
 
         #: Random generator instance
         self.rng = np.random.default_rng(seed=seed)
@@ -144,16 +181,17 @@ class VCFHandler:
         except ValueError:
             return False
 
-    @staticmethod
-    def load_fasta(file: str) -> Fasta:
+    def load_fasta(self, file: str) -> Fasta:
         """
         Load a FASTA file into a dictionary.
 
         :param file: The path to The FASTA file path, possibly gzipped or a URL
         :return: Iterator over the sequences.
         """
+        self.logger.info("Loading FASTA file")
+
         # download and unzip if necessary
-        local_file = VCFHandler.unzip_if_zipped(VCFHandler.download_if_url(file))
+        local_file = self.unzip_if_zipped(self.download_if_url(file))
 
         return Fasta(local_file)
 
@@ -184,19 +222,14 @@ class VCFHandler:
 
         return [contig]
 
-    @staticmethod
-    def download_if_url(path: str) -> str:
+    def download_if_url(self, path: str) -> str:
         """
         Download the VCF file if it is a URL.
 
         :param path: The path to the VCF file.
         :return: The path to the downloaded file or the original path.
         """
-        if VCFHandler.is_url(path):
-            # download the file and return path
-            return VCFHandler.download_file(path)
-
-        return path
+        return download_if_url(path, cache=self.cache)
 
     @staticmethod
     def unzip_if_zipped(file: str):
@@ -229,11 +262,7 @@ class VCFHandler:
         :param url: The URL to get the file extension from.
         :return: The file extension.
         """
-        parsed_url = urlparse(url)
-        path = parsed_url.path
-        filename = os.path.basename(path)
-
-        return filename
+        return os.path.basename(urlparse(url).path)
 
     @staticmethod
     def hash(s: str) -> str:
@@ -246,15 +275,14 @@ class VCFHandler:
         return hashlib.sha1(s.encode()).hexdigest()[:12]
 
     @staticmethod
-    def download_file(url: str) -> str:
+    def download_file(url: str, cache: bool = True) -> str:
         """
         Download a file from a URL.
 
+        :param cache: Whether to cache the file.
         :param url: The URL to download the file from.
         :return: The path to the downloaded file.
         """
-        logger.info(f'Downloading file from {url}')
-
         # start the stream
         response = requests.get(url, stream=True)
 
@@ -264,16 +292,22 @@ class VCFHandler:
         # extract the file extension from the URL
         filename = VCFHandler.get_filename(url)
 
+        # create a temporary file path
+        path = tempfile.gettempdir() + '/' + VCFHandler.hash(url) + '.' + filename
+
+        # check if the file is already cached
+        if cache and os.path.exists(path):
+            logger.info(f'Using cached file at {path}')
+            return path
+        else:
+            logger.info(f'Downloading file from {url}')
+
         from . import disable_pbar
 
         # create a temporary file with the original file extension
-        with tempfile.NamedTemporaryFile(suffix='.' + filename, delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
             total_size = int(response.headers.get('content-length', 0))
             chunk_size = 8192
-
-            # fix bug of missing attribute
-            if not hasattr(response, '_content_consumed'):
-                response._content_consumed = 0
 
             with tqdm(total=total_size,
                       unit='B',
@@ -281,10 +315,19 @@ class VCFHandler:
                       desc="Downloading file",
                       disable=disable_pbar) as pbar:
 
+                # write the file to disk
                 for chunk in response.iter_content(chunk_size=chunk_size):
                     if chunk:
                         tmp.write(chunk)
                         pbar.update(len(chunk))
+
+        # rename the file to the original file extension
+        if cache:
+            os.rename(tmp.name, path)
+
+            logger.info(f'Cached file to {path}')
+
+            return path
 
         return tmp.name
 

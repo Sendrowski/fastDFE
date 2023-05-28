@@ -6,18 +6,21 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-03-12"
 
+import logging
 from abc import ABC, abstractmethod
 from typing import List, Optional, Literal, Tuple, Dict
-from typing_extensions import Self
 
 import jsonpickle
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from typing_extensions import Self
 
 from .bootstrap import Bootstrap
 from .parametrization import Parametrization, from_string
 from .visualization import Visualization
+
+logger = logging.getLogger("fastdfe")
 
 
 class Inference:
@@ -208,6 +211,49 @@ class Inference:
         )
 
     @staticmethod
+    def plot_inferred_parameters_boxplot(
+            inferences: List['AbstractInference'],
+            labels: list | np.ndarray,
+            file: str = None,
+            show: bool = True,
+            title: str = 'parameter estimates',
+            **kwargs
+
+    ) -> plt.Axes:
+        """
+        Visualize several discretized DFEs given by the list of inference objects.
+        Note that the DFE parametrization needs to be the same for all inference objects.
+
+        :param inferences: List of inference objects.
+        :param labels: Unique labels for the DFEs.
+        :param file: Path to file to save the plot to.
+        :param show: Whether to show the plot.
+        :param title: Title of the plot.
+        :param kwargs: Additional arguments for the plot.
+        :return: Axes of the plot.
+        :raises ValueError: If no inference objects are given or no bootstraps are found.
+        """
+        if len(inferences) == 0:
+            raise ValueError('No inference objects given.')
+
+        # get sorted list of parameter names
+        param_names = sorted(list(inferences[0].get_bootstrap_param_names()))
+
+        if inferences[0].bootstraps is None:
+            raise ValueError('No bootstraps found.')
+
+        # create dict of dataframes
+        values = dict((k, inf.bootstraps) for k, inf in zip(labels, inferences))
+
+        return Visualization.plot_inferred_parameters_boxplot(
+            values=values,
+            param_names=param_names,
+            file=file,
+            show=show,
+            title=title,
+        )
+
+    @staticmethod
     def get_cis_params_mle(
             bootstrap_type: Literal['percentile', 'bca'],
             ci_level: float,
@@ -253,7 +299,7 @@ class Inference:
             inferences: List['AbstractInference'],
             labels: list | np.ndarray,
             param_names: list | np.ndarray
-    ):
+    ) -> (Dict[str, Tuple[np.ndarray, np.ndarray] | None], Dict[str, np.ndarray]):
         """
         Get errors and values for MLE params of inferences.
 
@@ -418,6 +464,8 @@ class AbstractInference(ABC):
 
         :param kwargs: Keyword arguments
         """
+        self.logger = logger.getChild(self.__class__.__name__)
+
         self.bootstraps: Optional[pd.DataFrame] = None
         self.params_mle: Optional[dict] = None
         self.model: Optional[Parametrization] = None

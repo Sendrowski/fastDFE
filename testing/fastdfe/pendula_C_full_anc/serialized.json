@@ -1,5 +1,17 @@
 {
     "py/object": "fastdfe.base_inference.BaseInference",
+    "logger": {
+        "py/reduce": [
+            {
+                "py/function": "logging.getLogger"
+            },
+            {
+                "py/tuple": [
+                    "fastdfe.BaseInference"
+                ]
+            }
+        ]
+    },
     "bootstraps": null,
     "params_mle": {
         "S_d": {
@@ -205,6 +217,18 @@
     },
     "model": {
         "py/object": "fastdfe.parametrization.GammaExpParametrization",
+        "logger": {
+            "py/reduce": [
+                {
+                    "py/function": "logging.getLogger"
+                },
+                {
+                    "py/tuple": [
+                        "fastdfe.GammaExpParametrization"
+                    ]
+                }
+            ]
+        },
         "param_names": [
             "S_d",
             "b",
@@ -307,6 +331,18 @@
     "n": 20,
     "discretization": {
         "py/object": "fastdfe.discretization.Discretization",
+        "logger": {
+            "py/reduce": [
+                {
+                    "py/function": "logging.getLogger"
+                },
+                {
+                    "py/tuple": [
+                        "fastdfe.Discretization"
+                    ]
+                }
+            ]
+        },
         "n": 20,
         "intervals_del": {
             "py/tuple": [
@@ -44848,6 +44884,18 @@
     },
     "optimization": {
         "py/object": "fastdfe.optimization.Optimization",
+        "logger": {
+            "py/reduce": [
+                {
+                    "py/function": "logging.getLogger"
+                },
+                {
+                    "py/tuple": [
+                        "fastdfe.Optimization"
+                    ]
+                }
+            ]
+        },
         "bounds": {
             "S_d": {
                 "py/tuple": [
@@ -45026,6 +45074,6 @@
             }
         ]
     },
-    "execution_time": 4.4364540576934814,
+    "execution_time": 3.6560440063476562,
     "locked": false
 }

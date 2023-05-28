@@ -12,7 +12,6 @@ from functools import wraps
 from typing import Callable, List, Union
 
 import numpy as np
-from matplotlib import pyplot as plt
 from scipy.stats import gamma, expon
 
 # get logger
@@ -74,6 +73,8 @@ class Parametrization:
         """
         Initialize parametrization.
         """
+        self.logger = logger.getChild(self.__class__.__name__)
+
         #: argument names
         self.param_names: List = list(self.x0.keys())
 
@@ -132,9 +133,9 @@ class Parametrization:
 
         # issue warning if values at bounds are outside [0, 1]
         if not -1e-5 < x[0] < 1e-5 or not 1 - 1e-5 < x[-1] < 1 + 1e-5:
-            logger.warning(f'CDF evaluates to {(x[0], x[-1])} at the lower and upper '
-                           f'bounds, which is a bit off from the expected (0, 1). '
-                           f'Used parameters: {params}.')
+            self.logger.warning(f'CDF evaluates to {(x[0], x[-1])} at the lower and upper '
+                                f'bounds, which is a bit off from the expected (0, 1). '
+                                f'Used parameters: {params}.')
 
         # compute histogram
         hist = x[1:] - x[:-1]

@@ -5,4 +5,9 @@ dependencies:
   - dadi
   - pip
   - pip:
+    - pytest
+    - pytest-xdist
+    - pytest-cov
+    - pytest-sugar
+    - pytest-pycharm
     - -r requirements_testing.txt

@@ -1,5 +1,5 @@
 """
-Setup est-sfs by downloading it from Sourceforge and compiling it.
+Set up est-sfs by downloading it from Sourceforge and compiling it.
 """
 
 __author__ = "Janek Sendrowski"

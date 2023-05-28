@@ -116,6 +116,30 @@ class JointInferenceTestCase(InferenceTestCase):
 
         assert inf.perform_lrt_covariates()
 
+    def test_plot_inferred_parameters_boxplot(self):
+        """
+        Test that the plot_inferred_parameters_boxplot method works.
+        """
+        inference = JointInference.from_file(
+            "testing/fastdfe/templates/shared/shared_example_2/serialized.json"
+        )
+
+        inference.bootstrap(6)
+
+        inference.plot_inferred_parameters_boxplot()
+
+    def test_plot_inferred_parameters(self):
+        """
+        Test that the plot_inferred_parameters_boxplot method works.
+        """
+        inference = JointInference.from_file(
+            "testing/fastdfe/templates/shared/shared_example_2/serialized.json"
+        )
+
+        inference.bootstrap(2)
+
+        inference.plot_inferred_parameters()
+
     def test_plot_all_without_bootstraps(self):
         """
         Test that the plot_all method works.

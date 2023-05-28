@@ -17,7 +17,7 @@ from scipy.integrate import quad
 from fastdfe import Parametrization
 
 # configure logger
-logger = logging.getLogger('fastdfe')
+logger = logging.getLogger('fastdfe').getChild('Discretization')
 
 
 def get_midpoints_and_spacing(bins: np.ndarray) -> (np.ndarray, np.ndarray):

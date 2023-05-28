@@ -13,6 +13,7 @@ from typing import Callable, List, Literal, Dict
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import seaborn as sns
 from matplotlib import colors
 from matplotlib.colors import LogNorm
@@ -24,7 +25,7 @@ from . import Parametrization
 from .spectrum import Spectrum
 
 # get logger
-logger = logging.getLogger('fastdfe')
+logger = logging.getLogger('fastdfe').getChild('Visualization')
 
 
 class Visualization:
@@ -354,6 +355,34 @@ class Visualization:
         return ax
 
     @staticmethod
+    def name_to_label(key: str, param_names: list | np.ndarray, vals: list | np.ndarray) -> str:
+        """
+        Map parameter name to label.
+
+        :param key: Parameter name
+        :param param_names: Parameter names
+        :param vals: Parameter values
+        :return: Label
+        """
+        # define new names for some parameters
+        label_mapping = dict(
+            alpha='α',
+            eps='ε'
+        )
+
+        # map to new name
+        label = label_mapping[key] if key in label_mapping else key
+
+        # get index of parameter
+        k = np.where(np.array(param_names) == key)[0][0]
+
+        # check parameter value and add minus sign if negative
+        if vals[k] >= 0:
+            return '$' + label + '$'
+
+        return '$-' + key + '$'
+
+    @staticmethod
     @clear_show_save
     def plot_inferred_parameters(
             ax: plt.Axes,
@@ -369,7 +398,7 @@ class Visualization:
     ) -> plt.Axes:
         """
         Visualize the inferred parameters and their confidence intervals.
-        using a bar plot. Note that there problems with parameters that span 0.
+        using a bar plot. Note that there problems with parameters that span 0 (which is usually note the case).
 
         :param labels: Unique labels for the DFEs
         :param param_names: Labels for the parameters
@@ -396,33 +425,8 @@ class Visualization:
 
             x = np.arange(n_params) + i * width
 
-            def name_to_label(key: str) -> str:
-                """
-                Add parameter name to label.
-
-                :param key: Parameter name
-                :return: Label
-                """
-                # define new names for some parameters
-                label_mapping = dict(
-                    alpha='α',
-                    eps='ε'
-                )
-
-                # map to new name
-                label = label_mapping[key] if key in label_mapping else key
-
-                # get index of parameter
-                k = np.where(np.array(param_names) == key)[0][0]
-
-                # check parameter value and add minus sign if negative
-                if vals[k] >= 0:
-                    return '$' + label + '$'
-
-                return '$-' + key + '$'
-
-            # append a minus sign to negative parameters values
-            xlabels = np.array([name_to_label(key) for key in param_names])
+            # get labels for parameters
+            xlabels = np.array([Visualization.name_to_label(key, param_names, vals) for key in param_names])
 
             # flip errors for negative parameters
             if errs is not None:
@@ -466,6 +470,67 @@ class Visualization:
         ax.autoscale(tight=True, axis='x')
 
         return ax
+
+    @staticmethod
+    def plot_inferred_parameters_boxplot(
+            values: Dict[str, pd.DataFrame],
+            param_names: list | np.ndarray,
+            file: str = None,
+            show: bool = True,
+            title: str = 'parameter estimates'
+    ) -> plt.Axes:
+        """
+        Visualize the inferred parameters using a violin plot.
+
+        :param values: Type-indexed dictionary of dataframes with parameters as columns and values as rows
+        :param param_names: Parameters to plot
+        :param scale: Whether to use a linear or log scale
+        :param title: Title of the plot
+        :param legend: Whether to show the legend
+        :param file: File path to save plot to
+        :param show: Whether to show plot
+        :return: Axes
+        """
+        # create a subplot with number of parameters axes
+        fig, axs = plt.subplots(len(param_names), 1, figsize=(6, 1.4 * len(param_names)))
+
+        axs[0].set_title(title)
+
+        for i, param_name in enumerate(param_names):
+            ax = axs[i]
+
+            # Prepare a dataframe for seaborn
+            df_list = []
+            for t, df in values.items():
+                subset = df[[param_name]].copy()
+                subset['Type'] = t
+                df_list.append(subset)
+
+            df_plot = pd.concat(df_list)
+
+            # plot
+            sns.boxplot(x='Type', y=param_name, data=df_plot, ax=ax)
+
+            ax.set_ylabel(
+                Visualization.name_to_label(param_name, param_names, df_plot[param_name].abs().values),
+                rotation=0,
+                labelpad=20
+            )
+
+            ax.set_xlabel(None)
+
+            if i < len(param_names) - 1:
+                ax.set(xticklabels=[])
+                ax.tick_params(bottom=False)
+            else:
+                [l.set_rotation(90) for l in ax.get_xticklabels()]
+
+        plt.tight_layout(pad=.3)
+
+        # show and save plot
+        Visualization.show_and_save(file, show)
+
+        return plt.gca()
 
     @staticmethod
     def get_color(
@@ -544,6 +609,10 @@ class Visualization:
         :param show: Whether to show the plot
         :return: Axes
         """
+        if len(spectra) == 0:
+            logger.warning('No spectra to plot.')
+            return ax
+
         if use_subplots:
             n_plots = len(spectra)
             n_rows = int(np.ceil(np.sqrt(n_plots)))
@@ -730,7 +799,7 @@ class Visualization:
             scale: Literal['lin', 'log', 'symlog'] = 'lin'
     ) -> plt.Axes:
         """
-        A scatter plot of the likelihoods specified.
+        A violin plot of the likelihoods specified.
 
         :param scale: Scale of y-axis
         :param likelihoods: Likelihoods to plot
@@ -740,21 +809,20 @@ class Visualization:
         :param ax: Axes to plot on
         :return: Axes
         """
+        # convert likelihoods to pandas DataFrame
+        df = pd.DataFrame(likelihoods, columns=['log likelihood'])
+
         # plot
-        ax.scatter(np.arange(len(likelihoods)), likelihoods)
+        sns.violinplot(y='log likelihood', data=df, ax=ax)
 
         # set title
         ax.set_title(title)
 
-        # use integer ticks
-        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-
-        # set labels
-        ax.set_xlabel('iteration')
-        ax.set_ylabel('lnl')
-
         if scale == 'log':
             ax.set_yscale('symlog')
+
+        # remove y-margins
+        ax.margins(y=0)
 
         return ax
 

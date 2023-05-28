@@ -1,5 +1,5 @@
 """
-Infer the DFE from the SFS using discretized DFE.
+Infer the DFE from the SFS.
 """
 
 __author__ = "Janek Sendrowski"

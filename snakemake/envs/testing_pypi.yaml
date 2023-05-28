@@ -8,4 +8,9 @@ dependencies:
   - r-rjsonio
   - pip
   - pip:
+      - pytest
+      - pytest-xdist
+      - pytest-cov
+      - pytest-sugar
+      - pytest-pycharm
       - fastdfe

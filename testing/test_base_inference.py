@@ -27,6 +27,7 @@ class InferenceTestCase(TestCase):
         :param obj2: Second object
         :param ignore_keys: Keys to ignore
         """
+        ignore_keys += ['logger']
 
         if not hasattr(obj1, '__dict__'):
             self.assertEqual(obj1, obj2)
@@ -334,7 +335,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         # unserialize
         inference = BaseInference.from_file(self.serialized)
 
-        inference.plot_likelihoods(scale='log')
+        inference.plot_likelihoods()
 
     def test_plot_interval_density(self):
         """
@@ -344,6 +345,26 @@ class BaseInferenceTestCase(InferenceTestCase):
         inference = BaseInference.from_file(self.serialized)
 
         inference.plot_interval_density()
+
+    def test_plot_inferred_parameters(self):
+        """
+        Plot inferred parameters.
+        """
+        # unserialize
+        inference = BaseInference.from_file(self.serialized)
+
+        inference.plot_inferred_parameters()
+
+    def test_plot_inferred_parameters_boxplot(self):
+        """
+        Plot inferred parameters.
+        """
+        # unserialize
+        inference = BaseInference.from_file(self.serialized)
+
+        inference.bootstrap(6)
+
+        inference.plot_inferred_parameters_boxplot()
 
     def test_plot_observed_sfs(self):
         """

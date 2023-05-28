@@ -17,8 +17,9 @@ import multiprocess as mp
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from scipy.optimize import OptimizeResult
 from numpy.linalg import norm
+from scipy.optimize import OptimizeResult
+from tqdm import tqdm
 
 from . import Config
 from .abstract_inference import Inference
@@ -105,7 +106,7 @@ class JointInference(BaseInference):
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as intervals_del but for beneficial selection coefficients
-        :param integration_mode: Integration mode, ``quad`` not recommmended
+        :param integration_mode: Integration mode, ``quad`` not recommended
         :param linearized: Whether to use the linearized model, ``False`` not recommended
         :param model: DFE parametrization
         :param seed: Random seed
@@ -156,12 +157,12 @@ class JointInference(BaseInference):
 
         # throw error if joint inference does not make sense
         if not self.joint_inference_makes_sense():
-            logger.warning('Joint inference does not make sense as there are no parameters to be shared '
-                           'across more than one types. If this is not intended consider running '
-                           'several marginal inferences instead, which is more efficient.')
+            self.logger.warning('Joint inference does not make sense as there are no parameters to be shared '
+                                'across more than one types. If this is not intended consider running '
+                                'several marginal inferences instead, which is more efficient.')
 
         # issue notice
-        logger.info(f'Using shared parameters {self.shared_params}.')
+        self.logger.info(f'Using shared parameters {self.shared_params}.')
 
         #: Covariates indexed by parameter name
         self.covariates: Dict[str, Covariate] = {f"c{i}": cov for i, cov in enumerate(covariates)}
@@ -170,7 +171,7 @@ class JointInference(BaseInference):
         cov_repr = dict((k, dict(param=v.param, values=v.values)) for k, v in self.covariates.items())
 
         # issue notice
-        logger.info(f'Including covariates: {cov_repr}.')
+        self.logger.info(f'Including covariates: {cov_repr}.')
 
         # parameter names for covariates
         args_cov = list(self.covariates.keys())
@@ -350,9 +351,9 @@ class JointInference(BaseInference):
 
         # add parameters with covariates to shared parameters
         if len(cov_but_not_shared) > 0:
-            logger.info(f'Parameters {cov_but_not_shared} have '
-                        f'covariates and thus need to be shared. '
-                        f'Adding them to shared parameters.')
+            self.logger.info(f'Parameters {cov_but_not_shared} have '
+                             f'covariates and thus need to be shared. '
+                             f'Adding them to shared parameters.')
 
             # add to shared parameters
             self.shared_params.append(SharedParams(params=cov_but_not_shared, types=self.types))
@@ -419,7 +420,7 @@ class JointInference(BaseInference):
             return data
 
         # issue notice
-        logger.info(f"Running marginal inferences for type 'all'.")
+        self.logger.info(f"Running marginal inferences for type 'all'.")
 
         # run for 'all' type
         run_marginal(('all', self.marginal_inferences['all']))
@@ -431,10 +432,10 @@ class JointInference(BaseInference):
 
         # skip marginal inference if only one type was specified
         if len(self.types) == 1:
-            logger.info('Skipping marginal inference as only one type was specified.')
+            self.logger.info('Skipping marginal inference as only one type was specified.')
         else:
             # issue notice
-            logger.info(f'Running marginal inferences for types {self.types}.')
+            self.logger.info(f'Running marginal inferences for types {self.types}.')
 
         # optionally parallelize marginal inferences
         run_inferences = dict(parallelize_func(
@@ -464,12 +465,12 @@ class JointInference(BaseInference):
         :return: Modelled SFS.
         """
         # issue notice
-        logger.info(f'Running joint inference.')
+        self.logger.info(f'Running joint inference.')
 
         # issue notice
-        logger.info(f'Starting numerical optimization of {self.n_runs} '
-                    'independently initialized samples which are run ' +
-                    ('in parallel.' if self.parallelize else 'sequentially.'))
+        self.logger.info(f'Starting numerical optimization of {self.n_runs} '
+                         'independently initialized samples which are run ' +
+                         ('in parallel.' if self.parallelize else 'sequentially.'))
 
         # starting time of joint inference
         start_time = time.time()
@@ -574,7 +575,7 @@ class JointInference(BaseInference):
         other = JointInference.from_config(config)
 
         # issue notice
-        logger.info('Running joint inference without covariates.')
+        self.logger.info('Running joint inference without covariates.')
 
         # run inference
         other.run()
@@ -654,7 +655,8 @@ class JointInference(BaseInference):
             self,
             n_samples: int = None,
             parallelize: bool = None,
-            update_likelihood: bool = True
+            update_likelihood: bool = True,
+            **kwargs
     ) -> Optional[pd.DataFrame]:
         """
         Perform the parametric bootstrap both for the marginal and joint inferences.
@@ -673,32 +675,39 @@ class JointInference(BaseInference):
             parallelize=parallelize
         )
 
-        logger.info("Bootstrapping marginal inferences.")
+        self.logger.info("Bootstrapping marginal inferences.")
 
-        # bootstrap marginal inferences
-        for inf in self.marginal_inferences.values():
-            inf.bootstrap(
-                n_samples=n_samples,
-                parallelize=self.parallelize,
-                update_likelihood=update_likelihood
-            )
+        from . import disable_pbar
+
+        with tqdm(total=len(self.marginal_inferences) * self.n_bootstraps, disable=disable_pbar) as pbar:
+
+            # bootstrap marginal inferences
+            for inf in self.marginal_inferences.values():
+                inf.bootstrap(
+                    n_samples=self.n_bootstraps,
+                    parallelize=self.parallelize,
+                    update_likelihood=update_likelihood,
+                    pbar=False
+                )
+
+                pbar.update(self.n_bootstraps)
 
         start_time = time.time()
 
-        logger.info("Bootstrapping joint inference.")
+        self.logger.info("Bootstrapping joint inference.")
 
         # parallelize computations if desired
         if self.parallelize:
 
-            logger.info(f"Running {self.n_bootstraps} joint bootstrap samples "
-                        f"in parallel on {mp.cpu_count()} cores.")
+            self.logger.debug(f"Running {self.n_bootstraps} joint bootstrap samples "
+                              f"in parallel on {min(mp.cpu_count(), self.n_bootstraps)} cores.")
 
             # We need to assign new random states to the subprocesses.
             # Otherwise, they would all produce the same result.
             seeds = self.rng.integers(0, high=2 ** 32, size=self.n_bootstraps)
 
         else:
-            logger.info(f"Running {self.n_bootstraps} joint bootstrap samples sequentially.")
+            self.logger.debug(f"Running {self.n_bootstraps} joint bootstrap samples sequentially.")
 
             seeds = [None] * self.n_bootstraps
 
@@ -715,11 +724,11 @@ class JointInference(BaseInference):
 
         # issue warning if some runs did not finish successfully
         if n_success < self.n_bootstraps:
-            logger.warning(f"{self.n_bootstraps - n_success} out of {self.n_bootstraps} bootstrap samples "
-                           "did not terminate normally during numerical optimization. "
-                           "The confidence intervals might thus be unreliable. Consider adjusting "
-                           "the optimization parameters (increasing `gtol` or `n_runs`) "
-                           "or decrease the number of optimized parameters.")
+            self.logger.warning(f"{self.n_bootstraps - n_success} out of {self.n_bootstraps} bootstrap samples "
+                                "did not terminate normally during numerical optimization. "
+                                "The confidence intervals might thus be unreliable. Consider adjusting "
+                                "the optimization parameters (increasing `gtol` or `n_runs`) "
+                                "or decrease the number of optimized parameters.")
 
         # dataframe of MLE estimates in flattened format
         self.bootstraps = pd.DataFrame([flatten_dict(r) for r in result[:, 1]])
@@ -1049,6 +1058,29 @@ class JointInference(BaseInference):
         labels, inferences = zip(*self.get_inferences(labels=labels).items())
 
         return Inference.plot_inferred_parameters(**locals())
+
+    @BaseInference.run_if_required_wrapper
+    def plot_inferred_parameters_boxplot(
+            self,
+            file: str = None,
+            show: bool = True,
+            title: str = 'inferred parameters',
+            labels: List[str] = None,
+            **kwargs: List[str]
+    ) -> plt.Axes:
+        """
+        Plot discretized DFE comparing the different types.
+
+        :param labels: Labels for types
+        :param title: Title of plot
+        :param file: File to save plot to
+        :param show: Whether to show plot
+        :return: Axes object
+        :raises ValueError: If no inference objects are given or no bootstraps are found.
+        """
+        labels, inferences = zip(*self.get_inferences(labels=labels).items())
+
+        return Inference.plot_inferred_parameters_boxplot(**locals())
 
     def get_cis_params_mle(
             self,

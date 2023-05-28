@@ -159,9 +159,9 @@ class SpectraTestCase(TestCase):
             sub=spectrum.standard_kingman(self.n)
         ))
 
-        assert len(s['all*']) == 2
-        assert isinstance(s['sub*'], Spectrum)
-        assert isinstance(s[['sub*']], Spectra)
+        assert len(s['all.*']) == 2
+        assert isinstance(s['sub.*'], Spectrum)
+        assert isinstance(s[['sub.*']], Spectra)
 
     def test_merge_level(self):
         s = Spectra.from_spectra({
@@ -290,3 +290,41 @@ class SpectraTestCase(TestCase):
 
         assert s.has_dots() is False
         assert s.types == ['test_foo']
+
+    def test_drop_empty(self):
+        """
+        Test that the drop_empty() method works as expected
+        """
+        assert Spectra.from_spectra(dict(
+            type1=Spectrum([1, 0, 0, 0, 0, 0, 0, 0, 0, 10]),
+            type2=Spectrum([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+            type3=Spectrum([1, 2, 3, 4, 5, 6, 7, 8, 9, 65]),
+        )).drop_empty().types == ['type1', 'type3']
+
+    def test_drop_zero_entries(self):
+        """
+        Test that the drop_zero_entries() method works as expected
+        """
+        assert Spectra.from_spectra(dict(
+            type1=Spectrum([1, 0, 0, 0, 0, 0, 0, 0, 0, 10]),
+            type2=Spectrum([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+            type3=Spectrum([1, 2, 3, 4, 5, 6, 7, 8, 9, 65]),
+            type4=Spectrum([1, 2, 0, 4, 5, 6, 7, 8, 9, 65]),
+        )).drop_zero_entries().types == ['type3']
+
+    def test_drop_sparse(self):
+        """
+        Test that the drop_zero_entries() method works as expected
+        """
+        spectra = Spectra.from_spectra(dict(
+            type1=Spectrum([1, 0, 0, 0, 0, 0, 0, 0, 0, 10]),
+            type2=Spectrum([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+            type3=Spectrum([1, 2, 3, 4, 5, 6, 7, 8, 9, 65]),
+            type4=Spectrum([1, 2, 0, 4, 5, 6, 7, 8, 9, 65]),
+        ))
+
+        assert spectra.drop_sparse(n_polymorphic=0).types == ['type3', 'type4']
+        assert spectra.drop_sparse(n_polymorphic=1).types == ['type3', 'type4']
+        assert spectra.drop_sparse(n_polymorphic=40).types == ['type3', 'type4']
+        assert spectra.drop_sparse(n_polymorphic=41).types == ['type3']
+        assert spectra.drop_sparse(n_polymorphic=44).types == []

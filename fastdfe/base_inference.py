@@ -210,7 +210,7 @@ class BaseInference(AbstractInference):
 
         # raise warning if theta is unusually large
         if self.theta > 0.05 or self.sfs_sel.theta > 0.05:
-            logger.warning("Mutation rate is unusually highly. This is a reminder to provide monomorphic counts.")
+            self.logger.warning("Mutation rate is unusually highly. This is a reminder to provide monomorphic counts.")
 
         #: MLE estimates of the initial optimization
         self.params_mle: Optional[Dict[str, float]] = None
@@ -278,9 +278,9 @@ class BaseInference(AbstractInference):
             fixed = set(self.fixed_params['all'].keys()) if 'all' in self.fixed_params else set()
 
             if not fixed_dele.issubset(fixed):
-                logger.warning("You are estimating the full DFE, but the SFS are folded. "
-                               "This is not recommend as the folded SFS contains little information "
-                               "on beneficial mutations.")
+                self.logger.warning("You are estimating the full DFE, but the SFS are folded. "
+                                    "This is not recommend as the folded SFS contains little information "
+                                    "on beneficial mutations.")
 
         #: Initial values
         self.x0 = dict(all=self.model.x0 | self.default_x0 | (x0['all'] if 'all' in x0 else {}))
@@ -348,11 +348,11 @@ class BaseInference(AbstractInference):
         :return: DFE parametrization and modelled SFS.
         """
         if self.execution_time == 0:
-            logger.debug('Inference needs to be run first, triggering run.')
+            self.logger.debug('Inference needs to be run first, triggering run.')
 
             return self.run(*args, **kwargs)
 
-        logger.debug('Inference already run, not running again.')
+        self.logger.debug('Inference already run, not running again.')
 
     @staticmethod
     def run_if_required_wrapper(func):
@@ -406,9 +406,9 @@ class BaseInference(AbstractInference):
         )
 
         # perform MLE
-        logger.info(f'Starting numerical optimization of {self.n_runs} '
-                    'independently initialized samples which are run ' +
-                    ('in parallel.' if self.parallelize else 'sequentially.'))
+        self.logger.info(f'Starting numerical optimization of {self.n_runs} '
+                         'independently initialized samples which are run ' +
+                         ('in parallel.' if self.parallelize else 'sequentially.'))
 
         # Access cached property to trigger potential pre-computation
         # of linearization. This is necessary if the optimization is
@@ -505,8 +505,7 @@ class BaseInference(AbstractInference):
         # L2 norm of fit minus observed SFS
         self.L2_residual = norm(self.sfs_mle.polymorphic - self.sfs_sel.polymorphic, 2)
 
-    @staticmethod
-    def report_result(result: OptimizeResult, params: dict):
+    def report_result(self, result: OptimizeResult, params: dict):
         """
         Inform on optimization result.
 
@@ -515,16 +514,16 @@ class BaseInference(AbstractInference):
         """
         # report on optimization result
         if result.success:
-            logger.info(f"Successfully finished optimization after {result.nit} iterations "
-                        f"and {result.nfev} function evaluations, obtaining a log-likelihood "
-                        f"of -{result.fun}.")
+            self.logger.info(f"Successfully finished optimization after {result.nit} iterations "
+                             f"and {result.nfev} function evaluations, obtaining a log-likelihood "
+                             f"of -{result.fun}.")
         else:
-            logger.warning("Numerical optimization did not terminate normally, so "
-                           "the result might be compromised. Consider adjusting "
-                           "the optimization parameters (increasing `gtol` or `n_runs`) "
-                           "or decrease the number of optimized parameters.")
+            self.logger.warning("Numerical optimization did not terminate normally, so "
+                                "the result might be compromised. Consider adjusting "
+                                "the optimization parameters (increasing `gtol` or `n_runs`) "
+                                "or decrease the number of optimized parameters.")
 
-        logger.info(f"Inferred parameters: {flatten_dict(params)}.")
+        self.logger.info(f"Inferred parameters: {flatten_dict(params)}.")
 
     def update_properties(self, **kwargs) -> Self:
         """
@@ -541,9 +540,11 @@ class BaseInference(AbstractInference):
         return self
 
     def bootstrap(
-            self, n_samples: int = None,
+            self,
+            n_samples: int = None,
             parallelize: bool = None,
-            update_likelihood: bool = True
+            update_likelihood: bool = True,
+            pbar: bool = True
     ) -> pd.DataFrame:
         """
         Perform the parametric bootstrap.
@@ -551,6 +552,7 @@ class BaseInference(AbstractInference):
         :param n_samples: Number of bootstrap samples.
         :param parallelize: Whether to parallelize the bootstrap.
         :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples.
+        :param pbar: Whether to show a progress bar.
         :return: Dataframe with bootstrap results.
         """
         # check if locked
@@ -570,15 +572,15 @@ class BaseInference(AbstractInference):
         # parallelize computations if desired
         if self.parallelize:
 
-            logger.info(f"Running {self.n_bootstraps} bootstrap samples "
-                        f"in parallel on {mp.cpu_count()} cores.")
+            self.logger.debug(f"Running {self.n_bootstraps} bootstrap samples "
+                              f"in parallel on {min(mp.cpu_count(), self.n_bootstraps)} cores.")
 
             # We need to assign new random states to the subprocesses.
             # Otherwise, they would all produce the same result.
             seeds = self.rng.integers(0, high=2 ** 32, size=self.n_bootstraps)
 
         else:
-            logger.info(f"Running {self.n_bootstraps} bootstrap samples sequentially.")
+            self.logger.debug(f"Running {self.n_bootstraps} bootstrap samples sequentially.")
 
             seeds = [None] * self.n_bootstraps
 
@@ -587,7 +589,7 @@ class BaseInference(AbstractInference):
             func=self.run_bootstrap_sample,
             data=seeds,
             parallelize=self.parallelize,
-            pbar=True
+            pbar=pbar
         )
 
         # number of successful runs
@@ -595,11 +597,11 @@ class BaseInference(AbstractInference):
 
         # issue warning if some runs did not finish successfully
         if n_success < self.n_bootstraps:
-            logger.warning(f"{self.n_bootstraps - n_success} out of {self.n_bootstraps} bootstrap samples "
-                           "did not terminate normally during numerical optimization. "
-                           "The confidence intervals might thus be unreliable. Consider adjusting "
-                           "the optimization parameters (increasing `gtol` or `n_runs`) "
-                           "or decrease the number of optimized parameters.")
+            self.logger.warning(f"{self.n_bootstraps - n_success} out of {self.n_bootstraps} bootstrap samples "
+                                "did not terminate normally during numerical optimization. "
+                                "The confidence intervals might thus be unreliable. Consider adjusting "
+                                "the optimization parameters (increasing `gtol` or `n_runs`) "
+                                "or decrease the number of optimized parameters.")
 
             # dataframe of MLE estimates
         self.bootstraps = pd.DataFrame([r['all'] for r in result[:, 1]])
@@ -623,7 +625,7 @@ class BaseInference(AbstractInference):
         """
         Add estimates for alpha to the bootstraps.
         """
-        logger.debug('Computing estimates for alpha.')
+        self.logger.debug('Computing estimates for alpha.')
 
         # add alpha estimates
         self.bootstraps['alpha'] = self.bootstraps.apply(lambda r: self.get_alpha(dict(r)), axis=1)
@@ -888,7 +890,7 @@ class BaseInference(AbstractInference):
         """
         # issue warning
         if not self.discretization.linearized:
-            logger.warning('Note that the interval density is not important if the DFE was not linearized.')
+            self.logger.warning('Note that the interval density is not important if the DFE was not linearized.')
 
         return Visualization.plot_interval_density(
             density=self.discretization.get_interval_density(intervals),
@@ -960,7 +962,7 @@ class BaseInference(AbstractInference):
     @run_if_required_wrapper
     def plot_all(self, show: bool = True):
         """
-        Plot everything.
+        Plot a bunch of plots.
 
         :param show: Whether to show plot.
         """
@@ -1036,17 +1038,42 @@ class BaseInference(AbstractInference):
         )
 
     @run_if_required_wrapper
+    def plot_inferred_parameters_boxplot(
+            self,
+            file: str = None,
+            show: bool = True,
+            title: str = 'parameter estimates',
+            **kwargs
+    ) -> plt.Axes:
+        """
+        Visualize the inferred parameters and their confidence intervals.
+
+        :param title: Plot title.
+        :param file: File to save plot to.
+        :param show: Whether to show plot.
+        :return: Axes object
+        :raises ValueError: If no inference objects are given or no bootstraps are found.
+        """
+        return Inference.plot_inferred_parameters_boxplot(
+            inferences=[self],
+            labels=['all'],
+            file=file,
+            show=show,
+            title=title
+        )
+
+    @run_if_required_wrapper
     def plot_likelihoods(
             self,
             file: str = None,
             show: bool = True,
             title: str = 'likelihoods',
-            scale: Literal['lin', 'log', 'symlog'] = 'lin',
+            scale: Literal['lin', 'log'] = 'lin',
             ax: plt.Axes = None,
             **kwargs
     ) -> plt.Axes:
         """
-        Visualize the likelihoods of the optimization runs.
+        Visualize the likelihoods of the optimization runs using a violin plot.
 
         :param scale: y-scale of the plot.
         :param title: Plot title.
@@ -1064,8 +1091,7 @@ class BaseInference(AbstractInference):
             ax=ax
         )
 
-    @staticmethod
-    def lrt(ll_simple: float, ll_complex: float, df: int = 1) -> float:
+    def lrt(self, ll_simple: float, ll_complex: float, df: int = 1) -> float:
         """
         Perform the likelihood ratio test (LRT).
 
@@ -1077,9 +1103,9 @@ class BaseInference(AbstractInference):
         lr = -2 * (ll_simple - ll_complex)
 
         # issue info message
-        logger.info(f"Simple model likelihood: {ll_simple}, "
-                    f"complex model likelihood: {ll_complex}, "
-                    f"degrees of freedom: {df}.")
+        self.logger.info(f"Simple model likelihood: {ll_simple}, "
+                         f"complex model likelihood: {ll_complex}, "
+                         f"degrees of freedom: {df}.")
 
         return chi2.sf(lr, df)
 
@@ -1139,7 +1165,7 @@ class BaseInference(AbstractInference):
             inference._set_fixed_params(params)
 
             # inform about fixed parameters
-            logger.info(f'Holding parameters fixed to {params}.')
+            self.logger.info(f'Holding parameters fixed to {params}.')
 
             # run inference
             inference.run()

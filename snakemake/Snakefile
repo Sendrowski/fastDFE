@@ -1,5 +1,6 @@
-from typing import List
 import re
+from typing import List
+
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 
 HTTP = HTTPRemoteProvider()
@@ -25,7 +26,7 @@ else:
 
 def extract_opt(str: str, name, default_value=None) -> str:
     """
-    Extract named option from string.
+    Extract named option from string like 'opt1_5.opt2_test' wh
 
     :param str: String to extract from
     :param name: Name of option
@@ -33,7 +34,7 @@ def extract_opt(str: str, name, default_value=None) -> str:
     :return: Extracted option or default value
     """
     # named options have the following signature
-    match = re.search(f"[_./-]{name}[_:]([^_./-]*)",str)
+    match = re.search(f"[./-]{name}[_:]([^./-]*)",str)
 
     if match:
         return match.groups()[0]
@@ -111,32 +112,37 @@ ruleorder:
     create_config > create_config_from_spectra
 
 wildcard_constraints:
-    opts=r'[^/]*'  # match several optional options not separated by /
+    opts=r'[^/]*',# match several optional options not separated by /
+    chr='\w+',
+    pop="[a-zA-Z]+"
 
 
 rule all:
     input:
         (
+            expand("results/graphs/comp/sfs/hgdp/{chr}/{opts}/[all,Japanese].png",chr=[21, 1], opts=['opts.subset.50000.n.10', 'opts.subset.50000.n.20']),
+            expand("results/graphs/comp/pca/hgdp/{chr}/{opts}/[all,Japanese].png",chr=[21], opts=['opts.subset.50000']),
+            expand("results/graphs/comp/fastdfe/hgdp/{chr}/{opts}.subset.50000.n.[10,20].config.{config}/[all,Japanese].dfe.png",chr=[21], opts=['opts'], config=['test']),
             #expand("results/configs/{config}_bootstrapped_100/config.yaml",config=configs),
             #expand("results/fastdfe/{config}_bootstrapped_100/serialized.json",config=configs),
             #expand("results/configs/{config}/config.yaml",config=['pendula.pubescens.example_1.example_2.example_3_C_full_anc']),
             #expand("results/graphs/fastdfe/{config}_bootstrapped_100/dfe_discretized.png",config=configs),
             #expand("results/spectra/{species}.csv", species=['pendula.pubescens', 'pendula.pubescens.example_1.example_2.example_3'])
             #expand("results/polydfe/{config}_bootstrapped_100/serialized.json",config=configs),
-            expand("results/graphs/comp/[fastdfe<fastDFE>,polydfe<polyDFE>]/{config}_bootstrapped_100/{type}.png",
-                config=configs,
-                type=['mle_params', 'dfe_discretized']
-            ),
-            expand("results/graphs/tool_comp/{config}_bootstrapped_100/discretized.png",config=configs),
-            expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
-            expand("results/sfs/betula/pendula/{s}/all.csv",
-                s=[
-                    'DegeneracyStratification',
-                    'DegeneracyStratification.BaseContextStratification',
-                    'DegeneracyStratification.BaseTransitionStratification',
-                    'DegeneracyStratification.BaseContextStratification.BaseTransitionStratification'
-                ]
-            )
+            # expand("results/graphs/comp/[fastdfe<fastDFE>,polydfe<polyDFE>]/{config}_bootstrapped_100/{type}.png",
+            #    config=configs,
+            #    type=['mle_params', 'dfe_discretized']
+            #),
+            #expand("results/graphs/tool_comp/{config}_bootstrapped_100/discretized.png",config=configs),
+            #expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
+            #expand("results/sfs/betula/pendula/{s}/all.csv",
+            #    s=[
+            #        'DegeneracyStratification',
+            #        'DegeneracyStratification.BaseContextStratification',
+            #        'DegeneracyStratification.BaseTransitionStratification',
+            #        'DegeneracyStratification.BaseContextStratification.BaseTransitionStratification'
+            #    ]
+            #)
             #expand(f"results/graphs/comp/tool_comp/[{','.join([f'{n}_bootstrapped_100' for n in configs])}]/discretized.png"),
             #expand("results/fastdfe/{species}_{model}_{type}/config.yaml",species=['pendula', 'pubescens'],model=['C'],type=['full', 'full_anc']),
             #expand("results/graphs/fastdfe/{config}/dfe_discretized.png",config=['pendula_C_full', 'pendula_C_full_anc', 'pubescens_C_full', 'pubescens_C_full_anc']),
@@ -765,3 +771,143 @@ rule generate_requirements_poetry:
             poetry export --with dev -f requirements.txt --without-hashes -o {output.testing_snakemake}
             poetry export --with dev -f requirements.txt --without-hashes -o {output.docs}
         """
+
+# download human chromosome-level VCF
+rule download_vcf_hgdp:
+    output:
+        "results/vcf/hgdp/{chr}/opts.vcf.gz"
+    params:
+        url="https://ngs.sanger.ac.uk//production/hgdp/hgdp_wgs.20190516/hgdp_wgs.20190516.full.chr{chr}.vcf.gz"
+    conda:
+        "envs/wget.yaml"
+    shell:
+        "wget -O {output} {params.url}"
+
+# create test sets ofr HGDP VCFs
+rule subset_vcf_hgdp:
+    input:
+        "results/vcf/hgdp/{chr}/{opts}.vcf.gz"
+    output:
+        "results/vcf/hgdp/{chr}/{opts}.subset.{n}.vcf.gz"
+    params:
+        n=lambda w: int(w.n)
+    conda:
+        "envs/tabix.yaml"
+    shell:
+        """
+        (zcat < {input} | grep "^#" ; zcat < {input} | grep -v "^#" | head -n {params.n} || true) | bgzip -c > {output}
+        """
+
+# download human chromosome-level FASTA
+rule download_fasta_hgdp:
+    output:
+        "results/fasta/hgdp/{chr}.fasta.gz"
+    params:
+        url="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.{chr}.fa.gz"
+    conda:
+        "envs/wget.yaml"
+    shell:
+        "wget -O {output} {params.url}"
+
+# download population metadata for HGDP
+rule download_hgdp_population_metadata:
+    output:
+        "results/sample_sets/hgdp/all.csv"
+    params:
+        url="https://ngs.sanger.ac.uk//production/hgdp/hgdp_wgs.20190516/metadata/hgdp_wgs.20190516.metadata.txt"
+    conda:
+        "envs/wget.yaml"
+    shell:
+        "wget -O {output} {params.url}"
+
+# convert VCF file to PLINK format
+rule convert_plink_sample_set_hgdp:
+    input:
+        "results/vcf/hgdp/{chr}/{opts}.vcf.gz"
+    output:
+        multiext("results/plink/hgdp/{chr}/{opts}.",'bed','bim','fam','log')
+    conda:
+        "envs/plink.yaml"
+    script:
+        "scripts/convert_plink.py"
+
+# subset the given sample set by the 'val' in 'col'
+# of the given CSV file
+rule filter_sample_set_hgdp:
+    input:
+        "results/sample_sets/hgdp/all.csv"
+    output:
+        "results/sample_sets/hgdp/{population}.csv"
+    conda:
+        "envs/base.yaml"
+    params:
+        filter_col='population',
+        filter_val='{population}'
+    script:
+        "scripts/filter_sample_set.py"
+
+# create a list of sample names from the samples file
+rule derive_sample_list_hgdp:
+    input:
+        "results/sample_sets/hgdp/{population}.csv"
+    output:
+        "results/sample_lists/hgdp/{population}.args"
+    params:
+        name_col='sample'
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/derive_sample_list.py"
+
+# generate PCA plot
+rule plot_pca_hgdp:
+    input:
+        bed="results/plink/hgdp/{chr}/{opts}.bed",
+        samples="results/sample_sets/hgdp/{population}.csv"
+    output:
+        "results/graphs/pca/hgdp/{chr}/{opts}/{population}.png"
+    params:
+        marker_size=15,
+        name_col='sample',
+        label_col='population',
+        cbar=False,
+        legend=True,
+        subsample=10000
+    conda:
+        "envs/pca.yaml"
+    script:
+        "scripts/plot_pca.py"
+
+# parse spectra from human chromosome-level VCF
+rule parse_vcf_hgdp:
+    input:
+        vcf="results/vcf/hgdp/{chr}/{opts}.vcf.gz",
+        fasta="results/fasta/hgdp/{chr}.fasta.gz",
+        gff="../resources/genome/sapiens/hg38.sorted.gtf.gz",
+        samples="results/sample_lists/hgdp/{population}.args"
+    output:
+        csv="results/sfs/hgdp/{chr}/{opts}.n.{n}/{population}.csv",
+        png="results/graphs/sfs/hgdp/{chr}/{opts}.n.{n}/{population}.png"
+    params:
+        aliases=lambda w: {f"chr{w.chr}": [f"{w.chr}"]},
+        n=lambda w: int(w.n)
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/parse_vcf_hgdp.py"
+
+# infer DFE from spectra for the HGDP data set
+rule infer_dfe_hgdp:
+    input:
+        config="../resources/configs/HGDP/{config}.yaml",
+        spectra="results/sfs/hgdp/{chr}/{opts}.n.{n}/{population}.csv"
+    output:
+        serialized="results/fastdfe/hgdp/{chr}/{opts}.n.{n}.config.{config}/{population}.serialized.json",
+        summary="results/fastdfe/hgdp/{chr}/{opts}.n.{n}.config.{config}/{population}.summary.json",
+        dfe="results/graphs/fastdfe/hgdp/{chr}/{opts}.n.{n}.config.{config}/{population}.dfe.png",
+        spectra="results/graphs/fastdfe/hgdp/{chr}/{opts}.n.{n}.config.{config}/{population}.spectra.png",
+        params="results/graphs/fastdfe/hgdp/{chr}/{opts}.n.{n}.config.{config}/{population}.params.png"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/infer_dfe_hgdp.py"

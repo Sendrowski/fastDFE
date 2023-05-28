@@ -860,6 +860,46 @@
             794.0
         ]
     },
+    "folded": {
+        "py/reduce": [
+            {
+                "py/function": "numpy.core.multiarray.scalar"
+            },
+            {
+                "py/tuple": [
+                    {
+                        "py/reduce": [
+                            {
+                                "py/type": "numpy.dtype"
+                            },
+                            {
+                                "py/tuple": [
+                                    "b1",
+                                    false,
+                                    true
+                                ]
+                            },
+                            {
+                                "py/tuple": [
+                                    3,
+                                    "|",
+                                    null,
+                                    null,
+                                    null,
+                                    -1,
+                                    -1,
+                                    0
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "py/b64": "AA=="
+                    }
+                ]
+            }
+        ]
+    },
     "n": 10,
     "discretization": {
         "py/object": "fastdfe.discretization.Discretization",
@@ -25242,6 +25282,3208 @@
             "eps": 0.0
         }
     },
+    "bootstrap_results": [
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.2553860122585,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00015920669577874818,
+                    0.0013528733695993235,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876192,
+                    0.13059332730675408,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.37092583724382,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00021606622998544397,
+                    0.0003012701201208578,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 81,
+            "njev": 27,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876771,
+                    0.13078190940629758,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.45298678767767,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    1.7057860262008733e-05,
+                    0.0011482370615927032,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958761974,
+                    0.13059335462049904,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.40672927036337,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00019332241630276565,
+                    5.1159077001655096e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958865445,
+                    0.13029993526237696,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.439954477870174,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00012509097525473072,
+                    -5.1159077001655096e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958761494,
+                    0.13050768716198335,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.40217834958446,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00017057860262008733,
+                    0.00044906300923675023,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 30,
+            "njev": 10,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876657,
+                    0.1308073741154717,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.418868528570556,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    5.685953420669578e-05,
+                    3.410605133443673e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958721796,
+                    0.1304504058245976,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.444648883444245,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    3.9801673944687045e-05,
+                    6.821210266887346e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695851567,
+                    0.13034485319418287,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.49607823612746,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00017057860262008733,
+                    -3.410605133443673e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876105,
+                    0.13063438053636137,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 44.15141690991379,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.0001847934861717613,
+                    -0.00012505552155960134,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.7269585237,
+                    0.12982338434678417,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.45959388010317,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00010803311499272198,
+                    -2.273736755629115e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876114,
+                    0.13059789115312043,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.557107056932864,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    5.401655749636099e-05,
+                    -7.673861550248264e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876228,
+                    0.13061823387419633,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.5696988980402,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.0002274381368267831,
+                    0.0001932676242284748,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958763466,
+                    0.13070205919059816,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.20440335337531,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00015920669577874818,
+                    0.0004604316930148958,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 30,
+            "njev": 10,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958762374,
+                    0.13082488567661474,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.60902346416265,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00016489264919941775,
+                    -9.66338121142374e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876203,
+                    0.13067972076021064,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.28727719802336,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -3.127274381368268e-05,
+                    -0.0001506350600604289,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695878727,
+                    0.13046513565505827,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.30942566900501,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    2.2743813682678313e-05,
+                    0.00021600499178476594,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958762636,
+                    0.13065122874731397,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.64857237030208,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00023312409024745269,
+                    -0.0003012701201208578,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695877829,
+                    0.1315939063807164,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 36.738804932906476,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00010803311499272198,
+                    -1.1368683778145576e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958779735,
+                    0.1317143789624445,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.73365081273067,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    6.823144104803493e-05,
+                    -9.66338121142374e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.7269587706,
+                    0.13038136241667658,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.696026521329316,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00031557041484716155,
+                    0.00020179413706208397,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876159,
+                    0.13066737496042657,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.48581807190641,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    9.097525473071325e-05,
+                    0.0003637978809006584,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876165,
+                    0.13056119534340915,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.54449355766786,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -5.685953420669578e-06,
+                    0.0012903456088195228,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 33,
+            "njev": 11,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876439,
+                    0.1309103951074406,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.79400092520797,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    3.4115720524017465e-05,
+                    7.389644455794624e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695884049,
+                    0.13046518604773494,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.34077825522388,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    4.5487627365356625e-05,
+                    -0.00013642420533774692,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876225,
+                    0.1306064794174079,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 44.1360358378883,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.0001819505094614265,
+                    -2.842170944536394e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695875672,
+                    0.13103180613037047,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 33.957999013531605,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -8.528930131004366e-05,
+                    0.0,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695796307,
+                    0.12986795812528465,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.35294744669517,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.0,
+                    -3.410605133443673e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958762876,
+                    0.13064115921750352,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.74095920381336,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.0001307769286754003,
+                    0.0002444267012301299,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876695,
+                    0.1307613256468534,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.84132107601812,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -3.4115720524017465e-05,
+                    -7.389644455794624e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695868474,
+                    0.12974772111909225,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.708477815728656,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    2.842976710334789e-05,
+                    3.9790393223509516e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876556,
+                    0.13113150057427161,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.32913001162041,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00018763646288209607,
+                    -3.9790393223509516e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695910439,
+                    0.13029512107584007,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.22895521545712,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -5.685953420669578e-05,
+                    -3.9790393223509516e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695889537,
+                    0.1303274717611876,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.528155596065744,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    1.1371906841339156e-05,
+                    0.000187583282339402,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958762345,
+                    0.1307072430697581,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.018996663392215,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.0001819505094614265,
+                    -0.00010231815400331019,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958592844,
+                    0.13021935938332668,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.48733029502455,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00016489264919941775,
+                    -0.00011368683778145576,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695874232,
+                    0.13047751474140565,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.68439378081507,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00014783478893740904,
+                    -0.00025011104311920267,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695861204,
+                    0.1304010327267336,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.39573770376512,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    6.823144104803493e-05,
+                    3.9790393223509516e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876345,
+                    0.13070922141758534,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.419772236471744,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    5.685953420669578e-06,
+                    0.00015916157289403807,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958813095,
+                    0.13041639839517402,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.70732175819626,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00019332241630276565,
+                    4.54747351125823e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876202,
+                    0.13074567227272624,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 37.67912524625527,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00014214883551673943,
+                    -4.83169060571187e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958769235,
+                    0.1311323271433673,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 38.41531088144376,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00029566957787481807,
+                    -0.0003865352484569496,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876376,
+                    0.13103376153254345,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.44052318612961,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00017057860262008733,
+                    -0.0002899014363427122,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695823653,
+                    0.1301862091749848,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 34.919217014457956,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    5.685953420669578e-06,
+                    3.9790393223509516e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958762636,
+                    0.13061326306701984,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.27185896322703,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00019900836972343522,
+                    -0.00025011104311920267,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876582,
+                    0.1306779196578823,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.432804869441156,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00012509097525473072,
+                    0.00016484591478311086,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695882923,
+                    0.13038772960738043,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.638490851469896,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00012509097525473072,
+                    0.0011880274548162126,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 30,
+            "njev": 10,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876185,
+                    0.13054999566063874,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.54031548340703,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -5.685953420669578e-05,
+                    -0.00013642420533774692,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726959086394,
+                    0.13032348091539525,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.05154227445655,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    3.9801673944687045e-05,
+                    -0.0001932676242284748,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695877158,
+                    0.13044276930278884,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.68746169657936,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    4.5487627365356625e-05,
+                    0.00010231815400331019,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876151,
+                    0.130605928711661,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.38097568754614,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00011940502183406113,
+                    -0.00023305801745198432,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695887985,
+                    0.13047170781587072,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.54787231282705,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00012509097525473072,
+                    -0.0003865352484569496,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695914295,
+                    0.13012048957745342,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 41.68195428111272,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -2.2743813682678313e-05,
+                    0.00031263880389900337,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876172,
+                    0.1308243449460015,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.36235584861333,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00017626455604075693,
+                    0.0003808509065678768,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958761654,
+                    0.13070293088445908,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.61906709016074,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    1.7057860262008733e-05,
+                    0.00015347723100496527,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695879572,
+                    0.13036458937084977,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.43734387417362,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    1.1371906841339156e-05,
+                    -0.00046611603490396864,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695818344,
+                    0.1300907506758817,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.36075662005413,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -5.685953420669578e-05,
+                    -3.9790393223509516e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695872139,
+                    0.1305043437533582,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.7306447426613,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -2.2743813682678313e-05,
+                    3.410605133443673e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695875923,
+                    0.1307189836042626,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.5258065965628,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.0001307769286754003,
+                    6.252776077980067e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958879815,
+                    0.1300420688278035,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 38.21804534222872,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -1.7057860262008733e-05,
+                    0.0,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 21,
+            "njev": 7,
+            "nit": 4,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.7269588409,
+                    0.13391260037137612,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.51770961978485,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -1.7057860262008733e-05,
+                    0.0007048583942450257,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 21,
+            "njev": 7,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876123,
+                    0.13086927703195037,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 41.21065490260139,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    5.685953420669578e-06,
+                    3.9790393223509516e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.7269587617,
+                    0.12878313638259176,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.23602480128443,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -7.960334788937409e-05,
+                    -7.389644455794624e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695851121,
+                    0.13023311217004538,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.69729319620245,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -7.391739446870452e-05,
+                    -3.9790393223509516e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695881419,
+                    0.1304441521775189,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.60160048448711,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.0002274381368267831,
+                    0.0008469669414718455,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 24,
+            "njev": 8,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695875603,
+                    0.13087989129601768,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.393599513097485,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00016773562590975254,
+                    -0.0005712763598518152,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.7269586896,
+                    0.1301056703572981,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 38.62483530509917,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.0002103802765647744,
+                    0.0007219114199122441,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 36,
+            "njev": 12,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876038,
+                    0.1308182065856152,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.66131944948273,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.0,
+                    -0.00013073986344867413,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695885496,
+                    0.13038033048903314,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.236767839161814,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.0002274381368267831,
+                    0.0005911715564635699,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 33,
+            "njev": 11,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876251,
+                    0.1308265111940468,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.3710119399322,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    2.842976710334789e-05,
+                    -0.00011937117967052856,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695865139,
+                    0.13045849810253102,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 39.24478397077712,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -5.685953420669578e-06,
+                    -9.09494702251646e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695856544,
+                    0.1297109265229334,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 37.55712119399686,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    5.11735807860262e-05,
+                    0.00010231815400331019,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 21,
+            "njev": 7,
+            "nit": 5,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72694497657,
+                    0.12636985177877968,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 36.90897947661779,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -9.097525473071325e-05,
+                    -3.9790393223509516e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695817696,
+                    0.1299823409273841,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 41.16743473039594,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -9.666120815138282e-05,
+                    -5.1159077001655096e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 21,
+            "njev": 7,
+            "nit": 4,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695880896,
+                    0.13269381940632305,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.19927293136544,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -2.842976710334789e-05,
+                    -9.09494702251646e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695879124,
+                    0.1304993413331555,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.44709823983135,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00015920669577874818,
+                    0.00025011104311920267,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 24,
+            "njev": 8,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876209,
+                    0.130575324670426,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.53389949268478,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00026723981077147015,
+                    0.0009094947022516461,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 27,
+            "njev": 9,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.7269587623,
+                    0.1305860479278862,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.43825609499174,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -3.4115720524017465e-05,
+                    -0.0002444267012301299,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958790765,
+                    0.13039290542086177,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.37786287533527,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.0002615538573508006,
+                    0.00041495695790231353,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876274,
+                    0.13076233017960792,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.384955550506845,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00011371906841339156,
+                    5.684341889072788e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695864676,
+                    0.13045829867067177,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.492897253778324,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.00012509097525473072,
+                    -5.684341889072788e-06,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958763444,
+                    0.1307825790883899,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.30217370087823,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    1.9900836972343523e-05,
+                    -3.1263880389900334e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958951454,
+                    0.13035364712794834,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.76714222388591,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -5.11735807860262e-05,
+                    -5.684341889072788e-06,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695868898,
+                    0.1303256737002032,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 37.52697758482856,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -3.9801673944687045e-05,
+                    7.958078644701903e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876631,
+                    0.1315282623118218,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.531801136981414,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -9.097525473071325e-05,
+                    -6.252776077980067e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695866659,
+                    0.1304540630313197,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.59605817785888,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    4.5487627365356625e-05,
+                    -0.00031263880389900337,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695908752,
+                    0.1301917459690517,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.34094388211889,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00014783478893740904,
+                    -0.00015916157289403807,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695875622,
+                    0.13043845420305084,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.4056542037186,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -8.528930131004366e-05,
+                    0.00027284841067549384,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876083,
+                    0.13056451439801448,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.27102943572794,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -1.7057860262008733e-05,
+                    0.00013073986344867413,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876132,
+                    0.1307588302670108,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 38.84212659505084,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -2.842976710334789e-05,
+                    -0.0003353761714552945,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695765702,
+                    0.12987501264618126,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.320334569129784,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -6.823144104803493e-05,
+                    -0.0004376943254586047,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958797284,
+                    0.13016833328900132,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 53.50959589525337,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -2.842976710334789e-05,
+                    -0.00013073986344867413,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695439782,
+                    0.12889268862692999,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.21930276533044,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -0.0001023471615720524,
+                    0.00017621459856125642,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695887604,
+                    0.1303841339953691,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.94980632864264,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    3.9801673944687045e-05,
+                    0.0010231815400331017,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695875355,
+                    0.13053537849511174,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.174451749178104,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    5.11735807860262e-05,
+                    7.389644455794624e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 18,
+            "njev": 6,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958762214,
+                    0.13102132116106163,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.412322833988526,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    4.5487627365356625e-05,
+                    -5.1159077001655096e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695889657,
+                    0.13045609558617188,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.35098151276634,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.00017057860262008733,
+                    0.000562749847018206,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 78,
+            "njev": 26,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876702,
+                    0.13083441728283834,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.51343391665688,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    6.254548762736536e-05,
+                    5.1159077001655096e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695861372,
+                    0.13041445773257682,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.627551865086446,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    1.1371906841339156e-05,
+                    0.0007162270780231713,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 33,
+            "njev": 11,
+            "nit": 3,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.72695876467,
+                    0.1308592546376018,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        },
+        {
+            "py/object": "scipy.optimize._optimize.OptimizeResult",
+            "fun": 35.47958343707421,
+            "jac": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    0.0,
+                    -1.7053025667218365e-05,
+                    NaN,
+                    NaN,
+                    NaN
+                ]
+            },
+            "nfev": 15,
+            "njev": 5,
+            "nit": 2,
+            "status": 0,
+            "message": "CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH",
+            "x": {
+                "py/object": "numpy.ndarray",
+                "data": [
+                    -33214.726958721076,
+                    0.13040306971935303,
+                    0.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "success": true,
+            "hess_inv": null,
+            "__dict__": {}
+        }
+    ],
     "L2_residual": {
         "py/reduce": [
             {
@@ -25307,7 +28549,7 @@
             }
         ]
     },
-    "execution_time": 2.2831637859344482,
+    "execution_time": 7.176538944244385,
     "locked": false,
     "alpha": {
         "py/reduce": [

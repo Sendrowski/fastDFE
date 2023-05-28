@@ -8,16 +8,6 @@ import matplotlib
 import pytest
 from matplotlib import pyplot as plt
 
-import fastdfe
-
-# only be verbose when running on Pycharm
-if 'PYCHARM_HOSTED' not in os.environ:
-    matplotlib.use('Agg')
-    fastdfe.disable_pbar = True
-    logging.getLogger('fastdfe').setLevel(logging.WARNING)
-else:
-    logging.getLogger('fastdfe').setLevel(logging.INFO)
-
 
 def prioritize_installed_packages():
     """
@@ -34,11 +24,26 @@ def prioritize_installed_packages():
         sys.path.append(cwd)
 
 
+# run before importing fastdfe
+prioritize_installed_packages()
+
+import fastdfe
+
+logger = logging.getLogger('fastdfe')
+
+logger.info(f"Running tests for {fastdfe.__file__}.")
+
+# only be verbose when running on Pycharm
+if 'PYCHARM_HOSTED' not in os.environ:
+    matplotlib.use('Agg')
+    fastdfe.disable_pbar = True
+    logger.setLevel(logging.WARNING)
+else:
+    logger.setLevel(logging.INFO)
+
+
 class TestCase(BaseTestCase):
     @pytest.fixture(autouse=True)
     def cleanup(self):
         yield
         plt.close('all')
-
-
-prioritize_installed_packages()

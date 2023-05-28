@@ -22,7 +22,7 @@ from tqdm import tqdm
 from .mle import MLE
 
 # get logger
-logger = logging.getLogger('fastdfe')
+logger = logging.getLogger('fastdfe').getChild('Optimization')
 
 
 def parallelize(
@@ -373,7 +373,8 @@ def get_real_bounds(bounds: Tuple[float, float], scale: Literal['lin', 'log', 's
     """
     Get real bounds from the given bounds.
 
-    :param bounds:
+    :param bounds: Bounds of the parameter
+    :param scale: Scale of the parameter
     :return:
     """
     if scale == 'symlog':
@@ -696,7 +697,7 @@ class Covariate:
     #: The initial value of the covariate
     x0: float = 0
 
-    #: The scale of the bounds. See :func:`scale_value` for details.
+    #: The scale of the bounds. See :func:`scale_value` for details
     bounds_scale: Literal['lin', 'log', 'symlog'] = 'symlog'
 
     def __post_init__(self):

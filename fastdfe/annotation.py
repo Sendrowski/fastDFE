@@ -9,7 +9,6 @@ __date__ = "2023-05-09"
 import logging
 import re
 from abc import ABC
-from collections import Counter
 from functools import cached_property
 from itertools import product
 from typing import List, Optional, Dict
@@ -21,7 +20,7 @@ from Bio.Seq import Seq
 from cyvcf2 import Variant, Writer, VCF
 from pyfaidx import Fasta, FastaRecord
 
-from .vcf import VCFHandler, get_called_bases
+from .vcf import VCFHandler, get_major_base, download_if_url
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -43,51 +42,18 @@ for c in stop_codons:
 unique_to_degeneracy = {0: 0, 1: 2, 2: 2, 3: 4}
 
 
-class Annotation:
+class GFFHandler:
+    """
+    GFF handler.
+    """
 
     def __init__(self):
         """
-        Create a new annotation instance.
+        Constructor.
         """
-        #: The annotator.
-        self.annotator: Annotator | None = None
+        self.logger = logger.getChild(self.__class__.__name__)
 
-        #: The number of annotated sites.
-        self.n_annotated: int = 0
-
-    def _setup(self, annotator: 'Annotator'):
-        """
-        Provide context by passing the annotator. This should be called before the annotation starts.
-
-        :param annotator: The annotator.
-        """
-        self.annotator = annotator
-
-    def _add_info(self, reader: VCF):
-        """
-        Add info fields to the header.
-
-        :param reader: The reader.
-        """
-        pass
-
-    def _teardown(self):
-        """
-        Finalize the annotation. Called after all sites have been annotated.
-        """
-        logger.info(type(self).__name__ + f': Annotated {self.n_annotated} sites.')
-
-    def annotate_site(self, variant: Variant):
-        """
-        Annotate a single site.
-
-        :param variant: The variant to annotate.
-        :return: The annotated variant.
-        """
-        pass
-
-    @staticmethod
-    def _load_cds(file: str) -> pd.DataFrame:
+    def _load_cds(self, file: str, cache: bool = True) -> pd.DataFrame:
         """
         Load coding sequences from a GFF file.
 
@@ -95,7 +61,7 @@ class Annotation:
         :return: The DataFrame.
         """
         # download and unzip if necessary
-        local_file = VCFHandler.unzip_if_zipped(VCFHandler.download_if_url(file))
+        local_file = VCFHandler.unzip_if_zipped(download_if_url(file, cache=cache))
 
         # column labels for GFF file
         col_labels = ['seqid', 'source', 'type', 'start', 'end', 'score', 'strand', 'phase', 'attributes']
@@ -103,13 +69,13 @@ class Annotation:
         dtypes = dict(
             seqid='category',
             type='category',
-            start=int,
-            end=int,
+            start=float,  # temporarily load as float to handle NA values
+            end=float,  # temporarily load as float to handle NA values
             strand='category',
             phase='category'
         )
 
-        logger.info(f'Loading GFF file.')
+        self.logger.info(f'Loading GFF file.')
 
         # load GFF file
         df = pd.read_csv(
@@ -124,13 +90,102 @@ class Annotation:
         # filter for coding sequences
         df = df[df['type'] == 'CDS']
 
+        # drop rows with NA values
+        df = df.dropna()
+
+        # convert start and end to int
+        df['start'] = df['start'].astype(int)
+        df['end'] = df['end'].astype(int)
+
         # drop type column
         df.drop(columns=['type'], inplace=True)
+
+        # remove duplicates
+        df = df.drop_duplicates(subset=['seqid', 'start', 'end'])
 
         # sort by seqid and start
         df.sort_values(by=['seqid', 'start'], inplace=True)
 
         return df
+
+    def _count_target_sites(self, file: str) -> Dict[str, int]:
+        """
+        Count the number of target sites in a GFF file.
+
+        :param file: The path to The GFF file path, possibly gzipped or a URL
+        :return: The number of target sites per chromosome/contig.
+        """
+        cds = self._compute_lengths(self._load_cds(file))
+
+        # group by 'seqid' and calculate the sum of 'length'
+        target_sites = cds.groupby('seqid')['length'].sum().to_dict()
+
+        return target_sites
+
+    @staticmethod
+    def _compute_lengths(cds: pd.DataFrame) -> pd.DataFrame:
+        """
+        Compute the lengths of coding sequences.
+
+        :param cds: The coding sequences.
+        :return: The coding sequences with lengths.
+        """
+        # remove duplicates
+        cds = cds.drop_duplicates(subset=['seqid', 'start'])
+
+        # create a new column for the difference between 'end' and 'start'
+        cds.loc[:, 'length'] = cds['end'] - cds['start'] + 1
+
+        return cds
+
+
+class Annotation(GFFHandler):
+
+    def __init__(self):
+        """
+        Create a new annotation instance.
+        """
+        super().__init__()
+
+        #: The annotator.
+        self.annotator: Annotator | None = None
+
+        #: The number of annotated sites.
+        self.n_annotated: int = 0
+
+    def _setup(self, annotator: 'Annotator', reader: VCF):
+        """
+        Provide context by passing the annotator. This should be called before the annotation starts.
+
+        :param annotator: The annotator.
+        :param reader: The VCF reader.
+        """
+        self.annotator = annotator
+
+    def _teardown(self):
+        """
+        Finalize the annotation. Called after all sites have been annotated.
+        """
+        self.logger.info(type(self).__name__ + f': Annotated {self.n_annotated} sites.')
+
+    def annotate_site(self, variant: Variant):
+        """
+        Annotate a single site.
+
+        :param variant: The variant to annotate.
+        :return: The annotated variant.
+        """
+        pass
+
+    @staticmethod
+    def count_target_sites(file: str) -> Dict[str, int]:
+        """
+        Count the number of target sites in a GFF file.
+
+        :param file: The path to The GFF file path, possibly gzipped or a URL
+        :return: The number of target sites per chromosome/contig.
+        """
+        return Annotation()._count_target_sites(file)
 
 
 class AncestralAlleleAnnotation(Annotation, ABC):
@@ -138,12 +193,15 @@ class AncestralAlleleAnnotation(Annotation, ABC):
     Base class for ancestral allele annotation.
     """
 
-    def _add_info(self, reader: VCF):
+    def _setup(self, annotator: 'Annotator', reader: VCF):
         """
         Add info fields to the header.
 
+        :param annotator: The annotator.
         :param reader: The reader.
         """
+        super()._setup(annotator, reader)
+
         reader.add_info_to_header({
             'ID': self.annotator.info_ancestral,
             'Number': '.',
@@ -156,7 +214,41 @@ class MaximumParsimonyAnnotation(AncestralAlleleAnnotation):
     """
     Annotation of ancestral alleles using maximum parsimony. The info field ``AA`` is added to the VCF file,
     which holds the ancestral allele. To be used with :class:`~fastdfe.parser.AncestralBaseStratification`.
+
+    Note that maximum parsimony is not a reliable way to determine ancestral alleles, so it is recommended
+    to use this annotation together with the ancestral misidentification parameter ``eps`` or to fold
+    spectra altogether. Alternatively, you can use :class:`~fastdfe.filtration.DeviantOutgroupFiltration` to
+    filter out sites where the major allele among outgroups does not coincide with the major allele among ingroups.
     """
+
+    def __init__(self, samples: List[str] = None):
+        """
+        Create a new ancestral allele annotation instance.
+
+        :param samples: The samples to consider when determining the ancestral allele. If ``None``, all samples are
+
+        """
+        super().__init__()
+
+        #: The samples to consider when determining the ancestral allele.
+        self.samples: List[str] | None = samples
+
+        self.samples_mask: np.ndarray | None = None
+
+    def _setup(self, annotator: 'Annotator', reader: VCF):
+        """
+        Add info fields to the header.
+
+        :param annotator: The annotator.
+        :param reader: The reader.
+        """
+        super()._setup(annotator, reader)
+
+        # create mask for ingroups
+        if self.samples is None:
+            self.samples_mask = np.ones(len(reader.samples)).astype(bool)
+        else:
+            self.samples_mask = np.isin(reader.samples, self.samples)
 
     def annotate_site(self, variant: Variant):
         """
@@ -165,14 +257,11 @@ class MaximumParsimonyAnnotation(AncestralAlleleAnnotation):
         :param variant: The variant to annotate.
         :return: The annotated variant.
         """
-        # get the called bases
-        b = get_called_bases(variant)
+        # get the major base
+        base = get_major_base(variant.gt_bases[self.samples_mask])
 
-        if len(b) != 0:
-            # get the major allele
-            major_allele = Counter(b).most_common(1)[0][0]
-        else:
-            major_allele = '.'
+        # take base if defined
+        major_allele = base if base is not None else '.'
 
         # set the ancestral allele
         variant.INFO[self.annotator.info_ancestral] = major_allele
@@ -235,6 +324,9 @@ class DegeneracyAnnotation(Annotation):
         #: The variants for which the codon could not be determined.
         self.errors: List[Variant] = []
 
+        #: The number of sites in coding sequences determined on runtime by looking at the GFF file.
+        self.n_target_sites: int = 0
+
     @cached_property
     def _ref(self) -> Fasta:
         """
@@ -242,7 +334,7 @@ class DegeneracyAnnotation(Annotation):
 
         :return: The reference reader.
         """
-        return VCFHandler.load_fasta(self.fasta_file)
+        return self.annotator.load_fasta(self.fasta_file)
 
     @cached_property
     def _cds(self) -> pd.DataFrame:
@@ -251,15 +343,16 @@ class DegeneracyAnnotation(Annotation):
 
         :return: The coding sequences.
         """
-        return Annotation._load_cds(self.gff_file)
+        return self._load_cds(self.gff_file)
 
-    def _setup(self, annotator: 'Annotator'):
+    def _setup(self, annotator: 'Annotator', reader: VCF):
         """
         Provide context to the annotator.
 
         :param annotator: The annotator.
+        :param reader: The reader.
         """
-        super()._setup(annotator)
+        super()._setup(annotator, reader)
 
         # touch the cached properties to make for a nicer logging experience
         # noinspection PyStatementEffect
@@ -268,12 +361,6 @@ class DegeneracyAnnotation(Annotation):
         # noinspection PyStatementEffect
         self._ref
 
-    def _add_info(self, reader: VCF):
-        """
-        Add info fields to the header.
-
-        :param reader: The reader.
-        """
         reader.add_info_to_header({
             'ID': 'Degeneracy',
             'Number': '.',
@@ -311,14 +398,13 @@ class DegeneracyAnnotation(Annotation):
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
                              f'start position of current CDS and no previous CDS was given.')
 
-        # We assume here that cd_prev and cd_next have the same orientation
         # Use final positions from previous coding sequence if current codon
         # starts before start position of current coding sequence
         if codon_pos[1] == self.cd.start:
-            codon_pos[0] = self.cd_prev.end
+            codon_pos[0] = self.cd_prev.end if self.cd_prev.strand == '+' else self.cd_prev.start
         elif codon_pos[2] == self.cd.start:
-            codon_pos[1] = self.cd_prev.end
-            codon_pos[0] = self.cd_prev.end - 1
+            codon_pos[1] = self.cd_prev.end if self.cd_prev.strand == '+' else self.cd_prev.start
+            codon_pos[0] = self.cd_prev.end - 1 if self.cd_prev.strand == '+' else self.cd_prev.start + 1
 
         if self.cd_next is None and codon_pos[2] > self.cd.end:
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
@@ -327,10 +413,10 @@ class DegeneracyAnnotation(Annotation):
         # use initial positions from subsequent coding sequence if current codon
         # ends before end position of current coding sequence
         if codon_pos[2] == self.cd.end + 1:
-            codon_pos[2] = self.cd_next.start
+            codon_pos[2] = self.cd_next.start if self.cd_next.strand == '+' else self.cd_next.end
         elif codon_pos[1] == self.cd.end + 1:
-            codon_pos[1] = self.cd_next.start
-            codon_pos[2] = self.cd_next.start + 1
+            codon_pos[1] = self.cd_next.start if self.cd_next.strand == '+' else self.cd_next.end
+            codon_pos[2] = self.cd_next.start + 1 if self.cd_next.strand == '+' else self.cd_next.end - 1
 
         # seq uses 0-based positions
         codon = ''.join([str(self.contig[int(pos - 1)]) for pos in codon_pos]).upper()
@@ -360,14 +446,13 @@ class DegeneracyAnnotation(Annotation):
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
                              f'start position of current CDS and no previous CDS was given.')
 
-        # We assume here that cd_prev and cd_next have the same orientation.
         # Use final positions from previous coding sequence if current codon
         # ends before start position of current coding sequence.
         if codon_pos[1] == self.cd.start:
-            codon_pos[2] = self.cd_prev.end
+            codon_pos[2] = self.cd_prev.end if self.cd_prev.strand == '-' else self.cd_prev.start
         elif codon_pos[0] == self.cd.start:
-            codon_pos[1] = self.cd_prev.end
-            codon_pos[2] = self.cd_prev.end - 1
+            codon_pos[1] = self.cd_prev.end if self.cd_prev.strand == '-' else self.cd_prev.start
+            codon_pos[2] = self.cd_prev.end - 1 if self.cd_prev.strand == '-' else self.cd_prev.start + 1
 
         if self.cd_next is None and codon_pos[0] > self.cd.end:
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
@@ -376,10 +461,10 @@ class DegeneracyAnnotation(Annotation):
         # use initial positions from subsequent coding sequence if current codon
         # starts before end position of current coding sequence
         if codon_pos[0] == self.cd.end + 1:
-            codon_pos[0] = self.cd_next.start
+            codon_pos[0] = self.cd_next.start if self.cd_next.strand == '-' else self.cd_next.end
         elif codon_pos[1] == self.cd.end + 1:
-            codon_pos[0] = self.cd_next.start + 1
-            codon_pos[1] = self.cd_next.start
+            codon_pos[1] = self.cd_next.start if self.cd_next.strand == '-' else self.cd_next.end
+            codon_pos[0] = self.cd_next.start + 1 if self.cd_next.strand == '-' else self.cd_next.end - 1
 
         # we use 0-based positions here
         codon = ''.join(str(self.contig[int(pos - 1)]) for pos in codon_pos)
@@ -469,10 +554,10 @@ class DegeneracyAnnotation(Annotation):
                 # take the first coding sequence
                 self.cd = cds.iloc[0]
 
-                logger.debug(f'Found coding sequence: {self.cd.seqid}:{self.cd.start}-{self.cd.end}, '
-                             f'reminder: {(self.cd.end - self.cd.start + 1) % 3}, '
-                             f'phase: {int(self.cd.phase)}, orientation: {self.cd.strand}, '
-                             f'current position: {v.CHROM}:{v.POS}')
+                self.logger.debug(f'Found coding sequence: {self.cd.seqid}:{self.cd.start}-{self.cd.end}, '
+                                  f'reminder: {(self.cd.end - self.cd.start + 1) % 3}, '
+                                  f'phase: {int(self.cd.phase)}, orientation: {self.cd.strand}, '
+                                  f'current position: {v.CHROM}:{v.POS}')
 
                 # filter for positions ending after the current coding sequence
                 cds = on_contig[(on_contig.start > self.cd.end)]
@@ -489,10 +574,10 @@ class DegeneracyAnnotation(Annotation):
                     self.cd_prev = cds.iloc[-1]
 
             if self.cd.start == self._pos_mock and self.n_annotated == 0:
-                logger.warning(f"No coding sequence found on all of contig '{v.CHROM}' and no previous "
-                               f'sites were annotated. Are you sure that this is the correct GFF file '
-                               f'and that the contig names match the chromosome names in the VCF file? '
-                               f'Note that you can also specify aliases for contig names in the VCF file.')
+                self.logger.warning(f"No coding sequence found on all of contig '{v.CHROM}' and no previous "
+                                    f'sites were annotated. Are you sure that this is the correct GFF file '
+                                    f'and that the contig names match the chromosome names in the VCF file? '
+                                    f'Note that you can also specify aliases for contig names in the VCF file.')
 
         # check if variant is located within coding sequence
         if self.cd is None or not (self.cd.start <= v.POS <= self.cd.end):
@@ -510,7 +595,10 @@ class DegeneracyAnnotation(Annotation):
         if self.contig is None or self.contig.name not in aliases:
             self.contig = VCFHandler.get_contig(self._ref, aliases)
 
-            logger.debug(f"Fetching contig '{self.contig.name}'.")
+            # add to number of target sites
+            self.n_target_sites += self._compute_lengths(self._cds[(self._cds.seqid.isin(aliases))])['length'].sum()
+
+            self.logger.debug(f"Fetching contig '{self.contig.name}'.")
 
     def _fetch(self, variant: Variant):
         """
@@ -551,13 +639,13 @@ class DegeneracyAnnotation(Annotation):
             except IndexError as e:
 
                 # skip site on IndexError
-                logger.warning(e)
+                self.logger.warning(e)
                 self.errors.append(v)
                 return
 
             # make sure the reference allele matches with the position on the reference genome
             if str(self.contig[v.POS - 1]).upper() != v.REF.upper():
-                logger.warning(f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}.")
+                self.logger.warning(f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}.")
                 self.mismatches.append(v)
                 return
 
@@ -571,11 +659,11 @@ class DegeneracyAnnotation(Annotation):
             v.INFO['Degeneracy'] = degeneracy
             v.INFO['Degeneracy_Info'] = f"{pos_codon},{self.cd.strand},{codon}"
 
-            logger.debug(f'pos codon: {pos_codon}, pos abs: {v.POS}, '
-                         f'codon start: {codon_start}, codon: {codon}, '
-                         f'strand: {self.cd.strand}, ref allele: {self.contig[v.POS - 1]}, '
-                         f'degeneracy: {degeneracy}, codon pos: {str(codon_pos)}, '
-                         f'ref allele: {v.REF}')
+            self.logger.debug(f'pos codon: {pos_codon}, pos abs: {v.POS}, '
+                              f'codon start: {codon_start}, codon: {codon}, '
+                              f'strand: {self.cd.strand}, ref allele: {self.contig[v.POS - 1]}, '
+                              f'degeneracy: {degeneracy}, codon pos: {str(codon_pos)}, '
+                              f'ref allele: {v.REF}')
 
 
 class SynonymyAnnotation(DegeneracyAnnotation):
@@ -586,6 +674,10 @@ class SynonymyAnnotation(DegeneracyAnnotation):
     This annotation adds the info fields ``Synonymous`` and ``Synonymous_Info``, which hold
     the synonymous status (Synonymous (0) or non-synonymous (1)) and the codon information, respectively.
     To be used with :class:`~fastdfe.parser.SynonymyStratification`.
+
+    Note that since we cannot determine the synonymy for monomorphic sites, we determine the number of
+    target sites dynamically by adding up the number of  coding sequences per contig contained in the vcf
+    file. This value is broadcast to :class:`~fastdfe.parser.Parser` if ``n_target_sites`` is not set.
     """
 
     def __init__(self, gff_file: str, fasta_file: str, aliases: Dict[str, List[str]] = {}):
@@ -618,12 +710,22 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         #: The aliases for the contigs in the VCF file.
         self.aliases: Dict[str, List[str]] = aliases
 
-    def _add_info(self, reader: VCF):
+    def _setup(self, annotator: 'Annotator', reader: VCF):
         """
-        Add the INFO field to the VCF header.
+        Provide context to the annotator.
 
-        :param reader: The VCF reader.
+        :param annotator: The annotator.
+        :param reader: The reader.
         """
+        Annotation._setup(self, annotator, reader)
+
+        # touch the cached properties to make for a nicer logging experience
+        # noinspection PyStatementEffect
+        self._cds
+
+        # noinspection PyStatementEffect
+        self._ref
+
         reader.add_info_to_header({
             'ID': 'Synonymy',
             'Number': '.',
@@ -683,8 +785,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
         return codon_table[codon1] == codon_table[codon2]
 
-    @staticmethod
-    def _parse_codons_vep(variant: Variant) -> List[str]:
+    def _parse_codons_vep(self, variant: Variant) -> List[str]:
         """
         Parse the codons from the VEP annotation if present.
 
@@ -696,7 +797,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
         if match is not None:
             if len(match.groups()) != 2:
-                logger.info(f'VEP annotation has more than two codons: {variant.INFO.get("CSQ")}')
+                self.logger.info(f'VEP annotation has more than two codons: {variant.INFO.get("CSQ")}')
 
             return [m.upper() for m in [match[1], match[2]]]
 
@@ -724,7 +825,11 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         """
         super()._teardown()
 
-        logger.info(f'Number of mismatches with VEP: {len(self.vep_mismatches)}')
+        if self.n_vep_comparisons != 0:
+            self.logger.info(f'Number of mismatches with VEP: {len(self.vep_mismatches)}')
+
+        if self.n_snpeff_comparisons != 0:
+            self.logger.info(f'Number of mismatches with SnpEff: {len(self.snpeff_mismatches)}')
 
     def annotate_site(self, v: Variant):
         """
@@ -752,13 +857,13 @@ class SynonymyAnnotation(DegeneracyAnnotation):
                 except IndexError as e:
 
                     # skip site on IndexError
-                    logger.warning(e)
+                    self.logger.warning(e)
                     self.errors.append(v)
                     return
 
                 # make sure the reference allele matches with the position in the reference genome
                 if str(self.contig[v.POS - 1]).upper() != v.REF.upper():
-                    logger.warning(f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}.")
+                    self.logger.warning(f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}.")
                     self.mismatches.append(v)
                     return
 
@@ -797,8 +902,8 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
                             # make sure the codons determined by VEP are the same as our codons.
                             if set(codons_vep) != {codon, alt_codon}:
-                                logger.warning(f'VEP codons do not match with codons determined by '
-                                               f'codon table for {v.CHROM}:{v.POS}')
+                                self.logger.warning(f'VEP codons do not match with codons determined by '
+                                                    f'codon table for {v.CHROM}:{v.POS}')
 
                                 self.vep_mismatches.append(v)
                                 return
@@ -810,8 +915,8 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
                     if synonymy_snpeff is not None:
                         if synonymy_snpeff != synonymy:
-                            logger.warning(f'SnpEff annotation does not match with custom '
-                                           f'annotation for {v.CHROM}:{v.POS}')
+                            self.logger.warning(f'SnpEff annotation does not match with custom '
+                                                f'annotation for {v.CHROM}:{v.POS}')
 
                             self.snpeff_mismatches.append(v)
                             return
@@ -826,7 +931,9 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
 class Annotator(VCFHandler):
     """
-    Annotator base class.
+    Annotate a VCF file with the given annotations.
+    
+    .. note:: Due to its dependencies, :class:`Annotator` does not appear to be entirely thread-safe.
     """
 
     def __init__(
@@ -836,7 +943,8 @@ class Annotator(VCFHandler):
             annotations: List[Annotation],
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
-            seed: int | None = 0
+            seed: int | None = 0,
+            cache: bool = True
     ):
         """
         Create a new annotator instance.
@@ -847,12 +955,14 @@ class Annotator(VCFHandler):
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
         :param max_sites: Maximum number of sites to consider
         :param seed: Seed for the random number generator
+        :param cache: Whether to cache files downloaded from urls
         """
         super().__init__(
             vcf=vcf,
             info_ancestral=info_ancestral,
             max_sites=max_sites,
-            seed=seed
+            seed=seed,
+            cache=cache
         )
 
         self.output: str = output
@@ -867,12 +977,11 @@ class Annotator(VCFHandler):
         self.n_sites = self.count_sites()
 
         # create the reader
-        reader = VCF(self.vcf)
+        reader = VCF(self.download_if_url(self.vcf))
 
         # provide annotator to annotations and add info fields
         for annotation in self.annotations:
-            annotation._setup(self)
-            annotation._add_info(reader)
+            annotation._setup(self, reader)
 
         # create the writer
         writer = Writer(self.output, reader)

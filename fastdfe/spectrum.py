@@ -498,22 +498,22 @@ class Spectra:
         Merge types of two spectra objects by adding up their counts entry-wise.
 
         :param other: Spectra object
-        :return: Spectra object
+        :return: Spectra with merged types
         """
         return Spectra.from_dataframe(self.data.add(other.data, fill_value=0))
 
-    def __getitem__(self, keys) -> Union['Spectrum', 'Spectra']:
+    def __getitem__(self, keys: str | List[str] | np.ndarray | tuple) -> Union['Spectrum', 'Spectra']:
         """
         Get item.
 
-        :param keys: string or list of strings
-        :return: Spectrum or Spectra
+        :param keys: string or list of strings, possibly regex to match type names
+        :return: Spectrum or Spectra depending on the number of matches
         """
         # whether the input in an array
         is_array = isinstance(keys, (np.ndarray, list, tuple))
 
-        # use regex to select columns
-        subset = self.data.filter(regex=('|'.join(keys) if is_array else keys))
+        # use regex to subset dataframe using column names
+        subset = self.data.loc[:, self.data.columns.str.fullmatch('|'.join(keys) if is_array else keys)]
 
         # return spectrum object if only one column is left
         # and if not multiple keys were supplied
@@ -716,7 +716,7 @@ class Spectra:
             ax=ax
         )
 
-    def remove_empty(self) -> 'Spectra':
+    def drop_empty(self) -> 'Spectra':
         """
         Remove types whose spectra have no counts.
 
@@ -724,7 +724,7 @@ class Spectra:
         """
         return Spectra.from_dataframe(self.data.loc[:, self.data.any()])
 
-    def remove_zero_entries(self) -> 'Spectra':
+    def drop_zero_entries(self) -> 'Spectra':
         """
         Remove types whose spectra have some zero entries.
         Note that we ignore zero counts in the last entry i.e. fixed derived alleles.
@@ -732,6 +732,14 @@ class Spectra:
         :return: Spectra with non-zero entries
         """
         return Spectra.from_dataframe(self.data.loc[:, self.data[:-1].all()])
+
+    def drop_sparse(self, n_polymorphic: int) -> 'Spectra':
+        """
+        Remove types whose spectra have fewer than equal ``n_polymorphic`` polymorphic sites.
+
+        :return: Spectra
+        """
+        return Spectra.from_dataframe(self.data.loc[:, self.data[1:-1].sum() > n_polymorphic])
 
     def rename(self, names: List[str]) -> 'Spectra':
         """

@@ -13,7 +13,7 @@ import numpy as np
 from scipy.stats import norm as normal
 
 # get logger
-logger = logging.getLogger('fastdfe')
+logger = logging.getLogger('fastdfe').getChild('Bootstrap')
 
 
 class Bootstrap:

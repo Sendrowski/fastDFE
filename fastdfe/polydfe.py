@@ -253,7 +253,7 @@ class PolyDFE(AbstractInference):
                            f"-v 1 > {output_file}")
 
                 # log command signature
-                logger.info(f"Running: {command}")
+                self.logger.info(f"Running: {command}")
 
                 # execute command
                 execute(command)
@@ -320,7 +320,9 @@ class PolyDFE(AbstractInference):
 
     def plot_all(self, show: bool = True):
         """
-        Plot everything.
+        Plot a bunch of plots.
+
+        :param show: Whether to show the plot
         """
         self.plot_inferred_parameters(show=show)
         self.plot_discretized(show=show)
@@ -341,6 +343,9 @@ class PolyDFE(AbstractInference):
         Visualize the inferred parameters and their confidence intervals.
 
         :param scale: Scale of the y-axis
+        :param confidence_intervals: Whether to show confidence intervals
+        :param ci_level: Confidence interval level
+        :param bootstrap_type: Type of bootstrap
         :param legend: Show legend
         :param ax: Axes object
         :param title: Title of the plot

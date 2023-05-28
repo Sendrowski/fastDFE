@@ -14,8 +14,8 @@ import numpy as np
 import pandas as pd
 from cyvcf2 import Variant, Writer, VCF
 
-from .annotation import Annotation, DegeneracyAnnotation
-from .vcf import VCFHandler
+from .annotation import DegeneracyAnnotation, GFFHandler
+from .vcf import VCFHandler, get_major_base
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -35,7 +35,7 @@ def count_filtered(func: Callable) -> Callable:
     return wrapper
 
 
-class Filtration:
+class Filtration(GFFHandler):
     """
     Base class for filtering sites based on certain criteria.
     """
@@ -53,9 +53,11 @@ class Filtration:
         """
         pass
 
-    def _setup(self):
+    def _setup(self, reader: VCF):
         """
         Perform any necessary pre-processing. This method is called before the actual filtration.
+
+        :param reader: The VCF reader.
         """
         pass
 
@@ -63,12 +65,12 @@ class Filtration:
         """
         Perform any necessary post-processing. This method is called after the actual filtration.
         """
-        logger.info(type(self).__name__ + f": Filtered out {self.n_filtered} sites.")
+        self.logger.info(type(self).__name__ + f": Filtered out {self.n_filtered} sites.")
 
 
 class SNPFiltration(Filtration):
     """
-    Only keep SNPs (discard monomorphic sites).
+    Only keep SNPs. Note that this includes discarding mono-morphic sites.
     """
 
     @count_filtered
@@ -84,7 +86,7 @@ class SNPFiltration(Filtration):
 
 class SNVFiltration(Filtration):
     """
-    Only keep single site variants (discardi indels and MNPs but keep monomorphic sites).
+    Only keep single site variants (discard indels and MNPs but keep monomorphic sites).
     """
 
     @count_filtered
@@ -95,7 +97,7 @@ class SNVFiltration(Filtration):
         :param variant: The variant to filter.
         :return: ``True`` if the variant is kept, ``False`` otherwise.
         """
-        return len(variant.REF) == 1
+        return np.all([alt in ['A', 'C', 'G', 'T'] for alt in [variant.REF] + variant.ALT])
 
 
 class PolyAllelicFiltration(Filtration):
@@ -115,6 +117,38 @@ class PolyAllelicFiltration(Filtration):
         return len(variant.ALT) < 2
 
 
+class AllFiltration(Filtration):
+    """
+    Filter out all sites. This is useful for testing purposes.
+    """
+
+    @count_filtered
+    def filter_site(self, variant: Variant) -> bool:
+        """
+        Filter site.
+
+        :param variant: The variant to filter.
+        :return: ``False``.
+        """
+        return False
+
+
+class NoFiltration(Filtration):
+    """
+    Do not filter out any sites. This is useful for testing purposes.
+    """
+
+    @count_filtered
+    def filter_site(self, variant: Variant) -> bool:
+        """
+        Filter site.
+
+        :param variant: The variant to filter.
+        :return: ``True``.
+        """
+        return True
+
+
 class CodingSequenceFiltration(Filtration):
     """
     Filter out sites that are not in coding sequences. This filter should find frequent use when parsing
@@ -131,6 +165,8 @@ class CodingSequenceFiltration(Filtration):
         :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
             This is used to match the contig names in the VCF file with the contig names in the FASTA file.
         """
+        super().__init__()
+
         #: The GFF file.
         self.gff_file: str = gff_file
 
@@ -143,10 +179,14 @@ class CodingSequenceFiltration(Filtration):
         #: The contig aliases.
         self.aliases: Dict[str, List[str]] = aliases
 
-    def _setup(self):
+    def _setup(self, reader: VCF):
         """
         Touch the GFF file to load it.
+
+        :param reader: The VCF reader.
         """
+        super()._setup(reader)
+
         # noinspection PyStatementEffect
         self._cds
 
@@ -157,7 +197,7 @@ class CodingSequenceFiltration(Filtration):
 
         :return: Dataframe with coding sequences.
         """
-        return Annotation._load_cds(self.gff_file)
+        return self._load_cds(self.gff_file)
 
     @count_filtered
     def filter_site(self, v: Variant) -> bool:
@@ -183,18 +223,18 @@ class CodingSequenceFiltration(Filtration):
             cds = self._cds[self._cds['seqid'].isin(aliases) & (self._cds['end'] >= v.POS)]
 
             if not cds.empty:
-                # take the last coding sequence
+                # take the first coding sequence
                 self.cd = cds.iloc[0]
 
                 if self.cd.start == v.POS:
-                    logger.debug(f'Found coding sequence for {v.CHROM}:{v.POS}.')
+                    self.logger.debug(f'Found coding sequence for {v.CHROM}:{v.POS}.')
                 else:
-                    logger.debug(f'Found coding sequence downstream of {v.CHROM}:{v.POS}.')
+                    self.logger.debug(f'Found coding sequence downstream of {v.CHROM}:{v.POS}.')
 
             if self.n_processed == 0 and self.cd.start == DegeneracyAnnotation._pos_mock:
-                logger.warning(f'No subsequent coding sequence found on the same contig as the first variant. '
-                               f'Please make sure this is the correct GFF file with contig names matching '
-                               f'the VCF file. You can use the aliases parameter to match contig names.')
+                self.logger.warning(f'No subsequent coding sequence found on the same contig as the first variant. '
+                                    f'Please make sure this is the correct GFF file with contig names matching '
+                                    f'the VCF file. You can use the aliases parameter to match contig names.')
 
         self.n_processed += 1
 
@@ -205,9 +245,99 @@ class CodingSequenceFiltration(Filtration):
         return False
 
 
+class DeviantOutgroupFiltration(Filtration):
+    """
+    Filter out sites where the major allele of the specified outgroup samples differs from the major
+    allele of the ingroup samples.
+    """
+
+    def __init__(self, outgroups: List[str], ingroups: List[str] = None, strict_mode: bool = True):
+        """
+        Construct DeviantOutgroupFiltration.
+
+        :param outgroups: The name of the outgroup samples to consider.
+        :param ingroups: The name of the ingroup samples to consider, defaults to all samples but the outgroups.
+        :param strict_mode: Whether to filter out sites where no outgroup sample is present, defaults to ``True``
+        which is recommended.
+        """
+        super().__init__()
+
+        #: The ingroup samples.
+        self.ingroups: List[str] | None = ingroups
+
+        #: The outgroup samples.
+        self.outgroups: List[str] = outgroups
+
+        #: Whether to filter out sites where no outgroup sample is present.
+        self.strict_mode: bool = strict_mode
+
+        #: The samples found in the VCF file.
+        self.samples: Optional[np.ndarray] = None
+
+        #: The ingroup mask.
+        self.ingroup_mask: Optional[np.ndarray] = None
+
+        #: The outgroup mask.
+        self.outgroup_mask: Optional[np.ndarray] = None
+
+    def _setup(self, reader: VCF):
+        """
+        Touch the reader to load the samples.
+
+        :param reader: The VCF reader.
+        """
+        super()._setup(reader)
+
+        # create samples array
+        self.samples: np.ndarray = np.array(reader.samples)
+
+        # create ingroup and outgroup masks
+        self.create_masks()
+
+    def create_masks(self):
+        """
+        Create ingroup and outgroup masks based on the samples.
+        """
+
+        # create outgroup masks
+        self.outgroup_mask: np.ndarray = np.isin(self.samples, self.outgroups)
+
+        # create ingroup mask
+        if self.ingroups is None:
+            self.ingroup_mask = ~self.outgroup_mask
+        else:
+            self.ingroup_mask = np.isin(self.samples, self.ingroups)
+
+    @count_filtered
+    def filter_site(self, variant: Variant) -> bool:
+        """
+        Filter site.
+
+        :param variant: The variant to filter.
+        :return: ``True`` if the variant should be kept, ``False`` otherwise.
+        """
+        if variant.is_snp:
+            # get major base among ingroup samples
+            ingroup_base = get_major_base(variant.gt_bases[self.ingroup_mask])
+
+            # get major base among outgroup samples
+            outgroup_base = get_major_base(variant.gt_bases[self.outgroup_mask])
+
+            # filter out if no outgroup base is present and strict mode is enabled
+            if outgroup_base is None:
+                return not self.strict_mode
+
+            # filter out if outgroup base is different from ingroup base
+            return ingroup_base == outgroup_base
+
+        return True
+
+
 class Filterer(VCFHandler):
     """
-    Base class for filters.
+    Filter a VCF file using a list of filtrations.
+    
+    .. note:: Due to its dependencies, :class:`Filterer` does not appear to be entirely thread-safe.
     """
 
     def __init__(
@@ -217,7 +347,8 @@ class Filterer(VCFHandler):
             filtrations: List[Filtration] = [],
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
-            seed: int | None = 0
+            seed: int | None = 0,
+            cache: bool = True
     ):
         """
         Create a new filter instance.
@@ -228,12 +359,14 @@ class Filterer(VCFHandler):
         :param info_ancestral: The info field for the ancestral allele.
         :param max_sites: The maximum number of sites to process.
         :param seed: The seed for the random number generator.
+        :param cache: Whether to cache files downloaded from urls.
         """
         super().__init__(
             vcf=vcf,
             info_ancestral=info_ancestral,
             max_sites=max_sites,
-            seed=seed
+            seed=seed,
+            cache=cache
         )
 
         #: The filtrations.
@@ -264,20 +397,20 @@ class Filterer(VCFHandler):
         """
         Filter the VCF.
         """
-        logger.info('Start filtering')
+        self.logger.info('Start filtering')
 
         # count the number of sites
         self.n_sites = self.count_sites()
 
         # create the reader
-        reader = VCF(self.vcf)
+        reader = VCF(self.download_if_url(self.vcf))
 
         # create the writer
         writer = Writer(self.output, reader)
 
         # setup filtrations
         for f in self.filtrations:
-            f._setup()
+            f._setup(reader)
 
         # get progress bar
         with self.get_pbar() as pbar:
@@ -304,4 +437,4 @@ class Filterer(VCFHandler):
         writer.close()
         reader.close()
 
-        logger.info(f'Filtered out {self.n_filtered} out of {self.n_filtered} sites.')
+        self.logger.info(f'Filtered out {self.n_filtered} out of {self.n_filtered} sites.')
