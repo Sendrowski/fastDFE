@@ -934,6 +934,7 @@ class Annotator(VCFHandler):
     Annotate a VCF file with the given annotations.
     
     .. note:: Due to its dependencies, :class:`Annotator` does not appear to be entirely thread-safe.
+        see https://github.com/mdshw5/pyfaidx/issues/92
     """
 
     def __init__(

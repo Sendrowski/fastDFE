@@ -338,6 +338,7 @@ class Filterer(VCFHandler):
     Filter a VCF file using a list of filtrations.
     
     .. note:: Due to its dependencies, :class:`Filterer` does not appear to be entirely thread-safe.
+        see https://github.com/mdshw5/pyfaidx/issues/92
     """
 
     def __init__(

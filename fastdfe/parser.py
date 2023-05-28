@@ -540,6 +540,7 @@ class Parser(VCFHandler):
     sites which is highly recommended as some stratifications assume sites to be at most bi-allelic.
 
     .. note:: Due to its dependencies, :class:`Parser` does not appear to be entirely thread-safe.
+        see https://github.com/mdshw5/pyfaidx/issues/92
     """
 
     def __init__(
