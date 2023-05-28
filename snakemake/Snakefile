@@ -120,9 +120,10 @@ wildcard_constraints:
 rule all:
     input:
         (
-            expand("results/graphs/comp/sfs/hgdp/{chr}/{opts}/[all,Japanese].png",chr=[21, 1], opts=['opts.subset.50000.n.10', 'opts.subset.50000.n.20']),
-            expand("results/graphs/comp/pca/hgdp/{chr}/{opts}/[all,Japanese].png",chr=[21], opts=['opts.subset.50000']),
-            expand("results/graphs/comp/fastdfe/hgdp/{chr}/{opts}.subset.50000.n.[10,20].config.{config}/[all,Japanese].dfe.png",chr=[21], opts=['opts'], config=['test']),
+            #expand("results/graphs/comp/sfs/hgdp/{chr}/{opts}/[all,Japanese].png",chr=[21, 1], opts=['opts.subset.50000.n.10', 'opts.subset.50000.n.20']),
+            #expand("results/graphs/comp/pca/hgdp/{chr}/{opts}/[all,Japanese].png",chr=[21], opts=['opts.subset.50000']),
+            expand("results/graphs/comp/fastdfe/hgdp/{chr}/{opts}.n.10.config.{config}/[all,Japanese].dfe.png",chr=[1, 2, 3], opts=['opts'], config=['default']),
+            #expand("results/graphs/comp/fastdfe/hgdp/{chr}/{opts}.subset.50000.n.[10,20].config.{config}/[all,Japanese].dfe.png",chr=[21], opts=['opts'], config=['test']),
             #expand("results/configs/{config}_bootstrapped_100/config.yaml",config=configs),
             #expand("results/fastdfe/{config}_bootstrapped_100/serialized.json",config=configs),
             #expand("results/configs/{config}/config.yaml",config=['pendula.pubescens.example_1.example_2.example_3_C_full_anc']),
