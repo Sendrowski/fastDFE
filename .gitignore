@@ -1,5 +1,5 @@
 /resources/genome/
-/snakemake/results/vcf/
+/snakemake/results/
 .snakemake/
 .snakemake_timestamp
 /dist/
