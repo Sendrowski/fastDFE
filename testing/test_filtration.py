@@ -1,7 +1,7 @@
 import numpy as np
 from cyvcf2 import Variant
 
-from fastdfe.vcf import count_sites
+from fastdfe.bio_handlers import count_sites
 from testing import prioritize_installed_packages
 
 prioritize_installed_packages()

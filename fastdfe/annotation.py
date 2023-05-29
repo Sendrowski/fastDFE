@@ -9,7 +9,6 @@ __date__ = "2023-05-09"
 import logging
 import re
 from abc import ABC
-from functools import cached_property
 from itertools import product
 from typing import List, Optional, Dict
 
@@ -17,10 +16,10 @@ import Bio.Data.CodonTable
 import numpy as np
 import pandas as pd
 from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 from cyvcf2 import Variant, Writer, VCF
-from pyfaidx import Fasta, FastaRecord
 
-from .vcf import VCFHandler, get_major_base, download_if_url
+from .bio_handlers import get_major_base, FASTAHandler, GFFHandler, VCFHandler
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -42,110 +41,14 @@ for c in stop_codons:
 unique_to_degeneracy = {0: 0, 1: 2, 2: 2, 3: 4}
 
 
-class GFFHandler:
-    """
-    GFF handler.
-    """
-
-    def __init__(self):
-        """
-        Constructor.
-        """
-        self.logger = logger.getChild(self.__class__.__name__)
-
-    def _load_cds(self, file: str, cache: bool = True) -> pd.DataFrame:
-        """
-        Load coding sequences from a GFF file.
-
-        :param file: The path to The GFF file path, possibly gzipped or a URL
-        :return: The DataFrame.
-        """
-        # download and unzip if necessary
-        local_file = VCFHandler.unzip_if_zipped(download_if_url(file, cache=cache))
-
-        # column labels for GFF file
-        col_labels = ['seqid', 'source', 'type', 'start', 'end', 'score', 'strand', 'phase', 'attributes']
-
-        dtypes = dict(
-            seqid='category',
-            type='category',
-            start=float,  # temporarily load as float to handle NA values
-            end=float,  # temporarily load as float to handle NA values
-            strand='category',
-            phase='category'
-        )
-
-        self.logger.info(f'Loading GFF file.')
-
-        # load GFF file
-        df = pd.read_csv(
-            local_file,
-            sep='\t',
-            comment='#',
-            names=col_labels,
-            dtype=dtypes,
-            usecols=['seqid', 'type', 'start', 'end', 'strand', 'phase']
-        )
-
-        # filter for coding sequences
-        df = df[df['type'] == 'CDS']
-
-        # drop rows with NA values
-        df = df.dropna()
-
-        # convert start and end to int
-        df['start'] = df['start'].astype(int)
-        df['end'] = df['end'].astype(int)
-
-        # drop type column
-        df.drop(columns=['type'], inplace=True)
-
-        # remove duplicates
-        df = df.drop_duplicates(subset=['seqid', 'start', 'end'])
-
-        # sort by seqid and start
-        df.sort_values(by=['seqid', 'start'], inplace=True)
-
-        return df
-
-    def _count_target_sites(self, file: str) -> Dict[str, int]:
-        """
-        Count the number of target sites in a GFF file.
-
-        :param file: The path to The GFF file path, possibly gzipped or a URL
-        :return: The number of target sites per chromosome/contig.
-        """
-        cds = self._compute_lengths(self._load_cds(file))
-
-        # group by 'seqid' and calculate the sum of 'length'
-        target_sites = cds.groupby('seqid')['length'].sum().to_dict()
-
-        return target_sites
-
-    @staticmethod
-    def _compute_lengths(cds: pd.DataFrame) -> pd.DataFrame:
-        """
-        Compute the lengths of coding sequences.
-
-        :param cds: The coding sequences.
-        :return: The coding sequences with lengths.
-        """
-        # remove duplicates
-        cds = cds.drop_duplicates(subset=['seqid', 'start'])
-
-        # create a new column for the difference between 'end' and 'start'
-        cds.loc[:, 'length'] = cds['end'] - cds['start'] + 1
-
-        return cds
-
-
-class Annotation(GFFHandler):
+class Annotation:
 
     def __init__(self):
         """
         Create a new annotation instance.
         """
-        super().__init__()
+        #: The logger.
+        self.logger = logger.getChild(self.__class__.__name__)
 
         #: The annotator.
         self.annotator: Annotator | None = None
@@ -166,7 +69,7 @@ class Annotation(GFFHandler):
         """
         Finalize the annotation. Called after all sites have been annotated.
         """
-        self.logger.info(type(self).__name__ + f': Annotated {self.n_annotated} sites.')
+        self.logger.info('Annotated {self.n_annotated} sites.')
 
     def annotate_site(self, variant: Variant):
         """
@@ -185,7 +88,7 @@ class Annotation(GFFHandler):
         :param file: The path to The GFF file path, possibly gzipped or a URL
         :return: The number of target sites per chromosome/contig.
         """
-        return Annotation()._count_target_sites(file)
+        return GFFHandler(file)._count_target_sites()
 
 
 class AncestralAlleleAnnotation(Annotation, ABC):
@@ -270,7 +173,7 @@ class MaximumParsimonyAnnotation(AncestralAlleleAnnotation):
         self.n_annotated += 1
 
 
-class DegeneracyAnnotation(Annotation):
+class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
     """
     Degeneracy annotation. We annotate the degeneracy by looking at each codon for coding variants.
     This also annotates mono-allelic sites.
@@ -283,7 +186,13 @@ class DegeneracyAnnotation(Annotation):
     #: The genomic positions for coding sequences that are mocked.
     _pos_mock: int = 1e100
 
-    def __init__(self, gff_file: str, fasta_file: str, aliases: Dict[str, List[str]] = {}):
+    def __init__(
+            self,
+            gff_file: str,
+            fasta_file: str,
+            aliases: Dict[str, List[str]] = {},
+            cache: bool = True
+    ):
         """
         Create a new annotation instance.
 
@@ -291,14 +200,13 @@ class DegeneracyAnnotation(Annotation):
         :param fasta_file: The FASTA file path, possibly gzipped or a URL
         :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
             This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.
+        :param cache: Whether to cache files that are downloaded from URLs
         """
-        super().__init__()
+        Annotation.__init__(self)
 
-        #: The GFF file.
-        self.gff_file: str = gff_file
+        GFFHandler.__init__(self, gff_file, cache=cache)
 
-        #: The FASTA file.
-        self.fasta_file: str = fasta_file
+        FASTAHandler.__init__(self, fasta_file, cache=cache)
 
         #: Dictionary of aliases for the contigs in the VCF file
         self.aliases: Dict[str, List[str]] = aliases
@@ -313,7 +221,7 @@ class DegeneracyAnnotation(Annotation):
         self.cd_prev: Optional[pd.Series] = None
 
         #: The current contig.
-        self.contig: Optional[FastaRecord] = None
+        self.contig: Optional[SeqRecord] = None
 
         #: The variants that could not be annotated correctly.
         self.mismatches: List[Variant] = []
@@ -326,24 +234,6 @@ class DegeneracyAnnotation(Annotation):
 
         #: The number of sites in coding sequences determined on runtime by looking at the GFF file.
         self.n_target_sites: int = 0
-
-    @cached_property
-    def _ref(self) -> Fasta:
-        """
-        Get the reference reader.
-
-        :return: The reference reader.
-        """
-        return self.annotator.load_fasta(self.fasta_file)
-
-    @cached_property
-    def _cds(self) -> pd.DataFrame:
-        """
-        The coding sequences.
-
-        :return: The coding sequences.
-        """
-        return self._load_cds(self.gff_file)
 
     def _setup(self, annotator: 'Annotator', reader: VCF):
         """
@@ -533,7 +423,7 @@ class DegeneracyAnnotation(Annotation):
         :raises LookupError: If no coding sequence was found.
         """
         # get the aliases for the current chromosome
-        aliases = VCFHandler.get_aliases(v.CHROM, self.aliases)
+        aliases = self.get_aliases(v.CHROM, self.aliases)
 
         # only fetch coding sequence if we are on a new chromosome or the
         # variant is not within the current coding sequence
@@ -589,16 +479,17 @@ class DegeneracyAnnotation(Annotation):
 
         :param v: The variant to fetch the contig for.
         """
-        aliases = VCFHandler.get_aliases(v.CHROM, self.aliases)
+        aliases = self.get_aliases(v.CHROM, self.aliases)
 
-        # fetch contig if not up to date
-        if self.contig is None or self.contig.name not in aliases:
-            self.contig = VCFHandler.get_contig(self._ref, aliases)
+        # check if contig is up-to-date
+        if self.contig is None or self.contig.id not in aliases:
+            self.logger.debug(f"Fetching contig '{v.CHROM}'.")
+
+            # fetch contig
+            self.contig = self.get_contig(aliases)
 
             # add to number of target sites
             self.n_target_sites += self._compute_lengths(self._cds[(self._cds.seqid.isin(aliases))])['length'].sum()
-
-            self.logger.debug(f"Fetching contig '{self.contig.name}'.")
 
     def _fetch(self, variant: Variant):
         """
@@ -630,7 +521,7 @@ class DegeneracyAnnotation(Annotation):
             return
 
         # annotate if record is in coding sequence
-        if self.cd.seqid in VCFHandler.get_aliases(v.CHROM, self.aliases) and self.cd.start <= v.POS <= self.cd.end:
+        if self.cd.seqid in self.get_aliases(v.CHROM, self.aliases) and self.cd.start <= v.POS <= self.cd.end:
 
             try:
                 # parse codon
@@ -932,9 +823,6 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 class Annotator(VCFHandler):
     """
     Annotate a VCF file with the given annotations.
-    
-    .. note:: Due to its dependencies, :class:`Annotator` does not appear to be entirely thread-safe.
-        see https://github.com/mdshw5/pyfaidx/issues/92
     """
 
     def __init__(

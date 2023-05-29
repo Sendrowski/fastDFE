@@ -21,7 +21,7 @@ from numpy.linalg import norm
 from scipy.optimize import OptimizeResult
 from tqdm import tqdm
 
-from . import Config
+from .config import Config
 from .abstract_inference import Inference
 from .base_inference import BaseInference
 from .optimization import Optimization, SharedParams, pack_shared, expand_shared, \

@@ -21,7 +21,7 @@ from matplotlib.container import BarContainer
 from matplotlib.ticker import MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from . import Parametrization
+from .parametrization import Parametrization
 from .spectrum import Spectrum
 
 # get logger

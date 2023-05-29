@@ -125,10 +125,10 @@ from .spectrum import Spectrum, Spectra
 from .parser import Parser, Stratification, BaseTransitionStratification, BaseContextStratification, \
     DegeneracyStratification, TransitionTransversionStratification, AncestralBaseStratification, \
     SynonymyStratification, VEPStratification, SnpEffStratification, ContigStratification, ChunkedStratification
+from .bio_handlers import VCFHandler
 from .annotation import Annotator, Annotation, MaximumParsimonyAnnotation, DegeneracyAnnotation, SynonymyAnnotation
 from .filtration import Filterer, Filtration, SNPFiltration, PolyAllelicFiltration, CodingSequenceFiltration, \
     SNVFiltration, DeviantOutgroupFiltration, AllFiltration, NoFiltration
-from .vcf import VCFHandler
 
 __all__ = [
     'Parametrization',
@@ -171,5 +171,4 @@ __all__ = [
     'SNVFiltration',
     'PolyAllelicFiltration',
     'Filterer',
-    'VCFHandler',
 ]

@@ -10,45 +10,19 @@ import itertools
 import logging
 from abc import ABC, abstractmethod
 from collections import Counter
-from functools import cached_property
 from typing import List, Callable, Literal, Optional, Iterable, Dict, cast
 
 import numpy as np
+from Bio.SeqRecord import SeqRecord
 from cyvcf2 import Variant, VCF
-from pyfaidx import Fasta
 
 from .annotation import Annotation, Annotator, SynonymyAnnotation
+from .bio_handlers import bases, get_called_bases, count_no_type, FASTAHandler, VCFHandler, NoTypeException
 from .filtration import Filtration, PolyAllelicFiltration
 from .spectrum import Spectra
-from .vcf import VCFHandler, get_called_bases
 
-#: Logger
+# logger
 logger = logging.getLogger('fastdfe')
-
-#: The DNA bases
-bases = ["A", "C", "G", "T"]
-
-
-def count_no_type(func: Callable) -> Callable:
-    """
-    Decorator that increases ``self.n_no_type`` by 1 if the decorated function raises a ``NoTypeException``.
-    """
-
-    def wrapper(self, variant):
-        try:
-            return func(self, variant)
-        except NoTypeException as e:
-            self.n_no_type += 1
-            raise e
-
-    return wrapper
-
-
-class NoTypeException(BaseException):
-    """
-    Exception thrown when no type can be determined.
-    """
-    pass
 
 
 class Stratification(ABC):
@@ -108,7 +82,7 @@ class Stratification(ABC):
         pass
 
 
-class BaseContextStratification(Stratification):
+class BaseContextStratification(Stratification, FASTAHandler):
     """
     Stratify the SFS by the base context of the mutation. The number of flanking bases
     can be configured. Note that we attempt to take the ancestral allele as the
@@ -116,7 +90,13 @@ class BaseContextStratification(Stratification):
     that are not polarized, otherwise we use the reference allele as the middle base.
     """
 
-    def __init__(self, fasta_file: str, n_flanking: int = 1, aliases: Dict[str, List[str]] = {}):
+    def __init__(
+            self,
+            fasta_file: str,
+            n_flanking: int = 1,
+            aliases: Dict[str, List[str]] = {},
+            cache: bool = True
+    ):
         """
         Create instance. Note that we require a fasta file to be specified
         for base context to be able to be inferred
@@ -125,11 +105,11 @@ class BaseContextStratification(Stratification):
         :param n_flanking: The number of flanking bases
         :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
             This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.
+        :param cache: Whether to cache files that are downloaded from URLs
         """
-        super().__init__()
+        Stratification.__init__(self)
 
-        #: The fasta file
-        self.fasta_file: str = fasta_file
+        FASTAHandler.__init__(self, fasta_file, cache=cache)
 
         #: The number of flanking bases
         self.n_flanking: int = n_flanking
@@ -137,14 +117,8 @@ class BaseContextStratification(Stratification):
         #: Aliases for the contigs in the VCF file
         self.aliases: Dict[str, List[str]] = aliases
 
-    @cached_property
-    def _ref(self) -> Fasta:
-        """
-        Get the reference reader.
-
-        :return: The reference reader.
-        """
-        return self.parser.load_fasta(self.fasta_file)
+        #: The current contig
+        self.contig: Optional[SeqRecord] = None
 
     @count_no_type
     def get_type(self, variant: Variant) -> str:
@@ -159,19 +133,27 @@ class BaseContextStratification(Stratification):
         # get the ancestral allele
         aa = self.parser._get_ancestral(variant)
 
-        # retrieve the sequence of the chromosome from the reference genome
-        sequence = VCFHandler.get_contig(self._ref, VCFHandler.get_aliases(variant.CHROM, self.aliases))
+        # get aliases
+        aliases = self.get_aliases(variant.CHROM, self.aliases)
 
-        if pos < 0 or pos >= len(sequence):
+        # check if contig is up-to-date
+        if self.contig is None or self.contig.id not in aliases:
+            self.logger.debug(f"Fetching contig '{variant.CHROM}'.")
+
+            # fetch contig
+            self.contig = self.get_contig(aliases)
+
+        # check if position is valid
+        if pos < 0 or pos >= len(self.contig):
             raise NoTypeException("Invalid position: Position must be within the bounds of the sequence.")
 
         # get upstream bases
         upstream_start = max(0, pos - self.n_flanking)
-        upstream_bases = sequence[upstream_start:pos]
+        upstream_bases = str(self.contig.seq[upstream_start:pos])
 
         # get downstream bases
-        downstream_end = min(len(sequence), pos + self.n_flanking + 1)
-        downstream_bases = sequence[pos + 1:downstream_end]
+        downstream_end = min(len(self.contig), pos + self.n_flanking + 1)
+        downstream_bases = str(self.contig.seq[pos + 1:downstream_end])
 
         return f"{upstream_bases}{aa}{downstream_bases}"
 
@@ -538,9 +520,6 @@ class Parser(VCFHandler):
     The parser also allows to filter sites based on their annotations. This is done by
     providing a list of filtrations to the parser. By default, we filter out poly-allelic
     sites which is highly recommended as some stratifications assume sites to be at most bi-allelic.
-
-    .. note:: Due to its dependencies, :class:`Parser` does not appear to be entirely thread-safe.
-        see https://github.com/mdshw5/pyfaidx/issues/92
     """
 
     def __init__(
@@ -867,8 +846,8 @@ class Parser(VCFHandler):
 
         if len(self.sfs) == 0:
             self.logger.warning(f"No sites were included in the spectra. If this is not expected, "
-                           "please check that all components work as expected. You can do this by "
-                           "setting the log level to DEBUG.")
+                                "please check that all components work as expected. You can do this by "
+                                "setting the log level to DEBUG.")
         else:
             self.logger.info(f'Included {self.n_sites - self.n_skipped} out of {self.n_sites} sites in total.')
 

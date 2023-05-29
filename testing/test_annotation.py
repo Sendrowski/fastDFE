@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, PropertyMock, patch
 import numpy as np
 import pandas as pd
 
-from fastdfe.vcf import count_sites
+from fastdfe.bio_handlers import count_sites, GFFHandler
 from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
@@ -328,8 +328,8 @@ class AnnotatorTestCase(TestCase):
         })
 
         # We'll patch the _load_cds function to return our mock dataframe
-        with patch.object(Annotation, "_load_cds", return_value=mock_df):
-            result = Annotation.count_target_sites("mock_file.gff")
+        with patch.object(GFFHandler, "_load_cds", return_value=mock_df):
+            result = GFFHandler("mock_file.gff")._count_target_sites()
 
         # Our expected result is the sum of the differences between end and start for each 'seqid'
         expected_result = {

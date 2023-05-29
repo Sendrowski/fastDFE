@@ -7,15 +7,14 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-05-11"
 
 import logging
-from functools import cached_property
 from typing import Iterable, List, Optional, Callable, Dict
 
 import numpy as np
 import pandas as pd
 from cyvcf2 import Variant, Writer, VCF
 
-from .annotation import DegeneracyAnnotation, GFFHandler
-from .vcf import VCFHandler, get_major_base
+from .annotation import DegeneracyAnnotation
+from .bio_handlers import get_major_base, GFFHandler, VCFHandler
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -35,13 +34,19 @@ def count_filtered(func: Callable) -> Callable:
     return wrapper
 
 
-class Filtration(GFFHandler):
+class Filtration:
     """
     Base class for filtering sites based on certain criteria.
     """
 
     #: The number of sites that didn't pass the filter.
     n_filtered: int = 0
+
+    def __init__(self):
+        """
+        Initialize filtration.
+        """
+        self.logger = logger.getChild(self.__class__.__name__)
 
     @count_filtered
     def filter_site(self, variant: Variant) -> bool:
@@ -65,7 +70,7 @@ class Filtration(GFFHandler):
         """
         Perform any necessary post-processing. This method is called after the actual filtration.
         """
-        self.logger.info(type(self).__name__ + f": Filtered out {self.n_filtered} sites.")
+        self.logger.info("Filtered out {self.n_filtered} sites.")
 
 
 class SNPFiltration(Filtration):
@@ -149,7 +154,7 @@ class NoFiltration(Filtration):
         return True
 
 
-class CodingSequenceFiltration(Filtration):
+class CodingSequenceFiltration(Filtration, GFFHandler):
     """
     Filter out sites that are not in coding sequences. This filter should find frequent use when parsing
     spectra for DFE inference as we only consider sites in coding sequences for this purpose.
@@ -157,18 +162,18 @@ class CodingSequenceFiltration(Filtration):
     Note that we assume here that within contigs, sites in the GFF file are sorted by position in ascending order.
     """
 
-    def __init__(self, gff_file: str, aliases: Dict[str, List[str]] = {}):
+    def __init__(self, gff_file: str, aliases: Dict[str, List[str]] = {}, cache: bool = True):
         """
         Create a new filtration instance.
 
         :param gff_file: The GFF file.
         :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
             This is used to match the contig names in the VCF file with the contig names in the FASTA file.
+        :param cache: Whether to cache files that are downloaded from URLs
         """
-        super().__init__()
+        Filtration.__init__(self)
 
-        #: The GFF file.
-        self.gff_file: str = gff_file
+        GFFHandler.__init__(self, gff_file, cache=cache)
 
         #: The coding sequence enclosing the current variant or the closest one downstream.
         self.cd: Optional[pd.Series] = None
@@ -187,17 +192,9 @@ class CodingSequenceFiltration(Filtration):
         """
         super()._setup(reader)
 
+        # load coding sequences
         # noinspection PyStatementEffect
         self._cds
-
-    @cached_property
-    def _cds(self) -> pd.DataFrame:
-        """
-        The coding sequences.
-
-        :return: Dataframe with coding sequences.
-        """
-        return self._load_cds(self.gff_file)
 
     @count_filtered
     def filter_site(self, v: Variant) -> bool:
@@ -207,7 +204,7 @@ class CodingSequenceFiltration(Filtration):
         :param v: The variant to filter.
         :return: ``True`` if the variant is in a coding sequence, ``False`` otherwise.
         """
-        aliases = VCFHandler.get_aliases(v.CHROM, self.aliases)
+        aliases = self.get_aliases(v.CHROM, self.aliases)
 
         # if self.cd is None or not on the same chromosome or ends before the variant
         if self.cd is None or self.cd.seqid not in aliases or v.POS > self.cd.end:
@@ -336,9 +333,6 @@ class DeviantOutgroupFiltration(Filtration):
 class Filterer(VCFHandler):
     """
     Filter a VCF file using a list of filtrations.
-    
-    .. note:: Due to its dependencies, :class:`Filterer` does not appear to be entirely thread-safe.
-        see https://github.com/mdshw5/pyfaidx/issues/92
     """
 
     def __init__(

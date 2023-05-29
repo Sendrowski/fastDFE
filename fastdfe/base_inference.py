@@ -24,7 +24,8 @@ from scipy.optimize._optimize import OptimizeResult
 from scipy.stats import chi2
 from typing_extensions import Self
 
-from . import parametrization, optimization
+from . import optimization
+from . import parametrization
 from .abstract_inference import AbstractInference, Inference
 from .config import Config
 from .discretization import Discretization
