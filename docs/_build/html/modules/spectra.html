@@ -55,7 +55,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart_R.html">Quickstart in R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart_R.html">Quickstart using R</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
@@ -107,13 +107,15 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.from_spectra"><code class="docutils literal notranslate"><span class="pre">Spectra.from_spectra()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.from_spectrum"><code class="docutils literal notranslate"><span class="pre">Spectra.from_spectrum()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.plot"><code class="docutils literal notranslate"><span class="pre">Spectra.plot()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.remove_empty"><code class="docutils literal notranslate"><span class="pre">Spectra.remove_empty()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.remove_zero_entries"><code class="docutils literal notranslate"><span class="pre">Spectra.remove_zero_entries()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.drop_empty"><code class="docutils literal notranslate"><span class="pre">Spectra.drop_empty()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.drop_zero_entries"><code class="docutils literal notranslate"><span class="pre">Spectra.drop_zero_entries()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.drop_sparse"><code class="docutils literal notranslate"><span class="pre">Spectra.drop_sparse()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.rename"><code class="docutils literal notranslate"><span class="pre">Spectra.rename()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.prefix"><code class="docutils literal notranslate"><span class="pre">Spectra.prefix()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.print"><code class="docutils literal notranslate"><span class="pre">Spectra.print()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.fold"><code class="docutils literal notranslate"><span class="pre">Spectra.fold()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.is_folded"><code class="docutils literal notranslate"><span class="pre">Spectra.is_folded()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.sort_types"><code class="docutils literal notranslate"><span class="pre">Spectra.sort_types()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -516,7 +518,7 @@ are summed over the levels that were not specified.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Load from dictionary.</p>
+<dd><p>Load from nested dictionary first indexed by types and then by samples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Dictionary of lists indexed by types</p>
@@ -567,10 +569,10 @@ are summed over the levels that were not specified.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.from_spectra">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><span class="pre">fastdfe.spectrum.Spectrum</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.from_spectra" title="Permalink to this definition"></a></dt>
-<dd><p>Create from dict of spectrum objects indexed by types.</p>
+<dd><p>Create from dict of spectrum objects indexed by type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>spectra</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a>]) – Dictionary of spectrum objects indexed by types</p>
+<dd class="field-odd"><p><strong>spectra</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a>]) – Dictionary of spectrum objects indexed by type</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
@@ -623,8 +625,8 @@ are summed over the levels that were not specified.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.remove_empty">
-<span class="sig-name descname"><span class="pre">remove_empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.remove_empty" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.drop_empty">
+<span class="sig-name descname"><span class="pre">drop_empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.drop_empty" title="Permalink to this definition"></a></dt>
 <dd><p>Remove types whose spectra have no counts.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -637,8 +639,8 @@ are summed over the levels that were not specified.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.remove_zero_entries">
-<span class="sig-name descname"><span class="pre">remove_zero_entries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.remove_zero_entries" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.drop_zero_entries">
+<span class="sig-name descname"><span class="pre">drop_zero_entries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.drop_zero_entries" title="Permalink to this definition"></a></dt>
 <dd><p>Remove types whose spectra have some zero entries.
 Note that we ignore zero counts in the last entry i.e. fixed derived alleles.</p>
 <dl class="field-list simple">
@@ -647,6 +649,20 @@ Note that we ignore zero counts in the last entry i.e. fixed derived alleles.</p
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Spectra with non-zero entries</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.drop_sparse">
+<span class="sig-name descname"><span class="pre">drop_sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_polymorphic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.drop_sparse" title="Permalink to this definition"></a></dt>
+<dd><p>Remove types whose spectra have fewer than equal <code class="docutils literal notranslate"><span class="pre">n_polymorphic</span></code> polymorphic sites.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Spectra</p>
 </dd>
 </dl>
 </dd></dl>
@@ -712,6 +728,20 @@ Note that we ignore zero counts in the last entry i.e. fixed derived alleles.</p
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dictionary of types and whether they are folded</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.sort_types">
+<span class="sig-name descname"><span class="pre">sort_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.sort_types" title="Permalink to this definition"></a></dt>
+<dd><p>Sort types alphabetically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sorted spectra object</p>
 </dd>
 </dl>
 </dd></dl>

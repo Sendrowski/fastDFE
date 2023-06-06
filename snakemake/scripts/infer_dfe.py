@@ -1,5 +1,5 @@
 """
-Infer the DFE from the SFS.
+Infer the DFE from the SFS using fastDFE.
 """
 
 __author__ = "Janek Sendrowski"
@@ -15,35 +15,26 @@ try:
     config_file = snakemake.input[0]
     out_summary = snakemake.output.summary
     out_serialized = snakemake.output.serialized
+    out_dfe = snakemake.output.get('dfe', None)
+    out_spectra = snakemake.output.get('spectra', None)
+    out_params = snakemake.output.get('params', None)
 except NameError:
     # testing
     testing = True
     # config_file = 'results/configs/example_1_C_full_anc/config.yaml'
     # config_file = 'results/configs/example_1_C_deleterious_anc_bootstrapped_100/config.yaml'
     # config_file = 'results/configs/pendula_C_full_anc_bootstrapped_100/config.yaml'
-    config_file = '../resources/configs/shared/pendula_tutorial/config.yaml'
+    config_file = 'scratch/bonobo.yaml'
     out_summary = "scratch/summary.json"
     out_serialized = "scratch/serialized.json"
+    out_dfe = "scratch/dfe.png"
+    out_spectra = "scratch/spectra.png"
+    out_params = "scratch/params.png"
 
-    import logging
-
-    # set log level to debug
-    logging.getLogger('fastdfe').setLevel(logging.INFO)
-
-from fastdfe.parametrization import GammaExpParametrization, DiscreteParametrization, DisplacedGammaParametrization, \
-    GammaDiscreteParametrization
-from fastdfe import Config, BaseInference
-
-# load config from file
-config = Config.from_file(config_file)
-"""config.update(
-    parallelize=False,
-    model=DiscreteParametrization(),
-    n_runs=20
-)"""
+from fastdfe import BaseInference
 
 # create from config
-inference = BaseInference.from_config(config)
+inference = BaseInference.from_config_file(config_file)
 
 # perform inference
 inference.run()
@@ -54,9 +45,9 @@ inference.to_file(out_serialized)
 # save summary
 inference.get_summary().to_file(out_summary)
 
-if testing:
-    inference.plot_all()
-    # inference.plot_sfs_comparison()
-    # inference.plot_dfe_continuous()
+# plot results
+inference.plot_inferred_parameters(file=out_params, show=testing)
+inference.plot_sfs_comparison(file=out_spectra, show=testing)
+inference.plot_discretized(file=out_dfe, show=testing)
 
 pass

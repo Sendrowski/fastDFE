@@ -21,9 +21,9 @@ from numpy.linalg import norm
 from scipy.optimize import OptimizeResult
 from tqdm import tqdm
 
-from .config import Config
 from .abstract_inference import Inference
 from .base_inference import BaseInference
+from .config import Config
 from .optimization import Optimization, SharedParams, pack_shared, expand_shared, \
     Covariate, flatten_dict, merge_dicts, correct_values, parallelize as parallelize_func, expand_fixed, \
     collapse_fixed, unpack_shared
@@ -465,12 +465,12 @@ class JointInference(BaseInference):
         :return: Modelled SFS.
         """
         # issue notice
-        self.logger.info(f'Running joint inference.')
+        self.logger.debug(f'Running joint inference.')
 
         # issue notice
-        self.logger.info(f'Starting numerical optimization of {self.n_runs} '
-                         'independently initialized samples which are run ' +
-                         ('in parallel.' if self.parallelize else 'sequentially.'))
+        self.logger.debug(f'Starting numerical optimization of {self.n_runs} '
+                          'independently initialized samples which are run ' +
+                          ('in parallel.' if self.parallelize else 'sequentially.'))
 
         # starting time of joint inference
         start_time = time.time()
@@ -481,7 +481,8 @@ class JointInference(BaseInference):
             scales=self.scales,
             bounds=self.bounds,
             n_runs=self.n_runs,
-            get_counts=self.get_counts()
+            get_counts=self.get_counts(),
+            desc='Performing joint inference'
         )
 
         # assign likelihoods
@@ -675,11 +676,13 @@ class JointInference(BaseInference):
             parallelize=parallelize
         )
 
-        self.logger.info("Bootstrapping marginal inferences.")
-
         from . import disable_pbar
 
-        with tqdm(total=len(self.marginal_inferences) * self.n_bootstraps, disable=disable_pbar) as pbar:
+        with tqdm(
+                total=len(self.marginal_inferences) * self.n_bootstraps,
+                disable=disable_pbar,
+                desc="Bootstrapping marginal inferences"
+        ) as pbar:
 
             # bootstrap marginal inferences
             for inf in self.marginal_inferences.values():
@@ -693,8 +696,6 @@ class JointInference(BaseInference):
                 pbar.update(self.n_bootstraps)
 
         start_time = time.time()
-
-        self.logger.info("Bootstrapping joint inference.")
 
         # parallelize computations if desired
         if self.parallelize:
@@ -716,7 +717,8 @@ class JointInference(BaseInference):
             func=self.run_joint_bootstrap_sample,
             data=seeds,
             parallelize=self.parallelize,
-            pbar=True
+            pbar=True,
+            desc="Bootstrapping joint inference"
         )
 
         # number of successful runs
@@ -776,6 +778,7 @@ class JointInference(BaseInference):
             n_runs=1,
             debug_iterations=False,
             print_info=False,
+            desc="Bootstrapping joint inference",
             get_counts=dict((t, lambda params, t=t: inf.model_sfs(
                 correct_values(self.add_covariates(params, t), self.bounds, self.scales),
                 sfs_neut=self.resample_sfs(self.marginal_inferences[t].sfs_neut, seed=seed),
@@ -839,8 +842,8 @@ class JointInference(BaseInference):
         This provides information about the goodness of fit achieved by the parameter sharing.
         Low p-values indicate that parameter sharing is not justified, i.e., that the marginal
         inferences provide a better fit to the data. Note that it is more difficult to properly
-        optimize the joint likelihood, which makes this test conservative, i.e., the p-value
-        might be larger than it should be.
+        optimize the joint likelihood, which makes this test conservative, i.e., the reported p-value
+        might be larger than what it really is.
 
         :param do_bootstrap: Whether to perform bootstrapping. This improves the accuracy of the p-value. Note
             that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
@@ -931,7 +934,10 @@ class JointInference(BaseInference):
             labels: List[str] = None,
             file: str = None,
             show: bool = True,
-            ax: plt.Axes = None
+            ax: plt.Axes = None,
+            title: str = 'SFS comparison',
+            use_subplots: bool = False,
+            show_monomorphic: bool = False
 
     ) -> plt.Axes:
         """
@@ -943,6 +949,9 @@ class JointInference(BaseInference):
         :param sfs_types: Types of SFS to plot
         :param show: Whether to show plot
         :param ax: Axes object
+        :param title: Plot title
+        :param use_subplots: Whether to use subplots
+        :param show_monomorphic: Whether to show monomorphic counts
         :return: Axes object
         """
         from fastdfe import Visualization
@@ -980,7 +989,10 @@ class JointInference(BaseInference):
             labels=list(spectra.keys()) if labels is None else labels,
             file=file,
             show=show,
-            ax=ax
+            ax=ax,
+            title=title,
+            use_subplots=use_subplots,
+            show_monomorphic=show_monomorphic
         )
 
     @BaseInference.run_if_required_wrapper

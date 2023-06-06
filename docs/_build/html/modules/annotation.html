@@ -55,7 +55,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart_R.html">Quickstart in R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart_R.html">Quickstart using R</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
@@ -75,19 +75,24 @@
 <li class="toctree-l1"><a class="reference internal" href="spectra.html">Spectra class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parser.html">VCF Parsing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">VCF Annotation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.Annotator"><code class="docutils literal notranslate"><span class="pre">Annotator</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotator.__init__"><code class="docutils literal notranslate"><span class="pre">Annotator.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotator.annotate"><code class="docutils literal notranslate"><span class="pre">Annotator.annotate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.Annotation"><code class="docutils literal notranslate"><span class="pre">Annotation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.__init__"><code class="docutils literal notranslate"><span class="pre">Annotation.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.logger"><code class="docutils literal notranslate"><span class="pre">Annotation.logger</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.annotator"><code class="docutils literal notranslate"><span class="pre">Annotation.annotator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.n_annotated"><code class="docutils literal notranslate"><span class="pre">Annotation.n_annotated</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">Annotation.annotate_site()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.count_target_sites"><code class="docutils literal notranslate"><span class="pre">Annotation.count_target_sites()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.AncestralAlleleAnnotation"><code class="docutils literal notranslate"><span class="pre">AncestralAlleleAnnotation</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.MaximumParsimonyAnnotation"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAnnotation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumParsimonyAnnotation.__init__"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAnnotation.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumParsimonyAnnotation.samples"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAnnotation.samples</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumParsimonyAnnotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAnnotation.annotate_site()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.__init__"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.gff_file"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.gff_file</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.fasta_file"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.fasta_file</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.aliases"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.aliases</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.cd"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.cd</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.cd_next"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.cd_next</span></code></a></li>
@@ -96,6 +101,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.mismatches"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.mismatches</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.n_skipped"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.n_skipped</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.errors"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.errors</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.n_target_sites"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.n_target_sites</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.annotate_site()</span></code></a></li>
 </ul>
 </li>
@@ -111,11 +117,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.annotate_site()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.Annotation"><code class="docutils literal notranslate"><span class="pre">Annotation</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.__init__"><code class="docutils literal notranslate"><span class="pre">Annotation.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.annotator"><code class="docutils literal notranslate"><span class="pre">Annotation.annotator</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.n_annotated"><code class="docutils literal notranslate"><span class="pre">Annotation.n_annotated</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">Annotation.annotate_site()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.Annotator"><code class="docutils literal notranslate"><span class="pre">Annotator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotator.__init__"><code class="docutils literal notranslate"><span class="pre">Annotator.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotator.annotate"><code class="docutils literal notranslate"><span class="pre">Annotator.annotate()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -147,45 +151,104 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="vcf-annotation">
-<span id="modules-annotation"></span><h1>VCF Annotation<a class="headerlink" href="#vcf-annotation" title="Permalink to this heading"></a></h1>
+  <section id="module-fastdfe.annotation">
+<span id="vcf-annotation"></span><span id="modules-annotation"></span><h1>VCF Annotation<a class="headerlink" href="#module-fastdfe.annotation" title="Permalink to this heading"></a></h1>
+<p>VCF annotations and an annotator to apply them.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="fastdfe.annotation.Annotator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">Annotator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vcf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><span class="pre">fastdfe.annotation.Annotation</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_ancestral</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sites</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.Annotator" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">VCFHandler</span></code></p>
-<p>Annotator base class.</p>
+<dt class="sig sig-object py" id="fastdfe.annotation.Annotation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">Annotation</span></span><a class="headerlink" href="#fastdfe.annotation.Annotation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.annotation.Annotator.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vcf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><span class="pre">fastdfe.annotation.Annotation</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_ancestral</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sites</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.Annotator.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Create a new annotator instance.</p>
+<dt class="sig sig-object py" id="fastdfe.annotation.Annotation.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.Annotation.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create a new annotation instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.Annotation.logger">
+<span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#fastdfe.annotation.Annotation.logger" title="Permalink to this definition"></a></dt>
+<dd><p>The logger.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.Annotation.annotator">
+<span class="sig-name descname"><span class="pre">annotator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#fastdfe.annotation.Annotator" title="fastdfe.annotation.Annotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotator</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.Annotation.annotator" title="Permalink to this definition"></a></dt>
+<dd><p>The annotator.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.Annotation.n_annotated">
+<span class="sig-name descname"><span class="pre">n_annotated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#fastdfe.annotation.Annotation.n_annotated" title="Permalink to this definition"></a></dt>
+<dd><p>The number of annotated sites.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.Annotation.annotate_site">
+<span class="sig-name descname"><span class="pre">annotate_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.Annotation.annotate_site" title="Permalink to this definition"></a></dt>
+<dd><p>Annotate a single site.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>vcf</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The path to the VCF file, can be gzipped, urls are also supported</p></li>
-<li><p><strong>output</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The path to the output file</p></li>
-<li><p><strong>annotations</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>]) – The annotations to apply.</p></li>
-<li><p><strong>info_ancestral</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The tag in the INFO field that contains the ancestral allele</p></li>
-<li><p><strong>max_sites</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Maximum number of sites to consider</p></li>
-<li><p><strong>seed</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Seed for the random number generator</p></li>
-</ul>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to annotate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The annotated variant.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.annotation.Annotator.annotate">
-<span class="sig-name descname"><span class="pre">annotate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.Annotator.annotate" title="Permalink to this definition"></a></dt>
-<dd><p>Annotate the VCF file.</p>
+<dt class="sig sig-object py" id="fastdfe.annotation.Annotation.count_target_sites">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">count_target_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.Annotation.count_target_sites" title="Permalink to this definition"></a></dt>
+<dd><p>Count the number of target sites in a GFF file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The path to The GFF file path, possibly gzipped or a URL</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of target sites per chromosome/contig.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.annotation.AncestralAlleleAnnotation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">AncestralAlleleAnnotation</span></span><a class="headerlink" href="#fastdfe.annotation.AncestralAlleleAnnotation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for ancestral allele annotation.</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAnnotation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">MaximumParsimonyAnnotation</span></span><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAnnotation" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralAlleleAnnotation</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">MaximumParsimonyAnnotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAnnotation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.AncestralAlleleAnnotation" title="fastdfe.annotation.AncestralAlleleAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralAlleleAnnotation</span></code></a></p>
 <p>Annotation of ancestral alleles using maximum parsimony. The info field <code class="docutils literal notranslate"><span class="pre">AA</span></code> is added to the VCF file,
 which holds the ancestral allele. To be used with <a class="reference internal" href="parser.html#fastdfe.parser.AncestralBaseStratification" title="fastdfe.parser.AncestralBaseStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralBaseStratification</span></code></a>.</p>
+<p>Note that maximum parsimony is not a reliable way to determine ancestral alleles, so it is recommended
+to use this annotation together with the ancestral misidentification parameter <code class="docutils literal notranslate"><span class="pre">eps</span></code> or to fold
+spectra altogether. Alternatively, you can use <a class="reference internal" href="filtration.html#fastdfe.filtration.DeviantOutgroupFiltration" title="fastdfe.filtration.DeviantOutgroupFiltration"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration</span></code></a> to
+filter out sites where the major allele among outgroups does not coincide with the major allele among ingroups.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAnnotation.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAnnotation.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create a new ancestral allele annotation instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – The samples to consider when determining the ancestral allele. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, all samples are</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAnnotation.samples">
+<span class="sig-name descname"><span class="pre">samples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAnnotation.samples" title="Permalink to this definition"></a></dt>
+<dd><p>The samples to consider when determining the ancestral allele.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAnnotation.annotate_site">
 <span class="sig-name descname"><span class="pre">annotate_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAnnotation.annotate_site" title="Permalink to this definition"></a></dt>
@@ -204,8 +267,8 @@ which holds the ancestral allele. To be used with <a class="reference internal" 
 
 <dl class="py class">
 <dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">DegeneracyAnnotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gff_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fasta_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">DegeneracyAnnotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gff_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fasta_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GFFHandler</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FASTAHandler</span></code></p>
 <p>Degeneracy annotation. We annotate the degeneracy by looking at each codon for coding variants.
 This also annotates mono-allelic sites.</p>
 <p>This annotation adds the info fields <code class="docutils literal notranslate"><span class="pre">Degeneracy</span></code> and <code class="docutils literal notranslate"><span class="pre">Degeneracy_Info</span></code>, which hold the degeneracy
@@ -213,7 +276,7 @@ of a site (0, 2, 4) and extra information about the degeneracy, respectively. To
 <a class="reference internal" href="parser.html#fastdfe.parser.DegeneracyStratification" title="fastdfe.parser.DegeneracyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyStratification</span></code></a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gff_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fasta_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gff_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fasta_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Create a new annotation instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -221,22 +284,11 @@ of a site (0, 2, 4) and extra information about the degeneracy, respectively. To
 <li><p><strong>gff_file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The GFF file path, possibly gzipped or a URL</p></li>
 <li><p><strong>fasta_file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The FASTA file path, possibly gzipped or a URL</p></li>
 <li><p><strong>aliases</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – Dictionary of aliases for the contigs in the VCF file, e.g. <code class="docutils literal notranslate"><span class="pre">{'chr1':</span> <span class="pre">['1']}</span></code>.
-This is used to match the contig names in the VCF file to the contig names in the FASTA file and GFF file.</p></li>
+This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.</p></li>
+<li><p><strong>cache</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to cache files that are downloaded from URLs</p></li>
 </ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation.gff_file">
-<span class="sig-name descname"><span class="pre">gff_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.gff_file" title="Permalink to this definition"></a></dt>
-<dd><p>The GFF file.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation.fasta_file">
-<span class="sig-name descname"><span class="pre">fasta_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.fasta_file" title="Permalink to this definition"></a></dt>
-<dd><p>The FASTA file.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -265,7 +317,7 @@ This is used to match the contig names in the VCF file to the contig names in th
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation.contig">
-<span class="sig-name descname"><span class="pre">contig</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">FastaRecord</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.contig" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">contig</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">SeqRecord</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.contig" title="Permalink to this definition"></a></dt>
 <dd><p>The current contig.</p>
 </dd></dl>
 
@@ -285,6 +337,12 @@ This is used to match the contig names in the VCF file to the contig names in th
 <dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation.errors">
 <span class="sig-name descname"><span class="pre">errors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.errors" title="Permalink to this definition"></a></dt>
 <dd><p>The variants for which the codon could not be determined.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation.n_target_sites">
+<span class="sig-name descname"><span class="pre">n_target_sites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.n_target_sites" title="Permalink to this definition"></a></dt>
+<dd><p>The number of sites in coding sequences determined on runtime by looking at the GFF file.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -308,7 +366,10 @@ This is used to match the contig names in the VCF file to the contig names in th
 Use this when mono-allelic sites are not present in the VCF file.</p>
 <p>This annotation adds the info fields <code class="docutils literal notranslate"><span class="pre">Synonymous</span></code> and <code class="docutils literal notranslate"><span class="pre">Synonymous_Info</span></code>, which hold
 the synonymous status (Synonymous (0) or non-synonymous (1)) and the codon information, respectively.
-To be used with <code class="xref py py-class docutils literal notranslate"><span class="pre">SynonymyStratification</span></code>.</p>
+To be used with <a class="reference internal" href="parser.html#fastdfe.parser.SynonymyStratification" title="fastdfe.parser.SynonymyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">SynonymyStratification</span></code></a>.</p>
+<p>Note that since we cannot determine the synonymy for monomorphic sites, we determine the number of
+target sites dynamically by adding up the number of  coding sequences per contig contained in the vcf
+file. This value is broadcast to <a class="reference internal" href="parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a> if <code class="docutils literal notranslate"><span class="pre">n_target_sites</span></code> is not set.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.annotation.SynonymyAnnotation.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gff_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fasta_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.SynonymyAnnotation.__init__" title="Permalink to this definition"></a></dt>
@@ -319,7 +380,7 @@ To be used with <code class="xref py py-class docutils literal notranslate"><spa
 <li><p><strong>gff_file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The GFF file path, possibly gzipped or a URL</p></li>
 <li><p><strong>fasta_file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The FASTA file path, possibly gzipped or a URL</p></li>
 <li><p><strong>aliases</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – Dictionary of aliases for the contigs in the VCF file, e.g. <code class="docutils literal notranslate"><span class="pre">{'chr1':</span> <span class="pre">['1']}</span></code>.
-This is used to match the contig names in the VCF file to the contig names in the FASTA file and GFF file.</p></li>
+This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.</p></li>
 </ul>
 </dd>
 </dl>
@@ -413,39 +474,33 @@ This is used to match the contig names in the VCF file to the contig names in th
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="fastdfe.annotation.Annotation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">Annotation</span></span><a class="headerlink" href="#fastdfe.annotation.Annotation" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dt class="sig sig-object py" id="fastdfe.annotation.Annotator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">Annotator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vcf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><span class="pre">fastdfe.annotation.Annotation</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_ancestral</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sites</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.Annotator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">VCFHandler</span></code></p>
+<p>Annotate a VCF file with the given annotations.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.annotation.Annotation.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.Annotation.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Create a new annotation instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.Annotation.annotator">
-<span class="sig-name descname"><span class="pre">annotator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#fastdfe.annotation.Annotator" title="fastdfe.annotation.Annotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotator</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.Annotation.annotator" title="Permalink to this definition"></a></dt>
-<dd><p>The annotator.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.Annotation.n_annotated">
-<span class="sig-name descname"><span class="pre">n_annotated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#fastdfe.annotation.Annotation.n_annotated" title="Permalink to this definition"></a></dt>
-<dd><p>The number of annotated sites.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.annotation.Annotation.annotate_site">
-<span class="sig-name descname"><span class="pre">annotate_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.Annotation.annotate_site" title="Permalink to this definition"></a></dt>
-<dd><p>Annotate a single site.</p>
+<dt class="sig sig-object py" id="fastdfe.annotation.Annotator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vcf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><span class="pre">fastdfe.annotation.Annotation</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_ancestral</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sites</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.Annotator.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create a new annotator instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to annotate.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The annotated variant.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vcf</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The path to the VCF file, can be gzipped, urls are also supported</p></li>
+<li><p><strong>output</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The path to the output file</p></li>
+<li><p><strong>annotations</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>]) – The annotations to apply.</p></li>
+<li><p><strong>info_ancestral</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The tag in the INFO field that contains the ancestral allele</p></li>
+<li><p><strong>max_sites</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Maximum number of sites to consider</p></li>
+<li><p><strong>seed</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Seed for the random number generator</p></li>
+<li><p><strong>cache</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to cache files downloaded from urls</p></li>
+</ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.Annotator.annotate">
+<span class="sig-name descname"><span class="pre">annotate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.Annotator.annotate" title="Permalink to this definition"></a></dt>
+<dd><p>Annotate the VCF file.</p>
 </dd></dl>
 
 </dd></dl>

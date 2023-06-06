@@ -6,6 +6,7 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-05-29"
 
+import functools
 import gzip
 import hashlib
 import logging
@@ -125,6 +126,7 @@ def count_no_type(func: Callable) -> Callable:
     Decorator that increases ``self.n_no_type`` by 1 if the decorated function raises a ``NoTypeException``.
     """
 
+    @functools.wraps(func)
     def wrapper(self, variant):
         try:
             return func(self, variant)
@@ -346,6 +348,9 @@ class FASTAHandler(FileHandler):
             # if rewind is ``True``, we can rewind the iterator and try again
             # this might be necessary if the FASTA file and the VCF have a different order of contigs
             if rewind:
+                self.logger.info("Rewinding FASTA iterator. The FASTA file and the "
+                                 "VCF file might have a different order of contigs.")
+
                 # renew fasta iterator
                 # noinspection all
                 del self._ref
@@ -454,15 +459,32 @@ class GFFHandler(FileHandler):
         return target_sites
 
     @staticmethod
+    def remove_overlaps(df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Remove overlapping coding sequences.
+
+        :param df: The coding sequences.
+        :return: The coding sequences without overlaps.
+        """
+        df['overlap'] = df['start'].shift(-1) <= df['end']
+
+        df = df[~df['overlap']]
+
+        return df.drop(columns=['overlap'])
+
+    @staticmethod
     def _compute_lengths(cds: pd.DataFrame) -> pd.DataFrame:
         """
-        Compute the lengths of coding sequences.
+        Compute coding sequences lengths.
 
         :param cds: The coding sequences.
         :return: The coding sequences with lengths.
         """
         # remove duplicates
         cds = cds.drop_duplicates(subset=['seqid', 'start'])
+
+        # remove overlaps
+        # cds = GFFHandler.remove_overlaps(cds)
 
         # create a new column for the difference between 'end' and 'start'
         cds.loc[:, 'length'] = cds['end'] - cds['start'] + 1

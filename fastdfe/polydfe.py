@@ -24,11 +24,11 @@ from typing_extensions import Self
 
 from .abstract_inference import AbstractInference, Inference
 from .config import Config
-from .parametrization import from_string, Parametrization, DiscreteParametrization
+from .parametrization import _from_string, Parametrization, DiscreteParametrization
 from .polydfe_utils import create_sfs_config, models
 
 # get logger
-logger = logging.getLogger('fastdfe')
+logger = logging.getLogger('fastdfe').getChild('PolydfeWrapper')
 
 
 class PolyDFEResult:
@@ -234,7 +234,7 @@ class PolyDFE(AbstractInference):
             execute = shell
 
         # save the spectra and init file, so they can be reviewed if necessary
-        # use tempfile to generate the file name.
+        # use temp file to generate the file name.
         with open(tempfile.NamedTemporaryFile().name, 'w') as spectra_file:
             with open(tempfile.NamedTemporaryFile().name, 'w') as init_file:
                 # save files
@@ -242,7 +242,7 @@ class PolyDFE(AbstractInference):
                 self.config.create_polydfe_init_file(init_file.name, n=self.config.data['sfs_neut'].n)
 
                 # add number of fragment if model is DiscreteParametrization
-                model = from_string(self.config.data['model'])
+                model = _from_string(self.config.data['model'])
                 k = str(model.k - 1) + ' ' if isinstance(model, DiscreteParametrization) else ''
 
                 # construct command string
@@ -375,7 +375,7 @@ class PolyDFE(AbstractInference):
 
         :return: List of parameter names
         """
-        return from_string(self.config.data['model']).param_names + ['eps', 'alpha']
+        return _from_string(self.config.data['model']).param_names + ['eps', 'alpha']
 
     def get_bootstrap_params(self) -> Dict[str, float]:
         """
@@ -414,7 +414,7 @@ class PolyDFE(AbstractInference):
         :return: Parametrization
         """
 
-        return from_string(self.config.data['model'])
+        return _from_string(self.config.data['model'])
 
     @model.setter
     def model(self, value):

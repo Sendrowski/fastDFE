@@ -29,16 +29,18 @@ def parallelize(
         func: Callable,
         data: list | np.ndarray,
         parallelize: bool = True,
-        pbar: bool = None
+        pbar: bool = None,
+        desc: str = None
 ) -> np.ndarray:
     """
     Convenience function that parallelizes the given function
     if specified or executes them sequentially otherwise.
 
-    :param pbar: Whether to show a progress bar
     :param parallelize: Whether to parallelize
     :param data: Data to iterate over
     :param func: Function to apply to each element of data
+    :param pbar: Whether to show a progress bar
+    :param desc: Description for progress bar
     :return: List of results
     """
     from . import disable_pbar
@@ -54,7 +56,7 @@ def parallelize(
 
     # whether to show a progress bar
     if pbar is True or (pbar is None and not parallelize and n > 1) or pbar is None and n > mp.cpu_count():
-        iterator = tqdm(iterator, total=n, disable=disable_pbar)
+        iterator = tqdm(iterator, total=n, disable=disable_pbar, desc=desc)
 
     return np.array(list(iterator), dtype=object)
 
@@ -816,7 +818,8 @@ class Optimization:
             debug_iterations: bool = True,
             print_info: bool = True,
             opts_mle: dict = None,
-            pbar: bool = None
+            pbar: bool = None,
+            desc: str = 'Inferring DFE',
     ) -> (OptimizeResult, dict):
         """
         Perform the optimization procedure.
@@ -832,6 +835,7 @@ class Optimization:
         :param opts_mle: Dictionary of options for the optimizer
         :param print_info: Whether to print information about the bounds
         :param pbar: Whether to show a progress bar
+        :param desc: Description for the progress bar
         :return: The optimization result and the likelihoods
         """
         # number of optimization runs
@@ -899,7 +903,7 @@ class Optimization:
         initial_params = [self.x0] + [self.sample_x0(self.x0) for _ in range(self.n_runs - 1)]
 
         # parallelize MLE for different initializations
-        results = parallelize(optimize, initial_params, self.parallelize, pbar=pbar)
+        results = parallelize(optimize, initial_params, self.parallelize, pbar=pbar, desc=desc)
 
         # list of the best likelihood for each run
         self.likelihoods = -np.array([res.fun for res in results])

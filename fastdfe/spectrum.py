@@ -633,7 +633,7 @@ class Spectra:
     @staticmethod
     def from_dict(data: dict) -> 'Spectra':
         """
-        Load from dictionary.
+        Load from nested dictionary first indexed by types and then by samples.
 
         :param data: Dictionary of lists indexed by types
         :return: Spectra object
@@ -665,9 +665,9 @@ class Spectra:
     @staticmethod
     def from_spectra(spectra: Dict[str, Spectrum]) -> 'Spectra':
         """
-        Create from dict of spectrum objects indexed by types.
+        Create from dict of spectrum objects indexed by type.
 
-        :param spectra: Dictionary of spectrum objects indexed by types
+        :param spectra: Dictionary of spectrum objects indexed by type
         :return: Spectra object
         """
         return Spectra.from_list([sfs.to_list() for sfs in spectra.values()], types=list(spectra.keys()))
@@ -788,6 +788,14 @@ class Spectra:
         :return: Dictionary of types and whether they are folded
         """
         return {t: s.is_folded() for t, s in self.to_spectra().items()}
+
+    def sort_types(self) -> 'Spectra':
+        """
+        Sort types alphabetically.
+
+        :return: Sorted spectra object
+        """
+        return Spectra.from_dataframe(self.data.sort_index(axis=1))
 
 
 def parse_polydfe_sfs_config(file: str) -> Spectra:

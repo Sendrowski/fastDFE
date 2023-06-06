@@ -1,5 +1,5 @@
 """
-VCF annotators.
+VCF annotations and an annotator to apply them.
 """
 
 __author__ = "Janek Sendrowski"
@@ -69,7 +69,7 @@ class Annotation:
         """
         Finalize the annotation. Called after all sites have been annotated.
         """
-        self.logger.info('Annotated {self.n_annotated} sites.')
+        self.logger.info(f'Annotated {self.n_annotated} sites.')
 
     def annotate_site(self, variant: Variant):
         """
@@ -702,10 +702,12 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         :param variant: The variant.
         :return: The codons.
         """
-        if 'synonymous_variant' in variant.INFO.get('ANN'):
+        ann = variant.INFO.get('ANN')
+
+        if 'synonymous_variant' in ann:
             return 1
 
-        if 'missense_variant' in variant.INFO.get('ANN'):
+        if 'missense_variant' in ann:
             return 0
 
         return None

@@ -55,7 +55,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart_R.html">Quickstart in R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart_R.html">Quickstart using R</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="current">
@@ -123,11 +123,10 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe:Using stratification: [neutral,selected].</span>
-<span class=" -Color -Color-Green">INFO:fastdfe:Counting number of sites.</span>
-2439037it [00:44, 55274.25it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Counting sites: 2439037it [02:16, 17821.79it/s]
+<span class=" -Color -Color-Green">INFO:fastdfe:Using stratification: [neutral, selected].</span>
 <span class=" -Color -Color-Green">INFO:fastdfe:Starting to parse.</span>
-100%|<span class=" -Color -Color-Black">██████████</span>| 2439037/2439037 [02:14&lt;00:00, 18170.60it/s]
+Processing sites:  79%|███████▉  | 1935472/2439037 [12:56&lt;03:15, 2581.94it/s]
 </pre></div>
 </div>
 </div>
@@ -138,12 +137,6 @@
 <span class="n">spectra</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
-</pre></div>
-</div>
-<img alt="../_images/aacc6e2117a6933b1bb115c5d5f2731b9555bb990843275f4031759cf3448008.png" src="../_images/aacc6e2117a6933b1bb115c5d5f2731b9555bb990843275f4031759cf3448008.png" />
 </div>
 </div>
 <p>fastDFE relies on VCF info tags to determine the degeneracy of a site but this behaviour can be customized (cf. <a class="reference internal" href="../modules/parser.html#fastdfe.parser.DegeneracyStratification" title="fastdfe.parser.DegeneracyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyStratification</span></code></a>).</p>
@@ -164,15 +157,6 @@
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe:Using stratification: [neutral,selected].[A,C,G,T].</span>
-<span class=" -Color -Color-Green">INFO:fastdfe:Counting number of sites.</span>
-2439037it [00:42, 57361.32it/s]
-<span class=" -Color -Color-Green">INFO:fastdfe:Starting to parse.</span>
-100%|<span class=" -Color -Color-Black">██████████</span>| 2439037/2439037 [02:12&lt;00:00, 18424.47it/s]
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -180,12 +164,6 @@
 <span class="n">spectra</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
-</pre></div>
-</div>
-<img alt="../_images/11b7494dc988712fbdb3b857c9d41bafc7b22579f346c4de99a46cadd5897792.png" src="../_images/11b7494dc988712fbdb3b857c9d41bafc7b22579f346c4de99a46cadd5897792.png" />
 </div>
 </div>
 <p>Note that fastDFE required the ancestral state of sites to be determined. <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a> does this by looking at the <code class="docutils literal notranslate"><span class="pre">AA</span></code> field but this can be customized. We admit there is currently no easy method for determining the ancestral states directly from a VCF file and are working on implementing one. You can also define custom Stratifications by extending <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a>).</p>

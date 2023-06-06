@@ -9,7 +9,8 @@ from matplotlib import pyplot as plt
 
 from fastdfe import GammaExpParametrization, BaseInference, Config, Visualization
 from fastdfe.discretization import Discretization
-from fastdfe.parametrization import DiscreteParametrization, GammaDiscreteParametrization, DisplacedGammaParametrization
+from fastdfe.parametrization import DiscreteParametrization, GammaDiscreteParametrization, \
+    DisplacedGammaParametrization, DiscreteFractionalParametrization
 
 
 class ParametrizationTestCase(TestCase):
@@ -170,7 +171,59 @@ class ParametrizationTestCase(TestCase):
         plt.legend()
         plt.show()
 
-        assert np.max(np.abs(d1 - d2)) < 0.03
+        assert np.max(np.abs(d1 - d2)[d.s != 0]) < 1e-12
+
+    def test_compare_exact_vs_empirical_cdf_discretized_fractional_parametrization(self):
+        """
+        Compare exact vs empirical CDF for DiscreteParametrization
+        """
+        p = DiscreteFractionalParametrization()
+
+        d = Discretization(
+            n=self.n,
+            intervals_ben=(1e-2, 1000, 1000),
+            intervals_del=(-1000000, -1e-2, 1000)
+        )
+
+        params = {'S1': 0.5, 'S2': 0.5, 'S3': 0.5, 'S4': 0.9, 'S5': 0.3}
+
+        d1 = np.cumsum(p.get_pdf(**params)(d.s) * d.interval_sizes)
+        d2 = p.get_cdf(**params)(d.s)
+
+        plt.plot(np.arange(d.n_intervals), d1, alpha=0.5, label='empirical CDF')
+        plt.plot(np.arange(d.n_intervals), d2, alpha=0.5, label='exact CDF')
+
+        plt.title(p.__class__.__name__)
+        plt.legend()
+        plt.show()
+
+        assert np.max(np.abs(d1 - d2)) < 0.005
+
+    def test_compare_pdf_vs_discretized_cdf_discretized_fractional_parametrization(self):
+        """
+        Compare PDF vs discretized CDF for DiscreteParametrization.
+        """
+        p = DiscreteFractionalParametrization()
+
+        d = Discretization(
+            n=self.n,
+            intervals_ben=(1e-2, 1000, 1000),
+            intervals_del=(-1000000, -1e-2, 1000)
+        )
+
+        params = {'S1': 0.5, 'S2': 0.5, 'S3': 0.5, 'S4': 0.9, 'S5': 0.3}
+
+        d1 = p.get_pdf(**params)(d.s)
+        d2 = p._discretize(params, d.bins) / d.interval_sizes
+
+        plt.plot(np.arange(d.n_intervals), d1, alpha=0.5, label='exact PDF')
+        plt.plot(np.arange(d.n_intervals), d2, alpha=0.5, label='empirical PDF')
+
+        plt.title(p.__class__.__name__)
+        plt.legend()
+        plt.show()
+
+        assert np.max(np.abs(d1 - d2)[d.s != 0]) < 1e-12
 
     def test_compare_exact_vs_empirical_cdf_gamma_discrete(self):
         """
@@ -299,6 +352,25 @@ class ParametrizationTestCase(TestCase):
         inf.plot_continuous()
         inf.plot_discretized()
 
+    def test_run_inference_discrete_fractional_parametrization(self):
+        """
+        Test that inference runs without error for DiscreteParametrization.
+        """
+        config = Config.from_file(self.config_file)
+
+        config.update(
+            model=DiscreteFractionalParametrization(),
+            do_bootstrap=True,
+            parallelize=False
+        )
+
+        inf = BaseInference.from_config(config)
+
+        inf.run()
+
+        inf.plot_continuous()
+        inf.plot_discretized()
+
     def test_run_inference_gamma_exp_parametrization(self):
         """
         Test that inference runs without error for GammaExpParametrization.
@@ -371,3 +443,15 @@ class ParametrizationTestCase(TestCase):
         model = GammaExpParametrization()
 
         Visualization.plot_cdf(model, model.x0, s=np.linspace(-100, 100, 1000))
+
+    def test_to_nominal_to_fractional_are_inverse_functions(self):
+        """
+        Test that to_nominal and to_fractional are inverse functions.
+        """
+        params = {'S1': 0.5, 'S2': 0.5, 'S3': 0.5, 'S4': 0.9, 'S5': 0.3}
+        p = DiscreteFractionalParametrization()
+
+        observed = p.to_fractional(p.to_nominal(params))
+        observed.pop('S6')
+
+        assert observed == params

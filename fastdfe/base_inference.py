@@ -31,7 +31,7 @@ from .config import Config
 from .discretization import Discretization
 from .json_handlers import CustomEncoder
 from .optimization import Optimization, flatten_dict, pack_params, expand_fixed, unpack_shared
-from .parametrization import Parametrization, from_string
+from .parametrization import Parametrization, _from_string
 from .spectrum import Spectrum, Spectra
 from .spectrum import standard_kingman
 from .visualization import Visualization
@@ -180,7 +180,7 @@ class BaseInference(AbstractInference):
                              'Note that we require monomorphic counts in order to infer the mutation rate.')
 
         #: The DFE parametrization
-        self.model: Parametrization = parametrization.from_string(model)
+        self.model: Parametrization = parametrization._from_string(model)
 
         if folded is None:
             #: Whether the SFS are folded
@@ -407,7 +407,7 @@ class BaseInference(AbstractInference):
         )
 
         # perform MLE
-        self.logger.info(f'Starting numerical optimization of {self.n_runs} '
+        self.logger.debug(f'Starting numerical optimization of {self.n_runs} '
                          'independently initialized samples which are run ' +
                          ('in parallel.' if self.parallelize else 'sequentially.'))
 
@@ -424,7 +424,8 @@ class BaseInference(AbstractInference):
             bounds=self.bounds,
             get_counts=self.get_counts(),
             n_runs=self.n_runs,
-            pbar=pbar
+            pbar=pbar,
+            desc='Performing inference'
         )
 
         # assign likelihoods
@@ -590,7 +591,8 @@ class BaseInference(AbstractInference):
             func=self.run_bootstrap_sample,
             data=seeds,
             parallelize=self.parallelize,
-            pbar=pbar
+            pbar=pbar,
+            desc='Bootstrapping'
         )
 
         # number of successful runs
@@ -677,7 +679,8 @@ class BaseInference(AbstractInference):
                 params,
                 sfs_neut=sfs_neut,
                 sfs_sel=sfs_sel
-            ))
+            )),
+            desc='Bootstrapping'
         )
 
         # unpack shared parameters
@@ -904,7 +907,10 @@ class BaseInference(AbstractInference):
             labels: List[str] = None,
             file: str = None,
             show: bool = True,
-            ax: plt.Axes = None
+            ax: plt.Axes = None,
+            title: str = 'SFS comparison',
+            use_subplots: bool = False,
+            show_monomorphic: bool = False
 
     ) -> plt.Axes:
         """
@@ -915,6 +921,9 @@ class BaseInference(AbstractInference):
         :param types: Types of SFS to plot.
         :param show: Whether to show plot.
         :param ax: Axes object to plot on.
+        :param title: Plot title
+        :param use_subplots: Whether to use subplots
+        :param show_monomorphic: Whether to show monomorphic counts
         :return: Axes object
         """
         if 'modelled' in types:
@@ -932,7 +941,10 @@ class BaseInference(AbstractInference):
             labels=types if labels is None else labels,
             file=file,
             show=show,
-            ax=ax
+            ax=ax,
+            title=title,
+            use_subplots=use_subplots,
+            show_monomorphic=show_monomorphic
         )
 
     def plot_observed_sfs(
@@ -1144,7 +1156,7 @@ class BaseInference(AbstractInference):
         """
 
         # get sub-model specifications
-        submodels_dfe = from_string(self.model).submodels
+        submodels_dfe = _from_string(self.model).submodels
         submodels_outer = dict(
             no_anc=dict(eps=0),
             anc={}

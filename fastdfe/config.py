@@ -15,9 +15,9 @@ import yaml
 from .json_handlers import CustomEncoder
 from .optimization import Covariate
 from .optimization import SharedParams, merge_dicts
-from .parametrization import Parametrization, from_string, to_string
+from .parametrization import Parametrization, _from_string, _to_string
 from .polydfe_utils import create_sfs_config, parse_init_file, create_init_file, models
-from .spectrum import Spectra, parse_polydfe_sfs_config
+from .spectrum import Spectra, parse_polydfe_sfs_config, Spectrum
 
 logger = logging.getLogger('fastdfe').getChild('Config')
 
@@ -33,8 +33,8 @@ class Config:
             polydfe_spectra_config: str = None,
             polydfe_init_file: str = None,
             polydfe_init_file_id: int = 1,
-            sfs_neut: Spectra = None,
-            sfs_sel: Spectra = None,
+            sfs_neut: Spectra | Spectrum = None,
+            sfs_sel: Spectra | Spectrum = None,
             intervals_del: (float, float, int) = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: (float, float, int) = (1.0e-5, 1.0e4, 1000),
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
@@ -104,8 +104,8 @@ class Config:
             fixed_params=fixed_params,
             shared_params=shared_params,
             covariates=covariates,
-            sfs_neut=sfs_neut,
-            sfs_sel=sfs_sel,
+            sfs_neut=Spectra.from_spectrum(sfs_neut) if isinstance(sfs_neut, Spectrum) else sfs_neut,
+            sfs_sel=Spectra.from_spectrum(sfs_sel) if isinstance(sfs_sel, Spectrum) else sfs_sel,
             do_bootstrap=do_bootstrap,
             n_bootstraps=n_bootstraps,
             parallelize=parallelize,
@@ -127,6 +127,11 @@ class Config:
         :param kwargs: Data to update.
         :return: Updated config.
         """
+        # convert spectrum to spectra objects
+        for key in ['sfs_neut', 'sfs_sel']:
+            if key in kwargs and isinstance(kwargs[key], Spectrum):
+                kwargs[key] = Spectra.from_spectrum(kwargs[key])
+
         self.data |= kwargs
 
         return self
@@ -141,7 +146,7 @@ class Config:
         :param id: ID of the init file.
         :param file: Path to the init file.
         """
-        fixed_params, x0 = parse_init_file(from_string(self.data['model']).param_names, file, id)
+        fixed_params, x0 = parse_init_file(_from_string(self.data['model']).param_names, file, id)
 
         # merge with existing config
         self.data['fixed_params'] = merge_dicts(self.data['fixed_params'], dict(all=fixed_params))
@@ -157,9 +162,9 @@ class Config:
         """
         create_init_file(
             file=file,
-            fixed_params=list(self.data['fixed_params'][type].keys()),
+            fixed_params=list(self.data['fixed_params'][type].keys()) if type in self.data['fixed_params'] else [],
             x0=self.data['x0'][type] if type in self.data['x0'] else {},
-            dfe_params=from_string(self.data['model']).param_names,
+            dfe_params=_from_string(self.data['model']).param_names,
             n=n
         )
 
@@ -186,8 +191,8 @@ class Config:
         """
         create_sfs_config(
             file=file,
-            sfs_neut=self.data['sfs_neut']['all'],
-            sfs_sel=self.data['sfs_sel']['all']
+            sfs_neut=self.data['sfs_neut'].all if isinstance(self.data['sfs_neut'], Spectra) else self.data['sfs_neut'],
+            sfs_sel=self.data['sfs_sel'].all if isinstance(self.data['sfs_sel'], Spectra) else self.data['sfs_sel']
         )
 
     def to_dict(self) -> dict:
@@ -290,7 +295,7 @@ class Config:
         :return: polyDFE model name.
         """
         # get name of configured model
-        name = to_string(self.data['model'])
+        name = _to_string(self.data['model'])
 
         # return polyDFE model name if it exists
         if name in models:

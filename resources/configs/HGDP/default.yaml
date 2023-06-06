@@ -1,5 +1,0 @@
-do_bootstrap: true
-model: GammaExpParametrization
-n_bootstraps: 1000
-n_runs: 100
-parallelize: false

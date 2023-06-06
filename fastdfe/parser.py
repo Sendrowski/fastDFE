@@ -1,5 +1,6 @@
 """
-Parser module.
+A VCF parser that can be used to extract the site frequency spectrum (SFS) from a VCF file.
+Stratifying the SFS is supported by providing a list of :class:`Stratification` instances.
 """
 
 __author__ = "Janek Sendrowski"
@@ -392,7 +393,7 @@ class VEPStratification(SynonymyStratification):
         :param variant: The vcf site
         :return: Type of the mutation, either ``neutral`` or ``selected``
         """
-        synonymy = variant.INFO.get(self.info_tag)
+        synonymy = variant.INFO.get(self.info_tag, '')
 
         if 'synonymous_variant' in synonymy:
             return 'neutral'
@@ -662,10 +663,10 @@ class Parser(VCFHandler):
         if variant.is_snp:
 
             # obtain called bases
-            bases_called = get_called_bases(variant.gt_bases[self.samples_mask])
+            genotypes = get_called_bases(variant.gt_bases[self.samples_mask])
 
             # number of samples
-            n_samples = len(bases_called)
+            n_samples = len(genotypes)
 
             # skip if not enough samples
             if n_samples < self.n:
@@ -681,7 +682,7 @@ class Parser(VCFHandler):
                 return
 
             # count called bases
-            counter = Counter(bases_called)
+            counter = Counter(genotypes)
 
             # determine ancestral allele count
             n_aa = counter[aa]
@@ -851,4 +852,4 @@ class Parser(VCFHandler):
         else:
             self.logger.info(f'Included {self.n_sites - self.n_skipped} out of {self.n_sites} sites in total.')
 
-        return Spectra(self.sfs)
+        return Spectra(self.sfs).sort_types()

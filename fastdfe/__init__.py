@@ -114,7 +114,7 @@ def raise_on_warning(message, category, filename, lineno, file=None, line=None):
 
 # load class from modules
 from .parametrization import Parametrization, GammaExpParametrization, DiscreteParametrization, \
-    GammaDiscreteParametrization, DisplacedGammaParametrization
+    GammaDiscreteParametrization, DisplacedGammaParametrization, DiscreteFractionalParametrization
 from .config import Config
 from .abstract_inference import Inference
 from .base_inference import BaseInference, InferenceResults
@@ -128,7 +128,7 @@ from .parser import Parser, Stratification, BaseTransitionStratification, BaseCo
 from .bio_handlers import VCFHandler
 from .annotation import Annotator, Annotation, MaximumParsimonyAnnotation, DegeneracyAnnotation, SynonymyAnnotation
 from .filtration import Filterer, Filtration, SNPFiltration, PolyAllelicFiltration, CodingSequenceFiltration, \
-    SNVFiltration, DeviantOutgroupFiltration, AllFiltration, NoFiltration
+    SNVFiltration, DeviantOutgroupFiltration, AllFiltration, NoFiltration, BiasedGCConversionFiltration
 
 __all__ = [
     'Parametrization',
@@ -136,6 +136,7 @@ __all__ = [
     'DiscreteParametrization',
     'GammaDiscreteParametrization',
     'DisplacedGammaParametrization',
+    'DiscreteFractionalParametrization',
     'Config',
     'Inference',
     'BaseInference',
@@ -170,5 +171,6 @@ __all__ = [
     'SNPFiltration',
     'SNVFiltration',
     'PolyAllelicFiltration',
+    'BiasedGCConversionFiltration',
     'Filterer',
 ]

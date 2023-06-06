@@ -15,7 +15,7 @@ import numpy as np
 from fastdfe import DegeneracyStratification, BaseTransitionStratification, TransitionTransversionStratification, \
     BaseContextStratification, AncestralBaseStratification, Parser, DegeneracyAnnotation, MaximumParsimonyAnnotation, \
     CodingSequenceFiltration, VEPStratification, SnpEffStratification, SynonymyAnnotation, ContigStratification, \
-    ChunkedStratification, AllFiltration
+    ChunkedStratification, AllFiltration, SynonymyStratification
 
 
 class ParserTestCase(TestCase):
@@ -375,19 +375,44 @@ class ParserTestCase(TestCase):
         pass
 
     @pytest.mark.slow
-    def test_parse_betula_complete_vcf_including_monomrphic(self):
+    def test_parse_betula_complete_vcf_biallelic(self):
+        """
+        Parse the VCF file of Betula spp.
+        """
+        p = Parser(
+            vcf="resources/genome/betula/biallelic.vcf.gz",
+            n=10,
+            annotations=[
+                SynonymyAnnotation(
+                    fasta_file="resources/genome/betula/genome.fasta",
+                    gff_file="resources/genome/betula/genome.gff.gz"
+                )
+            ],
+            filtrations=[
+                CodingSequenceFiltration(
+                    gff_file="resources/genome/betula/genome.gff.gz"
+                )
+            ],
+            stratifications=[SynonymyStratification()]
+        )
+
+        sfs = p.parse()
+
+        sfs.plot()
+
+    @pytest.mark.slow
+    def test_parse_betula_complete_vcf_including_monomorphic(self):
         """
         Parse the VCF file of Betula spp.
         """
         p = Parser(
             vcf="resources/genome/betula/all.vcf.gz",
-            n=20,
+            n=10,
             annotations=[
                 DegeneracyAnnotation(
                     fasta_file="resources/genome/betula/genome.fasta",
                     gff_file="resources/genome/betula/genome.gff.gz"
-                ),
-                MaximumParsimonyAnnotation()
+                )
             ],
             filtrations=[
                 CodingSequenceFiltration(

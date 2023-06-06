@@ -1,11 +1,12 @@
 """
-VCF filters.
+VCF filtrations and a filterer to apply them.
 """
 
 __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-05-11"
 
+import functools
 import logging
 from typing import Iterable, List, Optional, Callable, Dict
 
@@ -20,11 +21,12 @@ from .bio_handlers import get_major_base, GFFHandler, VCFHandler
 logger = logging.getLogger('fastdfe')
 
 
-def count_filtered(func: Callable) -> Callable:
+def _count_filtered(func: Callable) -> Callable:
     """
     Decorator that increases ``self.n_filtered`` by 1 if the decorated function returns False.
     """
 
+    @functools.wraps(func)
     def wrapper(self, variant):
         result = func(self, variant)
         if not result:
@@ -48,7 +50,7 @@ class Filtration:
         """
         self.logger = logger.getChild(self.__class__.__name__)
 
-    @count_filtered
+    @_count_filtered
     def filter_site(self, variant: Variant) -> bool:
         """
         Filter site.
@@ -70,7 +72,7 @@ class Filtration:
         """
         Perform any necessary post-processing. This method is called after the actual filtration.
         """
-        self.logger.info("Filtered out {self.n_filtered} sites.")
+        self.logger.info(f"Filtered out {self.n_filtered} sites.")
 
 
 class SNPFiltration(Filtration):
@@ -78,7 +80,7 @@ class SNPFiltration(Filtration):
     Only keep SNPs. Note that this includes discarding mono-morphic sites.
     """
 
-    @count_filtered
+    @_count_filtered
     def filter_site(self, variant: Variant) -> bool:
         """
         Filter site.
@@ -94,7 +96,7 @@ class SNVFiltration(Filtration):
     Only keep single site variants (discard indels and MNPs but keep monomorphic sites).
     """
 
-    @count_filtered
+    @_count_filtered
     def filter_site(self, variant: Variant) -> bool:
         """
         Filter site.
@@ -110,7 +112,7 @@ class PolyAllelicFiltration(Filtration):
     Filter out poly-allelic sites.
     """
 
-    @count_filtered
+    @_count_filtered
     def filter_site(self, variant: Variant) -> bool:
         """
         Filter site. Note that we don't check explicitly all alleles, but rather
@@ -127,7 +129,7 @@ class AllFiltration(Filtration):
     Filter out all sites. This is useful for testing purposes.
     """
 
-    @count_filtered
+    @_count_filtered
     def filter_site(self, variant: Variant) -> bool:
         """
         Filter site.
@@ -143,7 +145,7 @@ class NoFiltration(Filtration):
     Do not filter out any sites. This is useful for testing purposes.
     """
 
-    @count_filtered
+    @_count_filtered
     def filter_site(self, variant: Variant) -> bool:
         """
         Filter site.
@@ -196,7 +198,7 @@ class CodingSequenceFiltration(Filtration, GFFHandler):
         # noinspection PyStatementEffect
         self._cds
 
-    @count_filtered
+    @_count_filtered
     def filter_site(self, v: Variant) -> bool:
         """
         Filter site by whether it is in a coding sequence.
@@ -305,7 +307,7 @@ class DeviantOutgroupFiltration(Filtration):
         else:
             self.ingroup_mask = np.isin(self.samples, self.ingroups)
 
-    @count_filtered
+    @_count_filtered
     def filter_site(self, variant: Variant) -> bool:
         """
         Filter site.
@@ -326,6 +328,32 @@ class DeviantOutgroupFiltration(Filtration):
 
             # filter out if outgroup base is different from ingroup base
             return ingroup_base == outgroup_base
+
+        return True
+
+
+class BiasedGCConversionFiltration(Filtration):
+    """
+    Only retain A<->T and G<->C substitutions (which are unaffected
+    by biased gene conversion, see [CITGB]_).
+
+    Mono-allelic sites are always retained, and we assume sites are at most bi-allelic.
+
+    .. [CITGB] See Pouyet et al., 'Background selection and biased
+        gene conversion affect more than 95% of the human genome and bias demographic inferences.',
+        Elife, 7:e36317, 2018
+    """
+
+    @_count_filtered
+    def filter_site(self, variant: Variant) -> bool:
+        """
+        Remove bi-allelic sites that are not A<->T or G<->C substitutions.
+
+        :param variant: The variant to filter.
+        :return: ``True`` if the variant should be kept, ``False`` otherwise.
+        """
+        if variant.is_snp and len(variant.ALT) > 0:
+            return variant.REF in 'AT' and variant.ALT[0] in 'AT' or variant.REF in 'GC' and variant.ALT[0] in 'GC'
 
         return True
 

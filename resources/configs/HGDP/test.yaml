@@ -1,6 +1,0 @@
-do_bootstrap: true
-loss_type: likelihood
-model: GammaExpParametrization
-n_bootstraps: 10
-n_runs: 10
-parallelize: true

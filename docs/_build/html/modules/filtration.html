@@ -54,7 +54,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart_R.html">Quickstart in R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart_R.html">Quickstart using R</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
@@ -75,13 +75,10 @@
 <li class="toctree-l1"><a class="reference internal" href="parser.html">VCF Parsing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="annotation.html">VCF Annotation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">VCF Filtration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#fastdfe.filtration.Filterer"><code class="docutils literal notranslate"><span class="pre">Filterer</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filterer.__init__"><code class="docutils literal notranslate"><span class="pre">Filterer.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filterer.filtrations"><code class="docutils literal notranslate"><span class="pre">Filterer.filtrations</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filterer.output"><code class="docutils literal notranslate"><span class="pre">Filterer.output</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filterer.n_filtered"><code class="docutils literal notranslate"><span class="pre">Filterer.n_filtered</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filterer.is_filtered"><code class="docutils literal notranslate"><span class="pre">Filterer.is_filtered()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filterer.filter"><code class="docutils literal notranslate"><span class="pre">Filterer.filter()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.filtration.Filtration"><code class="docutils literal notranslate"><span class="pre">Filtration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filtration.n_filtered"><code class="docutils literal notranslate"><span class="pre">Filtration.n_filtered</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filtration.__init__"><code class="docutils literal notranslate"><span class="pre">Filtration.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filtration.filter_site"><code class="docutils literal notranslate"><span class="pre">Filtration.filter_site()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.filtration.SNPFiltration"><code class="docutils literal notranslate"><span class="pre">SNPFiltration</span></code></a><ul>
@@ -96,18 +93,45 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.PolyAllelicFiltration.filter_site"><code class="docutils literal notranslate"><span class="pre">PolyAllelicFiltration.filter_site()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.filtration.AllFiltration"><code class="docutils literal notranslate"><span class="pre">AllFiltration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.AllFiltration.filter_site"><code class="docutils literal notranslate"><span class="pre">AllFiltration.filter_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.filtration.NoFiltration"><code class="docutils literal notranslate"><span class="pre">NoFiltration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.NoFiltration.filter_site"><code class="docutils literal notranslate"><span class="pre">NoFiltration.filter_site()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.filtration.CodingSequenceFiltration"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.CodingSequenceFiltration.__init__"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.CodingSequenceFiltration.gff_file"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration.gff_file</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.CodingSequenceFiltration.cd"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration.cd</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.CodingSequenceFiltration.n_processed"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration.n_processed</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.CodingSequenceFiltration.aliases"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration.aliases</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.CodingSequenceFiltration.filter_site"><code class="docutils literal notranslate"><span class="pre">CodingSequenceFiltration.filter_site()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#fastdfe.filtration.Filtration"><code class="docutils literal notranslate"><span class="pre">Filtration</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filtration.n_filtered"><code class="docutils literal notranslate"><span class="pre">Filtration.n_filtered</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filtration.filter_site"><code class="docutils literal notranslate"><span class="pre">Filtration.filter_site()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.__init__"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.ingroups"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.ingroups</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.outgroups"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.outgroups</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.strict_mode"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.strict_mode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.samples"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.samples</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.ingroup_mask"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.ingroup_mask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.outgroup_mask"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.outgroup_mask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.create_masks"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.create_masks()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.filter_site"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.filter_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.filtration.BiasedGCConversionFiltration"><code class="docutils literal notranslate"><span class="pre">BiasedGCConversionFiltration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.BiasedGCConversionFiltration.filter_site"><code class="docutils literal notranslate"><span class="pre">BiasedGCConversionFiltration.filter_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.filtration.Filterer"><code class="docutils literal notranslate"><span class="pre">Filterer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filterer.__init__"><code class="docutils literal notranslate"><span class="pre">Filterer.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filterer.filtrations"><code class="docutils literal notranslate"><span class="pre">Filterer.filtrations</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filterer.output"><code class="docutils literal notranslate"><span class="pre">Filterer.output</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filterer.n_filtered"><code class="docutils literal notranslate"><span class="pre">Filterer.n_filtered</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filterer.is_filtered"><code class="docutils literal notranslate"><span class="pre">Filterer.is_filtered()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.Filterer.filter"><code class="docutils literal notranslate"><span class="pre">Filterer.filter()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -138,16 +162,352 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="vcf-filtration">
-<span id="modules-filtration"></span><h1>VCF Filtration<a class="headerlink" href="#vcf-filtration" title="Permalink to this heading"></a></h1>
+  <section id="module-fastdfe.filtration">
+<span id="vcf-filtration"></span><span id="modules-filtration"></span><h1>VCF Filtration<a class="headerlink" href="#module-fastdfe.filtration" title="Permalink to this heading"></a></h1>
+<p>VCF filtrations and a filterer to apply them.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.filtration.Filtration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">Filtration</span></span><a class="headerlink" href="#fastdfe.filtration.Filtration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for filtering sites based on certain criteria.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.Filtration.n_filtered">
+<span class="sig-name descname"><span class="pre">n_filtered</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#fastdfe.filtration.Filtration.n_filtered" title="Permalink to this definition"></a></dt>
+<dd><p>The number of sites that didn’t pass the filter.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.Filtration.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.Filtration.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize filtration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.Filtration.filter_site">
+<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.Filtration.filter_site" title="Permalink to this definition"></a></dt>
+<dd><p>Filter site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to filter.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the variant should be kept, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.filtration.SNPFiltration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">SNPFiltration</span></span><a class="headerlink" href="#fastdfe.filtration.SNPFiltration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
+<p>Only keep SNPs. Note that this includes discarding mono-morphic sites.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.SNPFiltration.filter_site">
+<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.SNPFiltration.filter_site" title="Permalink to this definition"></a></dt>
+<dd><p>Filter site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to filter.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the variant is an SNP, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.filtration.SNVFiltration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">SNVFiltration</span></span><a class="headerlink" href="#fastdfe.filtration.SNVFiltration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
+<p>Only keep single site variants (discard indels and MNPs but keep monomorphic sites).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.SNVFiltration.filter_site">
+<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.SNVFiltration.filter_site" title="Permalink to this definition"></a></dt>
+<dd><p>Filter site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to filter.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the variant is kept, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.filtration.PolyAllelicFiltration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">PolyAllelicFiltration</span></span><a class="headerlink" href="#fastdfe.filtration.PolyAllelicFiltration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
+<p>Filter out poly-allelic sites.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.PolyAllelicFiltration.filter_site">
+<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.PolyAllelicFiltration.filter_site" title="Permalink to this definition"></a></dt>
+<dd><p>Filter site. Note that we don’t check explicitly all alleles, but rather
+rely on <code class="docutils literal notranslate"><span class="pre">ALT</span></code> field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to filter.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the variant is not poly-allelic, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.filtration.AllFiltration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">AllFiltration</span></span><a class="headerlink" href="#fastdfe.filtration.AllFiltration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
+<p>Filter out all sites. This is useful for testing purposes.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.AllFiltration.filter_site">
+<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.AllFiltration.filter_site" title="Permalink to this definition"></a></dt>
+<dd><p>Filter site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to filter.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.filtration.NoFiltration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">NoFiltration</span></span><a class="headerlink" href="#fastdfe.filtration.NoFiltration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
+<p>Do not filter out any sites. This is useful for testing purposes.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.NoFiltration.filter_site">
+<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.NoFiltration.filter_site" title="Permalink to this definition"></a></dt>
+<dd><p>Filter site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to filter.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">CodingSequenceFiltration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gff_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GFFHandler</span></code></p>
+<p>Filter out sites that are not in coding sequences. This filter should find frequent use when parsing
+spectra for DFE inference as we only consider sites in coding sequences for this purpose.
+By using it, the annotation and parsing of unnecessary sites can be avoided which increases the speed.
+Note that we assume here that within contigs, sites in the GFF file are sorted by position in ascending order.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gff_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create a new filtration instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gff_file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The GFF file.</p></li>
+<li><p><strong>aliases</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – Dictionary of aliases for the contigs in the VCF file, e.g. <code class="docutils literal notranslate"><span class="pre">{'chr1':</span> <span class="pre">['1']}</span></code>.
+This is used to match the contig names in the VCF file with the contig names in the FASTA file.</p></li>
+<li><p><strong>cache</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to cache files that are downloaded from URLs</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration.cd">
+<span class="sig-name descname"><span class="pre">cd</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration.cd" title="Permalink to this definition"></a></dt>
+<dd><p>The coding sequence enclosing the current variant or the closest one downstream.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration.n_processed">
+<span class="sig-name descname"><span class="pre">n_processed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration.n_processed" title="Permalink to this definition"></a></dt>
+<dd><p>The number of processed sites.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration.aliases">
+<span class="sig-name descname"><span class="pre">aliases</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration.aliases" title="Permalink to this definition"></a></dt>
+<dd><p>The contig aliases.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration.filter_site">
+<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration.filter_site" title="Permalink to this definition"></a></dt>
+<dd><p>Filter site by whether it is in a coding sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to filter.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the variant is in a coding sequence, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">DeviantOutgroupFiltration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outgroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ingroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
+<p>Filter out sites where the major allele of the specified outgroup samples differs from the major
+allele of the ingroup samples.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outgroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ingroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Construct DeviantOutgroupFiltration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outgroups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The name of the outgroup samples to consider.</p></li>
+<li><p><strong>ingroups</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – The name of the ingroup samples to consider, defaults to all samples but the outgroups.</p></li>
+<li><p><strong>strict_mode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to filter out sites where no outgroup sample is present, defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<p>which is recommended.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.ingroups">
+<span class="sig-name descname"><span class="pre">ingroups</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.ingroups" title="Permalink to this definition"></a></dt>
+<dd><p>The ingroup samples.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.outgroups">
+<span class="sig-name descname"><span class="pre">outgroups</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.outgroups" title="Permalink to this definition"></a></dt>
+<dd><p>The outgroup samples.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.strict_mode">
+<span class="sig-name descname"><span class="pre">strict_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.strict_mode" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to filter out sites where no outgroup sample is present.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.samples">
+<span class="sig-name descname"><span class="pre">samples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.samples" title="Permalink to this definition"></a></dt>
+<dd><p>The samples found in the VCF file.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.ingroup_mask">
+<span class="sig-name descname"><span class="pre">ingroup_mask</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.ingroup_mask" title="Permalink to this definition"></a></dt>
+<dd><p>The ingroup mask.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.outgroup_mask">
+<span class="sig-name descname"><span class="pre">outgroup_mask</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.outgroup_mask" title="Permalink to this definition"></a></dt>
+<dd><p>The outgroup mask.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.create_masks">
+<span class="sig-name descname"><span class="pre">create_masks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.create_masks" title="Permalink to this definition"></a></dt>
+<dd><p>Create ingroup and outgroup masks based on the samples.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.filter_site">
+<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.filter_site" title="Permalink to this definition"></a></dt>
+<dd><p>Filter site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to filter.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the variant should be kept, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.filtration.BiasedGCConversionFiltration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">BiasedGCConversionFiltration</span></span><a class="headerlink" href="#fastdfe.filtration.BiasedGCConversionFiltration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
+<p>Only retain A&lt;-&gt;T and G&lt;-&gt;C substitutions (which are unaffected
+by biased gene conversion, see <a class="reference internal" href="#citgb" id="id1"><span>[CITGB]</span></a>).</p>
+<p>Mono-allelic sites are always retained, and we assume sites are at most bi-allelic.</p>
+<div role="list" class="citation-list">
+<div class="citation" id="citgb" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">CITGB</a><span class="fn-bracket">]</span></span>
+<p>See Pouyet et al., ‘Background selection and biased
+gene conversion affect more than 95% of the human genome and bias demographic inferences.’,
+Elife, 7:e36317, 2018</p>
+</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.BiasedGCConversionFiltration.filter_site">
+<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.BiasedGCConversionFiltration.filter_site" title="Permalink to this definition"></a></dt>
+<dd><p>Remove bi-allelic sites that are not A&lt;-&gt;T or G&lt;-&gt;C substitutions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to filter.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the variant should be kept, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="fastdfe.filtration.Filterer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">Filterer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vcf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtrations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><span class="pre">fastdfe.filtration.Filtration</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_ancestral</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sites</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.Filterer" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">Filterer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vcf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtrations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><span class="pre">fastdfe.filtration.Filtration</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_ancestral</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sites</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.Filterer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">VCFHandler</span></code></p>
-<p>Base class for filters.</p>
+<p>Filter a VCF file using a list of filtrations.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.filtration.Filterer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vcf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtrations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><span class="pre">fastdfe.filtration.Filtration</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_ancestral</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sites</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.Filterer.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vcf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtrations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><span class="pre">fastdfe.filtration.Filtration</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_ancestral</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sites</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.Filterer.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Create a new filter instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -158,6 +518,7 @@
 <li><p><strong>info_ancestral</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The info field for the ancestral allele.</p></li>
 <li><p><strong>max_sites</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The maximum number of sites to process.</p></li>
 <li><p><strong>seed</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The seed for the random number generator.</p></li>
+<li><p><strong>cache</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to cache files downloaded from urls.</p></li>
 </ul>
 </dd>
 </dl>
@@ -203,114 +564,6 @@
 <span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.Filterer.filter" title="Permalink to this definition"></a></dt>
 <dd><p>Filter the VCF.</p>
 </dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="fastdfe.filtration.SNPFiltration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">SNPFiltration</span></span><a class="headerlink" href="#fastdfe.filtration.SNPFiltration" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
-<p>Only keep SNPs (discard monomorphic sites).</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.filtration.SNPFiltration.filter_site">
-<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.SNPFiltration.filter_site" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="fastdfe.filtration.SNVFiltration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">SNVFiltration</span></span><a class="headerlink" href="#fastdfe.filtration.SNVFiltration" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
-<p>Only keep single site variants (discardi indels and MNPs but keep monomorphic sites).</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.filtration.SNVFiltration.filter_site">
-<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.SNVFiltration.filter_site" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="fastdfe.filtration.PolyAllelicFiltration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">PolyAllelicFiltration</span></span><a class="headerlink" href="#fastdfe.filtration.PolyAllelicFiltration" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
-<p>Filter out poly-allelic sites.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.filtration.PolyAllelicFiltration.filter_site">
-<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.PolyAllelicFiltration.filter_site" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">CodingSequenceFiltration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gff_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
-<p>Filter out sites that are not in coding sequences. This filter should find frequent use when parsing
-spectra for DFE inference as we only consider sites in coding sequences for this purpose.
-By using it, the annotation and parsing of unnecessary sites can be avoided which increases the speed.
-Note that we assume here that within contigs, sites in the GFF file are sorted by position in ascending order.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gff_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Create a new filtration instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>gff_file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The GFF file.</p></li>
-<li><p><strong>aliases</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – Dictionary of aliases for the contigs in the VCF file, e.g. <code class="docutils literal notranslate"><span class="pre">{'chr1':</span> <span class="pre">['1']}</span></code>.
-This is used to match the contig names in the VCF file to the contig names in the FASTA file.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration.gff_file">
-<span class="sig-name descname"><span class="pre">gff_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration.gff_file" title="Permalink to this definition"></a></dt>
-<dd><p>The GFF file.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration.cd">
-<span class="sig-name descname"><span class="pre">cd</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration.cd" title="Permalink to this definition"></a></dt>
-<dd><p>The coding sequence enclosing the current variant or the closest one downstream.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration.n_processed">
-<span class="sig-name descname"><span class="pre">n_processed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration.n_processed" title="Permalink to this definition"></a></dt>
-<dd><p>The number of processed sites.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration.aliases">
-<span class="sig-name descname"><span class="pre">aliases</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration.aliases" title="Permalink to this definition"></a></dt>
-<dd><p>The contig aliases.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.filtration.CodingSequenceFiltration.filter_site">
-<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.CodingSequenceFiltration.filter_site" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="fastdfe.filtration.Filtration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">Filtration</span></span><a class="headerlink" href="#fastdfe.filtration.Filtration" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Base class for filtering sites based on certain criteria.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.filtration.Filtration.n_filtered">
-<span class="sig-name descname"><span class="pre">n_filtered</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#fastdfe.filtration.Filtration.n_filtered" title="Permalink to this definition"></a></dt>
-<dd><p>The number of sites that didn’t pass the filter.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.filtration.Filtration.filter_site">
-<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.Filtration.filter_site" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

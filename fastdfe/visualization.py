@@ -325,7 +325,7 @@ class Visualization:
             show: bool = True,
             title: str = 'SFS comparison',
             use_subplots: bool = False,
-            show_monomorphic: bool = False,
+            show_monomorphic: bool = False
     ) -> plt.Axes:
         """
         Plot SFS comparison.
@@ -680,7 +680,7 @@ class Visualization:
 
         ax.set_xticks([i + (width_total - width) / 2 for i in indices_ticks], indices_ticks)
 
-        ax.set_xlabel('allele count')
+        ax.set_xlabel('frequency')
 
         # remove x-margins
         ax.autoscale(tight=True, axis='x')

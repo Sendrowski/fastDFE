@@ -17,7 +17,7 @@ from matplotlib import pyplot as plt
 from typing_extensions import Self
 
 from .bootstrap import Bootstrap
-from .parametrization import Parametrization, from_string
+from .parametrization import Parametrization, _from_string
 from .visualization import Visualization
 
 logger = logging.getLogger("fastdfe")
@@ -447,7 +447,7 @@ class Inference:
         :return: Discretized DFE
         """
         # discrete DFE
-        y = from_string(model)._discretize(params, intervals)
+        y = _from_string(model)._discretize(params, intervals)
 
         # return normalized histogram
         return y / y.sum()
