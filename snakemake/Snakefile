@@ -747,7 +747,7 @@ rule recompress_bgzip_fasta:
     conda:
         "envs/tabix.yaml"
     shell:
-        "bgzip -cd {input} | bgzip -c > {output}"
+        "gzip -cd {input} | bgzip -c > {output}"
 
 
 # predict the variants' effects with VEP
