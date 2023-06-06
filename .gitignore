@@ -1,5 +1,6 @@
 /resources/genome/
 /snakemake/results/
+/snakemake/scratch/
 .snakemake/
 .snakemake_timestamp
 /dist/
