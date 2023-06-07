@@ -18,10 +18,10 @@ is_macos = config.get('macos',is_macos)
 
 if is_macos:
     # we installed it locally
-    base_env = 'envs/base.yaml'
+    dev_env = 'envs/dev.yaml'
 else:
     # this only works on Linux
-    base_env = 'envs/base_with_polydfe.yaml'
+    dev_env = 'envs/dev_with_polydfe.yaml'
 
 
 def extract_opt(str: str, name, default_value=None) -> str:
@@ -194,7 +194,7 @@ rule create_config:
     params:
         model=lambda w: polydfe_models[w.model]
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/create_config.py"
 
@@ -210,7 +210,7 @@ rule modify_config_do_bootstrap:
             n_bootstraps=int(w.n)
         )
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/modify_config.py"
 
@@ -225,7 +225,7 @@ rule modify_config_seeded:
             seed=int(w.seed)
         )
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/modify_config.py"
 
@@ -237,7 +237,7 @@ rule infer_dfe:
         summary="results/fastdfe/{config}/summary.json",
         serialized="results/fastdfe/{config}/serialized.json"
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/infer_dfe.py"
 
@@ -253,7 +253,7 @@ rule infer_dfe_polyDFE:
     params:
         bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
     conda:
-        "envs/dev.yaml"
+        dev_env
     script:
         "scripts/infer_dfe_polydfe.py"
 
@@ -269,7 +269,7 @@ rule infer_dfe_polyDFE_bootstrap:
     params:
         bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
     conda:
-        "envs/dev.yaml"
+        dev_env
     script:
         "scripts/infer_dfe_polydfe.py"
 
@@ -284,7 +284,7 @@ rule visualize_DFE_inference:
         mle_params="results/graphs/fastdfe/{config}/mle_params.png",
         bucket_sizes="results/graphs/fastdfe/{config}/bucket_sizes.png"
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/plot_dfe_inference.py"
 
@@ -296,7 +296,7 @@ rule create_bootstrap_polyDFE:
     output:
         "results/polydfe/{config}/bootstraps/{i}/config.yaml"
     conda:
-        "envs/dev.yaml"
+        dev_env
     script:
         "scripts/create_bootstrap_polydfe.py"
 
@@ -310,7 +310,7 @@ rule merge_bootstraps_polyDFE:
     output:
         "results/polydfe/{config}_bootstrapped_{n}/serialized.json"
     conda:
-        "envs/dev.yaml"
+        dev_env
     script:
         "scripts/merge_bootstraps_polydfe.py"
 
@@ -322,7 +322,7 @@ rule visualize_polyDFE_inference:
         dfe_discretized="results/graphs/polydfe/{config}/dfe_discretized.png",
         mle_params="results/graphs/polydfe/{config}/mle_params.png"
     conda:
-        "envs/dev.yaml"
+        dev_env
     script:
         "scripts/plot_polydfe_inference.py"
 
@@ -336,7 +336,7 @@ rule combine_plots:
     params:
         titles=lambda w: expand_comparisons(w.path)[1]
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/combine_plots.py"
 
@@ -348,7 +348,7 @@ rule test_overlapping_confidence_intervals:
     output:
         touch("results/testing/{config}/overlapping_confidence_intervals.txt")
     conda:
-        "envs/dev.yaml"
+        dev_env
     script:
         "scripts/check_overlapping_confidence_intervals.py"
 
@@ -359,7 +359,7 @@ rule copy_to_testing:
     output:
         "../testing/{all}"
     conda:
-        base_env
+        "envs/base.yaml"
     shell:
         "cp -r {input} {output}"
 
@@ -400,7 +400,7 @@ rule merge_spectra_species:
     params:
         names=lambda w: w.species.split('.')
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/combine_spectra.py"
 
@@ -415,7 +415,7 @@ rule create_config_from_spectra:
     params:
         model=lambda w: polydfe_models[w.model]
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/create_config_from_spectra.py"
 
@@ -428,7 +428,7 @@ rule plot_tool_comparison:
         discretized='results/graphs/tool_comp/{config}/discretized.png',
         inferred_params='results/graphs/tool_comp/{config}/inferred_params.png'
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/plot_tool_comparison.py"
 
@@ -444,7 +444,7 @@ rule tool_comparison_collage:
         titles=lambda w: [f'{n}_bootstrapped_100' for n in configs],
         title_size_rel=15
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/combine_plots.py"
 
@@ -572,7 +572,7 @@ rule parse_vcf:
         n=lambda w: int(w.n),
         stratifications=lambda w: w.stratifications.split('.')
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/parse_vcf.py"
 
@@ -584,7 +584,7 @@ rule merge_spectra:
     output:
         "results/spectra/betula/{sample_set}/{stratifications}/{n}/all.csv"
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/merge_spectra.py"
 
@@ -596,7 +596,7 @@ rule run_joint_inference_from_templates:
         summary="results/fastdfe/templates/shared/{config}/summary.json",
         serialized="results/fastdfe/templates/shared/{config}/serialized.json"
     conda:
-        base_env
+        "envs/base.yaml"
     script:
         "scripts/infer_shared_dfe.py"
 
@@ -1011,7 +1011,7 @@ rule infer_dfe_hgdp_polydfe:
     params:
         bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
     conda:
-        "envs/dev.yaml"
+        dev_env
     script:
         "scripts/infer_dfe_polydfe.py"
 

@@ -1,0 +1,20 @@
+name: dev-fastdfe
+channels:
+  - conda-forge
+  - genomedk
+dependencies:
+  - dadi
+  - r-base
+  - rpy2
+  - r-rjsonio
+  - r-irkernel
+  - jupyterlab
+  - polydfe=2.0
+  - pip
+  - pip:
+    - pytest
+    - pytest-xdist
+    - pytest-cov
+    - pytest-sugar
+    - pytest-pycharm
+    - -r requirements_testing.txt

@@ -1,8 +1,0 @@
-name: base-fastdfe
-channels:
-  - genomedk
-dependencies:
-  - polydfe=2.0
-  - pip
-  - pip:
-      - -r requirements.txt
