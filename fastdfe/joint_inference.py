@@ -378,16 +378,12 @@ class JointInference(BaseInference):
 
     def run(
             self,
-            do_bootstrap: bool = None,
-            pbar: bool = True,
             **kwargs
     ) -> Spectrum:
         """
         Run inference.
 
-        :param do_bootstrap: Whether to perform bootstrapping.
-        :param pbar: Whether to show progress bar.
-        :param kwargs: Additional keyword arguments passed to
+        :param kwargs: Additional keyword arguments
         :return: Modelled SFS.
         """
 
@@ -412,15 +408,15 @@ class JointInference(BaseInference):
             :param data: Tuple of type and inference object.
             :return: Tuple of type and inference object.
             """
+            # issue notice
+            self.logger.info(f"Running marginal inference for type '{data[0]}'.")
+
             data[1].run_if_required(
                 do_bootstrap=False,
                 pbar=False
             )
 
             return data
-
-        # issue notice
-        self.logger.info(f"Running marginal inferences for type 'all'.")
 
         # run for 'all' type
         run_marginal(('all', self.marginal_inferences['all']))
@@ -458,7 +454,7 @@ class JointInference(BaseInference):
         """
         return dict((t, inf) for t, inf in self.marginal_inferences.items() if t != 'all')
 
-    def run_joint(self):
+    def run_joint(self) -> Spectrum:
         """
         Run joint optimization.
 
@@ -685,7 +681,9 @@ class JointInference(BaseInference):
         ) as pbar:
 
             # bootstrap marginal inferences
-            for inf in self.marginal_inferences.values():
+            for t, inf in self.marginal_inferences.items():
+                self.logger.info(f"Bootstrapping type '{t}'.")
+
                 inf.bootstrap(
                     n_samples=self.n_bootstraps,
                     parallelize=self.parallelize,
@@ -929,7 +927,7 @@ class JointInference(BaseInference):
 
     def plot_sfs_comparison(
             self,
-            sfs_types: List[Literal['modelled', 'observed', 'modelled', 'neutral']] = ['modelled', 'observed'],
+            sfs_types: List[Literal['modelled', 'observed', 'selected', 'neutral']] = ['modelled', 'observed'],
             types: List[str] = None,
             labels: List[str] = None,
             file: str = None,

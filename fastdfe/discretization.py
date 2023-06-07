@@ -352,14 +352,13 @@ class Discretization:
 
     def get_allele_count_regularized(self, S: float | np.ndarray, k: float | np.ndarray) -> float | np.ndarray:
         """
-        As get_allele_count(S, k) but using the respective limits
-        for S close to zero and S very negative.
-        Note that S and k need to have the same shape due to
-        the conditioning.
+        As :meth:`get_allele_count` but using the respective limits
+        for ``S`` close to zero and ``S`` very negative.
+        Note that ``S`` and ``k`` need to have the same shape.
 
         :param S: Population-scaled selection coefficient
         :param k: Allele count
-        :return: Number of counts in frequency class P(k)
+        :return: Number of counts in frequency class ``P(k)`
         """
         # make it accept scalars for S
         if isinstance(S, (float, int)):
