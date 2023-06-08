@@ -1,0 +1,57 @@
+---- Running command
+---- ./polyDFE -d /scratch/38474721/tmpmswyernn -m C -i /scratch/38474721/tmpou7re7gp 1 -v 1 
+---- Performing inference using model C
+
+---- Performing inference on /scratch/38474721/tmpmswyernn
+----      with -i /scratch/38474721/tmpou7re7gp 1
+---- Data /scratch/38474721/tmpmswyernn does not contain divergence counts. Using option -w.
+---- No mutation variability. Using Poisson likelihood.
+
+
+---- Using provided initial values
+
+-- Starting local optimization
+-- Optimizing all parameters
+  it        eps_an     theta_bar           S_d             b           p_b           S_b           r 2           r 3           r 4           r 5           r 6           r 7           r 8           r 9           ln lk          grad status 
+   0     0.0000045      0.000009        -10000           0.2           0.1             2             1             1             1             1             1             1             1             1 -3787.651586714 5.29425325173   -2 
+   1     0.0000045      0.000009        -10000           0.2           0.1             2             1             1             1             1             1             1             1             1 -3787.651586714           NAN   -8 
+   2     0.0000045      0.000009        -10000           0.2           0.1             2             1             1             1             1             1             1             1             1 -3787.651586714           NAN   -8 
+   3     0.0000045      0.000009        -10000           0.2           0.1             2             1             1             1             1             1             1             1             1 -3787.651586714 5.29425325173   -8 
+-- Local optimization: reached maximum number of likelihood evaluations allowed.
+-- Found new optimum with likelihood -3787.651586714649966 and gradient 5.29425
+
+---- Best joint likelihood found -3787.651586714649966 with gradient 5.29425
+
+---- Results for /scratch/38474721/tmpmswyernn 
+--  Model: C
+--        eps_an     theta_bar             a 
+--     0.0000045      0.000009            -1 
+--           S_d             b           p_b           S_b 
+--        -10000           0.2           0.1             2 
+--           r 2           r 3           r 4           r 5           r 6           r 7           r 8           r 9 
+--             1             1             1             1             1             1             1             1 
+
+---- Expected P_neut(i), 0 < i < n (neutral SFS per site) 
+E[P_neut(1)] = 0.0000090000
+E[P_neut(2)] = 0.0000045000
+E[P_neut(3)] = 0.0000030000
+E[P_neut(4)] = 0.0000022500
+E[P_neut(5)] = 0.0000018000
+E[P_neut(6)] = 0.0000015000
+E[P_neut(7)] = 0.0000012857
+E[P_neut(8)] = 0.0000011250
+E[P_neut(9)] = 0.0000010000
+
+---- Expected P_sel(i), 0 < i < n (selected SFS per site) 
+E[P_sel(1)] = 0.0000026953
+E[P_sel(2)] = 0.0000012245
+E[P_sel(3)] = 0.0000007954
+E[P_sel(4)] = 0.0000005960
+E[P_sel(5)] = 0.0000004832
+E[P_sel(6)] = 0.0000004124
+E[P_sel(7)] = 0.0000003656
+E[P_sel(8)] = 0.0000003341
+E[P_sel(9)] = 0.0000003134
+
+---- alpha_dfe = 0.680937
+
