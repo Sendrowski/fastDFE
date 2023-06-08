@@ -148,6 +148,7 @@ class Visualization:
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             title: str = 'discretized DFE',
             interval_labels: List[str] = None,
+            kwargs_legend: dict = dict(prop=dict(size=8)),
 
     ) -> plt.Axes:
         """
@@ -162,6 +163,7 @@ class Visualization:
         :param show: Whether to show plot
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bars.
         :param ax: Axes to plot on
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes
         """
         # number of intervals
@@ -210,7 +212,7 @@ class Visualization:
 
         # show legend if labels were given
         if labels is not None:
-            plt.legend(prop=dict(size=8))
+            plt.legend(**kwargs_legend)
 
         # remove x-margins
         ax.autoscale(tight=True, axis='x')
@@ -231,6 +233,7 @@ class Visualization:
             scale: Literal['log', 'linear'] = 'lin',
             ylim: float = 1e-2,
             scale_density: bool = False,
+            kwargs_legend: dict = dict(prop=dict(size=8)),
             **kwargs
     ) -> plt.Axes:
         """
@@ -253,6 +256,7 @@ class Visualization:
         :param show: Whether to show plot
         :param scale_density: Whether to scale the density by the bin size
         :param ax: Axes to plot on
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes
         """
         from fastdfe.discretization import get_midpoints_and_spacing
@@ -290,7 +294,7 @@ class Visualization:
 
         # show legend if labels were given
         if labels is not None:
-            plt.legend(prop=dict(size=8))
+            plt.legend(**kwargs_legend)
 
         # remove x-margins
         ax.set_xmargin(0)
@@ -325,7 +329,8 @@ class Visualization:
             show: bool = True,
             title: str = 'SFS comparison',
             use_subplots: bool = False,
-            show_monomorphic: bool = False
+            show_monomorphic: bool = False,
+            kwargs_legend: dict = dict(prop=dict(size=8)),
     ) -> plt.Axes:
         """
         Plot SFS comparison.
@@ -338,6 +343,7 @@ class Visualization:
         :param file: File path to save plot to
         :param show: Whether to show plot
         :param ax: Axes to plot on
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes
         """
         # plot modelled vs observed non-neutral SFS
@@ -349,7 +355,8 @@ class Visualization:
             show_monomorphic=show_monomorphic,
             title=title,
             file=file,
-            show=show
+            show=show,
+            kwargs_legend=kwargs_legend
         )
 
         return ax
@@ -394,7 +401,8 @@ class Visualization:
             show: bool = True,
             title: str = 'parameter estimates',
             legend: bool = True,
-            scale: Literal['lin', 'log', 'symlog'] = 'log'
+            scale: Literal['lin', 'log', 'symlog'] = 'log',
+            kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right')
     ) -> plt.Axes:
         """
         Visualize the inferred parameters and their confidence intervals.
@@ -410,6 +418,7 @@ class Visualization:
         :param file: File path to save plot to
         :param show: Whether to show plot
         :param ax: Axes to plot on
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes
         """
         n_types = len(values)
@@ -457,7 +466,7 @@ class Visualization:
 
         # show legend if specified
         if legend:
-            plt.legend(prop=dict(size=8), loc='upper right')
+            plt.legend(**kwargs_legend)
 
         # set title
         ax.set_title(title)
@@ -480,7 +489,7 @@ class Visualization:
             title: str = 'parameter estimates'
     ) -> plt.Axes:
         """
-        Visualize the inferred parameters using a violin plot.
+        Visualize the inferred parameters using a boxplot.
 
         :param values: Type-indexed dictionary of dataframes with parameters as columns and values as rows
         :param param_names: Parameters to plot
@@ -592,7 +601,8 @@ class Visualization:
             title: str = None,
             n_ticks=10,
             file: str = None,
-            show: bool = True
+            show: bool = True,
+            kwargs_legend: dict = dict(prop=dict(size=8))
     ) -> plt.Axes:
         """
         Plot the given 1D spectra.
@@ -607,6 +617,7 @@ class Visualization:
         :param log_scale: Whether to use logarithmic y-scale
         :param file: File to save plot to
         :param show: Whether to show the plot
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes
         """
         if len(spectra) == 0:
@@ -695,7 +706,7 @@ class Visualization:
             # set title
             ax.set_title(title)
 
-            ax.legend(prop=dict(size=8))
+            ax.legend(**kwargs_legend)
 
         # show and save plot
         Visualization.show_and_save(file, show)
@@ -794,12 +805,12 @@ class Visualization:
     def plot_likelihoods(
             likelihoods: list | np.ndarray,
             file: str, show: bool,
-            title: str,
             ax: plt.Axes,
+            title: str = 'likelihoods',
             scale: Literal['lin', 'log', 'symlog'] = 'lin'
     ) -> plt.Axes:
         """
-        A violin plot of the likelihoods specified.
+        A scatter plot of the likelihoods specified.
 
         :param scale: Scale of y-axis
         :param likelihoods: Likelihoods to plot
@@ -809,20 +820,16 @@ class Visualization:
         :param ax: Axes to plot on
         :return: Axes
         """
-        # convert likelihoods to pandas DataFrame
-        df = pd.DataFrame(likelihoods, columns=['log likelihood'])
-
         # plot
-        sns.violinplot(y='log likelihood', data=df, ax=ax)
+        sns.scatterplot(x=range(len(likelihoods)), y=likelihoods, ax=ax)
+
+        ax.set(ylabel='lnl')
 
         # set title
         ax.set_title(title)
 
         if scale == 'log':
             ax.set_yscale('symlog')
-
-        # remove y-margins
-        ax.margins(y=0)
 
         return ax
 

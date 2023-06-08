@@ -511,7 +511,7 @@ class VCFHandler(FileHandler):
         :param vcf: The path to the VCF file or an iterable of variants, can be gzipped, urls are also supported
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
         :param max_sites: Maximum number of sites to consider
-        :param seed: Seed for the random number generator
+        :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param cache: Whether to cache files that are downloaded from URLs
         """
         super().__init__(cache=cache)

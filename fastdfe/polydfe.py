@@ -253,7 +253,7 @@ class PolyDFE(AbstractInference):
                            f"-v 1 > {output_file}")
 
                 # log command signature
-                self.logger.info(f"Running: {command}")
+                self.logger.info(f"Running: '{command}'")
 
                 # execute command
                 execute(command)
@@ -338,6 +338,7 @@ class PolyDFE(AbstractInference):
             scale: Literal['lin', 'log', 'symlog'] = 'log',
             legend: bool = True,
             ax: plt.Axes = None,
+            kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
     ) -> plt.Axes:
         """
         Visualize the inferred parameters and their confidence intervals.
@@ -353,6 +354,7 @@ class PolyDFE(AbstractInference):
         :param file: File to save the plot to
         :param show: Show the plot
         :param ax: Axes object
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes object
         """
         return Inference.plot_inferred_parameters(
@@ -366,7 +368,8 @@ class PolyDFE(AbstractInference):
             title=title,
             legend=legend,
             scale=scale,
-            ax=ax
+            ax=ax,
+            kwargs_legend=kwargs_legend
         )
 
     def get_bootstrap_param_names(self) -> List[str]:

@@ -110,8 +110,6 @@ polydfe_models = {
 ruleorder:
     merge_bootstraps_polyDFE > infer_dfe_polyDFE >
     create_config > create_config_from_spectra >
-    download_gff_hgdp > bgzip_gff >
-    sort_and_recompress_gff > bgzip_gff
 
 wildcard_constraints:
     opts=r'[^/]*',# match several optional options not separated by /
@@ -471,6 +469,7 @@ rule create_tbi_gff:
         "tabix -p gff {input}"
 
 # create a tbi index for a gff file
+"""
 rule bgzip_gff:
     input:
         "{path}.{ext}"
@@ -480,6 +479,7 @@ rule bgzip_gff:
         "envs/tabix.yaml"
     shell:
         "bgzip -c {input} > {input}.gz"
+"""
 
 # index a fasta file using samtools
 rule create_fai:

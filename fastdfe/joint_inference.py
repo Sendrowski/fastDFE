@@ -109,7 +109,7 @@ class JointInference(BaseInference):
         :param integration_mode: Integration mode, ``quad`` not recommended
         :param linearized: Whether to use the linearized model, ``False`` not recommended
         :param model: DFE parametrization
-        :param seed: Random seed
+        :param seed: Random seed. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
         :param bounds: Bounds for the optimization in the form {param: (lower, upper)}
         :param scales: Scales for the optimization in the form {param: scale}
@@ -615,6 +615,9 @@ class JointInference(BaseInference):
         In the simple model we share parameters across types. Low p-values indicate that
         the covariates provide a significant improvement in the fit.
 
+        To access the JointInference object without covariates, you can call :meth:`run_joint_without_covariates`,
+        which is cached.
+
         :param do_bootstrap: Whether to bootstrap. This improves the accuracy of the p-value. Note
             that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
         :return: Likelihood ratio test statistic.
@@ -736,9 +739,11 @@ class JointInference(BaseInference):
         # assign bootstrap results
         self.bootstrap_results = list(result[:, 0])
 
-        # assign bootstrap parameters to joint inferences
+        # assign bootstrap parameters to joint inference objects
         for t, inf in self.joint_inferences.items():
-            inf.bootstraps = self.bootstraps.filter(regex=f'{t}.*').rename(columns=lambda x: x.split('.')[-1])
+
+            # filter for columns belonging to the current type
+            inf.bootstraps = self.bootstraps.filter(regex=f'{t}\\..*').rename(columns=lambda x: x.split('.')[-1])
 
             # add estimates for alpha to the bootstraps
             inf.add_alpha_to_bootstraps()
@@ -903,6 +908,7 @@ class JointInference(BaseInference):
             intervals_ben: (float, float, int) = (1.0e-5, 1.0e4, 1000),
             title: str = 'discretized DFE comparison',
             labels: List[str] = None,
+            kwargs_legend: dict = dict(prop=dict(size=8)),
             ax: plt.Axes = None
     ) -> plt.Axes:
         """
@@ -919,6 +925,7 @@ class JointInference(BaseInference):
         :param show: Whether to show plot
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bars.
         :param ax: Axes object
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes object
         """
         labels, inferences = zip(*self.get_inferences(labels=labels).items())
@@ -935,7 +942,8 @@ class JointInference(BaseInference):
             ax: plt.Axes = None,
             title: str = 'SFS comparison',
             use_subplots: bool = False,
-            show_monomorphic: bool = False
+            show_monomorphic: bool = False,
+            kwargs_legend: dict = dict(prop=dict(size=8)),
 
     ) -> plt.Axes:
         """
@@ -950,6 +958,7 @@ class JointInference(BaseInference):
         :param title: Plot title
         :param use_subplots: Whether to use subplots
         :param show_monomorphic: Whether to show monomorphic counts
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes object
         """
         from fastdfe import Visualization
@@ -990,7 +999,8 @@ class JointInference(BaseInference):
             ax=ax,
             title=title,
             use_subplots=use_subplots,
-            show_monomorphic=show_monomorphic
+            show_monomorphic=show_monomorphic,
+            kwargs_legend=kwargs_legend
         )
 
     @BaseInference.run_if_required_wrapper
@@ -1006,6 +1016,7 @@ class JointInference(BaseInference):
             labels: List[str] = None,
             scale_density: bool = False,
             scale: Literal['lin', 'log', 'symlog'] = 'lin',
+            kwargs_legend: dict = dict(prop=dict(size=8)),
             ax: plt.Axes = None
     ) -> plt.Axes:
         """
@@ -1027,6 +1038,7 @@ class JointInference(BaseInference):
         :param file: File to save plot to
         :param show: Whether to show plot
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :param ax: Axes object
         :return: Axes object
         """
@@ -1049,6 +1061,7 @@ class JointInference(BaseInference):
             labels: List[str] = None,
             legend: bool = True,
             ax: plt.Axes = None,
+            kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
             **kwargs: List[str]
     ) -> plt.Axes:
         """
@@ -1063,6 +1076,7 @@ class JointInference(BaseInference):
         :param file: File to save plot to
         :param show: Whether to show plot
         :param ax: Axes object
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes object
         """
         labels, inferences = zip(*self.get_inferences(labels=labels).items())

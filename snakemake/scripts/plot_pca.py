@@ -71,7 +71,7 @@ def load_data(
     :param bed: Bed file with the genotypes.
     :param samples_file: File with the samples.
     :param subsample_size: Subsample the SNPs to this size.
-    :param seed: The seed for the random number generator.
+    :param seed: The seed for the random number generator. Use ``None`` for no seed.
     :param name_col: The column in the samples file that contains the names of the samples.
     :param sep: The separator of the samples file.
     :raises ValueError: If the samples in the samples file are not a subset of the samples in the bed file.

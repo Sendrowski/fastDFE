@@ -104,7 +104,7 @@ def H_fixed(S: float | int | np.ndarray) -> float | int | np.ndarray:
 
 def H_fixed_regularized(S: float | int | np.ndarray) -> float | int | np.ndarray:
     """
-    As H_fixed but replacing with the limits close to the limit points.
+    As :func:`H_fixed` but replacing with the limits close to the limit points.
 
     :param S: Selection coefficient
     :return: Sojourn time as x -> 1

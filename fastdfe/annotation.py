@@ -845,7 +845,7 @@ class Annotator(VCFHandler):
         :param annotations: The annotations to apply.
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
         :param max_sites: Maximum number of sites to consider
-        :param seed: Seed for the random number generator
+        :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param cache: Whether to cache files downloaded from urls
         """
         super().__init__(

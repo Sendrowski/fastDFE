@@ -65,7 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/spectra.html">Working with site-frequency spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/parser.html">Parsing SFS from VCF file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/miscellaneous.html">Miscellaneous</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current">
@@ -131,6 +131,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteFractionalParametrization.param_names"><code class="docutils literal notranslate"><span class="pre">DiscreteFractionalParametrization.param_names</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteFractionalParametrization.fixed_params"><code class="docutils literal notranslate"><span class="pre">DiscreteFractionalParametrization.fixed_params</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteFractionalParametrization.to_nominal"><code class="docutils literal notranslate"><span class="pre">DiscreteFractionalParametrization.to_nominal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteFractionalParametrization.to_fractional"><code class="docutils literal notranslate"><span class="pre">DiscreteFractionalParametrization.to_fractional()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteFractionalParametrization.get_pdf"><code class="docutils literal notranslate"><span class="pre">DiscreteFractionalParametrization.get_pdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.DiscreteFractionalParametrization.get_cdf"><code class="docutils literal notranslate"><span class="pre">DiscreteFractionalParametrization.get_cdf()</span></code></a></li>
 </ul>
@@ -539,19 +540,19 @@ we have to re-normalize the parameters to make sure they sum up to 1.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.k">
 <span class="sig-name descname"><span class="pre">k</span></span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.k" title="Permalink to this definition"></a></dt>
-<dd><p>Number of intervals</p>
+<dd><p>Number of intervals, including the two infinite ones</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.params">
 <span class="sig-name descname"><span class="pre">params</span></span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.params" title="Permalink to this definition"></a></dt>
-<dd><p>All parameter names</p>
+<dd><p>All parameter names, including the fixed ones</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteParametrization.param_names">
 <span class="sig-name descname"><span class="pre">param_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></em><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.param_names" title="Permalink to this definition"></a></dt>
-<dd><p>Parameter names without bounds</p>
+<dd><p>Parameter names that are not fixed</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -606,7 +607,8 @@ is determined by the sum of masses to the left, i.e.</p>
 <p><span class="math notranslate nohighlight">\(S_i = \hat{S}_i \sum_{j&lt;i} S_j, i = 1, \dots, k - 1\)</span>,</p>
 <p><span class="math notranslate nohighlight">\(S_k = 1 - \sum_{j=1}^{k-1} S_j\)</span>.</p>
 <p>This parametrization has the advantage of not imposing a shape on the DFE. For a reasonably fine parametrization,
-the number of parameters is larger than those of the other models, however.</p>
+the number of parameters is larger than those of the other models, however. It is preferable over
+<a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization" title="fastdfe.parametrization.DiscreteParametrization"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiscreteParametrization</span></code></a> as it has one parameter less and does not impose a constraint on the parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteFractionalParametrization.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intervals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([-100000,</span> <span class="pre">-100,</span> <span class="pre">-10,</span> <span class="pre">-1,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">1000])</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.DiscreteFractionalParametrization.__init__" title="Permalink to this definition"></a></dt>
@@ -633,19 +635,19 @@ the number of parameters is larger than those of the other models, however.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteFractionalParametrization.k">
 <span class="sig-name descname"><span class="pre">k</span></span><a class="headerlink" href="#fastdfe.parametrization.DiscreteFractionalParametrization.k" title="Permalink to this definition"></a></dt>
-<dd><p>Number of intervals</p>
+<dd><p>Number of intervals, including the two infinite ones</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteFractionalParametrization.params">
 <span class="sig-name descname"><span class="pre">params</span></span><a class="headerlink" href="#fastdfe.parametrization.DiscreteFractionalParametrization.params" title="Permalink to this definition"></a></dt>
-<dd><p>All parameter names</p>
+<dd><p>All parameter names, including fixed parameters</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteFractionalParametrization.param_names">
 <span class="sig-name descname"><span class="pre">param_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></em><a class="headerlink" href="#fastdfe.parametrization.DiscreteFractionalParametrization.param_names" title="Permalink to this definition"></a></dt>
-<dd><p>Parameter names without bounds</p>
+<dd><p>Parameter names that are not fixed</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -668,6 +670,24 @@ to representation of fractions which sum to 1.</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Converted parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteFractionalParametrization.to_fractional">
+<span class="sig-name descname"><span class="pre">to_fractional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.DiscreteFractionalParametrization.to_fractional" title="Permalink to this definition"></a></dt>
+<dd><p>Invert the to_nominal operation: Convert representation of fractions which sum to 1
+back to representation of fraction of total mass to the left.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – Converted parameters (nominal space)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Original parameters (parameter space)</p>
 </dd>
 </dl>
 </dd></dl>

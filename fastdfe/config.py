@@ -70,7 +70,7 @@ class Config:
         :param integration_mode: Integration mode, ``quad`` not recommended
         :param linearized: Whether to use the linearized version of the DFE, ``False`` not recommended.
         :param model: Parametrization of the DFE.
-        :param seed: Seed for the random number generator.
+        :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
         :param bounds: Bounds for the optimization in the form {param: (lower, upper)}
         :param scales: Scales for the optimization in the form {param: scale}

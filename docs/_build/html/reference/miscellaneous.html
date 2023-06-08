@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Logging &mdash; fastDFE beta documentation</title>
+  <title>Miscellaneous &mdash; fastDFE beta documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -64,7 +64,12 @@
 <li class="toctree-l1"><a class="reference internal" href="parametrizations.html">DFE parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/spectra.html">Working with site-frequency spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/parser.html">Parsing SFS from VCF file</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Logging</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Miscellaneous</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#logging">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seeding">Seeding</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
@@ -92,9 +97,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Logging</li>
+      <li class="breadcrumb-item active">Miscellaneous</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/reference/logging.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/reference/miscellaneous.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -102,9 +107,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="logging">
-<span id="reference-logging"></span><h1>Logging<a class="headerlink" href="#logging" title="Permalink to this heading"></a></h1>
-<p>fastDFE uses the standard Python <code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code> module for logging. By default, fastDFE logs to the console at the <code class="docutils literal notranslate"><span class="pre">INFO</span></code> level. You can change the logging level, to <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> for example, <strong>after</strong> importing fastdfe as follows:</p>
+  <section id="miscellaneous">
+<span id="reference-miscellaneous"></span><h1>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this heading"></a></h1>
+<section id="logging">
+<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this heading"></a></h2>
+<p>fastDFE uses the standard Python <code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code> module for logging. By default, fastDFE logs to the console at the <code class="docutils literal notranslate"><span class="pre">INFO</span></code> level. You can change the logging level, to <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> for example, <strong>after</strong> importing fastdfe by doing as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fastdfe</span><span class="o">,</span> <span class="nn">logging</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;fastdfe&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
@@ -114,6 +121,21 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fastdfe</span><span class="o">.</span><span class="n">disable_pbar</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 </div>
+</section>
+<section id="debugging">
+<h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this heading"></a></h2>
+<p>If you encounter an unexpected error, you can disable parallelization to obtain a more descriptive stack trace (see <code class="docutils literal notranslate"><span class="pre">parallelize</span></code> in <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>).</p>
+<blockquote>
+<div><p>import fastdfe</p>
+<p>fastdfe.parallelize = False</p>
+<p># … run your code here …</p>
+<p>fastdfe.parallelize = True</p>
+</div></blockquote>
+</section>
+<section id="seeding">
+<h2>Seeding<a class="headerlink" href="#seeding" title="Permalink to this heading"></a></h2>
+<p>fastDFE is seeded by default to ensure reproducibility (see <code class="docutils literal notranslate"><span class="pre">seed</span></code> in <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>, <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>, etc.). Randomness is required when bootstrapping, choosing initial values for different optimization runs, and when parsing the SFS from VCF files which requires taking random subsamples.</p>
+</section>
 </section>
 
 

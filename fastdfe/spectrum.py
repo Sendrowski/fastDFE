@@ -258,6 +258,7 @@ class Spectrum:
             file: str = None,
             title: str = None,
             show_monomorphic: bool = False,
+            kwargs_legend: dict = dict(prop=dict(size=8)),
             ax: plt.Axes = None
     ) -> plt.Axes:
         """
@@ -267,6 +268,7 @@ class Spectrum:
         :param file: File to save plot to
         :param title: Title of plot
         :param show_monomorphic: Whether to show monomorphic counts
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :param ax: Axes to plot on
         :return: Axes
         """
@@ -279,7 +281,8 @@ class Spectrum:
             show=show,
             title=title,
             show_monomorphic=show_monomorphic,
-            ax=ax
+            ax=ax,
+            kwargs_legend=kwargs_legend
         )
 
     @staticmethod
@@ -689,6 +692,7 @@ class Spectra:
             title: str = None,
             use_subplots: bool = False,
             show_monomorphic: bool = False,
+            kwargs_legend: dict = dict(prop=dict(size=8)),
             ax: plt.Axes = None
     ) -> plt.Axes:
         """
@@ -699,6 +703,7 @@ class Spectra:
         :param title: Plot title
         :param use_subplots: Whether to use subplots
         :param show_monomorphic: Whether to show monomorphic sites
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :param ax: Axes to plot on
         :return: Axes
         """
@@ -713,6 +718,7 @@ class Spectra:
             title=title,
             use_subplots=use_subplots,
             show_monomorphic=show_monomorphic,
+            kwargs_legend=kwargs_legend,
             ax=ax
         )
 

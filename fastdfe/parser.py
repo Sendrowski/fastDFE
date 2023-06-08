@@ -521,6 +521,44 @@ class Parser(VCFHandler):
     The parser also allows to filter sites based on their annotations. This is done by
     providing a list of filtrations to the parser. By default, we filter out poly-allelic
     sites which is highly recommended as some stratifications assume sites to be at most bi-allelic.
+
+    Example usage:
+
+    ::
+
+        from fastdfe import Parser, DegeneracyAnnotation, DegeneracyStratification, \\
+            MaximumParsimonyAnnotation, CodingSequenceFiltration
+
+        # parse selected and neutral SFS from human chromosome 21
+        p = Parser(
+            vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/"
+                "1000_genomes_project/release/20181203_biallelic_SNV/"
+                "ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
+            n=10,
+            annotations=[
+                DegeneracyAnnotation(
+                    fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
+                               "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
+                    gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                             "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
+                    aliases=dict(chr21=['21'])
+                ),
+                MaximumParsimonyAnnotation()
+            ],
+            filtrations=[
+                CodingSequenceFiltration(
+                    gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                             "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
+                    aliases=dict(chr21=['21'])
+                )
+            ],
+            stratifications=[DegeneracyStratification()],
+        )
+
+        sfs = p.parse()
+
+        sfs.plot()
+
     """
 
     def __init__(
@@ -564,7 +602,7 @@ class Parser(VCFHandler):
             of monomorphic sites is inferred dynamically from the length of the coding sequences considered.
             Alternatively, you can use :meth:`~fastdfe.annotation.Annotation.count_target_sites` to count the number of
             coding sites.
-        :param seed: Seed for the random number generator
+        :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param cache: Whether to cache files downloaded from urls
         """
         super().__init__(
@@ -576,7 +614,7 @@ class Parser(VCFHandler):
         )
 
         #: The number of individuals in the sample
-        self.n = n
+        self.n: int = n
 
         #: The number of mutational target sites
         self.n_target_sites: int | None = n_target_sites

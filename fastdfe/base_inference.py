@@ -136,7 +136,7 @@ class BaseInference(AbstractInference):
         :param linearized: Whether to use the linearized DFE, ``False`` not recommended
         :param intervals_ben: Same as for intervals_del but for beneficial selection coefficients.
         :param model: Instance of DFEParametrization which parametrized the DFE
-        :param seed: Seed for the random number generator.
+        :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{'all': {param: value}}``
         :param bounds: Bounds for the optimization in the form ``{param: (lower, upper)}``
         :param scales: Scales for the optimization in the form ``{param: scale}`
@@ -794,6 +794,7 @@ class BaseInference(AbstractInference):
             scale_density: bool = False,
             scale: Literal['lin', 'log', 'symlog'] = 'lin',
             title: str = 'DFE',
+            kwargs_legend: dict = dict(prop=dict(size=8)),
             ax: plt.Axes = None
 
     ) -> plt.Axes:
@@ -816,6 +817,7 @@ class BaseInference(AbstractInference):
         :param scale: y-scale
         :param scale_density: Whether to scale the density by the x-axis interval size
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :param ax: Axes object to plot on.
         :return: Axes object
         """
@@ -833,6 +835,7 @@ class BaseInference(AbstractInference):
             title=title,
             scale=scale,
             scale_density=scale_density,
+            kwargs_legend=kwargs_legend,
             ax=ax
         )
 
@@ -903,14 +906,15 @@ class BaseInference(AbstractInference):
 
     def plot_sfs_comparison(
             self,
-            types: List[Literal['modelled', 'observed', 'modelled', 'neutral']] = ['modelled', 'observed'],
+            sfs_types: List[Literal['modelled', 'observed', 'modelled', 'neutral']] = ['modelled', 'observed'],
             labels: List[str] = None,
             file: str = None,
             show: bool = True,
             ax: plt.Axes = None,
             title: str = 'SFS comparison',
             use_subplots: bool = False,
-            show_monomorphic: bool = False
+            show_monomorphic: bool = False,
+            kwargs_legend: dict = dict(prop=dict(size=8)),
 
     ) -> plt.Axes:
         """
@@ -918,15 +922,16 @@ class BaseInference(AbstractInference):
 
         :param file: File to save plot to.
         :param labels: Labels for the SFS.
-        :param types: Types of SFS to plot.
+        :param sfs_types: Types of SFS to plot.
         :param show: Whether to show plot.
         :param ax: Axes object to plot on.
         :param title: Plot title
         :param use_subplots: Whether to use subplots
         :param show_monomorphic: Whether to show monomorphic counts
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes object
         """
-        if 'modelled' in types:
+        if 'modelled' in sfs_types:
             self.run_if_required()
 
         mapping = dict(
@@ -937,14 +942,15 @@ class BaseInference(AbstractInference):
         )
 
         return Visualization.plot_sfs_comparison(
-            spectra=[mapping[t] for t in types],
-            labels=types if labels is None else labels,
+            spectra=[mapping[t] for t in sfs_types],
+            labels=sfs_types if labels is None else labels,
             file=file,
             show=show,
             ax=ax,
             title=title,
             use_subplots=use_subplots,
-            show_monomorphic=show_monomorphic
+            show_monomorphic=show_monomorphic,
+            kwargs_legend=kwargs_legend
         )
 
     def plot_observed_sfs(
@@ -965,7 +971,7 @@ class BaseInference(AbstractInference):
         :return: Axes object
         """
         return self.plot_sfs_comparison(
-            types=['neutral', 'selected'],
+            sfs_types=['neutral', 'selected'],
             labels=labels,
             file=file,
             show=show,
@@ -1021,6 +1027,7 @@ class BaseInference(AbstractInference):
             scale: Literal['lin', 'log', 'symlog'] = 'log',
             legend: bool = True,
             ax: plt.Axes = None,
+            kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
             **kwargs
     ) -> plt.Axes:
         """
@@ -1035,6 +1042,7 @@ class BaseInference(AbstractInference):
         :param file: File to save plot to.
         :param show: Whether to show plot.
         :param ax: Axes object to plot on.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes object
         """
         return Inference.plot_inferred_parameters(
@@ -1047,7 +1055,8 @@ class BaseInference(AbstractInference):
             confidence_intervals=confidence_intervals,
             bootstrap_type=bootstrap_type,
             scale=scale,
-            ax=ax
+            ax=ax,
+            kwargs_legend=kwargs_legend,
         )
 
     @run_if_required_wrapper
@@ -1086,7 +1095,7 @@ class BaseInference(AbstractInference):
             **kwargs
     ) -> plt.Axes:
         """
-        Visualize the likelihoods of the optimization runs using a violin plot.
+        Visualize the likelihoods of the optimization runs using a scatter plot.
 
         :param scale: y-scale of the plot.
         :param title: Plot title.

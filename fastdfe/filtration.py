@@ -381,7 +381,7 @@ class Filterer(VCFHandler):
         :param filtrations: The filtrations.
         :param info_ancestral: The info field for the ancestral allele.
         :param max_sites: The maximum number of sites to process.
-        :param seed: The seed for the random number generator.
+        :param seed: The seed for the random number generator. Use ``None`` for no seed.
         :param cache: Whether to cache files downloaded from urls.
         """
         super().__init__(

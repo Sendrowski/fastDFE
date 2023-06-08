@@ -40,6 +40,7 @@ class Inference:
             title: str = 'discretized DFEs',
             labels: list | np.ndarray = None,
             ax: plt.Axes = None,
+            kwargs_legend: dict = dict(prop=dict(size=8)),
             **kwargs
 
     ) -> plt.Axes:
@@ -57,6 +58,7 @@ class Inference:
         :param labels: Labels for the DFEs.
         :param kwargs: Additional arguments for the plot.
         :param ax: Axes of the plot.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes of the plot.
         """
         # get data from inference objects
@@ -82,7 +84,8 @@ class Inference:
             show=show,
             intervals=intervals,
             title=title,
-            ax=ax
+            ax=ax,
+            kwargs_legend=kwargs_legend
         )
 
     @staticmethod
@@ -99,6 +102,7 @@ class Inference:
             scale: Literal['lin', 'log', 'symlog'] = 'lin',
             scale_density: bool = False,
             ax: plt.Axes = None,
+            kwargs_legend: dict = dict(prop=dict(size=8)),
             **kwargs
 
     ) -> plt.Axes:
@@ -123,6 +127,7 @@ class Inference:
         :param scale: y-scale of the plot.
         :param scale_density: Whether to scale the density by the x-axis interval size.
         :param ax: Axes of the plot.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :param kwargs: Additional arguments for the plot.
         :return: Axes of the plot.
         """
@@ -159,6 +164,7 @@ class Inference:
             scale: Literal['lin', 'log', 'symlog'] = 'log',
             legend: bool = True,
             ax: plt.Axes = None,
+            kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
             **kwargs
 
     ) -> plt.Axes:
@@ -179,6 +185,7 @@ class Inference:
         :param ax: Axes of the plot.
         :param kwargs: Additional arguments for the plot.
         :return: Axes of the plot.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :raises ValueError: If no inference objects are given.
         """
         if len(inferences) == 0:
@@ -207,7 +214,8 @@ class Inference:
             labels=labels,
             scale=scale,
             legend=len(labels) > 1,
-            ax=ax
+            kwargs_legend=kwargs_legend,
+            ax=ax,
         )
 
     @staticmethod
@@ -515,7 +523,8 @@ class AbstractInference(ABC):
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
             title: str = 'discretized DFE',
-            ax: plt.Axes = None
+            ax: plt.Axes = None,
+            kwargs_legend: dict = dict(prop=dict(size=8)),
     ) -> plt.Axes:
         """
         Plot discretized DFE.
@@ -528,6 +537,7 @@ class AbstractInference(ABC):
         :param show: Whether to show the plot
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bars.
         :param ax: Axes to plot to
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes
         """
         return Inference.plot_discretized(
@@ -539,6 +549,7 @@ class AbstractInference(ABC):
             ci_level=ci_level,
             bootstrap_type=bootstrap_type,
             title=title,
+            kwargs_legend=kwargs_legend,
             ax=ax
         )
 

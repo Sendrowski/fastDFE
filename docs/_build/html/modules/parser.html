@@ -64,7 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/spectra.html">Working with site-frequency spectra</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/parser.html">Parsing SFS from VCF file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/miscellaneous.html">Miscellaneous</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current">
@@ -737,6 +737,41 @@ the parser. The annotations are applied in the order they are provided.</p>
 <p>The parser also allows to filter sites based on their annotations. This is done by
 providing a list of filtrations to the parser. By default, we filter out poly-allelic
 sites which is highly recommended as some stratifications assume sites to be at most bi-allelic.</p>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">Parser</span><span class="p">,</span> <span class="n">DegeneracyAnnotation</span><span class="p">,</span> <span class="n">DegeneracyStratification</span><span class="p">,</span> \
+    <span class="n">MaximumParsimonyAnnotation</span><span class="p">,</span> <span class="n">CodingSequenceFiltration</span>
+
+<span class="c1"># parse selected and neutral SFS from human chromosome 21</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span>
+    <span class="n">vcf</span><span class="o">=</span><span class="s2">&quot;http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/&quot;</span>
+        <span class="s2">&quot;1000_genomes_project/release/20181203_biallelic_SNV/&quot;</span>
+        <span class="s2">&quot;ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz&quot;</span><span class="p">,</span>
+    <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">annotations</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">DegeneracyAnnotation</span><span class="p">(</span>
+            <span class="n">fasta_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/&quot;</span>
+                       <span class="s2">&quot;dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz&quot;</span><span class="p">,</span>
+            <span class="n">gff_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
+                     <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz&quot;</span><span class="p">,</span>
+            <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr21</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;21&#39;</span><span class="p">])</span>
+        <span class="p">),</span>
+        <span class="n">MaximumParsimonyAnnotation</span><span class="p">()</span>
+    <span class="p">],</span>
+    <span class="n">filtrations</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">CodingSequenceFiltration</span><span class="p">(</span>
+            <span class="n">gff_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
+                     <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz&quot;</span><span class="p">,</span>
+            <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr21</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;21&#39;</span><span class="p">])</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+    <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span><span class="n">DegeneracyStratification</span><span class="p">()],</span>
+<span class="p">)</span>
+
+<span class="n">sfs</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+
+<span class="n">sfs</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.Parser.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">vcf:</span> <span class="pre">typing.Union[str,</span> <span class="pre">typing.Iterable[cyvcf2.cyvcf2.Variant]],</span> <span class="pre">n:</span> <span class="pre">int,</span> <span class="pre">info_ancestral:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'AA',</span> <span class="pre">skip_non_polarized:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">stratifications:</span> <span class="pre">typing.List[fastdfe.parser.Stratification]</span> <span class="pre">=</span> <span class="pre">[],</span> <span class="pre">annotations:</span> <span class="pre">typing.List[fastdfe.annotation.Annotation]</span> <span class="pre">=</span> <span class="pre">[],</span> <span class="pre">filtrations:</span> <span class="pre">typing.List[fastdfe.filtration.Filtration]</span> <span class="pre">=</span> <span class="pre">[&lt;fastdfe.filtration.PolyAllelicFiltration</span> <span class="pre">object&gt;],</span> <span class="pre">samples:</span> <span class="pre">typing.Optional[typing.List[str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">max_sites:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">inf,</span> <span class="pre">n_target_sites:</span> <span class="pre">typing.Optional[int]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">cache:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.Parser.__init__" title="Permalink to this definition"></a></dt>
@@ -767,7 +802,7 @@ coding regions over the sequence considered. If <code class="docutils literal no
 of monomorphic sites is inferred dynamically from the length of the coding sequences considered.
 Alternatively, you can use <a class="reference internal" href="annotation.html#fastdfe.annotation.Annotation.count_target_sites" title="fastdfe.annotation.Annotation.count_target_sites"><code class="xref py py-meth docutils literal notranslate"><span class="pre">count_target_sites()</span></code></a> to count the number of
 coding sites.</p></li>
-<li><p><strong>seed</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Seed for the random number generator</p></li>
+<li><p><strong>seed</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Seed for the random number generator. Use <code class="docutils literal notranslate"><span class="pre">None</span></code> for no seed.</p></li>
 <li><p><strong>cache</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to cache files downloaded from urls</p></li>
 </ul>
 </dd>

@@ -32,7 +32,7 @@ fastDFE is a package for fast, flexible, and hierarchical inference of the distr
    reference/parametrizations
    notebooks/spectra
    notebooks/parser
-   reference/logging
+   reference/miscellaneous
 
 .. toctree::
    :caption: API Reference
