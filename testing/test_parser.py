@@ -407,7 +407,7 @@ class ParserTestCase(TestCase):
         """
         p = Parser(
             vcf="resources/genome/betula/all.vcf.gz",
-            n=10,
+            n=20,
             annotations=[
                 DegeneracyAnnotation(
                     fasta_file="resources/genome/betula/genome.fasta",
@@ -425,6 +425,8 @@ class ParserTestCase(TestCase):
         sfs = p.parse()
 
         sfs.plot()
+
+        pass
 
     def test_parse_human_chr22_from_online_resources_and_perform_inference(self):
         """

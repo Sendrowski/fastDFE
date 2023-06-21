@@ -14,9 +14,9 @@ try:
     # necessary to import dfe module
     sys.path.append('..')
     testing = False
+    sfs_file = snakemake.input[0]
     col = snakemake.params.col
     param = snakemake.params.param
-    sfs_file = snakemake.input[0]
     out = snakemake.output[0]
 except NameError:
     # testing
@@ -51,25 +51,14 @@ config = Config(
         param=param,
         values=dict((t, int(t.split('_')[-1])) for t in sfs_neut.types)
     )],
-    n_runs=100,
-    n_bootstraps=100,
+    n_runs=1000,
+    n_bootstraps=200,
     do_bootstrap=True,
-    parallelize=True,
-    #model=DiscreteFractionalParametrization()
+    parallelize=True
 )
 
+Spectra.from_spectra(dict(neutral=sfs_neut.all, selected=sfs_sel.all)).plot(show=testing)
+
 config.to_file(out)
-
-Spectra.from_spectra(dict(neutral=sfs_neut.all, selected=sfs_sel.all)).plot()
-
-inf = JointInference.from_config(config)
-
-# inf.plot_likelihoods()
-
-# inf.plot_sfs_comparison(sfs_types=['neutral', 'selected'], use_subplots=True)
-
-inf.plot_discretized(kwargs_legend=dict(bbox_to_anchor=(1, 0.5), ncol=3, fontsize=8))
-
-inf.perform_lrt_covariates()
 
 pass

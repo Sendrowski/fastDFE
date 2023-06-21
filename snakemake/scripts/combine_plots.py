@@ -24,12 +24,25 @@ try:
 except NameError:
     # testing
     testing = True
-    files = []
+    files = [
+        "results/graphs/fastdfe/hgdp/default/inference/1/opts.vep.n.10.config.default/all.dfe.png",
+        "results/graphs/fastdfe/hgdp/default/inference/1/opts.vep.n.10.config.default/Japanese.dfe.png",
+        "results/graphs/fastdfe/hgdp/default/inference/1/opts.vep.n.10.config.default/French.dfe.png",
+        "results/graphs/fastdfe/hgdp/vep/inference/1/opts.vep.n.10.config.default/all.dfe.png",
+        "results/graphs/fastdfe/hgdp/vep/inference/1/opts.vep.n.10.config.default/Japanese.dfe.png",
+        "results/graphs/fastdfe/hgdp/vep/inference/1/opts.vep.n.10.config.default/French.dfe.png",
+        "results/graphs/polydfe/hgdp/default/inference/1/opts.vep.n.10.config.default/all.dfe.png",
+        "results/graphs/polydfe/hgdp/default/inference/1/opts.vep.n.10.config.default/Japanese.dfe.png",
+        "results/graphs/polydfe/hgdp/default/inference/1/opts.vep.n.10.config.default/French.dfe.png",
+        "results/graphs/polydfe/hgdp/vep/inference/1/opts.vep.n.10.config.default/all.dfe.png",
+        "results/graphs/polydfe/hgdp/vep/inference/1/opts.vep.n.10.config.default/Japanese.dfe.png",
+        "results/graphs/polydfe/hgdp/vep/inference/1/opts.vep.n.10.config.default/French.dfe.png"
+    ]
     n_cols = None
     n_rows = None
     titles = None
     title_size_rel = 20
-    out = "scratch/plots.png"
+    out = "results/graphs/comp/[fastdfe,polydfe]/hgdp/[default,vep]/inference/1/opts.vep.n.10.config.default/[all,Japanese,French].dfe.png"
 
 
 def get_index_common_start(strs: List[str]):

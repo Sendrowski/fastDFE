@@ -729,7 +729,7 @@ class Parser(VCFHandler):
             k = self.rng.hypergeometric(ngood=n_samples - n_aa, nbad=n_aa, nsample=self.n)
 
         else:
-            # if we don't have an SNP, we assume the ancestral allele to be the reference allele,
+            # if we don't have an SNP, we assume the reference allele to be the ancestral allele,
             # so the derived allele count is 0
             k = 0
 

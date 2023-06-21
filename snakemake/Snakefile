@@ -72,7 +72,7 @@ def expand_comparisons(path) -> (List[str], List[str]):
 
                     label = matched_name.groups()[0]
                 else:
-                    label = e
+                    label = None
 
                 expanded.append(re.sub(match.re.pattern,e,string,1))
                 labels.append(label)
@@ -114,7 +114,8 @@ ruleorder:
 wildcard_constraints:
     opts=r'[^/]*',# match several optional options not separated by /
     chr='\w+',
-    pop="[a-zA-Z]+"
+    pop="[a-zA-Z]+",
+    param="[a-zA-Z0-9_]+",
 
 hominidae = [
     'bonobo',
@@ -131,11 +132,12 @@ hominidae = [
 rule all:
     input:
         (
+            expand("results/graphs/fastdfe/arabidopsis/cov/{param}.{col}.params.png", param=['S_d'], col=['age.rsa']),
+            expand("results/sfs/betula/{sample_set}/{n}/sfs.csv", sample_set=['pendula', 'pubescens'], n=[20])
             #expand("results/graphs/comp/spectra/hgdp/inference/{chr}/{opts}/[all,Japanese].png",chr=[21, 1], opts=['opts.subset.50000.n.10', 'opts.subset.50000.n.20']),
             #expand("results/graphs/comp/pca/hgdp/inference/{chr}/{opts}/[all,Japanese].png",chr=[21], opts=['opts.subset.50000']),
             #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[10,20].config.{config}/[all,Japanese].dfe.png",chr=[1, 2, 3], opts=['opts'], config=['default']),
-            expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/[default,vep]/inference/{chr}/{opts}.n.10.config.{config}/[all,Japanese,French].dfe.png",chr=[
-                1, 2, 21, 22],opts=['opts.vep'],config=['default']),
+            #expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/[default,vep]/inference/{chr}/{opts}.n.10.config.{config}/[all,Japanese,French].dfe.png",chr=[1, 2, 21, 22],opts=['opts.vep'],config=['default']),
             #expand("results/graphs/comp/fastdfe/hominidae/[{types}].dfe.png",types=','.join(hominidae)),
             #expand("results/graphs/comp/fastdfe/hominidae/[{types}].params.png",types=','.join(hominidae)),
             #expand("results/graphs/fastdfe/hominidae/cov/{param}.params.png", param=['S_d', 'eps', 'p_b', 'S_b', 'b']),
@@ -389,7 +391,7 @@ rule renew_test_file_cache:
     output:
         touch("../testing/renew_cache.txt")
 
-# merge spectra from several species
+# combine spectra from several species
 rule merge_spectra_species:
     input:
         lambda w: expand("../resources/polydfe/{s}/spectra/sfs.txt",s=w.species.split('.'))
@@ -1089,6 +1091,54 @@ rule infer_dfe_hominidae_covariates:
         dfe="results/graphs/fastdfe/hominidae/cov/{param}.dfe.png",
         spectra="results/graphs/fastdfe/hominidae/cov/{param}.spectra.png",
         params="results/graphs/fastdfe/hominidae/cov/{param}.params.png"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/check_covariates.py"
+
+# parse betula SFS directly from original VCF file
+rule parse_vcf_betula:
+    input:
+        vcf='../resources/genome/betula/all.vcf.gz',
+        ref='../resources/genome/betula/genome.fasta',
+        gff='../resources/genome/betula/genome.gff.gz',
+        samples='../resources/genome/betula/sample_sets/{sample_set}.args'
+    output:
+        csv="results/sfs/betula/{sample_set}/{n}/sfs.csv",
+        png="results/graphs/sfs/betula/{sample_set}/{n}/sfs.png"
+    params:
+        n=lambda w: int(w.n)
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/parse_vcf_betula.py"
+
+# create config files for checking covariates
+rule create_config_covariates_arabidopsis:
+    input:
+        "results/sfs_covariates/arabidopsis.csv"
+    output:
+        "results/fastdfe/arabidopsis/cov/{param}.{col}.yaml"
+    params:
+        param="{param}",
+        col="{col}"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/create_config_covariates_arabidopsis.py"
+
+# run joint inference using covariates
+rule infer_dfe_arabidopsis_covariates:
+    input:
+        "results/fastdfe/arabidopsis/cov/{param}.{col}.yaml"
+    output:
+        serialized="results/fastdfe/arabidopsis/cov/{param}.{col}.serialized.json",
+        summary="results/fastdfe/arabidopsis/cov/{param}.{col}.summary.json",
+        dfe="results/graphs/fastdfe/arabidopsis/cov/{param}.{col}.dfe.png",
+        spectra="results/graphs/fastdfe/arabidopsis/cov/{param}.{col}.spectra.png",
+        params="results/graphs/fastdfe/arabidopsis/cov/{param}.{col}.params.png"
+    params:
+        legend=dict(bbox_to_anchor=(1, 0.5),ncol=3,fontsize=8)
     conda:
         "envs/base.yaml"
     script:

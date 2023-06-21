@@ -13,6 +13,7 @@ try:
     sys.path.append('..')
     testing = False
     config_file = snakemake.input[0]
+    kwargs_legend = snakemake.params.get('legend', {})
     out_summary = snakemake.output.summary
     out_serialized = snakemake.output.serialized
     out_dfe = snakemake.output.get('dfe', None)
@@ -25,6 +26,7 @@ except NameError:
     # config_file = 'results/configs/example_1_C_deleterious_anc_bootstrapped_100/config.yaml'
     # config_file = 'results/configs/pendula_C_full_anc_bootstrapped_100/config.yaml'
     config_file = 'scratch/S_d.yaml'
+    kwargs_legend = {}
     out_summary = "scratch/summary.json"
     out_serialized = "scratch/serialized.json"
     out_dfe = "scratch/dfe.png"
@@ -49,8 +51,25 @@ p = f"p: {inf.perform_lrt_covariates():.2e}"
 c0 = f"c0: ({inf.bootstraps.mean()[inf.types[0] + '.c0']:.2e}, {inf.bootstraps.var()[inf.types[0] + '.c0']:.2e})"
 
 # plot results
-inf.plot_inferred_parameters(file=out_params, show=testing, title=f'inferred parameters, {p}, {c0}')
-inf.plot_sfs_comparison(file=out_spectra, show=testing, title=f'SFS comparison, {p}, {c0}')
-inf.plot_discretized(file=out_dfe, show=testing, title=f'DFE comparison, {p}, {c0}')
+inf.plot_inferred_parameters(
+    file=out_params,
+    show=testing,
+    title=f'inferred parameters, {p}, {c0}',
+    kwargs_legend=kwargs_legend
+)
+
+inf.plot_sfs_comparison(
+    file=out_spectra,
+    show=testing,
+    title=f'SFS comparison, {p}, {c0}',
+    kwargs_legend=kwargs_legend
+)
+
+inf.plot_discretized(
+    file=out_dfe,
+    show=testing,
+    title=f'DFE comparison, {p}, {c0}',
+    kwargs_legend=kwargs_legend
+)
 
 pass
