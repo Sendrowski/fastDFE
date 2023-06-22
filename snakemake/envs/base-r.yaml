@@ -1,0 +1,5 @@
+name: base-r-fastdfe
+dependencies:
+  - pip
+  - pip:
+    - -r requirements.txt

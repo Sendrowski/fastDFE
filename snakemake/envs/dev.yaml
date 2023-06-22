@@ -8,6 +8,8 @@ dependencies:
   - r-rjsonio
   - r-irkernel
   - jupyterlab
+  - r-usethis
+  - r-devtools
   - pip
   - pip:
     - pytest

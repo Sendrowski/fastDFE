@@ -11,9 +11,9 @@ from scipy.special import factorial
 from scipy.stats import poisson
 
 
-class MLE:
+class Likelihood:
     """
-    MLE utilities.
+    Utilities for computing Poisson likelihoods.
     """
 
     #: Epsilon for numerical stability
@@ -31,7 +31,7 @@ class MLE:
         x = x.astype(float)
 
         # replace 0s with epsilon to avoid log(0)
-        x[x == 0] = MLE.eps
+        x[x == 0] = Likelihood.eps
 
         return x
 
@@ -45,7 +45,7 @@ class MLE:
         :return: Poisson(mu, k)
         """
         # add epsilon to zero counts
-        mu = MLE.add_epsilon(mu)
+        mu = Likelihood.add_epsilon(mu)
 
         return poisson.pmf(k, mu)
 
@@ -59,9 +59,9 @@ class MLE:
         :return: log(Poisson(mu, k))
         """
         # add epsilon to zero counts
-        mu = MLE.add_epsilon(mu)
+        mu = Likelihood.add_epsilon(mu)
 
-        return k * np.log(mu) - mu - MLE.log_factorial(k)
+        return k * np.log(mu) - mu - Likelihood.log_factorial(k)
 
     @staticmethod
     def log_factorial_stirling(n: np.ndarray | float) -> np.ndarray | float:
@@ -92,6 +92,6 @@ class MLE:
         x[low] = np.log(factorial(n[low]))
 
         # use Stirling's approximation for large value of n
-        x[~low] = MLE.log_factorial_stirling(n[~low])
+        x[~low] = Likelihood.log_factorial_stirling(n[~low])
 
         return x

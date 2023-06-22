@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Working with site-frequency spectra &mdash; fastDFE beta documentation</title>
+  <title>Working with SFS &mdash; fastDFE beta documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -51,22 +51,28 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<p class="caption" role="heading"><span class="caption-text">Getting Started (Python)</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart_R.html">Quickstart using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/quickstart.html">Quickstart</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<p class="caption" role="heading"><span class="caption-text">Getting Started (R)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../r/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="r/quickstart.html">Quickstart in R</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="inference.html">DFE Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Working with site-frequency spectra</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#subtypes">Subtypes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#grouping">Grouping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#serialization">Serialization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#prefixing">Prefixing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Working with SFS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subtypes">Subtypes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#grouping">Grouping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#prefixing">Prefixing</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#folded-spectra">Folded spectra</a></li>
 </ul>
 </li>
@@ -99,7 +105,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Working with site-frequency spectra</li>
+      <li class="breadcrumb-item active">Working with SFS</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/notebooks/spectra.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
@@ -109,8 +115,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="working-with-site-frequency-spectra">
-<h1>Working with site-frequency spectra<a class="headerlink" href="#working-with-site-frequency-spectra" title="Permalink to this heading"></a></h1>
+  <section id="working-with-sfs">
+<h1>Working with SFS<a class="headerlink" href="#working-with-sfs" title="Permalink to this heading"></a></h1>
 <section id="subtypes">
 <h2>Subtypes<a class="headerlink" href="#subtypes" title="Permalink to this heading"></a></h2>
 <p>fastDFE offers a set of utilities for handling and manipulating site-frequency spectra (SFS) data, especially when there are multiple types. The <a class="reference internal" href="../modules/spectra.html#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a> class is designed to hold and manipulate spectra of multiple types. It provides a number of methods and properties for creating, accessing, and manipulating the spectra data. Usually we would obtain already stratified spectra from <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>, but we can also create them manually.</p>
@@ -169,9 +175,8 @@
 <img alt="../_images/8769f6cc41d8766bc539ebcbbf3c85018158c9a658f26e429eda698a7b71f4d1.png" src="../_images/8769f6cc41d8766bc539ebcbbf3c85018158c9a658f26e429eda698a7b71f4d1.png" />
 </div>
 </div>
-</section>
 <section id="grouping">
-<h2>Grouping<a class="headerlink" href="#grouping" title="Permalink to this heading"></a></h2>
+<h3>Grouping<a class="headerlink" href="#grouping" title="Permalink to this heading"></a></h3>
 <p>To get rid of the subtypes, we can merge the spectra over the specified number of groups.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -189,7 +194,7 @@
 <p>All subtypes for each type are merged into a single spectrum by adding them upp.</p>
 </section>
 <section id="serialization">
-<h2>Serialization<a class="headerlink" href="#serialization" title="Permalink to this heading"></a></h2>
+<h3>Serialization<a class="headerlink" href="#serialization" title="Permalink to this heading"></a></h3>
 <p>We can also save the spectra to a file and restore them again.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -202,7 +207,7 @@
 </div>
 </section>
 <section id="prefixing">
-<h2>Prefixing<a class="headerlink" href="#prefixing" title="Permalink to this heading"></a></h2>
+<h3>Prefixing<a class="headerlink" href="#prefixing" title="Permalink to this heading"></a></h3>
 <p>Here we prefix the spectra with a string to distinguish them and then combine them into a Spectra object.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -218,6 +223,7 @@
 </div>
 </div>
 <p>For a complete reference of the available methods and properties, see <a class="reference internal" href="../modules/spectra.html#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a> and <a class="reference internal" href="../modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a>.</p>
+</section>
 </section>
 <section id="folded-spectra">
 <h2>Folded spectra<a class="headerlink" href="#folded-spectra" title="Permalink to this heading"></a></h2>

@@ -19,7 +19,7 @@ from scipy.optimize import minimize, OptimizeResult
 from scipy.stats import loguniform, uniform
 from tqdm import tqdm
 
-from .mle import MLE
+from .likelihood import Likelihood
 
 # get logger
 logger = logging.getLogger('fastdfe').getChild('Optimization')
@@ -973,7 +973,7 @@ class Optimization:
             counts_modelled, counts_observed = np.stack(counts, axis=1).reshape(2, -1)
 
             # use independent Poisson likelihoods
-            LL = MLE.log_poisson(mu=counts_modelled, k=counts_observed)
+            LL = Likelihood.log_poisson(mu=counts_modelled, k=counts_observed)
 
             # combine likelihoods and take additive inverse
             ll = np.sum(LL)

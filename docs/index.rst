@@ -18,14 +18,19 @@ fastDFE is a package for fast, flexible, and hierarchical inference of the distr
    introduction
 
 .. toctree::
-   :caption: Getting Started
+   :caption: Getting Started (Python)
 
-   installation
-   notebooks/quickstart
-   notebooks/quickstart_R
+   python/installation
+   notebooks/python/quickstart
 
 .. toctree::
-   :caption: Reference
+   :caption: Getting Started (R)
+
+   r/installation
+   notebooks/r/quickstart
+
+.. toctree::
+   :caption: Python Reference
 
    notebooks/inference
    reference/config

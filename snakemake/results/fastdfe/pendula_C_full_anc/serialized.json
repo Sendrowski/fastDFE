@@ -331,18 +331,6 @@
     "n": 20,
     "discretization": {
         "py/object": "fastdfe.discretization.Discretization",
-        "logger": {
-            "py/reduce": [
-                {
-                    "py/function": "logging.getLogger"
-                },
-                {
-                    "py/tuple": [
-                        "fastdfe.Discretization"
-                    ]
-                }
-            ]
-        },
         "n": 20,
         "intervals_del": {
             "py/tuple": [
@@ -44884,18 +44872,6 @@
     },
     "optimization": {
         "py/object": "fastdfe.optimization.Optimization",
-        "logger": {
-            "py/reduce": [
-                {
-                    "py/function": "logging.getLogger"
-                },
-                {
-                    "py/tuple": [
-                        "fastdfe.Optimization"
-                    ]
-                }
-            ]
-        },
         "bounds": {
             "S_d": {
                 "py/tuple": [
@@ -45074,6 +45050,6 @@
             }
         ]
     },
-    "execution_time": 3.6560440063476562,
+    "execution_time": 3.6404218673706055,
     "locked": false
 }

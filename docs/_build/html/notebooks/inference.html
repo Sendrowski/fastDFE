@@ -26,7 +26,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Configuration files" href="../reference/config.html" />
-    <link rel="prev" title="Quickstart using R" href="quickstart_R.html" /> 
+    <link rel="prev" title="Quickstart in R" href="r/quickstart.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,13 +51,17 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<p class="caption" role="heading"><span class="caption-text">Getting Started (Python)</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart_R.html">Quickstart using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/quickstart.html">Quickstart</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<p class="caption" role="heading"><span class="caption-text">Getting Started (R)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../r/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="r/quickstart.html">Quickstart in R</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Reference</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">DFE Inference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#base-inference">Base inference</a><ul>
@@ -68,6 +72,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#serialization">Serialization</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#folded-inference">Folded inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#joint-inference">Joint inference</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#model-comparison">Model comparison</a></li>
 </ul>
@@ -80,7 +85,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="spectra.html">Working with site-frequency spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spectra.html">Working with SFS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing SFS from VCF file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/miscellaneous.html">Miscellaneous</a></li>
 </ul>
@@ -127,7 +132,9 @@
 <p>In order to infer the DFE of a single pair, one neutral and one selected, we can use <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>. In this example we create <a class="reference internal" href="../modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a> objects holding the SFS counts and pass it to BaseInference. Note that we are required to specify the number of monomorphic sites (the last and first entries of the specified counts).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">BaseInference</span><span class="p">,</span> <span class="n">Spectrum</span>
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">BaseInference</span><span class="p">,</span> <span class="n">Spectrum</span>
 
 <span class="n">sfs_neut</span> <span class="o">=</span> <span class="n">Spectrum</span><span class="p">([</span><span class="mi">177130</span><span class="p">,</span> <span class="mi">997</span><span class="p">,</span> <span class="mi">441</span><span class="p">,</span> <span class="mi">228</span><span class="p">,</span> <span class="mi">156</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">83</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">652</span><span class="p">])</span>
 <span class="n">sfs_sel</span> <span class="o">=</span> <span class="n">Spectrum</span><span class="p">([</span><span class="mi">797939</span><span class="p">,</span> <span class="mi">1329</span><span class="p">,</span> <span class="mi">499</span><span class="p">,</span> <span class="mi">265</span><span class="p">,</span> <span class="mi">162</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">94</span><span class="p">,</span> <span class="mi">119</span><span class="p">,</span> <span class="mi">794</span><span class="p">])</span>
@@ -145,11 +152,10 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe:Starting numerical optimization of 10 independently initialized samples which are run in parallel.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe:Precomputing linear DFE-SFS transformation using midpoint integration.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe:Successfully finished optimization after 79 iterations and 594 function evaluations, obtaining a log-likelihood of -34.63216290448145.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -9867.852019677897, &#39;all.b&#39;: 0.15081059927802082, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 0.00010000034366964345, &#39;all.eps&#39;: 0.006854767570905897}.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Discretization: Precomputing linear DFE-SFS transformation using midpoint integration.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Successfully finished optimization after 79 iterations and 594 function evaluations, obtaining a log-likelihood of -34.63216290448145.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Inferred parameters: {&#39;all.S_d&#39;: -9867.852019677897, &#39;all.b&#39;: 0.15081059927802082, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 0.00010000034366964345, &#39;all.eps&#39;: 0.006854767570905897}.</span>
 </pre></div>
 </div>
 </div>
@@ -177,7 +183,7 @@
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/3462472dbf261699183ecf62bd24a921a1d4c2ae74da4bdbc7d5e6420e1a6f91.png" src="../_images/3462472dbf261699183ecf62bd24a921a1d4c2ae74da4bdbc7d5e6420e1a6f91.png" />
+<img alt="../_images/9132ed36f765113692e7d1cb89df1fdd53ebbeaa7956ede566b7e0df19dc668e.png" src="../_images/9132ed36f765113692e7d1cb89df1fdd53ebbeaa7956ede566b7e0df19dc668e.png" />
 </div>
 </div>
 <section id="bootstrapping">
@@ -194,9 +200,8 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe:Running 100 bootstrap samples in parallel on 10 cores.</span>
-100%|██████████| 100/100 [00:13&lt;00:00,  7.16it/s]
-<span class=" -Color -Color-Yellow">WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Bootstrapping: 100%|██████████| 100/100 [00:01&lt;00:00, 99.33it/s]
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
 </pre></div>
 </div>
 <img alt="../_images/2719a4f5aa61d190e71d90d53cfb52aef812f02a29c2233c138a32b943a86073.png" src="../_images/2719a4f5aa61d190e71d90d53cfb52aef812f02a29c2233c138a32b943a86073.png" />
@@ -228,12 +233,10 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe:Starting numerical optimization of 10 independently initialized samples which are run in parallel.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe:Precomputing linear DFE-SFS transformation using midpoint integration.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe:Successfully finished optimization after 17 iterations and 66 function evaluations, obtaining a log-likelihood of -35.43798126918222.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe:Inferred parameters: {&#39;all.S_d&#39;: -33214.72695876174, &#39;all.b&#39;: 0.13054515124835514, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 1.0, &#39;all.eps&#39;: 0.0}.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe:Running 100 bootstrap samples in parallel on 10 cores.</span>
-100%|██████████| 100/100 [00:01&lt;00:00, 67.84it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Discretization: Precomputing linear DFE-SFS transformation using midpoint integration.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Successfully finished optimization after 17 iterations and 66 function evaluations, obtaining a log-likelihood of -35.43798126918222.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Inferred parameters: {&#39;all.S_d&#39;: -33214.72695876174, &#39;all.b&#39;: 0.13054515124835514, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 1.0, &#39;all.eps&#39;: 0.0}.</span>
+Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 293.61it/s]
 </pre></div>
 </div>
 <img alt="../_images/c649ca312c462e0a0da9766175b0320c8bb5163723a30e3dd42f3688dca49fdc.png" src="../_images/c649ca312c462e0a0da9766175b0320c8bb5163723a30e3dd42f3688dca49fdc.png" />
@@ -256,12 +259,12 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_b&#39;: 100} and lower bound for {&#39;all.p_b&#39;: 0}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe:2 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {&#39;all.S_b&#39;: 100} and lower bound for {&#39;all.p_b&#39;: 0}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 2 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
 </pre></div>
 </div>
 <img alt="../_images/7b190dff0c4c9af8e460a5577422c46aa069d5413058e3e59e6eebc0e6484459.png" src="../_images/7b190dff0c4c9af8e460a5577422c46aa069d5413058e3e59e6eebc0e6484459.png" />
@@ -279,7 +282,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/03958f79283557a002241c2299a94abeec5b595089df280a735ea8bd02cd0ef8.png" src="../_images/03958f79283557a002241c2299a94abeec5b595089df280a735ea8bd02cd0ef8.png" />
+<img alt="../_images/6ba010519b642483c2899972564a2c34edc888314f476c0dd4eb3da851eeb570.png" src="../_images/6ba010519b642483c2899972564a2c34edc888314f476c0dd4eb3da851eeb570.png" />
 </div>
 </div>
 <p>There might be some room for improvement as the likelihoods do show some variation. We could consider increasing the <code class="docutils literal notranslate"><span class="pre">n_runs</span></code> argument.</p>
@@ -288,17 +291,54 @@
 <h3>Serialization<a class="headerlink" href="#serialization" title="Permalink to this heading"></a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># save the inference object to the file</span>
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># save the inference object to a file</span>
 <span class="c1"># we can unserialized the inference by using BaseInference.from_file</span>
 <span class="n">inf</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s2">&quot;out/serialized.json&quot;</span><span class="p">)</span>
 
-<span class="c1"># we can also save a summary to file</span>
+<span class="c1"># we can also save a short summary to fa ile</span>
 <span class="n">inf</span><span class="o">.</span><span class="n">get_summary</span><span class="p">()</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s2">&quot;out/summary.json&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 </section>
+</section>
+<section id="folded-inference">
+<h2>Folded inference<a class="headerlink" href="#folded-inference" title="Permalink to this heading"></a></h2>
+<p>To infer the DFE from a folded SFS, simply pass folded spectra to <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>. Folded inference is performed whenever the spectra appear to be folded, i.e., when all entries where the derived allele is the major allele are zero. In this example, we only infer the deleterious DFE as folded spectra contain no information on beneficial mutations.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># create inference object</span>
+<span class="n">inf</span> <span class="o">=</span> <span class="n">BaseInference</span><span class="p">(</span>
+    <span class="n">sfs_neut</span><span class="o">=</span><span class="n">sfs_neut</span><span class="o">.</span><span class="n">fold</span><span class="p">(),</span>
+    <span class="n">sfs_sel</span><span class="o">=</span><span class="n">sfs_sel</span><span class="o">.</span><span class="n">fold</span><span class="p">(),</span>
+    <span class="n">fixed_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">S_b</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">p_b</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="p">)</span>
+
+<span class="c1"># run inference</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="c1"># plot the inferred DFE and the SFS comparison</span>
+<span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">intervals</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_sfs_comparison</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0, &#39;all.b&#39;: 0.01}, but this might be nothing to worry about.</span>
+</pre></div>
+</div>
+<img alt="../_images/55115c7a562e48060e4d986d4dd1915f0ddd6c599e3d76187fe1f497bff80ac2.png" src="../_images/55115c7a562e48060e4d986d4dd1915f0ddd6c599e3d76187fe1f497bff80ac2.png" />
+</div>
+</div>
 </section>
 <section id="joint-inference">
 <h2>Joint inference<a class="headerlink" href="#joint-inference" title="Permalink to this heading"></a></h2>
@@ -333,11 +373,11 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01} and lower bound for {&#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01} and lower bound for {&#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe:The MLE estimate is within 1% of the upper bound for {&#39;pendula:pubescens.S_d&#39;: -0.01} and lower bound for {&#39;pendula.S_b&#39;: 0.0001, &#39;pubescens.S_b&#39;: 0.0001, &#39;pendula:pubescens.eps&#39;: 0}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe:1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01} and lower bound for {&#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {&#39;all.S_d&#39;: -0.01} and lower bound for {&#39;all.S_b&#39;: 0.0001, &#39;all.eps&#39;: 0}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {&#39;pendula:pubescens.S_d&#39;: -0.01} and lower bound for {&#39;pendula.S_b&#39;: 0.0001, &#39;pubescens.S_b&#39;: 0.0001, &#39;pendula:pubescens.eps&#39;: 0}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
 </pre></div>
 </div>
 </div>
@@ -409,7 +449,7 @@
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 640x480 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../_images/8172887e21747eb6bf658dbb839935cf30ccefcf0496d12e9bf3b38a0763d7b1.png" src="../_images/8172887e21747eb6bf658dbb839935cf30ccefcf0496d12e9bf3b38a0763d7b1.png" />
+<img alt="../_images/af0a0e966d5902f2240d5886b1999866817ab9996bcc232d6eddfb5bc1b99587.png" src="../_images/af0a0e966d5902f2240d5886b1999866817ab9996bcc232d6eddfb5bc1b99587.png" />
 </div>
 </div>
 <p>We now create the inference object from the spectra. In this contrived example we make up some covariates that covary with <code class="docutils literal notranslate"><span class="pre">S_d</span></code>, the mean strength of negative selection. Covariates introduce a linear relationship by default but this can be modified by specifying a custom callback function (see <a class="reference internal" href="../modules/inference.html#fastdfe.optimization.Covariate" title="fastdfe.optimization.Covariate"><code class="xref py py-class docutils literal notranslate"><span class="pre">Covariate</span></code></a>).</p>
@@ -431,6 +471,16 @@
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0, &#39;all.b&#39;: 0.01}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0, &#39;all.b&#39;: 0.01}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;A:C:G:T.c0&#39;: 0.0001}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 2 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+</pre></div>
+</div>
+</div>
 </div>
 <p>Let’s visualize the inferred parameters</p>
 <div class="cell docutils container">
@@ -438,6 +488,9 @@
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">plot_inferred_parameters</span><span class="p">();</span>
 </pre></div>
 </div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/9ba3abf151668c46e646b725455c408c58f6f929813b0dfa2898dceabcb26088.png" src="../_images/9ba3abf151668c46e646b725455c408c58f6f929813b0dfa2898dceabcb26088.png" />
 </div>
 </div>
 <p>We do see that <code class="docutils literal notranslate"><span class="pre">S_b</span></code> indeed varies among the jointly-inferred types and this is due to the linear relationship with the covariate values introduced.</p>
@@ -447,6 +500,18 @@
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">inf</span><span class="o">.</span><span class="n">perform_lrt_covariates</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0, &#39;all.b&#39;: 0.01}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.S_d&#39;: -100000.0, &#39;all.b&#39;: 0.01}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 2 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.0
 </pre></div>
 </div>
 </div>
@@ -460,7 +525,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="quickstart_R.html" class="btn btn-neutral float-left" title="Quickstart using R" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="r/quickstart.html" class="btn btn-neutral float-left" title="Quickstart in R" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../reference/config.html" class="btn btn-neutral float-right" title="Configuration files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

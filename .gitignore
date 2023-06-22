@@ -11,3 +11,4 @@ scratch/
 slurm/
 .env
 *.sqlite
+.Rproj.user
