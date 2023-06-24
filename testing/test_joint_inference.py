@@ -93,6 +93,29 @@ class JointInferenceTestCase(InferenceTestCase):
 
         assert inf.perform_lrt_covariates() < 1
 
+    def test_no_shared_params(self):
+        """
+        Test that the perform_lrt_covariates method works.
+        """
+        # create inference object
+        inf = JointInference(
+            sfs_neut=Spectra(dict(
+                pendula=[177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+                pubescens=[172528, 3612, 1359, 790, 584, 427, 325, 234, 166, 76, 31]
+            )),
+            sfs_sel=Spectra(dict(
+                pendula=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+                pubescens=[791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
+            )),
+            do_bootstrap=False,
+            parallelize=False,
+            n_bootstraps=2,
+            n_runs=1
+        )
+
+        inf.run()
+        inf.plot_discretized()
+
     def test_perform_lrt_covariates_two_samples(self):
         """
         Test that the perform_lrt_covariates method works.

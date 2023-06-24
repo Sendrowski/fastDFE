@@ -271,30 +271,29 @@ class JointInference(BaseInference):
         #: Joint inference object indexed by type
         self.joint_inferences: Dict[str, BaseInference] = {}
 
-        # only add if more than one type and at least one shared parameter is given
-        if len(self.types) > 1 and len(self.shared_params) > 0:
-            for t in sfs_neut.types:
-                self.joint_inferences[t] = BaseInference(
-                    # pass subtypes
-                    sfs_neut=sfs_neut[[t]],
-                    sfs_sel=sfs_sel[[t]],
-                    discretization=self.discretization,
-                    include_divergence=include_divergence,
-                    model=model,
-                    seed=seed,
-                    x0=x0,
-                    bounds=bounds,
-                    scales=scales,
-                    loss_type=loss_type,
-                    opts_mle=opts_mle,
-                    fixed_params=dict(all=self.fixed_params[t]) if t in self.fixed_params else {},
-                    do_bootstrap=do_bootstrap,
-                    n_bootstraps=n_bootstraps,
-                    parallelize=parallelize,
-                    folded=self.folded,
-                    n_runs=n_runs,
-                    locked=True
-                )
+        # add base inference object for each type
+        for t in sfs_neut.types:
+            self.joint_inferences[t] = BaseInference(
+                # pass subtypes
+                sfs_neut=sfs_neut[[t]],
+                sfs_sel=sfs_sel[[t]],
+                discretization=self.discretization,
+                include_divergence=include_divergence,
+                model=model,
+                seed=seed,
+                x0=x0,
+                bounds=bounds,
+                scales=scales,
+                loss_type=loss_type,
+                opts_mle=opts_mle,
+                fixed_params=dict(all=self.fixed_params[t]) if t in self.fixed_params else {},
+                do_bootstrap=do_bootstrap,
+                n_bootstraps=n_bootstraps,
+                parallelize=parallelize,
+                folded=self.folded,
+                n_runs=n_runs,
+                locked=True
+            )
 
     def check_shared_params(self):
         """

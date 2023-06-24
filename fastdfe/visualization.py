@@ -154,11 +154,11 @@ class Visualization:
         """
         Plot discretized DFEs using a bar plot.
 
-        :param interval_labels: Labels for the intervals
-        :param labels: Labels for the DFEs
+        :param interval_labels: Labels for the intervals (which are the same for all types)
+        :param labels: Labels for the different types of DFEs
         :param title: Title of the plot
-        :param values: Array of values of size ``intervals.shape[0] - 1``
-        :param errors: Array of errors of size ``intervals.shape[0] - 1``
+        :param values: Array of values of size ``intervals.shape[0] - 1``, containing the discretized DFE for each type
+        :param errors: Array of errors of size ``intervals.shape[0] - 1``, containing the discretized DFE for each type
         :param file: File path to save plot to
         :param show: Whether to show plot
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bars.
@@ -181,7 +181,7 @@ class Visualization:
                 x=x,
                 height=values[i],
                 width=width,
-                yerr=errors[i],
+                yerr=errors[i] if errors is not None else None,
                 error_kw=dict(
                     capsize=width * 7
                 ),
@@ -537,9 +537,7 @@ class Visualization:
         plt.tight_layout(pad=.3)
 
         # show and save plot
-        Visualization.show_and_save(file, show)
-
-        return plt.gca()
+        return Visualization.show_and_save(file, show)
 
     @staticmethod
     def get_color(
@@ -650,9 +648,7 @@ class Visualization:
             [ax.set_visible(False) for ax in axes[n_plots:]]
 
             # show and save plot
-            Visualization.show_and_save(file, show)
-
-            return plt.gca()
+            return Visualization.show_and_save(file, show)
 
         if ax is None:
             plt.clf()
@@ -709,9 +705,7 @@ class Visualization:
             ax.legend(**kwargs_legend)
 
         # show and save plot
-        Visualization.show_and_save(file, show)
-
-        return ax
+        return Visualization.show_and_save(file, show)
 
     @staticmethod
     def darken_edge_colors(bars: BarContainer):

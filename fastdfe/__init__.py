@@ -13,12 +13,16 @@ import sys
 import warnings
 
 import jsonpickle
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
 from .json_handlers import DataframeHandler, SpectrumHandler, SpectraHandler, NumpyArrayHandler
 from .spectrum import Spectrum, Spectra
+
+# set the default figure size
+plt.rcParams['figure.figsize'] = np.array([6.4, 4.8]) * 0.8
 
 # register custom handles
 jsonpickle.handlers.registry.register(pd.DataFrame, DataframeHandler)
@@ -43,7 +47,7 @@ class TqdmLoggingHandler(logging.Handler):
         try:
             msg = self.format(record)
 
-            # we write to stderr to avoid as the progress bar
+            # we write to stderr as the progress bar
             # to make the two work together
             tqdm.write(msg, file=sys.stderr)
             self.flush()
