@@ -132,8 +132,8 @@ hominidae = [
 rule all:
     input:
         (
-            expand("results/graphs/fastdfe/arabidopsis/cov/{param}.{col}.params.png", param=['S_d'], col=['age.rsa']),
-            expand("results/sfs/betula/{sample_set}/{n}/sfs.csv", sample_set=['pendula', 'pubescens'], n=[20])
+            #expand("results/graphs/fastdfe/arabidopsis/cov/{param}.{col}.params.png", param=['S_d'], col=['age.rsa']),
+            #expand("results/sfs/betula/{sample_set}/{n}/sfs.csv", sample_set=['pendula', 'pubescens'], n=[20]),
             #expand("results/graphs/comp/spectra/hgdp/inference/{chr}/{opts}/[all,Japanese].png",chr=[21, 1], opts=['opts.subset.50000.n.10', 'opts.subset.50000.n.20']),
             #expand("results/graphs/comp/pca/hgdp/inference/{chr}/{opts}/[all,Japanese].png",chr=[21], opts=['opts.subset.50000']),
             #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[10,20].config.{config}/[all,Japanese].dfe.png",chr=[1, 2, 3], opts=['opts'], config=['default']),
@@ -150,10 +150,14 @@ rule all:
             #expand("results/graphs/fastdfe/{config}_bootstrapped_100/dfe_discretized.png",config=configs),
             #expand("results/spectra/{species}.csv", species=['pendula.pubescens', 'pendula.pubescens.example_1.example_2.example_3'])
             #expand("results/polydfe/{config}_bootstrapped_100/serialized.json",config=configs),
-            # expand("results/graphs/comp/[fastdfe<fastDFE>,polydfe<polyDFE>]/{config}_bootstrapped_100/{type}.png",
+            #expand("results/graphs/comp/[fastdfe<fastDFE>,polydfe<polyDFE>]/{config}_bootstrapped_100/{type}.png",
             #    config=configs,
-            #    type=['mle_params', 'dfe_discretized']
+            #   type=['mle_params', 'dfe_discretized']
             #),
+            expand("results/graphs/comp/[fastdfe<fastDFE>,polydfe<polyDFE>]/{config}/{type}.png",
+                config=['pendula_C_full'],
+                type=['mle_params', 'dfe_discretized']
+            ),
             #expand("results/graphs/tool_comp/{config}_bootstrapped_100/discretized.png",config=configs),
             #expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
             #expand("results/spectra/betula/pendula/{s}/all.csv",
@@ -249,7 +253,7 @@ rule infer_dfe_polyDFE:
     output:
         polydfe="results/polydfe/{config}/out.txt",
         summary="results/polydfe/{config}/summary.json",
-        wrapper="results/polydfe/{config}/serialized.json"
+        serialized="results/polydfe/{config}/serialized.json"
     params:
         bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
     conda:
@@ -265,7 +269,7 @@ rule infer_dfe_polyDFE_bootstrap:
     output:
         polydfe="results/polydfe/{config}/bootstraps/{i}/out.txt",
         summary="results/polydfe/{config}/bootstraps/{i}/summary.json",
-        wrapper="results/polydfe/{config}/bootstraps/{i}/serialized.json"
+        serialized="results/polydfe/{config}/bootstraps/{i}/serialized.json"
     params:
         bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
     conda:
@@ -274,7 +278,7 @@ rule infer_dfe_polyDFE_bootstrap:
         "scripts/infer_dfe_polydfe.py"
 
 # infer DFE from SFS
-rule visualize_DFE_inference:
+rule plot_DFE_inference:
     input:
         "results/fastdfe/{config}/serialized.json"
     output:
@@ -315,7 +319,7 @@ rule merge_bootstraps_polyDFE:
         "scripts/merge_bootstraps_polydfe.py"
 
 # infer DFE from SFS
-rule visualize_polyDFE_inference:
+rule plot_polyDFE_inference:
     input:
         "results/polydfe/{config}/serialized.json"
     output:

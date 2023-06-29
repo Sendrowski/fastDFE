@@ -23,8 +23,8 @@ try:
     out = snakemake.output.polydfe
     out_summary = snakemake.output.summary
     out_serialized = snakemake.output.serialized
-    out_dfe = snakemake.output.dfe
-    out_params = snakemake.output.params
+    out_dfe = snakemake.output.get('dfe', None)
+    out_params = snakemake.output.get('params', None)
 except ModuleNotFoundError:
     # testing
     testing = True

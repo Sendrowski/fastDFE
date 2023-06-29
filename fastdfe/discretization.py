@@ -318,7 +318,7 @@ class Discretization:
     @to_float
     def get_allele_count_large_negative_S(self, S: float | np.ndarray, k: float | np.ndarray) -> np.ndarray | float:
         """
-        Same as get_allele_count but performing the division on the log scale.
+        Limit of get_allele_count for large negative S.
 
         :param S: Population-scaled selection coefficient
         :param k: Allele count
@@ -328,7 +328,7 @@ class Discretization:
 
     def get_allele_count_large_positive_S(self, S: float | np.ndarray, k: float | np.ndarray) -> np.ndarray | float:
         """
-        Limit of get_allele_count for S >> 0.
+        Limit of get_allele_count for large positive S.
 
         :param S: Population-scaled selection coefficient
         :param k: Allele count
@@ -371,6 +371,8 @@ class Discretization:
         close_to_zero = np.abs(S) < 1e-8
 
         # simply take limit value as S -> 0
+        # see https://www.wolframalpha.com/input?i=limit+of+%5Cfrac%7B1-e%5E%7B-S%281-x%29%7D%7D%7Bx%281-
+        # x%29%281-e%5E%7B-S%7D%29%7D+as+S+-%3E+0
         if close_to_zero.any():
             y[close_to_zero] = np.ones_like(S[close_to_zero]) / k[close_to_zero]
 

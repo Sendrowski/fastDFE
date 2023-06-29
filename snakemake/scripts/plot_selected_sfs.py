@@ -18,15 +18,15 @@ try:
     sys.path.append('..')
 
     testing = False
-    input = snakemake.input[0]
-    postprocessing_source = '../resources/polydfe/postprocessing/script.R'
+    n = snakemake.params.n
+    S = snakemake.params.S
     out = snakemake.output[0]
 except ModuleNotFoundError:
     # testing
     testing = True
     n = 7
     S = 7
-    out = "scratch/sfs.png"
+    out = "scratch/sfs_selected.png"
 
 from fastdfe.discretization import Discretization
 from fastdfe import Spectrum

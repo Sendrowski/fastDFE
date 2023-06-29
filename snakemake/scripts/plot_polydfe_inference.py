@@ -28,7 +28,7 @@ from fastdfe.polydfe import PolyDFE
 
 inference = PolyDFE.from_file(input)
 
-inference.plot_inferred_parameters(out_mle_params, show=testing)
-inference.plot_discretized(out_dfe_discretized, show=testing)
+inference.plot_inferred_parameters(file=out_mle_params, show=testing)
+inference.plot_discretized(file=out_dfe_discretized, show=testing)
 
 pass
