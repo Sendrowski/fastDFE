@@ -18,11 +18,11 @@ try:
     file_original = snakemake.input.original
     files_bootstrap = snakemake.input.bootstraps
     out = snakemake.output[0]
-except NameError:
+except ModuleNotFoundError:
     # testing
     testing = True
-    file_original = 'results/polydfe/pendula_C_full_anc/serialized.json'
-    files_bootstrap = ['results/polydfe/pendula_C_full_anc/serialized.json' for i in range(10)]
+    file_original = 'results/polydfe/example_1_C_deleterious/serialized.json'
+    files_bootstrap = [f'results/polydfe/example_1_C_deleterious/bootstraps/{i}/serialized.json' for i in range(10)]
     out = 'scratch/polydfe_bs.json'
 
 from fastdfe.polydfe import PolyDFE

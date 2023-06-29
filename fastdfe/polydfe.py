@@ -313,7 +313,7 @@ class PolyDFE(AbstractInference):
         self.bootstraps = pd.DataFrame([bs.get_bootstrap_params() for bs in bootstraps])
 
         # drop nuisance parameters and eps_cont
-        self.bootstraps.drop(columns=['r', 'eps_cont'], inplace=True)
+        self.bootstraps.drop(columns=['r', 'eps_cont'], inplace=True, errors='ignore')
 
         # update execution time
         self.summary.data['execution_time'] += np.sum([bs.summary.data['execution_time'] for bs in bootstraps])

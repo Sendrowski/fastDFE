@@ -19,7 +19,7 @@ def prioritize_installed_packages():
     # Check if the current working directory is in sys.path
     if cwd in sys.path:
         # Remove the current working directory from sys.path
-        sys.path.remove(cwd)
+        sys.path = [p for p in sys.path if p != cwd]
         # Append the current working directory to the end of sys.path
         sys.path.append(cwd)
 
