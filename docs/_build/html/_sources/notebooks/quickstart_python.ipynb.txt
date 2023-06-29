@@ -15,8 +15,8 @@
    "execution_count": 1,
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-24T08:13:34.635761Z",
-     "start_time": "2023-06-24T08:13:31.564430Z"
+     "end_time": "2023-06-29T10:31:25.639004Z",
+     "start_time": "2023-06-29T10:31:18.758888Z"
     }
    },
    "outputs": [
@@ -62,8 +62,8 @@
    "execution_count": 2,
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-24T08:13:34.801018Z",
-     "start_time": "2023-06-24T08:13:34.638382Z"
+     "end_time": "2023-06-29T10:31:25.842039Z",
+     "start_time": "2023-06-29T10:31:25.644158Z"
     }
    },
    "outputs": [
@@ -92,8 +92,8 @@
    "execution_count": 3,
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-24T08:13:34.928775Z",
-     "start_time": "2023-06-24T08:13:34.804844Z"
+     "end_time": "2023-06-29T10:31:26.001827Z",
+     "start_time": "2023-06-29T10:31:25.873380Z"
     }
    },
    "outputs": [
@@ -131,8 +131,8 @@
    "execution_count": 4,
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-24T08:13:35.959394Z",
-     "start_time": "2023-06-24T08:13:34.929298Z"
+     "end_time": "2023-06-29T10:31:29.235597Z",
+     "start_time": "2023-06-29T10:31:26.003530Z"
     }
    },
    "outputs": [
@@ -140,7 +140,7 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "Bootstrapping: 100%|██████████| 100/100 [00:00<00:00, 124.38it/s]\n",
+      "Bootstrapping: 100%|██████████| 100/100 [00:02<00:00, 34.20it/s]\n",
       "\u001B[33mWARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.\u001B[0m\n"
      ]
     },
@@ -172,8 +172,8 @@
    "execution_count": 5,
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-06-24T08:13:36.054993Z",
-     "start_time": "2023-06-24T08:13:35.960237Z"
+     "end_time": "2023-06-29T10:31:29.333128Z",
+     "start_time": "2023-06-29T10:31:29.236544Z"
     }
    },
    "outputs": [],
