@@ -113,7 +113,7 @@
 <span id="installation-r"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
 <section id="r">
 <h2>R<a class="headerlink" href="#r" title="Permalink to this heading"></a></h2>
-<p>To install the <cite>fastdfe</cite> package in R, we first install and load the reticulate package in R, which allows us to interface with Python. We then use reticulate’s <code class="xref py py-meth docutils literal notranslate"><span class="pre">py_install()</span></code> function to install the <cite>fastdfe</cite> Python package, and subsequently import it into our <a href="#id1"><span class="problematic" id="id2">`</span></a>R environment for further use.</p>
+<p>To install the <cite>fastdfe</cite> in R, we first install and load the reticulate package in R, which allows us to interface with Python. We then use reticulate’s <code class="xref py py-meth docutils literal notranslate"><span class="pre">py_install()</span></code> function to install the <cite>fastdfe</cite> Python package, and subsequently import it into our <a href="#id1"><span class="problematic" id="id2">`</span></a>R environment for further use.</p>
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;reticulate&quot;</span><span class="p">)</span>
 
 <span class="nf">library</span><span class="p">(</span><span class="n">reticulate</span><span class="p">)</span>
@@ -123,6 +123,7 @@
 <span class="n">fastdfe</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">import</span><span class="p">(</span><span class="s">&quot;fastdfe&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Alternatively, you can also source <a class="reference external" href="https://github.com/Sendrowski/fastDFE/blob/dev/R/fastdfe.R">fastdfe.R</a> to install and load <cite>fastdfe</cite>. A proper R package is under way.</p>
 </section>
 </section>
 

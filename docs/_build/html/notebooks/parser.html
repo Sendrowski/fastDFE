@@ -67,7 +67,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../reference/config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="spectra.html">Working with SFS</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Parsing SFS from VCF file</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Parsing SFS from VCF file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#simple-parsing">Simple parsing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stratifications">Stratifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#annotations">Annotations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#degeneracy-and-synonymy-annotations">Degeneracy and Synonymy annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ancestral-allele-annotation">Ancestral allele annotation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#filtrations">Filtrations</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/miscellaneous.html">Miscellaneous</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
@@ -108,6 +118,8 @@
              
   <section id="parsing-sfs-from-vcf-file">
 <h1>Parsing SFS from VCF file<a class="headerlink" href="#parsing-sfs-from-vcf-file" title="Permalink to this heading"></a></h1>
+<section id="simple-parsing">
+<h2>Simple parsing<a class="headerlink" href="#simple-parsing" title="Permalink to this heading"></a></h2>
 <p>fastDFE provides parser utilities that enable convenient parsing of frequency spectra from VCF files. By default, <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a> looks at the <code class="docutils literal notranslate"><span class="pre">AA</span></code> tag in the VCF file’s info field to retrieve the correct polarization. Sites for which this tag is not well-defined are by default included (see <code class="xref py py-attr docutils literal notranslate"><span class="pre">skip_not_polarized</span></code>). Note that non-polarized frequency spectra provide little information on the distribution of beneficial mutations.</p>
 <p>We also might want to stratify the SFS by some property of the sites, such as synonymous vs. non-synonymous mutations. This is done by specifying a list of stratifications to the parser. In this example, we will stratify the SFS by synonymous vs. non-synonymous mutations using a VCF file for <code class="docutils literal notranslate"><span class="pre">Betula</span> <span class="pre">spp.</span></code>.</p>
 <div class="cell docutils container">
@@ -127,10 +139,13 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Counting sites: 2439037it [02:16, 17821.79it/s]
-<span class=" -Color -Color-Green">INFO:fastdfe:Using stratification: [neutral, selected].</span>
-<span class=" -Color -Color-Green">INFO:fastdfe:Starting to parse.</span>
-Processing sites:  79%|███████▉  | 1935472/2439037 [12:56&lt;03:15, 2581.94it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Counting sites: 2439037it [00:46, 52379.94it/s]
+<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Using stratification: [neutral, selected].</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Starting to parse.</span>
+Processing sites: 100%|██████████| 2439037/2439037 [05:21&lt;00:00, 7581.93it/s] 
+<span class=" -Color -Color-Green">INFO:fastdfe.PolyAllelicFiltration: Filtered out 0 sites.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyStratification: Number of sites with valid type: 981644 / 2439037</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Included 981644 out of 2439037 sites in total.</span>
 </pre></div>
 </div>
 </div>
@@ -142,8 +157,17 @@ Processing sites:  79%|███████▉  | 1935472/2439037 [12:56&lt;03:
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 512x384 with 0 Axes&gt;
+</pre></div>
+</div>
+<img alt="../_images/de5e46db7c088509de460159e68ae8428a1630e280bf1dce838da4a2e36cd50c.png" src="../_images/de5e46db7c088509de460159e68ae8428a1630e280bf1dce838da4a2e36cd50c.png" />
+</div>
 </div>
 <p>fastDFE relies on VCF info tags to determine the degeneracy of a site but this behaviour can be customized (cf. <a class="reference internal" href="../modules/parser.html#fastdfe.parser.DegeneracyStratification" title="fastdfe.parser.DegeneracyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyStratification</span></code></a>).</p>
+</section>
+<section id="stratifications">
+<h2>Stratifications<a class="headerlink" href="#stratifications" title="Permalink to this heading"></a></h2>
 <p>We can also increase the number of stratifications by specifying a list of stratifications. In this example, we will stratify the SFS by synonymous vs. non-synonymous mutations and by base transitions.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -161,6 +185,18 @@ Processing sites:  79%|███████▉  | 1935472/2439037 [12:56&lt;03:
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Counting sites: 2439037it [00:41, 58696.29it/s]
+<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Using stratification: [neutral, selected].[A, C, G, T].</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Starting to parse.</span>
+Processing sites: 100%|██████████| 2439037/2439037 [05:26&lt;00:00, 7471.69it/s] 
+<span class=" -Color -Color-Green">INFO:fastdfe.PolyAllelicFiltration: Filtered out 0 sites.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyStratification: Number of sites with valid type: 980934 / 2438327</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.AncestralBaseStratification: Number of sites with valid type: 980934 / 981644</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Included 980934 out of 2439037 sites in total.</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -169,8 +205,32 @@ Processing sites:  79%|███████▉  | 1935472/2439037 [12:56&lt;03:
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 512x384 with 0 Axes&gt;
+</pre></div>
+</div>
+<img alt="../_images/bd1316acbc12ddef728ed312853fe88d948fe6edc4b05f925088949aaea9b1a4.png" src="../_images/bd1316acbc12ddef728ed312853fe88d948fe6edc4b05f925088949aaea9b1a4.png" />
+</div>
 </div>
 <p>Note that fastDFE required the ancestral state of sites to be determined. <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a> does this by looking at the <code class="docutils literal notranslate"><span class="pre">AA</span></code> field but this can be customized. We admit there is currently no easy method for determining the ancestral states directly from a VCF file and are working on implementing one. You can also define custom Stratifications by extending <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a>).</p>
+</section>
+<section id="annotations">
+<h2>Annotations<a class="headerlink" href="#annotations" title="Permalink to this heading"></a></h2>
+<p>fastDFE also offers a number of annotations which can be accessed immediately while parsing. Alternatively, to actually annotate a VCF file, you can use the <a class="reference internal" href="../modules/annotation.html#fastdfe.annotation.Annotator" title="fastdfe.annotation.Annotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotator</span></code></a> class.</p>
+<section id="degeneracy-and-synonymy-annotations">
+<h3>Degeneracy and Synonymy annotations<a class="headerlink" href="#degeneracy-and-synonymy-annotations" title="Permalink to this heading"></a></h3>
+<p>Supported annotations are <a class="reference internal" href="../modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation" title="fastdfe.annotation.DegeneracyAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyAnnotation</span></code></a> and <a class="reference internal" href="../modules/annotation.html#fastdfe.annotation.SynonymyAnnotation" title="fastdfe.annotation.SynonymyAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SynonymyAnnotation</span></code></a> which can be used with <a class="reference internal" href="../modules/parser.html#fastdfe.parser.DegeneracyStratification" title="fastdfe.parser.DegeneracyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyStratification</span></code></a> and <a class="reference internal" href="../modules/parser.html#fastdfe.parser.SynonymyStratification" title="fastdfe.parser.SynonymyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">SynonymyStratification</span></code></a> respectively. These annotations are useful for stratifying the SFS by synonymous vs. non-synonymous mutations. Note that <a class="reference internal" href="../modules/annotation.html#fastdfe.annotation.DegeneracyAnnotation" title="fastdfe.annotation.DegeneracyAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyAnnotation</span></code></a> also infers the number of mutational target sites which are required for accurate DFE inference. However, not all VCF files contain monomorphic sites. Using <a class="reference internal" href="../modules/annotation.html#fastdfe.annotation.SynonymyAnnotation" title="fastdfe.annotation.SynonymyAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SynonymyAnnotation</span></code></a> together with <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>, the number of mutational target sites can be inferred from the total length of the coding sequences specified in the accompanying GFF file. Alternatively, the number of mutational target sites can be specified manually using the <code class="docutils literal notranslate"><span class="pre">n_target_sites</span></code> argument of <a class="reference internal" href="../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>. <a class="reference internal" href="../modules/parser.html#fastdfe.parser.SynonymyStratification" title="fastdfe.parser.SynonymyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">SynonymyStratification</span></code></a> was tested against <a class="reference external" href="https://www.ensembl.org/info/docs/tools/vep/index.html">VEP</a> and <a class="reference external" href="https://pcingola.github.io/SnpEff/">SnpEff</a> and provides the same annotations in almost all cases.</p>
+</section>
+<section id="ancestral-allele-annotation">
+<h3>Ancestral allele annotation<a class="headerlink" href="#ancestral-allele-annotation" title="Permalink to this heading"></a></h3>
+<p>Currently, only maximum parsimony ancestral allele inference is supported (see <a class="reference internal" href="../modules/annotation.html#fastdfe.annotation.MaximumParsimonyAnnotation" title="fastdfe.annotation.MaximumParsimonyAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumParsimonyAnnotation</span></code></a>), which is simple but prone to errors. Some errors can be avoided by including
+<a class="reference internal" href="../modules/filtration.html#fastdfe.filtration.DeviantOutgroupFiltration" title="fastdfe.filtration.DeviantOutgroupFiltration"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration</span></code></a>. Alternatively, if inference on folded spectra is desired, we provide a snakemake <a class="reference external" href="https://github.com/Sendrowski/fastDFE/blob/master/snakemake/rules/est-sfs.smk">wrapper for EST-SFS</a> which uses a more sophisticated method for ancestral allele inference (see also <a class="reference external" href="https://github.com/Sendrowski/fastDFE/blob/master/snakemake/rules/est-sfs_example.smk">here</a> for an example).</p>
+</section>
+</section>
+<section id="filtrations">
+<h2>Filtrations<a class="headerlink" href="#filtrations" title="Permalink to this heading"></a></h2>
+<p>fastDFE also offers a number of filtrations which can be accessed immediately while parsing. Alternatively, to actually filter a VCF file, you can use the <a class="reference internal" href="../modules/filtration.html#fastdfe.filtration.Filterer" title="fastdfe.filtration.Filterer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filterer</span></code></a> class. Some useful filtrations are <a class="reference internal" href="../modules/filtration.html#fastdfe.filtration.DeviantOutgroupFiltration" title="fastdfe.filtration.DeviantOutgroupFiltration"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration</span></code></a>, <a class="reference internal" href="../modules/filtration.html#fastdfe.filtration.CodingSequenceFiltration" title="fastdfe.filtration.CodingSequenceFiltration"><code class="xref py py-class docutils literal notranslate"><span class="pre">CodingSequenceFiltration</span></code></a>, and <a class="reference internal" href="../modules/filtration.html#fastdfe.filtration.BiasedGCConversionFiltration" title="fastdfe.filtration.BiasedGCConversionFiltration"><code class="xref py py-class docutils literal notranslate"><span class="pre">BiasedGCConversionFiltration</span></code></a>. For a full list of available filtrations, see the API reference.</p>
+</section>
 </section>
 
 
