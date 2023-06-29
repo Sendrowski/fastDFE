@@ -1,0 +1,103 @@
+bounds: {}
+covariates: []
+do_bootstrap: null
+fixed_params:
+  all:
+    S_b: 1.0
+    eps: 0.0
+    p_b: 0.0
+integration_mode: midpoint
+intervals_ben:
+- 1.0e-05
+- 10000.0
+- 1000
+intervals_del:
+- -100000000.0
+- -1.0e-05
+- 1000
+linearized: true
+loss_type: likelihood
+model: GammaExpParametrization
+n_bootstraps: 10
+n_runs: 10
+opts_mle: {}
+parallelize: true
+scales: {}
+seed: 0
+sfs_neut:
+  all:
+  - 964507.0
+  - 10168.0
+  - 4683.0
+  - 3276.0
+  - 2673.0
+  - 2068.0
+  - 1675.0
+  - 1312.0
+  - 1235.0
+  - 1038.0
+  - 1013.0
+  - 920.0
+  - 847.0
+  - 827.0
+  - 741.0
+  - 731.0
+  - 612.0
+  - 651.0
+  - 535.0
+  - 488.0
+  - 0.0
+sfs_sel:
+  all:
+  - 2930070.0
+  - 18688.0
+  - 7923.0
+  - 5239.0
+  - 3580.0
+  - 3272.0
+  - 2683.0
+  - 2295.0
+  - 2069.0
+  - 2115.0
+  - 1985.0
+  - 2055.0
+  - 1899.0
+  - 2184.0
+  - 2039.0
+  - 2105.0
+  - 2038.0
+  - 2373.0
+  - 2487.0
+  - 2901.0
+  - 0.0
+shared_params: []
+x0:
+  all:
+    S_b: 1
+    S_d: -20000
+    a: -1
+    b: 0.2
+    eps: 0
+    eps_cont: 0
+    lambda: 0
+    p_b: 0
+    r:
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    theta_bar: 0.001

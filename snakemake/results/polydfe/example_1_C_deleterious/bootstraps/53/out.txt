@@ -1,0 +1,77 @@
+---- Running command
+---- ./polyDFE -d /scratch/38995221/tmpxosqogbj -m C -i /scratch/38995221/tmpfrfdpunn 1 -v 1 
+---- Performing inference using model C
+
+---- Performing inference on /scratch/38995221/tmpxosqogbj
+----      with -i /scratch/38995221/tmpfrfdpunn 1
+---- Data /scratch/38995221/tmpxosqogbj does not contain divergence counts. Using option -w.
+---- No mutation variability. Using Poisson likelihood.
+
+
+---- Using provided initial values
+
+-- Starting local optimization
+-- Optimizing all parameters
+  it     theta_bar           S_d             b           r 2           r 3           r 4           r 5           r 6           r 7           r 8           r 9          r 10          r 11          r 12          r 13          r 14          r 15          r 16          r 17          r 18          r 19           ln lk          grad status 
+   0         0.001        -20000           0.2             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1 -248520.0355131 1475.32970896   -2 
+   1         0.001        -20000           0.2             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1 -248520.0355131           NAN   -8 
+   2         0.001        -20000           0.2             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1 -248520.0355131           NAN   -8 
+   3         0.001        -20000           0.2             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1 -248520.0355131 1475.32970896   -8 
+-- Local optimization: reached maximum number of likelihood evaluations allowed.
+-- Found new optimum with likelihood -248520.035513121809345 and gradient 1475.32971
+
+---- Best joint likelihood found -248520.035513121809345 with gradient 1475.32971
+
+---- Results for /scratch/38995221/tmpxosqogbj 
+--  Model: C
+--        eps_an     theta_bar             a 
+--             0         0.001            -1 
+--           S_d             b           p_b           S_b 
+--        -20000           0.2             0             1 
+--           r 2           r 3           r 4           r 5           r 6           r 7           r 8           r 9          r 10          r 11          r 12          r 13          r 14          r 15          r 16          r 17          r 18          r 19 
+--             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1 
+
+---- Expected P_neut(i), 0 < i < n (neutral SFS per site) 
+E[P_neut(1)] = 0.0010000000
+E[P_neut(2)] = 0.0005000000
+E[P_neut(3)] = 0.0003333333
+E[P_neut(4)] = 0.0002500000
+E[P_neut(5)] = 0.0002000000
+E[P_neut(6)] = 0.0001666667
+E[P_neut(7)] = 0.0001428571
+E[P_neut(8)] = 0.0001250000
+E[P_neut(9)] = 0.0001111111
+E[P_neut(10)] = 0.0001000000
+E[P_neut(11)] = 0.0000909091
+E[P_neut(12)] = 0.0000833333
+E[P_neut(13)] = 0.0000769231
+E[P_neut(14)] = 0.0000714286
+E[P_neut(15)] = 0.0000666667
+E[P_neut(16)] = 0.0000625000
+E[P_neut(17)] = 0.0000588235
+E[P_neut(18)] = 0.0000555556
+E[P_neut(19)] = 0.0000526316
+
+---- Expected P_sel(i), 0 < i < n (selected SFS per site) 
+E[P_sel(1)] = 0.0002152937
+E[P_sel(2)] = 0.0000875436
+E[P_sel(3)] = 0.0000530828
+E[P_sel(4)] = 0.0000374831
+E[P_sel(5)] = 0.0000286999
+E[P_sel(6)] = 0.0000231094
+E[P_sel(7)] = 0.0000192581
+E[P_sel(8)] = 0.0000164539
+E[P_sel(9)] = 0.0000143265
+E[P_sel(10)] = 0.0000126608
+E[P_sel(11)] = 0.0000113235
+E[P_sel(12)] = 0.0000102277
+E[P_sel(13)] = 0.0000093145
+E[P_sel(14)] = 0.0000085424
+E[P_sel(15)] = 0.0000078817
+E[P_sel(16)] = 0.0000073103
+E[P_sel(17)] = 0.0000068115
+E[P_sel(18)] = 0.0000063726
+E[P_sel(19)] = 0.0000059836
+
+---- alpha_dfe = 0.000000
+
