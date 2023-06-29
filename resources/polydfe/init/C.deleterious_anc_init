@@ -1,3 +1,3 @@
 # deleterious DFE only can be specified by fixing p_b and S_b to 0
 #ID   eps an    eps cont  lambda    theta bar  a     S d      b      p b       S b      r (at least #groups-1 of them)
-1     2 0.05    1 0.00    0 0.005   0 0.001    0 2   0 -20000   0 0.2  1 0       1 0      0  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1     2 0.05    1 0.00    0 0.005   0 0.001    0 2   0 -20000   0 0.2  1 0       1 1      0  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
