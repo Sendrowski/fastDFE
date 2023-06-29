@@ -420,7 +420,7 @@
     "inf.run()\n",
     "\n",
     "# plot the inferred DFE and the SFS comparison\n",
-    "ax1, ax2 = plt.subplots(ncols=2, figsize=(8, 5))[1]\n",
+    "ax1, ax2 = plt.subplots(ncols=2, figsize=(8, 4))[1]\n",
     "\n",
     "inf.plot_discretized(ax=ax1, show=False, intervals=np.array([-np.inf, -100, -10, -1, 0]))\n",
     "inf.plot_sfs_comparison(ax=ax2, show=False)\n",

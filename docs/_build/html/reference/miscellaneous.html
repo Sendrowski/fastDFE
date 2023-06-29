@@ -26,7 +26,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Inference" href="../modules/inference.html" />
-    <link rel="prev" title="Parsing SFS from VCF file" href="../notebooks/parser.html" /> 
+    <link rel="prev" title="Parsing SFS from VCF file" href="parser.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -54,20 +54,20 @@
 <p class="caption" role="heading"><span class="caption-text">Getting Started (Python)</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation_python.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart_python.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart_python.html">Quickstart</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Getting Started (R)</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../installation_r.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/quickstart_r.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart_r.html">Quickstart</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">DFE Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parametrizations.html">DFE parametrizations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/spectra.html">Working with SFS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notebooks/parser.html">Parsing SFS from VCF file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parser.html">Parsing SFS from VCF file</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Miscellaneous</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#logging">Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a></li>
@@ -128,13 +128,7 @@
 </section>
 <section id="debugging">
 <h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this heading"></a></h2>
-<p>If you encounter an unexpected error, you can disable parallelization to obtain a more descriptive stack trace (see <code class="docutils literal notranslate"><span class="pre">parallelize</span></code> in <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>).</p>
-<blockquote>
-<div><p>import fastdfe</p>
-<p>fastdfe.parallelize = False</p>
-<p># … run your code here …</p>
-<p>fastdfe.parallelize = True</p>
-</div></blockquote>
+<p>If you encounter an unexpected error, you can disable parallelization to obtain a more descriptive stack trace (see <code class="docutils literal notranslate"><span class="pre">parallelize</span></code> in <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>, <a class="reference internal" href="../modules/inference.html#fastdfe.joint_inference.JointInference" title="fastdfe.joint_inference.JointInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">JointInference</span></code></a>, etc.).</p>
 </section>
 <section id="seeding">
 <h2>Seeding<a class="headerlink" href="#seeding" title="Permalink to this heading"></a></h2>
@@ -146,7 +140,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../notebooks/parser.html" class="btn btn-neutral float-left" title="Parsing SFS from VCF file" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="parser.html" class="btn btn-neutral float-left" title="Parsing SFS from VCF file" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../modules/inference.html" class="btn btn-neutral float-right" title="Inference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
