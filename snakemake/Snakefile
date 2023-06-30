@@ -150,16 +150,16 @@ rule all:
             #expand("results/graphs/fastdfe/{config}_bootstrapped_100/dfe_discretized.png",config=configs),
             #expand("results/spectra/{species}.csv", species=['pendula.pubescens', 'pendula.pubescens.example_1.example_2.example_3'])
             #expand("results/polydfe/{config}_bootstrapped_100/serialized.json",config=configs),
-            expand("results/graphs/comp/[fastdfe<fastDFE>,polydfe<polyDFE>]/{config}_bootstrapped_100/{type}.png",
-                config=configs,
-               type=['mle_params', 'dfe_discretized']
-            ),
+            #expand("results/graphs/comp/[fastdfe<fastDFE>,polydfe<polyDFE>]/{config}_bootstrapped_100/{type}.png",
+            #    config=configs,
+            #    type=['mle_params', 'dfe_discretized']
+            #),
             #expand("results/graphs/comp/[fastdfe<fastDFE>,polydfe<polyDFE>]/{config}/{type}.png",
             #    config=['pendula_C_full'],
             #    type=['mle_params', 'dfe_discretized']
             #),
             #expand("results/graphs/tool_comp/{config}_bootstrapped_100/discretized.png",config=configs),
-            #expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
+            expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
             #expand("results/spectra/betula/pendula/{s}/all.csv",
             #    s=[
             #        'DegeneracyStratification',
@@ -441,7 +441,7 @@ rule plot_tool_comparison:
 rule tool_comparison_collage:
     input:
         lambda w:
-        expand_comparisons(f"tool_comp/[{','.join([f'{n}_bootstrapped_100' for n in configs])}]/{w.type}.png")[0]
+        expand_comparisons(f"tool_comp/[{','.join([f'{c}_bootstrapped_100' for c in configs])}]/{w.type}.png")[0]
     output:
         "results/graphs/comp/tool_comparison_collage/{type}.png"
     params:

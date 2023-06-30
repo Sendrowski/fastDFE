@@ -428,7 +428,7 @@ class ParserTestCase(TestCase):
 
         pass
 
-    def test_parse_human_chr22_from_online_resources_and_perform_inference(self):
+    def test_parse_human_chr21_from_online_resources(self):
         """
         Parse the VCF file using remote files.
         """
@@ -460,3 +460,4 @@ class ParserTestCase(TestCase):
         sfs = p.parse()
 
         sfs.plot()
+

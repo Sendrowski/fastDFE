@@ -669,10 +669,10 @@ class SharedParams:
 
     """
     #: The params to share
-    params: List[str] | Literal['all']
+    params: List[str] | Literal['all'] = 'all'
 
     #: The types to share
-    types: List[str] | Literal['all']
+    types: List[str] | Literal['all'] = 'all'
 
 
 @dataclass
