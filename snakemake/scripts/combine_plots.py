@@ -117,7 +117,7 @@ for file, title, ax in zip(files, titles, axs):
 # turn off axes
 [ax.axis("off") for ax in axs]
 
-fig.tight_layout()
+fig.tight_layout(pad=0)
 
 plt.savefig(out, dpi=1000, bbox_inches='tight', pad_inches=0.1)
 

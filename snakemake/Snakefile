@@ -158,8 +158,8 @@ rule all:
             #    config=['pendula_C_full'],
             #    type=['mle_params', 'dfe_discretized']
             #),
-            #expand("results/graphs/tool_comp/{config}_bootstrapped_100/discretized.png",config=configs),
-            expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params', 'sfs_comparison']),
+            #expand("results/graphs/{tool}/{config}/sfs_comparison.png",config=configs, tool=['fastdfe', 'polydfe']),
+            expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
             #expand("results/spectra/betula/pendula/{s}/all.csv",
             #    s=[
             #        'DegeneracyStratification',
@@ -445,7 +445,7 @@ rule tool_comparison_collage:
     output:
         "results/graphs/comp/tool_comparison_collage/{type}.png"
     params:
-        titles=lambda w: [f'{n}_bootstrapped_100' for n in configs],
+        titles=lambda w: [c.replace('_', ' ') for c in configs],
         title_size_rel=15
     conda:
         "envs/base.yaml"

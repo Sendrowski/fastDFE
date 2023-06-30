@@ -30,7 +30,7 @@ from fastdfe.polydfe import PolyDFE
 
 inferences = [BaseInference.from_file(input_fastdfe), PolyDFE.from_file(input_polydfe)]
 
-Inference.plot_discretized(inferences, labels=['fastDFE', 'polyDFE'], show=testing, file=out_discretized)
-Inference.plot_inferred_parameters(inferences, labels=['fastDFE', 'polyDFE'], show=testing, file=out_params)
+Inference.plot_discretized(inferences, labels=['fastDFE', 'polyDFE'], show=testing, file=out_discretized, title='')
+Inference.plot_inferred_parameters(inferences, labels=['fastDFE', 'polyDFE'], show=testing, file=out_params, title='')
 
 pass
