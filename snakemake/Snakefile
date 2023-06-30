@@ -445,7 +445,7 @@ rule tool_comparison_collage:
     output:
         "results/graphs/comp/tool_comparison_collage/{type}.png"
     params:
-        titles=lambda w: [c.replace('_', ' ') for c in configs],
+        titles=lambda w: [c.replace('_C_', '').replace('_', ' ') for c in configs],
         title_size_rel=15
     conda:
         "envs/base.yaml"
