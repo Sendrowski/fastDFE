@@ -159,7 +159,7 @@ rule all:
             #    type=['mle_params', 'dfe_discretized']
             #),
             #expand("results/graphs/tool_comp/{config}_bootstrapped_100/discretized.png",config=configs),
-            expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
+            expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params', 'sfs_comparison']),
             #expand("results/spectra/betula/pendula/{s}/all.csv",
             #    s=[
             #        'DegeneracyStratification',
