@@ -432,7 +432,7 @@ rule plot_tool_comparison:
         discretized='results/graphs/tool_comp/{config}/discretized.png',
         inferred_params='results/graphs/tool_comp/{config}/inferred_params.png'
     conda:
-        "envs/base.yaml"
+        dev_env
     script:
         "scripts/plot_tool_comparison.py"
 
