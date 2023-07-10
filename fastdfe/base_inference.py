@@ -199,7 +199,8 @@ class BaseInference(AbstractInference):
                 intervals_del=intervals_del,
                 intervals_ben=intervals_ben,
                 integration_mode=integration_mode,
-                linearized=linearized
+                linearized=linearized,
+                parallelize=parallelize
             )
 
         else:

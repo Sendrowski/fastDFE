@@ -49,16 +49,16 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/introduction.html">Introduction</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Getting Started (Python)</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../installation_python.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/installation_python.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/quickstart_python.html">Quickstart</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Getting Started (R)</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../installation_r.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/installation_r.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/quickstart_r.html">Quickstart</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Reference</span></p>
@@ -90,6 +90,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.theta"><code class="docutils literal notranslate"><span class="pre">Spectrum.theta</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.fold"><code class="docutils literal notranslate"><span class="pre">Spectrum.fold()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.is_folded"><code class="docutils literal notranslate"><span class="pre">Spectrum.is_folded()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.normalize"><code class="docutils literal notranslate"><span class="pre">Spectrum.normalize()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.copy"><code class="docutils literal notranslate"><span class="pre">Spectrum.copy()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.from_polymorphic"><code class="docutils literal notranslate"><span class="pre">Spectrum.from_polymorphic()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.from_list"><code class="docutils literal notranslate"><span class="pre">Spectrum.from_list()</span></code></a></li>
@@ -135,7 +136,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectrum">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.spectrum.</span></span><span class="sig-name descname"><span class="pre">Spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectrum" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></p>
 <p>Class for holding and manipulating a site-frequency spectrum.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectrum.__init__">
@@ -290,6 +291,14 @@
 <dd class="field-even"><p>True if folded, False otherwise</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectrum.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectrum.normalize" title="Permalink to this definition"></a></dt>
+<dd><p>Normalize SFS so that all non-monomorphic counts add up to 1.
+:rtype: <a class="reference internal" href="#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a>
+:return:</p>
 </dd></dl>
 
 <dl class="py method">

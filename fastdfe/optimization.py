@@ -30,7 +30,8 @@ def parallelize(
         data: list | np.ndarray,
         parallelize: bool = True,
         pbar: bool = None,
-        desc: str = None
+        desc: str = None,
+        dtype: type = object
 ) -> np.ndarray:
     """
     Convenience function that parallelizes the given function
@@ -41,6 +42,7 @@ def parallelize(
     :param func: Function to apply to each element of data
     :param pbar: Whether to show a progress bar
     :param desc: Description for progress bar
+    :param dtype: Data type of the returned array
     :return: List of results
     """
     from . import disable_pbar
@@ -58,7 +60,7 @@ def parallelize(
     if pbar is True or (pbar is None and not parallelize and n > 1) or pbar is None and n > mp.cpu_count():
         iterator = tqdm(iterator, total=n, disable=disable_pbar, desc=desc)
 
-    return np.array(list(iterator), dtype=object)
+    return np.array(list(iterator), dtype=dtype)
 
 
 def flatten_dict(d: dict, separator='.', prefix=''):

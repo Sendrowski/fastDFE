@@ -44,4 +44,4 @@ You are now ready to use the ``fastdfe`` package within the isolated conda envir
 
    .. code-block:: python
 
-        from fastdfe import ...
+        import fastdfe as fd

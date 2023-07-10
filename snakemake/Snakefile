@@ -159,7 +159,8 @@ rule all:
             #    type=['mle_params', 'dfe_discretized']
             #),
             #expand("results/graphs/{tool}/{config}/sfs_comparison.png",config=configs, tool=['fastdfe', 'polydfe']),
-            expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
+            #expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
+            expand("results/fastdfe/{config}_bootstrapped_sequential_100/serialized.json",config=configs),
             #expand("results/spectra/betula/pendula/{s}/all.csv",
             #    s=[
             #        'DegeneracyStratification',
@@ -207,11 +208,28 @@ rule modify_config_do_bootstrap:
     input:
         "results/configs/{config}/config.yaml"
     output:
-        "results/configs/{config}_bootstrapped_{n}/config.yaml"
+        "results/configs/{config}_bootstrapped_{n,\d+}/config.yaml"
     params:
         opts=lambda w: dict(
             do_bootstrap=True,
             n_bootstraps=int(w.n)
+        )
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/modify_config.py"
+
+# modify an existing config file
+rule modify_config_do_bootstrap_sequential:
+    input:
+        "results/configs/{config}/config.yaml"
+    output:
+        "results/configs/{config}_bootstrapped_sequential_{n,\d+}/config.yaml"
+    params:
+        opts=lambda w: dict(
+            do_bootstrap=True,
+            n_bootstraps=int(w.n),
+            parallelize=False
         )
     conda:
         "envs/base.yaml"
@@ -445,8 +463,12 @@ rule tool_comparison_collage:
     output:
         "results/graphs/comp/tool_comparison_collage/{type}.png"
     params:
-        titles=lambda w: [c.replace('_C_', '').replace('_', ' ') for c in configs],
-        title_size_rel=15
+        titles=lambda w: [c.replace('_C_', '_').replace('_', ' ') for c in configs],
+        title_size_rel=50,
+        n_cols=4,
+        n_rows=5,
+        figsize=(16, 15),
+        dpi=200
     conda:
         "envs/base.yaml"
     script:

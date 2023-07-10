@@ -316,7 +316,7 @@ class PolyDFE(AbstractInference):
         self.bootstraps.drop(columns=['r', 'eps_cont'], inplace=True, errors='ignore')
 
         # update execution time
-        self.summary.data['execution_time'] += np.sum([bs.summary.data['execution_time'] for bs in bootstraps])
+        self.execution_time += float(np.sum([bs.summary.data['execution_time'] for bs in bootstraps]))
 
     def plot_all(self, show: bool = True):
         """

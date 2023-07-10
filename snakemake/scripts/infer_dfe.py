@@ -24,7 +24,7 @@ except NameError:
     # config_file = 'results/configs/example_1_C_full_anc/config.yaml'
     # config_file = 'results/configs/example_1_C_deleterious_anc_bootstrapped_100/config.yaml'
     # config_file = 'results/configs/pendula_C_full_anc_bootstrapped_100/config.yaml'
-    config_file = 'scratch/bonobo.yaml'
+    config_file = 'results/configs/pendula_C_full_anc_bootstrapped_sequential_100/config.yaml'
     out_summary = "scratch/summary.json"
     out_serialized = "scratch/serialized.json"
     out_dfe = "scratch/dfe.png"

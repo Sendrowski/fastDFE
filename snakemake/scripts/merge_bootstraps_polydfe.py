@@ -21,8 +21,8 @@ try:
 except ModuleNotFoundError:
     # testing
     testing = True
-    file_original = 'results/polydfe/example_1_C_deleterious/serialized.json'
-    files_bootstrap = [f'results/polydfe/example_1_C_deleterious/bootstraps/{i}/serialized.json' for i in range(10)]
+    file_original = 'results/polydfe/pubescens_C_full_anc_bootstrapped_100/serialized.json'
+    files_bootstrap = [f'results/polydfe/pendula_C_full_anc/bootstraps/{i}/serialized.json' for i in range(100)]
     out = 'scratch/polydfe_bs.json'
 
 from fastdfe.polydfe import PolyDFE

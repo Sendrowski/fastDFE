@@ -14,7 +14,8 @@ import mpmath as mp
 import numpy as np
 from scipy.integrate import quad
 
-from fastdfe import Parametrization
+from .parametrization import Parametrization
+from .optimization import parallelize as parallelize_func
 
 # configure logger
 logger = logging.getLogger('fastdfe').getChild('Discretization')
@@ -204,7 +205,8 @@ class Discretization:
             intervals_del: (float, float, int) = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: (float, float, int) = (1.0e-5, 1.0e4, 1000),
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
-            linearized: bool = True
+            linearized: bool = True,
+            parallelize: bool = True,
     ):
         """
         Create Discretization instance.
@@ -214,6 +216,7 @@ class Discretization:
         :param intervals_ben: ``(start, stop, n_interval)`` for beneficial population-scaled selection coefficients.
         :param integration_mode : 'midpoint' or 'quad' for midpoint integration or Scipy's quad method.
         :return: Whether to linearize the integral
+        :param parallelize: Whether to parallelize the computation of the discretization
         """
         self.n = n
 
@@ -232,6 +235,7 @@ class Discretization:
 
         self.integration_mode = integration_mode
         self.linearized = linearized
+        self.parallelize = parallelize
 
         # iteration counter
         self.n_it = 0
@@ -260,8 +264,23 @@ class Discretization:
         K = np.arange(1, self.n)[:, None] * I
         S = self.bins[None, :] * I
 
+        def compute_slice(i: int) -> np.ndarray:
+            """
+            Compute allele counts of a given multiplicity.
+
+            :param i: Multiplicity
+            :return: Discretized counts
+            """
+            return self.get_allele_count_regularized(S[i], K[i])
+
         # retrieve allele counts
-        P = self.get_allele_count_regularized(S, K)
+        P = parallelize_func(
+            func=compute_slice,
+            data=np.arange(self.n - 1),
+            parallelize=self.parallelize,
+            desc="Precomputing",
+            dtype=float
+        )
 
         # take midpoint and multiply by interval size
         return (P[:, :-1] + P[:, 1:]) / 2 * self.interval_sizes

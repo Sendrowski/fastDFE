@@ -328,3 +328,21 @@ class SpectraTestCase(TestCase):
         assert spectra.drop_sparse(n_polymorphic=40).types == ['type3', 'type4']
         assert spectra.drop_sparse(n_polymorphic=41).types == ['type3']
         assert spectra.drop_sparse(n_polymorphic=44).types == []
+
+    def test_add_spectrum(self):
+        """
+        Test whether two spectrum objects can be added.
+        """
+        testing.assert_array_equal((Spectrum([1, 2, 3]) + Spectrum([3, 4, 5])).data, Spectrum([4, 6, 8]).data)
+
+    def test_subtract_spectrum(self):
+        """
+        Test whether two spectrum objects can be subtracted.
+        """
+        testing.assert_array_equal((Spectrum([3, 4, 5]) - Spectrum([1, 2, 3])).data, [2, 2, 2])
+
+    def test_normalize_spectrum(self):
+        """
+        Test whether two spectrum objects can be normalized.
+        """
+        testing.assert_array_equal(Spectrum([10, 1, 2, 3, 10]).normalize().data, [10, 1 / 6, 1 / 3, 1 / 2, 10])

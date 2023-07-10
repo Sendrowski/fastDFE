@@ -8,7 +8,7 @@ __date__ = "2022-07-24"
 
 import logging
 from functools import cached_property
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Iterable, Any
 
 import numpy as np
 import pandas as pd
@@ -38,7 +38,7 @@ def pad(counts: list | np.ndarray) -> np.ndarray:
     return np.array([0] + list(counts) + [0])
 
 
-class Spectrum:
+class Spectrum(Iterable):
     """
     Class for holding and manipulating a site-frequency spectrum.
     """
@@ -163,6 +163,19 @@ class Spectrum:
 
         return np.all(self.data[-mid:] == 0)
 
+    def normalize(self) -> 'Spectrum':
+        """
+        Normalize SFS so that all non-monomorphic counts add up to 1.
+        :return:
+        """
+        # copy array
+        data = self.data.copy()
+
+        # normalize counts
+        data[1:-1] /= data[1:-1].sum()
+
+        return Spectrum(data)
+
     def copy(self) -> 'Spectrum':
         """
         Copy the spectrum.
@@ -212,16 +225,29 @@ class Spectrum:
 
         data = [n_monomorphic] + list(polymorphic) + [n_div]
 
-        return Spectrum.from_list(data)
+        return Spectrum(data)
 
-    def __mul__(self, other) -> 'Spectrum':
+    @staticmethod
+    def _array_or_scalar(data: Iterable | Any) -> np.ndarray | Any:
+        """
+        Convert to array if iterable or return scalar otherwise.
+
+        :param data: Iterable or scalar.
+        :return: Array or scalar
+        """
+        if isinstance(data, Iterable):
+            return np.array(list(data))
+
+        return data
+
+    def __mul__(self, other: Iterable | float | int) -> 'Spectrum':
         """
         Multiply spectrum.
 
         :param other: Scalar
         :return: Spectrum
         """
-        return Spectrum.from_list(self.data * other)
+        return Spectrum(self.data * self._array_or_scalar(other))
 
     __rmul__ = __mul__
 
@@ -232,7 +258,25 @@ class Spectrum:
         :param other: Spectrum
         :return: Spectrum
         """
-        return Spectrum.from_list(self.data * other)
+        return Spectrum(self.data + self._array_or_scalar(other))
+
+    def __sub__(self, other) -> 'Spectrum':
+        """
+        Subtract spectrum.
+
+        :param other: Spectrum
+        :return: Spectrum
+        """
+        return Spectrum(self.data - self._array_or_scalar(other))
+
+    def __pow__(self, power) -> 'Spectrum':
+        """
+        Power operator.
+
+        :param power: exponent
+        :return: Spectrum
+        """
+        return Spectrum(self.data ** self._array_or_scalar(other))
 
     def __floordiv__(self, other) -> 'Spectrum':
         """
@@ -241,7 +285,7 @@ class Spectrum:
         :param other: Scalar
         :return: Spectrum
         """
-        return Spectrum.from_list(self.data // other)
+        return Spectrum(self.data // self._array_or_scalar(other))
 
     def __truediv__(self, other) -> 'Spectrum':
         """
@@ -250,7 +294,15 @@ class Spectrum:
         :param other: Scalar
         :return: Spectrum
         """
-        return Spectrum.from_list(self.data / other)
+        return Spectrum(self.data / self._array_or_scalar(other))
+
+    def __iter__(self):
+        """
+        Get iterator.
+
+        :return: Iterator
+        """
+        return self.data.__iter__()
 
     def plot(
             self,
@@ -459,7 +511,7 @@ class Spectra:
         # return dictionary of lists
         return dict((k, list(v.values())) for k, v in self.data.to_dict().items())
 
-    def __mul__(self, other) -> 'Spectra':
+    def __mul__(self, other: float | int) -> 'Spectra':
         """
         Multiply Spectra.
 
@@ -470,7 +522,7 @@ class Spectra:
 
     __rmul__ = __mul__
 
-    def __floordiv__(self, other) -> 'Spectra':
+    def __floordiv__(self, other: float | int) -> 'Spectra':
         """
         Divide Spectra.
 
@@ -479,7 +531,7 @@ class Spectra:
         """
         return Spectra.from_dataframe(self.data // other)
 
-    def __truediv__(self, other) -> 'Spectra':
+    def __truediv__(self, other: float | int) -> 'Spectra':
         """
         Divide Spectra.
 
@@ -521,7 +573,7 @@ class Spectra:
         # return spectrum object if only one column is left
         # and if not multiple keys were supplied
         if subset.shape[1] == 1 and not is_array:
-            return Spectrum.from_list(list(subset.iloc[:, 0]))
+            return Spectrum(list(subset.iloc[:, 0]))
 
         # wrap subset dataframe in spectra object
         return Spectra.from_dataframe(subset)
@@ -541,7 +593,7 @@ class Spectra:
 
         :return: Iterator
         """
-        self.data.__iter__()
+        return self.data.__iter__()
 
     def copy(self) -> 'Spectra':
         """
@@ -622,7 +674,7 @@ class Spectra:
 
         :return: Spectrum object
         """
-        return Spectrum.from_list(self.data.sum(axis=1).to_list())
+        return Spectrum(self.data.sum(axis=1).to_list())
 
     def combine(self, s: 'Spectra') -> 'Spectra':
         """

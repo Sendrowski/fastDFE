@@ -20,6 +20,8 @@ try:
     n_rows = snakemake.params.get('n_rows', None)
     titles = snakemake.params.get('titles', None)
     title_size_rel = snakemake.params.get('title_size_rel', 20)
+    figsize = snakemake.params.get('figsize', None)
+    dpi = snakemake.params.get('dpi', 1000)
     out = snakemake.output[0]
 except NameError:
     # testing
@@ -42,6 +44,8 @@ except NameError:
     n_rows = None
     titles = None
     title_size_rel = 20
+    figsize = None
+    dpi = 1000
     out = "results/graphs/comp/[fastdfe,polydfe]/hgdp/[default,vep]/inference/1/opts.vep.n.10.config.default/[all,Japanese,French].dfe.png"
 
 
@@ -107,7 +111,7 @@ if n_cols is None and n_rows is None:
         n = int(np.ceil(np.sqrt(n_files)))
         n_rows, n_cols = n, n
 
-fig, axs = plt.subplots(nrows=n_rows, ncols=n_cols, squeeze=False)
+fig, axs = plt.subplots(nrows=n_rows, ncols=n_cols, squeeze=False, figsize=figsize)
 axs = axs.flatten()
 
 for file, title, ax in zip(files, titles, axs):
@@ -119,7 +123,7 @@ for file, title, ax in zip(files, titles, axs):
 
 fig.tight_layout(pad=0)
 
-plt.savefig(out, dpi=1000, bbox_inches='tight', pad_inches=0.1)
+plt.savefig(out, dpi=dpi, bbox_inches='tight', pad_inches=0.1)
 
 if testing:
     plt.show()
