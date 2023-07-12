@@ -54,7 +54,7 @@ def get_bins(intervals_del: tuple, intervals_ben: tuple) -> np.ndarray:
 
 def H(x, S):
     """
-    Allele frequency sojourn time.
+    Allele frequency sojourn time. Note that this function is not used in practice.
 
     :param S: Selection coefficient
     :param x: Allele frequency
@@ -67,6 +67,7 @@ def H(x, S):
 def H_regularized(x, S: float | int | np.ndarray):
     """
     As H(x, S) but replacing with the limits close to the limit points.
+    Note that this function is not used in practice.
 
     :param x: Allele frequency
     :param S: Selection coefficient
@@ -95,7 +96,7 @@ def H_regularized(x, S: float | int | np.ndarray):
 
 def H_fixed(S: float | int | np.ndarray) -> float | int | np.ndarray:
     """
-    The sojourn time as x -> 1.
+    The sojourn time as x -> 1. Note that this function is not used in practice.
 
     :param S: Selection coefficient
     :return: Sojourn time as x -> 1
@@ -106,6 +107,7 @@ def H_fixed(S: float | int | np.ndarray) -> float | int | np.ndarray:
 def H_fixed_regularized(S: float | int | np.ndarray) -> float | int | np.ndarray:
     """
     As :func:`H_fixed` but replacing with the limits close to the limit points.
+    Note that this function is not used in practice.
 
     :param S: Selection coefficient
     :return: Sojourn time as x -> 1
@@ -390,8 +392,8 @@ class Discretization:
         close_to_zero = np.abs(S) < 1e-8
 
         # simply take limit value as S -> 0
-        # see https://www.wolframalpha.com/input?i=limit+of+%5Cfrac%7B1-e%5E%7B-S%281-x%29%7D%7D%7Bx%281-
-        # x%29%281-e%5E%7B-S%7D%29%7D+as+S+-%3E+0
+        # see https://www.wolframalpha.com/input?i=limit+%28n%2F%28k%28n-k%29%29%29+*+
+        # 1%2F%281-exp%28-S%29%29+*+%281-exp%28-S%29*1F1%28k%2Cn%2CS%29%29+as+S+-%3E+0
         if close_to_zero.any():
             y[close_to_zero] = np.ones_like(S[close_to_zero]) / k[close_to_zero]
 

@@ -21,7 +21,7 @@ try:
 except ModuleNotFoundError:
     # testing
     testing = True
-    file_original = 'results/polydfe/pubescens_C_full_anc_bootstrapped_100/serialized.json'
+    file_original = 'results/polydfe/pendula_C_deleterious_bootstrapped_100/serialized.json'
     files_bootstrap = [f'results/polydfe/pendula_C_full_anc/bootstraps/{i}/serialized.json' for i in range(100)]
     out = 'scratch/polydfe_bs.json'
 

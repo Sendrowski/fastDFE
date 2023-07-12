@@ -137,7 +137,9 @@ class DiscretizationTestCase(TestCase):
         c1 = d.get_allele_count(S[:, None] * I, k[None, :] * I)
         c2 = d.get_allele_count_large_negative_S(S[:, None] * I, k[None, :] * I)
 
-        assert self.diff_rel_max_abs(c1, c2) < 1e-15
+        diff = self.diff_rel_max_abs(c1, c2)
+
+        assert diff < 1e-15
 
     def test_hyp1f1_mpmath_vs_scipy(self):
         """
