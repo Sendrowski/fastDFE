@@ -212,7 +212,8 @@ class BaseInference(AbstractInference):
 
         # raise warning if theta is unusually large
         if self.theta > 0.05 or self.sfs_sel.theta > 0.05:
-            self.logger.warning("Mutation rate is unusually highly. This is a reminder to provide monomorphic counts.")
+            self.logger.warning("Mutation rate appears unusually highly. "
+                                "This is a reminder to provide monomorphic site counts.")
 
         #: MLE estimates of the initial optimization
         self.params_mle: Optional[Dict[str, float]] = None
@@ -409,8 +410,8 @@ class BaseInference(AbstractInference):
 
         # perform MLE
         self.logger.debug(f'Starting numerical optimization of {self.n_runs} '
-                         'independently initialized samples which are run ' +
-                         ('in parallel.' if self.parallelize else 'sequentially.'))
+                          'independently initialized samples which are run ' +
+                          ('in parallel.' if self.parallelize else 'sequentially.'))
 
         # Access cached property to trigger potential pre-computation
         # of linearization. This is necessary if the optimization is
@@ -727,11 +728,11 @@ class BaseInference(AbstractInference):
         :param params: Dictionary of parameters.
         :return: Array of modelled and observed counts
         """
-        # infer selected SFS
-        counts_modelled = sfs_neut.theta * self.discretization.model_selection_sfs(self.model, params)
+        # obtain modelled selected SFS
+        counts_modelled = self.discretization.model_selection_sfs(self.model, params)
 
-        # multiply by mutational target size
-        counts_modelled *= sfs_sel.n_sites
+        # adjust for mutation rate and mutational target size
+        counts_modelled *= sfs_neut.theta * sfs_sel.n_sites
 
         # add contribution of demography and polarization error
         counts_modelled = self.add_demography(sfs_neut, counts_modelled, eps=params['eps'])

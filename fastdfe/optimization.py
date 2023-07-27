@@ -34,8 +34,7 @@ def parallelize(
         dtype: type = object
 ) -> np.ndarray:
     """
-    Convenience function that parallelizes the given function
-    if specified or executes them sequentially otherwise.
+    Parallelize given function or execute sequentially.
 
     :param parallelize: Whether to parallelize
     :param data: Data to iterate over

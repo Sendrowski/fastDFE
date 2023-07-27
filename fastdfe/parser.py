@@ -601,7 +601,7 @@ class Parser(VCFHandler):
             :class:`~fastdfe.annotation.SynonymyAnnotation` is used, the number
             of monomorphic sites is inferred dynamically from the length of the coding sequences considered.
             Alternatively, you can use :meth:`~fastdfe.annotation.Annotation.count_target_sites` to count the number of
-            coding sites.
+            coding sites manually.
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param cache: Whether to cache files downloaded from urls
         """

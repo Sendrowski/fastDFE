@@ -1,5 +1,5 @@
 """
-Infer the DFE from the SFS.
+Parse SFS from HGDP VCF.
 """
 
 __author__ = "Janek Sendrowski"
@@ -29,13 +29,13 @@ except NameError:
     vcf_file = f"results/vcf/hgdp/21/opts.vcf.gz"
     fasta_file = f"results/fasta/hgdp/{chr}.fasta.gz"
     gff_file = f"results/gff/hgdp/{chr}.gff3.gz"
-    samples_file = "results/sample_lists/hgdp/French.args"
+    samples_file = "results/sample_lists/hgdp/all.args"
     profile = "default"
     out_csv = "scratch/parse_spectra_from_url.spectra.csv"
     out_png = "scratch/parse_spectra_from_url.spectra.png"
     aliases = {f"chr{chr}": [f"{chr}"]}
     n_target_sites = None
-    n = 20
+    n = 10
 
 import pandas as pd
 
@@ -70,6 +70,32 @@ p = dict(
         vcf=vcf_file,
         n=n,
         filtrations=[],
+        stratifications=[VEPStratification()],
+        samples=pd.read_csv(samples_file).iloc[:, 0].tolist(),
+        info_ancestral='AA_ensembl'
+    ),
+        vep_biallelic=Parser(
+        vcf=vcf_file,
+        n=n,
+        filtrations=[
+            SNPFiltration(),
+            PolyAllelicFiltration()
+        ],
+        stratifications=[VEPStratification()],
+        samples=pd.read_csv(samples_file).iloc[:, 0].tolist(),
+        info_ancestral='AA_ensembl'
+    ),
+    vep_biallelic_coding=Parser(
+        vcf=vcf_file,
+        n=n,
+        filtrations=[
+            CodingSequenceFiltration(
+                gff_file=gff_file,
+                aliases=aliases
+            ),
+            SNPFiltration(),
+            PolyAllelicFiltration()
+        ],
         stratifications=[VEPStratification()],
         samples=pd.read_csv(samples_file).iloc[:, 0].tolist(),
         info_ancestral='AA_ensembl'

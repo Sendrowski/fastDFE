@@ -138,8 +138,8 @@ rule all:
             #expand("results/graphs/comp/pca/hgdp/inference/{chr}/{opts}/[all,Japanese].png",chr=[21], opts=['opts.subset.50000']),
             #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[10,20].config.{config}/[all,Japanese].dfe.png",chr=[1, 2, 3], opts=['opts'], config=['default']),
             #expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/[default,vep]/inference/{chr}/{opts}.n.10.config.{config}/[all,Japanese,French].dfe.png",chr=[1, 2, 21, 22],opts=['opts.vep'],config=['default']),
-            expand("results/graphs/comp/fastdfe/hgdp/[default,vep]/inference/{chr}/{opts}.n.10.config.{config}/{sample_set}.dfe.png",sample_set=['all','Japanese','French'],chr=[1, 2, 21, 22],opts=['opts.vep'],config=['default']),
-            expand("results/graphs/comp/polydfe/hgdp/[default,vep]/inference/{chr}/{opts}.n.10.config.{config}/{sample_set}.dfe.png",sample_set=['all','Japanese','French'],chr=[1, 2, 21, 22],opts=['opts.vep'],config=['default']),
+            #expand("results/graphs/comp/fastdfe/hgdp/[default,vep]/inference/{chr}/{opts}.n.10.config.{config}/{sample_set}.dfe.png",sample_set=['all','Japanese','French'],chr=[1, 2, 21, 22],opts=['opts.vep'],config=['default']),
+            #expand("results/graphs/comp/polydfe/hgdp/[default,vep]/inference/{chr}/{opts}.n.10.config.{config}/{sample_set}.dfe.png",sample_set=['all','Japanese','French'],chr=[1, 2, 21, 22],opts=['opts.vep'],config=['default']),
             #expand("results/graphs/comp/fastdfe/hominidae/[{types}].dfe.png",types=','.join(hominidae)),
             #expand("results/graphs/comp/fastdfe/hominidae/[{types}].params.png",types=','.join(hominidae)),
             #expand("results/graphs/fastdfe/hominidae/cov/{param}.params.png", param=['S_d', 'eps', 'p_b', 'S_b', 'b']),
@@ -162,7 +162,7 @@ rule all:
             #),
             #expand("results/graphs/{tool}/{config}/sfs_comparison.png",config=configs, tool=['fastdfe', 'polydfe']),
             #expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
-            expand("results/fastdfe/{config}_bootstrapped_sequential_100/serialized.json",config=configs),
+            #expand("results/fastdfe/{config}_bootstrapped_sequential_100/serialized.json",config=configs),
             #expand("results/spectra/betula/pendula/{s}/all.csv",
             #    s=[
             #        'DegeneracyStratification',
@@ -178,6 +178,7 @@ rule all:
 
             # tests
             #expand("results/testing/{config}_bootstrapped_100/overlapping_confidence_intervals.txt",config=configs)
+            expand("results/graphs/comp/spectra/[default,vep,vep_biallelic,vep_biallelic_coding]/hgdp/1/opts.n.10/all.png")
         )
 
 # fetch the postprocessing script from the GitHub repository

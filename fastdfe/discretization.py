@@ -422,7 +422,7 @@ class Discretization:
 
         :param params: Parameters of the DFE
         :param model: DFE parametrization
-        :return: SFS
+        :return: SFS counts
         """
         if self.linearized:
 
