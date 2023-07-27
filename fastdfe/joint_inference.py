@@ -677,7 +677,7 @@ class JointInference(BaseInference):
         from . import disable_pbar
 
         with tqdm(
-                total=len(self.marginal_inferences) * self.n_bootstraps,
+                total=len(self.marginal_inferences) * int(self.n_bootstraps),
                 disable=disable_pbar,
                 desc="Bootstrapping marginal inferences"
         ) as pbar:
@@ -687,13 +687,13 @@ class JointInference(BaseInference):
                 self.logger.info(f"Bootstrapping type '{t}'.")
 
                 inf.bootstrap(
-                    n_samples=self.n_bootstraps,
+                    n_samples=int(self.n_bootstraps),
                     parallelize=self.parallelize,
                     update_likelihood=update_likelihood,
                     pbar=False
                 )
 
-                pbar.update(self.n_bootstraps)
+                pbar.update(int(self.n_bootstraps))
 
         start_time = time.time()
 
@@ -705,12 +705,12 @@ class JointInference(BaseInference):
 
             # We need to assign new random states to the subprocesses.
             # Otherwise, they would all produce the same result.
-            seeds = self.rng.integers(0, high=2 ** 32, size=self.n_bootstraps)
+            seeds = self.rng.integers(0, high=2 ** 32, size=int(self.n_bootstraps))
 
         else:
             self.logger.debug(f"Running {self.n_bootstraps} joint bootstrap samples sequentially.")
 
-            seeds = [None] * self.n_bootstraps
+            seeds = [None] * int(self.n_bootstraps)
 
         # run bootstraps
         result = parallelize_func(

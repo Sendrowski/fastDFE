@@ -581,12 +581,12 @@ class BaseInference(AbstractInference):
 
             # We need to assign new random states to the subprocesses.
             # Otherwise, they would all produce the same result.
-            seeds = self.rng.integers(0, high=2 ** 32, size=self.n_bootstraps)
+            seeds = self.rng.integers(0, high=2 ** 32, size=int(self.n_bootstraps))
 
         else:
             self.logger.debug(f"Running {self.n_bootstraps} bootstrap samples sequentially.")
 
-            seeds = [None] * self.n_bootstraps
+            seeds = [None] * int(self.n_bootstraps)
 
         # run bootstraps
         result = optimization.parallelize(

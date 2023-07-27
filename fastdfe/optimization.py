@@ -901,7 +901,7 @@ class Optimization:
             )
 
         # initial parameters for the samples
-        initial_params = [self.x0] + [self.sample_x0(self.x0) for _ in range(self.n_runs - 1)]
+        initial_params = [self.x0] + [self.sample_x0(self.x0) for _ in range(int(self.n_runs) - 1)]
 
         # parallelize MLE for different initializations
         results = parallelize(optimize, initial_params, self.parallelize, pbar=pbar, desc=desc)
