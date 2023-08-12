@@ -1,0 +1,3 @@
+n_outgroup 2
+model 2
+nrandom 10

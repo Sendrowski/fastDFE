@@ -1,0 +1,11 @@
+Package: fastdfe
+Title: Inference of Fitness Effects Distribution from SFS
+Version: 0.0.0.9000
+Authors@R:
+    person("Janek", "Sendrowski", , "sendrowski.janek@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: An R wrapper for the Python 'fastdfe' module. Provides tools for rapid, flexible, and hierarchical determination of the distribution of fitness effects (DFE) leveraging site frequency spectra (SFS). Designed to streamline and optimize the analysis of genetic data related to fitness effects.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3

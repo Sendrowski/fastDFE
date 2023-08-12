@@ -456,7 +456,7 @@ class ChunkedStratification(GenomePositionDependentStratification):
         super().__init__()
 
         #: Number of chunks
-        self.n_chunks: int = n_chunks
+        self.n_chunks: int = int(n_chunks)
 
         #: List of chunk sizes
         self.chunk_sizes: Optional[List[int]] = None
@@ -614,7 +614,7 @@ class Parser(VCFHandler):
         )
 
         #: The number of individuals in the sample
-        self.n: int = n
+        self.n: int = int(n)
 
         #: The number of mutational target sites
         self.n_target_sites: int | None = n_target_sites

@@ -28,6 +28,6 @@ inf = fd.JointInference.from_config_file(config)
 fig, axs = plt.subplots(len(inf.types), figsize=(10, 10))
 
 for i, t in enumerate(inf.types):
-    inf.marginal_inferences[t].plot_nested_likelihoods(ax=axs[i], show=False)
+    inf.marginal_inferences[t].plot_nested_models(ax=axs[i], show=False)
 
 plt.show()

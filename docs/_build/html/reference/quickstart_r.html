@@ -118,27 +118,34 @@
 <p>The easiest way to get started is by using the <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> class which infers the DFE from a single pairs of SFSs, one neutral and one selected. In this example we create <a class="reference internal" href="../modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a> objects holding the SFS counts and pass it to <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>. Note that we are required to specify the number of monomorphic sites (the last and first entries of the specified counts).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">setwd</span><span class="p">(</span><span class="s">&quot;../../&quot;</span><span class="p">)</span>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="c1"># necessary for docs</span>
+<span class="nf">setwd</span><span class="p">(</span><span class="s">&quot;../../&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">source</span><span class="p">(</span><span class="s">&quot;R/fastdfe.R&quot;</span><span class="p">)</span>
-
-<span class="c1"># import classes</span>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="c1"># load fastDFE</span>
+<span class="nf">source</span><span class="p">(</span><span class="s">&quot;R/fastdfe.R&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="c1"># import classes</span>
 <span class="n">base_inference</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">fastdfe</span><span class="o">$</span><span class="n">BaseInference</span>
 <span class="n">spectrum</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">fastdfe</span><span class="o">$</span><span class="n">Spectrum</span>
 
 <span class="c1"># configure inference</span>
 <span class="n">inf</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">base_inference</span><span class="p">(</span>
-<span class="w">  </span><span class="n">sfs_neut</span><span class="o">=</span><span class="nf">spectrum</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="m">177130</span><span class="p">,</span><span class="w"> </span><span class="m">997</span><span class="p">,</span><span class="w"> </span><span class="m">441</span><span class="p">,</span><span class="w"> </span><span class="m">228</span><span class="p">,</span><span class="w"> </span><span class="m">156</span><span class="p">,</span><span class="w"> </span><span class="m">117</span><span class="p">,</span><span class="w"> </span><span class="m">114</span><span class="p">,</span><span class="w"> </span><span class="m">83</span><span class="p">,</span><span class="w"> </span><span class="m">105</span><span class="p">,</span><span class="w"> </span><span class="m">109</span><span class="p">,</span><span class="w"> </span><span class="m">652</span><span class="p">)),</span>
-<span class="w">  </span><span class="n">sfs_sel</span><span class="o">=</span><span class="nf">spectrum</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="m">797939</span><span class="p">,</span><span class="w"> </span><span class="m">1329</span><span class="p">,</span><span class="w"> </span><span class="m">499</span><span class="p">,</span><span class="w"> </span><span class="m">265</span><span class="p">,</span><span class="w"> </span><span class="m">162</span><span class="p">,</span><span class="w"> </span><span class="m">104</span><span class="p">,</span><span class="w"> </span><span class="m">117</span><span class="p">,</span><span class="w"> </span><span class="m">90</span><span class="p">,</span><span class="w"> </span><span class="m">94</span><span class="p">,</span><span class="w"> </span><span class="m">119</span><span class="p">,</span><span class="w"> </span><span class="m">794</span><span class="p">))</span>
+<span class="w">  </span><span class="n">sfs_neut</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">spectrum</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="m">177130</span><span class="p">,</span><span class="w"> </span><span class="m">997</span><span class="p">,</span><span class="w"> </span><span class="m">441</span><span class="p">,</span><span class="w"> </span><span class="m">228</span><span class="p">,</span><span class="w"> </span><span class="m">156</span><span class="p">,</span><span class="w"> </span><span class="m">117</span><span class="p">,</span><span class="w"> </span><span class="m">114</span><span class="p">,</span><span class="w"> </span><span class="m">83</span><span class="p">,</span><span class="w"> </span><span class="m">105</span><span class="p">,</span><span class="w"> </span><span class="m">109</span><span class="p">,</span><span class="w"> </span><span class="m">652</span><span class="p">)),</span>
+<span class="w">  </span><span class="n">sfs_sel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">spectrum</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="m">797939</span><span class="p">,</span><span class="w"> </span><span class="m">1329</span><span class="p">,</span><span class="w"> </span><span class="m">499</span><span class="p">,</span><span class="w"> </span><span class="m">265</span><span class="p">,</span><span class="w"> </span><span class="m">162</span><span class="p">,</span><span class="w"> </span><span class="m">104</span><span class="p">,</span><span class="w"> </span><span class="m">117</span><span class="p">,</span><span class="w"> </span><span class="m">90</span><span class="p">,</span><span class="w"> </span><span class="m">94</span><span class="p">,</span><span class="w"> </span><span class="m">119</span><span class="p">,</span><span class="w"> </span><span class="m">794</span><span class="p">))</span>
 <span class="p">)</span>
 
-<span class="c1"># Run inference</span>
-<span class="n">s</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">base_inference</span><span class="o">$</span><span class="nf">run</span><span class="p">(</span><span class="n">inf</span><span class="p">)</span>
+<span class="c1"># run inference</span>
+<span class="n">sfs_models</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">base_inference</span><span class="o">$</span><span class="nf">run</span><span class="p">(</span><span class="n">inf</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -152,7 +159,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/98be1503f4f2d30612e47a476eb30bb5b2d098a0c01b40da1ac7cb7ae665971a.png" src="../_images/98be1503f4f2d30612e47a476eb30bb5b2d098a0c01b40da1ac7cb7ae665971a.png" />
+<img alt="../_images/77d8205232f21976577e5cb8f8d100c3cfc5cefff807ddebf67be8a3dfa5508e.png" src="../_images/77d8205232f21976577e5cb8f8d100c3cfc5cefff807ddebf67be8a3dfa5508e.png" />
 </div>
 </div>
 <p>We can also plot a comparison of the (selected) modelled and observed SFS (cf. <a class="reference internal" href="../modules/inference.html#fastdfe.base_inference.BaseInference.plot_sfs_comparison" title="fastdfe.base_inference.BaseInference.plot_sfs_comparison"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_sfs_comparison()</span></code></a>).</p>
@@ -161,6 +168,9 @@
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">base_inference</span><span class="o">$</span><span class="nf">plot_sfs_comparison</span><span class="p">(</span><span class="n">inf</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/2b17693e6b53a13b8c313233f50965b6c00b6c92682849ef8448f69750201dc7.png" src="../_images/2b17693e6b53a13b8c313233f50965b6c00b6c92682849ef8448f69750201dc7.png" />
 </div>
 </div>
 </section>
@@ -177,7 +187,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/dfe2d2fd242bc2961345bc2e364247f6ac6a1eaf128ffdbedcff1fba3f4648dd.png" src="../_images/dfe2d2fd242bc2961345bc2e364247f6ac6a1eaf128ffdbedcff1fba3f4648dd.png" />
+<img alt="../_images/1e9d223d547ddc1cd2586a255d23ae7b52435c7ca3edcebd9981f9cff3a3a30b.png" src="../_images/1e9d223d547ddc1cd2586a255d23ae7b52435c7ca3edcebd9981f9cff3a3a30b.png" />
 </div>
 </div>
 </section>

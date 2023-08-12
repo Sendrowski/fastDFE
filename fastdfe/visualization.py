@@ -22,7 +22,6 @@ from matplotlib.ticker import MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from .parametrization import Parametrization
-from .spectrum import Spectrum
 
 # get logger
 logger = logging.getLogger('fastdfe').getChild('Visualization')
@@ -321,47 +320,6 @@ class Visualization:
         ax.set_xticklabels(ticks_new)
 
     @staticmethod
-    def plot_sfs_comparison(
-            ax: plt.Axes,
-            spectra: List[Spectrum] | np.ndarray,
-            labels: List[str] = [],
-            file: str = None,
-            show: bool = True,
-            title: str = 'SFS comparison',
-            use_subplots: bool = False,
-            show_monomorphic: bool = False,
-            kwargs_legend: dict = dict(prop=dict(size=8)),
-    ) -> plt.Axes:
-        """
-        Plot SFS comparison.
-
-        :param use_subplots: Whether to use subplots
-        :param show_monomorphic: Whether to show monomorphic counts
-        :param title: Title of the plot
-        :param labels: Labels for the SFSs
-        :param spectra: List of spectrum objects in the same order as the labels or a 2D array
-        :param file: File path to save plot to
-        :param show: Whether to show plot
-        :param ax: Axes to plot on
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
-        :return: Axes
-        """
-        # plot modelled vs observed non-neutral SFS
-        ax = Visualization.plot_spectra(
-            ax=ax,
-            spectra=spectra,
-            labels=labels,
-            use_subplots=use_subplots,
-            show_monomorphic=show_monomorphic,
-            title=title,
-            file=file,
-            show=show,
-            kwargs_legend=kwargs_legend
-        )
-
-        return ax
-
-    @staticmethod
     def name_to_label(key: str, param_names: list | np.ndarray, vals: list | np.ndarray) -> str:
         """
         Map parameter name to label.
@@ -591,13 +549,13 @@ class Visualization:
     @staticmethod
     def plot_spectra(
             ax: plt.Axes,
-            spectra: List[Spectrum],
-            labels: List[str] = [],
+            spectra: List[List[float]] | np.ndarray,
+            labels: List[str] | np.ndarray = [],
             log_scale: bool = False,
             use_subplots: bool = False,
             show_monomorphic: bool = False,
             title: str = None,
-            n_ticks=10,
+            n_ticks: int = 10,
             file: str = None,
             show: bool = True,
             kwargs_legend: dict = dict(prop=dict(size=8))
@@ -610,7 +568,8 @@ class Visualization:
         :param ax: Axes to plot on, only if ``use_subplots`` is ``False``
         :param use_subplots: Whether to use subplots
         :param title: Title of plot
-        :param spectra: List of spectra to plot
+        :param spectra: List of lists of spectra or a 2D array in which each row is a spectrum in the
+            same order as ``labels``
         :param labels: List of labels for each spectrum
         :param log_scale: Whether to use logarithmic y-scale
         :param file: File to save plot to
@@ -655,7 +614,7 @@ class Visualization:
             _, ax = plt.subplots()
 
         # determine sample size and width
-        n = spectra[0].n
+        n = len(spectra[0]) - 1
         width_total = 0.9
         width = width_total / len(spectra)
 
@@ -663,12 +622,9 @@ class Visualization:
 
         # iterator over spectra and draw bars
         for i, sfs in enumerate(spectra):
-            indices = x + i * width
-            heights = sfs.to_list() if show_monomorphic else sfs.to_list()[1:-1]
-
             bars = ax.bar(
-                x=indices,
-                height=heights,
+                x=x + i * width,
+                height=sfs if show_monomorphic else sfs[1:-1],
                 width=width,
                 label=labels[i] if len(labels) else None,
                 linewidth=0,
@@ -867,7 +823,7 @@ class Visualization:
 
     @staticmethod
     @clear_show_save
-    def plot_nested_likelihoods(
+    def plot_nested_models(
             P: np.ndarray,
             labels_x: list,
             labels_y: list,

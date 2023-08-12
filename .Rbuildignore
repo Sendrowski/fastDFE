@@ -1,0 +1,17 @@
+^.github$
+^\.pytest_cache$
+^\.Rproj.user$
+^docs$
+^resources$
+^scratch$
+^snakemake$
+^testing$
+^.coveragerc$
+^.gitignore$
+^.readthedocs.yaml$
+^coverage.xml$
+^fastDFE.Rproj$
+^poetry.lock$
+^pyproject.toml$
+^.*\.Rproj$
+^\.Rproj\.user$

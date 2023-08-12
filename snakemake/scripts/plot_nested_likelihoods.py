@@ -30,6 +30,6 @@ logging.getLogger('fastdfe').setLevel(logging.INFO)
 inference = fastdfe.BaseInference.from_file(input)
 
 # compare nested models
-inference.plot_nested_likelihoods(file=out, show=testing)
+inference.plot_nested_models(file=out, show=testing)
 
 pass

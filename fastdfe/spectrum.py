@@ -8,11 +8,13 @@ __date__ = "2022-07-24"
 
 import logging
 from functools import cached_property
-from typing import Dict, List, Union, Iterable, Any
+from typing import Dict, List, Union, Iterable
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+
+from .visualization import Visualization
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -25,7 +27,7 @@ def standard_kingman(n: int) -> 'Spectrum':
     :param n: Standard Kingman SFS
     :return: Spectrum
     """
-    return Spectrum(pad(1 / np.arange(1, n)))
+    return Spectrum(pad(1 / np.arange(1, int(n))))
 
 
 def pad(counts: list | np.ndarray) -> np.ndarray:
@@ -228,7 +230,7 @@ class Spectrum(Iterable):
         return Spectrum(data)
 
     @staticmethod
-    def _array_or_scalar(data: Iterable | Any) -> np.ndarray | Any:
+    def _array_or_scalar(data: Iterable | float) -> np.ndarray | float:
         """
         Convert to array if iterable or return scalar otherwise.
 
@@ -240,58 +242,58 @@ class Spectrum(Iterable):
 
         return data
 
-    def __mul__(self, other: Iterable | float | int) -> 'Spectrum':
+    def __mul__(self, other: Iterable | float) -> 'Spectrum':
         """
         Multiply spectrum.
 
-        :param other: Scalar
+        :param other: Iterable or scalar
         :return: Spectrum
         """
         return Spectrum(self.data * self._array_or_scalar(other))
 
     __rmul__ = __mul__
 
-    def __add__(self, other) -> 'Spectrum':
+    def __add__(self, other: Iterable | float) -> 'Spectrum':
         """
         Add spectrum.
 
-        :param other: Spectrum
+        :param other: Iterable or scalar
         :return: Spectrum
         """
         return Spectrum(self.data + self._array_or_scalar(other))
 
-    def __sub__(self, other) -> 'Spectrum':
+    def __sub__(self, other: Iterable | float) -> 'Spectrum':
         """
         Subtract spectrum.
 
-        :param other: Spectrum
+        :param other: Iterable or scalar
         :return: Spectrum
         """
         return Spectrum(self.data - self._array_or_scalar(other))
 
-    def __pow__(self, power) -> 'Spectrum':
+    def __pow__(self, other: Iterable | float) -> 'Spectrum':
         """
         Power operator.
 
-        :param power: exponent
+        :param other: Iterable or scalar
         :return: Spectrum
         """
         return Spectrum(self.data ** self._array_or_scalar(other))
 
-    def __floordiv__(self, other) -> 'Spectrum':
+    def __floordiv__(self, other: Iterable | float) -> 'Spectrum':
         """
         Divide spectrum.
 
-        :param other: Scalar
+        :param other: Iterable or scalar
         :return: Spectrum
         """
         return Spectrum(self.data // self._array_or_scalar(other))
 
-    def __truediv__(self, other) -> 'Spectrum':
+    def __truediv__(self, other: Iterable | float) -> 'Spectrum':
         """
         Add spectrum.
 
-        :param other: Scalar
+        :param other: Iterable or scalar
         :return: Spectrum
         """
         return Spectrum(self.data / self._array_or_scalar(other))
@@ -324,11 +326,8 @@ class Spectrum(Iterable):
         :param ax: Axes to plot on
         :return: Axes
         """
-        # import locally to avoid circular dependencies
-        from fastdfe import Visualization
-
-        return Visualization.plot_sfs_comparison(
-            spectra=[self],
+        return Visualization.plot_spectra(
+            spectra=[self.to_list()],
             file=file,
             show=show,
             title=title,
@@ -561,7 +560,7 @@ class Spectra:
         """
         Get item.
 
-        :param keys: string or list of strings, possibly regex to match type names
+        :param keys: String or list of strings, possibly regex to match type names
         :return: Spectrum or Spectra depending on the number of matches
         """
         # whether the input in an array
@@ -594,6 +593,15 @@ class Spectra:
         :return: Iterator
         """
         return self.data.__iter__()
+
+    def select(self, keys: str | List[str] | np.ndarray | tuple) -> 'Spectra':
+        """
+        Select types. Alias for __getitem__.
+
+        :param keys: String or list of strings, possibly regex to match type names
+        :return: Spectrum or Spectra depending on the number of matches
+        """
+        return self[keys]
 
     def copy(self) -> 'Spectra':
         """
@@ -645,6 +653,9 @@ class Spectra:
         :param level: Level(s) to group over
         :return: Spectra object with merged groups
         """
+        # cast to int
+        level = [int(l) for l in level] if isinstance(level, Iterable) else int(level)
+
         return Spectra.from_dataframe(self.to_multi_index().data.groupby(axis=1, level=level).sum()).to_single_index()
 
     def has_dots(self) -> bool:
@@ -759,11 +770,8 @@ class Spectra:
         :param ax: Axes to plot on
         :return: Axes
         """
-        # import locally to avoid circular dependencies
-        from fastdfe import Visualization
-
-        return Visualization.plot_sfs_comparison(
-            spectra=list(self.to_spectra().values()),
+        return Visualization.plot_spectra(
+            spectra=list(list(v) for v in self.to_spectra().values()),
             labels=self.types,
             file=file,
             show=show,
@@ -797,7 +805,7 @@ class Spectra:
 
         :return: Spectra
         """
-        return Spectra.from_dataframe(self.data.loc[:, self.data[1:-1].sum() > n_polymorphic])
+        return Spectra.from_dataframe(self.data.loc[:, self.data[1:-1].sum() > int(n_polymorphic)])
 
     def rename(self, names: List[str]) -> 'Spectra':
         """

@@ -409,7 +409,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         # bootstrap
         inference.bootstrap(2)
 
-    def test_compare_nested_likelihoods_with_bootstrap(self):
+    def test_compare_nested_with_bootstrap(self):
         """
         Compare nested likelihoods.
         """
@@ -418,11 +418,11 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inference.compare_nested_models()
 
-        inference.plot_nested_likelihoods()
-        inference.plot_nested_likelihoods(remove_empty=True)
-        inference.plot_nested_likelihoods(transpose=True)
+        inference.plot_nested_models()
+        inference.plot_nested_models(remove_empty=True)
+        inference.plot_nested_models(transpose=True)
 
-    def test_compare_nested_likelihoods_without_bootstrap(self):
+    def test_compare_nested_without_bootstrap(self):
         """
         Compare nested likelihoods.
         """
@@ -431,7 +431,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inference.compare_nested_models(do_bootstrap=False)
 
-        inference.plot_nested_likelihoods(do_bootstrap=False)
+        inference.plot_nested_models(do_bootstrap=False)
 
     def test_plot_nested_model_comparison_without_running(self):
         """
@@ -441,7 +441,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         # unserialize
         inference = BaseInference.from_config_file(self.config_file)
 
-        inference.plot_nested_likelihoods()
+        inference.plot_nested_models()
 
     def test_plot_nested_model_comparison_different_parametrizations(self):
         """
@@ -465,7 +465,7 @@ class BaseInferenceTestCase(InferenceTestCase):
             # unserialize
             inference = BaseInference.from_config(config)
 
-            inference.plot_nested_likelihoods(title=p.__class__.__name__)
+            inference.plot_nested_models(title=p.__class__.__name__)
 
     def test_recreate_from_config(self):
         """

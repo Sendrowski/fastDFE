@@ -547,7 +547,7 @@ class DiscreteParametrization(Parametrization):
 
     def __init__(
             self,
-            intervals: np.ndarray = np.array([-100000, -100, -10, -1, 0, 1, 1000])
+            intervals: np.ndarray | list = np.array([-100000, -100, -10, -1, 0, 1, 1000])
     ):
         """
         Constructor.
@@ -700,7 +700,7 @@ class DiscreteFractionalParametrization(Parametrization):
 
     def __init__(
             self,
-            intervals: np.ndarray = np.array([-100000, -100, -10, -1, 0, 1, 1000])
+            intervals: np.ndarray | list = np.array([-100000, -100, -10, -1, 0, 1, 1000])
     ):
         """
         Constructor.

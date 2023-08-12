@@ -106,9 +106,8 @@
              
   <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-
-<span class="kn">import</span> <span class="nn">fastdfe</span> <span class="k">as</span> <span class="nn">fd</span>
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fastdfe</span> <span class="k">as</span> <span class="nn">fd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 <span class="c1"># create inference object</span>
 <span class="n">inf</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">BaseInference</span><span class="p">(</span>
@@ -118,16 +117,14 @@
     <span class="p">),</span>
     <span class="c1"># selected SFS</span>
     <span class="n">sfs_sel</span><span class="o">=</span><span class="n">fd</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span>
-        <span class="p">[</span><span class="mi">797939</span><span class="p">,</span> <span class="mi">1329</span><span class="p">,</span> <span class="mi">499</span><span class="p">,</span> <span class="mi">265</span><span class="p">,</span> <span class="mi">162</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">94</span><span class="p">,</span> <span class="mi">119</span><span class="p">,</span> <span class="mi">794</span><span class="p">]</span>
+        <span class="p">[</span><span class="mi">797939</span><span class="p">,</span><span class="mi">1329</span><span class="p">,</span> <span class="mi">499</span><span class="p">,</span> <span class="mi">265</span><span class="p">,</span> <span class="mi">162</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">94</span><span class="p">,</span> <span class="mi">119</span><span class="p">,</span> <span class="mi">794</span><span class="p">]</span>
     <span class="p">),</span>
-    <span class="n">model</span><span class="o">=</span><span class="n">fd</span><span class="o">.</span><span class="n">GammaExpParametrization</span><span class="p">(),</span>  <span class="c1"># the model to use</span>
-    <span class="n">n_runs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>  <span class="c1"># number of independent optimization runs</span>
-    <span class="n">n_bootstraps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>  <span class="c1"># number of bootstrap replicates</span>
+    <span class="n">n_runs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">n_bootstraps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
     <span class="n">do_bootstrap</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
 
-<span class="c1"># run inference</span>
-<span class="n">inf</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">run</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -136,33 +133,25 @@
 <span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Successfully finished optimization after 79 iterations and 594 function evaluations, obtaining a log-likelihood of -34.63216290448145.</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Inferred parameters: {&#39;all.S_d&#39;: -9867.852019677897, &#39;all.b&#39;: 0.15081059927802082, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 0.00010000034366964345, &#39;all.eps&#39;: 0.006854767570905897}.</span>
-Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 119.19it/s]
+Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 123.80it/s]
 <span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
-</pre></div>
-</div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;fastdfe.spectrum.Spectrum at 0x18e2ef700&gt;
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># create subplots</span>
-<span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">10</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">10</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
-<span class="c1"># plot results</span>
-<span class="n">inf</span><span class="o">.</span><span class="n">plot_sfs_comparison</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># plot SFS comparison</span>
-<span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># plot discretized DFE</span>
-<span class="n">inf</span><span class="o">.</span><span class="n">plot_inferred_parameters</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># plot inferred parameters</span>
-<span class="n">inf</span><span class="o">.</span><span class="n">plot_nested_likelihoods</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>  <span class="c1"># compare nested models</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_sfs_comparison</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sfs_types</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;neutral&#39;</span><span class="p">,</span> <span class="s1">&#39;selected&#39;</span><span class="p">,</span> <span class="s1">&#39;modelled&#39;</span><span class="p">])</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_inferred_parameters</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_nested_models</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Axes: ylabel=&#39;p-value&#39;&gt;
-</pre></div>
-</div>
-<img alt="../_images/352c4a96f20658a0fab4ad58bd29a6f43619bd0c10d049458d0acd0c0a682730.png" src="../_images/352c4a96f20658a0fab4ad58bd29a6f43619bd0c10d049458d0acd0c0a682730.png" />
+<img alt="../_images/51dd159251471f136864d9664773518eb2054b51db4b717b27ec70f6288fb001.png" src="../_images/51dd159251471f136864d9664773518eb2054b51db4b717b27ec70f6288fb001.png" />
 </div>
 </div>
 

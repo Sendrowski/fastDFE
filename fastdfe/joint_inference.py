@@ -21,6 +21,7 @@ from numpy.linalg import norm
 from scipy.optimize import OptimizeResult
 from tqdm import tqdm
 
+from .visualization import Visualization
 from .abstract_inference import Inference
 from .base_inference import BaseInference
 from .config import Config
@@ -960,8 +961,6 @@ class JointInference(BaseInference):
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes object
         """
-        from fastdfe import Visualization
-
         if 'modelled' in sfs_types:
             self.run_if_required()
 
@@ -990,8 +989,8 @@ class JointInference(BaseInference):
         # get spectra
         spectra = {get_label(t, sfs): getattr(inf, mapping[sfs]) for t, inf in inferences for sfs in sfs_types}
 
-        return Visualization.plot_sfs_comparison(
-            spectra=list(spectra.values()),
+        return Visualization.plot_spectra(
+            spectra=[list(v) for v in spectra.values()],
             labels=list(spectra.keys()) if labels is None else labels,
             file=file,
             show=show,

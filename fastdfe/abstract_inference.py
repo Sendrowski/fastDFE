@@ -31,7 +31,7 @@ class Inference:
     @staticmethod
     def plot_discretized(
             inferences: List['AbstractInference'],
-            intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            intervals: list | np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
@@ -66,7 +66,7 @@ class Inference:
         errors = []
         for i, inference in enumerate(inferences):
             val, errs = inference.get_discretized(
-                intervals=intervals,
+                intervals=np.array(intervals),
                 confidence_intervals=confidence_intervals,
                 ci_level=ci_level,
                 bootstrap_type=bootstrap_type
@@ -82,7 +82,7 @@ class Inference:
             labels=labels,
             file=file,
             show=show,
-            intervals=intervals,
+            intervals=np.array(intervals),
             title=title,
             ax=ax,
             kwargs_legend=kwargs_legend

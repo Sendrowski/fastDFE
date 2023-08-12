@@ -179,6 +179,9 @@ class DiscretizationTestCase(TestCase):
         assert diff < 1e-4
 
     def test_plot_allele_count_regularized(self):
+        """
+        Plot allele count for different values of k.
+        """
         d = Discretization(
             n=self.n,
             intervals_ben=(1.0e-15, 100, 1000),
@@ -202,6 +205,9 @@ class DiscretizationTestCase(TestCase):
         plt.show()
 
     def test_plot_H_fixed_with_regularized_negative(self):
+        """
+        Plot H_fixed with and without regularization for negative values of S.
+        """
 
         d = Discretization(
             n=self.n,
@@ -216,6 +222,9 @@ class DiscretizationTestCase(TestCase):
         plt.show()
 
     def test_plot_H_fixed_with_regularized_positive(self):
+        """
+        Plot H_fixed with and without regularization for positive values of S.
+        """
 
         d = Discretization(
             n=self.n,
@@ -229,3 +238,4 @@ class DiscretizationTestCase(TestCase):
 
         plt.legend()
         plt.show()
+

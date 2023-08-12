@@ -943,8 +943,8 @@ class BaseInference(AbstractInference):
             neutral=self.sfs_neut
         )
 
-        return Visualization.plot_sfs_comparison(
-            spectra=[mapping[t] for t in sfs_types],
+        return Visualization.plot_spectra(
+            spectra=[list(mapping[t]) for t in sfs_types],
             labels=sfs_types if labels is None else labels,
             file=file,
             show=show,
@@ -1131,9 +1131,9 @@ class BaseInference(AbstractInference):
                          f"complex model likelihood: {ll_complex}, "
                          f"degrees of freedom: {df}.")
 
-        return chi2.sf(lr, df)
+        return chi2.sf(lr, int(df))
 
-    def compare_nested_likelihoods(self, complex: 'BaseInference') -> float | None:
+    def compare_nested(self, complex: 'BaseInference') -> float | None:
         """
         Perform likelihood ratio test with given more complex model.
         The given model's fixed parameters need to be a proper
@@ -1208,13 +1208,13 @@ class BaseInference(AbstractInference):
 
         # create likelihood ratio matrix
         P = np.reshape(
-            [cast(BaseInference, i[0][1]).compare_nested_likelihoods(cast(BaseInference, i[1][1])) for i in inputs],
+            [cast(BaseInference, i[0][1]).compare_nested(cast(BaseInference, i[1][1])) for i in inputs],
             (n, n)
         )
 
         return P, inferences
 
-    def plot_nested_likelihoods(
+    def plot_nested_models(
             self,
             file: str = None,
             show: bool = True,
@@ -1223,7 +1223,7 @@ class BaseInference(AbstractInference):
             cmap: str = None,
             title: str = 'nested model comparison',
             ax: plt.Axes = None,
-            do_bootstrap: bool = True
+            do_bootstrap: bool = True,
 
     ) -> plt.Axes:
         """
@@ -1262,7 +1262,7 @@ class BaseInference(AbstractInference):
             P = P.T
             labels_x, labels_y = labels_y, labels_x
 
-        return Visualization.plot_nested_likelihoods(
+        return Visualization.plot_nested_models(
             P=P,
             labels_x=labels_x,
             labels_y=labels_y,
