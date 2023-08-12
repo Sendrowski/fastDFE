@@ -12,6 +12,6 @@ scratch/
 slurm/
 .env
 *.sqlite
-.Rproj.user
-.Rhistory
-.RData
+.Rproj.user/
+.Rhistory/
+.RData/
