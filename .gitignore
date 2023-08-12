@@ -12,3 +12,6 @@ slurm/
 .env
 *.sqlite
 .Rproj.user
+.Rhistory
+.RData
+/resources/est-sfs
