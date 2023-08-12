@@ -89,8 +89,8 @@ class AnnotatorTestCase(TestCase):
 
         ann.annotate()
 
-        Parser(self.vcf_file, 20, info_ancestral='BB').parse().plot(title="Original")
-        Parser(ann.output, 20, info_ancestral='BB').parse().plot(title="Annotated")
+        Parser(self.vcf_file, n=20, info_ancestral='BB').parse().plot(title="Original")
+        Parser(ann.output, n=20, info_ancestral='BB').parse().plot(title="Annotated")
 
         # assert number of sites is the same
         assert count_sites(self.vcf_file) == count_sites(ann.output)
