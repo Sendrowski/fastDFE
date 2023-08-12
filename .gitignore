@@ -1,4 +1,5 @@
 /resources/genome/
+/resources/est-sfs
 /snakemake/results/
 /snakemake/scratch/
 .snakemake/
@@ -14,4 +15,3 @@ slurm/
 .Rproj.user
 .Rhistory
 .RData
-/resources/est-sfs
