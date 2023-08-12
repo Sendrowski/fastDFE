@@ -19,7 +19,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from cyvcf2 import Variant, Writer, VCF
 
-from .bio_handlers import get_major_base, FASTAHandler, GFFHandler, VCFHandler
+from .bio_handlers import FASTAHandler, GFFHandler, VCFHandler, get_major_base
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -111,66 +111,6 @@ class AncestralAlleleAnnotation(Annotation, ABC):
             'Type': 'Character',
             'Description': 'Ancestral Allele'
         })
-
-
-class MaximumParsimonyAnnotation(AncestralAlleleAnnotation):
-    """
-    Annotation of ancestral alleles using maximum parsimony. The info field ``AA`` is added to the VCF file,
-    which holds the ancestral allele. To be used with :class:`~fastdfe.parser.AncestralBaseStratification`.
-
-    Note that maximum parsimony is not a reliable way to determine ancestral alleles, so it is recommended
-    to use this annotation together with the ancestral misidentification parameter ``eps`` or to fold
-    spectra altogether. Alternatively, you can use :class:`~fastdfe.filtration.DeviantOutgroupFiltration` to
-    filter out sites where the major allele among outgroups does not coincide with the major allele among ingroups.
-    """
-
-    def __init__(self, samples: List[str] = None):
-        """
-        Create a new ancestral allele annotation instance.
-
-        :param samples: The samples to consider when determining the ancestral allele. If ``None``, all samples are
-
-        """
-        super().__init__()
-
-        #: The samples to consider when determining the ancestral allele.
-        self.samples: List[str] | None = samples
-
-        self.samples_mask: np.ndarray | None = None
-
-    def _setup(self, annotator: 'Annotator', reader: VCF):
-        """
-        Add info fields to the header.
-
-        :param annotator: The annotator.
-        :param reader: The reader.
-        """
-        super()._setup(annotator, reader)
-
-        # create mask for ingroups
-        if self.samples is None:
-            self.samples_mask = np.ones(len(reader.samples)).astype(bool)
-        else:
-            self.samples_mask = np.isin(reader.samples, self.samples)
-
-    def annotate_site(self, variant: Variant):
-        """
-        Annotate a single site.
-
-        :param variant: The variant to annotate.
-        :return: The annotated variant.
-        """
-        # get the major base
-        base = get_major_base(variant.gt_bases[self.samples_mask])
-
-        # take base if defined
-        major_allele = base if base is not None else '.'
-
-        # set the ancestral allele
-        variant.INFO[self.annotator.info_ancestral] = major_allele
-
-        # increase the number of annotated sites
-        self.n_annotated += 1
 
 
 class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
@@ -904,3 +844,147 @@ class Annotator(VCFHandler):
         # close the writer and reader
         writer.close()
         reader.close()
+
+
+class MaximumParsimonyAnnotation(AncestralAlleleAnnotation):
+    """
+    Annotation of ancestral alleles using maximum parsimony. The info field ``AA`` is added to the VCF file,
+    which holds the ancestral allele. To be used with :class:`~fastdfe.parser.AncestralBaseStratification`.
+
+    Note that maximum parsimony is not a reliable way to determine ancestral alleles, so it is recommended
+    to use this annotation together with the ancestral misidentification parameter ``eps`` or to fold
+    spectra altogether. Alternatively, you can use :class:`~fastdfe.filtration.DeviantOutgroupFiltration` to
+    filter out sites where the major allele among outgroups does not coincide with the major allele among ingroups.
+    This annotation has the advantage of requiring no outgroup data.
+    """
+
+    def __init__(self, samples: List[str] = None):
+        """
+        Create a new ancestral allele annotation instance.
+
+        :param samples: The samples to consider when determining the ancestral allele. If ``None``, all samples are
+            considered.
+        """
+        super().__init__()
+
+        #: The samples to consider when determining the ancestral allele.
+        self.samples: List[str] | None = samples
+
+        self.samples_mask: np.ndarray | None = None
+
+    def _setup(self, annotator: 'Annotator', reader: VCF):
+        """
+        Add info fields to the header.
+
+        :param annotator: The annotator.
+        :param reader: The reader.
+        """
+        super()._setup(annotator, reader)
+
+        # create mask for ingroups
+        if self.samples is None:
+            self.samples_mask = np.ones(len(reader.samples)).astype(bool)
+        else:
+            self.samples_mask = np.isin(reader.samples, self.samples)
+
+    def annotate_site(self, variant: Variant):
+        """
+        Annotate a single site.
+
+        :param variant: The variant to annotate.
+        :return: The annotated variant.
+        """
+        # get the major base
+        base = get_major_base(variant.gt_bases[self.samples_mask])
+
+        # take base if defined
+        major_allele = base if base is not None else '.'
+
+        # set the ancestral allele
+        variant.INFO[self.annotator.info_ancestral] = major_allele
+
+        # increase the number of annotated sites
+        self.n_annotated += 1
+
+
+class SophisticatedAncestralAlleleAnnotation(AncestralAlleleAnnotation):
+    """
+    Annotation of ancestral alleles using a sophisticated method similar to EST-SFS. The info field ``AA``
+    is added to the VCF file, which holds the ancestral allele. To be used with
+    :class:`~fastdfe.parser.AncestralBaseStratification`.
+    """
+
+    def __init__(
+            self,
+            outgroups: List[str],
+            samples: List[str] = None,
+    ):
+        """
+        Create a new ancestral allele annotation instance.
+
+        :param outgroups: The outgroups to consider when determining the ancestral allele.
+        :param samples: The samples to consider when determining the ancestral allele. If ``None``, all (non-outgroup)
+            samples are considered.
+        """
+        super().__init__()
+
+        #: The samples to consider when determining the ancestral allele.
+        self.samples: List[str] | None = samples
+
+        #: Mask for ingroups
+        self.samples_mask: np.ndarray | None = None
+
+        #: The outgroups to consider when determining the ancestral allele.
+        self.outgroups: List[str] = outgroups
+
+        #: Mask for outgroups
+        self.outgroups_mask: np.ndarray | None = None
+
+    def _setup(self, annotator: 'Annotator', reader: VCF):
+        """
+        Add info fields to the header.
+
+        :param annotator: The annotator.
+        :param reader: The reader.
+        """
+        super()._setup(annotator, reader)
+
+        # prepare masks
+        self.prepare_masks(reader.samples)
+
+    def prepare_masks(self, samples: List[str]):
+        """
+        Prepare the masks for ingroups and outgroups.
+
+        :param samples: All samples.
+        """
+        # create mask for ingroups
+        if self.samples is None:
+            self.samples_mask = ~ np.isin(samples, self.outgroups)
+        else:
+            self.samples_mask = np.isin(samples, self.samples)
+
+        # create mask for outgroups
+        self.outgroups_mask = np.isin(samples, self.outgroups)
+
+    def get_ancestral_allele(self, variant: Variant) -> str:
+        """
+        Get the ancestral allele.
+
+        :return: The ancestral allele.
+        """
+
+    def annotate_site(self, variant: Variant):
+        """
+        Annotate a single site.
+
+        :param variant: The variant to annotate.
+        :return: The annotated variant.
+        """
+        ancestral_allele = self.get_ancestral_allele(variant)
+
+        # set the ancestral allele
+        variant.INFO[self.annotator.info_ancestral] = ancestral_allele
+
+        # increase the number of annotated sites
+        self.n_annotated += 1

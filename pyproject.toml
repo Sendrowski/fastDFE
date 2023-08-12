@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fastdfe"
-version = "1.0.0"
+version = "0.1.8-beta"
 description = "Fast, flexible, and hierarchical inference of the distribution of fitness effects"
 authors = ["Sendrowski <sendrowski.janek@gmail.com>"]
 license = "MIT"
