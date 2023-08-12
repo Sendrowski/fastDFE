@@ -6,8 +6,10 @@
 ^scratch$
 ^snakemake$
 ^testing$
+^fastdfe$
 ^.coveragerc$
 ^.gitignore$
+^.idea$
 ^.readthedocs.yaml$
 ^coverage.xml$
 ^fastDFE.Rproj$

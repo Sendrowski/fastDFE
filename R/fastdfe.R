@@ -1,5 +1,5 @@
 # vector of required packaged
-required_packages <- c("reticulate", "ggplot2", "cowplot", "pheatmap")
+required_packages <- c("reticulate", "ggplot2", "cowplot", "pheatmap", "RColorBrewer", "scales")
 
 # install required R packages
 for(package in required_packages){
@@ -88,6 +88,7 @@ install_fastdfe <- function(version = NULL, force = FALSE, silent = FALSE) {
 #'
 #' @seealso \link[reticulate]{import} for importing Python modules in R.
 #'
+#' @importFrom grDevices colorRampPalette dev.off pdf
 #' @export
 load_fastdfe <- function(install = FALSE) {
   
@@ -95,11 +96,6 @@ load_fastdfe <- function(install = FALSE) {
   if (install) {
     install_fastdfe(silent = TRUE)
   }
-  
-  # load required R packages
-  library(ggplot2)
-  library(cowplot)
-  library(pheatmap)
   
   # configure plot
   options(repr.plot.width = 4.6, repr.plot.height = 3.2)
@@ -155,7 +151,7 @@ load_fastdfe <- function(install = FALSE) {
     
     # if labels provided, add as factor to data frame
     if (is.null(labels)) {
-      labels <- as.character(1:n_dfes) # create numeric labels if labels are NULL
+      labels <- as.character(1:n_dfes)
     }
     df$group <- as.factor(rep(unlist(labels), each = n_intervals))
     
@@ -177,34 +173,34 @@ load_fastdfe <- function(install = FALSE) {
     }
     
     # base plot with bars
-    p <- ggplot(df, aes(x = factor(x), y = y)) +
-      geom_bar(stat = "identity", position = position_dodge(),
-               show.legend = n_dfes > 1) +
-      scale_x_discrete(labels = xlabels, expand = expansion(mult = c(0, 0))) +
-      scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-      labs(x = "S", y = "fraction", title = title) +
-      theme_bw() +
-      theme(panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank())
+    p <- ggplot2::ggplot(df, ggplot2::aes(x = factor(.data$x), y = .data$y)) +
+      ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge(),
+                        show.legend = n_dfes > 1) +
+      ggplot2::scale_x_discrete(labels = xlabels, expand = ggplot2::expansion(mult = c(0, 0))) +
+      ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.05))) +
+      ggplot2::labs(x = "S", y = "fraction", title = title) +
+      ggplot2::theme_bw() +
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+                     panel.grid.minor = ggplot2::element_blank())
     
     # add group aesthetic if 'group' column present
-    if ('group' %in% colnames(df)) p <- p + aes(fill = group)
+    if ('group' %in% colnames(df)) p <- p + ggplot2::aes(fill = .data$group)
     
     # add error bars if 'ymin' and 'ymax' columns present
     if (all(c('ymin', 'ymax') %in% colnames(df))) {
-      p <- p + geom_errorbar(aes(ymin = ymin, ymax = ymax), 
-                             width = 0.2, 
-                             position = position_dodge(0.9))
+      p <- p + ggplot2::geom_errorbar(ggplot2::aes(ymin = .data$ymin, ymax = .data$ymax), 
+                                      width = 0.2, 
+                                      position = ggplot2::position_dodge(0.9))
     }
     
     # add legend on the right if labels were provided
-    if (!is.null(labels)) p <- p + theme(legend.position = "right")
+    if (!is.null(labels)) p <- p + ggplot2::theme(legend.position = "right")
     
     # display plot if 'show' is TRUE
     if (show) print(p)
     
     # save plot to file if 'file' is provided
-    if (!is.null(file)) ggsave(file, plot = p)
+    if (!is.null(file)) ggplot2::ggsave(file, plot = p)
     
     return(p)
   }
@@ -241,10 +237,19 @@ load_fastdfe <- function(install = FALSE) {
     n_types <- length(values)
     n_params <- length(param_names)
     
-    # create data frame with x and y values
+    # create data frame with x, y values and track the negative values
+    negative_flags <- unlist(lapply(values, function(x) sapply(x, function(y) ifelse(y < 0, TRUE, FALSE))))
     df <- data.frame(x = rep(1:n_params, n_types), 
-                     y = unlist(values <- lapply(
-                       values, function(x) sapply(x, abs))))
+                     y = unlist(lapply(values, function(x) sapply(x, abs))))
+    
+    # Adjust the parameter names based on negative flags
+    updated_param_names <- param_names
+    for (i in 1:length(negative_flags)) {
+      if (negative_flags[i]) {
+        idx <- (i - 1) %% n_params + 1
+        updated_param_names[idx] <- paste0("-", param_names[idx])
+      }
+    }
     
     # if labels provided, add as factor to data frame
     if (is.null(labels)) {
@@ -259,40 +264,43 @@ load_fastdfe <- function(install = FALSE) {
     }
     
     # base plot with bars
-    p <- ggplot(df, aes(x = factor(x), y = y)) +
-      geom_bar(stat = "identity", position = position_dodge(),
-               show.legend = n_types > 1) +
-      scale_x_discrete(labels = param_names, expand = expansion(mult = c(0, 0))) +
-      scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-      labs(x = "Parameters", y = "Values", title = title) +
-      theme_bw() +
-      theme(panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank())
+    p <- ggplot2::ggplot(df, ggplot2::aes(x = factor(.data$x), y = .data$y)) +
+      ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge(),
+                        show.legend = n_types > 1) +
+      ggplot2::scale_x_discrete(labels = updated_param_names, expand = ggplot2::expansion(mult = c(0, 0))) +
+      ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.05))) +
+      ggplot2::labs(x = "Parameters", y = "Values", title = title) +
+      ggplot2::theme_bw() +
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+                     panel.grid.minor = ggplot2::element_blank())
     
     # add group aesthetic if 'group' column present
-    if ('group' %in% colnames(df)) p <- p + aes(fill = group)
+    if ('group' %in% colnames(df)) p <- p + ggplot2::aes(fill = .data$group)
     
     # add error bars if 'ymin' and 'ymax' columns present
     if (all(c('ymin', 'ymax') %in% colnames(df))) {
-      p <- p + geom_errorbar(aes(ymin = ymin, ymax = ymax),
-                             width = 0.2, 
-                             position = position_dodge(0.9))
+      p <- p + ggplot2::geom_errorbar(ggplot2::aes(ymin = .data$ymin, ymax = .data$ymax),
+                                      width = 0.2, 
+                                      position = ggplot2::position_dodge(0.9))
     }
     
     # add legend on the right if labels were provided
-    if (legend) p <- p + theme(legend.position = "right")
+    if (legend) p <- p + ggplot2::theme(legend.position = "right")
     
     # scale y axis if specified
-    if (scale == 'log') p <- p + scale_y_continuous(trans = 'log10')
+    if (scale == 'log') {
+      suppressWarnings(p <- p + ggplot2::scale_y_continuous(trans = "log10"))
+    }
     
     # display plot if 'show' is TRUE
-    if (show) print(p)
+    if (show) suppressWarnings(print(p))
     
     # save plot to file if 'file' is provided
-    if (!is.null(file)) ggsave(file, plot = p)
+    if (!is.null(file)) ggplot2::ggsave(file, plot = p)
     
     return(p)
   }
+  
   
   # Create a scatter plot of the likelihoods specified.
   #
@@ -300,7 +308,7 @@ load_fastdfe <- function(install = FALSE) {
   # @param file Character. File path to save plot to. Default is NULL.
   # @param show Logical. Whether to show plot. Default is TRUE.
   # @param title Character. Title of plot. Default is 'likelihoods'.
-  # @param scale Character. Scale of y-axis. One of 'lin', 'log', or 'symlog'. Default is 'lin'.
+  # @param scale Character. Scale of y-axis. One of 'lin', 'log'. Default is 'lin'.
   #
   # @return A ggplot object.
   viz$plot_likelihoods <- function(
@@ -315,25 +323,24 @@ load_fastdfe <- function(install = FALSE) {
     data <- data.frame(x = seq_along(likelihoods), y = unlist(likelihoods))
     
     # Create plot
-    p <- ggplot(data, aes(x = x, y = y)) +
-      geom_point() +
-      labs(title = title, y = 'lnl')
+    p <- ggplot2::ggplot(data, ggplot2::aes(x = .data$x, y = .data$y)) +
+      ggplot2::geom_point() +
+      ggplot2::labs(title = title, y = 'lnl')
     
     # Set y scale
     if (scale == 'log') {
-      p <- p + scale_y_continuous(trans = 'log10')
-    } else if (scale == 'symlog') {
-      p <- p + scale_y_continuous(trans = 'symlog10')
+      p <- p + ggplot2::scale_y_continuous(trans = 'log10')
     }
     
     # Display plot if 'show' is TRUE
     if (show) print(p)
     
     # Save plot to file if 'file' is provided
-    if (!is.null(file)) ggsave(file, plot = p)
+    if (!is.null(file)) ggplot2::ggsave(file, plot = p)
     
     return(p)
   }
+  
   
   # Plot the given 1D spectra
   # 
@@ -365,7 +372,7 @@ load_fastdfe <- function(install = FALSE) {
       warning('No spectra to plot.')
       return(NULL)
     }
-    # browser()
+    
     if (use_subplots) {
       # Creating a grid of plots
       plot_list <- lapply(1:length(spectra), function(i) {
@@ -376,13 +383,13 @@ load_fastdfe <- function(install = FALSE) {
           show_monomorphic = show_monomorphic,
           show = FALSE
         ) +
-          labs(title = if (length(labels) >= i) labels[i] else '')
+          ggplot2::labs(title = if (length(labels) >= i) labels[i] else '')
       })
       
       plot_grid <- cowplot::plot_grid(plotlist = plot_list)
       
       if (show) print(plot_grid)
-      if (!is.null(file)) ggsave(file, plot = plot_grid)
+      if (!is.null(file)) ggplot2::ggsave(file, plot = plot_grid)
       
       return(plot_grid)
     }
@@ -402,36 +409,37 @@ load_fastdfe <- function(install = FALSE) {
     }
     
     # Create a ggplot object
-    p <- ggplot(df, aes(x = indices, y = heights, fill = group)) +
-      geom_bar(stat = "identity", position = "dodge",
-               width = 0.7, show.legend = length(spectra) > 1) +
-      labs(x = "frequency", y = "", title = title) +
-      theme_bw() +
-      theme(panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank()) + 
-      scale_y_continuous(expand = expansion(mult = c(0, .1)))
+    p <- ggplot2::ggplot(df, ggplot2::aes(x = indices, y = heights, fill = .data$group)) +
+      ggplot2::geom_bar(stat = "identity", position = "dodge",
+                        width = 0.7, show.legend = length(spectra) > 1) +
+      ggplot2::labs(x = "frequency", y = "", title = title) +
+      ggplot2::theme_bw() +
+      ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
+                     panel.grid.minor = ggplot2::element_blank()) + 
+      ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, .1)))
     
     if (log_scale) {
-      p <- p + scale_y_log10()
+      p <- p + ggplot2::scale_y_log10()
     }
     
     # Adjust x-axis labels based on show_monomorphic
     if (show_monomorphic) {
-      p <- p + scale_x_continuous(breaks = 0:(length(spectra[[1]]) + 1),
-                                  labels = 0:(length(spectra[[1]]) + 1) - 1, 
-                                  expand = c(0, 0))
+      p <- p + ggplot2::scale_x_continuous(breaks = 0:(length(spectra[[1]]) + 1),
+                                           labels = 0:(length(spectra[[1]]) + 1) - 1, 
+                                           expand = c(0, 0))
     } else {
-      p <- p + scale_x_continuous(breaks = 1:length(spectra[[1]]),
-                                  labels = 1:length(spectra[[1]]) - 1,
-                                  expand = c(0, 0))
+      p <- p + ggplot2::scale_x_continuous(breaks = 1:length(spectra[[1]]),
+                                           labels = 1:length(spectra[[1]]) - 1,
+                                           expand = c(0, 0))
     }
     
     # Display or save the plot
     if (show) print(p)
-    if (!is.null(file)) ggsave(file, plot = p)
+    if (!is.null(file)) ggplot2::ggsave(file, plot = p)
     
     return(p)
   }
+  
   
   # Plot p-values of nested likelihoods.
   #
@@ -505,7 +513,9 @@ load_fastdfe <- function(install = FALSE) {
     )
     
     if (!is.null(file)) {
-      ggsave(filename = file)
+      pdf(file)
+      print(p)
+      dev.off()
     }
     
     if (!show) {
