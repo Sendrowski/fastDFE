@@ -14,8 +14,8 @@ import mpmath as mp
 import numpy as np
 from scipy.integrate import quad
 
-from .parametrization import Parametrization
 from .optimization import parallelize as parallelize_func
+from .parametrization import Parametrization
 
 # configure logger
 logger = logging.getLogger('fastdfe').getChild('Discretization')

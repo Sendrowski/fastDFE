@@ -7,15 +7,16 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-02-26"
 
 import json
-from jsonpickle.handlers import BaseHandler
+import logging
+
 import numpy as np
 import pandas as pd
+from jsonpickle.handlers import BaseHandler
 from scipy.optimize._lbfgsb_py import LbfgsInvHessProduct
 
 from .optimization import SharedParams, Covariate
-from .spectrum import Spectrum, Spectra
-import logging
 from .parametrization import Parametrization
+from .spectrum import Spectrum, Spectra
 
 # configure logger
 logger = logging.getLogger('fastdfe')
