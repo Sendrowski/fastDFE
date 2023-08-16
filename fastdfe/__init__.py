@@ -130,7 +130,8 @@ from .parser import Parser, Stratification, BaseTransitionStratification, BaseCo
     DegeneracyStratification, TransitionTransversionStratification, AncestralBaseStratification, \
     SynonymyStratification, VEPStratification, SnpEffStratification, ContigStratification, ChunkedStratification
 from .bio_handlers import VCFHandler
-from .annotation import Annotator, Annotation, MaximumParsimonyAnnotation, DegeneracyAnnotation, SynonymyAnnotation
+from .annotation import Annotator, Annotation, MaximumParsimonyAnnotation, OutgroupAncestralAlleleAnnotation, \
+    DegeneracyAnnotation, SynonymyAnnotation, SubstitutionModel, K2SubstitutionModel, JCSubstitutionModel
 from .filtration import Filterer, Filtration, SNPFiltration, PolyAllelicFiltration, CodingSequenceFiltration, \
     SNVFiltration, DeviantOutgroupFiltration, AllFiltration, NoFiltration, BiasedGCConversionFiltration
 
@@ -164,6 +165,10 @@ __all__ = [
     'Annotator',
     'Annotation',
     'MaximumParsimonyAnnotation',
+    'OutgroupAncestralAlleleAnnotation',
+    'SubstitutionModel',
+    'K2SubstitutionModel',
+    'JCSubstitutionModel',
     'DegeneracyAnnotation',
     'SynonymyAnnotation',
     'Filtration',

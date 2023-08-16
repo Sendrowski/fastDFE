@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 
+import fastdfe
 import fastdfe as fd
 
 # create inference object

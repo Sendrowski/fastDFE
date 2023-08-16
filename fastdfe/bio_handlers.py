@@ -79,7 +79,7 @@ def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf) -> int:
     i = 0
     with open_file(vcf) as f:
 
-        with tqdm(total=max_sites, disable=disable_pbar, desc='Counting sites') as pbar:
+        with tqdm(disable=disable_pbar, desc='Counting sites') as pbar:
 
             for line in f:
                 if not line.startswith('#'):
@@ -542,15 +542,16 @@ class VCFHandler(FileHandler):
         """
         return count_sites(self.download_if_url(self.vcf), max_sites=self.max_sites)
 
-    def get_pbar(self) -> tqdm:
+    def get_pbar(self, desc: str = "Processing sites") -> tqdm:
         """
         Return a progress bar for the number of sites.
 
+        :param desc: Description for the progress bar
         :return: tqdm
         """
         from . import disable_pbar
 
-        return tqdm(total=self.n_sites, disable=disable_pbar, desc="Processing sites")
+        return tqdm(total=self.n_sites, disable=disable_pbar, desc=desc)
 
 
 class NoTypeException(BaseException):
