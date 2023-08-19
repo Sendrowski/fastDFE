@@ -1,3 +1,5 @@
+if (getRversion() >= "2.15.1") utils::globalVariables(c(".data"))
+
 # vector of required packaged
 required_packages <- c("reticulate", "ggplot2", "cowplot", "pheatmap", "RColorBrewer", "scales")
 
