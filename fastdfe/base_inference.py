@@ -1094,6 +1094,7 @@ class BaseInference(AbstractInference):
             title: str = 'likelihoods',
             scale: Literal['lin', 'log'] = 'lin',
             ax: plt.Axes = None,
+            ylabel: str = 'lnl',
             **kwargs
     ) -> plt.Axes:
         """
@@ -1104,6 +1105,7 @@ class BaseInference(AbstractInference):
         :param file: File to save plot to.
         :param show: Whether to show plot.
         :param ax: Axes object to plot on.
+        :param ylabel: Label for the y-axis.
         :return: Axes object
         """
         return Visualization.plot_likelihoods(
@@ -1112,7 +1114,8 @@ class BaseInference(AbstractInference):
             show=show,
             title=title,
             scale=scale,
-            ax=ax
+            ax=ax,
+            ylabel=ylabel,
         )
 
     def lrt(self, ll_simple: float, ll_complex: float, df: int = 1) -> float:
@@ -1179,7 +1182,7 @@ class BaseInference(AbstractInference):
             # create deep copy of object
             inference = copy.deepcopy(self)
 
-            # disable bootstraps
+            # carry over bootstrap setting
             inference.do_bootstrap = do_bootstrap
 
             # dict of params to be fixed

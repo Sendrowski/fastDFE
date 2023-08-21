@@ -633,6 +633,63 @@ def get_basename(name: str) -> str:
     return name.split('.')[-1]
 
 
+from typing import Dict, Tuple, Literal
+import math
+
+
+def check_bounds(
+        bounds: Dict[str, Tuple[float, float]],
+        params: Dict[str, float],
+        fixed_params: Dict[str, float] = {},
+        percentile: float = 1,
+        scale: Literal['lin', 'log'] = 'lin'
+) -> Tuple[Dict[str, float], Dict[str, float]]:
+    """
+    Issue warnings if the passed parameters are close to the specified bounds.
+
+    :param bounds: The bounds to check against.
+    :param params: The parameters to check.
+    :param fixed_params: The fixed parameters.
+    :param percentile: The percentile threshold to consider a parameter close to the bounds.
+    :param scale: Scale type: 'lin' for linear and 'log' for logarithmic.
+    :return: A tuple of dictionaries of parameters close to the lower and upper bounds.
+    """
+    near_lower = {}
+    near_upper = {}
+
+    def convert(value: float, to_scale: Literal['lin', 'log']) -> float:
+        """
+        Convert a value to the specified scale.
+
+        :param value:
+        :param to_scale:
+        :return:
+        """
+        if to_scale == 'log':
+            return math.log(value) if value > 0 else -float('inf')
+
+        return value
+
+    for key, value in params.items():
+        # get base name
+        name = key.split('.')[-1]
+
+        # get bounds
+        raw_lower, raw_upper = bounds[name]
+        lower = convert(raw_lower, scale)
+        upper = convert(raw_upper, scale)
+        value = convert(value, scale)
+
+        if key not in fixed_params:
+            if lower is not None and (value - lower) / (upper - lower) <= percentile / 100:
+                near_lower[key] = raw_lower
+
+            if upper is not None and (upper - value) / (upper - lower) <= percentile / 100:
+                near_upper[key] = raw_upper
+
+    return near_lower, near_upper
+
+
 @dataclass
 class SharedParams:
     """
@@ -1087,6 +1144,26 @@ class Optimization:
         # return the sampled value, flipping back if necessary
         return -sample if flipped else sample
 
+    def check_bounds(self, params: Dict[str, float], percentile: float = 1) -> None:
+        """
+        Check if the given parameters are within the bounds.
+
+        :param params: Parameters
+        :param percentile: Percentile of the bounds to check
+        :return: Whether the parameters are within the bounds
+        """
+        near_lower, near_upper = check_bounds(
+            params=params,
+            bounds=self.bounds,
+            fixed_params=self.fixed_params,
+            percentile=percentile
+        )
+
+        if len(near_lower | near_upper) > 0:
+            logger.warning(f'The MLE estimate is within {percentile}% of the upper bound '
+                           f'for {near_upper} and lower bound for {near_lower}, but '
+                           f'this might be nothing to worry about.')
+
     def get_bounds(self, x0: Dict[str, float]) -> Dict[str, Tuple[float, float]]:
         """
         Get a nested dictionary of bounds the same structure as the given initial values.
@@ -1105,35 +1182,6 @@ class Optimization:
                 bounds[key] = self.bounds[key.split('.')[-1]]
 
         return bounds
-
-    def check_bounds(self, params: Dict[str, float], percentile: float = 1):
-        """
-        Issue warnings if the passed parameters are close to the specified bounds.
-
-        :param params: The parameters to check.
-        :param percentile: The percentile threshold to consider a parameter close to the bounds.
-        """
-        near_lower = {}
-        near_upper = {}
-
-        for key, value in params.items():
-            # get base name
-            name = key.split('.')[-1]
-
-            # get bounds
-            lower, upper = self.bounds[name]
-
-            if key not in self.fixed_params:
-                if lower is not None and (value - lower) / (upper - lower) <= percentile / 100:
-                    near_lower[key] = lower
-
-                if upper is not None and (upper - value) / (upper - lower) <= percentile / 100:
-                    near_upper[key] = upper
-
-        if len(near_lower | near_upper) > 0:
-            logger.warning(f'The MLE estimate is within {percentile}% of the upper bound '
-                           f'for {near_upper} and lower bound for {near_lower}, but '
-                           f'this might be nothing to worry about.')
 
     def set_fixed_params(self, fixed_params: Dict[str, Dict[str, float]]):
         """

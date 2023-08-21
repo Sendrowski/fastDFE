@@ -1,3 +1,5 @@
+if (getRversion() >= "2.15.1") utils::globalVariables(c(".data"))
+
 # vector of required packaged
 required_packages <- c("reticulate", "ggplot2", "cowplot", "pheatmap", "RColorBrewer", "scales")
 
@@ -56,9 +58,15 @@ fastdfe_is_installed <- function() {
 #' @export
 install_fastdfe <- function(version = NULL, force = FALSE, silent = FALSE) {
   
+  # Create the package string with the version if specified
+  package_name <- "fastdfe"
+  if (!is.null(version)) {
+    package_name <- paste0(package_name, "==", version)
+  }
+  
   # Check if fastdfe is installed or if force is TRUE
   if (force || !fastdfe_is_installed()) {
-    reticulate::py_install("fastdfe", method = "pip", version = version)
+    reticulate::py_install(package_name, method = "pip", version = version)
   } else {
     if (!silent) {
       message("The 'fastdfe' Python module is already installed.")

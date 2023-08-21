@@ -41,7 +41,6 @@ def subsample(bases: np.ndarray, size: int) -> np.ndarray:
 
     :param bases: A list of bases.
     :param size: The size of the subsample.
-    :param allow_less: Whether to allow a subsample smaller than the requested size.
     :return: A subsample of the bases.
     """
     # return an empty array when there are no haplotypes

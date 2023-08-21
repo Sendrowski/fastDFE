@@ -21,7 +21,6 @@ from numpy.linalg import norm
 from scipy.optimize import OptimizeResult
 from tqdm import tqdm
 
-from .visualization import Visualization
 from .abstract_inference import Inference
 from .base_inference import BaseInference
 from .config import Config
@@ -30,6 +29,7 @@ from .optimization import Optimization, SharedParams, pack_shared, expand_shared
     collapse_fixed, unpack_shared
 from .parametrization import Parametrization
 from .spectrum import Spectrum, Spectra
+from .visualization import Visualization
 
 # get logger
 logger = logging.getLogger('fastdfe')

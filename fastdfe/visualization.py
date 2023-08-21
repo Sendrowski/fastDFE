@@ -757,7 +757,8 @@ class Visualization:
             file: str, show: bool,
             ax: plt.Axes,
             title: str = 'likelihoods',
-            scale: Literal['lin', 'log', 'symlog'] = 'lin'
+            scale: Literal['lin', 'log', 'symlog'] = 'lin',
+            ylabel: str = 'lnl'
     ) -> plt.Axes:
         """
         A scatter plot of the likelihoods specified.
@@ -768,12 +769,13 @@ class Visualization:
         :param show: Whether to show plot
         :param title: Title of plot
         :param ax: Axes to plot on
+        :param ylabel: Label of y-axis
         :return: Axes
         """
         # plot
         sns.scatterplot(x=range(len(likelihoods)), y=likelihoods, ax=ax)
 
-        ax.set(ylabel='lnl')
+        ax.set(ylabel=ylabel)
 
         # set title
         ax.set_title(title)

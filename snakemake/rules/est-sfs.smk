@@ -3,7 +3,7 @@ Module for running EST-SFS on a set of VCF files.
 EST-SFS is limited by the number of sites it can handle,
 so we scatter and gather the input files so as not
 to exceed this limit (given by ``max_sites``).
-The EST-SFS are automatically fetched and installed.
+The EST-SFS binaries are automatically fetched and installed.
 This workflow only infers ancestral allele of bi-allelic sites that
 have at least `n_outgroup` called haplotypes. This is to make sure
 enough information is available to reliably infer the ancestral allele.

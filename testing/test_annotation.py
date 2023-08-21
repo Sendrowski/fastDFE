@@ -1,17 +1,24 @@
+import itertools
+import logging
 from unittest.mock import MagicMock, PropertyMock, patch
 
 import numpy as np
 import pandas as pd
+from numpy import testing
+from pandas.testing import assert_frame_equal
 
 from fastdfe.bio_handlers import count_sites, GFFHandler
 from testing import prioritize_installed_packages
+
+logging.getLogger('fastdfe').setLevel(logging.DEBUG)
 
 prioritize_installed_packages()
 
 from testing import TestCase
 import pytest
 
-from fastdfe import Annotator, MaximumParsimonyAnnotation, Parser, DegeneracyAnnotation, SynonymyAnnotation, Annotation
+from fastdfe import Annotator, MaximumParsimonyAnnotation, Parser, DegeneracyAnnotation, SynonymyAnnotation, \
+    Annotation, OutgroupAncestralAlleleAnnotation, K2SubstitutionModel, JCSubstitutionModel
 
 
 class AnnotatorTestCase(TestCase):
@@ -23,7 +30,8 @@ class AnnotatorTestCase(TestCase):
     fasta_file = 'resources/genome/betula/genome.subset.20.fasta'
     gff_file = 'resources/genome/betula/genome.gff.gz'
 
-    def test_maximum_parsimony_annotation_annotate_site(self):
+    @staticmethod
+    def test_maximum_parsimony_annotation_annotate_site():
         """
         Test the maximum parsimony annotation for a single site.
         """
@@ -95,7 +103,8 @@ class AnnotatorTestCase(TestCase):
         # assert number of sites is the same
         assert count_sites(self.vcf_file) == count_sites(ann.output)
 
-    def test_degeneracy_annotation_human_test_genome(self):
+    @staticmethod
+    def test_degeneracy_annotation_human_test_genome():
         """
         Test the degeneracy annotator on a small human genome.
         """
@@ -121,7 +130,8 @@ class AnnotatorTestCase(TestCase):
         assert deg.n_annotated == 7
         assert ann.n_sites == 1517
 
-    def test_degeneracy_annotation_human_test_genome_remote_fasta_gzipped(self):
+    @staticmethod
+    def test_degeneracy_annotation_human_test_genome_remote_fasta_gzipped():
         """
         Test the degeneracy annotator on a small human genome with a remote gzipped fasta file.
         """
@@ -144,7 +154,8 @@ class AnnotatorTestCase(TestCase):
         assert deg.n_annotated == 7
         assert ann.n_sites == 1517
 
-    def test_degeneracy_annotation_betula_subset(self):
+    @staticmethod
+    def test_degeneracy_annotation_betula_subset():
         """
         Test the degeneracy annotator.
         """
@@ -166,7 +177,8 @@ class AnnotatorTestCase(TestCase):
         # assert number of sites is the same
         assert count_sites(vcf) == count_sites(ann.output)
 
-    def test_annotator_load_vcf_from_url(self):
+    @staticmethod
+    def test_annotator_load_vcf_from_url():
         """
         Test the annotator loading a VCF from a URL.
         """
@@ -187,7 +199,8 @@ class AnnotatorTestCase(TestCase):
         assert ann.n_sites == 10000
         assert count_sites(ann.output) == 10000
 
-    def test_compare_synonymy_annotation_with_vep_betula(self):
+    @staticmethod
+    def test_compare_synonymy_annotation_with_vep_betula():
         """
         Compare the synonymy annotation with VEP.
         """
@@ -316,7 +329,8 @@ class AnnotatorTestCase(TestCase):
                 synonymy = SynonymyAnnotation.is_synonymous(codon1, codon2)
                 self.assertEqual(synonymy, expected)
 
-    def test_count_target_sites(self):
+    @staticmethod
+    def test_count_target_sites():
         """
         Test the count_target_sites function.
         """
@@ -339,7 +353,8 @@ class AnnotatorTestCase(TestCase):
 
         assert result == expected_result
 
-    def test_count_target_sites_betula_gff(self):
+    @staticmethod
+    def test_count_target_sites_betula_gff():
         """
         Test the count_target_sites function on the Betula gff file
         """
@@ -348,3 +363,540 @@ class AnnotatorTestCase(TestCase):
         result = Annotation.count_target_sites(gff)
 
         pass
+
+    def test_outgroup_ancestral_allele_annotation_negative_lower_bounds_raises_value_error(self):
+        """
+        Test that a ValueError is raised when the lower bound of a parameter is negative.
+        """
+        with self.assertRaises(ValueError):
+            OutgroupAncestralAlleleAnnotation(
+                outgroups=["ERR2103730", "ERR2103731"],
+                n_runs_rate=3,
+                n_ingroups=5
+            )
+
+    def test_get_p_tree_outgroup_ancestral_allele_annotation_one_outgroup(self):
+        """
+        Test the get_p_tree function with one outgroup.
+        """
+        params = dict(
+            k=2,
+            K0=0.5
+        )
+
+        model = K2SubstitutionModel()
+
+        for base, outgroup_base in itertools.product(range(4), range(4)):
+            p = OutgroupAncestralAlleleAnnotation.get_p_tree(
+                base=base,
+                n_outgroups=1,
+                internal_nodes=[],
+                outgroup_bases=[outgroup_base],
+                model=model,
+                params=dict(
+                    k=2,
+                    K0=0.5
+                )
+            )
+
+            p_expected = model._get_prob(
+                b1=base,
+                b2=outgroup_base,
+                i=0,
+                params=params
+            )
+
+            self.assertEqual(p, p_expected)
+
+    def test_get_p_tree_outgroup_ancestral_allele_annotation_two_outgroups(self):
+        """
+        Test the get_p_tree function with two outgroups.
+        """
+        params = dict(
+            k=2,
+            K0=0.5,
+            K1=0.25,
+            K2=0.125
+        )
+
+        model = K2SubstitutionModel()
+
+        for base, outgroup_base1, outgroup_base2, internal_node in itertools.product(range(4), repeat=4):
+            p = OutgroupAncestralAlleleAnnotation.get_p_tree(
+                base=base,
+                n_outgroups=2,
+                internal_nodes=[internal_node],
+                outgroup_bases=[outgroup_base1, outgroup_base2],
+                params=params,
+                model=model
+            )
+
+            p_expected = (model._get_prob(base, internal_node, 0, params) *
+                          model._get_prob(internal_node, outgroup_base1, 1, params) *
+                          model._get_prob(internal_node, outgroup_base2, 2, params))
+
+            self.assertEqual(p, p_expected)
+
+    def test_get_p_site_outgroup_ancestral_allele_annotation_three_outgroups(self):
+        """
+        Test the get_p_site function with three outgroups.
+        """
+        params = dict(
+            k=2,
+            K0=0.5,
+            K1=0.25,
+            K2=0.125,
+            K3=0.0625,
+            K4=0.03125
+        )
+
+        model = K2SubstitutionModel()
+
+        for base, out1, out2, out3, int_node1, int_node2 in itertools.product(range(4), repeat=6):
+            p = OutgroupAncestralAlleleAnnotation.get_p_tree(
+                base=base,
+                n_outgroups=3,
+                internal_nodes=[int_node1, int_node2],
+                outgroup_bases=[out1, out2, out3],
+                model=model,
+                params=dict(
+                    k=2,
+                    K0=0.5,
+                    K1=0.25,
+                    K2=0.125,
+                    K3=0.0625,
+                    K4=0.03125
+                )
+            )
+
+            p_expected = (model._get_prob(base, int_node1, 0, params) *
+                          model._get_prob(int_node1, out1, 1, params) *
+                          model._get_prob(int_node1, int_node2, 2, params) *
+                          model._get_prob(int_node2, out2, 3, params) *
+                          model._get_prob(int_node2, out3, 4, params))
+
+            self.assertEqual(p, p_expected)
+
+    def test_site_configurations_without_prior(self):
+        """
+        Test the site_configurations function without a prior.
+        """
+        anc = OutgroupAncestralAlleleAnnotation.from_data(
+            n_major=[13, 15, 17, 11],
+            major_bases=['A', 'C', 'G', 'T'],
+            minor_bases=['C', 'G', 'T', 'A'],
+            outgroup_bases=[['A', 'C'], ['G', 'G'], ['G', 'G'], ['A', 'A']],
+            n_ingroups=20
+        )
+
+    def test_outgroup_ancestral_allele_annotation_fixed_params_different_branch_rates(self):
+        """
+        Test the OutgroupAncestralAlleleAnnotation class with fixed parameters and different branch rates.
+        """
+        anc = OutgroupAncestralAlleleAnnotation.from_est_sfs(
+            file="resources/EST-SFS/TEST-DATA.TXT",
+            n_runs_rate=10,
+            parallelize=True,
+            model=K2SubstitutionModel(fixed_params=dict(k=2, K0=0.5, K2=0.125))
+        )
+
+        anc.infer()
+
+        self.assertEqual(anc.params_mle['k'], 2)
+        self.assertEqual(anc.params_mle['K0'], 0.5)
+        self.assertEqual(anc.params_mle['K2'], 0.125)
+        self.assertNotEqual(anc.params_mle['K1'], 0.5)
+        self.assertNotEqual(anc.params_mle['K3'], 0.125)
+
+    def test_outgroup_ancestral_allele_annotation_fixed_params_same_branch_rates(self):
+        """
+        Test the OutgroupAncestralAlleleAnnotation class with fixed parameters and same branch rates.
+        """
+        anc = OutgroupAncestralAlleleAnnotation.from_est_sfs(
+            file="resources/EST-SFS/TEST-DATA.TXT",
+            n_runs_rate=10,
+            parallelize=True,
+            model=K2SubstitutionModel(fixed_params=dict(k=2, K=0.5), pool_branch_rates=True)
+        )
+
+        anc.infer()
+
+        self.assertEqual(anc.params_mle['k'], 2)
+        self.assertEqual(anc.params_mle['K'], 0.5)
+
+    @staticmethod
+    def test_outgroup_ancestral_allele_annotation_expected_ancestral_alleles_fixed_branch_rate():
+        """
+        Test the OutgroupAncestralAlleleAnnotation class with fixed branch rates and expected ancestral alleles.
+        """
+        configs = [
+            dict(n_major=15, major_base='A', minor_base='C', outgroup_bases=['A'], ancestral_expected='A'),
+            dict(n_major=15, major_base='G', minor_base=None, outgroup_bases=['G'], ancestral_expected='G'),
+            dict(n_major=15, major_base='C', minor_base='A', outgroup_bases=[], ancestral_expected='C'),
+            dict(n_major=15, major_base='A', minor_base='T', outgroup_bases=['A', 'T'], ancestral_expected='A'),
+            dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['T', 'C', 'C'], ancestral_expected='T'),
+            dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['G'], ancestral_expected='T'),
+            dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['C', 'T'], ancestral_expected='T'),
+            dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['T', 'C', 'C'], ancestral_expected='T'),
+            dict(n_major=15, major_base='G', minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='G'),
+            dict(n_major=15, major_base=None, minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected=None),
+        ]
+
+        anc = OutgroupAncestralAlleleAnnotation.from_data(
+            n_major=[c['n_major'] for c in configs],
+            major_bases=[c['major_base'] for c in configs],
+            minor_bases=[c['minor_base'] for c in configs],
+            outgroup_bases=[c['outgroup_bases'] for c in configs],
+            n_ingroups=20,
+            use_prior=False,
+            model=JCSubstitutionModel(pool_branch_rates=True, fixed_params=dict(K=0.1)),
+            parallelize=False
+        )
+
+        anc.infer()
+
+        observed = anc.get_ancestral_bases()
+        expected = [c['ancestral_expected'] for c in configs]
+
+        testing.assert_array_equal(observed, expected)
+
+    def test_outgroup_ancestral_allele_annotation_raises_error_when_zero_outgroups_given(self):
+        """
+        Test that an error is raised when zero outgroups are given.
+        """
+        with self.assertRaises(ValueError):
+            OutgroupAncestralAlleleAnnotation(
+                outgroups=[],
+                n_ingroups=10
+            )
+
+    def test_outgroup_ancestral_allele_annotation_outgroup_not_found_raises_error(self):
+        """
+        Test that an error is raised when an outgroup is not found.
+        """
+        with self.assertRaises(ValueError) as context:
+            anc = OutgroupAncestralAlleleAnnotation(
+                outgroups=["ERR2103730", "blabla"],
+                n_ingroups=10
+            )
+
+            ann = Annotator(
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+                output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+                annotations=[anc]
+            )
+
+            ann.annotate()
+
+        # Print the caught error message
+        print("Caught error: " + str(context.exception))
+
+    def test_outgroup_ancestral_allele_annotation_ingroup_not_found_raises_error(self):
+        """
+        Test that an error is raised when an outgroup is not found.
+        """
+        with self.assertRaises(ValueError) as context:
+            anc = OutgroupAncestralAlleleAnnotation(
+                ingroups=["ASP04", "ASP05", "blabla", "foo"],
+                outgroups=["ERR2103730", "ERR2103731"],
+                n_ingroups=4
+            )
+
+            ann = Annotator(
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+                output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+                annotations=[anc]
+            )
+
+            ann.annotate()
+
+        # Print the caught error message
+        print("Caught error: " + str(context.exception))
+
+    def test_outgroup_ancestral_allele_annotation_fewer_ingroups_than_ingroup_samples_raises_error(self):
+        """
+        Test that an error is raised when an outgroup is not found.
+        """
+        with self.assertRaises(ValueError) as context:
+            anc = OutgroupAncestralAlleleAnnotation(
+                ingroups=["ASP04", "ASP05"],
+                outgroups=["ERR2103730", "ERR2103731"],
+                n_ingroups=10
+            )
+
+            ann = Annotator(
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+                output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+                annotations=[anc]
+            )
+
+            ann.annotate()
+
+        # Print the caught error message
+        print("Caught error: " + str(context.exception))
+
+    def test_outgroup_ancestral_allele_annotation_fewer_outgroups_than_outgroup_samples_raises_error(self):
+        """
+        Test that an error is raised when an outgroup is not found.
+        """
+        with self.assertRaises(ValueError) as context:
+            anc = OutgroupAncestralAlleleAnnotation(
+                ingroups=["ASP04", "ASP05"],
+                outgroups=["ERR2103730", "ERR2103731"],
+                n_ingroups=2,
+                n_outgroups=3
+            )
+
+            ann = Annotator(
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+                output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+                annotations=[anc]
+            )
+
+            ann.annotate()
+
+        # Print the caught error message
+        print("Caught error: " + str(context.exception))
+
+    def test_outgroup_ancestral_allele_annotation_explicitly_specified_present_samples_raises_no_error(self):
+        """
+        Test that an error is raised when an outgroup is not found.
+        """
+        anc = OutgroupAncestralAlleleAnnotation(
+            ingroups=["ASP04", "ASP05"],
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_ingroups=2,
+            n_outgroups=2
+        )
+
+        ann = Annotator(
+            vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            annotations=[anc]
+        )
+
+        ann.annotate()
+
+    def test_get_likelihood_outgroup_ancestral_allele_annotation(self):
+        """
+        Test the get_likelihood function.
+        """
+        anc = OutgroupAncestralAlleleAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_ingroups=10,
+            use_prior=False
+        )
+
+        ann = Annotator(
+            vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            annotations=[anc],
+            max_sites=10000
+        )
+
+        ann.annotate()
+
+        self.assertEqual(anc.evaluate_likelihood_rates(anc.params_mle), anc.likelihood)
+
+    def test_get_likelihood_outgroup_ancestral_allele_annotation_full_betula_dataset(self):
+        """
+        Test the get_likelihood function.
+
+        TODO get biallelic dataset with outgroups
+        """
+        anc = OutgroupAncestralAlleleAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_ingroups=10,
+            use_prior=False
+        )
+
+        ann = Annotator(
+            vcf="resources/genome/betula/all.vcf.gz",
+            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            annotations=[anc]
+        )
+
+        ann.annotate()
+
+        self.assertEqual(anc.evaluate_likelihood_rates(anc.params_mle), anc.likelihood)
+
+    def test_from_est_sfs_input(self):
+        """
+        Test the from_est_sfs_input function.
+        """
+        anc = OutgroupAncestralAlleleAnnotation.from_est_sfs(
+            file="resources/EST-SFS/TEST-DATA.TXT",
+            model=JCSubstitutionModel(pool_branch_rates=True),
+            n_runs_rate=10,
+            use_prior=False,
+            parallelize=True
+        )
+
+        anc.infer()
+
+        probs = anc.get_probs()
+
+        self.assertTrue(np.all((probs >= 0) & (probs <= 1)))
+
+        sfs = anc.get_sfs().to_numpy()
+
+        pass
+
+    @staticmethod
+    def test_from_est_sfs_chunked():
+        """
+        Test that the chunked and non-chunked version of the from_est_sfs function return the same results.
+        """
+        anc1 = OutgroupAncestralAlleleAnnotation.from_est_sfs(
+            file="resources/EST-SFS/TEST-DATA.TXT",
+            chunk_size=5
+        )
+
+        anc2 = OutgroupAncestralAlleleAnnotation.from_est_sfs(
+            file="resources/EST-SFS/TEST-DATA.TXT",
+            chunk_size=100
+        )
+
+        cols = ['n_major', 'major_base', 'minor_base', 'outgroup_bases']
+
+        assert_frame_equal(
+            anc1.configs.sort_values(by=cols).reset_index(drop=True).sort_index(axis=1),
+            anc2.configs.sort_values(by=cols).reset_index(drop=True).sort_index(axis=1)
+        )
+
+    def test_parallelize_unequal_likelihoods(self):
+        """
+        Test that the parallelize function works correctly when the likelihoods are not equal.
+        """
+        anc = OutgroupAncestralAlleleAnnotation.from_est_sfs(
+            file="resources/EST-SFS/TEST-DATA.TXT",
+            n_runs_rate=10,
+            parallelize=True
+        )
+
+        anc.infer()
+
+        assert not np.all(anc.likelihoods[0] == anc.likelihoods)
+
+    def test_from_data_chunked(self):
+        """
+        Test that the from_data function produces the expected results.
+        """
+        anc = OutgroupAncestralAlleleAnnotation.from_data(
+            n_major=[13, 15, 17, 11],
+            major_bases=['A', 'C', 'G', 'T'],
+            minor_bases=['C', 'G', 'T', 'A'],
+            outgroup_bases=[['A', 'C'], ['G', 'G'], ['G', 'G'], ['A', 'A']],
+            n_ingroups=20
+        )
+
+        cols = ['n_major', 'major_base', 'minor_base', 'outgroup_bases', 'sites', 'multiplicity']
+
+        self.assertDictEqual(anc.configs[cols].to_dict(), {
+            'major_base': {0: 0, 1: 1, 2: 2, 3: 3},
+            'minor_base': {0: 1, 1: 2, 2: 3, 3: 0},
+            'outgroup_bases': {0: (0, 1), 1: (2, 2), 2: (2, 2), 3: (0, 0)},
+            'n_major': {0: 13, 1: 15, 2: 17, 3: 11},
+            'sites': {0: [0], 1: [1], 2: [2], 3: [3]},
+            'multiplicity': {0: 1, 1: 1, 2: 1, 3: 1},
+        })
+
+    def test_outgroup_ancestral_allele_annotation_upper_bounds_larger_than_lower_bounds_raises_value_error(self):
+        """
+        Test that a ValueError is raised when the lower bound of a parameter is negative.
+        """
+        with self.assertRaises(ValueError):
+            OutgroupAncestralAlleleAnnotation(
+                outgroups=["ERR2103730", "ERR2103731"],
+                n_runs_rate=3,
+                n_ingroups=5
+            )
+
+    @staticmethod
+    def test_outgroup_ancestral_allele_annotation_pendula_thorough():
+        """
+        Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
+        """
+        anc = OutgroupAncestralAlleleAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_runs_rate=50,
+            n_ingroups=10
+        )
+
+        ann = Annotator(
+            vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            annotations=[anc]
+        )
+
+        ann.annotate()
+
+        anc.evaluate_likelihood_rates(anc.params_mle)
+
+    @staticmethod
+    def test_outgroup_ancestral_allele_annotation_pendula_use_prior_K2_model():
+        """
+        Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
+        """
+        anc = OutgroupAncestralAlleleAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_runs_rate=10,
+            n_ingroups=5,
+            model=K2SubstitutionModel(bounds=dict(k=(0.001, 100), K=(0.01, 0.1))),
+            use_prior=False
+        )
+
+        ann = Annotator(
+            vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            annotations=[anc],
+            max_sites=1000
+        )
+
+        ann.annotate()
+
+        pass
+
+    @staticmethod
+    def test_outgroup_ancestral_allele_annotation_pendula_use_prior_JC_model():
+        """
+        Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
+        """
+        anc = OutgroupAncestralAlleleAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_runs_rate=3,
+            n_ingroups=5,
+            model=JCSubstitutionModel(bounds=dict(K=(0.01, 0.1)))
+        )
+
+        ann = Annotator(
+            vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            annotations=[anc],
+            max_sites=1000
+        )
+
+        ann.annotate()
+
+        pass
+
+    @staticmethod
+    def test_outgroup_ancestral_allele_annotation_pendula_not_use_prior():
+        """
+        Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
+        """
+        anc = OutgroupAncestralAlleleAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_runs_rate=3,
+            n_ingroups=5,
+            use_prior=False
+        )
+
+        ann = Annotator(
+            vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            annotations=[anc],
+            max_sites=1000
+        )
+
+        ann.annotate()
