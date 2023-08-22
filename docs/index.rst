@@ -18,26 +18,28 @@ fastDFE is a package for fast, flexible, and hierarchical inference of the distr
    reference/introduction
 
 .. toctree::
-   :caption: Getting Started (Python)
-
-   reference/installation_python
-   reference/quickstart_python
-
-.. toctree::
-   :caption: Getting Started (R)
-
-   reference/installation_r
-   reference/quickstart_r
-
-.. toctree::
    :caption: Python Reference
 
-   reference/inference
-   reference/config
-   reference/parametrizations
-   reference/spectra
-   reference/parser
-   reference/miscellaneous
+   reference/Python/installation
+   reference/Python/quickstart
+   reference/Python/inference
+   reference/Python/config
+   reference/Python/parametrizations
+   reference/Python/spectra
+   reference/Python/parser
+   reference/Python/miscellaneous
+
+.. toctree::
+   :caption: R Reference
+
+   reference/R/installation
+   reference/R/quickstart
+   reference/R/inference
+   reference/R/config
+   reference/R/parametrizations
+   reference/R/spectra
+   reference/R/parser
+   reference/R/miscellaneous
 
 .. toctree::
    :caption: API Reference

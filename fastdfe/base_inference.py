@@ -45,17 +45,17 @@ class BaseInference(AbstractInference):
     Base inference class for inferring the SFS given one neutral and one selected SFS.
     Note that BaseInference is by default seeded.
 
-    Basic usage:
+    Example usage:
 
     ::
 
-        from fastdfe import Spectrum, BaseInference
+        import fastdfe as fd
 
-        sfs_neut = Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
-        sfs_sel = Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+        sfs_neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+        sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
 
         # create inference object
-        inf = BaseInference(
+        inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
             n_runs=10,

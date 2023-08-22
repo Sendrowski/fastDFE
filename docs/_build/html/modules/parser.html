@@ -51,30 +51,33 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/introduction.html">Introduction</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Getting Started (Python)</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/installation_python.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/quickstart_python.html">Quickstart</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Getting Started (R)</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/installation_r.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/quickstart_r.html">Quickstart</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Python Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/inference.html">DFE Inference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/config.html">Configuration files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/spectra.html">Working with SFS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/parser.html">Parsing SFS from VCF file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/miscellaneous.html">Miscellaneous</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/miscellaneous.html">Miscellaneous</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">R Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/parser.html">VCF parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/miscellaneous.html">Miscellaneous</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parametrization.html">Parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parametrization.html">DFE Parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="spectrum.html">Spectrum class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="spectra.html">Spectra class</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">VCF Parsing</a><ul>
@@ -742,33 +745,32 @@ the parser. The annotations are applied in the order they are provided.</p>
 providing a list of filtrations to the parser. By default, we filter out poly-allelic
 sites which is highly recommended as some stratifications assume sites to be at most bi-allelic.</p>
 <p>Example usage:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastdfe</span> <span class="kn">import</span> <span class="n">Parser</span><span class="p">,</span> <span class="n">DegeneracyAnnotation</span><span class="p">,</span> <span class="n">DegeneracyStratification</span><span class="p">,</span> \
-    <span class="n">MaximumParsimonyAnnotation</span><span class="p">,</span> <span class="n">CodingSequenceFiltration</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fastdfe</span> <span class="k">as</span> <span class="nn">fd</span>
 
 <span class="c1"># parse selected and neutral SFS from human chromosome 21</span>
-<span class="n">p</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Parser</span><span class="p">(</span>
     <span class="n">vcf</span><span class="o">=</span><span class="s2">&quot;http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/&quot;</span>
         <span class="s2">&quot;1000_genomes_project/release/20181203_biallelic_SNV/&quot;</span>
         <span class="s2">&quot;ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz&quot;</span><span class="p">,</span>
     <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">annotations</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">DegeneracyAnnotation</span><span class="p">(</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyAnnotation</span><span class="p">(</span>
             <span class="n">fasta_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/&quot;</span>
                        <span class="s2">&quot;dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz&quot;</span><span class="p">,</span>
             <span class="n">gff_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
                      <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz&quot;</span><span class="p">,</span>
             <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr21</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;21&#39;</span><span class="p">])</span>
         <span class="p">),</span>
-        <span class="n">MaximumParsimonyAnnotation</span><span class="p">()</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">MaximumParsimonyAncestralAnnotation</span><span class="p">()</span>
     <span class="p">],</span>
     <span class="n">filtrations</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">CodingSequenceFiltration</span><span class="p">(</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">CodingSequenceFiltration</span><span class="p">(</span>
             <span class="n">gff_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
                      <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz&quot;</span><span class="p">,</span>
             <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr21</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;21&#39;</span><span class="p">])</span>
         <span class="p">)</span>
     <span class="p">],</span>
-    <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span><span class="n">DegeneracyStratification</span><span class="p">()],</span>
+    <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span><span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyStratification</span><span class="p">()],</span>
 <span class="p">)</span>
 
 <span class="n">sfs</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>

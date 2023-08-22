@@ -17,8 +17,8 @@ prioritize_installed_packages()
 from testing import TestCase
 import pytest
 
-from fastdfe import Annotator, MaximumParsimonyAnnotation, Parser, DegeneracyAnnotation, SynonymyAnnotation, \
-    Annotation, OutgroupAncestralAlleleAnnotation, K2SubstitutionModel, JCSubstitutionModel
+from fastdfe import Annotator, MaximumParsimonyAncestralAnnotation, Parser, DegeneracyAnnotation, SynonymyAnnotation, \
+    Annotation, MaximumLikelihoodAncestralAnnotation, K2SubstitutionModel, JCSubstitutionModel
 
 
 class AnnotatorTestCase(TestCase):
@@ -62,7 +62,7 @@ class AnnotatorTestCase(TestCase):
         type(mock_annotator).info_ancestral = PropertyMock(return_value="AA")
 
         for test_case in test_cases:
-            annotation = MaximumParsimonyAnnotation(samples=test_case["ingroups"])
+            annotation = MaximumParsimonyAncestralAnnotation(samples=test_case["ingroups"])
             annotation.annotator = mock_annotator
 
             # Mock the VCF reader with samples
@@ -91,7 +91,7 @@ class AnnotatorTestCase(TestCase):
         ann = Annotator(
             vcf=self.vcf_file,
             output='scratch/test_maximum_parsimony_annotation.vcf',
-            annotations=[MaximumParsimonyAnnotation()],
+            annotations=[MaximumParsimonyAncestralAnnotation()],
             info_ancestral='BB'
         )
 
@@ -364,18 +364,22 @@ class AnnotatorTestCase(TestCase):
 
         pass
 
-    def test_outgroup_ancestral_allele_annotation_negative_lower_bounds_raises_value_error(self):
+
+class MaximumLikelihoodAncestralAnnotationTest(TestCase):
+
+    def test_negative_lower_bounds_raises_value_error(self):
         """
         Test that a ValueError is raised when the lower bound of a parameter is negative.
         """
         with self.assertRaises(ValueError):
-            OutgroupAncestralAlleleAnnotation(
+            MaximumLikelihoodAncestralAnnotation(
                 outgroups=["ERR2103730", "ERR2103731"],
                 n_runs_rate=3,
-                n_ingroups=5
+                n_ingroups=5,
+                model=JCSubstitutionModel(bounds=dict(k=(-1, 1)))
             )
 
-    def test_get_p_tree_outgroup_ancestral_allele_annotation_one_outgroup(self):
+    def test_get_p_tree_one_outgroup(self):
         """
         Test the get_p_tree function with one outgroup.
         """
@@ -387,7 +391,7 @@ class AnnotatorTestCase(TestCase):
         model = K2SubstitutionModel()
 
         for base, outgroup_base in itertools.product(range(4), range(4)):
-            p = OutgroupAncestralAlleleAnnotation.get_p_tree(
+            p = MaximumLikelihoodAncestralAnnotation.get_p_tree(
                 base=base,
                 n_outgroups=1,
                 internal_nodes=[],
@@ -408,7 +412,7 @@ class AnnotatorTestCase(TestCase):
 
             self.assertEqual(p, p_expected)
 
-    def test_get_p_tree_outgroup_ancestral_allele_annotation_two_outgroups(self):
+    def test_get_p_tree_two_outgroups(self):
         """
         Test the get_p_tree function with two outgroups.
         """
@@ -422,7 +426,7 @@ class AnnotatorTestCase(TestCase):
         model = K2SubstitutionModel()
 
         for base, outgroup_base1, outgroup_base2, internal_node in itertools.product(range(4), repeat=4):
-            p = OutgroupAncestralAlleleAnnotation.get_p_tree(
+            p = MaximumLikelihoodAncestralAnnotation.get_p_tree(
                 base=base,
                 n_outgroups=2,
                 internal_nodes=[internal_node],
@@ -437,7 +441,7 @@ class AnnotatorTestCase(TestCase):
 
             self.assertEqual(p, p_expected)
 
-    def test_get_p_site_outgroup_ancestral_allele_annotation_three_outgroups(self):
+    def test_get_p_site_three_outgroups(self):
         """
         Test the get_p_site function with three outgroups.
         """
@@ -453,7 +457,7 @@ class AnnotatorTestCase(TestCase):
         model = K2SubstitutionModel()
 
         for base, out1, out2, out3, int_node1, int_node2 in itertools.product(range(4), repeat=6):
-            p = OutgroupAncestralAlleleAnnotation.get_p_tree(
+            p = MaximumLikelihoodAncestralAnnotation.get_p_tree(
                 base=base,
                 n_outgroups=3,
                 internal_nodes=[int_node1, int_node2],
@@ -481,7 +485,7 @@ class AnnotatorTestCase(TestCase):
         """
         Test the site_configurations function without a prior.
         """
-        anc = OutgroupAncestralAlleleAnnotation.from_data(
+        anc = MaximumLikelihoodAncestralAnnotation.from_data(
             n_major=[13, 15, 17, 11],
             major_bases=['A', 'C', 'G', 'T'],
             minor_bases=['C', 'G', 'T', 'A'],
@@ -489,11 +493,11 @@ class AnnotatorTestCase(TestCase):
             n_ingroups=20
         )
 
-    def test_outgroup_ancestral_allele_annotation_fixed_params_different_branch_rates(self):
+    def test_fixed_params_different_branch_rates(self):
         """
-        Test the OutgroupAncestralAlleleAnnotation class with fixed parameters and different branch rates.
+        Test the MaximumLikelihoodAncestralAnnotation class with fixed parameters and different branch rates.
         """
-        anc = OutgroupAncestralAlleleAnnotation.from_est_sfs(
+        anc = MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/TEST-DATA.TXT",
             n_runs_rate=10,
             parallelize=True,
@@ -508,11 +512,11 @@ class AnnotatorTestCase(TestCase):
         self.assertNotEqual(anc.params_mle['K1'], 0.5)
         self.assertNotEqual(anc.params_mle['K3'], 0.125)
 
-    def test_outgroup_ancestral_allele_annotation_fixed_params_same_branch_rates(self):
+    def test_fixed_params_same_branch_rates(self):
         """
-        Test the OutgroupAncestralAlleleAnnotation class with fixed parameters and same branch rates.
+        Test the MaximumLikelihoodAncestralAnnotation class with fixed parameters and same branch rates.
         """
-        anc = OutgroupAncestralAlleleAnnotation.from_est_sfs(
+        anc = MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/TEST-DATA.TXT",
             n_runs_rate=10,
             parallelize=True,
@@ -525,9 +529,9 @@ class AnnotatorTestCase(TestCase):
         self.assertEqual(anc.params_mle['K'], 0.5)
 
     @staticmethod
-    def test_outgroup_ancestral_allele_annotation_expected_ancestral_alleles_fixed_branch_rate():
+    def test_expected_ancestral_alleles_fixed_branch_rate():
         """
-        Test the OutgroupAncestralAlleleAnnotation class with fixed branch rates and expected ancestral alleles.
+        Test the MaximumLikelihoodAncestralAnnotation class with fixed branch rates and expected ancestral alleles.
         """
         configs = [
             dict(n_major=15, major_base='A', minor_base='C', outgroup_bases=['A'], ancestral_expected='A'),
@@ -539,10 +543,10 @@ class AnnotatorTestCase(TestCase):
             dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['C', 'T'], ancestral_expected='T'),
             dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['T', 'C', 'C'], ancestral_expected='T'),
             dict(n_major=15, major_base='G', minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='G'),
-            dict(n_major=15, major_base=None, minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected=None),
+            dict(n_major=15, major_base=None, minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='N'),
         ]
 
-        anc = OutgroupAncestralAlleleAnnotation.from_data(
+        anc = MaximumLikelihoodAncestralAnnotation.from_data(
             n_major=[c['n_major'] for c in configs],
             major_bases=[c['major_base'] for c in configs],
             minor_bases=[c['minor_base'] for c in configs],
@@ -560,29 +564,29 @@ class AnnotatorTestCase(TestCase):
 
         testing.assert_array_equal(observed, expected)
 
-    def test_outgroup_ancestral_allele_annotation_raises_error_when_zero_outgroups_given(self):
+    def test_raises_error_when_zero_outgroups_given(self):
         """
         Test that an error is raised when zero outgroups are given.
         """
         with self.assertRaises(ValueError):
-            OutgroupAncestralAlleleAnnotation(
+            MaximumLikelihoodAncestralAnnotation(
                 outgroups=[],
                 n_ingroups=10
             )
 
-    def test_outgroup_ancestral_allele_annotation_outgroup_not_found_raises_error(self):
+    def test_outgroup_not_found_raises_error(self):
         """
         Test that an error is raised when an outgroup is not found.
         """
         with self.assertRaises(ValueError) as context:
-            anc = OutgroupAncestralAlleleAnnotation(
+            anc = MaximumLikelihoodAncestralAnnotation(
                 outgroups=["ERR2103730", "blabla"],
                 n_ingroups=10
             )
 
             ann = Annotator(
                 vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-                output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+                output='scratch/test_outgroup_not_found_raises_error.vcf',
                 annotations=[anc]
             )
 
@@ -591,12 +595,12 @@ class AnnotatorTestCase(TestCase):
         # Print the caught error message
         print("Caught error: " + str(context.exception))
 
-    def test_outgroup_ancestral_allele_annotation_ingroup_not_found_raises_error(self):
+    def test_ingroup_not_found_raises_error(self):
         """
         Test that an error is raised when an outgroup is not found.
         """
         with self.assertRaises(ValueError) as context:
-            anc = OutgroupAncestralAlleleAnnotation(
+            anc = MaximumLikelihoodAncestralAnnotation(
                 ingroups=["ASP04", "ASP05", "blabla", "foo"],
                 outgroups=["ERR2103730", "ERR2103731"],
                 n_ingroups=4
@@ -604,7 +608,7 @@ class AnnotatorTestCase(TestCase):
 
             ann = Annotator(
                 vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-                output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+                output='scratch/test_ingroup_not_found_raises_error.vcf',
                 annotations=[anc]
             )
 
@@ -613,12 +617,12 @@ class AnnotatorTestCase(TestCase):
         # Print the caught error message
         print("Caught error: " + str(context.exception))
 
-    def test_outgroup_ancestral_allele_annotation_fewer_ingroups_than_ingroup_samples_raises_error(self):
+    def test_fewer_ingroups_than_ingroup_samples_raises_error(self):
         """
         Test that an error is raised when an outgroup is not found.
         """
         with self.assertRaises(ValueError) as context:
-            anc = OutgroupAncestralAlleleAnnotation(
+            anc = MaximumLikelihoodAncestralAnnotation(
                 ingroups=["ASP04", "ASP05"],
                 outgroups=["ERR2103730", "ERR2103731"],
                 n_ingroups=10
@@ -626,7 +630,7 @@ class AnnotatorTestCase(TestCase):
 
             ann = Annotator(
                 vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-                output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+                output='scratch/test_fewer_ingroups_than_ingroup_samples_raises_error.vcf',
                 annotations=[anc]
             )
 
@@ -635,12 +639,12 @@ class AnnotatorTestCase(TestCase):
         # Print the caught error message
         print("Caught error: " + str(context.exception))
 
-    def test_outgroup_ancestral_allele_annotation_fewer_outgroups_than_outgroup_samples_raises_error(self):
+    def test_fewer_outgroups_than_outgroup_samples_raises_error(self):
         """
         Test that an error is raised when an outgroup is not found.
         """
         with self.assertRaises(ValueError) as context:
-            anc = OutgroupAncestralAlleleAnnotation(
+            anc = MaximumLikelihoodAncestralAnnotation(
                 ingroups=["ASP04", "ASP05"],
                 outgroups=["ERR2103730", "ERR2103731"],
                 n_ingroups=2,
@@ -649,7 +653,7 @@ class AnnotatorTestCase(TestCase):
 
             ann = Annotator(
                 vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-                output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+                output='scratch/test_fewer_outgroups_than_outgroup_samples_raises_error.vcf',
                 annotations=[anc]
             )
 
@@ -658,11 +662,11 @@ class AnnotatorTestCase(TestCase):
         # Print the caught error message
         print("Caught error: " + str(context.exception))
 
-    def test_outgroup_ancestral_allele_annotation_explicitly_specified_present_samples_raises_no_error(self):
+    def test_explicitly_specified_present_samples_raises_no_error(self):
         """
         Test that an error is raised when an outgroup is not found.
         """
-        anc = OutgroupAncestralAlleleAnnotation(
+        anc = MaximumLikelihoodAncestralAnnotation(
             ingroups=["ASP04", "ASP05"],
             outgroups=["ERR2103730", "ERR2103731"],
             n_ingroups=2,
@@ -671,7 +675,7 @@ class AnnotatorTestCase(TestCase):
 
         ann = Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            output='scratch/test_explicitly_specified_present_samples_raises_no_error.vcf',
             annotations=[anc]
         )
 
@@ -681,7 +685,7 @@ class AnnotatorTestCase(TestCase):
         """
         Test the get_likelihood function.
         """
-        anc = OutgroupAncestralAlleleAnnotation(
+        anc = MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_ingroups=10,
             use_prior=False
@@ -689,7 +693,7 @@ class AnnotatorTestCase(TestCase):
 
         ann = Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            output='scratch/test_get_likelihood_outgroup_ancestral_allele_annotation.vcf',
             annotations=[anc],
             max_sites=10000
         )
@@ -698,13 +702,13 @@ class AnnotatorTestCase(TestCase):
 
         self.assertEqual(anc.evaluate_likelihood_rates(anc.params_mle), anc.likelihood)
 
-    def test_get_likelihood_outgroup_ancestral_allele_annotation_full_betula_dataset(self):
+    def test_get_likelihood_full_betula_dataset(self):
         """
         Test the get_likelihood function.
 
         TODO get biallelic dataset with outgroups
         """
-        anc = OutgroupAncestralAlleleAnnotation(
+        anc = MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_ingroups=10,
             use_prior=False
@@ -712,7 +716,7 @@ class AnnotatorTestCase(TestCase):
 
         ann = Annotator(
             vcf="resources/genome/betula/all.vcf.gz",
-            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            output='scratch/test_get_likelihood_full_betula_dataset.vcf',
             annotations=[anc]
         )
 
@@ -720,16 +724,18 @@ class AnnotatorTestCase(TestCase):
 
         self.assertEqual(anc.evaluate_likelihood_rates(anc.params_mle), anc.likelihood)
 
-    def test_from_est_sfs_input(self):
+    def test_from_est_sfs_input_valid_probs(self):
         """
-        Test the from_est_sfs_input function.
+        Test that the probabilities returned by the from_est_sfs function are valid.
+
+        TODO solve problem with ancestral probabilities above 1 when using prior
         """
-        anc = OutgroupAncestralAlleleAnnotation.from_est_sfs(
+        anc = MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/TEST-DATA.TXT",
             model=JCSubstitutionModel(pool_branch_rates=True),
             n_runs_rate=10,
-            use_prior=False,
-            parallelize=True
+            use_prior=True,
+            parallelize=False
         )
 
         anc.infer()
@@ -743,32 +749,41 @@ class AnnotatorTestCase(TestCase):
         pass
 
     @staticmethod
-    def test_from_est_sfs_chunked():
+    def test_from_est_sfs_varied_chunk_sizes():
         """
-        Test that the chunked and non-chunked version of the from_est_sfs function return the same results.
+        Test that the chunked and non-chunked versions of the from_est_sfs function return the same
+        results across multiple chunk sizes.
         """
-        anc1 = OutgroupAncestralAlleleAnnotation.from_est_sfs(
+        test_sizes = [1, 2, 5, 11, 30]
+        reference_chunk_size = 100
+
+        # Create a DataFrame using the reference_chunk_size
+        anc_reference = MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/TEST-DATA.TXT",
-            chunk_size=5
+            chunk_size=reference_chunk_size
         )
 
-        anc2 = OutgroupAncestralAlleleAnnotation.from_est_sfs(
-            file="resources/EST-SFS/TEST-DATA.TXT",
-            chunk_size=100
-        )
+        df_reference = anc_reference.configs.sort_values(
+            by=['n_major', 'major_base', 'minor_base', 'outgroup_bases']
+        ).reset_index(drop=True).sort_index(axis=1)
 
-        cols = ['n_major', 'major_base', 'minor_base', 'outgroup_bases']
+        for chunk_size in test_sizes:
+            anc_test = MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+                file="resources/EST-SFS/TEST-DATA.TXT",
+                chunk_size=chunk_size
+            )
 
-        assert_frame_equal(
-            anc1.configs.sort_values(by=cols).reset_index(drop=True).sort_index(axis=1),
-            anc2.configs.sort_values(by=cols).reset_index(drop=True).sort_index(axis=1)
-        )
+            df_test = anc_test.configs.sort_values(
+                by=['n_major', 'major_base', 'minor_base', 'outgroup_bases']
+            ).reset_index(drop=True).sort_index(axis=1)
+
+            assert_frame_equal(df_reference, df_test, check_dtype=False)
 
     def test_parallelize_unequal_likelihoods(self):
         """
         Test that the parallelize function works correctly when the likelihoods are not equal.
         """
-        anc = OutgroupAncestralAlleleAnnotation.from_est_sfs(
+        anc = MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/TEST-DATA.TXT",
             n_runs_rate=10,
             parallelize=True
@@ -782,7 +797,7 @@ class AnnotatorTestCase(TestCase):
         """
         Test that the from_data function produces the expected results.
         """
-        anc = OutgroupAncestralAlleleAnnotation.from_data(
+        anc = MaximumLikelihoodAncestralAnnotation.from_data(
             n_major=[13, 15, 17, 11],
             major_bases=['A', 'C', 'G', 'T'],
             minor_bases=['C', 'G', 'T', 'A'],
@@ -801,23 +816,24 @@ class AnnotatorTestCase(TestCase):
             'multiplicity': {0: 1, 1: 1, 2: 1, 3: 1},
         })
 
-    def test_outgroup_ancestral_allele_annotation_upper_bounds_larger_than_lower_bounds_raises_value_error(self):
+    def test_upper_bounds_larger_than_lower_bounds_raises_value_error(self):
         """
         Test that a ValueError is raised when the lower bound of a parameter is negative.
         """
         with self.assertRaises(ValueError):
-            OutgroupAncestralAlleleAnnotation(
+            MaximumLikelihoodAncestralAnnotation(
                 outgroups=["ERR2103730", "ERR2103731"],
                 n_runs_rate=3,
-                n_ingroups=5
+                n_ingroups=5,
+                model=JCSubstitutionModel(bounds=dict(K=(10, 9)))
             )
 
     @staticmethod
-    def test_outgroup_ancestral_allele_annotation_pendula_thorough():
+    def test_pendula_thorough():
         """
         Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
         """
-        anc = OutgroupAncestralAlleleAnnotation(
+        anc = MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_runs_rate=50,
             n_ingroups=10
@@ -825,7 +841,7 @@ class AnnotatorTestCase(TestCase):
 
         ann = Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            output='scratch/test_pendula_thorough.vcf',
             annotations=[anc]
         )
 
@@ -834,11 +850,11 @@ class AnnotatorTestCase(TestCase):
         anc.evaluate_likelihood_rates(anc.params_mle)
 
     @staticmethod
-    def test_outgroup_ancestral_allele_annotation_pendula_use_prior_K2_model():
+    def test_pendula_use_prior_K2_model():
         """
         Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
         """
-        anc = OutgroupAncestralAlleleAnnotation(
+        anc = MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_runs_rate=10,
             n_ingroups=5,
@@ -848,7 +864,7 @@ class AnnotatorTestCase(TestCase):
 
         ann = Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            output='scratch/test_pendula_use_prior_K2_model.vcf',
             annotations=[anc],
             max_sites=1000
         )
@@ -858,11 +874,11 @@ class AnnotatorTestCase(TestCase):
         pass
 
     @staticmethod
-    def test_outgroup_ancestral_allele_annotation_pendula_use_prior_JC_model():
+    def test_pendula_use_prior_JC_model():
         """
         Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
         """
-        anc = OutgroupAncestralAlleleAnnotation(
+        anc = MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_runs_rate=3,
             n_ingroups=5,
@@ -871,7 +887,7 @@ class AnnotatorTestCase(TestCase):
 
         ann = Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            output='scratch/test_pendula_use_prior_JC_model.vcf',
             annotations=[anc],
             max_sites=1000
         )
@@ -881,11 +897,11 @@ class AnnotatorTestCase(TestCase):
         pass
 
     @staticmethod
-    def test_outgroup_ancestral_allele_annotation_pendula_not_use_prior():
+    def test_pendula_not_use_prior():
         """
         Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
         """
-        anc = OutgroupAncestralAlleleAnnotation(
+        anc = MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_runs_rate=3,
             n_ingroups=5,
@@ -894,7 +910,7 @@ class AnnotatorTestCase(TestCase):
 
         ann = Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-            output='scratch/test_outgroup_ancestral_allele_annotation_pendula.vcf',
+            output='scratch/test_pendula_not_use_prior.vcf',
             annotations=[anc],
             max_sites=1000
         )

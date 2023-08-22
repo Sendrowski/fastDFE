@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parametrizations &mdash; fastDFE beta documentation</title>
+  <title>DFE Parametrizations &mdash; fastDFE beta documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -52,30 +52,33 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/introduction.html">Introduction</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Getting Started (Python)</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/installation_python.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/quickstart_python.html">Quickstart</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Getting Started (R)</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/installation_r.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/quickstart_r.html">Quickstart</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Python Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/inference.html">DFE Inference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/config.html">Configuration files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/spectra.html">Working with SFS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/parser.html">Parsing SFS from VCF file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/miscellaneous.html">Miscellaneous</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/miscellaneous.html">Miscellaneous</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">R Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/parser.html">VCF parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/miscellaneous.html">Miscellaneous</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration class</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Parametrizations</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DFE Parametrizations</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.parametrization.Parametrization"><code class="docutils literal notranslate"><span class="pre">Parametrization</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.x0"><code class="docutils literal notranslate"><span class="pre">Parametrization.x0</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parametrization.Parametrization.bounds"><code class="docutils literal notranslate"><span class="pre">Parametrization.bounds</span></code></a></li>
@@ -163,7 +166,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Parametrizations</li>
+      <li class="breadcrumb-item active">DFE Parametrizations</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/modules/parametrization.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -174,7 +177,7 @@
            <div itemprop="articleBody">
              
   <section id="module-fastdfe.parametrization">
-<span id="parametrizations"></span><span id="modules-parametrization"></span><h1>Parametrizations<a class="headerlink" href="#module-fastdfe.parametrization" title="Permalink to this heading"></a></h1>
+<span id="dfe-parametrizations"></span><span id="modules-parametrization"></span><h1>DFE Parametrizations<a class="headerlink" href="#module-fastdfe.parametrization" title="Permalink to this heading"></a></h1>
 <p>DFE parametrizations.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="fastdfe.parametrization.Parametrization">

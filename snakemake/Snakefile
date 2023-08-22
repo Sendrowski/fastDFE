@@ -178,7 +178,8 @@ rule all:
 
             # tests
             #expand("results/testing/{config}_bootstrapped_100/overlapping_confidence_intervals.txt",config=configs)
-            expand("results/graphs/comp/spectra/[default,vep,vep_biallelic,vep_biallelic_coding]/hgdp/1/opts.n.10/all.png")
+            #expand("results/graphs/comp/spectra/[default,vep,vep_biallelic,vep_biallelic_coding]/hgdp/1/opts.n.10/all.png")
+            "../docs/requirements.txt"
         )
 
 # fetch the postprocessing script from the GitHub repository

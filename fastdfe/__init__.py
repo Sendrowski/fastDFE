@@ -6,7 +6,7 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-03-10"
 
-__version__ = '0.1.8-beta'
+__version__ = '1.0.0'
 
 import logging
 import sys
@@ -130,7 +130,7 @@ from .parser import Parser, Stratification, BaseTransitionStratification, BaseCo
     DegeneracyStratification, TransitionTransversionStratification, AncestralBaseStratification, \
     SynonymyStratification, VEPStratification, SnpEffStratification, ContigStratification, ChunkedStratification
 from .bio_handlers import VCFHandler
-from .annotation import Annotator, Annotation, MaximumParsimonyAnnotation, OutgroupAncestralAlleleAnnotation, \
+from .annotation import Annotator, Annotation, MaximumParsimonyAncestralAnnotation, MaximumLikelihoodAncestralAnnotation, \
     DegeneracyAnnotation, SynonymyAnnotation, SubstitutionModel, K2SubstitutionModel, JCSubstitutionModel
 from .filtration import Filterer, Filtration, SNPFiltration, PolyAllelicFiltration, CodingSequenceFiltration, \
     SNVFiltration, DeviantOutgroupFiltration, AllFiltration, NoFiltration, BiasedGCConversionFiltration
@@ -164,8 +164,8 @@ __all__ = [
     'ChunkedStratification',
     'Annotator',
     'Annotation',
-    'MaximumParsimonyAnnotation',
-    'OutgroupAncestralAlleleAnnotation',
+    'MaximumParsimonyAncestralAnnotation',
+    'MaximumLikelihoodAncestralAnnotation',
     'SubstitutionModel',
     'K2SubstitutionModel',
     'JCSubstitutionModel',

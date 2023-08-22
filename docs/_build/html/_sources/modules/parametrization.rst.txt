@@ -1,7 +1,7 @@
 .. _modules.parametrization:
 
-Parametrizations
-----------------
+DFE Parametrizations
+--------------------
 
 .. automodule:: fastdfe.parametrization
    :members:

@@ -13,7 +13,7 @@ import dadi
 import numpy as np
 
 from fastdfe import DegeneracyStratification, BaseTransitionStratification, TransitionTransversionStratification, \
-    BaseContextStratification, AncestralBaseStratification, Parser, DegeneracyAnnotation, MaximumParsimonyAnnotation, \
+    BaseContextStratification, AncestralBaseStratification, Parser, DegeneracyAnnotation, MaximumParsimonyAncestralAnnotation, \
     CodingSequenceFiltration, VEPStratification, SnpEffStratification, SynonymyAnnotation, ContigStratification, \
     ChunkedStratification, AllFiltration, SynonymyStratification
 
@@ -247,7 +247,7 @@ class ParserTestCase(TestCase):
             gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
         )
 
-        aa = MaximumParsimonyAnnotation()
+        aa = MaximumParsimonyAncestralAnnotation()
 
         f = CodingSequenceFiltration(
             gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
@@ -280,7 +280,7 @@ class ParserTestCase(TestCase):
                     fasta_file="resources/genome/betula/genome.subset.20.fasta",
                     gff_file="resources/genome/betula/genome.gff.gz"
                 ),
-                MaximumParsimonyAnnotation()
+                MaximumParsimonyAncestralAnnotation()
             ],
             filtrations=[
                 CodingSequenceFiltration(
@@ -306,7 +306,7 @@ class ParserTestCase(TestCase):
                     fasta_file="resources/genome/betula/genome.subset.20.fasta",
                     gff_file="resources/genome/betula/genome.gff.gz"
                 ),
-                MaximumParsimonyAnnotation()
+                MaximumParsimonyAncestralAnnotation()
             ],
             filtrations=[
                 CodingSequenceFiltration(
@@ -360,7 +360,7 @@ class ParserTestCase(TestCase):
                     fasta_file="resources/genome/betula/genome.subset.20.fasta",
                     gff_file="resources/genome/betula/genome.gff.gz"
                 ),
-                MaximumParsimonyAnnotation()
+                MaximumParsimonyAncestralAnnotation()
             ],
             filtrations=[
                 CodingSequenceFiltration(
@@ -444,7 +444,7 @@ class ParserTestCase(TestCase):
                              "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
                     aliases=dict(chr21=['21'])
                 ),
-                MaximumParsimonyAnnotation()
+                MaximumParsimonyAncestralAnnotation()
             ],
             filtrations=[
                 CodingSequenceFiltration(

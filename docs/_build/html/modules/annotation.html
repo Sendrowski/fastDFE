@@ -51,30 +51,33 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/introduction.html">Introduction</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Getting Started (Python)</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/installation_python.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/quickstart_python.html">Quickstart</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Getting Started (R)</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/installation_r.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/quickstart_r.html">Quickstart</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Python Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/inference.html">DFE Inference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/config.html">Configuration files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/parametrizations.html">DFE parametrizations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/spectra.html">Working with SFS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/parser.html">Parsing SFS from VCF file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/miscellaneous.html">Miscellaneous</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/Python/miscellaneous.html">Miscellaneous</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">R Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/parser.html">VCF parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/miscellaneous.html">Miscellaneous</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parametrization.html">Parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parametrization.html">DFE Parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="spectrum.html">Spectrum class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="spectra.html">Spectra class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parser.html">VCF Parsing</a></li>
@@ -86,13 +89,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.n_annotated"><code class="docutils literal notranslate"><span class="pre">Annotation.n_annotated</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">Annotation.annotate_site()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.count_target_sites"><code class="docutils literal notranslate"><span class="pre">Annotation.count_target_sites()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.AncestralAlleleAnnotation"><code class="docutils literal notranslate"><span class="pre">AncestralAlleleAnnotation</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.MaximumParsimonyAnnotation"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAnnotation</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumParsimonyAnnotation.__init__"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAnnotation.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumParsimonyAnnotation.samples"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAnnotation.samples</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumParsimonyAnnotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAnnotation.annotate_site()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation</span></code></a><ul>
@@ -119,6 +115,105 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation.mutate"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.mutate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation.is_synonymous"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.is_synonymous()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SynonymyAnnotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">SynonymyAnnotation.annotate_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.AncestralAlleleAnnotation"><code class="docutils literal notranslate"><span class="pre">AncestralAlleleAnnotation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.MaximumParsimonyAncestralAnnotation"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAncestralAnnotation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumParsimonyAncestralAnnotation.__init__"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAncestralAnnotation.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumParsimonyAncestralAnnotation.samples"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAncestralAnnotation.samples</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumParsimonyAncestralAnnotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">MaximumParsimonyAncestralAnnotation.annotate_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.transitions"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.transitions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.__init__"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.pool_branch_rates"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.pool_branch_rates</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.fixed_params"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.fixed_params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.bounds"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.cache"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.cache()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.get_x0"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.get_x0()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.get_bounds"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.get_bounds()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.validate_bounds"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.validate_bounds()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.get_prob"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.get_prob()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.JCSubstitutionModel"><code class="docutils literal notranslate"><span class="pre">JCSubstitutionModel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.JCSubstitutionModel.__init__"><code class="docutils literal notranslate"><span class="pre">JCSubstitutionModel.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.JCSubstitutionModel.get_bound"><code class="docutils literal notranslate"><span class="pre">JCSubstitutionModel.get_bound()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.JCSubstitutionModel.get_bounds"><code class="docutils literal notranslate"><span class="pre">JCSubstitutionModel.get_bounds()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.K2SubstitutionModel"><code class="docutils literal notranslate"><span class="pre">K2SubstitutionModel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.K2SubstitutionModel.__init__"><code class="docutils literal notranslate"><span class="pre">K2SubstitutionModel.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.K2SubstitutionModel.get_bounds"><code class="docutils literal notranslate"><span class="pre">K2SubstitutionModel.get_bounds()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.SiteConfig"><code class="docutils literal notranslate"><span class="pre">SiteConfig</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SiteConfig.sites"><code class="docutils literal notranslate"><span class="pre">SiteConfig.sites</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SiteConfig.n_major"><code class="docutils literal notranslate"><span class="pre">SiteConfig.n_major</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SiteConfig.major_base"><code class="docutils literal notranslate"><span class="pre">SiteConfig.major_base</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SiteConfig.minor_base"><code class="docutils literal notranslate"><span class="pre">SiteConfig.minor_base</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SiteConfig.outgroup_bases"><code class="docutils literal notranslate"><span class="pre">SiteConfig.outgroup_bases</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SiteConfig.p_ancestral"><code class="docutils literal notranslate"><span class="pre">SiteConfig.p_ancestral</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SiteConfig.p_minor"><code class="docutils literal notranslate"><span class="pre">SiteConfig.p_minor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SiteConfig.p_major"><code class="docutils literal notranslate"><span class="pre">SiteConfig.p_major</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.BaseType"><code class="docutils literal notranslate"><span class="pre">BaseType</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.BaseType.MINOR"><code class="docutils literal notranslate"><span class="pre">BaseType.MINOR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.BaseType.MAJOR"><code class="docutils literal notranslate"><span class="pre">BaseType.MAJOR</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.dtypes"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.dtypes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.group_cols"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.group_cols</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.parallelize"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.parallelize</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.max_sites"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.max_sites</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.use_prior"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.use_prior</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.ingroups"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.ingroups</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_ingroups"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.n_ingroups</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.ingroup_mask"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.ingroup_mask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.outgroups"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.outgroups</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_outgroups"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.n_outgroups</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.outgroup_mask"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.outgroup_mask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_runs_rate"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.n_runs_rate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_runs_polarization"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.n_runs_polarization</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.model"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.reader"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.reader</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.configs"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.configs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.p_bins"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.p_bins</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_sites"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.n_sites</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.param_names"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.param_names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.likelihoods"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.likelihoods</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.likelihood"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.likelihood</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.result"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.result</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.params_mle"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.params_mle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.rng"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.rng</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.prepare_masks"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.prepare_masks()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.subsample"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.subsample()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.parse_variant"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.parse_variant()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_est_sfs"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.from_est_sfs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_data"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.from_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_dataframe"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.from_dataframe()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.load_variants"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.load_variants()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.infer"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.infer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.p_polarization"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.p_polarization</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_p_tree"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_p_tree()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.is_na"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.is_na()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_p_config"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_p_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_p_configs"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_p_configs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.evaluate_likelihood_rates"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.evaluate_likelihood_rates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_likelihood_rates"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_likelihood_rates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_likelihood_polarization"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_likelihood_polarization()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_probs"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_probs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_sfs"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_sfs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_ancestral_base"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_ancestral_base()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_ancestral_bases"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_ancestral_bases()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.calculate_p_ancestral"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.calculate_p_ancestral()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.annotate_site()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.plot_likelihoods"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.plot_likelihoods()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.plot_polarisation"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.plot_polarisation()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.Annotator"><code class="docutils literal notranslate"><span class="pre">Annotator</span></code></a><ul>
@@ -213,56 +308,6 @@
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The number of target sites per chromosome/contig.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="fastdfe.annotation.AncestralAlleleAnnotation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">AncestralAlleleAnnotation</span></span><a class="headerlink" href="#fastdfe.annotation.AncestralAlleleAnnotation" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>Base class for ancestral allele annotation.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAnnotation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">MaximumParsimonyAnnotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAnnotation" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.AncestralAlleleAnnotation" title="fastdfe.annotation.AncestralAlleleAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralAlleleAnnotation</span></code></a></p>
-<p>Annotation of ancestral alleles using maximum parsimony. The info field <code class="docutils literal notranslate"><span class="pre">AA</span></code> is added to the VCF file,
-which holds the ancestral allele. To be used with <a class="reference internal" href="parser.html#fastdfe.parser.AncestralBaseStratification" title="fastdfe.parser.AncestralBaseStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralBaseStratification</span></code></a>.</p>
-<p>Note that maximum parsimony is not a reliable way to determine ancestral alleles, so it is recommended
-to use this annotation together with the ancestral misidentification parameter <code class="docutils literal notranslate"><span class="pre">eps</span></code> or to fold
-spectra altogether. Alternatively, you can use <a class="reference internal" href="filtration.html#fastdfe.filtration.DeviantOutgroupFiltration" title="fastdfe.filtration.DeviantOutgroupFiltration"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration</span></code></a> to
-filter out sites where the major allele among outgroups does not coincide with the major allele among ingroups.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAnnotation.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAnnotation.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Create a new ancestral allele annotation instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>samples</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – The samples to consider when determining the ancestral allele. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, all samples are</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAnnotation.samples">
-<span class="sig-name descname"><span class="pre">samples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAnnotation.samples" title="Permalink to this definition"></a></dt>
-<dd><p>The samples to consider when determining the ancestral allele.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAnnotation.annotate_site">
-<span class="sig-name descname"><span class="pre">annotate_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAnnotation.annotate_site" title="Permalink to this definition"></a></dt>
-<dd><p>Annotate a single site.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to annotate.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The annotated variant.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -471,6 +516,1010 @@ This is used to match the contig names in the VCF file with the contig names in 
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The annotated variant.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.annotation.AncestralAlleleAnnotation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">AncestralAlleleAnnotation</span></span><a class="headerlink" href="#fastdfe.annotation.AncestralAlleleAnnotation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for ancestral allele annotation.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAncestralAnnotation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">MaximumParsimonyAncestralAnnotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAncestralAnnotation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.AncestralAlleleAnnotation" title="fastdfe.annotation.AncestralAlleleAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralAlleleAnnotation</span></code></a></p>
+<p>Annotation of ancestral alleles using maximum parsimony. The info field <code class="docutils literal notranslate"><span class="pre">AA</span></code> is added to the VCF file,
+which holds the ancestral allele. To be used with <a class="reference internal" href="parser.html#fastdfe.parser.AncestralBaseStratification" title="fastdfe.parser.AncestralBaseStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralBaseStratification</span></code></a> and
+<a class="reference internal" href="#fastdfe.annotation.Annotator" title="fastdfe.annotation.Annotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotator</span></code></a> or <a class="reference internal" href="parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>.</p>
+<p>Note that maximum parsimony is not a reliable way to determine ancestral alleles, so it is recommended
+to use this annotation together with the ancestral misidentification parameter <code class="docutils literal notranslate"><span class="pre">eps</span></code> or to fold
+spectra altogether. Alternatively, you can use <a class="reference internal" href="filtration.html#fastdfe.filtration.DeviantOutgroupFiltration" title="fastdfe.filtration.DeviantOutgroupFiltration"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration</span></code></a> to
+filter out sites where the major allele among outgroups does not coincide with the major allele among ingroups.
+This annotation has the advantage of requiring no outgroup data. If outgroup data is available consider using
+:class`MLEAncestralAlleleAnnotation` instead.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAncestralAnnotation.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAncestralAnnotation.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create a new ancestral allele annotation instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – The samples to consider when determining the ancestral allele. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, all samples are
+considered.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAncestralAnnotation.samples">
+<span class="sig-name descname"><span class="pre">samples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAncestralAnnotation.samples" title="Permalink to this definition"></a></dt>
+<dd><p>The samples to consider when determining the ancestral allele.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumParsimonyAncestralAnnotation.annotate_site">
+<span class="sig-name descname"><span class="pre">annotate_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumParsimonyAncestralAnnotation.annotate_site" title="Permalink to this definition"></a></dt>
+<dd><p>Annotate a single site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to annotate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The annotated variant.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">SubstitutionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_branch_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for substitution models.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.transitions">
+<span class="sig-name descname"><span class="pre">transitions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">,</span> <span class="pre">(</span><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code><span class="pre">)]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">array([[0,</span> <span class="pre">2],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[2,</span> <span class="pre">0],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[1,</span> <span class="pre">3],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[3,</span> <span class="pre">1]])</span></em><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.transitions" title="Permalink to this definition"></a></dt>
+<dd><p>The possible transitions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_branch_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create a new substitution model instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bounds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – The bounds for the parameters.</p></li>
+<li><p><strong>pool_branch_rates</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to pool the branch rates. By default, each branch has its own rate which
+is optimized using MLE. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the branch rates are pooled and a single rate is optimized. This is
+useful if the number of sites used is small.</p></li>
+<li><p><strong>fixed_params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The fixed parameters. Parameters that are not fixed are optimized using MLE.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.pool_branch_rates">
+<span class="sig-name descname"><span class="pre">pool_branch_rates</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.pool_branch_rates" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to pool the branch rates.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.fixed_params">
+<span class="sig-name descname"><span class="pre">fixed_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.fixed_params" title="Permalink to this definition"></a></dt>
+<dd><p>The fixed parameters.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]]</span></em><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.bounds" title="Permalink to this definition"></a></dt>
+<dd><p>Parameter bounds.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.cache">
+<span class="sig-name descname"><span class="pre">cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_branches</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.cache" title="Permalink to this definition"></a></dt>
+<dd><p>Cache the probabilities for the given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The parameters.</p></li>
+<li><p><strong>n_branches</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of branches.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.get_x0">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_x0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random._generator.Generator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.get_x0" title="Permalink to this definition"></a></dt>
+<dd><p>Get the initial values for the parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bounds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – The bounds for the parameters.</p></li>
+<li><p><strong>rng</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code>) – The random number generator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The initial values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.get_bounds">
+<span class="sig-name descname"><span class="pre">get_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">anc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><span class="pre">fastdfe.annotation.MaximumLikelihoodAncestralAnnotation</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.get_bounds" title="Permalink to this definition"></a></dt>
+<dd><p>Get the bounds for the parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>anc</strong> (<a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a>) – The ancestral allele annotation.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The bounds.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.validate_bounds">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.validate_bounds" title="Permalink to this definition"></a></dt>
+<dd><p>Make sure the lower bounds are positive and the upper bounds are larger than the lower bounds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bounds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – The bounds to validate</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the bounds are invalid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.get_prob">
+<span class="sig-name descname"><span class="pre">get_prob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.get_prob" title="Permalink to this definition"></a></dt>
+<dd><p>Get the probability of a branch using the substitution model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – First nucleotide state.</p></li>
+<li><p><strong>b2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Second nucleotide state.</p></li>
+<li><p><strong>i</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the branch.</p></li>
+<li><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The parameters for the model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The probability of the branch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.annotation.JCSubstitutionModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">JCSubstitutionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'K':</span> <span class="pre">(1e-05,</span> <span class="pre">10)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_branch_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.JCSubstitutionModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.SubstitutionModel" title="fastdfe.annotation.SubstitutionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstitutionModel</span></code></a></p>
+<p>Jukes-Cantor substitution model.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.JCSubstitutionModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'K':</span> <span class="pre">(1e-05,</span> <span class="pre">10)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_branch_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.JCSubstitutionModel.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create a new substitution model instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bounds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – The bounds for the parameters. K is the branch rate.</p></li>
+<li><p><strong>pool_branch_rates</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to pool the branch rates. By default, each branch has its own rate which
+is optimized using MLE. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the branch rates are pooled and a single rate is optimized. This is
+useful if the number of sites used is small. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, each branch has its own rate denoted by “K{i}”,
+where i is the branch index. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the branch rate is denoted by “K”.</p></li>
+<li><p><strong>fixed_params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The fixed parameters. Parameters that are not fixed are optimized using MLE.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.JCSubstitutionModel.get_bound">
+<span class="sig-name descname"><span class="pre">get_bound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.JCSubstitutionModel.get_bound" title="Permalink to this definition"></a></dt>
+<dd><p>Get the bounds for a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>param</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The parameter.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The lower and upper bounds.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.JCSubstitutionModel.get_bounds">
+<span class="sig-name descname"><span class="pre">get_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">anc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><span class="pre">fastdfe.annotation.MaximumLikelihoodAncestralAnnotation</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.JCSubstitutionModel.get_bounds" title="Permalink to this definition"></a></dt>
+<dd><p>Get the bounds for the parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>anc</strong> (<a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a>) – The ancestral allele annotation instance.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The lower and upper bounds.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.annotation.K2SubstitutionModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">K2SubstitutionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'K':</span> <span class="pre">(1e-05,</span> <span class="pre">10),</span> <span class="pre">'k':</span> <span class="pre">(0.02,</span> <span class="pre">0.2)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_branch_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.K2SubstitutionModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.JCSubstitutionModel" title="fastdfe.annotation.JCSubstitutionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">JCSubstitutionModel</span></code></a></p>
+<p>Kimura 2-parameter substitution model.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.K2SubstitutionModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'K':</span> <span class="pre">(1e-05,</span> <span class="pre">10),</span> <span class="pre">'k':</span> <span class="pre">(0.02,</span> <span class="pre">0.2)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_branch_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.K2SubstitutionModel.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create a new substitution model instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bounds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – The bounds for the parameters. K is the branch rate. k is the transition/transversion ratio.</p></li>
+<li><p><strong>pool_branch_rates</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to pool the branch rates. By default, each branch has its own rate which
+is optimized using MLE. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the branch rates are pooled and a single rate is optimized. This is
+useful if the number of sites used is small.</p></li>
+<li><p><strong>fixed_params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The fixed parameters. Parameters that are not fixed are optimized using MLE.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.K2SubstitutionModel.get_bounds">
+<span class="sig-name descname"><span class="pre">get_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">anc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><span class="pre">fastdfe.annotation.MaximumLikelihoodAncestralAnnotation</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.K2SubstitutionModel.get_bounds" title="Permalink to this definition"></a></dt>
+<dd><p>Get the bounds for the parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>anc</strong> (<a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a>) – The ancestral allele annotation instance.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The lower and upper bounds.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.annotation.SiteConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">SiteConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dtype</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fastpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.SiteConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></p>
+<p>Site configuration. A site configuration is a vector of nucleotide states.
+Operations on site configurations rather than individual sites is more
+efficient as there are not many different site configurations.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SiteConfig.sites">
+<span class="sig-name descname"><span class="pre">sites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.SiteConfig.sites" title="Permalink to this definition"></a></dt>
+<dd><p>The site indices.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SiteConfig.n_major">
+<span class="sig-name descname"><span class="pre">n_major</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int8</span></code></em><a class="headerlink" href="#fastdfe.annotation.SiteConfig.n_major" title="Permalink to this definition"></a></dt>
+<dd><p>The number of major alleles.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SiteConfig.major_base">
+<span class="sig-name descname"><span class="pre">major_base</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int8</span></code></em><a class="headerlink" href="#fastdfe.annotation.SiteConfig.major_base" title="Permalink to this definition"></a></dt>
+<dd><p>The major allele base.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SiteConfig.minor_base">
+<span class="sig-name descname"><span class="pre">minor_base</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int8</span></code></em><a class="headerlink" href="#fastdfe.annotation.SiteConfig.minor_base" title="Permalink to this definition"></a></dt>
+<dd><p>The minor base index.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SiteConfig.outgroup_bases">
+<span class="sig-name descname"><span class="pre">outgroup_bases</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int8</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.SiteConfig.outgroup_bases" title="Permalink to this definition"></a></dt>
+<dd><p>The outgroup base indices.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SiteConfig.p_ancestral">
+<span class="sig-name descname"><span class="pre">p_ancestral</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float64</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.SiteConfig.p_ancestral" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SiteConfig.p_minor">
+<span class="sig-name descname"><span class="pre">p_minor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float64</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.SiteConfig.p_minor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.SiteConfig.p_major">
+<span class="sig-name descname"><span class="pre">p_major</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float64</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.SiteConfig.p_major" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.annotation.BaseType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">BaseType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.BaseType" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>The base type.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.BaseType.MINOR">
+<span class="sig-name descname"><span class="pre">MINOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#fastdfe.annotation.BaseType.MINOR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.BaseType.MAJOR">
+<span class="sig-name descname"><span class="pre">MAJOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#fastdfe.annotation.BaseType.MAJOR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.annotation.</span></span><span class="sig-name descname"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">outgroups:</span> <span class="pre">typing.List[str],</span> <span class="pre">n_ingroups:</span> <span class="pre">int,</span> <span class="pre">ingroups:</span> <span class="pre">typing.Optional[typing.List[str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">n_outgroups:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">2,</span> <span class="pre">n_runs_rate:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">10,</span> <span class="pre">n_runs_polarization:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">model:</span> <span class="pre">fastdfe.annotation.SubstitutionModel</span> <span class="pre">=</span> <span class="pre">&lt;fastdfe.annotation.K2SubstitutionModel</span> <span class="pre">object&gt;,</span> <span class="pre">parallelize:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">use_prior:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">max_sites:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">inf</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.AncestralAlleleAnnotation" title="fastdfe.annotation.AncestralAlleleAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralAlleleAnnotation</span></code></a></p>
+<p>Annotation of ancestral alleles using a sophisticated method similar to EST-SFS
+(<a class="reference external" href="https://doi.org/10.1534/genetics.118.301120">https://doi.org/10.1534/genetics.118.301120</a>). The info field <code class="docutils literal notranslate"><span class="pre">AA</span></code>
+is added to the VCF file, which holds the ancestral allele. To be used with
+<a class="reference internal" href="parser.html#fastdfe.parser.AncestralBaseStratification" title="fastdfe.parser.AncestralBaseStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralBaseStratification</span></code></a> and <a class="reference internal" href="#fastdfe.annotation.Annotator" title="fastdfe.annotation.Annotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotator</span></code></a> or
+<a class="reference internal" href="parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>. This class can also be used independently, see the <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_dataframe" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_dataframe"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_dataframe()</span></code></a>,
+<a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_data" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_data()</span></code></a> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">from_est_est()</span></code> methods. In this case we pass the site configurations manually.</p>
+<p>Initially, the branch rates are determined using MLE. If <code class="docutils literal notranslate"><span class="pre">use_prior</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, the ancestral allele
+probabilities across sites are then also determined in a second optimization step using MLE. For every site,
+the probability that the major allele is ancestral is then calculated.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Still experimental. Use with caution.</p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.dtypes">
+<span class="sig-name descname"><span class="pre">dtypes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'major_base':</span> <span class="pre">'Int8',</span> <span class="pre">'minor_base':</span> <span class="pre">'Int8',</span> <span class="pre">'multiplicity':</span> <span class="pre">&lt;class</span> <span class="pre">'numpy.int16'&gt;,</span> <span class="pre">'n_major':</span> <span class="pre">&lt;class</span> <span class="pre">'numpy.int8'&gt;,</span> <span class="pre">'outgroup_bases':</span> <span class="pre">&lt;class</span> <span class="pre">'object'&gt;,</span> <span class="pre">'p_ancestral':</span> <span class="pre">&lt;class</span> <span class="pre">'numpy.float64'&gt;,</span> <span class="pre">'p_major':</span> <span class="pre">&lt;class</span> <span class="pre">'numpy.float64'&gt;,</span> <span class="pre">'p_minor':</span> <span class="pre">&lt;class</span> <span class="pre">'numpy.float64'&gt;,</span> <span class="pre">'sites':</span> <span class="pre">&lt;class</span> <span class="pre">'object'&gt;}</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.dtypes" title="Permalink to this definition"></a></dt>
+<dd><p>The data types for the data frame</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.group_cols">
+<span class="sig-name descname"><span class="pre">group_cols</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['major_base',</span> <span class="pre">'minor_base',</span> <span class="pre">'outgroup_bases',</span> <span class="pre">'n_major']</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.group_cols" title="Permalink to this definition"></a></dt>
+<dd><p>The columns to group by.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">outgroups:</span> <span class="pre">typing.List[str],</span> <span class="pre">n_ingroups:</span> <span class="pre">int,</span> <span class="pre">ingroups:</span> <span class="pre">typing.Optional[typing.List[str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">n_outgroups:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">2,</span> <span class="pre">n_runs_rate:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">10,</span> <span class="pre">n_runs_polarization:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">model:</span> <span class="pre">fastdfe.annotation.SubstitutionModel</span> <span class="pre">=</span> <span class="pre">&lt;fastdfe.annotation.K2SubstitutionModel</span> <span class="pre">object&gt;,</span> <span class="pre">parallelize:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">use_prior:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">max_sites:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">inf</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create a new ancestral allele annotation instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outgroups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The outgroup samples to consider when determining the ancestral allele. A list of
+sample names as they appear in the VCF file.</p></li>
+<li><p><strong>n_ingroups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The minimum number of ingroups that must be present at a site for it to be considered
+for ancestral allele inference. Note that a larger number of ingroups does not necessarily improve
+the accuracy of the ancestral allele inference (see <code class="docutils literal notranslate"><span class="pre">use_prior</span></code>). A larger number of ingroups can lead
+to a large variance in the polarization probabilities, across different frequency counts. <code class="docutils literal notranslate"><span class="pre">n_ingroups</span></code>
+should thus only be large if the number of sites used for the inference is also large. A sensible value is
+for a reasonable large number of sites (a few thousand) is 10 or perhaps 20 for larger numbers of sites.
+We subsample <code class="docutils literal notranslate"><span class="pre">n_ingroups</span></code> ingroups from the total number of ingroups for each site, and such values
+should provide representative subsamples in most cases.</p></li>
+<li><p><strong>ingroups</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – The ingroup samples to consider when determining the ancestral allele. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+all (non-outgroup) samples are considered. A list of sample names as they appear in the VCF file.</p></li>
+<li><p><strong>n_outgroups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The maximum number of outgroups that are considered for ancestral allele inference.
+More outgroups lead to a more accurate inference of the ancestral allele, but also increase the
+computational cost. Using more than 1 outgroup is recommended, but more than 3 is likely not necessary.</p></li>
+<li><p><strong>n_runs_rate</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of optimization runs to perform when determining the branch rates. You can
+check that the likelihoods of the different runs are similar by calling <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.plot_likelihoods" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.plot_likelihoods"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_likelihoods()</span></code></a>.</p></li>
+<li><p><strong>n_runs_polarization</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of runs to perform when determining the polarization parameters. One
+run should be sufficient as only one parameter is optimized.</p></li>
+<li><p><strong>parallelize</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to parallelize the computation across multiple cores.</p></li>
+<li><p><strong>use_prior</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to incorporate information about the general probability of the major allele
+being the ancestral allele across all sites with the same minor allele count. This is useful in general
+as it provides more information about the ancestral allele, but it can lead to a bias if the number of sites
+is small. For example, when we have no outgroup information for a particular site, it is good to know how
+likely it is that the major allele is ancestral. You can check that the polarization probabilities are
+smooth enough across frequency counts by calling <code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_polarization()</span></code>.</p></li>
+<li><p><strong>max_sites</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The maximum number of sites to consider. This is useful if the number of sites is very large.
+Choosing a reasonably large subset of sites (on the order of a few thousand bi-allelic sites) can speed up
+the computation considerably as parsing can be slow. This subset is then used to calibrate the rate
+parameters, and possibly the polarization priors.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.parallelize">
+<span class="sig-name descname"><span class="pre">parallelize</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.parallelize" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to parallelize the computation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.max_sites">
+<span class="sig-name descname"><span class="pre">max_sites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.max_sites" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum number of sites to consider</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.use_prior">
+<span class="sig-name descname"><span class="pre">use_prior</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.use_prior" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to incorporate additional information about the ancestral allele.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.ingroups">
+<span class="sig-name descname"><span class="pre">ingroups</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List[str]</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.ingroups" title="Permalink to this definition"></a></dt>
+<dd><p>The samples to consider when determining the ancestral allele.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_ingroups">
+<span class="sig-name descname"><span class="pre">n_ingroups</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_ingroups" title="Permalink to this definition"></a></dt>
+<dd><p>The minimum number of ingroups that must be present at a site for it to be considered</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.ingroup_mask">
+<span class="sig-name descname"><span class="pre">ingroup_mask</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray[bool,</span> <span class="pre">(...,)]</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.ingroup_mask" title="Permalink to this definition"></a></dt>
+<dd><p>Mask for ingroups</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.outgroups">
+<span class="sig-name descname"><span class="pre">outgroups</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List[str]</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.outgroups" title="Permalink to this definition"></a></dt>
+<dd><p>The outgroups to consider when determining the ancestral allele.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_outgroups">
+<span class="sig-name descname"><span class="pre">n_outgroups</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_outgroups" title="Permalink to this definition"></a></dt>
+<dd><p>The minimum number of outgroups that must be present at a site for it to be considered</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.outgroup_mask">
+<span class="sig-name descname"><span class="pre">outgroup_mask</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray[bool,</span> <span class="pre">(...,)]</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.outgroup_mask" title="Permalink to this definition"></a></dt>
+<dd><p>Mask for outgroups</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_runs_rate">
+<span class="sig-name descname"><span class="pre">n_runs_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_runs_rate" title="Permalink to this definition"></a></dt>
+<dd><p>Number of random ML starts when determining the rate parameters</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_runs_polarization">
+<span class="sig-name descname"><span class="pre">n_runs_polarization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_runs_polarization" title="Permalink to this definition"></a></dt>
+<dd><p>Number of random ML starts when determining the polarization parameters</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.model">
+<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SubstitutionModel</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.model" title="Permalink to this definition"></a></dt>
+<dd><p>The substitution model.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.reader">
+<span class="sig-name descname"><span class="pre">reader</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">VCF</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.reader" title="Permalink to this definition"></a></dt>
+<dd><p>The VCF reader.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.configs">
+<span class="sig-name descname"><span class="pre">configs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pd.DataFrame</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.configs" title="Permalink to this definition"></a></dt>
+<dd><p>The data frame holding all site configurations.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.p_bins">
+<span class="sig-name descname"><span class="pre">p_bins</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict[str,</span> <span class="pre">np.ndarray[float,</span> <span class="pre">(n_ingroups</span> <span class="pre">-</span> <span class="pre">1,)]]</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.p_bins" title="Permalink to this definition"></a></dt>
+<dd><p>The probability of all sites per frequency bin.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_sites">
+<span class="sig-name descname"><span class="pre">n_sites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_sites" title="Permalink to this definition"></a></dt>
+<dd><p>The number of sites used for inference.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.param_names">
+<span class="sig-name descname"><span class="pre">param_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List[str]</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.param_names" title="Permalink to this definition"></a></dt>
+<dd><p>The parameter names in the order they are passed to the optimizer.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.likelihoods">
+<span class="sig-name descname"><span class="pre">likelihoods</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray[float,</span> <span class="pre">(...,)]</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.likelihoods" title="Permalink to this definition"></a></dt>
+<dd><p>The log likelihoods for the different runs when optimizing the rate parameters.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.likelihood">
+<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.likelihood" title="Permalink to this definition"></a></dt>
+<dd><p>The best log likelihood when optimizing the rate parameters.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.result">
+<span class="sig-name descname"><span class="pre">result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">OptimizeResult</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.result" title="Permalink to this definition"></a></dt>
+<dd><p>Optimization result of the best run.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.params_mle">
+<span class="sig-name descname"><span class="pre">params_mle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict[str,</span> <span class="pre">float]</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.params_mle" title="Permalink to this definition"></a></dt>
+<dd><p>The MLE parameters.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.rng">
+<span class="sig-name descname"><span class="pre">rng</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.random.Generator</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.rng" title="Permalink to this definition"></a></dt>
+<dd><p>Random number generator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.prepare_masks">
+<span class="sig-name descname"><span class="pre">prepare_masks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.prepare_masks" title="Permalink to this definition"></a></dt>
+<dd><p>Prepare the masks for ingroups and outgroups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – All samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.subsample">
+<span class="sig-name descname"><span class="pre">subsample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.subsample" title="Permalink to this definition"></a></dt>
+<dd><p>Subsample a set of bases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bases</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]) – A list of bases.</p></li>
+<li><p><strong>size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The size of the subsample.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A subsample of the bases.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.parse_variant">
+<span class="sig-name descname"><span class="pre">parse_variant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.parse_variant" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a VCF variant. We only SNPs that are at most bi-allelic and have at least <code class="docutils literal notranslate"><span class="pre">n_ingroups</span></code> ingroup.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#fastdfe.annotation.SiteConfig" title="fastdfe.annotation.SiteConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">SiteConfig</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The site configuration.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_est_sfs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_est_sfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_prior:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_runs_rate:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_runs_polarization:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">fastdfe.annotation.SubstitutionModel</span> <span class="pre">=</span> <span class="pre">&lt;fastdfe.annotation.K2SubstitutionModel</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallelize:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">100000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_est_sfs" title="Permalink to this definition"></a></dt>
+<dd><p>Create instance from EST-SFS input file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – File containing EST-SFS-formatted input data.</p></li>
+<li><p><strong>use_prior</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use the polarization prior (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>n_runs_rate</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of runs for rate estimation (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>n_runs_polarization</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of runs for polarization (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="#fastdfe.annotation.SubstitutionModel" title="fastdfe.annotation.SubstitutionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstitutionModel</span></code></a>) – The substitution model (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>parallelize</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to parallelize the runs (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>seed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The seed to use for the random number generator.</p></li>
+<li><p><strong>chunk_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The chunk size for reading the file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_data">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">n_major:</span> <span class="pre">typing.Iterable[int],</span> <span class="pre">major_bases:</span> <span class="pre">typing.Iterable[str</span> <span class="pre">|</span> <span class="pre">int],</span> <span class="pre">minor_bases:</span> <span class="pre">typing.Iterable[str</span> <span class="pre">|</span> <span class="pre">int],</span> <span class="pre">outgroup_bases:</span> <span class="pre">typing.Iterable[typing.Iterable[str</span> <span class="pre">|</span> <span class="pre">int]],</span> <span class="pre">n_ingroups:</span> <span class="pre">int,</span> <span class="pre">n_runs_rate:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">10,</span> <span class="pre">n_runs_polarization:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">model:</span> <span class="pre">fastdfe.annotation.SubstitutionModel</span> <span class="pre">=</span> <span class="pre">&lt;fastdfe.annotation.K2SubstitutionModel</span> <span class="pre">object&gt;,</span> <span class="pre">parallelize:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">use_prior:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">pass_indices:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_data" title="Permalink to this definition"></a></dt>
+<dd><p>Create an instance by passing the data directly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_major</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of major alleles per site. Note that this number has to be lower than <code class="docutils literal notranslate"><span class="pre">n_ingroups</span></code>,
+as we consider the number of major alleles of subsamples of size <code class="docutils literal notranslate"><span class="pre">n_ingroups</span></code>.</p></li>
+<li><p><strong>major_bases</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The major allele per site. A string representation of the base or the base index according
+to <code class="docutils literal notranslate"><span class="pre">['A',</span> <span class="pre">'C',</span> <span class="pre">'G',</span> <span class="pre">'T']</span></code> if <code class="docutils literal notranslate"><span class="pre">pass_indices</span></code> is True.</p></li>
+<li><p><strong>minor_bases</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The minor allele per site. A string representation of the base or the base index according
+to <code class="docutils literal notranslate"><span class="pre">['A',</span> <span class="pre">'C',</span> <span class="pre">'G',</span> <span class="pre">'T']</span></code> if <code class="docutils literal notranslate"><span class="pre">pass_indices</span></code> is True. If the site is mono-allelic, then the value should
+be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>outgroup_bases</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – The outgroup alleles per site. A string representation of the base or the base index
+if <code class="docutils literal notranslate"><span class="pre">pass_indices</span></code> is True. This should be a list of lists, where the outer list corresponds to the sites
+and the inner list to the outgroups per site.</p></li>
+<li><p><strong>n_ingroups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of ingroups samples (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>n_runs_rate</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of runs for rate estimation (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>n_runs_polarization</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of runs for polarization (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="#fastdfe.annotation.SubstitutionModel" title="fastdfe.annotation.SubstitutionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstitutionModel</span></code></a>) – The substitution model (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>parallelize</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to parallelize the runs.</p></li>
+<li><p><strong>use_prior</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use the prior (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>seed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The seed for the random number generator.</p></li>
+<li><p><strong>pass_indices</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to pass the base indices instead of the bases.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_dataframe">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data:</span> <span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ingroups:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_runs_rate:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_runs_polarization:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">fastdfe.annotation.SubstitutionModel</span> <span class="pre">=</span> <span class="pre">&lt;fastdfe.annotation.K2SubstitutionModel</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallelize:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_prior:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouped:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_dataframe" title="Permalink to this definition"></a></dt>
+<dd><p>Create an instance from a dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Dataframe with the columns: <code class="docutils literal notranslate"><span class="pre">major_base</span></code>, <code class="docutils literal notranslate"><span class="pre">minor_base</span></code>, <code class="docutils literal notranslate"><span class="pre">outgroup_bases</span></code>, <code class="docutils literal notranslate"><span class="pre">n_major</span></code>.</p></li>
+<li><p><strong>n_ingroups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of ingroups (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>n_runs_rate</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of runs for rate estimation (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>n_runs_polarization</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of runs for polarization (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="#fastdfe.annotation.SubstitutionModel" title="fastdfe.annotation.SubstitutionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstitutionModel</span></code></a>) – The substitution model (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>parallelize</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to parallelize computations.</p></li>
+<li><p><strong>use_prior</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use the prior (see <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a>).</p></li>
+<li><p><strong>seed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The seed for the random number generator.</p></li>
+<li><p><strong>grouped</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether the dataframe is already grouped by all columns (used for internal purposes).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.load_variants">
+<span class="sig-name descname"><span class="pre">load_variants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.load_variants" title="Permalink to this definition"></a></dt>
+<dd><p>Load the variants from the VCF reader and parse them.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.infer">
+<span class="sig-name descname"><span class="pre">infer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.infer" title="Permalink to this definition"></a></dt>
+<dd><p>Infer the ancestral allele probabilities for the data provided. This consists of two steps:
+First, the rates are inferred using the likelihood function. Second, the polarization probabilities
+are inferred using the inferred rates if <code class="docutils literal notranslate"><span class="pre">use_prior</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.p_polarization">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">p_polarization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Ellipsis</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.p_polarization" title="Permalink to this definition"></a></dt>
+<dd><p>Get the polarization probabilities. This property is cached so that the polarization probabilities
+are only optimized once.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The polarization probabilities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_p_tree">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_p_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_outgroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">internal_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outgroup_bases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel" title="fastdfe.annotation.SubstitutionModel"><span class="pre">fastdfe.annotation.SubstitutionModel</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_p_tree" title="Permalink to this definition"></a></dt>
+<dd><p>Get the probability of a tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – An observed ingroup base index.</p></li>
+<li><p><strong>n_outgroups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of outgroups.</p></li>
+<li><p><strong>internal_nodes</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – The internal nodes of the tree. We have <code class="docutils literal notranslate"><span class="pre">n_outgroups</span> <span class="pre">-</span> <span class="pre">1</span></code> internal nodes.</p></li>
+<li><p><strong>outgroup_bases</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – The observed base indices for the outgroups.</p></li>
+<li><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The parameters of the model.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="#fastdfe.annotation.SubstitutionModel" title="fastdfe.annotation.SubstitutionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstitutionModel</span></code></a>) – The model to use. Either ‘K2’ or ‘JC’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.is_na">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_na</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.is_na" title="Permalink to this definition"></a></dt>
+<dd><p>Check if a value is NaN or Na</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – The value.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether the value is NaN.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_p_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_p_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">config:</span> <span class="pre">fastdfe.annotation.SiteConfig,</span> <span class="pre">base_type:</span> <span class="pre">fastdfe.annotation.BaseType,</span> <span class="pre">params:</span> <span class="pre">typing.Dict[str,</span> <span class="pre">float],</span> <span class="pre">model:</span> <span class="pre">fastdfe.annotation.SubstitutionModel</span> <span class="pre">=</span> <span class="pre">&lt;fastdfe.annotation.K2SubstitutionModel</span> <span class="pre">object&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_p_config" title="Permalink to this definition"></a></dt>
+<dd><p>Get the probability for a site configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="#fastdfe.annotation.SiteConfig" title="fastdfe.annotation.SiteConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">SiteConfig</span></code></a>) – The site configuration.</p></li>
+<li><p><strong>base_type</strong> (<a class="reference internal" href="#fastdfe.annotation.BaseType" title="fastdfe.annotation.BaseType"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseType</span></code></a>) – The base type.</p></li>
+<li><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The parameters for the substitution model.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="#fastdfe.annotation.SubstitutionModel" title="fastdfe.annotation.SubstitutionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstitutionModel</span></code></a>) – The substitution model to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The probability for a site.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_p_configs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_p_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel" title="fastdfe.annotation.SubstitutionModel"><span class="pre">fastdfe.annotation.SubstitutionModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastdfe.annotation.BaseType" title="fastdfe.annotation.BaseType"><span class="pre">fastdfe.annotation.BaseType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_p_configs" title="Permalink to this definition"></a></dt>
+<dd><p>Get the probabilities for each site configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>configs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – The site configurations.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="#fastdfe.annotation.SubstitutionModel" title="fastdfe.annotation.SubstitutionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstitutionModel</span></code></a>) – The substitution model.</p></li>
+<li><p><strong>base_type</strong> (<a class="reference internal" href="#fastdfe.annotation.BaseType" title="fastdfe.annotation.BaseType"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseType</span></code></a>) – The base type.</p></li>
+<li><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – A dictionary of the rate parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, (<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, )]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The probability for each site.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.evaluate_likelihood_rates">
+<span class="sig-name descname"><span class="pre">evaluate_likelihood_rates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.evaluate_likelihood_rates" title="Permalink to this definition"></a></dt>
+<dd><p>Evaluate the likelihood function given a dictionary of parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – A dictionary of parameters.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The log likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_likelihood_rates">
+<span class="sig-name descname"><span class="pre">get_likelihood_rates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_likelihood_rates" title="Permalink to this definition"></a></dt>
+<dd><p>Get the likelihood function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The likelihood function.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_likelihood_polarization">
+<span class="sig-name descname"><span class="pre">get_likelihood_polarization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_likelihood_polarization" title="Permalink to this definition"></a></dt>
+<dd><p>Get the likelihood function.
+:rtype: <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>i</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The ith frequency bin.</p>
+</dd>
+</dl>
+<p>The likelihood function evaluated for the ith frequency bin.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_probs">
+<span class="sig-name descname"><span class="pre">get_probs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_probs" title="Permalink to this definition"></a></dt>
+<dd><p>Get the probabilities for the ancestral allele being the major allele for the sites used to estimate the
+parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, (<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, )]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The probabilities</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_sfs">
+<span class="sig-name descname"><span class="pre">get_sfs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_sfs" title="Permalink to this definition"></a></dt>
+<dd><p>Get the site-frequency spectrum for the sites used to estimate the parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Spectrum object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_ancestral_base">
+<span class="sig-name descname"><span class="pre">get_ancestral_base</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_major</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_minor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_major</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outgroup_bases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_ancestral_base" title="Permalink to this definition"></a></dt>
+<dd><p>Get the ancestral allele for the given site information.</p>
+<p>TODO test this function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_major</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of major alleles.</p></li>
+<li><p><strong>base_minor</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The minor allele.</p></li>
+<li><p><strong>base_major</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The major allele.</p></li>
+<li><p><strong>outgroup_bases</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The outgroup bases.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>))</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The ancestral allele and a tuple of probability for the major being ancestral, the first base being
+ancestral, the second base being ancestral, and the polarization probability if using a prior.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_ancestral_bases">
+<span class="sig-name descname"><span class="pre">get_ancestral_bases</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_ancestral_bases" title="Permalink to this definition"></a></dt>
+<dd><p>Get the ancestral allele for each site used to estimate the parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">MaskedArray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Masked array of ancestral alleles. Missing values are masked.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.calculate_p_ancestral">
+<span class="sig-name descname"><span class="pre">calculate_p_ancestral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_minor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_major</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_major</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.calculate_p_ancestral" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the probability that the ancestral allele is the major allele.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p_minor</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The probability or probabilities of the minor allele.</p></li>
+<li><p><strong>p_major</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The probability or probabilities of the major allele.</p></li>
+<li><p><strong>n_major</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number or numbers of major alleles.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The probability or probabilities that the ancestral allele is the major allele.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.annotate_site">
+<span class="sig-name descname"><span class="pre">annotate_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.annotate_site" title="Permalink to this definition"></a></dt>
+<dd><p>Annotate a single variant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to annotate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The annotated variant.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.plot_likelihoods">
+<span class="sig-name descname"><span class="pre">plot_likelihoods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'rate</span> <span class="pre">likelihoods'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'lin'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'log'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'lin'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">matplotlib.axes._axes.Axes</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'lnl'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.plot_likelihoods" title="Permalink to this definition"></a></dt>
+<dd><p>Visualize the likelihoods of the rate optimization runs using a scatter plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scale</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'lin'</span></code>, <code class="docutils literal notranslate"><span class="pre">'log'</span></code>]) – y-scale of the plot.</p></li>
+<li><p><strong>title</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Plot title.</p></li>
+<li><p><strong>file</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – File to save plot to.</p></li>
+<li><p><strong>show</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to show plot.</p></li>
+<li><p><strong>ax</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code>]) – Axes object to plot on.</p></li>
+<li><p><strong>ylabel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Label for y-axis.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Axes object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.plot_polarisation">
+<span class="sig-name descname"><span class="pre">plot_polarisation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ancestral</span> <span class="pre">allele</span> <span class="pre">probabilities'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'lin'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'log'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'lin'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">matplotlib.axes._axes.Axes</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'p'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.plot_polarisation" title="Permalink to this definition"></a></dt>
+<dd><p>Visualize the polarization probabilities using a scatter plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scale</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'lin'</span></code>, <code class="docutils literal notranslate"><span class="pre">'log'</span></code>]) – y-scale of the plot.</p></li>
+<li><p><strong>title</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Plot title.</p></li>
+<li><p><strong>file</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – File to save plot to.</p></li>
+<li><p><strong>show</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to show plot.</p></li>
+<li><p><strong>ax</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code>]) – Axes object to plot on.</p></li>
+<li><p><strong>ylabel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – y-axis label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Axes object</p>
 </dd>
 </dl>
 </dd></dl>

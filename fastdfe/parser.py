@@ -526,33 +526,32 @@ class Parser(VCFHandler):
 
     ::
 
-        from fastdfe import Parser, DegeneracyAnnotation, DegeneracyStratification, \\
-            MaximumParsimonyAnnotation, CodingSequenceFiltration
+        import fastdfe as fd
 
         # parse selected and neutral SFS from human chromosome 21
-        p = Parser(
+        p = fd.Parser(
             vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/"
                 "1000_genomes_project/release/20181203_biallelic_SNV/"
                 "ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
             n=10,
             annotations=[
-                DegeneracyAnnotation(
+                fd.DegeneracyAnnotation(
                     fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
                                "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
                     gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
                              "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
                     aliases=dict(chr21=['21'])
                 ),
-                MaximumParsimonyAnnotation()
+                fd.MaximumParsimonyAncestralAnnotation()
             ],
             filtrations=[
-                CodingSequenceFiltration(
+                fd.CodingSequenceFiltration(
                     gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
                              "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
                     aliases=dict(chr21=['21'])
                 )
             ],
-            stratifications=[DegeneracyStratification()],
+            stratifications=[fd.DegeneracyStratification()],
         )
 
         sfs = p.parse()
