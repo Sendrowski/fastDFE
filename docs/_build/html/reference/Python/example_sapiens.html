@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inference on H. sapiens &mdash; fastDFE beta documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            fastDFE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">R Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../R/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/parser.html">VCF parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/miscellaneous.html">Miscellaneous</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/config.html">Configuration class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/parametrization.html">DFE Parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/spectrum.html">Spectrum class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/spectra.html">Spectra class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/annotation.html">VCF Annotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/filtration.html">VCF Filtration</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fastDFE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Inference on H. sapiens</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/reference/Python/example_sapiens.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="inference-on-h-sapiens">
+<h1>Inference on H. sapiens<a class="headerlink" href="#inference-on-h-sapiens" title="Permalink to this heading"></a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fastdfe</span> <span class="k">as</span> <span class="nn">fd</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Parser</span><span class="p">(</span>
+    <span class="n">vcf</span><span class="o">=</span><span class="s2">&quot;http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/&quot;</span>
+        <span class="s2">&quot;20181203_biallelic_SNV/ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz&quot;</span><span class="p">,</span>
+    <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">annotations</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyAnnotation</span><span class="p">(</span>
+            <span class="n">fasta_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/&quot;</span>
+                       <span class="s2">&quot;dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz&quot;</span><span class="p">,</span>
+            <span class="n">gff_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
+                     <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz&quot;</span><span class="p">,</span>
+            <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr21</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;21&#39;</span><span class="p">])</span>
+        <span class="p">),</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">MaximumParsimonyAncestralAnnotation</span><span class="p">()</span>
+    <span class="p">],</span>
+    <span class="n">filtrations</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">CodingSequenceFiltration</span><span class="p">(</span>
+            <span class="n">gff_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
+                     <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz&quot;</span><span class="p">,</span>
+            <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr21</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;21&#39;</span><span class="p">])</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+    <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span><span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyStratification</span><span class="p">()],</span>
+<span class="p">)</span>
+
+<span class="n">spectra</span><span class="p">:</span> <span class="n">fd</span><span class="o">.</span><span class="n">Spectra</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/b9755b5299a6.ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz</span>
+<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/b9755b5299a6.ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz</span>
+Counting sites: 976599it [00:18, 54065.13it/s]
+<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Using stratification: [neutral, selected].</span>
+<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/641b1ad7806e.Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyAnnotation: Loading GFF file.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyAnnotation: Loading FASTA file</span>
+<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/f36fd1bf6304.Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz</span>
+<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/641b1ad7806e.Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.CodingSequenceFiltration: Loading GFF file.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Starting to parse.</span>
+Processing sites:   2%|▏         | 16046/976599 [00:01&lt;01:12, 13333.56it/s]/Users/au732936/PycharmProjects/fastDFE/fastdfe/bio_handlers.py:490: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  cds.loc[:, &#39;length&#39;] = cds[&#39;end&#39;] - cds[&#39;start&#39;] + 1
+Processing sites: 100%|██████████| 976599/976599 [03:23&lt;00:00, 4810.71it/s] 
+<span class=" -Color -Color-Green">INFO:fastdfe.CodingSequenceFiltration: Filtered out 965325 sites.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyStratification: Number of sites with valid type: 8794 / 11274</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyAnnotation: Annotated 11274 sites.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.MaximumParsimonyAncestralAnnotation: Annotated 11274 sites.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Included 8794 out of 976599 sites in total.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Janek Sendrowski.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

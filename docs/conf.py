@@ -22,8 +22,11 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx_autodoc_typehints',
     'sphinx_copybutton',
-    'myst_nb'
+    'myst_nb',
+    'sphinxcontrib.bibtex'
 ]
+
+bibtex_bibfiles = ['refs.bib']
 
 typehints_use_signature = True
 typehints_fully_qualified = False

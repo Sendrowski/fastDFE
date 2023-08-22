@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from numpy.random._generator import Generator
+from numpy import testing
 from scipy.optimize import OptimizeResult
 
 from fastdfe import Spectrum, BaseInference, Config, Spectra, GammaExpParametrization, DisplacedGammaParametrization, \
@@ -768,3 +769,31 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf.plot_discretized()
 
         pass
+
+    def test_sample_data_fixed_result(self):
+        """
+        Test whether a spectrum with zero monomorphic counts throws an error.
+        """
+        sfs_neut = Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+        sfs_sel = Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+
+        inf = BaseInference(
+            sfs_neut=sfs_neut,
+            sfs_sel=sfs_sel
+        )
+
+        inf.run()
+
+        expected = {
+            'S_b': 0.00013748258869574994,
+            'S_d': -9868.141535825358,
+            'b': 0.15081002610768834,
+            'eps': 0.006854695811121613,
+            'p_b': 0.0
+        }
+
+        # check that the parameters are almost equal
+        testing.assert_array_almost_equal(
+            [inf.params_mle[k] for k in expected],
+            [expected[k] for k in expected]
+        )

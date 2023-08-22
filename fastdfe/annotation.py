@@ -35,7 +35,7 @@ logger = logging.getLogger('fastdfe')
 # order of the bases important
 bases = np.array(['A', 'C', 'G', 'T'])
 
-#: Base indices
+# base indices
 base_indices = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
 
 # codon table
@@ -781,7 +781,7 @@ class AncestralAlleleAnnotation(Annotation, ABC):
         })
 
 
-class MaximumParsimonyAnnotation(AncestralAlleleAnnotation):
+class MaximumParsimonyAncestralAnnotation(AncestralAlleleAnnotation):
     """
     Annotation of ancestral alleles using maximum parsimony. The info field ``AA`` is added to the VCF file,
     which holds the ancestral allele. To be used with :class:`~fastdfe.parser.AncestralBaseStratification` and
@@ -916,7 +916,7 @@ class SubstitutionModel(ABC):
 
         return x0
 
-    def get_bounds(self, anc: 'OutgroupAncestralAlleleAnnotation') -> Dict[str, Tuple[float, float]]:
+    def get_bounds(self, anc: 'MaximumLikelihoodAncestralAnnotation') -> Dict[str, Tuple[float, float]]:
         """
         Get the bounds for the parameters.
 
@@ -1017,7 +1017,7 @@ class JCSubstitutionModel(SubstitutionModel):
 
         return self.bounds[param_no_index]
 
-    def get_bounds(self, anc: 'OutgroupAncestralAlleleAnnotation') -> Dict[str, Tuple[float, float]]:
+    def get_bounds(self, anc: 'MaximumLikelihoodAncestralAnnotation') -> Dict[str, Tuple[float, float]]:
         """
         Get the bounds for the parameters.
 
@@ -1076,7 +1076,7 @@ class K2SubstitutionModel(JCSubstitutionModel):
             fixed_params=fixed_params
         )
 
-    def get_bounds(self, anc: 'OutgroupAncestralAlleleAnnotation') -> Dict[str, Tuple[float, float]]:
+    def get_bounds(self, anc: 'MaximumLikelihoodAncestralAnnotation') -> Dict[str, Tuple[float, float]]:
         """
         Get the bounds for the parameters.
 
@@ -1161,7 +1161,7 @@ class BaseType(Enum):
     MAJOR = 1
 
 
-class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
+class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
     """
     Annotation of ancestral alleles using a sophisticated method similar to EST-SFS
     (https://doi.org/10.1534/genetics.118.301120). The info field ``AA``
@@ -1173,6 +1173,9 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
     Initially, the branch rates are determined using MLE. If ``use_prior`` is ``True``, the ancestral allele
     probabilities across sites are then also determined in a second optimization step using MLE. For every site,
     the probability that the major allele is ancestral is then calculated.
+
+    .. warning::
+        Still experimental. Use with caution.
     """
 
     #: The data types for the data frame
@@ -1187,6 +1190,9 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
         p_minor=np.float64,
         p_major=np.float64
     )
+
+    #: The columns to group by.
+    group_cols = ['major_base', 'minor_base', 'outgroup_bases', 'n_major']
 
     def __init__(
             self,
@@ -1238,7 +1244,7 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
         # check that we have at least one outgroup
         if len(outgroups) < 1:
             raise ValueError("Must specify at least one outgroup. If you do not have any outgroup "
-                             "information, consider using MaximumParsimonyAnnotation instead.")
+                             "information, consider using MaximumParsimonyAncestralAnnotation instead.")
 
         # check that we have enough outgroups specified
         if len(outgroups) < n_outgroups:
@@ -1456,6 +1462,65 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
         return None
 
     @classmethod
+    def _parse_est_sfs(cls, data: pd.DataFrame) -> pd.DataFrame:
+        """
+        Parse EST-SFS data.
+
+        :param data: The data frame.
+        :param offset: The offset for the site indices.
+        :return: The site configurations.
+        """
+        # extract the number of outgroups
+        n_outgroups = data.shape[1] - 1
+
+        # retain site index
+        data['sites'] = data.index
+        data['sites'] = data.sites.apply(lambda x: [x])
+
+        # the first column contains the ingroup counts, split them
+        ingroup_data = data[0].str.split(',', expand=True).astype(np.int8).to_numpy()
+
+        # determine the number of major alleles per site
+        data['n_major'] = ingroup_data.max(axis=1)
+
+        # sort by the number of alleles
+        data_sorted = ingroup_data.argsort(axis=1)
+
+        # determine the number of major alleles per site
+        data['major_base'] = data_sorted[:, -1]
+        data['major_base'] = data.major_base.astype(cls.dtypes['major_base'])
+
+        # determine the mono-allelic sites
+        mono_allelic = (ingroup_data > 1).sum(axis=1) == 1
+
+        # determine the minor alleles
+        minor_bases = np.ma.zeros(data.shape[0], dtype=np.int8)
+        minor_bases.mask = mono_allelic
+        minor_bases[~mono_allelic] = data_sorted[:, -2][~mono_allelic]
+
+        # assign the minor alleles
+        data['minor_base'] = minor_bases
+        data['minor_base'] = data.minor_base.astype(cls.dtypes['minor_base'])
+
+        # extract outgroup data
+        outgroup_data = np.full((data.shape[0], n_outgroups), np.nan, dtype=np.int8)
+        for i in range(n_outgroups):
+            # get the genotypes
+            genotypes = data[i + 1].str.split(',', expand=True).astype(np.int8).to_numpy()
+
+            # determine whether the site has an outgroup
+            has_outgroup = genotypes.sum(axis=1) > 0
+
+            # determine the outgroup allele indices provided the site has an outgroup
+            outgroup_data[has_outgroup, i] = genotypes[has_outgroup].argmax(axis=1)
+
+        # assign the outgroup data, convert to tuples for hashing
+        data['outgroup_bases'] = [tuple(row) for row in outgroup_data]
+
+        # return new columns
+        return data.drop(range(n_outgroups + 1), axis=1)
+
+    @classmethod
     def from_est_sfs(
             cls,
             file: str,
@@ -1466,7 +1531,7 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
             parallelize: bool = True,
             seed: int = 0,
             chunk_size: int = 100000
-    ) -> 'OutgroupAncestralAlleleAnnotation':
+    ) -> 'MaximumLikelihoodAncestralAnnotation':
         """
         Create instance from EST-SFS input file.
 
@@ -1485,75 +1550,22 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
         n_ingroups = 0
 
         # iterate over the file in chunks
-        for chunk in pd.read_csv(file, sep=r"\s+", header=None, dtype=str, chunksize=chunk_size):
+        for i, chunk in enumerate(pd.read_csv(file, sep=r"\s+", header=None, dtype=str, chunksize=chunk_size)):
 
-            # extract the number of outgroups
-            n_outgroups = chunk.shape[1] - 1
+            # determine the number of ingroups
+            n_ingroups = np.max(np.array(chunk.iloc[0, 0].split(','), dtype=int))
 
-            # column indices that are grouped
-            # we group by all columns
-            group_cols = list(range(chunk.shape[1]))
-
-            # retain site index
-            chunk['sites'] = chunk.index
-
-            # group by all columns in the chunk and keep track of the site indices
-            grouped = chunk.groupby(group_cols, as_index=False, dropna=False).agg(list)
-
-            # the first column contains the ingroup counts, split them
-            ingroup_data = grouped[0].str.split(',', expand=True).astype(np.int8).to_numpy()
-
-            # extract the number of ingroups samples
-            n_ingroups = ingroup_data[0].sum()
-
-            # determine the number of major alleles per site
-            grouped['n_major'] = ingroup_data.max(axis=1)
-
-            # sort by the number of alleles
-            data_sorted = ingroup_data.argsort(axis=1)
-
-            # determine the number of major alleles per site
-            grouped['major_base'] = data_sorted[:, -1]
-            grouped['major_base'] = grouped.major_base.astype(cls.dtypes['major_base'])
-
-            # determine the mono-allelic sites
-            mono_allelic = (ingroup_data > 1).sum(axis=1) == 1
-
-            # determine the minor alleles
-            minor_bases = np.ma.zeros(grouped.shape[0], dtype=np.int8)
-            minor_bases.mask = mono_allelic
-            minor_bases[~mono_allelic] = data_sorted[:, -2][~mono_allelic]
-
-            # assign the minor alleles
-            grouped['minor_base'] = minor_bases
-            grouped['minor_base'] = grouped.minor_base.astype(cls.dtypes['minor_base'])
-
-            # extract outgroup data
-            outgroup_data = np.full((grouped.shape[0], n_outgroups), np.nan, dtype=np.int8)
-            for i in range(n_outgroups):
-                # get the genotypes
-                genotypes = grouped[i + 1].str.split(',', expand=True).astype(np.int8).to_numpy()
-
-                # determine whether the site has an outgroup
-                has_outgroup = genotypes.sum(axis=1) > 0
-
-                # determine the outgroup allele indices provided the site has an outgroup
-                outgroup_data[has_outgroup, i] = genotypes[has_outgroup].argmax(axis=1)
-
-            # assign the outgroup data, convert to tuples for hashing
-            grouped['outgroup_bases'] = [tuple(row) for row in outgroup_data]
-
-            # drop unnecessary columns
-            grouped.drop(columns=group_cols, inplace=True)
+            # parse the data
+            parsed = cls._parse_est_sfs(chunk)
 
             if data is None:
-                data = grouped
+                # parse the data
+                data = parsed
             else:
-                # the new columns to gr
-                group_new = ['major_base', 'minor_base', 'outgroup_bases', 'n_major']
+                # concatenate with previous data if available
+                data = pd.concat([data, parsed])
 
-                # If accumulator already has data, then merge with the grouped data from the current chunk
-                data = pd.concat([data, grouped]).groupby(group_new, as_index=False, dropna=False).sum()
+            data = data.groupby(cls.group_cols, as_index=False, dropna=False).sum()
 
         # check if there is data
         if data is None:
@@ -1590,7 +1602,7 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
             use_prior: bool = True,
             seed: int = 0,
             pass_indices: bool = False
-    ) -> 'OutgroupAncestralAlleleAnnotation':
+    ) -> 'MaximumLikelihoodAncestralAnnotation':
         """
         Create an instance by passing the data directly.
 
@@ -1659,7 +1671,7 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
             use_prior: bool = True,
             seed: int = 0,
             grouped: bool = False
-    ) -> 'OutgroupAncestralAlleleAnnotation':
+    ) -> 'MaximumLikelihoodAncestralAnnotation':
         """
         Create an instance from a dataframe.
 
@@ -1679,11 +1691,8 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
             raise ValueError("Empty dataframe.")
 
         if not grouped:
-            # the new columns to gr
-            group_cols = ['major_base', 'minor_base', 'outgroup_bases', 'n_major']
-
             # only keep the columns that are needed
-            data = data[group_cols]
+            data = data[cls.group_cols]
 
             # retain site index
             data['sites'] = data.index
@@ -1692,7 +1701,7 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
             data['outgroup_bases'] = data['outgroup_bases'].apply(tuple)
 
             # group by all columns in the chunk and keep track of the site indices
-            data = data.groupby(group_cols, as_index=False, dropna=False).agg(list).reset_index(drop=True)
+            data = data.groupby(cls.group_cols, as_index=False, dropna=False).agg(list).reset_index(drop=True)
 
         # determine the multiplicity
         data['multiplicity'] = data['sites'].apply(lambda x: len(x))
@@ -1703,12 +1712,12 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
                 data[col] = np.nan
 
         # convert to the correct dtypes
-        data.astype(cls.dtypes, copy=False)
+        data = data.astype(cls.dtypes)
 
         # determine the number of outgroups
         n_outgroups = data.outgroup_bases.apply(len).max()
 
-        anc = OutgroupAncestralAlleleAnnotation(
+        anc = MaximumLikelihoodAncestralAnnotation(
             n_runs_rate=n_runs_rate,
             n_runs_polarization=n_runs_polarization,
             model=model,
@@ -1716,7 +1725,7 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
             use_prior=use_prior,
             outgroups=[str(i) for i in range(n_outgroups)],  # pseudo names for outgroups
             n_outgroups=n_outgroups,
-            ingroups=[],
+            ingroups=[str(i) for i in range(n_ingroups)],  # pseudo names for ingroups
             n_ingroups=n_ingroups
         )
 
@@ -2163,8 +2172,8 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
             p_sites = np.zeros(shape=(configs.shape[0], 2), dtype=float)
 
             # get the probability for each site
-            p_sites[:, 0] = OutgroupAncestralAlleleAnnotation.get_p_configs(configs, model, BaseType.MAJOR, params)
-            p_sites[:, 1] = OutgroupAncestralAlleleAnnotation.get_p_configs(configs, model, BaseType.MINOR, params)
+            p_sites[:, 0] = MaximumLikelihoodAncestralAnnotation.get_p_configs(configs, model, BaseType.MAJOR, params)
+            p_sites[:, 1] = MaximumLikelihoodAncestralAnnotation.get_p_configs(configs, model, BaseType.MINOR, params)
 
             # return the negative log likelihood and take average over major and minor bases
             # also multiply by the multiplicity of each site
@@ -2199,10 +2208,10 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
 
             # weight the sites by the probability of polarization
             # TODO is this the right way round?
-            p_sites = pi * configs.p_major[i_minor] + (1 - pi) * configs.p_minor[i_minor]
+            p_configs = pi * configs.p_major[i_minor] + (1 - pi) * configs.p_minor[i_minor]
 
             # return the negative log likelihood
-            return -np.log(p_sites).sum()
+            return -(np.log(p_configs) * configs.multiplicity[i_minor]).sum()
 
         return compute_likelihood
 
@@ -2315,14 +2324,14 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
             p_ancestral: np.ndarray[float] | float,
             major_base: np.ndarray[str] | str,
             minor_base: np.ndarray[str] | str
-    ) -> np.ndarray[float] | float:
+    ) -> np.ma.MaskedArray[float] | float:
         """
         Get the ancestral allele from the probability of the major allele being ancestral.
 
         :param p_ancestral: The probabilities of the major allele being ancestral.
         :param major_base: The major bases.
         :param minor_base: The minor bases.
-        :return:
+        :return: Masked array of ancestral alleles. Missing values are masked.
         """
         # make function accept scalars
         if isinstance(p_ancestral, float):
@@ -2333,7 +2342,7 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
             )[0]
 
         # initialize masked array
-        ancestral_bases = np.ma.zeros(p_ancestral.shape, dtype=np.int8)
+        ancestral_bases = np.ma.masked_array(np.full(p_ancestral.shape, -1, dtype=np.int8))
         ancestral_bases.mask = np.isnan(p_ancestral)
 
         ancestral_bases[p_ancestral >= 0.5] = major_base[p_ancestral >= 0.5]
@@ -2368,11 +2377,11 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
             mulitplicity=1
         )))
 
-    def get_ancestral_bases(self) -> np.ndarray[str]:
+    def get_ancestral_bases(self) -> np.ma.MaskedArray[str]:
         """
         Get the ancestral allele for each site used to estimate the parameters.
 
-        :return: The ancestral allele for each site.
+        :return: Masked array of ancestral alleles. Missing values are masked.
         """
         # get config indices for each site
         indices = self._get_site_indices()
@@ -2382,13 +2391,18 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation):
 
         # get the ancestral alleles using the ancestral probability from each site
         ancestral_bases = self._get_ancestral_from_prob(
-            p_ancestral=sites.p_ancestral,
-            major_base=sites.major_base,
-            minor_base=sites.minor_base
+            p_ancestral=sites.p_ancestral.values,
+            major_base=sites.major_base.values,
+            minor_base=sites.minor_base.values
         )
 
         # convert to base strings
-        return np.array([bases[int(b)] if not np.isnan(b) else None for b in ancestral_bases])
+        base_strings = np.ma.array(bases[ancestral_bases], mask=ancestral_bases.mask)
+
+        # set missing values to N
+        base_strings[base_strings.mask] = 'N'
+
+        return base_strings
 
     def calculate_p_ancestral(
             self,

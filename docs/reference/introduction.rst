@@ -2,9 +2,9 @@
 
 Introduction
 ============
-fastDFE is a user-friendly software package designed for estimating the distribution of fitness effects (DFE) in evolutionary biology, ecology, and conservation. Building upon the foundation laid by polyDFE (Tataru et al., 2017), fastDFE addresses the limitations of its predecessor by providing a faster, more flexible, and user-friendly approach to DFE inference.
+fastDFE is a user-friendly software package designed for estimating the distribution of fitness effects (DFE) in evolutionary biology, ecology, and conservation. Building upon the foundation laid by polyDFE :cite:`polydfe`, fastDFE addresses the limitations of its predecessor by providing a faster, more flexible, and user-friendly approach to DFE inference.
 
-fastDFE is implemented in Python and offers some compatibility with R through the reticulate package, ensuring a smooth integration with existing workflows. The package is thoroughly documented and tested, ensuring its reliability and ease of use for researchers in the field.
+fastDFE is implemented in Python but also offers compatibility with R through the reticulate package, ensuring a smooth integration with existing workflows. In the R wrapper, visualizations have been reimplemented for a consistent user experience. The package is thoroughly documented and tested, ensuring its reliability and ease of use for researchers in the field.
 
 Motivation
 ----------
@@ -28,3 +28,6 @@ fastDFE offers a range of features to facilitate DFE inference, including:
 * Serialization of objects and result summaries
 * Support for YAML configuration files facilitating usage
 * Built-in VCF parser for extracting site frequency spectra (SFS) with support for versatile stratifications and annotations
+
+.. bibliography::
+   :style: plain
