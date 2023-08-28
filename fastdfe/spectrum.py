@@ -8,7 +8,7 @@ __date__ = "2022-07-24"
 
 import logging
 from functools import cached_property
-from typing import Dict, List, Union, Iterable
+from typing import Dict, List, Union, Iterable, Any
 
 import numpy as np
 import pandas as pd
@@ -51,7 +51,7 @@ class Spectrum(Iterable):
 
         :param data: SFS counts
         """
-        self.data = np.array(data, dtype=float)
+        self.data: np.ndarray = np.array(data, dtype=float)
 
     @property
     def n(self) -> int:
@@ -358,7 +358,7 @@ class Spectra:
 
         :param data: Dictionary of SFS counts keyed by type
         """
-        self.data = pd.DataFrame(data)
+        self.data: pd.DataFrame = pd.DataFrame(data)
 
     @property
     def n(self) -> int:
@@ -379,13 +379,13 @@ class Spectra:
         return self.data.shape[1]
 
     @property
-    def n_monomorphic(self) -> float:
+    def n_monomorphic(self) -> pd.Series:
         """
         The number of monomorphic sites.
 
         :return: Number of monomorphic sites
         """
-        return self.data[0] + self.data[-1]
+        return self.data.iloc[0] + self.data.iloc[-1]
 
     @property
     def polymorphic(self) -> np.ndarray:
@@ -451,6 +451,7 @@ class Spectra:
 
         :return: Whether n_div was specified for each type
         """
+        # noinspection PyTypeChecker
         return self.n_div != 0
 
     def normalize(self) -> 'Spectra':
@@ -510,7 +511,7 @@ class Spectra:
         # return dictionary of lists
         return dict((k, list(v.values())) for k, v in self.data.to_dict().items())
 
-    def __mul__(self, other: float | int) -> 'Spectra':
+    def __mul__(self, other: Any) -> 'Spectra':
         """
         Multiply Spectra.
 
@@ -521,7 +522,7 @@ class Spectra:
 
     __rmul__ = __mul__
 
-    def __floordiv__(self, other: float | int) -> 'Spectra':
+    def __floordiv__(self, other: Any) -> 'Spectra':
         """
         Divide Spectra.
 
@@ -530,7 +531,7 @@ class Spectra:
         """
         return Spectra.from_dataframe(self.data // other)
 
-    def __truediv__(self, other: float | int) -> 'Spectra':
+    def __truediv__(self, other: Any) -> 'Spectra':
         """
         Divide Spectra.
 

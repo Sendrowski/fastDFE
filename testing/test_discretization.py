@@ -79,7 +79,6 @@ class DiscretizationTestCase(TestCase):
     def test_sfs_counts_linearized_vs_quad(self):
         """
         Compare precomputed linearization using scipy's quad with ad hoc integration.
-        TODO do this for different DFEs.
         """
         model = GammaExpParametrization()
         params = GammaExpParametrization.x0

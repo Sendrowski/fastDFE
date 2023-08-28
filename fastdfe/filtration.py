@@ -15,7 +15,7 @@ import pandas as pd
 from cyvcf2 import Variant, Writer, VCF
 
 from .annotation import DegeneracyAnnotation
-from .bio_handlers import get_major_base, GFFHandler, VCFHandler
+from .io_handlers import get_major_base, GFFHandler, VCFHandler
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -67,6 +67,12 @@ class Filtration:
         :param reader: The VCF reader.
         """
         pass
+
+    def _rewind(self):
+        """
+        Rewind the filtration.
+        """
+        self.n_filtered = 0
 
     def _teardown(self):
         """
@@ -175,16 +181,13 @@ class CodingSequenceFiltration(Filtration, GFFHandler):
         """
         Filtration.__init__(self)
 
-        GFFHandler.__init__(self, gff_file, cache=cache)
+        GFFHandler.__init__(self, gff_file, cache=cache, aliases=aliases)
 
         #: The coding sequence enclosing the current variant or the closest one downstream.
         self.cd: Optional[pd.Series] = None
 
         #: The number of processed sites.
         self.n_processed: int = 0
-
-        #: The contig aliases.
-        self.aliases: Dict[str, List[str]] = aliases
 
     def _setup(self, reader: VCF):
         """
@@ -195,8 +198,16 @@ class CodingSequenceFiltration(Filtration, GFFHandler):
         super()._setup(reader)
 
         # load coding sequences
-        # noinspection PyStatementEffect
-        self._cds
+        _ = self._cds
+
+    def _rewind(self):
+        """
+        Rewind the filtration.
+        """
+        super()._rewind()
+
+        # reset coding sequence
+        self.cd = None
 
     @_count_filtered
     def filter_site(self, v: Variant) -> bool:
@@ -206,7 +217,7 @@ class CodingSequenceFiltration(Filtration, GFFHandler):
         :param v: The variant to filter.
         :return: ``True`` if the variant is in a coding sequence, ``False`` otherwise.
         """
-        aliases = self.get_aliases(v.CHROM, self.aliases)
+        aliases = self.get_aliases(v.CHROM)
 
         # if self.cd is None or not on the same chromosome or ends before the variant
         if self.cd is None or self.cd.seqid not in aliases or v.POS > self.cd.end:
@@ -237,7 +248,7 @@ class CodingSequenceFiltration(Filtration, GFFHandler):
 
         self.n_processed += 1
 
-        # check whether the variant is in the current CDS
+        # check whether the variant is in the current coding sequence
         if self.cd is not None and self.cd.seqid in aliases and self.cd.start <= v.POS <= self.cd.end:
             return True
 
@@ -447,7 +458,7 @@ class Filterer(VCFHandler):
 
                 pbar.update()
 
-                # explicitly stopping after ``n``sites fixes a bug with cyvcf2:
+                # explicitly stopping after ``n`` sites fixes a bug with cyvcf2:
                 # 'error parsing variant with `htslib::bcf_read` error-code: 0 and ret: -2'
                 if i + 1 == self.n_sites or i + 1 == self.max_sites:
                     break

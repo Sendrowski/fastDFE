@@ -25,9 +25,11 @@ from cyvcf2 import Variant, Writer, VCF
 from matplotlib import pyplot as plt
 from scipy.optimize import minimize, OptimizeResult
 
-from . import Visualization, Spectrum
-from .bio_handlers import FASTAHandler, GFFHandler, VCFHandler, get_major_base, get_called_bases
+from .io_handlers import DummyVariant
+from .io_handlers import FASTAHandler, GFFHandler, VCFHandler, get_major_base, get_called_bases
 from .optimization import parallelize as parallelize_func, check_bounds
+from .spectrum import Spectrum
+from .visualization import Visualization
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -83,6 +85,12 @@ class Annotation:
         """
         self.annotator = annotator
 
+    def _rewind(self):
+        """
+        Rewind the annotation.
+        """
+        self.n_annotated = 0
+
     def _teardown(self):
         """
         Finalize the annotation. Called after all sites have been annotated.
@@ -99,14 +107,19 @@ class Annotation:
         pass
 
     @staticmethod
-    def count_target_sites(file: str) -> Dict[str, int]:
+    def count_target_sites(file: str, remove_overlaps: bool = False, contigs: List[str] = None) -> Dict[str, int]:
         """
         Count the number of target sites in a GFF file.
 
         :param file: The path to The GFF file path, possibly gzipped or a URL
+        :param remove_overlaps: Whether to remove overlapping target sites.
+        :param contigs: The contigs to count the target sites for.
         :return: The number of target sites per chromosome/contig.
         """
-        return GFFHandler(file)._count_target_sites()
+        return GFFHandler(file)._count_target_sites(
+            remove_overlaps=remove_overlaps,
+            contigs=contigs
+        )
 
 
 class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
@@ -140,12 +153,9 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
         """
         Annotation.__init__(self)
 
-        GFFHandler.__init__(self, gff_file, cache=cache)
+        GFFHandler.__init__(self, gff_file, cache=cache, aliases=aliases)
 
-        FASTAHandler.__init__(self, fasta_file, cache=cache)
-
-        #: Dictionary of aliases for the contigs in the VCF file
-        self.aliases: Dict[str, List[str]] = aliases
+        FASTAHandler.__init__(self, fasta_file, cache=cache, aliases=aliases)
 
         #: The current coding sequence or the closest coding sequence downstream.
         self.cd: Optional[pd.Series] = None
@@ -167,9 +177,6 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
 
         #: The variants for which the codon could not be determined.
         self.errors: List[Variant] = []
-
-        #: The number of sites in coding sequences determined on runtime by looking at the GFF file.
-        self.n_target_sites: int = 0
 
     def _setup(self, annotator: 'Annotator', reader: VCF):
         """
@@ -201,6 +208,18 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
             'Description': 'Additional information about degeneracy annotation'
         })
 
+    def _rewind(self):
+        """
+        Rewind the annotation.
+        """
+        Annotation._rewind(self)
+        FASTAHandler._rewind(self)
+
+        self.cd = None
+        self.cd_next = None
+        self.cd_prev = None
+        self.contig = None
+
     def _parse_codon_forward(self, variant: Variant):
         """
         Parse the codon in forward direction.
@@ -220,7 +239,7 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
         # the codon positions
         codon_pos = [codon_start, codon_start + 1, codon_start + 2]
 
-        if self.cd_prev is None and codon_pos[0] < self.cd.start:
+        if (self.cd_prev is None or self.cd_next.start == self._pos_mock) and codon_pos[0] < self.cd.start:
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
                              f'start position of current CDS and no previous CDS was given.')
 
@@ -232,7 +251,7 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
             codon_pos[1] = self.cd_prev.end if self.cd_prev.strand == '+' else self.cd_prev.start
             codon_pos[0] = self.cd_prev.end - 1 if self.cd_prev.strand == '+' else self.cd_prev.start + 1
 
-        if self.cd_next is None and codon_pos[2] > self.cd.end:
+        if (self.cd_next is None or self.cd_next.start == self._pos_mock) and codon_pos[2] > self.cd.end:
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
                              f'end position of current CDS and no subsequent CDS was given.')
 
@@ -268,7 +287,7 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
         # the codon positions
         codon_pos = [codon_start, codon_start - 1, codon_start - 2]
 
-        if self.cd_prev is None and codon_pos[2] < self.cd.start:
+        if (self.cd_prev is None or self.cd_next.start == self._pos_mock) and codon_pos[2] < self.cd.start:
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
                              f'start position of current CDS and no previous CDS was given.')
 
@@ -280,7 +299,7 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
             codon_pos[1] = self.cd_prev.end if self.cd_prev.strand == '-' else self.cd_prev.start
             codon_pos[2] = self.cd_prev.end - 1 if self.cd_prev.strand == '-' else self.cd_prev.start + 1
 
-        if self.cd_next is None and codon_pos[0] > self.cd.end:
+        if (self.cd_next is None or self.cd_next.start == self._pos_mock) and codon_pos[0] > self.cd.end:
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
                              f'end position of current CDS and no subsequent CDS was given.')
 
@@ -360,7 +379,7 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
         :raises LookupError: If no coding sequence was found.
         """
         # get the aliases for the current chromosome
-        aliases = self.get_aliases(v.CHROM, self.aliases)
+        aliases = self.get_aliases(v.CHROM)
 
         # only fetch coding sequence if we are on a new chromosome or the
         # variant is not within the current coding sequence
@@ -416,7 +435,7 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
 
         :param v: The variant to fetch the contig for.
         """
-        aliases = self.get_aliases(v.CHROM, self.aliases)
+        aliases = self.get_aliases(v.CHROM)
 
         # check if contig is up-to-date
         if self.contig is None or self.contig.id not in aliases:
@@ -424,9 +443,6 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
 
             # fetch contig
             self.contig = self.get_contig(aliases)
-
-            # add to number of target sites
-            self.n_target_sites += self._compute_lengths(self._cds[(self._cds.seqid.isin(aliases))])['length'].sum()
 
     def _fetch(self, variant: Variant):
         """
@@ -438,7 +454,7 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
         self._fetch_cds(variant)
         self._fetch_contig(variant)
 
-    def annotate_site(self, v: Variant):
+    def annotate_site(self, v: Variant | DummyVariant):
         """
         Annotate a single site.
 
@@ -458,7 +474,7 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
             return
 
         # annotate if record is in coding sequence
-        if self.cd.seqid in self.get_aliases(v.CHROM, self.aliases) and self.cd.start <= v.POS <= self.cd.end:
+        if self.cd.seqid in self.get_aliases(v.CHROM) and self.cd.start <= v.POS <= self.cd.end:
 
             try:
                 # parse codon
@@ -503,9 +519,10 @@ class SynonymyAnnotation(DegeneracyAnnotation):
     the synonymous status (Synonymous (0) or non-synonymous (1)) and the codon information, respectively.
     To be used with :class:`~fastdfe.parser.SynonymyStratification`.
 
-    Note that since we cannot determine the synonymy for monomorphic sites, we determine the number of
-    target sites dynamically by adding up the number of  coding sequences per contig contained in the vcf
-    file. This value is broadcast to :class:`~fastdfe.parser.Parser` if ``n_target_sites`` is not set.
+    .. warning::
+        Not recommended for use with :class:`~fastdfe.parser.Parser` as we also need to annotate mono-allelic sites.
+        Consider using :class:`~fastdfe.parser.DegeneracyAnnotation` and
+        :class:`~fastdfe.parser.DegeneracyStratification` instead.
     """
 
     def __init__(self, gff_file: str, fasta_file: str, aliases: Dict[str, List[str]] = {}):
@@ -534,9 +551,6 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
         #: The number of sites that were concordant with SnpEff.
         self.n_snpeff_comparisons: int = 0
-
-        #: The aliases for the contigs in the VCF file.
-        self.aliases: Dict[str, List[str]] = aliases
 
     def _setup(self, annotator: 'Annotator', reader: VCF):
         """
@@ -824,15 +838,19 @@ class MaximumParsimonyAncestralAnnotation(AncestralAlleleAnnotation):
         else:
             self.samples_mask = np.isin(reader.samples, self.samples)
 
-    def annotate_site(self, variant: Variant):
+    def annotate_site(self, variant: Variant | DummyVariant):
         """
         Annotate a single site.
 
         :param variant: The variant to annotate.
         :return: The annotated variant.
         """
-        # get the major base
-        base = get_major_base(variant.gt_bases[self.samples_mask])
+        #
+        if isinstance(variant, DummyVariant):
+            base = variant.REF
+        else:
+            # get the major base
+            base = get_major_base(variant.gt_bases[self.samples_mask])
 
         # take base if defined
         major_allele = base if base is not None else '.'
@@ -1792,7 +1810,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
 
                 pbar.update()
 
-                # explicitly stopping after ``n``sites fixes a bug with cyvcf2:
+                # explicitly stopping after ``n`` sites fixes a bug with cyvcf2:
                 # 'error parsing variant with `htslib::bcf_read` error-code: 0 and ret: -2'
                 if i + 1 == self.annotator.n_sites or i + 1 == self.annotator.max_sites:
                     break
@@ -2599,9 +2617,10 @@ class Annotator(VCFHandler):
                 # write the variant
                 writer.write_record(variant)
 
+                # update the progress bar
                 pbar.update()
 
-                # explicitly stopping after ``n``sites fixes a bug with cyvcf2:
+                # explicitly stopping after ``n`` sites fixes a bug with cyvcf2:
                 # 'error parsing variant with `htslib::bcf_read` error-code: 0 and ret: -2'
                 if i + 1 == self.n_sites or i + 1 == self.max_sites:
                     break

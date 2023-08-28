@@ -11,7 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from fastdfe.optimization import pack_params, unpack_params, flatten_dict, unflatten_dict, filter_dict, Optimization, \
-    merge_dicts, correct_values, to_symlog, from_symlog, scale_bound, scale_value, unscale_value, unscale_bound
+    merge_dicts, correct_values, to_symlog, from_symlog, scale_bound, scale_value, unscale_value, unscale_bound, \
+    check_bounds
 
 from numpy import testing
 
@@ -376,3 +377,67 @@ class OptimizationTestCase(TestCase):
 
         # check that we both have positive and negative values
         assert np.any(np.array(y) > 0) and np.any(np.array(y) < 0)
+
+    def test_check_bounds_linear(self):
+        """
+        Test that check_bounds works as expected for linear scale.
+        """
+        bounds = dict(
+            param1=(1, 10),
+            param2=(1, 10),
+            param3=(-10, -1),
+            param4=(-10, -1),
+            param5=(-10, -1),
+        )
+
+        params = dict(
+            param1=1.1,
+            param2=1.005,
+            param3=-9.9,
+            param4=-9.995,
+            param5=11,
+        )
+
+        fixed_params = {}
+        percentile = 1
+
+        lower, upper = check_bounds(bounds, params, fixed_params, percentile, scale='lin')
+
+        self.assertEqual(['param2', 'param4'], list(lower.keys()))
+        self.assertEqual(['param5'], list(upper.keys()))
+
+    def test_check_bounds_log(self):
+        """
+        Test that check_bounds works as expected for log scale.
+        """
+        bounds = dict(
+            param1=(1, 10),
+            param2=(1, 10),
+            param3=(-10, -1),
+            param4=(-10, -1),
+            param5=(-1, 1),
+            param6=(-1, 1),
+            param7=(-1, 1),
+            param8=(-1, 1),
+        )
+
+        params = dict(
+            param1=1.1,
+            param2=1.005,
+            param3=-9.9,
+            param4=-9.995,
+            param5=0,
+            param6=0.99,
+            param7=-0.99,
+            param8=0.1,
+        )
+
+        fixed_params = {}
+        percentile = 1
+
+        lower, upper = check_bounds(bounds, params, fixed_params, percentile, scale='log')
+
+        self.assertEqual(['param2'], list(lower.keys()))
+
+        # param7 doesn't work for log scale
+        self.assertEqual(['param6', 'param8'], list(upper.keys()))

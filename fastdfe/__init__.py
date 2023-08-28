@@ -128,9 +128,11 @@ from .visualization import Visualization
 from .spectrum import Spectrum, Spectra
 from .parser import Parser, Stratification, BaseTransitionStratification, BaseContextStratification, \
     DegeneracyStratification, TransitionTransversionStratification, AncestralBaseStratification, \
-    SynonymyStratification, VEPStratification, SnpEffStratification, ContigStratification, ChunkedStratification
-from .bio_handlers import VCFHandler
-from .annotation import Annotator, Annotation, MaximumParsimonyAncestralAnnotation, MaximumLikelihoodAncestralAnnotation, \
+    SynonymyStratification, VEPStratification, SnpEffStratification, ContigStratification, ChunkedStratification, \
+    TargetSiteCounter
+from .io_handlers import VCFHandler, FASTAHandler, GFFHandler, FileHandler
+from .annotation import Annotator, Annotation, MaximumParsimonyAncestralAnnotation, \
+    MaximumLikelihoodAncestralAnnotation, \
     DegeneracyAnnotation, SynonymyAnnotation, SubstitutionModel, K2SubstitutionModel, JCSubstitutionModel
 from .filtration import Filterer, Filtration, SNPFiltration, PolyAllelicFiltration, CodingSequenceFiltration, \
     SNVFiltration, DeviantOutgroupFiltration, AllFiltration, NoFiltration, BiasedGCConversionFiltration
@@ -152,6 +154,12 @@ __all__ = [
     'Spectrum',
     'Spectra',
     'Parser',
+    'FileHandler',
+    'VCFHandler',
+    'FASTAHandler',
+    'GFFHandler',
+    'TargetSiteCounter',
+    'Stratification',
     'BaseTransitionStratification',
     'BaseContextStratification',
     'DegeneracyStratification',

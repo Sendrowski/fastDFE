@@ -8,6 +8,7 @@ __date__ = "2023-02-26"
 
 import copy
 import logging
+import math
 from dataclasses import dataclass
 from typing import Callable, List, Dict, Literal, Tuple, Optional
 
@@ -633,17 +634,13 @@ def get_basename(name: str) -> str:
     return name.split('.')[-1]
 
 
-from typing import Dict, Tuple, Literal
-import math
-
-
 def check_bounds(
         bounds: Dict[str, Tuple[float, float]],
         params: Dict[str, float],
         fixed_params: Dict[str, float] = {},
         percentile: float = 1,
         scale: Literal['lin', 'log'] = 'lin'
-) -> Tuple[Dict[str, float], Dict[str, float]]:
+) -> Tuple[Dict[str, Tuple[float, float, float]], Dict[str, Tuple[float, float, float]]]:
     """
     Issue warnings if the passed parameters are close to the specified bounds.
 
@@ -652,7 +649,7 @@ def check_bounds(
     :param fixed_params: The fixed parameters.
     :param percentile: The percentile threshold to consider a parameter close to the bounds.
     :param scale: Scale type: 'lin' for linear and 'log' for logarithmic.
-    :return: A tuple of dictionaries of parameters close to the lower and upper bounds.
+    :return: Tuple of dictionaries of parameters close to the lower and upper bounds, i.e. (lower, value, upper).
     """
     near_lower = {}
     near_upper = {}
@@ -682,10 +679,10 @@ def check_bounds(
 
         if key not in fixed_params:
             if lower is not None and (value - lower) / (upper - lower) <= percentile / 100:
-                near_lower[key] = raw_lower
+                near_lower[key] = (raw_lower, value, raw_upper)
 
             if upper is not None and (upper - value) / (upper - lower) <= percentile / 100:
-                near_upper[key] = raw_upper
+                near_upper[key] = (raw_lower, value, raw_upper)
 
     return near_lower, near_upper
 
@@ -981,14 +978,14 @@ class Optimization:
 
         return result, params_mle
 
-    def scale_values(self, x0: Dict[str, Dict[str, float]]) -> Dict[str, Dict[str, float]]:
+    def scale_values(self, values: Dict[str, Dict[str, float]]) -> Dict[str, Dict[str, float]]:
         """
         Scale the values of the parameters.
 
-        :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
+        :param values: Dictionary of initial values in the form ``{type: {param: value}}``
         :return: Dictionary of scaled initial values
         """
-        return scale_values(x0, self.bounds, self.scales)
+        return scale_values(values, self.bounds, self.scales)
 
     def get_loss_function(
             self,
@@ -1152,17 +1149,50 @@ class Optimization:
         :param percentile: Percentile of the bounds to check
         :return: Whether the parameters are within the bounds
         """
+        # we scale the bounds to obtain more sensible warnings
+        bounds = scale_bounds(self.bounds, self.scales)
+        params_scaled = flatten_dict(self.scale_values(unflatten_dict(params)))
+
+        # get parameters close to the bounds
         near_lower, near_upper = check_bounds(
-            params=params,
-            bounds=self.bounds,
+            params=params_scaled,
+            bounds=bounds,
             fixed_params=self.fixed_params,
-            percentile=percentile
+            percentile=percentile,
+            scale='lin'
         )
 
         if len(near_lower | near_upper) > 0:
-            logger.warning(f'The MLE estimate is within {percentile}% of the upper bound '
-                           f'for {near_upper} and lower bound for {near_lower}, but '
-                           f'this might be nothing to worry about.')
+
+            def get_values(keys: List[str]) -> Dict[str, Tuple[str, str, str]]:
+                """
+                Unscale the parameters.
+
+                :param keys: List of parameter names
+                :return: Unscaled parameters
+                """
+                unscaled = {}
+
+                for key in keys:
+                    unscaled[key] = (
+                        "{:g}".format(self.bounds[get_basename(key)][0]),
+                        "{:.8g}".format(params[key]),
+                        "{:g}".format(self.bounds[get_basename(key)][1])
+                    )
+
+                return unscaled
+
+            # string representation of parameters
+            near_lower_unscaled = str(get_values(list(near_lower.keys()))).replace('\'', '')
+            near_upper_unscaled = str(get_values(list(near_upper.keys()))).replace('\'', '')
+
+            # issue warning
+            logger.warning(
+                f'The MLE estimate is close to the upper bound '
+                f'for {near_lower_unscaled} and lower bound '
+                f'for {near_upper_unscaled}, but '
+                f'this might be nothing to worry about.'
+            )
 
     def get_bounds(self, x0: Dict[str, float]) -> Dict[str, Tuple[float, float]]:
         """

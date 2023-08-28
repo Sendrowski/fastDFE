@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 
-import fastdfe
 import fastdfe as fd
 
 # create inference object
@@ -20,7 +19,7 @@ inf = fd.BaseInference(
 inf.run()
 
 # plot discretized DFE
-inf.plot_discretized(show=False)
+inf.plot_discretized()
 
 axs = plt.subplots(nrows=2, ncols=2, figsize=(11, 10))[1].flatten()
 

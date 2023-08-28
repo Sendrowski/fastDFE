@@ -5,8 +5,7 @@ import fastdfe as fd
 p = fd.Parser(
     n=10,
     vcf="../resources/genome/betula/all.vcf.gz",
-    stratifications=[fd.DegeneracyStratification(), fd.BaseTransitionStratification()],
-    n_target_sites=2000000,
+    stratifications=[fd.DegeneracyStratification(), fd.BaseTransitionStratification()]
 )
 
 # parse SFS

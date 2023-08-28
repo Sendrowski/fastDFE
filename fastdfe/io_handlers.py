@@ -6,16 +6,16 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-05-29"
 
-import functools
 import gzip
 import hashlib
 import logging
 import os
 import shutil
 import tempfile
+import warnings
 from collections import Counter
 from functools import cached_property
-from typing import List, Iterable, TextIO, Callable, Dict, Optional
+from typing import List, Iterable, TextIO, Dict, Optional, Tuple
 from urllib.parse import urlparse
 
 import numpy as np
@@ -25,6 +25,7 @@ from Bio import SeqIO
 from Bio.SeqIO.FastaIO import FastaIterator
 from Bio.SeqRecord import SeqRecord
 from cyvcf2 import Variant
+from pandas.errors import SettingWithCopyWarning
 from tqdm import tqdm
 
 #: The DNA bases
@@ -121,38 +122,46 @@ def open_file(file: str) -> TextIO:
     return open(file, 'r')
 
 
-def count_no_type(func: Callable) -> Callable:
-    """
-    Decorator that increases ``self.n_no_type`` by 1 if the decorated function raises a ``NoTypeException``.
-    """
-
-    @functools.wraps(func)
-    def wrapper(self, variant):
-        try:
-            return func(self, variant)
-        except NoTypeException as e:
-            self.n_no_type += 1
-            raise e
-
-    return wrapper
-
-
 class FileHandler:
     """
     Base class for file handling.
     """
 
-    def __init__(self, cache: bool = True):
+    def __init__(self, cache: bool = True, aliases: Dict[str, List[str]] = {}):
         """
         Create a new FileHandler instance.
 
         :param cache: Whether to cache files that are downloaded from URLs
+        :param aliases: The contig aliases.
         """
         #: The logger instance
         self.logger = logger.getChild(self.__class__.__name__)
 
         #: Whether to cache files that are downloaded from URLs
         self.cache: bool = cache
+
+        #: The contig mappings
+        self._alias_mappings, self.aliases = self._expand_aliases(aliases)
+
+    @staticmethod
+    def _expand_aliases(alias_dict: Dict[str, List[str]]) -> Tuple[Dict[str, str], Dict[str, List[str]]]:
+        """
+        Expand the contig aliases.
+        """
+        # map alias to primary alias
+        mappings = {}
+
+        # map primary alias to all aliases
+        aliases = {}
+
+        for contig, alias_list in alias_dict.items():
+            all_aliases = alias_list + [contig]
+            aliases[contig] = all_aliases
+
+            for alias in all_aliases:
+                mappings[alias] = contig
+
+        return mappings, aliases
 
     @staticmethod
     def is_url(path: str) -> bool:
@@ -277,29 +286,30 @@ class FileHandler:
 
         return tmp.name
 
-    @staticmethod
-    def get_aliases(contig: str, aliases: Dict[str, List[str]]) -> List[str]:
+    def get_aliases(self, contig: str) -> List[str]:
         """
-        Get the alias for the given contig including the contig name itself.
+        Get all aliases for the given contig alias including.
 
+        :param contig: The contig.
         :return: The aliases.
         """
-        if contig in aliases:
-            return list(aliases[contig]) + [contig]
+        if contig in self._alias_mappings:
+            return self.aliases[self._alias_mappings[contig]]
 
         return [contig]
 
 
 class FASTAHandler(FileHandler):
 
-    def __init__(self, fasta_file: str, cache: bool = True):
+    def __init__(self, fasta_file: str, cache: bool = True, aliases: Dict[str, List[str]] = {}):
         """
         Create a new FASTAHandler instance.
 
         :param fasta_file: The path to the FASTA file.
         :param cache: Whether to cache files that are downloaded from URLs
+        :param aliases: The contig aliases.
         """
-        super().__init__(cache=cache)
+        FileHandler.__init__(self, cache=cache, aliases=aliases)
 
         #: The path to the FASTA file.
         self.fasta_file: str = fasta_file
@@ -327,7 +337,7 @@ class FASTAHandler(FileHandler):
 
         return SeqIO.parse(local_file, 'fasta')
 
-    def get_contig(self, aliases, rewind: bool = True) -> SeqRecord:
+    def get_contig(self, aliases, rewind: bool = True, notify: bool = True) -> SeqRecord:
         """
         Get the contig from the FASTA file.
 
@@ -335,6 +345,7 @@ class FASTAHandler(FileHandler):
 
         :param aliases: The contig aliases.
         :param rewind: Whether to allow for rewinding the iterator if the contig is not found.
+        :param notify: Whether to notify the user when rewinding the iterator.
         :return: The contig.
         """
         try:
@@ -348,12 +359,12 @@ class FASTAHandler(FileHandler):
             # if rewind is ``True``, we can rewind the iterator and try again
             # this might be necessary if the FASTA file and the VCF have a different order of contigs
             if rewind:
-                self.logger.info("Rewinding FASTA iterator. The FASTA file and the "
-                                 "VCF file might have a different order of contigs.")
+                if notify:
+                    self.logger.info("Rewinding FASTA iterator. The FASTA file and the "
+                                     "VCF file might have a different contig order.")
 
                 # renew fasta iterator
-                # noinspection all
-                del self._ref
+                self._rewind()
 
                 return self.get_contig(aliases, rewind=False)
 
@@ -361,20 +372,36 @@ class FASTAHandler(FileHandler):
 
         return contig
 
+    def get_contig_names(self) -> List[str]:
+        """
+        Get the names of the contigs in the FASTA file.
+
+        :return: The contig names.
+        """
+        return [contig.id for contig in self._ref]
+
+    def _rewind(self):
+        """
+        Rewind the iterator.
+        """
+        # noinspection all
+        del self._ref
+
 
 class GFFHandler(FileHandler):
     """
     GFF handler.
     """
 
-    def __init__(self, gff_file: str, cache: bool = True):
+    def __init__(self, gff_file: str, cache: bool = True, aliases: Dict[str, List[str]] = {}):
         """
         Constructor.
 
         :param gff_file: The path to the GFF file.
         :param cache: Whether to cache the file.
+        :param aliases: The contig aliases.
         """
-        FileHandler.__init__(self, cache=cache)
+        FileHandler.__init__(self, cache=cache, aliases=aliases)
 
         #: The logger
         self.logger = logger.getChild(self.__class__.__name__)
@@ -445,16 +472,27 @@ class GFFHandler(FileHandler):
 
         return df
 
-    def _count_target_sites(self) -> Dict[str, int]:
+    def _count_target_sites(self, remove_overlaps: bool = False, contigs: List[str] = None) -> Dict[str, int]:
         """
         Count the number of target sites in a GFF file.
 
+        :param remove_overlaps: Whether to remove overlapping coding sequences.
+        :param contigs: The contigs to consider.
         :return: The number of target sites per chromosome/contig.
         """
-        cds = self._compute_lengths(self._load_cds())
+        cds = self._add_lengths(
+            cds=self._load_cds(),
+            remove_overlaps=remove_overlaps,
+            contigs=contigs
+        )
 
         # group by 'seqid' and calculate the sum of 'length'
         target_sites = cds.groupby('seqid')['length'].sum().to_dict()
+
+        # filter explicitly for contigs if necessary
+        # as seqid is a categorical variable, groups were retained even if they were filtered out
+        if contigs is not None:
+            target_sites = {k: v for k, v in target_sites.items() if k in contigs}
 
         return target_sites
 
@@ -473,21 +511,32 @@ class GFFHandler(FileHandler):
         return df.drop(columns=['overlap'])
 
     @staticmethod
-    def _compute_lengths(cds: pd.DataFrame) -> pd.DataFrame:
+    def _add_lengths(cds: pd.DataFrame, remove_overlaps: bool = False, contigs: List[str] = None) -> pd.DataFrame:
         """
         Compute coding sequences lengths.
 
         :param cds: The coding sequences.
+        :param remove_overlaps: Whether to remove overlapping coding sequences.
+        :param contigs: The contigs to consider.
         :return: The coding sequences with lengths.
         """
+        # filter for contigs if necessary
+        if contigs is not None:
+            cds = cds[cds['seqid'].isin(contigs)]
+
         # remove duplicates
         cds = cds.drop_duplicates(subset=['seqid', 'start'])
 
         # remove overlaps
-        # cds = GFFHandler.remove_overlaps(cds)
+        if remove_overlaps:
+            cds = GFFHandler.remove_overlaps(cds)
 
-        # create a new column for the difference between 'end' and 'start'
-        cds.loc[:, 'length'] = cds['end'] - cds['start'] + 1
+        # catch warning when adding a new column to a slice of a DataFrame
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=SettingWithCopyWarning)
+
+            # create a new column for the difference between 'end' and 'start'
+            cds['length'] = cds['end'] - cds['start'] + 1
 
         return cds
 
@@ -503,7 +552,8 @@ class VCFHandler(FileHandler):
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
             seed: int | None = 0,
-            cache: bool = True
+            cache: bool = True,
+            aliases: Dict[str, List[str]] = {}
     ):
         """
         Create a new VCF instance.
@@ -513,8 +563,9 @@ class VCFHandler(FileHandler):
         :param max_sites: Maximum number of sites to consider
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param cache: Whether to cache files that are downloaded from URLs
+        :param aliases: The contig aliases.
         """
-        super().__init__(cache=cache)
+        FileHandler.__init__(self, cache=cache, aliases=aliases)
 
         #: The path to the VCF file or an iterable of variants
         self.vcf = vcf
@@ -523,10 +574,10 @@ class VCFHandler(FileHandler):
         self.info_ancestral: str = info_ancestral
 
         #: Maximum number of sites to consider
-        self.max_sites: int = max_sites
+        self.max_sites: int = int(max_sites) if not np.isinf(max_sites) else np.inf
 
         #: Seed for the random number generator
-        self.seed: Optional[int] = seed
+        self.seed: Optional[int] = int(seed) if seed is not None else None
 
         #: Random generator instance
         self.rng = np.random.default_rng(seed=seed)
@@ -542,16 +593,21 @@ class VCFHandler(FileHandler):
         """
         return count_sites(self.download_if_url(self.vcf), max_sites=self.max_sites)
 
-    def get_pbar(self, desc: str = "Processing sites") -> tqdm:
+    def get_pbar(self, desc: str = "Processing sites", total: int | None = 0) -> tqdm:
         """
         Return a progress bar for the number of sites.
 
         :param desc: Description for the progress bar
+        :param total: Total number of items
         :return: tqdm
         """
         from . import disable_pbar
 
-        return tqdm(total=self.n_sites, disable=disable_pbar, desc=desc)
+        return tqdm(
+            total=self.n_sites if total == 0 else total,
+            disable=disable_pbar,
+            desc=desc
+        )
 
 
 class NoTypeException(BaseException):
@@ -559,3 +615,47 @@ class NoTypeException(BaseException):
     Exception thrown when no type can be determined.
     """
     pass
+
+
+class DummyVariant:
+    """
+    Dummy variant class to emulate a variant from a reference site.
+    """
+
+    #: Whether the variant is an SNP
+    is_snp = False
+
+    #: Whether the variant is an MNP
+    is_mnp = False
+
+    #: Whether the variant is an indel
+    is_indel = False
+
+    #: Whether the variant is a deletion
+    is_deletion = False
+
+    #: Whether the variant is a structural variant
+    is_sv = False
+
+    #: The alternate alleles
+    ALT = []
+
+    def __init__(self, ref: str, pos: int, chrom: str):
+        """
+        Initialize the dummy variant.
+
+        :param ref: The reference allele
+        :param pos: The position
+        :param chrom: The contig
+        """
+        #: The reference allele
+        self.REF = ref
+
+        #: The position
+        self.POS = pos
+
+        #: The contig
+        self.CHROM = chrom
+
+        #: Info field
+        self.INFO = {}

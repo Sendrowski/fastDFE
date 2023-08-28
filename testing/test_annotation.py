@@ -7,7 +7,7 @@ import pandas as pd
 from numpy import testing
 from pandas.testing import assert_frame_equal
 
-from fastdfe.bio_handlers import count_sites, GFFHandler
+from fastdfe.io_handlers import count_sites, GFFHandler
 from testing import prioritize_installed_packages
 
 logging.getLogger('fastdfe').setLevel(logging.DEBUG)
@@ -17,8 +17,7 @@ prioritize_installed_packages()
 from testing import TestCase
 import pytest
 
-from fastdfe import Annotator, MaximumParsimonyAncestralAnnotation, Parser, DegeneracyAnnotation, SynonymyAnnotation, \
-    Annotation, MaximumLikelihoodAncestralAnnotation, K2SubstitutionModel, JCSubstitutionModel
+import fastdfe as fd
 
 
 class AnnotatorTestCase(TestCase):
@@ -62,7 +61,7 @@ class AnnotatorTestCase(TestCase):
         type(mock_annotator).info_ancestral = PropertyMock(return_value="AA")
 
         for test_case in test_cases:
-            annotation = MaximumParsimonyAncestralAnnotation(samples=test_case["ingroups"])
+            annotation = fd.MaximumParsimonyAncestralAnnotation(samples=test_case["ingroups"])
             annotation.annotator = mock_annotator
 
             # Mock the VCF reader with samples
@@ -88,17 +87,17 @@ class AnnotatorTestCase(TestCase):
         """
         Test the maximum parsimony annotator.
         """
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf=self.vcf_file,
             output='scratch/test_maximum_parsimony_annotation.vcf',
-            annotations=[MaximumParsimonyAncestralAnnotation()],
+            annotations=[fd.MaximumParsimonyAncestralAnnotation()],
             info_ancestral='BB'
         )
 
         ann.annotate()
 
-        Parser(self.vcf_file, n=20, info_ancestral='BB').parse().plot(title="Original")
-        Parser(ann.output, n=20, info_ancestral='BB').parse().plot(title="Annotated")
+        fd.Parser(self.vcf_file, n=20, info_ancestral='BB').parse().plot(title="Original")
+        fd.Parser(ann.output, n=20, info_ancestral='BB').parse().plot(title="Annotated")
 
         # assert number of sites is the same
         assert count_sites(self.vcf_file) == count_sites(ann.output)
@@ -108,14 +107,14 @@ class AnnotatorTestCase(TestCase):
         """
         Test the degeneracy annotator on a small human genome.
         """
-        deg = DegeneracyAnnotation(
+        deg = fd.DegeneracyAnnotation(
             fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
             gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
         )
 
         vcf = "resources/genome/sapiens/chr21_test.vcf.gz"
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf=vcf,
             output='scratch/test_degeneracy_annotation_human_test_genome.vcf',
             annotations=[deg],
@@ -135,14 +134,14 @@ class AnnotatorTestCase(TestCase):
         """
         Test the degeneracy annotator on a small human genome with a remote gzipped fasta file.
         """
-        deg = DegeneracyAnnotation(
+        deg = fd.DegeneracyAnnotation(
             fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
             gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
         )
 
         vcf = "resources/genome/sapiens/chr21_test.vcf.gz"
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf=vcf,
             output='scratch/test_degeneracy_annotation_human_test_genome_remote_fasta_gzipped.vcf',
             annotations=[deg],
@@ -161,11 +160,11 @@ class AnnotatorTestCase(TestCase):
         """
         vcf = "resources/genome/betula/all.subset.100000.vcf.gz"
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf=vcf,
             output='scratch/test_degeneracy_annotation_betula_subset.vcf',
             annotations=[
-                DegeneracyAnnotation(
+                fd.DegeneracyAnnotation(
                     fasta_file="resources/genome/betula/genome.subset.20.fasta",
                     gff_file="resources/genome/betula/genome.gff.gz"
                 )
@@ -182,11 +181,11 @@ class AnnotatorTestCase(TestCase):
         """
         Test the annotator loading a VCF from a URL.
         """
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
             output='scratch/test_annotator_load_vcf_from_url.vcf',
             annotations=[
-                DegeneracyAnnotation(
+                fd.DegeneracyAnnotation(
                     fasta_file="resources/genome/betula/genome.subset.20.fasta",
                     gff_file="resources/genome/betula/genome.gff.gz"
                 )
@@ -202,14 +201,14 @@ class AnnotatorTestCase(TestCase):
     @staticmethod
     def test_compare_synonymy_annotation_with_vep_betula():
         """
-        Compare the synonymy annotation with VEP.
+        Compare the synonymy annotation with VEP for the betula dataset.
         """
-        syn = SynonymyAnnotation(
+        syn = fd.SynonymyAnnotation(
             fasta_file="resources/genome/betula/genome.subset.20.fasta",
             gff_file="resources/genome/betula/genome.gff.gz"
         )
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
             output='scratch/test_compare_synonymy_annotation_with_vep_betula.vcf',
             annotations=[syn],
@@ -223,15 +222,15 @@ class AnnotatorTestCase(TestCase):
     @pytest.mark.slow
     def test_compare_synonymy_annotation_with_vep_human_chr21(self):
         """
-        Compare the synonymy annotation with SnpEff and VEP.
+        Compare the synonymy annotation with VEP for human chromosome 21.
         """
-        syn = SynonymyAnnotation(
+        syn = fd.SynonymyAnnotation(
             fasta_file="resources/genome/sapiens/chr21.fasta",
             gff_file="resources/genome/sapiens/chr21.sorted.gff3",
             aliases=dict(chr21=['21'])
         )
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf="snakemake/results/vcf/sapiens/chr21.vep.vcf.gz",
             output="scratch/test_compare_synonymy_annotation_with_vep_human_chr21.vcf",
             annotations=[syn]
@@ -245,15 +244,15 @@ class AnnotatorTestCase(TestCase):
     @pytest.mark.slow
     def test_compare_synonymy_annotation_with_snpeff_human_chr21(self):
         """
-        Compare the synonymy annotation with VEP.
+        Compare the synonymy annotation with snpEff for human chromosome 21.
         """
-        syn = SynonymyAnnotation(
+        syn = fd.SynonymyAnnotation(
             fasta_file="resources/genome/sapiens/chr21.fasta",
             gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz",
             aliases=dict(chr21=['21'])
         )
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf="snakemake/results/vcf/sapiens/chr21.snpeff.vcf.gz",
             output="scratch/test_compare_synonymy_annotation_with_snpeff_human_chr21.vcf",
             annotations=[syn]
@@ -263,6 +262,28 @@ class AnnotatorTestCase(TestCase):
 
         assert syn.n_snpeff_comparisons == 11240
         assert len(syn.snpeff_mismatches) == 233
+
+    @pytest.mark.slow
+    def test_compare_synonymy_annotation_with_vep_hgdp_chr21(self):
+        """
+        Compare the synonymy annotation with VEP for HGDP chromosome 21.
+        """
+        syn = fd.SynonymyAnnotation(
+            fasta_file="snakemake/results/fasta/hgdp/21.fasta.gz",
+            gff_file="snakemake/results/gff/hgdp/21.gff3.gz",
+            aliases=dict(chr21=['21'])
+        )
+
+        ann = fd.Annotator(
+            vcf="snakemake/results/vcf/hgdp/21/opts.vep.vcf.gz",
+            output="scratch/test_compare_synonymy_annotation_with_vep_hgdp_chr21.vcf",
+            annotations=[syn]
+        )
+
+        ann.annotate()
+
+        assert syn.n_vep_comparisons == 6010
+        assert len(syn.vep_mismatches) == 49
 
     def test_get_degeneracy(self):
         """
@@ -291,7 +312,7 @@ class AnnotatorTestCase(TestCase):
         ]
 
         for codon, pos, expected in test_cases:
-            degeneracy = DegeneracyAnnotation._get_degeneracy(codon, pos)
+            degeneracy = fd.DegeneracyAnnotation._get_degeneracy(codon, pos)
             self.assertEqual(degeneracy, expected)
 
     def test_is_synonymous(self):
@@ -326,7 +347,7 @@ class AnnotatorTestCase(TestCase):
 
         for codon1, codon2, expected in test_cases:
             with self.subTest(codon1=codon1, codon2=codon2):
-                synonymy = SynonymyAnnotation.is_synonymous(codon1, codon2)
+                synonymy = fd.SynonymyAnnotation.is_synonymous(codon1, codon2)
                 self.assertEqual(synonymy, expected)
 
     @staticmethod
@@ -353,16 +374,28 @@ class AnnotatorTestCase(TestCase):
 
         assert result == expected_result
 
-    @staticmethod
-    def test_count_target_sites_betula_gff():
+    def test_count_target_sites_betula_gff_all_contigs(self):
         """
-        Test the count_target_sites function on the Betula gff file
+        Test the count_target_sites function on the Betula gff file.
         """
         gff = "resources/genome/betula/genome.gff.gz"
 
-        result = Annotation.count_target_sites(gff)
+        target_sites = fd.Annotation.count_target_sites(gff)
 
-        pass
+        self.assertEqual(3273, len(target_sites))
+        self.assertEqual(337816, target_sites['Contig0'])
+
+    def test_count_target_sites_betula_gff_some_contigs(self):
+        """
+        Test the count_target_sites function on the Betula gff file.
+        """
+        gff = "resources/genome/betula/genome.gff.gz"
+
+        target_sites = fd.Annotation.count_target_sites(gff, contigs=['Contig0', 'Contig10'])
+
+        self.assertEqual(2, len(target_sites))
+        self.assertEqual(337816, target_sites['Contig0'])
+        self.assertEqual(4992, target_sites['Contig10'])
 
 
 class MaximumLikelihoodAncestralAnnotationTest(TestCase):
@@ -372,11 +405,11 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         Test that a ValueError is raised when the lower bound of a parameter is negative.
         """
         with self.assertRaises(ValueError):
-            MaximumLikelihoodAncestralAnnotation(
+            fd.MaximumLikelihoodAncestralAnnotation(
                 outgroups=["ERR2103730", "ERR2103731"],
                 n_runs_rate=3,
                 n_ingroups=5,
-                model=JCSubstitutionModel(bounds=dict(k=(-1, 1)))
+                model=fd.JCSubstitutionModel(bounds=dict(k=(-1, 1)))
             )
 
     def test_get_p_tree_one_outgroup(self):
@@ -388,10 +421,10 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             K0=0.5
         )
 
-        model = K2SubstitutionModel()
+        model = fd.K2SubstitutionModel()
 
         for base, outgroup_base in itertools.product(range(4), range(4)):
-            p = MaximumLikelihoodAncestralAnnotation.get_p_tree(
+            p = fd.MaximumLikelihoodAncestralAnnotation.get_p_tree(
                 base=base,
                 n_outgroups=1,
                 internal_nodes=[],
@@ -423,10 +456,10 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             K2=0.125
         )
 
-        model = K2SubstitutionModel()
+        model = fd.K2SubstitutionModel()
 
         for base, outgroup_base1, outgroup_base2, internal_node in itertools.product(range(4), repeat=4):
-            p = MaximumLikelihoodAncestralAnnotation.get_p_tree(
+            p = fd.MaximumLikelihoodAncestralAnnotation.get_p_tree(
                 base=base,
                 n_outgroups=2,
                 internal_nodes=[internal_node],
@@ -454,10 +487,10 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             K4=0.03125
         )
 
-        model = K2SubstitutionModel()
+        model = fd.K2SubstitutionModel()
 
         for base, out1, out2, out3, int_node1, int_node2 in itertools.product(range(4), repeat=6):
-            p = MaximumLikelihoodAncestralAnnotation.get_p_tree(
+            p = fd.MaximumLikelihoodAncestralAnnotation.get_p_tree(
                 base=base,
                 n_outgroups=3,
                 internal_nodes=[int_node1, int_node2],
@@ -485,7 +518,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         """
         Test the site_configurations function without a prior.
         """
-        anc = MaximumLikelihoodAncestralAnnotation.from_data(
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_data(
             n_major=[13, 15, 17, 11],
             major_bases=['A', 'C', 'G', 'T'],
             minor_bases=['C', 'G', 'T', 'A'],
@@ -497,11 +530,11 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         """
         Test the MaximumLikelihoodAncestralAnnotation class with fixed parameters and different branch rates.
         """
-        anc = MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/TEST-DATA.TXT",
             n_runs_rate=10,
             parallelize=True,
-            model=K2SubstitutionModel(fixed_params=dict(k=2, K0=0.5, K2=0.125))
+            model=fd.K2SubstitutionModel(fixed_params=dict(k=2, K0=0.5, K2=0.125))
         )
 
         anc.infer()
@@ -516,11 +549,11 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         """
         Test the MaximumLikelihoodAncestralAnnotation class with fixed parameters and same branch rates.
         """
-        anc = MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/TEST-DATA.TXT",
             n_runs_rate=10,
             parallelize=True,
-            model=K2SubstitutionModel(fixed_params=dict(k=2, K=0.5), pool_branch_rates=True)
+            model=fd.K2SubstitutionModel(fixed_params=dict(k=2, K=0.5), pool_branch_rates=True)
         )
 
         anc.infer()
@@ -546,14 +579,14 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             dict(n_major=15, major_base=None, minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='N'),
         ]
 
-        anc = MaximumLikelihoodAncestralAnnotation.from_data(
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_data(
             n_major=[c['n_major'] for c in configs],
             major_bases=[c['major_base'] for c in configs],
             minor_bases=[c['minor_base'] for c in configs],
             outgroup_bases=[c['outgroup_bases'] for c in configs],
             n_ingroups=20,
             use_prior=False,
-            model=JCSubstitutionModel(pool_branch_rates=True, fixed_params=dict(K=0.1)),
+            model=fd.JCSubstitutionModel(pool_branch_rates=True, fixed_params=dict(K=0.1)),
             parallelize=False
         )
 
@@ -569,7 +602,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         Test that an error is raised when zero outgroups are given.
         """
         with self.assertRaises(ValueError):
-            MaximumLikelihoodAncestralAnnotation(
+            fd.MaximumLikelihoodAncestralAnnotation(
                 outgroups=[],
                 n_ingroups=10
             )
@@ -579,12 +612,12 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         Test that an error is raised when an outgroup is not found.
         """
         with self.assertRaises(ValueError) as context:
-            anc = MaximumLikelihoodAncestralAnnotation(
+            anc = fd.MaximumLikelihoodAncestralAnnotation(
                 outgroups=["ERR2103730", "blabla"],
                 n_ingroups=10
             )
 
-            ann = Annotator(
+            ann = fd.Annotator(
                 vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
                 output='scratch/test_outgroup_not_found_raises_error.vcf',
                 annotations=[anc]
@@ -600,13 +633,13 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         Test that an error is raised when an outgroup is not found.
         """
         with self.assertRaises(ValueError) as context:
-            anc = MaximumLikelihoodAncestralAnnotation(
+            anc = fd.MaximumLikelihoodAncestralAnnotation(
                 ingroups=["ASP04", "ASP05", "blabla", "foo"],
                 outgroups=["ERR2103730", "ERR2103731"],
                 n_ingroups=4
             )
 
-            ann = Annotator(
+            ann = fd.Annotator(
                 vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
                 output='scratch/test_ingroup_not_found_raises_error.vcf',
                 annotations=[anc]
@@ -622,13 +655,13 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         Test that an error is raised when an outgroup is not found.
         """
         with self.assertRaises(ValueError) as context:
-            anc = MaximumLikelihoodAncestralAnnotation(
+            anc = fd.MaximumLikelihoodAncestralAnnotation(
                 ingroups=["ASP04", "ASP05"],
                 outgroups=["ERR2103730", "ERR2103731"],
                 n_ingroups=10
             )
 
-            ann = Annotator(
+            ann = fd.Annotator(
                 vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
                 output='scratch/test_fewer_ingroups_than_ingroup_samples_raises_error.vcf',
                 annotations=[anc]
@@ -644,14 +677,14 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         Test that an error is raised when an outgroup is not found.
         """
         with self.assertRaises(ValueError) as context:
-            anc = MaximumLikelihoodAncestralAnnotation(
+            anc = fd.MaximumLikelihoodAncestralAnnotation(
                 ingroups=["ASP04", "ASP05"],
                 outgroups=["ERR2103730", "ERR2103731"],
                 n_ingroups=2,
                 n_outgroups=3
             )
 
-            ann = Annotator(
+            ann = fd.Annotator(
                 vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
                 output='scratch/test_fewer_outgroups_than_outgroup_samples_raises_error.vcf',
                 annotations=[anc]
@@ -666,14 +699,14 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         """
         Test that an error is raised when an outgroup is not found.
         """
-        anc = MaximumLikelihoodAncestralAnnotation(
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
             ingroups=["ASP04", "ASP05"],
             outgroups=["ERR2103730", "ERR2103731"],
             n_ingroups=2,
             n_outgroups=2
         )
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
             output='scratch/test_explicitly_specified_present_samples_raises_no_error.vcf',
             annotations=[anc]
@@ -685,13 +718,13 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         """
         Test the get_likelihood function.
         """
-        anc = MaximumLikelihoodAncestralAnnotation(
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_ingroups=10,
             use_prior=False
         )
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
             output='scratch/test_get_likelihood_outgroup_ancestral_allele_annotation.vcf',
             annotations=[anc],
@@ -708,13 +741,13 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         TODO get biallelic dataset with outgroups
         """
-        anc = MaximumLikelihoodAncestralAnnotation(
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_ingroups=10,
             use_prior=False
         )
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf="resources/genome/betula/all.vcf.gz",
             output='scratch/test_get_likelihood_full_betula_dataset.vcf',
             annotations=[anc]
@@ -730,9 +763,9 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         TODO solve problem with ancestral probabilities above 1 when using prior
         """
-        anc = MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/TEST-DATA.TXT",
-            model=JCSubstitutionModel(pool_branch_rates=True),
+            model=fd.JCSubstitutionModel(pool_branch_rates=True),
             n_runs_rate=10,
             use_prior=True,
             parallelize=False
@@ -758,7 +791,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         reference_chunk_size = 100
 
         # Create a DataFrame using the reference_chunk_size
-        anc_reference = MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+        anc_reference = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/TEST-DATA.TXT",
             chunk_size=reference_chunk_size
         )
@@ -768,7 +801,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         ).reset_index(drop=True).sort_index(axis=1)
 
         for chunk_size in test_sizes:
-            anc_test = MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+            anc_test = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
                 file="resources/EST-SFS/TEST-DATA.TXT",
                 chunk_size=chunk_size
             )
@@ -783,7 +816,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         """
         Test that the parallelize function works correctly when the likelihoods are not equal.
         """
-        anc = MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/TEST-DATA.TXT",
             n_runs_rate=10,
             parallelize=True
@@ -797,7 +830,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         """
         Test that the from_data function produces the expected results.
         """
-        anc = MaximumLikelihoodAncestralAnnotation.from_data(
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_data(
             n_major=[13, 15, 17, 11],
             major_bases=['A', 'C', 'G', 'T'],
             minor_bases=['C', 'G', 'T', 'A'],
@@ -821,11 +854,11 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         Test that a ValueError is raised when the lower bound of a parameter is negative.
         """
         with self.assertRaises(ValueError):
-            MaximumLikelihoodAncestralAnnotation(
+            fd.MaximumLikelihoodAncestralAnnotation(
                 outgroups=["ERR2103730", "ERR2103731"],
                 n_runs_rate=3,
                 n_ingroups=5,
-                model=JCSubstitutionModel(bounds=dict(K=(10, 9)))
+                model=fd.JCSubstitutionModel(bounds=dict(K=(10, 9)))
             )
 
     @staticmethod
@@ -833,13 +866,13 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         """
         Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
         """
-        anc = MaximumLikelihoodAncestralAnnotation(
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_runs_rate=50,
             n_ingroups=10
         )
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
             output='scratch/test_pendula_thorough.vcf',
             annotations=[anc]
@@ -854,15 +887,15 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         """
         Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
         """
-        anc = MaximumLikelihoodAncestralAnnotation(
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_runs_rate=10,
             n_ingroups=5,
-            model=K2SubstitutionModel(bounds=dict(k=(0.001, 100), K=(0.01, 0.1))),
+            model=fd.K2SubstitutionModel(bounds=dict(k=(0.001, 100), K=(0.01, 0.1))),
             use_prior=False
         )
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
             output='scratch/test_pendula_use_prior_K2_model.vcf',
             annotations=[anc],
@@ -878,14 +911,14 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         """
         Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
         """
-        anc = MaximumLikelihoodAncestralAnnotation(
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_runs_rate=3,
             n_ingroups=5,
-            model=JCSubstitutionModel(bounds=dict(K=(0.01, 0.1)))
+            model=fd.JCSubstitutionModel(bounds=dict(K=(0.01, 0.1)))
         )
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
             output='scratch/test_pendula_use_prior_JC_model.vcf',
             annotations=[anc],
@@ -901,14 +934,14 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         """
         Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
         """
-        anc = MaximumLikelihoodAncestralAnnotation(
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_runs_rate=3,
             n_ingroups=5,
             use_prior=False
         )
 
-        ann = Annotator(
+        ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
             output='scratch/test_pendula_not_use_prior.vcf',
             annotations=[anc],
@@ -916,3 +949,55 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         )
 
         ann.annotate()
+
+    def test_aliases_empty_dict(self):
+        """
+        Test aliases when no aliases are given.
+        """
+        contig_aliases = {}
+        expected_mappings = {}
+        expected_aliases_expanded = {}
+
+        mappings, aliases_expanded = fd.FileHandler._expand_aliases(contig_aliases)
+
+        self.assertEqual(mappings, expected_mappings)
+        self.assertEqual(aliases_expanded, expected_aliases_expanded)
+
+    def test_aliases_single_contig(self):
+        """
+        Test aliases when a single contig is given.
+        """
+        contig_aliases = {'chr1': ['1']}
+        expected_mappings = {'chr1': 'chr1', '1': 'chr1'}
+        expected_aliases_expanded = {'chr1': ['1', 'chr1']}
+
+        mappings, aliases_expanded = fd.FileHandler._expand_aliases(contig_aliases)
+
+        self.assertEqual(mappings, expected_mappings)
+        self.assertEqual(aliases_expanded, expected_aliases_expanded)
+
+    def test_aliases_multiple_contigs(self):
+        """
+        Test aliases when multiple contigs are given.
+        """
+        contig_aliases = {'chr1': ['1'], 'chr2': ['2']}
+        expected_mappings = {'chr1': 'chr1', '1': 'chr1', 'chr2': 'chr2', '2': 'chr2'}
+        expected_aliases_expanded = {'chr1': ['1', 'chr1'], 'chr2': ['2', 'chr2']}
+
+        mappings, aliases_expanded = fd.FileHandler._expand_aliases(contig_aliases)
+
+        self.assertEqual(mappings, expected_mappings)
+        self.assertEqual(aliases_expanded, expected_aliases_expanded)
+
+    def test_aliases_multiple_aliases(self):
+        """
+        Test aliases when multiple aliases are given for a single contig.
+        """
+        contig_aliases = {'chr1': ['1', 'one']}
+        expected_mappings = {'chr1': 'chr1', '1': 'chr1', 'one': 'chr1'}
+        expected_aliases_expanded = {'chr1': ['1', 'one', 'chr1']}
+
+        mappings, aliases_expanded = fd.FileHandler._expand_aliases(contig_aliases)
+
+        self.assertEqual(mappings, expected_mappings)
+        self.assertEqual(aliases_expanded, expected_aliases_expanded)

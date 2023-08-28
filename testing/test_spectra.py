@@ -15,6 +15,9 @@ class SpectraTestCase(TestCase):
     n = 20
 
     def test_multiply_by_scalar(self):
+        """
+        Test that multiplying a spectra by a scalar works as expected.
+        """
         s = Spectra(dict(
             all=np.arange(20),
             sub=np.arange(3, 23)
@@ -24,6 +27,9 @@ class SpectraTestCase(TestCase):
         testing.assert_array_equal(np.arange(3, 23) * 4, s[['sub']].to_list()[0])
 
     def test_restore_from_list(self):
+        """
+        Test that restoring a spectra from a list works as expected.
+        """
         s = Spectra(dict(
             all=np.arange(20),
             sub=np.arange(3, 23)
@@ -34,6 +40,9 @@ class SpectraTestCase(TestCase):
         testing.assert_array_equal(s.to_numpy(), s2.to_numpy())
 
     def test_multiply_by_list(self):
+        """
+        Test that multiplying a spectra by a list works as expected.
+        """
         s = Spectra(dict(
             all=np.arange(20),
             sub=np.arange(3, 23)
@@ -43,6 +52,9 @@ class SpectraTestCase(TestCase):
         testing.assert_array_equal(np.arange(3, 23) * 4, s[['sub']].to_list()[0])
 
     def test_create_from_spectrum_dict(self):
+        """
+        Test that creating a spectra from a dict of spectra works as expected.
+        """
         s = Spectra.from_spectra(dict(
             all=spectrum.standard_kingman(self.n) * 4,
             sub=spectrum.standard_kingman(self.n) * 2
@@ -52,6 +64,9 @@ class SpectraTestCase(TestCase):
         testing.assert_array_equal((spectrum.standard_kingman(self.n) * 2).to_list(), s['sub'].to_list())
 
     def test_create_from_spectrum(self):
+        """
+        Test that creating a spectra from a single spectrum works as expected.
+        """
         s = Spectra.from_spectrum(spectrum.standard_kingman(self.n))
 
         testing.assert_array_equal(spectrum.standard_kingman(self.n).to_list(), s['all'].to_list())
@@ -59,6 +74,9 @@ class SpectraTestCase(TestCase):
         testing.assert_equal(1, s.k)
 
     def test_create_from_array_pass_targets_div(self):
+        """
+        Test that creating a spectra from an array works as expected.
+        """
         data = spectrum.standard_kingman(self.n)
         data.data[-1] = 6543
         s = Spectra.from_list([data.to_list()], types=['all'])
@@ -68,6 +86,9 @@ class SpectraTestCase(TestCase):
         testing.assert_equal(1, s.k)
 
     def test_create_from_dataframe(self):
+        """
+        Test that creating a spectra from a dataframe works as expected.
+        """
         df = pd.DataFrame(dict(
             all=(spectrum.standard_kingman(self.n) * 4).to_list(),
             sub=(spectrum.standard_kingman(self.n) * 2).to_list()
@@ -78,6 +99,9 @@ class SpectraTestCase(TestCase):
         pd.testing.assert_frame_equal(df, s.data)
 
     def test_restore_from_file(self):
+        """
+        Test that restoring a spectra from a file works as expected.
+        """
         s = Spectra.from_spectra(dict(
             all=spectrum.standard_kingman(self.n) * 4,
             sub=spectrum.standard_kingman(self.n) * 2
@@ -90,6 +114,9 @@ class SpectraTestCase(TestCase):
         pd.testing.assert_frame_equal(s.data, s2.data)
 
     def test_restore_from_dict(self):
+        """
+        Test that restoring a spectra from a dict works as expected.
+        """
         s = Spectra.from_spectra(dict(
             all=spectrum.standard_kingman(self.n) * 4,
             sub=spectrum.standard_kingman(self.n) * 2
@@ -100,6 +127,9 @@ class SpectraTestCase(TestCase):
         pd.testing.assert_frame_equal(s.data, s2.data)
 
     def test_normalize(self):
+        """
+        Test that normalizing a spectra works as expected.
+        """
         s = Spectra.from_spectra(dict(
             all=spectrum.standard_kingman(self.n),
             sub=spectrum.standard_kingman(self.n)
@@ -111,6 +141,9 @@ class SpectraTestCase(TestCase):
         testing.assert_almost_equal(1, np.sum(s['sub'].to_list()[:-1]))
 
     def test_properties(self):
+        """
+        Test that the properties of a spectra work as expected.
+        """
         s = Spectra.from_spectra(dict(
             all=spectrum.standard_kingman(self.n),
             sub=spectrum.standard_kingman(self.n)
@@ -121,6 +154,9 @@ class SpectraTestCase(TestCase):
         testing.assert_array_equal(['all', 'sub'], s.types)
 
     def test_from_polydfe(self):
+        """
+        Test that the from_polydfe method works as expected.
+        """
         data = np.arange(self.n) * 10
         n_sites = 100000000
         n_div = 12345
@@ -134,25 +170,40 @@ class SpectraTestCase(TestCase):
         testing.assert_equal(s.n_sites, n_sites)
 
     def test_wattersons_estimator(self):
+        """
+        Test that the wattersons_estimator method works as expected.
+        """
         data = [3434, 6346, 234, 4342, 55, 525, 24, 56, 2, 42, 4]
         testing.assert_equal(Spectrum(data).theta, dadi.Spectrum(data).Watterson_theta() / sum(data))
 
     def test_plot_spectrum(self):
+        """
+        Test that the plot_spectrum method works as expected.
+        """
         (spectrum.standard_kingman(self.n) * 4).plot()
 
     def test_plot_spectra(self):
+        """
+        Test that the plot_spectra method works as expected.
+        """
         Spectra.from_spectra(dict(
             all=spectrum.standard_kingman(self.n) * 4,
             sub=spectrum.standard_kingman(self.n) * 2
         )).plot()
 
     def test_plot_spectra_use_subplots(self):
+        """
+        Test that the plot_spectra method works as expected.
+        """
         Spectra.from_spectra(dict(
             all=spectrum.standard_kingman(self.n) * 4,
             sub=spectrum.standard_kingman(self.n) * 2
         )).plot(use_subplots=True)
 
     def test_select_wildcard(self):
+        """
+        Test that the select method works as expected.
+        """
         s = Spectra.from_spectra(dict(
             all=spectrum.standard_kingman(self.n),
             all2=spectrum.standard_kingman(self.n),
@@ -164,6 +215,9 @@ class SpectraTestCase(TestCase):
         assert isinstance(s[['sub.*']], Spectra)
 
     def test_merge_level(self):
+        """
+        Test that the merge_level method works as expected.
+        """
         s = Spectra.from_spectra({
             'bla.foo.bar': Spectrum([1000, 3, 4, 1]),
             'test1.te.x': Spectrum([100, 4, 7, 6]),
@@ -178,6 +232,9 @@ class SpectraTestCase(TestCase):
         pd.testing.assert_frame_equal(s.data, expected.data)
 
     def test_add_spectra(self):
+        """
+        Test that the add_spectra method works as expected.
+        """
         s = Spectra.from_spectra({
             'bla.foo.bar': Spectrum([1000, 3, 4, 1]),
             'test1.te.x': Spectrum([100, 4, 7, 6]),
@@ -198,6 +255,9 @@ class SpectraTestCase(TestCase):
         pd.testing.assert_frame_equal(s.data, expected.data)
 
     def test_rename_spectra(self):
+        """
+        Test that the rename_spectra method works as expected.
+        """
         # create spectra with two subtypes and two types
         spectra = Spectra.from_spectra({
             "subtype1.type1": Spectrum.standard_kingman(10) * 1,
@@ -346,3 +406,14 @@ class SpectraTestCase(TestCase):
         Test whether two spectrum objects can be normalized.
         """
         testing.assert_array_equal(Spectrum([10, 1, 2, 3, 10]).normalize().data, [10, 1 / 6, 1 / 3, 1 / 2, 10])
+
+    def test_spectra_n_monomorphic(self):
+        """
+        Test whether the n_monomorphic property works as expected.
+        """
+        spectra = Spectra.from_spectra(dict(
+            type1=Spectrum([1, 0, 0, 0, 0, 0, 0, 0, 0, 10]),
+            type2=Spectrum([1, 2, 0, 4, 5, 6, 7, 8, 9, 65]),
+        ))
+
+        assert np.all(spectra.n_monomorphic == pd.Series(dict(type1=11, type2=66)))
