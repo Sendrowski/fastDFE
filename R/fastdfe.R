@@ -66,7 +66,12 @@ install_fastdfe <- function(version = NULL, force = FALSE, silent = FALSE) {
   
   # Check if fastdfe is installed or if force is TRUE
   if (force || !fastdfe_is_installed()) {
-    reticulate::py_install(package_name, method = "pip", version = version)
+    reticulate::py_install(
+      package_name, 
+      pip = TRUE, 
+      version = version, 
+      ignore_installed = TRUE
+   )
   } else {
     if (!silent) {
       message("The 'fastdfe' Python module is already installed.")
