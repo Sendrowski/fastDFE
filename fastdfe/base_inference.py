@@ -212,7 +212,7 @@ class BaseInference(AbstractInference):
 
         # raise warning if theta is unusually large
         if self.theta > 0.05 or self.sfs_sel.theta > 0.05:
-            self.logger.warning("Mutation rate appears unusually highly. "
+            self.logger.warning("Mutation rate appears unusually high. "
                                 "This is a reminder to provide monomorphic site counts.")
 
         #: MLE estimates of the initial optimization
@@ -298,7 +298,7 @@ class BaseInference(AbstractInference):
         self.L2_residual: Optional[float] = None
 
         #: Random number generator seed
-        self.seed: int | None = seed
+        self.seed: int | None = int(seed) if seed is not None else None
 
         #: Random generator instance
         self.rng = np.random.default_rng(seed=seed)
@@ -527,7 +527,10 @@ class BaseInference(AbstractInference):
                                 "the optimization parameters (increasing `gtol` or `n_runs`) "
                                 "or decrease the number of optimized parameters.")
 
-        self.logger.info(f"Inferred parameters: {flatten_dict(params)}.")
+        # param string for MLE params
+        param_string = str(flatten_dict(params)).replace('\'', '')
+
+        self.logger.info(f"Inferred parameters: {param_string}.")
 
     def update_properties(self, **kwargs) -> Self:
         """
