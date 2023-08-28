@@ -143,6 +143,15 @@
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Warning message in poetry_config(required_module):
+“This project appears to use Poetry for Python dependency management.
+However, the &#39;poetry&#39; command line tool is not available.
+reticulate will be unable to activate this project.
+Please ensure that &#39;poetry&#39; is available on the PATH.”
+</pre></div>
+</div>
+</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -238,7 +247,7 @@
 </section>
 <section id="nested-model-comparison">
 <h3>Nested model comparison<a class="headerlink" href="#nested-model-comparison" title="Permalink to this heading"></a></h3>
-<p>We can automatically check for the significance of include ancestral-allele mis-idenfication and beneficial fitness affects using likelihood ratio test (LRTs). This is done with <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference.plot_nested_models" title="fastdfe.base_inference.BaseInference.plot_nested_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_nested_models()</span></code></a>. The LRTs are performed by comparing the likelihood of the inferred DFE to the likelihood of a nested model where some parameters are held fixed.</p>
+<p>We can automatically check for the significance of include ancestral-allele mis-identification and beneficial fitness affects using likelihood ratio test (LRTs). This is done with <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference.plot_nested_models" title="fastdfe.base_inference.BaseInference.plot_nested_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_nested_models()</span></code></a>. The LRTs are performed by comparing the likelihood of the inferred DFE to the likelihood of a nested model where some parameters are held fixed.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="c1"># disable progress bar and set logging level to warning to avoid cluttering</span>
@@ -372,7 +381,7 @@ Adding another scale for <span class=" -Color -Color-Green">y</span>, which will
 </div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">marginal.pendula</span></code> and <code class="docutils literal notranslate"><span class="pre">marginal.pubescens</span></code> are the marginal inferences for the respective type. <code class="docutils literal notranslate"><span class="pre">marginal.all</span></code> is the marginal inference obtaining by adding up the spectra of all types. <code class="docutils literal notranslate"><span class="pre">joint.pendula</span></code> and <code class="docutils literal notranslate"><span class="pre">join.pubescens</span></code> are the joint inferences for the respective type. We can see that <code class="docutils literal notranslate"><span class="pre">eps</span></code> and <code class="docutils literal notranslate"><span class="pre">S_d</span></code> are indeed shared between the two. The parameter <code class="docutils literal notranslate"><span class="pre">alpha</span></code> in the plot denotes the proportion of beneficial non-synonymous substitutions. Each marginal inference is a <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> object itself and can be accessed via <code class="docutils literal notranslate"><span class="pre">inf.marginal_inferences[type]</span></code>.</p>
-<p>We can now also investigate to what exten the inferred DFEs differ:</p>
+<p>We can now also investigate to what extent the inferred DFEs differ:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">joint_inference</span><span class="o">$</span><span class="nf">plot_discretized</span><span class="p">(</span><span class="n">inf</span><span class="p">)</span>
@@ -462,7 +471,16 @@ Adding another scale for <span class=" -Color -Color-Green">y</span>, which will
 <img alt="../../_images/1200b075f9000fa41bcc74bb1def6598ba77748489d63ade0212695bcf3eae43.png" src="../../_images/1200b075f9000fa41bcc74bb1def6598ba77748489d63ade0212695bcf3eae43.png" />
 </div>
 </div>
-<p>We do see that <code class="docutils literal notranslate"><span class="pre">S_d</span></code> indeed varies among the jointly-inferred types and this is due to the linear relationship with the covariate values introduced.</p>
+<p>We see that <code class="docutils literal notranslate"><span class="pre">S_d</span></code> does not vary among the jointly-inferred types and this is because it does not vary linearly along the arbitrary covariates we specified. Indeed, looking at the mean over all bootstraps for our covariate we see that it is close to 0. Note that covariates are named <code class="docutils literal notranslate"><span class="pre">c0</span></code>, <code class="docutils literal notranslate"><span class="pre">c1</span></code>, etc. by default.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">mean</span><span class="p">(</span><span class="n">inf</span><span class="o">$</span><span class="n">bootstraps</span><span class="p">[[</span><span class="s">&#39;A.c0&#39;</span><span class="p">]])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">6.05521844095717e-05</div></div>
+</div>
 <section id="id1">
 <h3>Model comparison<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
 <p>We can perform a likelihood ratio test to see whether including the covariates produces a significantly better fit than simply sharing the parameter in question among the types (cf. <a class="reference internal" href="../../modules/inference.html#fastdfe.joint_inference.JointInference.perform_lrt_covariates" title="fastdfe.joint_inference.JointInference.perform_lrt_covariates"><code class="xref py py-func docutils literal notranslate"><span class="pre">perform_lrt_covariates()</span></code></a>).</p>

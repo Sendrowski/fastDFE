@@ -133,14 +133,6 @@
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Discretization: Precomputing linear DFE-SFS transformation using midpoint integration.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Successfully finished optimization after 69 iterations and 510 function evaluations, obtaining a log-likelihood of -34.6321629044744.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Inferred parameters: {&#39;all.S_d&#39;: -9868.270989289615, &#39;all.b&#39;: 0.1508097745704915, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 0.0002191946595685579, &#39;all.eps&#39;: 0.006854664823870646}.</span>
-</pre></div>
-</div>
-</div>
 </div>
 <p>fastDFE uses maximum likelihood estimation (MLE) to find the DFE. By default, 10 local optimization runs are carried out to make sure a reasonably good global optimum has been bound. The DFE furthermore needs to parametrized where <a class="reference internal" href="../../modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization" title="fastdfe.parametrization.GammaExpParametrization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammaExpParametrization</span></code></a> is used by default.</p>
 <p>We can now plot the inferred DFE in discretized form (cf. <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference.plot_discretized" title="fastdfe.base_inference.BaseInference.plot_discretized"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_discretized()</span></code></a>).</p>
@@ -151,7 +143,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/4f6a76ce9ccee590d2c99c68092d5b716df932571dae5425d1a7b000fe38cef2.png" src="../../_images/4f6a76ce9ccee590d2c99c68092d5b716df932571dae5425d1a7b000fe38cef2.png" />
+<img alt="../../_images/1041148e01f541a126e6e153182fff9ce407f6d421a9a7d05eb2c785a188ca9f.png" src="../../_images/1041148e01f541a126e6e153182fff9ce407f6d421a9a7d05eb2c785a188ca9f.png" />
 </div>
 </div>
 <p>We can also plot a comparison of the (selected) modelled and observed SFS (cf. <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference.plot_sfs_comparison" title="fastdfe.base_inference.BaseInference.plot_sfs_comparison"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_sfs_comparison()</span></code></a>).</p>
@@ -165,7 +157,7 @@
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 512x384 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../../_images/fc3f47ccf729989bf6a35fbe38bdbbff6a78187c274260be7675294065a4bfb4.png" src="../../_images/fc3f47ccf729989bf6a35fbe38bdbbff6a78187c274260be7675294065a4bfb4.png" />
+<img alt="../../_images/722642972d36ac6e6f849676940c535baa72f0f49291803a996cfa6e781b4d26.png" src="../../_images/722642972d36ac6e6f849676940c535baa72f0f49291803a996cfa6e781b4d26.png" />
 </div>
 </div>
 </section>
@@ -182,10 +174,10 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 116.59it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 110.56it/s]
 </pre></div>
 </div>
-<img alt="../../_images/c2d8b2b840db2de93e8881faaf2650a9adf4e2d9f29cbfb2595ff3fe67cbaf1f.png" src="../../_images/c2d8b2b840db2de93e8881faaf2650a9adf4e2d9f29cbfb2595ff3fe67cbaf1f.png" />
+<img alt="../../_images/752b7841ba2a547c509d7478aa094af09f796dfe29f3d75f9981d384f3df0a1d.png" src="../../_images/752b7841ba2a547c509d7478aa094af09f796dfe29f3d75f9981d384f3df0a1d.png" />
 </div>
 </div>
 </section>

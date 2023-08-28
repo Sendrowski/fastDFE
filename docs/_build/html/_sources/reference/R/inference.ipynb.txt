@@ -17,11 +17,23 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:09:52.368124Z",
-     "start_time": "2023-08-20T15:09:38.542986Z"
+     "end_time": "2023-08-23T12:16:03.837452Z",
+     "start_time": "2023-08-23T12:15:46.929937Z"
     }
    },
-   "outputs": [],
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message in poetry_config(required_module):\n",
+      "“This project appears to use Poetry for Python dependency management.\n",
+      "However, the 'poetry' command line tool is not available.\n",
+      "reticulate will be unable to activate this project.\n",
+      "Please ensure that 'poetry' is available on the PATH.”\n"
+     ]
+    }
+   ],
    "source": [
     "library(fastdfe)\n",
     "\n",
@@ -35,8 +47,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:09:53.573070Z",
-     "start_time": "2023-08-20T15:09:52.370275Z"
+     "end_time": "2023-08-23T12:16:05.050489Z",
+     "start_time": "2023-08-23T12:16:03.839031Z"
     }
    },
    "outputs": [],
@@ -84,8 +96,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:09:57.682071Z",
-     "start_time": "2023-08-20T15:09:53.576465Z"
+     "end_time": "2023-08-23T12:16:18.258267Z",
+     "start_time": "2023-08-23T12:16:05.053916Z"
     }
    },
    "outputs": [
@@ -122,8 +134,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:09:57.841055Z",
-     "start_time": "2023-08-20T15:09:57.684300Z"
+     "end_time": "2023-08-23T12:16:18.417838Z",
+     "start_time": "2023-08-23T12:16:18.259113Z"
     }
    },
    "outputs": [
@@ -162,8 +174,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:09:59.229994Z",
-     "start_time": "2023-08-20T15:09:57.842872Z"
+     "end_time": "2023-08-23T12:16:19.704085Z",
+     "start_time": "2023-08-23T12:16:18.419117Z"
     }
    },
    "outputs": [
@@ -214,8 +226,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:10:00.402026Z",
-     "start_time": "2023-08-20T15:09:59.231543Z"
+     "end_time": "2023-08-23T12:16:21.203327Z",
+     "start_time": "2023-08-23T12:16:19.706070Z"
     }
    },
    "outputs": [
@@ -258,7 +270,7 @@
    },
    "source": [
     "### Nested model comparison\n",
-    "We can automatically check for the significance of include ancestral-allele mis-idenfication and beneficial fitness affects using likelihood ratio test (LRTs). This is done with {func}`~fastdfe.base_inference.BaseInference.plot_nested_models`. The LRTs are performed by comparing the likelihood of the inferred DFE to the likelihood of a nested model where some parameters are held fixed."
+    "We can automatically check for the significance of include ancestral-allele mis-identification and beneficial fitness affects using likelihood ratio test (LRTs). This is done with {func}`~fastdfe.base_inference.BaseInference.plot_nested_models`. The LRTs are performed by comparing the likelihood of the inferred DFE to the likelihood of a nested model where some parameters are held fixed."
    ]
   },
   {
@@ -267,8 +279,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:10:11.537719Z",
-     "start_time": "2023-08-20T15:10:00.404239Z"
+     "end_time": "2023-08-23T12:16:32.836405Z",
+     "start_time": "2023-08-23T12:16:21.205427Z"
     }
    },
    "outputs": [
@@ -320,8 +332,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:10:11.650403Z",
-     "start_time": "2023-08-20T15:10:11.540827Z"
+     "end_time": "2023-08-23T12:16:32.950353Z",
+     "start_time": "2023-08-23T12:16:32.838924Z"
     }
    },
    "outputs": [
@@ -367,8 +379,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:10:11.699297Z",
-     "start_time": "2023-08-20T15:10:11.651337Z"
+     "end_time": "2023-08-23T12:16:33.040816Z",
+     "start_time": "2023-08-23T12:16:32.951469Z"
     }
    },
    "outputs": [],
@@ -397,8 +409,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:10:12.737837Z",
-     "start_time": "2023-08-20T15:10:11.701828Z"
+     "end_time": "2023-08-23T12:16:33.820446Z",
+     "start_time": "2023-08-23T12:16:33.042655Z"
     }
    },
    "outputs": [
@@ -454,8 +466,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:10:12.965284Z",
-     "start_time": "2023-08-20T15:10:12.740641Z"
+     "end_time": "2023-08-23T12:16:34.034984Z",
+     "start_time": "2023-08-23T12:16:33.821705Z"
     }
    }
   },
@@ -475,8 +487,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:10:41.310580Z",
-     "start_time": "2023-08-20T15:10:12.967476Z"
+     "end_time": "2023-08-23T12:16:57.215356Z",
+     "start_time": "2023-08-23T12:16:34.036464Z"
     }
    },
    "outputs": [],
@@ -524,8 +536,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:10:41.602390Z",
-     "start_time": "2023-08-20T15:10:41.313720Z"
+     "end_time": "2023-08-23T12:16:57.515179Z",
+     "start_time": "2023-08-23T12:16:57.218192Z"
     }
    },
    "outputs": [
@@ -563,7 +575,7 @@
    "source": [
     "``marginal.pendula`` and ``marginal.pubescens`` are the marginal inferences for the respective type. ``marginal.all`` is the marginal inference obtaining by adding up the spectra of all types. ``joint.pendula`` and ``join.pubescens`` are the joint inferences for the respective type. We can see that ``eps`` and ``S_d`` are indeed shared between the two. The parameter ``alpha`` in the plot denotes the proportion of beneficial non-synonymous substitutions. Each marginal inference is a {class}`~fastdfe.base_inference.BaseInference` object itself and can be accessed via ``inf.marginal_inferences[type]``.\n",
     "\n",
-    "We can now also investigate to what exten the inferred DFEs differ:"
+    "We can now also investigate to what extent the inferred DFEs differ:"
    ]
   },
   {
@@ -572,8 +584,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:10:41.874333Z",
-     "start_time": "2023-08-20T15:10:41.597879Z"
+     "end_time": "2023-08-23T12:16:57.780426Z",
+     "start_time": "2023-08-23T12:16:57.515930Z"
     }
    },
    "outputs": [
@@ -611,8 +623,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:10:41.904523Z",
-     "start_time": "2023-08-20T15:10:41.862467Z"
+     "end_time": "2023-08-23T12:16:57.794803Z",
+     "start_time": "2023-08-23T12:16:57.781945Z"
     }
    },
    "outputs": [
@@ -656,8 +668,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:12:10.977284Z",
-     "start_time": "2023-08-20T15:10:41.873799Z"
+     "end_time": "2023-08-23T12:18:26.053058Z",
+     "start_time": "2023-08-23T12:16:57.794074Z"
     }
    },
    "outputs": [
@@ -710,8 +722,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:12:24.803563Z",
-     "start_time": "2023-08-20T15:12:10.979162Z"
+     "end_time": "2023-08-23T12:18:39.582760Z",
+     "start_time": "2023-08-23T12:18:26.054264Z"
     }
    },
    "outputs": [],
@@ -746,8 +758,8 @@
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:12:25.203864Z",
-     "start_time": "2023-08-20T15:12:24.807151Z"
+     "end_time": "2023-08-23T12:18:40.012769Z",
+     "start_time": "2023-08-23T12:18:39.585989Z"
     }
    },
    "outputs": [
@@ -783,20 +795,53 @@
     "collapsed": false
    },
    "source": [
-    "We do see that ``S_d`` indeed varies among the jointly-inferred types and this is due to the linear relationship with the covariate values introduced.\n",
-    "\n",
-    "### Model comparison\n",
-    "We can perform a likelihood ratio test to see whether including the covariates produces a significantly better fit than simply sharing the parameter in question among the types (cf. {func}`~fastdfe.joint_inference.JointInference.perform_lrt_covariates`)."
+    "We see that ``S_d`` does not vary among the jointly-inferred types and this is because it does not vary linearly along the arbitrary covariates we specified. Indeed, looking at the mean over all bootstraps for our covariate we see that it is close to 0. Note that covariates are named ``c0``, ``c1``, etc. by default."
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 19,
+   "execution_count": 25,
+   "outputs": [
+    {
+     "data": {
+      "text/html": "6.05521844095717e-05",
+      "text/markdown": "6.05521844095717e-05",
+      "text/latex": "6.05521844095717e-05",
+      "text/plain": "[1] 6.055218e-05"
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "mean(inf$bootstraps[['A.c0']])"
+   ],
    "metadata": {
     "collapsed": false,
     "ExecuteTime": {
-     "end_time": "2023-08-20T15:12:38.274767Z",
-     "start_time": "2023-08-20T15:12:25.205460Z"
+     "end_time": "2023-08-23T12:20:50.861157Z",
+     "start_time": "2023-08-23T12:20:50.847406Z"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "### Model comparison\n",
+    "We can perform a likelihood ratio test to see whether including the covariates produces a significantly better fit than simply sharing the parameter in question among the types (cf. {func}`~fastdfe.joint_inference.JointInference.perform_lrt_covariates`)."
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "metadata": {
+    "collapsed": false,
+    "ExecuteTime": {
+     "end_time": "2023-08-23T12:20:53.769590Z",
+     "start_time": "2023-08-23T12:20:53.743984Z"
     }
    },
    "outputs": [
