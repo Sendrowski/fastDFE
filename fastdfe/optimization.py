@@ -654,13 +654,13 @@ def check_bounds(
     near_lower = {}
     near_upper = {}
 
-    def convert(value: float, to_scale: Literal['lin', 'log']) -> float:
+    def transform(value: float, to_scale: Literal['lin', 'log']) -> float:
         """
-        Convert a value to the specified scale.
+        Transform a value to the specified scale.
 
-        :param value:
-        :param to_scale:
-        :return:
+        :param value: The value to transform.
+        :param to_scale: The scale to transform to.
+        :return: The transformed value.
         """
         if to_scale == 'log':
             return math.log(value) if value > 0 else -float('inf')
@@ -672,17 +672,19 @@ def check_bounds(
         name = key.split('.')[-1]
 
         # get bounds
-        raw_lower, raw_upper = bounds[name]
-        lower = convert(raw_lower, scale)
-        upper = convert(raw_upper, scale)
-        value = convert(value, scale)
+        lower, upper = bounds[name]
+
+        # transform values
+        _lower = transform(lower, scale)
+        _upper = transform(upper, scale)
+        _value = transform(value, scale)
 
         if key not in fixed_params:
-            if lower is not None and (value - lower) / (upper - lower) <= percentile / 100:
-                near_lower[key] = (raw_lower, value, raw_upper)
+            if _lower is not None and (_value - _lower) / (_upper - _lower) <= percentile / 100:
+                near_lower[key] = (lower, value, upper)
 
-            if upper is not None and (upper - value) / (upper - lower) <= percentile / 100:
-                near_upper[key] = (raw_lower, value, raw_upper)
+            if _upper is not None and (_upper - _value) / (_upper - _lower) <= percentile / 100:
+                near_upper[key] = (lower, value, upper)
 
     return near_lower, near_upper
 
@@ -1190,7 +1192,7 @@ class Optimization:
             logger.warning(
                 f'The MLE estimate is close to the upper bound '
                 f'for {near_lower_unscaled} and lower bound '
-                f'for {near_upper_unscaled}, but '
+                f'for {near_upper_unscaled} [(lower, value, upper)], but '
                 f'this might be nothing to worry about.'
             )
 

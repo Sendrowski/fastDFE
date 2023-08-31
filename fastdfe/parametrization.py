@@ -696,6 +696,8 @@ class DiscreteFractionalParametrization(Parametrization):
     This parametrization has the advantage of not imposing a shape on the DFE. For a reasonably fine parametrization,
     the number of parameters is larger than those of the other models, however. It is preferable over
     :class:`DiscreteParametrization` as it has one parameter less and does not impose a constraint on the parameters.
+    Another disadvantage is that there might be `gaps` in the estimated DFE, which is not possible with the other
+    parametrizations.
     """
 
     def __init__(

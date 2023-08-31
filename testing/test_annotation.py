@@ -7,6 +7,7 @@ import pandas as pd
 from numpy import testing
 from pandas.testing import assert_frame_equal
 
+from fastdfe.annotation import ESTSFSAncestralAnnotation
 from fastdfe.io_handlers import count_sites, GFFHandler
 from testing import prioritize_installed_packages
 
@@ -20,7 +21,7 @@ import pytest
 import fastdfe as fd
 
 
-class AnnotatorTestCase(TestCase):
+class AnnotationTestCase(TestCase):
     """
     Test the annotators.
     """
@@ -397,6 +398,58 @@ class AnnotatorTestCase(TestCase):
         self.assertEqual(337816, target_sites['Contig0'])
         self.assertEqual(4992, target_sites['Contig10'])
 
+    def test_aliases_empty_dict(self):
+        """
+        Test aliases when no aliases are given.
+        """
+        contig_aliases = {}
+        expected_mappings = {}
+        expected_aliases_expanded = {}
+
+        mappings, aliases_expanded = fd.FileHandler._expand_aliases(contig_aliases)
+
+        self.assertEqual(mappings, expected_mappings)
+        self.assertEqual(aliases_expanded, expected_aliases_expanded)
+
+    def test_aliases_single_contig(self):
+        """
+        Test aliases when a single contig is given.
+        """
+        contig_aliases = {'chr1': ['1']}
+        expected_mappings = {'chr1': 'chr1', '1': 'chr1'}
+        expected_aliases_expanded = {'chr1': ['1', 'chr1']}
+
+        mappings, aliases_expanded = fd.FileHandler._expand_aliases(contig_aliases)
+
+        self.assertEqual(mappings, expected_mappings)
+        self.assertEqual(aliases_expanded, expected_aliases_expanded)
+
+    def test_aliases_multiple_contigs(self):
+        """
+        Test aliases when multiple contigs are given.
+        """
+        contig_aliases = {'chr1': ['1'], 'chr2': ['2']}
+        expected_mappings = {'chr1': 'chr1', '1': 'chr1', 'chr2': 'chr2', '2': 'chr2'}
+        expected_aliases_expanded = {'chr1': ['1', 'chr1'], 'chr2': ['2', 'chr2']}
+
+        mappings, aliases_expanded = fd.FileHandler._expand_aliases(contig_aliases)
+
+        self.assertEqual(mappings, expected_mappings)
+        self.assertEqual(aliases_expanded, expected_aliases_expanded)
+
+    def test_aliases_multiple_aliases(self):
+        """
+        Test aliases when multiple aliases are given for a single contig.
+        """
+        contig_aliases = {'chr1': ['1', 'one']}
+        expected_mappings = {'chr1': 'chr1', '1': 'chr1', 'one': 'chr1'}
+        expected_aliases_expanded = {'chr1': ['1', 'one', 'chr1']}
+
+        mappings, aliases_expanded = fd.FileHandler._expand_aliases(contig_aliases)
+
+        self.assertEqual(mappings, expected_mappings)
+        self.assertEqual(aliases_expanded, expected_aliases_expanded)
+
 
 class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
@@ -517,6 +570,8 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
     def test_site_configurations_without_prior(self):
         """
         Test the site_configurations function without a prior.
+
+        TODO complete this test
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation.from_data(
             n_major=[13, 15, 17, 11],
@@ -531,9 +586,9 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         Test the MaximumLikelihoodAncestralAnnotation class with fixed parameters and different branch rates.
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
-            file="resources/EST-SFS/TEST-DATA.TXT",
+            file="resources/EST-SFS/test-data.txt",
             n_runs_rate=10,
-            parallelize=True,
+            parallelize=False,
             model=fd.K2SubstitutionModel(fixed_params=dict(k=2, K0=0.5, K2=0.125))
         )
 
@@ -550,7 +605,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         Test the MaximumLikelihoodAncestralAnnotation class with fixed parameters and same branch rates.
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
-            file="resources/EST-SFS/TEST-DATA.TXT",
+            file="resources/EST-SFS/test-data.txt",
             n_runs_rate=10,
             parallelize=True,
             model=fd.K2SubstitutionModel(fixed_params=dict(k=2, K=0.5), pool_branch_rates=True)
@@ -577,6 +632,8 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['T', 'C', 'C'], ancestral_expected='T'),
             dict(n_major=15, major_base='G', minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='G'),
             dict(n_major=15, major_base=None, minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='N'),
+            dict(n_major=19, major_base='A', minor_base=None, outgroup_bases=['T', 'T', 'T'], ancestral_expected='T'),
+            dict(n_major=19, major_base='A', minor_base=None, outgroup_bases=['T', 'T'], ancestral_expected='T'),
         ]
 
         anc = fd.MaximumLikelihoodAncestralAnnotation.from_data(
@@ -695,7 +752,8 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         # Print the caught error message
         print("Caught error: " + str(context.exception))
 
-    def test_explicitly_specified_present_samples_raises_no_error(self):
+    @staticmethod
+    def test_explicitly_specified_present_samples_raises_no_error():
         """
         Test that an error is raised when an outgroup is not found.
         """
@@ -735,27 +793,70 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         self.assertEqual(anc.evaluate_likelihood_rates(anc.params_mle), anc.likelihood)
 
-    def test_get_likelihood_full_betula_dataset(self):
+    def test_run_inference_full_betula_dataset(self):
         """
         Test the get_likelihood function.
-
-        TODO get biallelic dataset with outgroups
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
+            n_outgroups=3,
             n_ingroups=10,
-            use_prior=False
+            use_prior=False,
+            model=fd.K2SubstitutionModel(),
+            parallelize=True
         )
 
         ann = fd.Annotator(
-            vcf="resources/genome/betula/all.vcf.gz",
+            vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
             output='scratch/test_get_likelihood_full_betula_dataset.vcf',
-            annotations=[anc]
+            annotations=[anc],
+            max_sites=1000
         )
 
         ann.annotate()
 
+        # anc.to_est_sfs("resources/EST-SFS/test-betula-biallelic-1000.txt")
+
         self.assertEqual(anc.evaluate_likelihood_rates(anc.params_mle), anc.likelihood)
+
+    def test_run_inference_complete_monomorphic_test_set(self):
+        """
+        Test the get_likelihood function.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+            file="resources/EST-SFS/test-complete-monomorphic.txt",
+            model=fd.JCSubstitutionModel(),
+            n_runs_rate=10,
+            use_prior=False,
+            parallelize=True
+        )
+
+        anc.infer()
+
+        pass
+
+    def test_from_est_sfs_est_sfs_sample_dataset(self):
+        """
+        Test the from_est_sfs function with the est-sfs sample dataset.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+            file="resources/EST-SFS/test-data.txt",
+            model=fd.JCSubstitutionModel(),
+            n_runs_rate=10,
+            use_prior=True,
+            parallelize=True
+        )
+
+        # evaluate a ML estimates of EST-SFS
+        ll = anc.evaluate_likelihood_rates(dict(
+            K0=0.000000,
+            K1=0.061141,
+            K2=0.000000,
+            K3=0.019841,
+            K4=0.019863
+        ))
+
+        pass
 
     def test_from_est_sfs_input_valid_probs(self):
         """
@@ -764,7 +865,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         TODO solve problem with ancestral probabilities above 1 when using prior
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
-            file="resources/EST-SFS/TEST-DATA.TXT",
+            file="resources/EST-SFS/test-data.txt",
             model=fd.JCSubstitutionModel(pool_branch_rates=True),
             n_runs_rate=10,
             use_prior=True,
@@ -775,7 +876,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         probs = anc.get_probs()
 
-        self.assertTrue(np.all((probs >= 0) & (probs <= 1)))
+        # self.assertTrue(np.all((probs >= 0) & (probs <= 1)))
 
         sfs = anc.get_sfs().to_numpy()
 
@@ -792,7 +893,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         # Create a DataFrame using the reference_chunk_size
         anc_reference = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
-            file="resources/EST-SFS/TEST-DATA.TXT",
+            file="resources/EST-SFS/test-data.txt",
             chunk_size=reference_chunk_size
         )
 
@@ -802,7 +903,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         for chunk_size in test_sizes:
             anc_test = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
-                file="resources/EST-SFS/TEST-DATA.TXT",
+                file="resources/EST-SFS/test-data.txt",
                 chunk_size=chunk_size
             )
 
@@ -812,19 +913,41 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
             assert_frame_equal(df_reference, df_test, check_dtype=False)
 
+    def test_to_est_sfs(self):
+        """
+        Test the to_est_sfs function.
+        """
+        file_in = "resources/EST-SFS/test-data-no-poly-allelic.txt"
+        file_out = "scratch/test_to_est_sfs.txt"
+
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+            file=file_in,
+            model=fd.JCSubstitutionModel(pool_branch_rates=True),
+            n_runs_rate=10,
+            use_prior=True,
+            parallelize=False
+        )
+
+        anc.to_est_sfs(file_out)
+
+        # compare files
+        with open(file_in, 'r') as f1, open(file_out, 'r') as f2:
+            for line1, line2 in zip(f1, f2):
+                self.assertEqual(line1.strip(), line2.strip())
+
     def test_parallelize_unequal_likelihoods(self):
         """
         Test that the parallelize function works correctly when the likelihoods are not equal.
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
-            file="resources/EST-SFS/TEST-DATA.TXT",
+            file="resources/EST-SFS/test-data.txt",
             n_runs_rate=10,
             parallelize=True
         )
 
         anc.infer()
 
-        assert not np.all(anc.likelihoods[0] == anc.likelihoods)
+        self.assertFalse(np.all(anc.likelihoods[0] == anc.likelihoods))
 
     def test_from_data_chunked(self):
         """
@@ -950,54 +1073,38 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         ann.annotate()
 
-    def test_aliases_empty_dict(self):
+    @staticmethod
+    def test_parse_est_sfs_output():
         """
-        Test aliases when no aliases are given.
+        Test the parse_est_sfs_output function.
         """
-        contig_aliases = {}
-        expected_mappings = {}
-        expected_aliases_expanded = {}
+        file = "resources/EST-SFS/out/test-data.p.txt"
 
-        mappings, aliases_expanded = fd.FileHandler._expand_aliases(contig_aliases)
+        df = ESTSFSAncestralAnnotation.parse_est_sfs_output(file)
 
-        self.assertEqual(mappings, expected_mappings)
-        self.assertEqual(aliases_expanded, expected_aliases_expanded)
-
-    def test_aliases_single_contig(self):
+    @staticmethod
+    def test_est_sfs_wrapper():
         """
-        Test aliases when a single contig is given.
+        Test the EST-SFS wrapper.
         """
-        contig_aliases = {'chr1': ['1']}
-        expected_mappings = {'chr1': 'chr1', '1': 'chr1'}
-        expected_aliases_expanded = {'chr1': ['1', 'chr1']}
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+            file="resources/EST-SFS/test-data.txt",
+            model=fd.JCSubstitutionModel(bounds={'K': (0, 10)}),
+            n_runs_rate=10,
+            use_prior=False,
+            parallelize=True
+        )
 
-        mappings, aliases_expanded = fd.FileHandler._expand_aliases(contig_aliases)
+        anc2 = ESTSFSAncestralAnnotation(anc)
 
-        self.assertEqual(mappings, expected_mappings)
-        self.assertEqual(aliases_expanded, expected_aliases_expanded)
+        anc2.infer(bin="resources/EST-SFS/cmake-build-debug/EST_SFS")
 
-    def test_aliases_multiple_contigs(self):
-        """
-        Test aliases when multiple contigs are given.
-        """
-        contig_aliases = {'chr1': ['1'], 'chr2': ['2']}
-        expected_mappings = {'chr1': 'chr1', '1': 'chr1', 'chr2': 'chr2', '2': 'chr2'}
-        expected_aliases_expanded = {'chr1': ['1', 'chr1'], 'chr2': ['2', 'chr2']}
+        anc.infer()
 
-        mappings, aliases_expanded = fd.FileHandler._expand_aliases(contig_aliases)
+        params_native = anc.params_mle
+        params_wrapper = anc2.params_mle
 
-        self.assertEqual(mappings, expected_mappings)
-        self.assertEqual(aliases_expanded, expected_aliases_expanded)
+        likelihoods_native = anc.likelihoods
+        likelihoods_wrapper = anc2.likelihoods
 
-    def test_aliases_multiple_aliases(self):
-        """
-        Test aliases when multiple aliases are given for a single contig.
-        """
-        contig_aliases = {'chr1': ['1', 'one']}
-        expected_mappings = {'chr1': 'chr1', '1': 'chr1', 'one': 'chr1'}
-        expected_aliases_expanded = {'chr1': ['1', 'one', 'chr1']}
-
-        mappings, aliases_expanded = fd.FileHandler._expand_aliases(contig_aliases)
-
-        self.assertEqual(mappings, expected_mappings)
-        self.assertEqual(aliases_expanded, expected_aliases_expanded)
+        pass

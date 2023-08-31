@@ -221,16 +221,16 @@ class PolyDFE(AbstractInference):
         """
         start_time = time.time()
 
-        def shell(command: str):
-            """
-            Execute shell command.
-
-            :param command: Command string
-            """
-            return subprocess.run(command, check=True, cwd=wd, shell=True)
-
         # define default function for executing command
         if execute is None:
+            def shell(command: str):
+                """
+                Execute shell command.
+
+                :param command: Command string
+                """
+                return subprocess.run(command, check=True, cwd=wd, shell=True)
+
             execute = shell
 
         # save the spectra and init file, so they can be reviewed if necessary

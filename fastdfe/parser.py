@@ -619,7 +619,7 @@ class TargetSiteCounter(FASTAHandler):
         self.parser._rewind()
 
         # count the number of sites per contig
-        self.count_sites()
+        self.count_contig_sizes()
 
         # initialize random number generator
         rng = np.random.default_rng(self.seed)
@@ -627,7 +627,7 @@ class TargetSiteCounter(FASTAHandler):
         from . import disable_pbar
 
         # initialize progress bar
-        pbar = tqdm(total=self.n_samples, desc='Parsing target sites', disable=disable_pbar)
+        pbar = tqdm(total=self.n_samples, desc='Sampling target sites', disable=disable_pbar)
 
         # determine sampling probabilities
         probs = np.array(list(self._contig_sizes.values())) / sum(self._contig_sizes.values())
@@ -683,7 +683,7 @@ class TargetSiteCounter(FASTAHandler):
         self.parser._teardown()
 
         # notify on number of sites included in the SFS
-        self.logger.info(f"{i} out of {self.n_samples} monomorphic sites were added to the SFS.")
+        self.logger.info(f"{i} out of {self.n_samples} sampled sites were valid.")
 
     def _update_target_sites(self, spectra: Spectra) -> Spectra:
         """
@@ -729,7 +729,7 @@ class TargetSiteCounter(FASTAHandler):
 
             yield self.get_contig(aliases)
 
-    def count_sites(self) -> Dict[str, int]:
+    def count_contig_sizes(self) -> Dict[str, int]:
         """
         Count the total number of sites per contig.
 
@@ -900,9 +900,6 @@ class Parser(VCFHandler, FASTAHandler):
         #: The VCF reader
         self.reader: Optional[VCF] = None
 
-        #: The progress bar for the fasta file
-        self._pbar: tqdm | None = None
-
         #: 1-based positions of included sites per contig (only when target_site_counter is used)
         self._positions: Dict[str, List[int]] = defaultdict(list)
 
@@ -1057,9 +1054,6 @@ class Parser(VCFHandler, FASTAHandler):
         # count the number of sites
         self.n_sites = self.count_sites()
 
-        # initialize progress bar
-        self._pbar = self.get_pbar(total=self.n_sites)
-
         # set up target site counter
         if self.target_site_counter is not None:
             self.target_site_counter._setup(self)
@@ -1121,6 +1115,8 @@ class Parser(VCFHandler, FASTAHandler):
         # set up parser
         self._setup()
 
+        pbar = self.get_pbar(total=self.n_sites)
+
         # iterate over variants
         for i, variant in enumerate(self.reader):
 
@@ -1134,7 +1130,7 @@ class Parser(VCFHandler, FASTAHandler):
                 self.n_skipped += 1
 
             # update progress bar
-            self._pbar.update()
+            pbar.update()
 
             # explicitly stopping after ``n`` sites fixes a bug with cyvcf2:
             # 'error parsing variant with `htslib::bcf_read` error-code: 0 and ret: -2'
@@ -1142,7 +1138,7 @@ class Parser(VCFHandler, FASTAHandler):
                 break
 
         # close progress bar
-        self._pbar.close()
+        pbar.close()
 
         # tear down components
         self._teardown()
@@ -1152,15 +1148,15 @@ class Parser(VCFHandler, FASTAHandler):
 
         if len(self.sfs) == 0:
             self.logger.warning(f"No sites were included in the spectra. If this is not expected, "
-                                "please check that all components work as expected. You can do this by "
-                                "setting the log level to DEBUG.")
+                                "please check that all components work as expected. You can also "
+                                "set the log level to DEBUG.")
         else:
             n_included = self.n_sites - self.n_skipped
 
             self.logger.info(f'Included {n_included} out of {self.n_sites} sites in total from the VCF file.')
 
         # count target sites
-        if self.target_site_counter is not None:
+        if self.target_site_counter is not None and self.n_skipped < self.n_sites:
             # count target sites
             self.target_site_counter.count()
 

@@ -12,7 +12,7 @@ from testing import TestCase
 from fastdfe import Filterer, PolyAllelicFiltration, SNPFiltration, SNVFiltration, DeviantOutgroupFiltration
 
 
-class FiltererTestCase(TestCase):
+class FiltrationTestCase(TestCase):
     """
     Test the filter.
     """

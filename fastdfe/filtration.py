@@ -471,4 +471,4 @@ class Filterer(VCFHandler):
         writer.close()
         reader.close()
 
-        self.logger.info(f'Filtered out {self.n_filtered} out of {self.n_filtered} sites.')
+        self.logger.info(f'Filtered out {self.n_filtered} sites in total.')

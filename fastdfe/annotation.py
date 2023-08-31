@@ -9,10 +9,13 @@ __date__ = "2023-05-09"
 import itertools
 import logging
 import re
+import subprocess
+import tempfile
 from abc import ABC, abstractmethod
 from collections import Counter
 from enum import Enum
 from functools import cached_property
+from io import StringIO
 from itertools import product
 from typing import List, Optional, Dict, Tuple, Callable, Literal, Iterable, cast, Any
 
@@ -914,7 +917,7 @@ class SubstitutionModel(ABC):
         """
         self._cache = {}
 
-        for (b1, b2, i) in itertools.product(range(4), range(4), range(n_branches)):
+        for (b1, b2, i) in itertools.product(range(-1, 4), range(-1, 4), range(n_branches)):
             self._cache[(b1, b2, i)] = self._get_prob(b1, b2, i, params)
 
     @staticmethod
@@ -934,11 +937,11 @@ class SubstitutionModel(ABC):
 
         return x0
 
-    def get_bounds(self, anc: 'MaximumLikelihoodAncestralAnnotation') -> Dict[str, Tuple[float, float]]:
+    def get_bounds(self, n_outgroups: int) -> Dict[str, Tuple[float, float]]:
         """
         Get the bounds for the parameters.
 
-        :param anc: The ancestral allele annotation.
+        :param n_outgroups: The number of outgroups.
         :return: The bounds.
         """
         return self.bounds
@@ -1035,11 +1038,11 @@ class JCSubstitutionModel(SubstitutionModel):
 
         return self.bounds[param_no_index]
 
-    def get_bounds(self, anc: 'MaximumLikelihoodAncestralAnnotation') -> Dict[str, Tuple[float, float]]:
+    def get_bounds(self, n_outgroups: int) -> Dict[str, Tuple[float, float]]:
         """
         Get the bounds for the parameters.
 
-        :param anc: The ancestral allele annotation instance.
+        :param n_outgroups: The number of outgroups.
         :return: The lower and upper bounds.
         """
         if self.pool_branch_rates:
@@ -1047,7 +1050,7 @@ class JCSubstitutionModel(SubstitutionModel):
             return {'K': self.get_bound('K')}
 
         # get the bounds for the branch lengths
-        return {f"K{i}": self.get_bound(f"K{i}") for i in range(2 * anc.n_outgroups - 1)}
+        return {f"K{i}": self.get_bound(f"K{i}") for i in range(2 * n_outgroups - 1)}
 
     def _get_prob(self, b1: int, b2: int, i: int, params: Dict[str, float]) -> float:
         """
@@ -1075,7 +1078,7 @@ class K2SubstitutionModel(JCSubstitutionModel):
 
     def __init__(
             self,
-            bounds: Dict[str, Tuple[float, float]] = {'K': (1e-5, 10), 'k': (0.02, 0.2)},
+            bounds: Dict[str, Tuple[float, float]] = {'K': (1e-5, 10), 'k': (0.1, 10)},
             pool_branch_rates: bool = False,
             fixed_params: Dict[str, float] = {}
     ):
@@ -1094,14 +1097,14 @@ class K2SubstitutionModel(JCSubstitutionModel):
             fixed_params=fixed_params
         )
 
-    def get_bounds(self, anc: 'MaximumLikelihoodAncestralAnnotation') -> Dict[str, Tuple[float, float]]:
+    def get_bounds(self, n_outgroups: int) -> Dict[str, Tuple[float, float]]:
         """
         Get the bounds for the parameters.
 
-        :param anc: The ancestral allele annotation instance.
+        :param n_outgroups: The number of outgroups.
         :return: The lower and upper bounds.
         """
-        bounds = super().get_bounds(anc)
+        bounds = super().get_bounds(n_outgroups)
 
         # add bounds for the transition/transversion ratio
         bounds["k"] = self.get_bound("k")
@@ -1201,8 +1204,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         n_major=np.int8,
         multiplicity=np.int16,
         sites=object,
-        major_base="Int8",
-        minor_base="Int8",
+        major_base=np.int8,
+        minor_base=np.int8,
         outgroup_bases=object,
         p_ancestral=np.float64,
         p_minor=np.float64,
@@ -1224,6 +1227,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             parallelize: bool = True,
             use_prior: bool = True,
             max_sites: int = np.inf,
+            seed: int | None = 0
     ):
         """
         Create a new ancestral allele annotation instance.
@@ -1258,15 +1262,12 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             Choosing a reasonably large subset of sites (on the order of a few thousand bi-allelic sites) can speed up
             the computation considerably as parsing can be slow. This subset is then used to calibrate the rate
             parameters, and possibly the polarization priors.
+        :param seed: The seed for the random number generator. If ``None``, a random seed is chosen.
         """
         # check that we have at least one outgroup
         if len(outgroups) < 1:
             raise ValueError("Must specify at least one outgroup. If you do not have any outgroup "
                              "information, consider using MaximumParsimonyAncestralAnnotation instead.")
-
-        # check that we have enough outgroups specified
-        if len(outgroups) < n_outgroups:
-            raise ValueError("The number of specified outgroup samples must be at least as large as ``n_outgroups``.")
 
         # check that we have enough ingroups specified if specified at all
         if ingroups is not None and len(ingroups) < n_ingroups:
@@ -1323,7 +1324,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         self.n_sites: int | None = None
 
         #: The parameter names in the order they are passed to the optimizer.
-        self.param_names: List[str] | None = None
+        self.param_names: List[str] = list(self.model.get_bounds(n_outgroups).keys())
 
         #: The log likelihoods for the different runs when optimizing the rate parameters.
         self.likelihoods: np.ndarray[float, (...,)] | None = None
@@ -1337,8 +1338,11 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         #: The MLE parameters.
         self.params_mle: Dict[str, float] | None = None
 
+        #: Seed for the random number generator.
+        self.seed: int | None = seed
+
         #: Random number generator.
-        self.rng: np.random.Generator | None = None
+        self.rng: np.random.Generator = np.random.default_rng(seed)
 
     def _setup(self, annotator: 'Annotator', reader: VCF):
         """
@@ -1359,9 +1363,6 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
 
         # set reader
         self.reader = reader
-
-        # set rng
-        self.rng = annotator.rng
 
         # prepare masks
         self.prepare_masks(reader.samples)
@@ -1403,18 +1404,24 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             raise ValueError("Not all specified outgroups are present in the VCF file. "
                              f"Missing outgroups: {', '.join(missing)}")
 
-    def subsample(self, bases: np.ndarray[Any], size: int) -> np.ndarray[Any]:
+    def _subsample(self, genotypes: np.ndarray[Any], size: int) -> np.ndarray[str]:
         """
         Subsample a set of bases.
 
-        :param bases: A list of bases.
+        :param genotypes: A list of bases.
         :param size: The size of the subsample.
         :return: A subsample of the bases.
         """
-        if bases.shape[0] == 0:
+        if genotypes.shape[0] == 0:
             return np.array([])
 
-        return bases[self.annotator.rng.choice(bases.shape[0], size=min(size, bases.shape[0]), replace=False)]
+        subsamples = self.annotator.rng.choice(
+            a=genotypes.shape[0],
+            size=min(size, genotypes.shape[0]),
+            replace=False
+        )
+
+        return genotypes[subsamples]
 
     def parse_variant(self, variant: Variant) -> SiteConfig | None:
         """
@@ -1438,8 +1445,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         if n_ingroups >= self.n_ingroups:
 
             # subsample ingroups and outgroups
-            subsample_ingroups = self.subsample(ingroups, size=self.n_ingroups)
-            subsample_outgroups = self.subsample(outgroups, size=self.n_outgroups)
+            subsample_ingroups = self._subsample(ingroups, size=self.n_ingroups)
+            subsample_outgroups = self._subsample(outgroups, size=self.n_outgroups)
 
             # get the counts of ingroups and outgroups
             counts_ingroups = Counter(subsample_ingroups)
@@ -1457,10 +1464,10 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
                 if len(counts_ingroups) == 2:
                     minor_base = base_indices[bases[0] if bases[0] != most_common[0][0] else bases[1]]
                 else:
-                    minor_base = np.nan
+                    minor_base = -1
 
                 # initialize outgroup bases
-                outgroup_bases = np.full(self.n_outgroups, np.nan, dtype=np.int8)
+                outgroup_bases = np.full(self.n_outgroups, -1, dtype=np.int8)
 
                 # fill with outgroup bases
                 for i, base in enumerate(subsample_outgroups):
@@ -1479,13 +1486,34 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
 
         return None
 
+    @staticmethod
+    def _get_base_string(indices: int | np.ndarray[int]):
+        """
+        Get base string(s) from base index/indices.
+
+        :param indices: The base index/indices.
+        :return: Base string(s).
+        """
+        if isinstance(indices, np.ndarray):
+            is_valid = indices != -1
+
+            base_strings = np.full(indices.shape, '.', dtype=str)
+            base_strings[is_valid] = bases[indices[is_valid]]
+
+            return base_strings
+
+        # assume integer
+        if indices != -1:
+            return bases[indices]
+
+        return '.'
+
     @classmethod
     def _parse_est_sfs(cls, data: pd.DataFrame) -> pd.DataFrame:
         """
         Parse EST-SFS data.
 
         :param data: The data frame.
-        :param offset: The offset for the site indices.
         :return: The site configurations.
         """
         # extract the number of outgroups
@@ -1509,19 +1537,17 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         data['major_base'] = data.major_base.astype(cls.dtypes['major_base'])
 
         # determine the mono-allelic sites
-        mono_allelic = (ingroup_data > 1).sum(axis=1) == 1
+        poly_allelic = (ingroup_data > 1).sum(axis=1) > 1
 
         # determine the minor alleles
-        minor_bases = np.ma.zeros(data.shape[0], dtype=np.int8)
-        minor_bases.mask = mono_allelic
-        minor_bases[~mono_allelic] = data_sorted[:, -2][~mono_allelic]
+        minor_bases = np.full(data.shape[0], -1, dtype=np.int8)
+        minor_bases[poly_allelic] = data_sorted[:, -2][poly_allelic]
 
         # assign the minor alleles
         data['minor_base'] = minor_bases
-        data['minor_base'] = data.minor_base.astype(cls.dtypes['minor_base'])
 
         # extract outgroup data
-        outgroup_data = np.full((data.shape[0], n_outgroups), np.nan, dtype=np.int8)
+        outgroup_data = np.full((data.shape[0], n_outgroups), -1, dtype=np.int8)
         for i in range(n_outgroups):
             # get the genotypes
             genotypes = data[i + 1].str.split(',', expand=True).astype(np.int8).to_numpy()
@@ -1605,6 +1631,48 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             seed=seed
         )
 
+    def to_est_sfs(self, file: str):
+        """
+        Write the object's state to an EST-SFS formatted file.
+
+        :param file: The output file name.
+        """
+        # ungroup the data
+        ungrouped = self.configs.explode('sites')
+
+        # sort by sites column
+        ungrouped = ungrouped.sort_values('sites')
+
+        with open(file, 'w') as f:
+
+            # iterate over rows
+            for i, row in ungrouped.iterrows():
+
+                # ingroup counts
+                ingroups = np.zeros(4, dtype=int)
+
+                # major allele count
+                ingroups[row['major_base']] = row['n_major']
+
+                # minor allele count if not mono-allelic
+                if row['minor_base'] != -1:
+                    ingroups[row['minor_base']] = self.n_ingroups - row['n_major']
+
+                # write ingroup counts
+                outgroups = np.zeros((self.n_outgroups, 4), dtype=int)
+
+                # fill outgroup counts
+                for j, base in enumerate(row['outgroup_bases']):
+                    if base != -1:
+                        outgroups[j, base] = 1
+
+                f.write(
+                    ','.join(ingroups.astype(str)) +
+                    '\t' +
+                    '\t'.join([','.join(o) for o in outgroups.astype(str)]) +
+                    '\n'
+                )
+
     @classmethod
     def from_data(
             cls,
@@ -1653,8 +1721,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
 
         # convert to base indices
         if not pass_indices:
-            major_bases = [base_indices[b] if b is not None else np.nan for b in major_bases]
-            minor_bases = [base_indices[b] if b is not None else np.nan for b in minor_bases]
+            major_bases = [base_indices[b] if b is not None else -1 for b in major_bases]
+            minor_bases = [base_indices[b] if b is not None else -1 for b in minor_bases]
             outgroup_bases = [[base_indices[b] for b in c] for c in outgroup_bases]
 
         # create data frame
@@ -1700,7 +1768,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         :param model: The substitution model (see :meth:`__init__`).
         :param parallelize: Whether to parallelize computations.
         :param use_prior: Whether to use the prior (see :meth:`__init__`).
-        :param seed: The seed for the random number generator.
+        :param seed: The seed for the random number generator. If ``None``, a random seed is chosen.
         :param grouped: Whether the dataframe is already grouped by all columns (used for internal purposes).
         :return: The instance.
         """
@@ -1724,10 +1792,10 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         # determine the multiplicity
         data['multiplicity'] = data['sites'].apply(lambda x: len(x))
 
-        # add missing columns with NaN as default value
+        # add missing columns with NA as default value
         for col in cls.dtypes:
             if col not in data.columns:
-                data[col] = np.nan
+                data[col] = None
 
         # convert to the correct dtypes
         data = data.astype(cls.dtypes)
@@ -1744,7 +1812,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             outgroups=[str(i) for i in range(n_outgroups)],  # pseudo names for outgroups
             n_outgroups=n_outgroups,
             ingroups=[str(i) for i in range(n_ingroups)],  # pseudo names for ingroups
-            n_ingroups=n_ingroups
+            n_ingroups=n_ingroups,
+            seed=seed
         )
 
         # assign data frame
@@ -1754,10 +1823,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         anc.n_sites = data.multiplicity.sum()
 
         # notify about the number of sites
-        anc.logger.info(f"Loaded {anc.n_sites} sites for the inference.")
-
-        # assign random number generator
-        anc.rng = np.random.default_rng(seed)
+        anc.logger.info(f"Included {anc.n_sites} sites for the inference.")
 
         return anc
 
@@ -1776,7 +1842,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         self.configs.set_index(keys=index_cols, inplace=True)
 
         # create progress bar
-        with self.annotator.get_pbar(desc="Loading sites") as pbar:
+        with self.annotator.get_pbar(desc="Parsing sites") as pbar:
 
             # iterate over sites
             for i, variant in enumerate(self.reader):
@@ -1831,10 +1897,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         are inferred using the inferred rates if ``use_prior`` is ``True``.
         """
         # get the bounds
-        bounds = self.model.get_bounds(self)
-
-        # set the parameter names
-        self.param_names = list(bounds.keys())
+        bounds = self.model.get_bounds(self.n_outgroups)
 
         # get the likelihood function
         fun = self.get_likelihood_rates()
@@ -1891,7 +1954,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         # warn if the MLE parameters are near the bounds
         if len(near_lower | near_upper) > 0:
             self.logger.warning(f'The MLE estimate for the rates is near the upper bound for '
-                                f'{near_upper} and lower bound for {near_lower}. ')
+                                f'{near_upper} and lower bound for {near_lower}. (The tuples denote '
+                                f'(lower, value, upper) for every parameter.)')
 
         # warn if the MLE parameters are near the lower bounds
         if len(near_lower) > 0:
@@ -1905,6 +1969,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         # obtain the probability for each site and allele type (major/minor) under the MLE rate parameters
         self.configs.p_minor = self.get_p_configs(self.configs, self.model, BaseType.MINOR, self.params_mle)
         self.configs.p_major = self.get_p_configs(self.configs, self.model, BaseType.MAJOR, self.params_mle)
+
+        # calculate the ancestral probabilities
         self.configs.p_ancestral = self.calculate_p_ancestral(
             p_minor=self.configs['p_minor'].values,
             p_major=self.configs['p_major'].values,
@@ -2053,16 +2119,6 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
 
         return prod
 
-    @staticmethod
-    def is_na(x: Any) -> bool:
-        """
-        Check if a value is NaN or Na
-
-        :param x: The value.
-        :return: Whether the value is NaN.
-        """
-        return pd.isna(x) or np.isnan(x)
-
     @classmethod
     def get_p_config(
             cls,
@@ -2082,9 +2138,9 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         """
         n_outgroups = int(np.sum(np.array(config.outgroup_bases) >= 0))
 
-        # if there are no outgroups, return 1
+        # if there are no outgroups, return 0.5
         if n_outgroups == 0:
-            return 1
+            return 0.5
 
         # probability for each tree
         p_trees = np.zeros(4 ** (n_outgroups - 1), dtype=float)
@@ -2093,7 +2149,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         base = config.major_base if base_type == BaseType.MAJOR else config.minor_base
 
         # if the focal base is missing, return a probability of 0
-        if cls.is_na(base):
+        if base == -1:
             return 0
 
         # iterator over all possible internal node combinations
@@ -2415,7 +2471,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         )
 
         # convert to base strings
-        base_strings = np.ma.array(bases[ancestral_bases], mask=ancestral_bases.mask)
+        base_strings = np.ma.array(self._get_base_string(ancestral_bases), mask=ancestral_bases.mask)
 
         # set missing values to N
         base_strings[base_strings.mask] = 'N'
@@ -2454,6 +2510,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         :return: The annotated variant.
         """
         # parse the site
+        # TODO Should we also subsample the genotypes here?
+        # TODO Like this we loose some minor alleles
         config = self.parse_variant(variant)
 
         if config is not None:
@@ -2461,7 +2519,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
 
             # only proceed if the ancestral allele is known
             if i_ancestral is not None:
-                ancestral_base = bases[i_ancestral]
+                ancestral_base = self._get_base_string(i_ancestral)
 
                 if self.logger.level <= logging.DEBUG:
                     self.logger.debug(
@@ -2469,9 +2527,9 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
                         f"p_ancestral={p_ancestral:.4f}, "
                         f"p_minor={p_minor:.4f}, p_major={p_major:.4f}, "
                         f"pi={pi:.4f}, "
-                        f"outgroup_bases={[bases[b] for b in config.outgroup_bases]}, "
-                        f"n_major={config.n_major}, major_base={bases[config.major_base]}, "
-                        f"minor_base={bases[config.minor_base] if not np.isnan(config.minor_base) else np.nan}, "
+                        f"outgroup_bases={str(self._get_base_string(config.outgroup_bases))}, "
+                        f"n_major={config.n_major}, major_base={self._get_base_string(config.major_base)}, "
+                        f"minor_base={self._get_base_string(config.minor_base)}, "
                         f"ref_base={variant.REF[0]}"
                     )
 
@@ -2547,6 +2605,154 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             ax=ax,
             ylabel=ylabel
         )
+
+
+class ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
+    """
+    A wrapper around EST-SFS. Used for testing.
+    """
+
+    def __init__(
+            self,
+            anc: MaximumLikelihoodAncestralAnnotation
+    ):
+        """
+        Create a new ESTSFSAncestralAnnotation instance.
+
+        :param anc:
+        """
+        super().__init__()
+
+        #: The ancestral annotation.
+        self.anc = anc
+
+        #: The likelihoods for each run.
+        self.likelihoods: np.ndarray[float] | None = None
+
+        #: The minimum likelihood.
+        self.likelihood: float | None = None
+
+        #: The MLE parameters.
+        self.params_mle: Dict[str, float] | None = None
+
+        #: The probabilities for each site.
+        self.probs: pd.DataFrame | None = None
+
+    def create_seed_file(self, seed_file: str):
+        """
+        Create the seed file.
+
+        :param seed_file: Path to the seed file.
+        """
+        with open(seed_file, 'w') as f:
+            f.write(str(self.anc.seed))
+
+    def create_config_file(self, config_file: str):
+        """
+        Create the config file.
+
+        :param config_file: Path to the config file.
+        """
+        models = dict(
+            JCSubstitutionModel=0,
+            K2SubstitutionModel=1
+        )
+
+        with open(config_file, 'w') as f:
+            f.write(f"n_outgroup {self.anc.n_outgroups}\n")
+            f.write(f"model {models[self.anc.model.__class__.__name__]}\n")
+            f.write(f"nrandom {self.anc.n_runs_rate}\n")
+
+    def infer(
+            self,
+            bin: str = 'EST_SFS',
+            wd: str = None,
+            execute: Callable = None,
+    ):
+        """
+        Infer the ancestral allele using EST-SFS.
+
+        :param bin: The path to the EST-SFS binary.
+        :param wd: The working directory.
+        :param execute: The function to execute the bash command.
+        """
+        # define default function for executing command
+        if execute is None:
+            def shell(command: str):
+                """
+                Execute shell command.
+
+                :param command: Command string
+                """
+                return subprocess.run(command, check=True, cwd=wd, shell=True)
+
+            execute = shell
+
+        with tempfile.NamedTemporaryFile('w') as sites_file, \
+                tempfile.NamedTemporaryFile('w') as seed_file, \
+                tempfile.NamedTemporaryFile('w') as config_file, \
+                tempfile.NamedTemporaryFile('w') as out_sfs, \
+                tempfile.NamedTemporaryFile('w') as out_p:
+            # create the sites file
+            self.anc.to_est_sfs(sites_file.name)
+
+            # create the seed file
+            self.create_seed_file(seed_file.name)
+
+            # create the config file
+            self.create_config_file(config_file.name)
+
+            # construct command string
+            command = (f"{bin} "
+                       f"{config_file.name} "
+                       f"{sites_file.name} "
+                       f"{seed_file.name} "
+                       f"{out_sfs.name} "
+                       f"{out_p.name} ")
+
+            # log command signature
+            self.logger.info(f"Running: '{command}'")
+
+            # execute command
+            execute(command)
+
+            self.parse_est_sfs_output(out_p.name)
+
+    def parse_est_sfs_output(self, file: str) -> pd.DataFrame:
+        """
+        Parse the output of the EST-SFS program containing the site probabilities.
+
+        :param file: The file name.
+        :return: The data frame.
+        """
+        # filter out lines starting with 0
+        filtered_lines = []
+        with open(file, 'r') as f:
+            for i, line in enumerate(f):
+
+                # strip line
+                line = line.strip()
+
+                if line.startswith('0'):
+                    if i == 4:
+                        # parse likelihoods
+                        self.likelihoods = np.array(line.split()[2:], dtype=float)
+                        self.likelihood = self.likelihoods.min()
+                    if i == 5:
+                        # parse MLE parameters
+                        data = np.array(line.split()[2:])
+                        self.params_mle = dict(zip(data[::2], data[1::2]))
+                else:
+                    filtered_lines.append(line.strip())
+
+        # read into dataframe
+        self.probs = pd.read_csv(StringIO('\n'.join(filtered_lines)), sep=" ", header=None)
+
+        # drop the first column
+        self.probs.drop(self.probs.columns[0], axis=1, inplace=True)
+
+        # rename columns
+        self.probs.rename(columns={1: 'config', 2: 'prob'}, inplace=True)
 
 
 class Annotator(VCFHandler):

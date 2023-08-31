@@ -601,7 +601,7 @@ class Visualization:
                 )
 
                 # set title
-                axes[i].set_title(labels[i] if len(labels) <= i else '')
+                axes[i].set_title(labels[i] if i < len(labels) else '')
 
             # make empty plots invisible
             [ax.set_visible(False) for ax in axes[n_plots:]]
