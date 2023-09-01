@@ -1,2 +1,3 @@
 polydfe_postprocessing_source: ../resources/polydfe/postprocessing/script.R
 n_chunks_vcf: 20
+n_bootstraps_hgdp: 100
