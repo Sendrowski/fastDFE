@@ -25,14 +25,14 @@ except NameError:
     # testing
     testing = True
     chr = "1"
-    vcf_file = f"results/vcf/hgdp/{chr}/opts.subset.10000.vcf.gz"
+    vcf_file = f"results/vcf/hgdp/{chr}/opts.vcf.gz"
     fasta_file = f"results/fasta/hgdp/{chr}.fasta.gz"
     gff_file = f"results/gff/hgdp/{chr}.corrected.gff3.gz"
-    samples_file = "results/sample_lists/hgdp/French.args"
-    out_csv = "scratch/parse_spectra_from_url.spectra.csv"
-    out_png = "scratch/parse_spectra_from_url.spectra.png"
+    samples_file = "results/sample_lists/hgdp/all.args"
+    out_csv = "scratch/parse_csv_hgdp.spectra.csv"
+    out_png = "scratch/parse_csv_hgdp.spectra.png"
     aliases = {f"chr{chr}": [chr]}
-    n = 40
+    n = 15
 
 import pandas as pd
 

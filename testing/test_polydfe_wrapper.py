@@ -24,7 +24,7 @@ class PolyDFEWrapperTestCase(TestCase):
         # run polyDFE
         polydfe = PolyDFE.from_config_file(self.config)
         polydfe.run(f"scratch/test_run_polydfe_from_config.txt",
-                    bin=self.polydfe_bin, postprocessing_source=self.postprocessing_source)
+                    binary=self.polydfe_bin, postprocessing_source=self.postprocessing_source)
 
         polydfe.to_file("scratch/test_run_polydfe_from_config.json")
 
@@ -37,7 +37,7 @@ class PolyDFEWrapperTestCase(TestCase):
 
         polydfe.run(
             output_file="scratch/test_restore_serialized_wrapper.json",
-            bin=self.polydfe_bin,
+            binary=self.polydfe_bin,
             postprocessing_source=self.postprocessing_source
         )
 
@@ -61,7 +61,7 @@ class PolyDFEWrapperTestCase(TestCase):
 
         bootstrap.run(
             output_file="scratch/test_run_bootstrap_sample.json",
-            bin=self.polydfe_bin,
+            binary=self.polydfe_bin,
             postprocessing_source=self.postprocessing_source
         )
 

@@ -1111,8 +1111,8 @@ class BaseInference(AbstractInference):
         :param ylabel: Label for the y-axis.
         :return: Axes object
         """
-        return Visualization.plot_likelihoods(
-            likelihoods=self.likelihoods,
+        return Visualization.plot_scatter(
+            values=self.likelihoods,
             file=file,
             show=show,
             title=title,

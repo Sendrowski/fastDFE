@@ -382,7 +382,7 @@ class FASTAHandler(FileHandler):
 
     def _rewind(self):
         """
-        Rewind the iterator.
+        Rewind the fasta iterator.
         """
         # noinspection all
         del self._ref

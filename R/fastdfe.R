@@ -315,25 +315,25 @@ load_fastdfe <- function(install = FALSE) {
   }
   
   
-  # Create a scatter plot of the likelihoods specified.
+  # Create a scatter plot.
   #
-  # @param likelihoods List or matrix. Likelihoods to plot.
+  # @param values List or matrix. Values to plot.
   # @param file Character. File path to save plot to. Default is NULL.
   # @param show Logical. Whether to show plot. Default is TRUE.
-  # @param title Character. Title of plot. Default is 'likelihoods'.
+  # @param title Character. Title of plot.
   # @param scale Character. Scale of y-axis. One of 'lin', 'log'. Default is 'lin'.
   #
   # @return A ggplot object.
-  viz$plot_likelihoods <- function(
-    likelihoods,
+  viz$plot_scatter <- function(
+    values,
     file = NULL,
     show = TRUE,
-    title = 'likelihoods',
+    title = NULL,
     scale = 'lin',
     ...
   ) {
     # Create data frame
-    data <- data.frame(x = seq_along(likelihoods), y = unlist(likelihoods))
+    data <- data.frame(x = seq_along(values), y = unlist(values))
     
     # Create plot
     p <- ggplot2::ggplot(data, ggplot2::aes(x = .data$x, y = .data$y)) +

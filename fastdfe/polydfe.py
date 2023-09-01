@@ -204,7 +204,7 @@ class PolyDFE(AbstractInference):
     def run(
             self,
             output_file: str,
-            bin: str = 'polydfe',
+            binary: str = 'polydfe',
             wd: str = None,
             execute: Callable = None,
             postprocessing_source: str = PolyDFEResult.default_postprocessing_source
@@ -215,7 +215,7 @@ class PolyDFE(AbstractInference):
         :param postprocessing_source: polyDFE postprocessing source
         :param execute: Function for executing shell commands
         :param wd: Working directory
-        :param bin: polyDFE binary
+        :param binary: polyDFE binary
         :param output_file: Output file
         :return: polyDFE summary
         """
@@ -246,7 +246,7 @@ class PolyDFE(AbstractInference):
                 k = str(model.k - 1) + ' ' if isinstance(model, DiscreteParametrization) else ''
 
                 # construct command string
-                command = (f"{bin} "
+                command = (f"{binary} "
                            f"-d {spectra_file.name} "
                            f"-m {self.config.get_polydfe_model()} {k}"
                            f"-i {init_file.name} 1 "

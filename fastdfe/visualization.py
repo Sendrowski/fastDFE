@@ -752,19 +752,20 @@ class Visualization:
 
     @staticmethod
     @clear_show_save
-    def plot_likelihoods(
-            likelihoods: list | np.ndarray,
-            file: str, show: bool,
+    def plot_scatter(
+            values: list | np.ndarray,
+            file: str,
+            show: bool,
             ax: plt.Axes,
-            title: str = 'likelihoods',
+            title: str | None = None,
             scale: Literal['lin', 'log', 'symlog'] = 'lin',
             ylabel: str = 'lnl'
     ) -> plt.Axes:
         """
-        A scatter plot of the likelihoods specified.
+        A scatter plot.
 
         :param scale: Scale of y-axis
-        :param likelihoods: Likelihoods to plot
+        :param values: Values to plot
         :param file: File to save plot to
         :param show: Whether to show plot
         :param title: Title of plot
@@ -773,7 +774,7 @@ class Visualization:
         :return: Axes
         """
         # plot
-        sns.scatterplot(x=range(len(likelihoods)), y=likelihoods, ax=ax)
+        sns.scatterplot(x=range(len(values)), y=values, ax=ax)
 
         ax.set(ylabel=ylabel)
 
