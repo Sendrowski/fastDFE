@@ -1,0 +1,96 @@
+bounds: {}
+covariates: []
+do_bootstrap: false
+fixed_params: {}
+integration_mode: midpoint
+intervals_ben:
+- 1.0e-05
+- 10000.0
+- 1000
+intervals_del:
+- -100000000.0
+- -1.0e-05
+- 1000
+linearized: true
+loss_type: likelihood
+model: GammaExpParametrization
+n_bootstraps: 10
+n_runs: 10
+opts_mle: {}
+parallelize: false
+scales: {}
+seed: 0
+sfs_neut:
+  all:
+  - 913044.77264789
+  - 16.0
+  - 2.0
+  - 1.0
+  - 1.0
+  - 0.0
+  - 1.0
+  - 0.0
+  - 1.0
+  - 0.0
+  - 1.0
+  - 0.0
+  - 1.0
+  - 0.0
+  - 0.0
+  - 1.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 1.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 1.0
+  - 0.0
+  - 1.0
+  - 0.0
+  - 2.0
+  - 2.0
+  - 2.0
+  - 20.0
+sfs_sel:
+  all:
+  - 2976380.22735211
+  - 39.0
+  - 5.0
+  - 2.0
+  - 4.0
+  - 0.0
+  - 0.0
+  - 2.0
+  - 0.0
+  - 0.0
+  - 1.0
+  - 0.0
+  - 0.0
+  - 2.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 1.0
+  - 0.0
+  - 0.0
+  - 1.0
+  - 0.0
+  - 1.0
+  - 0.0
+  - 1.0
+  - 2.0
+  - 0.0
+  - 1.0
+  - 18.0
+shared_params: []
+x0:
+  all:
+    S_b: 2
+    S_d: -10000
+    b: 0.2
+    eps: 0
+    p_b: 0.1

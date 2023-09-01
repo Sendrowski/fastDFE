@@ -1,0 +1,135 @@
+{
+    "py/object": "fastdfe.polydfe.PolyDFE",
+    "logger": {
+        "py/reduce": [
+            {
+                "py/function": "logging.getLogger"
+            },
+            {
+                "py/tuple": [
+                    "fastdfe.PolyDFE"
+                ]
+            }
+        ]
+    },
+    "bootstraps": null,
+    "config": {
+        "py/object": "fastdfe.config.Config",
+        "data": {
+            "model": "GammaExpParametrization",
+            "intervals_del": {
+                "py/tuple": [
+                    -100000000.0,
+                    -1e-05,
+                    1000
+                ]
+            },
+            "intervals_ben": {
+                "py/tuple": [
+                    1e-05,
+                    10000.0,
+                    1000
+                ]
+            },
+            "integration_mode": "midpoint",
+            "linearized": true,
+            "seed": 0,
+            "opts_mle": {},
+            "n_runs": 10,
+            "x0": {
+                "all": {
+                    "S_b": 2,
+                    "S_d": -10000,
+                    "b": 0.2,
+                    "eps": 0,
+                    "p_b": 0.1
+                }
+            },
+            "bounds": {},
+            "scales": {},
+            "fixed_params": {},
+            "shared_params": [],
+            "covariates": [],
+            "sfs_neut": {
+                "py/object": "fastdfe.spectrum.Spectra",
+                "data": {
+                    "all": [
+                        1123126.347587526,
+                        478.0,
+                        208.0,
+                        134.0,
+                        106.0,
+                        302.0
+                    ]
+                }
+            },
+            "sfs_sel": {
+                "py/object": "fastdfe.spectrum.Spectra",
+                "data": {
+                    "all": [
+                        2763211.652412474,
+                        829.0,
+                        340.0,
+                        209.0,
+                        142.0,
+                        473.0
+                    ]
+                }
+            },
+            "do_bootstrap": false,
+            "n_bootstraps": 10,
+            "parallelize": false,
+            "loss_type": "likelihood"
+        }
+    },
+    "output_file": null,
+    "execution_time": 123.43651723861694,
+    "summary": {
+        "py/object": "fastdfe.polydfe.PolyDFEResult",
+        "output_file": "results/polydfe/hgdp/inference/1/opts.n.5.config.default/all.polydfe.txt",
+        "postprocessing_source": "../resources/polydfe/postprocessing/script.R",
+        "data": {
+            "output_file": "/scratch/40681203/tmpdoh6ooqj",
+            "model": "C",
+            "likelihood": -29.65281,
+            "criteria": 7e-05,
+            "params_mle": {
+                "eps": 4.49452e-06,
+                "eps_cont": 0,
+                "lambda": 0,
+                "theta_bar": 0.0004224599,
+                "a": -1,
+                "S_d": -21.04224,
+                "b": 0.128904,
+                "p_b": 0.01268952,
+                "S_b": 0.09110845,
+                "r": [
+                    0.8943083,
+                    0.8666052,
+                    0.852579
+                ]
+            },
+            "n": 5,
+            "expec": [
+                {
+                    "E[P_z(1)]": 0.0004224584,
+                    "E[P_z(2)]": 0.0001889044,
+                    "E[P_z(3)]": 0.0001220356,
+                    "E[P_z(4)]": 9.00466e-05,
+                    "E[D_z]": null,
+                    "E[mis_z]": null
+                },
+                {
+                    "E[P_z(1)]": 0.000300885,
+                    "E[P_z(2)]": 0.0001213671,
+                    "E[P_z(3)]": 7.44214e-05,
+                    "E[P_z(4)]": 5.30729e-05,
+                    "E[D_z]": null,
+                    "E[mis_z]": null
+                }
+            ],
+            "alpha": 0.024663493416354088,
+            "execution_time": 123.43651723861694
+        }
+    }
+}
