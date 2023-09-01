@@ -61,7 +61,7 @@ config.update(
 inference = PolyDFE.from_config(config)
 
 # perform inference
-summary = inference.run(out_polydfe, bin=bin, wd=os.getcwd(), execute=execute)
+summary = inference.run(out_polydfe, binary=bin, wd=os.getcwd(), execute=execute)
 
 # save object in serialized form
 inference.to_file(out_serialized)

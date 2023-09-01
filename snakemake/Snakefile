@@ -111,7 +111,7 @@ wildcard_constraints:
     opts=r'[^/]*',# match several optional options not separated by /
     chr='\w+',
     pop="[a-zA-Z]+",
-    param="[a-zA-Z0-9_]+",
+    param="[a-zA-Z0-9_]+"
 
 hominidae = [
     'bonobo',
@@ -133,8 +133,9 @@ rule all:
             #expand("results/graphs/comp/spectra/hgdp/inference/{chr}/{opts}/[all,Japanese].png",chr=[21, 1], opts=['opts.subset.50000.n.10', 'opts.subset.50000.n.20']),
             #expand("results/graphs/comp/pca/hgdp/inference/{chr}/{opts}/[all,Japanese].png",chr=[21], opts=['opts.subset.50000']),
             #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[10,20].config.{config}/[all,Japanese].dfe.png",chr=[1, 2, 3], opts=['opts'], config=['default']),
-            expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/inference/{chr}/{opts}.n.10.config.{config}/[all].dfe.png",chr=[1, 2, 21, 22],opts=['opts'],config=['default']),
-            expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/inference/{chr}/{opts}.n.[5,10,15,20,25,30,35,40].config.{config}/[all].dfe.png",chr=[1],opts=['opts'],config=['default']),
+            #expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/inference/{chr}/{opts}.n.10.config.{config}/[all].dfe.png",chr=[1, 2, 21, 22],opts=['opts'],config=['default']),
+            #expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/inference/{chr}/{opts}.n.[5,10,15,20,25,30,35,40].config.{config}/[all].dfe.png",chr=[1],opts=['opts'],config=['default']),
+            expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/inference/{chr}/{opts}.n.[20].config.{config}/[all].dfe.png",chr=[1],opts=['opts'],config=['default']),
             #expand("results/graphs/fastdfe/hgdp/inference/{chr}/{opts}.n.10.config.{config}/all.dfe.png",chr=[21],opts=['opts.vep'],config=['default']),
             #expand("results/graphs/comp/fastdfe/hominidae/[{types}].dfe.png",types=','.join(hominidae)),
             #expand("results/graphs/comp/fastdfe/hominidae/[{types}].params.png",types=','.join(hominidae)),
@@ -308,7 +309,7 @@ rule plot_DFE_inference:
     conda:
         "envs/base.yaml"
     script:
-        "scripts/plot_dfe_inference.py"
+        "scripts/plot_base_inference.py"
 
 # create config file for bootstrapped samples to be run with polyDFE
 rule create_bootstrap_polyDFE:
@@ -463,7 +464,7 @@ rule tool_comparison_collage:
     output:
         "results/graphs/comp/tool_comparison_collage/{type}.png"
     params:
-        titles=lambda w: [c.replace('_C_', '_').replace('_', ' ') for c in configs],
+        titles=lambda w: [c.replace('_C_','_').replace('_',' ') for c in configs],
         title_size_rel=50,
         n_cols=4,
         n_rows=5,
@@ -1033,15 +1034,66 @@ rule infer_dfe_hgdp_polydfe:
     output:
         serialized="results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/{population}.serialized.json",
         summary="results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/{population}.summary.json",
-        polydfe="results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/{population}.polydfe.txt",
-        dfe="results/graphs/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/{population}.dfe.png",
-        params="results/graphs/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/{population}.params.png"
+        polydfe="results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/{population}.polydfe.txt"
     params:
         bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
     conda:
         dev_env
     script:
         "scripts/infer_dfe_polydfe.py"
+
+# create bootstrap samples for polyDFE
+rule create_bootstrap_hgdp_polydfe:
+    input:
+        "results/polydfe/hgdp/config/{chr}/{opts}.n.{n}.{config}/{population}.yaml",
+        config['polydfe_postprocessing_source']
+    output:
+        "results/polydfe/hgdp/config/{chr}/{opts}.n.{n}.{config}/bootstraps/{i}/{population}.yaml"
+    conda:
+        dev_env
+    script:
+        "scripts/create_bootstrap_polydfe.py"
+
+# infer DFE from bootstrapped SFS using polyDFE
+rule infer_dfe_hgdp_polyDFE_bootstrap:
+    input:
+        "results/polydfe/hgdp/config/{chr}/{opts}.n.{n}.{config}/bootstraps/{i}/{population}.yaml",
+        config['polydfe_postprocessing_source']
+    output:
+        polydfe="results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.{config}/bootstraps/{i}/{population}.polydfe.txt",
+        summary="results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.{config}/bootstraps/{i}/{population}.summary.json",
+        serialized="results/polydfe/hgdpinference//{chr}/{opts}.n.{n}.{config}/bootstraps/{i}/{population}.serialized.json"
+    params:
+        bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
+    conda:
+        dev_env
+    script:
+        "scripts/infer_dfe_polydfe.py"
+
+# merge bootstrap samples for polyDFE
+rule merge_bootstraps_hgdp_polydfe:
+    input:
+        lambda w: expand("results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.{config}/bootstraps/{i}/{population}.yaml",i=range(
+            100),allow_missing=True)
+    output:
+        "results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.{config}/bootstraps/{population}.yaml"
+    conda:
+        dev_env
+    script:
+        "scripts/merge_bootstraps_polydfe.py"
+
+# plot polyDFE inference results
+rule plot_polydfe_inference_hgdp:
+    input:
+        lambda w: expand("results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.{config}/bootstraps/{i}/{population}.serialized.json",i=range(
+            100),allow_missing=True)
+    output:
+        dfe_discretized="results/graphs/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.{config}/{population}.dfe.png",
+        mle_params="results/graphs/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.{config}/{population}.params.png",
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/plot_polydfe_inference.py"
 
 # download drosophila data from https://doi.org/10.1371/journal.pbio.3001775
 rule download_sfs_covariate_tables_drosophila:

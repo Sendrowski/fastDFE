@@ -44,7 +44,7 @@ config = Config.from_file(config_file)
 
 polydfe = PolyDFE(config)
 
-summary = polydfe.run(out, bin=bin, wd=os.getcwd(), execute=execute)
+summary = polydfe.run(out, binary=bin, wd=os.getcwd(), execute=execute)
 
 # save summary to file
 summary.to_file(out_summary)
