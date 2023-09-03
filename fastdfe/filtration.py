@@ -15,7 +15,7 @@ import pandas as pd
 from cyvcf2 import Variant, Writer, VCF
 
 from .annotation import DegeneracyAnnotation
-from .io_handlers import get_major_base, GFFHandler, VCFHandler
+from .io_handlers import get_major_base, MultiHandler
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -48,7 +48,11 @@ class Filtration:
         """
         Initialize filtration.
         """
+        #: The logger.
         self.logger = logger.getChild(self.__class__.__name__)
+
+        #: The handler.
+        self.handler: MultiHandler | None = None
 
     @_count_filtered
     def filter_site(self, variant: Variant) -> bool:
@@ -60,13 +64,13 @@ class Filtration:
         """
         pass
 
-    def _setup(self, reader: VCF):
+    def _setup(self, handler: MultiHandler):
         """
         Perform any necessary pre-processing. This method is called before the actual filtration.
 
-        :param reader: The VCF reader.
+        :param handler: The handler.
         """
-        pass
+        self.handler = handler
 
     def _rewind(self):
         """
@@ -78,7 +82,7 @@ class Filtration:
         """
         Perform any necessary post-processing. This method is called after the actual filtration.
         """
-        self.logger.info(f"Filtered out {self.n_filtered} sites.")
+        self.logger.info(f"Filtered out {self.n_filtered}.")
 
 
 class SNPFiltration(Filtration):
@@ -162,26 +166,22 @@ class NoFiltration(Filtration):
         return True
 
 
-class CodingSequenceFiltration(Filtration, GFFHandler):
+class CodingSequenceFiltration(Filtration):
     """
     Filter out sites that are not in coding sequences. This filter should find frequent use when parsing
     spectra for DFE inference as we only consider sites in coding sequences for this purpose.
     By using it, the annotation and parsing of unnecessary sites can be avoided which increases the speed.
     Note that we assume here that within contigs, sites in the GFF file are sorted by position in ascending order.
+
+    For this filtration to work, we require a GFF file (passed to :class:`~fastdfe.parser.Parser` or
+    :class:`~fastdfe.filtration.Filterer`).
     """
 
-    def __init__(self, gff_file: str, aliases: Dict[str, List[str]] = {}, cache: bool = True):
+    def __init__(self):
         """
         Create a new filtration instance.
-
-        :param gff_file: The GFF file.
-        :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
-            This is used to match the contig names in the VCF file with the contig names in the FASTA file.
-        :param cache: Whether to cache files that are downloaded from URLs
         """
         Filtration.__init__(self)
-
-        GFFHandler.__init__(self, gff_file, cache=cache, aliases=aliases)
 
         #: The coding sequence enclosing the current variant or the closest one downstream.
         self.cd: Optional[pd.Series] = None
@@ -189,16 +189,20 @@ class CodingSequenceFiltration(Filtration, GFFHandler):
         #: The number of processed sites.
         self.n_processed: int = 0
 
-    def _setup(self, reader: VCF):
+    def _setup(self, handler: MultiHandler):
         """
         Touch the GFF file to load it.
 
-        :param reader: The VCF reader.
+        :param handler: The handler.
         """
-        super()._setup(reader)
+        # require GFF file
+        handler._require_gff(self.__class__.__name__)
+
+        # setup GFF handler
+        super()._setup(handler)
 
         # load coding sequences
-        _ = self._cds
+        _ = handler._cds
 
     def _rewind(self):
         """
@@ -217,7 +221,7 @@ class CodingSequenceFiltration(Filtration, GFFHandler):
         :param v: The variant to filter.
         :return: ``True`` if the variant is in a coding sequence, ``False`` otherwise.
         """
-        aliases = self.get_aliases(v.CHROM)
+        aliases = self.handler.get_aliases(v.CHROM)
 
         # if self.cd is None or not on the same chromosome or ends before the variant
         if self.cd is None or self.cd.seqid not in aliases or v.POS > self.cd.end:
@@ -230,7 +234,7 @@ class CodingSequenceFiltration(Filtration, GFFHandler):
             })
 
             # find coding sequences downstream
-            cds = self._cds[self._cds['seqid'].isin(aliases) & (self._cds['end'] >= v.POS)]
+            cds = self.handler._cds[self.handler._cds['seqid'].isin(aliases) & (self.handler._cds['end'] >= v.POS)]
 
             if not cds.empty:
                 # take the first coding sequence
@@ -290,16 +294,16 @@ class DeviantOutgroupFiltration(Filtration):
         #: The outgroup mask.
         self.outgroup_mask: Optional[np.ndarray] = None
 
-    def _setup(self, reader: VCF):
+    def _setup(self, handler: MultiHandler):
         """
         Touch the reader to load the samples.
 
-        :param reader: The VCF reader.
+        :param handler: The handler.
         """
-        super()._setup(reader)
+        super()._setup(handler)
 
         # create samples array
-        self.samples: np.ndarray = np.array(reader.samples)
+        self.samples: np.ndarray = np.array(handler._reader.samples)
 
         # create ingroup and outgroup masks
         self.create_masks()
@@ -369,38 +373,65 @@ class BiasedGCConversionFiltration(Filtration):
         return True
 
 
-class Filterer(VCFHandler):
+class Filterer(MultiHandler):
     """
     Filter a VCF file using a list of filtrations.
+
+    Example usage:
+
+    ::
+
+        import fastdfe as fd
+
+        # only keep variants in coding sequences
+        f = fd.Filterer(
+            vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/"
+                "1000_genomes_project/release/20181203_biallelic_SNV/"
+                "ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
+            gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                     "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
+            output='sapiens.chr21.coding.vcf.gz',
+            filtrations=[fd.CodingSequenceFiltration()],
+            aliases=dict(chr21=['21'])
+        )
+
+        f.filter()
+
     """
 
     def __init__(
             self,
             vcf: str | Iterable[Variant],
             output: str,
+            gff_file: str | None = None,
             filtrations: List[Filtration] = [],
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
             seed: int | None = 0,
-            cache: bool = True
+            cache: bool = True,
+            aliases: Dict[str, List[str]] = {}
     ):
         """
         Create a new filter instance.
 
-        :param vcf: The VCF file.
+        :param vcf: The VCF file, possibly gzipped or a URL.
         :param output: The output file.
+        :param gff_file: The GFF file, possibly gzipped or a URL. This argument is required for some filtrations.
         :param filtrations: The filtrations.
         :param info_ancestral: The info field for the ancestral allele.
         :param max_sites: The maximum number of sites to process.
         :param seed: The seed for the random number generator. Use ``None`` for no seed.
         :param cache: Whether to cache files downloaded from urls.
+        :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
         """
         super().__init__(
             vcf=vcf,
+            gff_file=gff_file,
             info_ancestral=info_ancestral,
             max_sites=max_sites,
             seed=seed,
-            cache=cache
+            cache=cache,
+            aliases=aliases
         )
 
         #: The filtrations.
@@ -433,9 +464,6 @@ class Filterer(VCFHandler):
         """
         self.logger.info('Start filtering')
 
-        # count the number of sites
-        self.n_sites = self.count_sites()
-
         # create the reader
         reader = VCF(self.download_if_url(self.vcf))
 
@@ -444,7 +472,7 @@ class Filterer(VCFHandler):
 
         # setup filtrations
         for f in self.filtrations:
-            f._setup(reader)
+            f._setup(self)
 
         # get progress bar
         with self.get_pbar() as pbar:
@@ -471,4 +499,4 @@ class Filterer(VCFHandler):
         writer.close()
         reader.close()
 
-        self.logger.info(f'Filtered out {self.n_filtered} sites in total.')
+        self.logger.info(f'Filtered out {self.n_filtered} of {self.n_sites} sites in total.')

@@ -249,19 +249,16 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/sapiens/chr21_test.vcf.gz",
+            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz",
+            fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
             n=20,
             skip_non_polarized=True,
             annotations=[
-                fd.DegeneracyAnnotation(
-                    fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
-                    gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
-                ),
+                fd.DegeneracyAnnotation(),
                 fd.MaximumParsimonyAncestralAnnotation()
             ],
             filtrations=[
-                fd.CodingSequenceFiltration(
-                    gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
-                )
+                fd.CodingSequenceFiltration()
             ],
             stratifications=[fd.DegeneracyStratification()],
             max_sites=100000
@@ -280,9 +277,10 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/sapiens/chr21.vcf.gz",
+            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz",
+            fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
             n=10,
             target_site_counter=fd.TargetSiteCounter(
-                fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
                 n_samples=100000,
                 n_target_sites=fd.Annotation.count_target_sites(
                     "resources/genome/sapiens/hg38.sorted.gtf.gz"
@@ -290,16 +288,11 @@ class ParserTestCase(TestCase):
             ),
             skip_non_polarized=True,
             annotations=[
-                fd.DegeneracyAnnotation(
-                    fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
-                    gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
-                ),
+                fd.DegeneracyAnnotation(),
                 fd.MaximumParsimonyAncestralAnnotation()
             ],
             filtrations=[
-                fd.CodingSequenceFiltration(
-                    gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz"
-                )
+                fd.CodingSequenceFiltration()
             ],
             stratifications=[fd.DegeneracyStratification()]
         )
@@ -315,33 +308,31 @@ class ParserTestCase(TestCase):
 
         p = fd.Parser(
             vcf="resources/genome/betula/biallelic.vcf.gz",
+            fasta_file="resources/genome/betula/genome.subset.20.fasta",
+            gff_file="resources/genome/betula/genome.gff.gz",
             target_site_counter=fd.TargetSiteCounter(
-                fasta_file="resources/genome/betula/genome.subset.20.fasta",
                 n_samples=1000000,
-                n_target_sites=10000
+                n_target_sites=100000
             ),
             n=20,
             max_sites=10000,
             annotations=[
-                fd.DegeneracyAnnotation(
-                    fasta_file="resources/genome/betula/genome.subset.20.fasta",
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                ),
+                fd.DegeneracyAnnotation( ),
                 fd.MaximumParsimonyAncestralAnnotation()
             ],
             filtrations=[
-                fd.CodingSequenceFiltration(
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                )
+                fd.CodingSequenceFiltration()
             ],
             stratifications=[fd.DegeneracyStratification()]
         )
 
         sfs = p.parse()
 
+        self.assertEqual(sfs.n_sites.sum(), 100000)
+
         # assert fixed number of target sites
-        self.assertEqual(sfs['neutral'].n_sites, 102270)
-        self.assertEqual(sfs['selected'].n_sites, 440489)
+        self.assertAlmostEqual(sfs['neutral'].n_sites, 19369.006191, places=6)
+        self.assertAlmostEqual(sfs['selected'].n_sites, 80630.993809, places=6)
 
     def test_filter_out_all_raises_warning(self):
         """
@@ -378,18 +369,15 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/betula/all.subset.100000.vcf.gz",
+            fasta_file="resources/genome/betula/genome.subset.20.fasta",
+            gff_file="resources/genome/betula/genome.gff.gz",
             n=20,
             annotations=[
-                fd.DegeneracyAnnotation(
-                    fasta_file="resources/genome/betula/genome.subset.20.fasta",
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                ),
+                fd.DegeneracyAnnotation(),
                 fd.MaximumParsimonyAncestralAnnotation()
             ],
             filtrations=[
-                fd.CodingSequenceFiltration(
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                )
+                fd.CodingSequenceFiltration()
             ],
             stratifications=[fd.DegeneracyStratification()]
         )
@@ -405,17 +393,14 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/betula/biallelic.vcf.gz",
+            fasta_file="resources/genome/betula/genome.fasta",
+            gff_file="resources/genome/betula/genome.gff.gz",
             n=10,
             annotations=[
-                fd.SynonymyAnnotation(
-                    fasta_file="resources/genome/betula/genome.fasta",
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                )
+                fd.SynonymyAnnotation()
             ],
             filtrations=[
-                fd.CodingSequenceFiltration(
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                )
+                fd.CodingSequenceFiltration()
             ],
             stratifications=[fd.SynonymyStratification()]
         )
@@ -435,18 +420,15 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/betula/all.vcf.gz",
+            fasta_file="resources/genome/betula/genome.fasta",
+            gff_file="resources/genome/betula/genome.gff.gz",
             target_site_counter=None,
             n=20,
             annotations=[
-                fd.DegeneracyAnnotation(
-                    fasta_file="resources/genome/betula/genome.fasta",
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                )
+                fd.DegeneracyAnnotation()
             ],
             filtrations=[
-                fd.CodingSequenceFiltration(
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                )
+                fd.CodingSequenceFiltration()
             ],
             stratifications=[fd.DegeneracyStratification()]
         )
@@ -455,22 +437,18 @@ class ParserTestCase(TestCase):
 
         p2 = fd.Parser(
             vcf="resources/genome/betula/biallelic.vcf.gz",
+            fasta_file="resources/genome/betula/genome.fasta",
+            gff_file="resources/genome/betula/genome.gff.gz",
             target_site_counter=fd.TargetSiteCounter(
-                fasta_file="resources/genome/betula/genome.fasta",
                 n_samples=1000000,
                 n_target_sites=sfs.n_sites.sum()
             ),
             n=20,
             annotations=[
-                fd.DegeneracyAnnotation(
-                    fasta_file="resources/genome/betula/genome.fasta",
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                )
+                fd.DegeneracyAnnotation()
             ],
             filtrations=[
-                fd.CodingSequenceFiltration(
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                )
+                fd.CodingSequenceFiltration()
             ],
             stratifications=[fd.DegeneracyStratification()]
         )
@@ -499,17 +477,14 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/betula/all.vcf.gz",
+            fasta_file="resources/genome/betula/genome.fasta",
+            gff_file="resources/genome/betula/genome.gff.gz",
             n=20,
             annotations=[
-                fd.DegeneracyAnnotation(
-                    fasta_file="resources/genome/betula/genome.fasta",
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                )
+                fd.DegeneracyAnnotation()
             ],
             filtrations=[
-                fd.CodingSequenceFiltration(
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                )
+                fd.CodingSequenceFiltration()
             ],
             stratifications=[fd.DegeneracyStratification()]
         )
@@ -528,23 +503,18 @@ class ParserTestCase(TestCase):
         p = fd.Parser(
             vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/"
                 "20181203_biallelic_SNV/ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
+            fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
+                       "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
+            gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                     "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
+            aliases=dict(chr21=['21']),
             n=10,
             annotations=[
-                fd.DegeneracyAnnotation(
-                    fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
-                               "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
-                    gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
-                             "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
-                    aliases=dict(chr21=['21'])
-                ),
+                fd.DegeneracyAnnotation(),
                 fd.MaximumParsimonyAncestralAnnotation()
             ],
             filtrations=[
-                fd.CodingSequenceFiltration(
-                    gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
-                             "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
-                    aliases=dict(chr21=['21'])
-                )
+                fd.CodingSequenceFiltration()
             ],
             stratifications=[fd.DegeneracyStratification()],
             max_sites=100000
@@ -554,48 +524,22 @@ class ParserTestCase(TestCase):
 
         sfs.plot()
 
-    def test_target_site_counter_mock_parser(self):
-        """
-        Test whether the monomorphic site counter works.
-        """
-        c = fd.TargetSiteCounter(
-            n_target_sites=10000,
-            fasta_file="resources/genome/betula/genome.fasta",
-            n_samples=10000
-        )
-
-        parser = Mock()
-        parser._positions = dict(
-            Contig0=[312, 12412, 12689, 12701, 12819, 12820, 12821, 12822, 12823],
-            Contig1=[123, 124, 125, 126, 127, 128, 129, 130, 131]
-        )
-
-        # setup with mocked Parser
-        c._setup(parser)
-
-        c.count()
-
-        # assert parser._process_site was called 10000 times
-        self.assertEqual(c.n_samples, parser._process_site.call_count)
-
     def test_target_site_counter_betula(self):
         """
         Test whether the monomorphic site counter works on the Betula data.
         """
         p = fd.Parser(
             vcf="resources/genome/betula/biallelic.vcf.gz",
+            fasta_file="resources/genome/betula/genome.fasta",
+            gff_file="resources/genome/betula/genome.gff.gz",
             max_sites=10000,
             n=10,
             target_site_counter=fd.TargetSiteCounter(
                 n_target_sites=100000,
-                fasta_file="resources/genome/betula/genome.fasta",
                 n_samples=10000
             ),
             annotations=[
-                fd.DegeneracyAnnotation(
-                    fasta_file="resources/genome/betula/genome.fasta",
-                    gff_file="resources/genome/betula/genome.gff.gz"
-                )
+                fd.DegeneracyAnnotation()
             ],
             stratifications=[fd.DegeneracyStratification()]
         )
@@ -620,7 +564,6 @@ class ParserTestCase(TestCase):
         """
         c = fd.TargetSiteCounter(
             n_target_sites=1000,
-            fasta_file="",
             n_samples=10000
         )
 
@@ -639,7 +582,6 @@ class ParserTestCase(TestCase):
         """
         c = fd.TargetSiteCounter(
             n_target_sites=100000,
-            fasta_file="",
             n_samples=10000
         )
 
@@ -658,7 +600,6 @@ class ParserTestCase(TestCase):
         """
         c = fd.TargetSiteCounter(
             n_target_sites=100000,
-            fasta_file="",
             n_samples=10000
         )
 
@@ -685,7 +626,6 @@ class ParserTestCase(TestCase):
         """
         c = fd.TargetSiteCounter(
             n_target_sites=100000,
-            fasta_file="",
             n_samples=10000
         )
 
@@ -715,18 +655,16 @@ class ParserTestCase(TestCase):
         for i, n in enumerate(n_target_sites):
             p = fd.Parser(
                 vcf="resources/genome/betula/biallelic.vcf.gz",
+                fasta_file="resources/genome/betula/genome.fasta",
+                gff_file="resources/genome/betula/genome.gff.gz",
                 max_sites=10000,
                 n=10,
                 target_site_counter=fd.TargetSiteCounter(
                     n_target_sites=n,
-                    fasta_file="resources/genome/betula/genome.fasta",
                     n_samples=100000
                 ),
                 annotations=[
-                    fd.DegeneracyAnnotation(
-                        fasta_file="resources/genome/betula/genome.fasta",
-                        gff_file="resources/genome/betula/genome.gff.gz"
-                    )
+                    fd.DegeneracyAnnotation()
                 ],
                 stratifications=[fd.DegeneracyStratification()]
             )
@@ -764,13 +702,12 @@ class ParserTestCase(TestCase):
         for i, n in enumerate(sample_sizes):
             p = fd.Parser(
                 vcf="resources/genome/betula/all.vcf.gz",
+                fasta_file="resources/genome/betula/genome.fasta",
+                gff_file="resources/genome/betula/genome.gff.gz",
                 # max_sites=1000000,
                 n=n,
                 annotations=[
-                    fd.DegeneracyAnnotation(
-                        fasta_file="resources/genome/betula/genome.fasta",
-                        gff_file="resources/genome/betula/genome.gff.gz"
-                    )
+                    fd.DegeneracyAnnotation()
                 ],
                 stratifications=[fd.DegeneracyStratification()]
             )
@@ -811,32 +748,24 @@ class ParserTestCase(TestCase):
             p = fd.Parser(
                 vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/"
                     "20181203_biallelic_SNV/ALL.chr1.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
+                fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
+                           "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
+                gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                         "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz",
+                aliases=dict(chr1=['1']),
                 n=n,
                 target_site_counter=fd.TargetSiteCounter(
-                    fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
-                               "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
                     n_samples=1000000,
                     n_target_sites=fd.Annotation.count_target_sites(
                         file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
                              "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz"
-                    )['1'],
-                    aliases=dict(chr1=['1'])
+                    )['1']
                 ),
                 annotations=[
-                    fd.DegeneracyAnnotation(
-                        fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
-                                   "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
-                        gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
-                                 "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz",
-                        aliases=dict(chr1=['1'])
-                    )
+                    fd.DegeneracyAnnotation()
                 ],
                 filtrations=[
-                    fd.CodingSequenceFiltration(
-                        gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
-                                 "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz",
-                        aliases=dict(chr1=['1'])
-                    )
+                    fd.CodingSequenceFiltration()
                 ],
                 stratifications=[fd.DegeneracyStratification()],
                 info_ancestral='AA_ensembl'

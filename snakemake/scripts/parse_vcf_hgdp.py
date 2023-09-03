@@ -43,33 +43,25 @@ samples = pd.read_csv(samples_file).iloc[:, 0].tolist()
 # setup parser
 p = fd.Parser(
     vcf=vcf_file,
+    fasta_file=fasta_file,
+    gff_file=gff_file,
+    aliases=aliases,
     target_site_counter=fd.TargetSiteCounter(
-        fasta_file=fasta_file,
-        aliases=aliases,
         n_samples=1000000,
         n_target_sites=fd.Annotation.count_target_sites(
             file=gff_file
         )[chr]
     ),
     n=n,
-    annotations=[
-        fd.DegeneracyAnnotation(
-            fasta_file=fasta_file,
-            gff_file=gff_file,
-            aliases=aliases
-        )
-    ],
+    annotations=[fd.DegeneracyAnnotation()],
     filtrations=[
-        fd.CodingSequenceFiltration(
-            gff_file=gff_file,
-            aliases=aliases
-        ),
+        fd.CodingSequenceFiltration(),
         fd.SNVFiltration(),
         fd.PolyAllelicFiltration()
     ],
     stratifications=[fd.DegeneracyStratification()],
     samples=samples,
-    info_ancestral='AA_ensembl',
+    info_ancestral='AA_ensembl'
 )
 
 # parse spectra

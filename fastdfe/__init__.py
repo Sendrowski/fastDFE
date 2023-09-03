@@ -132,8 +132,8 @@ from .parser import Parser, Stratification, BaseTransitionStratification, BaseCo
     TargetSiteCounter
 from .io_handlers import VCFHandler, FASTAHandler, GFFHandler, FileHandler
 from .annotation import Annotator, Annotation, MaximumParsimonyAncestralAnnotation, \
-    MaximumLikelihoodAncestralAnnotation, \
-    DegeneracyAnnotation, SynonymyAnnotation, SubstitutionModel, K2SubstitutionModel, JCSubstitutionModel
+    MaximumLikelihoodAncestralAnnotation, DegeneracyAnnotation, SynonymyAnnotation, SubstitutionModel, \
+    K2SubstitutionModel, JCSubstitutionModel, PolarizationPrior, KingmanPolarizationPrior, AdaptivePolarizationPrior
 from .filtration import Filterer, Filtration, SNPFiltration, PolyAllelicFiltration, CodingSequenceFiltration, \
     SNVFiltration, DeviantOutgroupFiltration, AllFiltration, NoFiltration, BiasedGCConversionFiltration
 
@@ -174,6 +174,9 @@ __all__ = [
     'Annotation',
     'MaximumParsimonyAncestralAnnotation',
     'MaximumLikelihoodAncestralAnnotation',
+    'PolarizationPrior',
+    'KingmanPolarizationPrior',
+    'AdaptivePolarizationPrior',
     'SubstitutionModel',
     'K2SubstitutionModel',
     'JCSubstitutionModel',

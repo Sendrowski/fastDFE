@@ -16,13 +16,13 @@ from typing import List, Callable, Literal, Optional, Iterable, Dict
 
 import numpy as np
 from Bio.SeqRecord import SeqRecord
-from cyvcf2 import Variant, VCF
+from cyvcf2 import Variant
 from tqdm import tqdm
 
-from .annotation import Annotation, Annotator, SynonymyAnnotation
+from .annotation import Annotation, SynonymyAnnotation
 from .filtration import Filtration, PolyAllelicFiltration
-from .io_handlers import bases, get_called_bases, FASTAHandler, VCFHandler, NoTypeException, \
-    DummyVariant
+from .io_handlers import bases, get_called_bases, FASTAHandler, NoTypeException, \
+    DummyVariant, MultiHandler
 from .spectrum import Spectra
 
 # logger
@@ -55,26 +55,26 @@ class Stratification(ABC):
     Abstract class for Stratifying the SFS by determining a site's type based on its properties.
     """
 
-    #: Parser instance
-    parser: Optional['Parser'] = None
-
-    #: The number of sites that didn't have a type.
-    n_valid: int = 0
-
     def __init__(self):
         """
         Create instance.
         """
         self.logger = logger.getChild(self.__class__.__name__)
 
-    def _setup(self, parser: 'Parser'):
+        #: MultiHandler instance
+        self.handler: Optional['Parser'] = None
+
+        #: The number of sites that didn't have a type.
+        self.n_valid: int = 0
+
+    def _setup(self, handler: MultiHandler):
         """
-        Provide the stratification with some context by specifying the parser.
+        Provide the stratification with some context by specifying the handler.
         This should be done before calling :meth:`get_type`.
 
-        :param parser: The parser
+        :param handler: The handler
         """
-        self.parser = parser
+        self.handler = handler
 
     def _rewind(self):
         """
@@ -165,7 +165,7 @@ class BaseContextStratification(Stratification, FASTAHandler):
         pos = variant.POS - 1
 
         # get the ancestral allele
-        aa = self.parser._get_ancestral(variant)
+        aa = self.handler._get_ancestral(variant)
 
         # get aliases
         aliases = self.get_aliases(variant.CHROM)
@@ -217,7 +217,7 @@ class BaseTransitionStratification(Stratification):
         :raises NoTypeException: if not type could be determined
         """
         if variant.is_snp:
-            ancestral = self.parser._get_ancestral(variant)
+            ancestral = self.handler._get_ancestral(variant)
 
             derived = variant.REF if variant.REF != ancestral else variant.ALT[0]
 
@@ -291,7 +291,7 @@ class AncestralBaseStratification(Stratification):
         :param variant: The vcf site
         :return: reference allele
         """
-        return self.parser._get_ancestral(variant)
+        return self.handler._get_ancestral(variant)
 
     def get_types(self) -> List[str]:
         """
@@ -470,7 +470,7 @@ class ContigStratification(GenomePositionDependentStratification):
 
         :return: List of contexts
         """
-        return list(self.parser.reader.seqnames)
+        return list(self.handler._reader.seqnames)
 
 
 class ChunkedStratification(GenomePositionDependentStratification):
@@ -495,16 +495,16 @@ class ChunkedStratification(GenomePositionDependentStratification):
         #: Number of sites seen so far
         self.counter: int = 0
 
-    def _setup(self, parser: 'Parser'):
+    def _setup(self, handler: MultiHandler):
         """
         Set up the stratification.
 
-        :param parser: The parser
+        :param handler: The handler
         """
-        super()._setup(parser)
+        super()._setup(handler)
 
         # compute base chunk size and remainder
-        base_chunk_size, remainder = divmod(parser.n_sites, self.n_chunks)
+        base_chunk_size, remainder = divmod(handler.n_sites, self.n_chunks)
 
         # create list of chunk sizes
         self.chunk_sizes = [base_chunk_size + (i < remainder) for i in range(self.n_chunks)]
@@ -536,7 +536,7 @@ class ChunkedStratification(GenomePositionDependentStratification):
         return t
 
 
-class TargetSiteCounter(FASTAHandler):
+class TargetSiteCounter:
     """
     Class for counting the number of target sites when parsing a VCF file that does not contain monomorphic sites.
     This class is used in conjunction with :class:`~fastdfe.parser.Parser` and samples sites from the given fasta
@@ -553,11 +553,7 @@ class TargetSiteCounter(FASTAHandler):
     def __init__(
             self,
             n_target_sites: int,
-            fasta_file: str,
             n_samples: int = int(1e6),
-            aliases: Dict[str, List[str]] = {},
-            cache: bool = True,
-            seed: int | None = 0,
     ):
         """
         Initialize counter.
@@ -566,20 +562,13 @@ class TargetSiteCounter(FASTAHandler):
         if it contained monomorphic sites. This number should be considerably larger than the number of polymorphic
             sites in the VCF file. This value is not extremely important for the DFE inference, but the order of
             magnitude should be correct in any case.
-        :param fasta_file: The fasta file path associated with the VCF file, possibly gzipped or a URL.
         :param n_samples: The number of sites to sample from the fasta file.
-        :param aliases: Dictionary of aliases for the contigs in the FASTA file, e.g. ``{'chr1': ['1']}``.
-        :param cache: Whether to cache files that are downloaded from URLs.
-        :param seed: Seed for the random number generator. Use ``None`` for no seed.
         """
-        # initialize fasta handler
-        FASTAHandler.__init__(self, fasta_file, cache=cache, aliases=aliases)
+        #: The logger
+        self.logger = logger.getChild(self.__class__.__name__)
 
         #: The total number of sites considered when parsing the VCF
         self.n_target_sites: int | None = int(n_target_sites)
-
-        #: Seed for the random number generator
-        self.seed: int | None = int(seed) if seed is not None else None
 
         #: Number of samples
         self.n_samples: int = int(n_samples)
@@ -621,8 +610,11 @@ class TargetSiteCounter(FASTAHandler):
         # count the number of sites per contig
         self.count_contig_sizes()
 
+        # rewind fasta iterator
+        FASTAHandler._rewind(self.parser)
+
         # initialize random number generator
-        rng = np.random.default_rng(self.seed)
+        rng = np.random.default_rng(self.parser.seed)
 
         from . import disable_pbar
 
@@ -642,7 +634,7 @@ class TargetSiteCounter(FASTAHandler):
         for contig, n in zip(self._contig_sizes.keys(), samples):
 
             # get aliases
-            aliases = self.get_aliases(contig)
+            aliases = self.parser.get_aliases(contig)
 
             # get bounds for site positions
             bounds = self._get_bounds(aliases)
@@ -653,7 +645,7 @@ class TargetSiteCounter(FASTAHandler):
                 self.logger.debug(f"Sampling {n} sites from contig '{contig}'.")
 
                 # fetch contig
-                record = self.get_contig(aliases, notify=False)
+                record = self.parser.get_contig(aliases, notify=False)
 
                 # get positions
                 # we sort in ascending order as the parser expects the positions to be sorted
@@ -725,9 +717,9 @@ class TargetSiteCounter(FASTAHandler):
         """
         # iterate over contigs
         for contig in self.parser._positions.keys():
-            aliases = self.get_aliases(contig)
+            aliases = self.parser.get_aliases(contig)
 
-            yield self.get_contig(aliases)
+            yield self.parser.get_contig(aliases)
 
     def count_contig_sizes(self) -> Dict[str, int]:
         """
@@ -755,7 +747,7 @@ class TargetSiteCounter(FASTAHandler):
         return self._contig_sizes
 
 
-class Parser(VCFHandler, FASTAHandler):
+class Parser(MultiHandler):
     """
     Parse site-frequency spectra from VCF files.
 
@@ -778,38 +770,38 @@ class Parser(VCFHandler, FASTAHandler):
 
     Note that we assume the sites in the VCF file to be sorted by position in ascending order (per contig).
 
-    TODO update example
-
     Example usage:
 
     ::
 
         import fastdfe as fd
 
-        # parse selected and neutral SFS from human chromosome 21
+        # parse selected and neutral SFS from human chromosome 1
         p = fd.Parser(
-            vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/"
-                "1000_genomes_project/release/20181203_biallelic_SNV/"
-                "ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
+            vcf="https://ngs.sanger.ac.uk//production/hgdp/hgdp_wgs.20190516/"
+                "hgdp_wgs.20190516.full.chr1.vcf.gz",
+            fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
+                       "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
+            gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                     "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz",
+            aliases=dict(chr1=['1']),
             n=10,
+            target_site_counter=fd.TargetSiteCounter(
+                n_samples=1000000,
+                n_target_sites=fd.Annotation.count_target_sites(
+                    "http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                    "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz"
+                )['1']
+            ),
             annotations=[
-                fd.DegeneracyAnnotation(
-                    fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
-                               "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
-                    gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
-                             "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
-                    aliases=dict(chr21=['21'])
-                ),
-                fd.MaximumParsimonyAncestralAnnotation()
+                fd.DegeneracyAnnotation()
             ],
             filtrations=[
-                fd.CodingSequenceFiltration(
-                    gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
-                             "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
-                    aliases=dict(chr21=['21'])
-                )
+                fd.CodingSequenceFiltration()
             ],
             stratifications=[fd.DegeneracyStratification()],
+            info_ancestral='AA_ensembl',
+            skip_non_polarized=True
         )
 
         sfs = p.parse()
@@ -822,6 +814,8 @@ class Parser(VCFHandler, FASTAHandler):
             self,
             vcf: str | Iterable[Variant],
             n: int,
+            gff_file: str | None = None,
+            fasta_file: str | None = None,
             info_ancestral: str = 'AA',
             skip_non_polarized: bool = False,
             stratifications: List[Stratification] = [],
@@ -831,12 +825,17 @@ class Parser(VCFHandler, FASTAHandler):
             max_sites: int = np.inf,
             seed: int | None = 0,
             cache: bool = True,
+            aliases: Dict[str, List[str]] = {},
             target_site_counter: TargetSiteCounter = None
     ):
         """
         Initialize the parser.
 
         :param vcf: The path to the VCF file or an iterable of variants, can be gzipped or a URL.
+        :param gff_file: The path to the GFF file, possibly gzipped or a URL. This file is optional and depends on
+            the stratifications, annotations and filtrations that are used.
+        :param fasta_file: The path to the FASTA file, possibly gzipped or a URL. This file is optional and depends on
+            the annotations and filtrations that are used.
         :param n: The size of the resulting SFS. We down-sample to this number by drawing without replacement from
             the set of all available genotypes per site. Sites with fewer than ``n`` genotypes are skipped.
         :param info_ancestral: The tag in the INFO field that contains ancestral allele information. Consider using
@@ -851,14 +850,20 @@ class Parser(VCFHandler, FASTAHandler):
         :param max_sites: Maximum number of sites to parse from the VCF file.
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param cache: Whether to cache files downloaded from URLs.
+        :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
+            This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.
+        :param target_site_counter: The target site counter. If ``None``, we do not sample target sites.
         """
-        VCFHandler.__init__(
+        MultiHandler.__init__(
             self,
             vcf=vcf,
+            gff_file=gff_file,
+            fasta_file=fasta_file,
             info_ancestral=info_ancestral,
             max_sites=max_sites,
             seed=seed,
-            cache=cache
+            cache=cache,
+            aliases=aliases
         )
 
         # warn if SynonymyAnnotation is used
@@ -896,9 +901,6 @@ class Parser(VCFHandler, FASTAHandler):
 
         #: Dictionary of SFS indexed by joint type
         self.sfs: Dict[str, np.ndarray] = defaultdict(lambda: np.zeros(self.n + 1))
-
-        #: The VCF reader
-        self.reader: Optional[VCF] = None
 
         #: 1-based positions of included sites per contig (only when target_site_counter is used)
         self._positions: Dict[str, List[int]] = defaultdict(list)
@@ -1035,6 +1037,8 @@ class Parser(VCFHandler, FASTAHandler):
         """
         Rewind the filtrations, annotations and stratifications.
         """
+        super()._rewind()
+
         for f in self.filtrations:
             f._rewind()
 
@@ -1048,12 +1052,6 @@ class Parser(VCFHandler, FASTAHandler):
         """
         Set up the parser.
         """
-        # create reader
-        self.reader = VCF(self.download_if_url(self.vcf))
-
-        # count the number of sites
-        self.n_sites = self.count_sites()
-
         # set up target site counter
         if self.target_site_counter is not None:
             self.target_site_counter._setup(self)
@@ -1068,29 +1066,19 @@ class Parser(VCFHandler, FASTAHandler):
         # log the stratifications
         self.logger.info(f'Using stratification: {representation}.')
 
-        # instantiate annotator to provide context to annotations
-        ann = Annotator(
-            vcf=self.vcf,
-            max_sites=self.max_sites,
-            seed=self.seed,
-            info_ancestral=self.info_ancestral,
-            annotations=[],
-            output=''
-        )
-
         # create samples mask
         if self.samples is None:
-            self.samples_mask = np.ones(len(self.reader.samples)).astype(bool)
+            self.samples_mask = np.ones(len(self._reader.samples)).astype(bool)
         else:
-            self.samples_mask = np.isin(self.reader.samples, self.samples)
+            self.samples_mask = np.isin(self._reader.samples, self.samples)
 
         # setup annotations
         for annotation in self.annotations:
-            annotation._setup(ann, self.reader)
+            annotation._setup(self)
 
         # setup filtrations
         for f in self.filtrations:
-            f._setup(self.reader)
+            f._setup(self)
 
     def _teardown(self):
         """
@@ -1118,7 +1106,7 @@ class Parser(VCFHandler, FASTAHandler):
         pbar = self.get_pbar(total=self.n_sites)
 
         # iterate over variants
-        for i, variant in enumerate(self.reader):
+        for i, variant in enumerate(self._reader):
 
             # handle site
             if self._process_site(variant):
@@ -1144,7 +1132,7 @@ class Parser(VCFHandler, FASTAHandler):
         self._teardown()
 
         # close VCF reader
-        self.reader.close()
+        self._reader.close()
 
         if len(self.sfs) == 0:
             self.logger.warning(f"No sites were included in the spectra. If this is not expected, "

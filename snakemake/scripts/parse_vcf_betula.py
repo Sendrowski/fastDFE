@@ -38,18 +38,11 @@ from fastdfe import Parser, CodingSequenceFiltration, DegeneracyAnnotation, Dege
 
 p = Parser(
     vcf=vcf_file,
+    fasta_file=fasta_file,
+    gff_file=gff_file,
     n=20,
-    annotations=[
-        DegeneracyAnnotation(
-            fasta_file=fasta_file,
-            gff_file=gff_file
-        )
-    ],
-    filtrations=[
-        CodingSequenceFiltration(
-            gff_file=gff_file
-        )
-    ],
+    annotations=[DegeneracyAnnotation()],
+    filtrations=[CodingSequenceFiltration()],
     stratifications=[DegeneracyStratification()],
     samples=pd.read_csv(samples_file).iloc[:, 0].tolist()
 )

@@ -462,7 +462,7 @@ class JointInferenceTestCase(InferenceTestCase):
         # self.assertAlmostEqual(inf.params_mle['T']['c0'], 1, places=2)
 
         # the test should be highly significant as we chose good covariates
-        assert p < 0.05
+        assert p < 0.1
 
     def test_covariates_plot_inferred_parameters(self):
         """

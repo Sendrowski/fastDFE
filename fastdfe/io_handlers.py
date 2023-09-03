@@ -24,7 +24,7 @@ import requests
 from Bio import SeqIO
 from Bio.SeqIO.FastaIO import FastaIterator
 from Bio.SeqRecord import SeqRecord
-from cyvcf2 import Variant
+from cyvcf2 import Variant, VCF
 from pandas.errors import SettingWithCopyWarning
 from tqdm import tqdm
 
@@ -288,7 +288,7 @@ class FileHandler:
 
     def get_aliases(self, contig: str) -> List[str]:
         """
-        Get all aliases for the given contig alias including.
+        Get all aliases for the given contig alias including the primary alias.
 
         :param contig: The contig.
         :return: The aliases.
@@ -301,7 +301,7 @@ class FileHandler:
 
 class FASTAHandler(FileHandler):
 
-    def __init__(self, fasta_file: str, cache: bool = True, aliases: Dict[str, List[str]] = {}):
+    def __init__(self, fasta_file: str | None, cache: bool = True, aliases: Dict[str, List[str]] = {}):
         """
         Create a new FASTAHandler instance.
 
@@ -314,13 +314,19 @@ class FASTAHandler(FileHandler):
         #: The path to the FASTA file.
         self.fasta_file: str = fasta_file
 
+        #: The current contig.
+        self._contig: SeqRecord | None = None
+
     @cached_property
-    def _ref(self) -> FastaIterator:
+    def _ref(self) -> FastaIterator | None:
         """
         Get the reference reader.
 
         :return: The reference reader.
         """
+        if self.fasta_file is None:
+            return None
+
         return self.load_fasta(self.fasta_file)
 
     def load_fasta(self, file: str) -> FastaIterator:
@@ -348,29 +354,33 @@ class FASTAHandler(FileHandler):
         :param notify: Whether to notify the user when rewinding the iterator.
         :return: The contig.
         """
-        try:
-            contig = next(self._ref)
+        # if the contig is already loaded, we can just return it
+        if self._contig is not None and self._contig.id in aliases:
+            return self._contig
 
-            while contig.id not in aliases:
-                contig = next(self._ref)
+        # if the contig is not loaded, we can try to load it
+        try:
+            self._contig = next(self._ref)
+
+            # iterate until we find the contig
+            while self._contig.id not in aliases:
+                self._contig = next(self._ref)
 
         except StopIteration:
 
             # if rewind is ``True``, we can rewind the iterator and try again
-            # this might be necessary if the FASTA file and the VCF have a different order of contigs
             if rewind:
                 if notify:
-                    self.logger.info("Rewinding FASTA iterator. The FASTA file and the "
-                                     "VCF file might have a different contig order.")
+                    self.logger.info("Rewinding FASTA iterator.")
 
                 # renew fasta iterator
-                self._rewind()
+                FASTAHandler._rewind(self)
 
                 return self.get_contig(aliases, rewind=False)
 
             raise LookupError(f'None of the contig aliases {aliases} were found in the FASTA file.')
 
-        return contig
+        return self._contig
 
     def get_contig_names(self) -> List[str]:
         """
@@ -384,8 +394,9 @@ class FASTAHandler(FileHandler):
         """
         Rewind the fasta iterator.
         """
-        # noinspection all
-        del self._ref
+        if hasattr(self, '_ref'):
+            # noinspection all
+            del self._ref
 
 
 class GFFHandler(FileHandler):
@@ -393,7 +404,7 @@ class GFFHandler(FileHandler):
     GFF handler.
     """
 
-    def __init__(self, gff_file: str, cache: bool = True, aliases: Dict[str, List[str]] = {}):
+    def __init__(self, gff_file: str | None, cache: bool = True, aliases: Dict[str, List[str]] = {}):
         """
         Constructor.
 
@@ -410,12 +421,15 @@ class GFFHandler(FileHandler):
         self.gff_file = gff_file
 
     @cached_property
-    def _cds(self) -> pd.DataFrame:
+    def _cds(self) -> pd.DataFrame | None:
         """
         The coding sequences.
 
         :return: Dataframe with coding sequences.
         """
+        if self.gff_file is None:
+            return None
+
         return self._load_cds()
 
     def _load_cds(self) -> pd.DataFrame:
@@ -582,8 +596,23 @@ class VCFHandler(FileHandler):
         #: Random generator instance
         self.rng = np.random.default_rng(seed=seed)
 
-        #: Number of sites to consider
-        self.n_sites: Optional[int] = None
+    @cached_property
+    def _reader(self) -> VCF:
+        """
+        Get the VCF reader.
+
+        :return: The VCF reader.
+        """
+        return VCF(self.download_if_url(self.vcf))
+
+    @cached_property
+    def n_sites(self) -> int:
+        """
+        Get the number of sites in the VCF.
+
+        :return: Number of sites
+        """
+        return self.count_sites()
 
     def count_sites(self) -> int:
         """
@@ -608,6 +637,86 @@ class VCFHandler(FileHandler):
             disable=disable_pbar,
             desc=desc
         )
+
+
+class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
+    """
+    Handle VCF, FASTA and GFF files.
+    """
+
+    def __init__(
+            self,
+            vcf: str | Iterable[Variant],
+            fasta_file: str | None = None,
+            gff_file: str | None = None,
+            info_ancestral: str = 'AA',
+            max_sites: int = np.inf,
+            seed: int | None = 0,
+            cache: bool = True,
+            aliases: Dict[str, List[str]] = {}
+    ):
+        """
+        Create a new MultiHandler instance.
+
+        :param vcf: The path to the VCF file or an iterable of variants, can be gzipped, urls are also supported
+        :param fasta_file: The path to the FASTA file.
+        :param gff_file: The path to the GFF file.
+        :param info_ancestral: The tag in the INFO field that contains the ancestral allele
+        :param max_sites: Maximum number of sites to consider
+        :param seed: Seed for the random number generator. Use ``None`` for no seed.
+        :param cache: Whether to cache files that are downloaded from URLs
+        :param aliases: The contig aliases.
+        """
+        # initialize vcf handler
+        VCFHandler.__init__(
+            self,
+            vcf=vcf,
+            info_ancestral=info_ancestral,
+            max_sites=max_sites,
+            seed=seed,
+            cache=cache,
+            aliases=aliases
+        )
+
+        # initialize fasta handler
+        FASTAHandler.__init__(
+            self,
+            fasta_file=fasta_file,
+            cache=cache,
+            aliases=aliases
+        )
+
+        # initialize gff handler
+        GFFHandler.__init__(
+            self,
+            gff_file=gff_file,
+            cache=cache,
+            aliases=aliases
+        )
+
+    def _require_fasta(self, class_name: str):
+        """
+        Raise an exception if no FASTA file was provided.
+
+        :param class_name: The name of the class that requires a FASTA file.
+        """
+        if self.fasta_file is None:
+            raise ValueError(f'{class_name} requires a FASTA file to be specified.')
+
+    def _require_gff(self, class_name: str):
+        """
+        Raise an exception if no GFF file was provided.
+
+        :param class_name: The name of the class that requires a GFF file.
+        """
+        if self.gff_file is None:
+            raise ValueError(f'{class_name} requires a GFF file to be specified.')
+
+    def _rewind(self):
+        """
+        Rewind the fasta and gff handler.
+        """
+        FASTAHandler._rewind(self)
 
 
 class NoTypeException(BaseException):

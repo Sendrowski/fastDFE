@@ -28,8 +28,8 @@ from cyvcf2 import Variant, Writer, VCF
 from matplotlib import pyplot as plt
 from scipy.optimize import minimize, OptimizeResult
 
-from .io_handlers import DummyVariant
-from .io_handlers import FASTAHandler, GFFHandler, VCFHandler, get_major_base, get_called_bases
+from .io_handlers import DummyVariant, MultiHandler
+from .io_handlers import GFFHandler, get_major_base, get_called_bases
 from .optimization import parallelize as parallelize_func, check_bounds
 from .spectrum import Spectrum
 from .visualization import Visualization
@@ -74,19 +74,18 @@ class Annotation:
         self.logger = logger.getChild(self.__class__.__name__)
 
         #: The annotator.
-        self.annotator: Annotator | None = None
+        self.handler: Annotator | None = None
 
         #: The number of annotated sites.
         self.n_annotated: int = 0
 
-    def _setup(self, annotator: 'Annotator', reader: VCF):
+    def _setup(self, handler: MultiHandler):
         """
         Provide context by passing the annotator. This should be called before the annotation starts.
 
-        :param annotator: The annotator.
-        :param reader: The VCF reader.
+        :param handler: The handler.
         """
-        self.annotator = annotator
+        self.handler = handler
 
     def _rewind(self):
         """
@@ -125,7 +124,7 @@ class Annotation:
         )
 
 
-class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
+class DegeneracyAnnotation(Annotation):
     """
     Degeneracy annotation. We annotate the degeneracy by looking at each codon for coding variants.
     This also annotates mono-allelic sites.
@@ -133,32 +132,19 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
     This annotation adds the info fields ``Degeneracy`` and ``Degeneracy_Info``, which hold the degeneracy
     of a site (0, 2, 4) and extra information about the degeneracy, respectively. To be used with
     :class:`~fastdfe.parser.DegeneracyStratification`.
+
+    For this annotation to work, we require a FASTA and GFF file (passed to :class:`~fastdfe.parser.Parser` or
+    :class:`~fastdfe.annotation.Annotator`).
     """
 
     #: The genomic positions for coding sequences that are mocked.
     _pos_mock: int = 1e100
 
-    def __init__(
-            self,
-            gff_file: str,
-            fasta_file: str,
-            aliases: Dict[str, List[str]] = {},
-            cache: bool = True
-    ):
+    def __init__(self):
         """
         Create a new annotation instance.
-
-        :param gff_file: The GFF file path, possibly gzipped or a URL
-        :param fasta_file: The FASTA file path, possibly gzipped or a URL
-        :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
-            This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.
-        :param cache: Whether to cache files that are downloaded from URLs
         """
         Annotation.__init__(self)
-
-        GFFHandler.__init__(self, gff_file, cache=cache, aliases=aliases)
-
-        FASTAHandler.__init__(self, fasta_file, cache=cache, aliases=aliases)
 
         #: The current coding sequence or the closest coding sequence downstream.
         self.cd: Optional[pd.Series] = None
@@ -181,30 +167,34 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
         #: The variants for which the codon could not be determined.
         self.errors: List[Variant] = []
 
-    def _setup(self, annotator: 'Annotator', reader: VCF):
+    def _setup(self, handler: MultiHandler):
         """
         Provide context to the annotator.
 
-        :param annotator: The annotator.
-        :param reader: The reader.
+        :param handler: The handler.
         """
-        super()._setup(annotator, reader)
+        # require FASTA and GFF files
+        handler._require_fasta(self.__class__.__name__)
+        handler._require_gff(self.__class__.__name__)
+
+        # call super
+        super()._setup(handler)
 
         # touch the cached properties to make for a nicer logging experience
         # noinspection PyStatementEffect
-        self._cds
+        self.handler._cds
 
         # noinspection PyStatementEffect
-        self._ref
+        self.handler._ref
 
-        reader.add_info_to_header({
+        handler._reader.add_info_to_header({
             'ID': 'Degeneracy',
             'Number': '.',
             'Type': 'Integer',
             'Description': 'n-fold degeneracy'
         })
 
-        reader.add_info_to_header({
+        handler._reader.add_info_to_header({
             'ID': 'Degeneracy_Info',
             'Number': '.',
             'Type': 'Integer',
@@ -216,7 +206,6 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
         Rewind the annotation.
         """
         Annotation._rewind(self)
-        FASTAHandler._rewind(self)
 
         self.cd = None
         self.cd_next = None
@@ -382,7 +371,7 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
         :raises LookupError: If no coding sequence was found.
         """
         # get the aliases for the current chromosome
-        aliases = self.get_aliases(v.CHROM)
+        aliases = self.handler.get_aliases(v.CHROM)
 
         # only fetch coding sequence if we are on a new chromosome or the
         # variant is not within the current coding sequence
@@ -394,7 +383,7 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
             self.cd_next = pd.Series({'seqid': v.CHROM, 'start': self._pos_mock, 'end': self._pos_mock})
 
             # filter for the current chromosome
-            on_contig = self._cds[(self._cds.seqid.isin(aliases))]
+            on_contig = self.handler._cds[(self.handler._cds.seqid.isin(aliases))]
 
             # filter for positions ending after the variant
             cds = on_contig[(on_contig.end >= v.POS)]
@@ -438,14 +427,14 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
 
         :param v: The variant to fetch the contig for.
         """
-        aliases = self.get_aliases(v.CHROM)
+        aliases = self.handler.get_aliases(v.CHROM)
 
         # check if contig is up-to-date
         if self.contig is None or self.contig.id not in aliases:
             self.logger.debug(f"Fetching contig '{v.CHROM}'.")
 
             # fetch contig
-            self.contig = self.get_contig(aliases)
+            self.contig = self.handler.get_contig(aliases)
 
     def _fetch(self, variant: Variant):
         """
@@ -477,7 +466,7 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
             return
 
         # annotate if record is in coding sequence
-        if self.cd.seqid in self.get_aliases(v.CHROM) and self.cd.start <= v.POS <= self.cd.end:
+        if self.cd.seqid in self.handler.get_aliases(v.CHROM) and self.cd.start <= v.POS <= self.cd.end:
 
             try:
                 # parse codon
@@ -516,11 +505,13 @@ class DegeneracyAnnotation(Annotation, GFFHandler, FASTAHandler):
 class SynonymyAnnotation(DegeneracyAnnotation):
     """
     Synonymy annotation. This class annotates a variant with the synonymous/non-synonymous status.
-    Use this when mono-allelic sites are not present in the VCF file.
 
     This annotation adds the info fields ``Synonymous`` and ``Synonymous_Info``, which hold
     the synonymous status (Synonymous (0) or non-synonymous (1)) and the codon information, respectively.
     To be used with :class:`~fastdfe.parser.SynonymyStratification`.
+
+    For this annotation to work, we require a FASTA and GFF file (passed to :class:`~fastdfe.parser.Parser` or
+    :class:`~fastdfe.annotation.Annotator`).
 
     .. warning::
         Not recommended for use with :class:`~fastdfe.parser.Parser` as we also need to annotate mono-allelic sites.
@@ -528,20 +519,11 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         :class:`~fastdfe.parser.DegeneracyStratification` instead.
     """
 
-    def __init__(self, gff_file: str, fasta_file: str, aliases: Dict[str, List[str]] = {}):
+    def __init__(self):
         """
         Create a new annotation instance.
-
-        :param gff_file: The GFF file path, possibly gzipped or a URL
-        :param fasta_file: The FASTA file path, possibly gzipped or a URL
-        :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
-            This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.
         """
-        super().__init__(
-            gff_file=gff_file,
-            fasta_file=fasta_file,
-            aliases=aliases
-        )
+        super().__init__()
 
         #: The number of sites that did not match with VEP.
         self.vep_mismatches: List[Variant] = []
@@ -555,30 +537,33 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         #: The number of sites that were concordant with SnpEff.
         self.n_snpeff_comparisons: int = 0
 
-    def _setup(self, annotator: 'Annotator', reader: VCF):
+    def _setup(self, handler: MultiHandler):
         """
         Provide context to the annotator.
 
-        :param annotator: The annotator.
-        :param reader: The reader.
+        :param handler: The handler.
         """
-        Annotation._setup(self, annotator, reader)
+        # require FASTA and GFF files
+        handler._require_fasta(self.__class__.__name__)
+        handler._require_gff(self.__class__.__name__)
+
+        Annotation._setup(self, handler)
 
         # touch the cached properties to make for a nicer logging experience
         # noinspection PyStatementEffect
-        self._cds
+        self.handler._cds
 
         # noinspection PyStatementEffect
-        self._ref
+        self.handler._ref
 
-        reader.add_info_to_header({
+        handler._reader.add_info_to_header({
             'ID': 'Synonymy',
             'Number': '.',
             'Type': 'Integer',
             'Description': 'Synonymous (0) or non-synonymous (1)'
         })
 
-        reader.add_info_to_header({
+        handler._reader.add_info_to_header({
             'ID': 'Synonymy_Info',
             'Number': '.',
             'Type': 'String',
@@ -781,17 +766,16 @@ class AncestralAlleleAnnotation(Annotation, ABC):
     Base class for ancestral allele annotation.
     """
 
-    def _setup(self, annotator: 'Annotator', reader: VCF):
+    def _setup(self, handler: MultiHandler):
         """
         Add info fields to the header.
 
-        :param annotator: The annotator.
-        :param reader: The reader.
+        :param handler: The handler.
         """
-        super()._setup(annotator, reader)
+        super()._setup(handler)
 
-        reader.add_info_to_header({
-            'ID': self.annotator.info_ancestral,
+        handler._reader.add_info_to_header({
+            'ID': self.handler.info_ancestral,
             'Number': '.',
             'Type': 'Character',
             'Description': 'Ancestral Allele'
@@ -802,7 +786,7 @@ class MaximumParsimonyAncestralAnnotation(AncestralAlleleAnnotation):
     """
     Annotation of ancestral alleles using maximum parsimony. The info field ``AA`` is added to the VCF file,
     which holds the ancestral allele. To be used with :class:`~fastdfe.parser.AncestralBaseStratification` and
-    :class:`~fastdfe.annotation.Annotator` or :class:`~fastdfe.parser.Parser`.
+    :class:`Annotator` or :class:`~fastdfe.parser.Parser`.
 
     Note that maximum parsimony is not a reliable way to determine ancestral alleles, so it is recommended
     to use this annotation together with the ancestral misidentification parameter ``eps`` or to fold
@@ -826,20 +810,19 @@ class MaximumParsimonyAncestralAnnotation(AncestralAlleleAnnotation):
 
         self.samples_mask: np.ndarray | None = None
 
-    def _setup(self, annotator: 'Annotator', reader: VCF):
+    def _setup(self, handler: MultiHandler):
         """
         Add info fields to the header.
 
-        :param annotator: The annotator.
-        :param reader: The reader.
+        :param handler: The handler.
         """
-        super()._setup(annotator, reader)
+        super()._setup(handler)
 
         # create mask for ingroups
         if self.samples is None:
-            self.samples_mask = np.ones(len(reader.samples)).astype(bool)
+            self.samples_mask = np.ones(len(handler._reader.samples)).astype(bool)
         else:
-            self.samples_mask = np.isin(reader.samples, self.samples)
+            self.samples_mask = np.isin(handler._reader.samples, self.samples)
 
     def annotate_site(self, variant: Variant | DummyVariant):
         """
@@ -859,7 +842,7 @@ class MaximumParsimonyAncestralAnnotation(AncestralAlleleAnnotation):
         major_allele = base if base is not None else '.'
 
         # set the ancestral allele
-        variant.INFO[self.annotator.info_ancestral] = major_allele
+        variant.INFO[self.handler.info_ancestral] = major_allele
 
         # increase the number of annotated sites
         self.n_annotated += 1
@@ -1182,18 +1165,290 @@ class BaseType(Enum):
     MAJOR = 1
 
 
+class PolarizationPrior(ABC):
+    """
+    Base class for priors to be used with the :class:`MaximumLikelihoodAncestralAnnotation`.
+    Using a prior, we incorporate information about the general probability of the major allele being the ancestral 
+    allele across all sites with the same minor allele count, is useful in general as it provides more information 
+    about the ancestral allele probabilities For example, when we have no outgroup information for a particular site, 
+    it is good to know how likely it is that the major allele is ancestral in general and incorporate this information 
+    into the estimates. 
+    """
+
+    def __init__(self):
+        """
+        Create a new prior instance.
+        """
+        #: The logger.
+        self.logger = logger.getChild(self.__class__.__name__)
+
+        #: The polarization probabilities.
+        self.p_polarization: np.ndarray[float, (...,)] | None = None
+
+    @abstractmethod
+    def get_prior(self, configs: pd.DataFrame, n_ingroups: int) -> np.ndarray:
+        """
+        Get the polarization probabilities.
+        
+        :param configs: The site configurations.
+        :param n_ingroups: The number of ingroups.
+        """
+        pass
+
+    def plot_polarization(
+            self,
+            file: str = None,
+            show: bool = True,
+            title: str = 'polarization probabilities',
+            scale: Literal['lin', 'log'] = 'lin',
+            ax: plt.Axes = None,
+            ylabel: str = 'p'
+    ) -> plt.Axes:
+        """
+        Visualize the polarization probabilities using a scatter plot.
+
+        :param scale: y-scale of the plot.
+        :param title: Plot title.
+        :param file: File to save plot to.
+        :param show: Whether to show plot.
+        :param ax: Axes object to plot on.
+        :param ylabel: y-axis label.
+        :return: Axes object
+        """
+        if self.p_polarization is None:
+            raise ValueError('Polarization probabilities have not been calculated yet.')
+
+        return Visualization.plot_scatter(
+            values=self.p_polarization,
+            file=file,
+            show=show,
+            title=title,
+            scale=scale,
+            ax=ax,
+            ylabel=ylabel
+        )
+
+
+class KingmanPolarizationPrior(PolarizationPrior):
+    """
+    Prior based on the standard Kingman coalescent. To be used with 
+    :class:`MaximumLikelihoodAncestralAnnotation`.
+    """
+
+    def get_prior(self, configs: pd.DataFrame, n_ingroups: int) -> np.ndarray:
+        """
+        Get the polarization probabilities.
+
+        :param configs: The site configurations.
+        :param n_ingroups: The number of ingroups.
+        """
+        self.p_polarization = np.zeros(n_ingroups + 1)
+
+        # first entry is 1
+        self.p_polarization[0] = 1
+
+        # calculate polarization probabilities
+        for i in range(1, n_ingroups + 1):
+            self.p_polarization[i] = 1 / i / (1 / i + 1 / (n_ingroups - i))
+
+        return self.p_polarization
+
+
+class AdaptivePolarizationPrior(PolarizationPrior):
+    """
+    Adaptive prior. To be used with :class:`MaximumLikelihoodAncestralAnnotation`. This is the
+    same prior as used in the EST-SFS paper. This prior is adaptive in the sense that the polarization probabilities
+    are optimized for each frequency bin given the site configurations. This is the most accurate prior, but requires
+    a lot of sites to be accurate. You can check that the polarization probabilities are smooth enough across 
+    frequency counts by calling :meth:`plot_polarization`. If they are not smooth enough, you can increase the number
+    of sites, decrease the number of ingroups, or use :class:`~fastdfe.prior.KingmanPolarizationPrior` instead.
+    """
+
+    def __init__(
+            self,
+            n_runs: int = 1,
+            parallelize: bool = True,
+            seed: int | None = 0
+    ):
+        """
+        Create a new adaptive prior instance.
+        
+        :param n_runs: The number of runs to perform when determining the polarization parameters. One
+            run should be sufficient as only one parameter is optimized.
+        :param parallelize: Whether to parallelize the optimization.
+        :param seed: The seed for the random number generator.
+        """
+        super().__init__()
+
+        #: The number of runs to use for the adaptive prior.
+        self.n_runs: int = n_runs
+
+        #: Whether to parallelize the optimization.
+        self.parallelize: bool = parallelize
+
+        #: The seed for the random number generator.
+        self.seed: int | None = seed
+
+        #: The random number generator.
+        self.rng: np.random.Generator = np.random.default_rng(seed=self.seed)
+
+    def get_prior(
+            self,
+            configs: pd.DataFrame,
+            n_ingroups: int
+    ) -> np.ndarray[float, (...,)]:
+        """
+        Get the polarization probabilities.
+
+        TODO write test for odd number of ingroups
+
+        :param configs: The site configurations.
+        :param n_ingroups: The number of ingroups.
+        :return: The polarization probabilities.
+        """
+
+        # folded frequency bin indices
+        # if the number of polymorphic bins is odd, the middle bin is fixed
+        freq_indices = range(1, (n_ingroups + 1) // 2)
+
+        # get the likelihood functions
+        funcs = dict((i, self.get_likelihood_polarization(i, configs, n_ingroups)) for i in freq_indices)
+
+        def optimize_polarization(args: List[Any]) -> OptimizeResult:
+            """
+            Optimize the likelihood function for a single run.
+
+            :param args: The arguments.
+            :return: The optimization results.
+            """
+            # unpack arguments
+            i, _, x0 = args
+
+            # optimize using scipy
+            return minimize(
+                fun=funcs[int(i)],
+                x0=np.array([x0]),
+                bounds=[(0, 1)],
+                method="L-BFGS-B"
+            )
+
+        # prepare arguments
+        data = np.array(list(itertools.product(freq_indices, range(self.n_runs))))
+
+        # get initial values
+        initial_values = np.array([self.rng.uniform() for _ in range(data.shape[0])])
+
+        # add initial values
+        data = np.hstack((data, initial_values.reshape((-1, 1))))
+
+        # run the optimization in parallel for each frequency bin over n_runs
+        results = parallelize_func(
+            func=optimize_polarization,
+            data=data,
+            parallelize=self.parallelize,
+            pbar=True,
+            desc="Optimizing polarization priors",
+            dtype=object
+        ).reshape(len(freq_indices), self.n_runs)
+
+        # get the likelihoods for each run and frequency bin
+        likelihoods = np.vectorize(lambda r: r.fun)(results)
+
+        # choose run with the best likelihood for each frequency bin
+        i_best = likelihoods.argmin(axis=1)
+
+        # check for successful optimization
+        if not np.all(np.vectorize(lambda r: r.success)(results[:, i_best])):
+            # get the failure messages
+            failures = [r.message for r in results[:, i_best] if not r.success]
+
+            # raise an error
+            raise RuntimeError("Polarization probability optimizations failed with messages: " + ", ".join(failures))
+
+        # get the probabilities for each frequency bin
+        probs = np.array([results[i, j].x[0] for i, j in enumerate(i_best)])
+
+        # check for zeros or ones
+        if np.any(probs == 0) or np.any(probs == 1):
+            # get the number of bad frequency bins
+            n_bad = np.sum((probs == 0) | (probs == 1))
+
+            self.logger.fatal(f"Polarization probabilities are 0 for {n_bad} frequency bins which "
+                              f"can be a real problem as it means that there are no sites "
+                              f"for those bins. This may be due to ``n_ingroups`` "
+                              f"being too large, or the number of provided sites being very "
+                              f"small. If you can't increase the number of sites or decrease "
+                              f"``n_ingroups``, consider using a the Kingman prior instead.")
+
+        # if the number of ingroups is even
+        if n_ingroups % 2 == 0:
+            self.p_polarization = np.concatenate(([1], probs, [0.5], 1 - probs[::-1], [0]))
+        else:
+            # if the number of ingroups is odd
+            self.p_polarization = np.concatenate(([1], probs, 1 - probs[::-1], [0]))
+
+        return self.p_polarization
+
+    @staticmethod
+    def get_likelihood_polarization(
+            i: int,
+            configs: pd.DataFrame,
+            n_ingroups: int
+    ) -> Callable[[List[float]], float]:
+        """
+        Get the likelihood function.
+
+        :param i: The ith frequency bin.
+        :param configs: The site configurations.
+        :param n_ingroups: The number of ingroups.
+        The likelihood function evaluated for the ith frequency bin.
+        """
+
+        def compute_likelihood(params: List[float]) -> float:
+            """
+            Compute the negative log likelihood of the parameters.
+
+            :param params: The probability of polarization.
+            :return: The negative log likelihood.
+            """
+            # get the probability of polarization for the ith frequency bin
+            pi = params[0]
+
+            # mask for sites that have i minor alleles
+            i_minor = n_ingroups - configs.n_major == i
+
+            # weight the sites by the probability of polarization
+            # TODO is this the right way round?
+            p_configs = pi * configs.p_major[i_minor] + (1 - pi) * configs.p_minor[i_minor]
+
+            # return the negative log likelihood
+            return -(np.log(p_configs) * configs.multiplicity[i_minor]).sum()
+
+        return compute_likelihood
+
+
 class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
     """
-    Annotation of ancestral alleles using a sophisticated method similar to EST-SFS
+    Annotation of ancestral alleles using a method very similar to EST-SFS
     (https://doi.org/10.1534/genetics.118.301120). The info field ``AA``
     is added to the VCF file, which holds the ancestral allele. To be used with
-    :class:`~fastdfe.parser.AncestralBaseStratification` and :class:`~fastdfe.annotation.Annotator` or
-    :class:`~fastdfe.parser.Parser`. This class can also be used independently, see the :meth:`from_dataframe`,
-    :meth:`from_data` and :meth:`from_est_est` methods. In this case we pass the site configurations manually.
+    :class:`Annotator` or :class:`~fastdfe.parser.Parser`. This class can also be used
+    independently, see the :meth:`from_dataframe`, :meth:`from_data` and :meth:`from_est_est` methods.
 
-    Initially, the branch rates are determined using MLE. If ``use_prior`` is ``True``, the ancestral allele
-    probabilities across sites are then also determined in a second optimization step using MLE. For every site,
-    the probability that the major allele is ancestral is then calculated.
+    Initially, the branch rates are determined using MLE. You can also choose a prior for the polarization
+    probabilities (see :class:`PolarizationPrior`). Eventually, for every site, the probability that the major allele is
+    ancestral is then calculated.
+
+    Differences to EST-SFS:
+    * (Neglecting the polarization prior), we use an equal probability of the major and minor allele being ancestral
+        if no outgroup information is available for the site in question. EST-SFS appears to assign a probability of
+        1 to the major allele being ancestral in this case.
+    * The branch rates have non-zero lower bounds by default.
+    * The polarization prior corresponds to the Kingman coalescent probability by default. Using an adaptive prior
+        as in the EST-SFS paper is also possible, but this is only recommended if the number of sites used for the
+        inference is large (see ``prior``).
+
+    TODO make major allele definition predictable
 
     .. warning::
         Still experimental. Use with caution.
@@ -1221,11 +1476,10 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             n_ingroups: int,
             ingroups: List[str] = None,
             n_outgroups: int = 2,
-            n_runs_rate: int = 10,
-            n_runs_polarization: int = 1,
+            n_runs: int = 10,
             model: SubstitutionModel = K2SubstitutionModel(),
             parallelize: bool = True,
-            use_prior: bool = True,
+            prior: PolarizationPrior | None = KingmanPolarizationPrior(),
             max_sites: int = np.inf,
             seed: int | None = 0
     ):
@@ -1236,28 +1490,24 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             sample names as they appear in the VCF file.
         :param n_ingroups: The minimum number of ingroups that must be present at a site for it to be considered
             for ancestral allele inference. Note that a larger number of ingroups does not necessarily improve
-            the accuracy of the ancestral allele inference (see ``use_prior``). A larger number of ingroups can lead
+            the accuracy of the ancestral allele inference (see ``prior``). A larger number of ingroups can lead
             to a large variance in the polarization probabilities, across different frequency counts. ``n_ingroups``
             should thus only be large if the number of sites used for the inference is also large. A sensible value is
             for a reasonable large number of sites (a few thousand) is 10 or perhaps 20 for larger numbers of sites.
             We subsample ``n_ingroups`` ingroups from the total number of ingroups for each site, and such values
-            should provide representative subsamples in most cases.
+            should provide representative subsamples in most cases. Note that if ``ingroups`` is an even number,
+            the major allele is chosen arbitrarily if the number of major alleles is equal to the number of minor
+            alleles. To avoid this, you can use an odd number of ingroups.
         :param ingroups: The ingroup samples to consider when determining the ancestral allele. If ``None``,
             all (non-outgroup) samples are considered. A list of sample names as they appear in the VCF file.
         :param n_outgroups: The maximum number of outgroups that are considered for ancestral allele inference.
             More outgroups lead to a more accurate inference of the ancestral allele, but also increase the
             computational cost. Using more than 1 outgroup is recommended, but more than 3 is likely not necessary.
-        :param n_runs_rate: The number of optimization runs to perform when determining the branch rates. You can
+        :param n_runs: The number of optimization runs to perform when determining the branch rates. You can
             check that the likelihoods of the different runs are similar by calling :meth:`plot_likelihoods`.
-        :param n_runs_polarization: The number of runs to perform when determining the polarization parameters. One
-            run should be sufficient as only one parameter is optimized.
         :param parallelize: Whether to parallelize the computation across multiple cores.
-        :param use_prior: Whether to incorporate information about the general probability of the major allele
-            being the ancestral allele across all sites with the same minor allele count. This is useful in general
-            as it provides more information about the ancestral allele, but it can lead to a bias if the number of sites
-            is small. For example, when we have no outgroup information for a particular site, it is good to know how
-            likely it is that the major allele is ancestral. You can check that the polarization probabilities are
-            smooth enough across frequency counts by calling :meth:`plot_polarization`.
+        :param prior: The prior to use for the polarization probabilities. See :class:`PolarizationPrior`, 
+        :class:`KingmanPolarizationPrior` and :class:`AdaptivePolarizationPrior` for more information.
         :param max_sites: The maximum number of sites to consider. This is useful if the number of sites is very large.
             Choosing a reasonably large subset of sites (on the order of a few thousand bi-allelic sites) can speed up
             the computation considerably as parsing can be slow. This subset is then used to calibrate the rate
@@ -1281,8 +1531,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         #: Maximum number of sites to consider
         self.max_sites: int = max_sites
 
-        #: Whether to incorporate additional information about the ancestral allele.
-        self.use_prior: bool = use_prior
+        #: The prior to use for the polarization probabilities.
+        self.prior: PolarizationPrior | None = prior
 
         #: The samples to consider when determining the ancestral allele.
         self.ingroups: List[str] | None = ingroups
@@ -1303,10 +1553,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         self.outgroup_mask: np.ndarray[bool, (...,)] | None = None
 
         #: Number of random ML starts when determining the rate parameters
-        self.n_runs_rate: int = n_runs_rate
-
-        #: Number of random ML starts when determining the polarization parameters
-        self.n_runs_polarization: int = n_runs_polarization
+        self.n_runs: int = n_runs
 
         #: The substitution model.
         self.model: SubstitutionModel = model
@@ -1344,28 +1591,27 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         #: Random number generator.
         self.rng: np.random.Generator = np.random.default_rng(seed)
 
-    def _setup(self, annotator: 'Annotator', reader: VCF):
+    def _setup(self, handler: MultiHandler):
         """
         Add info fields to the header.
 
-        :param annotator: The annotator.
-        :param reader: The reader.
+        :param handler: The handler.
         """
-        super()._setup(annotator, reader)
+        super()._setup(handler)
 
         # add info field
-        reader.add_info_to_header({
-            'ID': self.annotator.info_ancestral + '_info',
+        handler._reader.add_info_to_header({
+            'ID': self.handler.info_ancestral + '_info',
             'Number': '.',
             'Type': 'String',
             'Description': 'Additional information about the ancestral allele.'
         })
 
         # set reader
-        self.reader = reader
+        self.reader = handler._reader
 
         # prepare masks
-        self.prepare_masks(reader.samples)
+        self.prepare_masks(handler._reader.samples)
 
         # load data
         self.load_variants()
@@ -1415,7 +1661,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         if genotypes.shape[0] == 0:
             return np.array([])
 
-        subsamples = self.annotator.rng.choice(
+        subsamples = self.handler.rng.choice(
             a=genotypes.shape[0],
             size=min(size, genotypes.shape[0]),
             replace=False
@@ -1568,9 +1814,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
     def from_est_sfs(
             cls,
             file: str,
-            use_prior: bool = True,
-            n_runs_rate: int = 10,
-            n_runs_polarization: int = 1,
+            prior: PolarizationPrior | None = KingmanPolarizationPrior(),
+            n_runs: int = 10,
             model: SubstitutionModel = K2SubstitutionModel(),
             parallelize: bool = True,
             seed: int = 0,
@@ -1580,9 +1825,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         Create instance from EST-SFS input file.
 
         :param file: File containing EST-SFS-formatted input data.
-        :param use_prior: Whether to use the polarization prior (see :meth:`__init__`).
-        :param n_runs_rate: Number of runs for rate estimation (see :meth:`__init__`).
-        :param n_runs_polarization: Number of runs for polarization (see :meth:`__init__`).
+        :param prior: The prior to use for the polarization probabilities (see :meth:`__init__`).
+        :param n_runs: Number of runs for rate estimation (see :meth:`__init__`).
         :param model: The substitution model (see :meth:`__init__`).
         :param parallelize: Whether to parallelize the runs (see :meth:`__init__`).
         :param seed: The seed to use for the random number generator.
@@ -1621,11 +1865,10 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         # create from dataframe
         return cls.from_dataframe(
             data=data,
-            n_runs_rate=n_runs_rate,
-            n_runs_polarization=n_runs_polarization,
+            n_runs=n_runs,
             model=model,
             parallelize=parallelize,
-            use_prior=use_prior,
+            prior=prior,
             n_ingroups=n_ingroups,
             grouped=True,
             seed=seed
@@ -1681,11 +1924,10 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             minor_bases: Iterable[str | int],
             outgroup_bases: Iterable[Iterable[str | int]],
             n_ingroups: int,
-            n_runs_rate: int = 10,
-            n_runs_polarization: int = 1,
+            n_runs: int = 10,
             model: SubstitutionModel = K2SubstitutionModel(),
             parallelize: bool = True,
-            use_prior: bool = True,
+            prior: PolarizationPrior | None = KingmanPolarizationPrior(),
             seed: int = 0,
             pass_indices: bool = False
     ) -> 'MaximumLikelihoodAncestralAnnotation':
@@ -1703,11 +1945,10 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             if ``pass_indices`` is True. This should be a list of lists, where the outer list corresponds to the sites
             and the inner list to the outgroups per site.
         :param n_ingroups: The number of ingroups samples (see :meth:`__init__`).
-        :param n_runs_rate: The number of runs for rate estimation (see :meth:`__init__`).
-        :param n_runs_polarization: The number of runs for polarization (see :meth:`__init__`).
+        :param n_runs: The number of runs for rate estimation (see :meth:`__init__`).
         :param model: The substitution model (see :meth:`__init__`).
         :param parallelize: Whether to parallelize the runs.
-        :param use_prior: Whether to use the prior (see :meth:`__init__`).
+        :param prior: The prior to use for the polarization probabilities (see :meth:`__init__`).
         :param seed: The seed for the random number generator.
         :param pass_indices: Whether to pass the base indices instead of the bases.
         :return: The instance.
@@ -1736,11 +1977,10 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         # create from dataframe
         return cls.from_dataframe(
             data=data,
-            n_runs_rate=n_runs_rate,
-            n_runs_polarization=n_runs_polarization,
+            n_runs=n_runs,
             model=model,
             parallelize=parallelize,
-            use_prior=use_prior,
+            prior=prior,
             n_ingroups=n_ingroups,
             seed=seed
         )
@@ -1750,11 +1990,10 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             cls,
             data: pd.DataFrame,
             n_ingroups: int,
-            n_runs_rate: int = 10,
-            n_runs_polarization: int = 1,
+            n_runs: int = 10,
             model: SubstitutionModel = K2SubstitutionModel(),
             parallelize: bool = True,
-            use_prior: bool = True,
+            prior: PolarizationPrior | None = KingmanPolarizationPrior(),
             seed: int = 0,
             grouped: bool = False
     ) -> 'MaximumLikelihoodAncestralAnnotation':
@@ -1763,11 +2002,10 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
 
         :param data: Dataframe with the columns: ``major_base``, ``minor_base``, ``outgroup_bases``, ``n_major``.
         :param n_ingroups: The number of ingroups (see :meth:`__init__`).
-        :param n_runs_rate: Number of runs for rate estimation (see :meth:`__init__`).
-        :param n_runs_polarization: Number of runs for polarization (see :meth:`__init__`).
+        :param n_runs: Number of runs for rate estimation (see :meth:`__init__`).
         :param model: The substitution model (see :meth:`__init__`).
         :param parallelize: Whether to parallelize computations.
-        :param use_prior: Whether to use the prior (see :meth:`__init__`).
+        :param prior: The prior to use for the polarization probabilities (see :meth:`__init__`).
         :param seed: The seed for the random number generator. If ``None``, a random seed is chosen.
         :param grouped: Whether the dataframe is already grouped by all columns (used for internal purposes).
         :return: The instance.
@@ -1804,11 +2042,10 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         n_outgroups = data.outgroup_bases.apply(len).max()
 
         anc = MaximumLikelihoodAncestralAnnotation(
-            n_runs_rate=n_runs_rate,
-            n_runs_polarization=n_runs_polarization,
+            n_runs=n_runs,
             model=model,
             parallelize=parallelize,
-            use_prior=use_prior,
+            prior=prior,
             outgroups=[str(i) for i in range(n_outgroups)],  # pseudo names for outgroups
             n_outgroups=n_outgroups,
             ingroups=[str(i) for i in range(n_ingroups)],  # pseudo names for ingroups
@@ -1842,7 +2079,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         self.configs.set_index(keys=index_cols, inplace=True)
 
         # create progress bar
-        with self.annotator.get_pbar(desc="Parsing sites") as pbar:
+        with self.handler.get_pbar(desc="Parsing sites") as pbar:
 
             # iterate over sites
             for i, variant in enumerate(self.reader):
@@ -1878,7 +2115,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
 
                 # explicitly stopping after ``n`` sites fixes a bug with cyvcf2:
                 # 'error parsing variant with `htslib::bcf_read` error-code: 0 and ret: -2'
-                if i + 1 == self.annotator.n_sites or i + 1 == self.annotator.max_sites:
+                if i + 1 == self.handler.n_sites or i + 1 == self.handler.max_sites:
                     break
 
         # reset the index
@@ -1888,13 +2125,13 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         self.n_sites = self.configs.multiplicity.sum()
 
         # notify about the number of sites
-        self.logger.info(f"Loaded {self.n_sites} sites for the inference.")
+        self.logger.info(f"Included {self.n_sites} sites for the inference.")
 
     def infer(self):
         """
-        Infer the ancestral allele probabilities for the data provided. This consists of two steps:
-        First, the rates are inferred using the likelihood function. Second, the polarization probabilities
-        are inferred using the inferred rates if ``use_prior`` is ``True``.
+        Infer the ancestral allele probabilities for the data provided.
+        First, the rates are inferred using the likelihood function. Second, if prior is ``adaptive``, the
+        polarization probabilities are inferred in a second step.
         """
         # get the bounds
         bounds = self.model.get_bounds(self.n_outgroups)
@@ -1920,7 +2157,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         # run the optimization in parallel
         results = parallelize_func(
             func=optimize_rates,
-            data=[self.model.get_x0(bounds, self.rng) for _ in range(self.n_runs_rate)],
+            data=[self.model.get_x0(bounds, self.rng) for _ in range(self.n_runs)],
             parallelize=self.parallelize,
             pbar=True,
             desc="Optimizing rates",
@@ -1978,88 +2215,17 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         )
 
     @cached_property
-    def p_polarization(self) -> np.ndarray[float, (...,)]:
+    def p_polarization(self) -> np.ndarray[float, (...,)] | None:
         """
-        Get the polarization probabilities. This property is cached so that the polarization probabilities
-        are only optimized once.
-
-        :return: The polarization probabilities.
+        Get the polarization probabilities or ``None`` if ``prior`` is ``no``.
         """
-        # folded frequency bin indices
-        freq_indices = range(1, self.n_ingroups // 2 + 2)
-
-        # get the likelihood functions
-        funcs = dict((i, self.get_likelihood_polarization(i)) for i in freq_indices)
-
-        def optimize_polarization(args: List[Any]) -> OptimizeResult:
-            """
-            Optimize the likelihood function for a single run.
-
-            :param args: The arguments.
-            :return: The optimization results.
-            """
-            # unpack arguments
-            i, _, x0 = args
-
-            # optimize using scipy
-            return minimize(
-                fun=funcs[int(i)],
-                x0=np.array([x0]),
-                bounds=[(0, 1)],
-                method="L-BFGS-B"
+        if isinstance(self.prior, PolarizationPrior):
+            return self.prior.get_prior(
+                configs=self.configs,
+                n_ingroups=self.n_ingroups
             )
 
-        # prepare arguments
-        data = np.array(list(itertools.product(freq_indices, range(self.n_runs_polarization))))
-
-        # get initial values
-        initial_values = np.array([self.rng.uniform() for _ in range(data.shape[0])])
-
-        # add initial values
-        data = np.hstack((data, initial_values.reshape((-1, 1))))
-
-        # run the optimization in parallel for each frequency bin over n_runs
-        results = parallelize_func(
-            func=optimize_polarization,
-            data=data,
-            parallelize=self.parallelize,
-            pbar=True,
-            desc="Optimizing polarization",
-            dtype=object
-        ).reshape(self.n_ingroups // 2 + 1, self.n_runs_polarization)
-
-        # get the likelihoods for each run and frequency bin
-        likelihoods = np.vectorize(lambda r: r.fun)(results)
-
-        # choose run with the best likelihood for each frequency bin
-        i_best = likelihoods.argmin(axis=1)
-
-        # check for successful optimization
-        if not np.all(np.vectorize(lambda r: r.success)(results[:, i_best])):
-            # get the failure messages
-            failures = [r.message for r in results[:, i_best] if not r.success]
-
-            # raise an error
-            raise RuntimeError("Polarization probability optimizations failed with messages: " + ", ".join(failures))
-
-        # get the probabilities for each frequency bin
-        probs = np.array([results[i, j].x[0] for i, j in enumerate(i_best)])
-
-        # check for zeros or ones
-        if np.any(probs == 0) or np.any(probs == 1):
-            # get the number of bad frequency bins
-            n_bad = np.sum((probs == 0) | (probs == 1))
-
-            self.logger.fatal(f"Polarization probabilities are 0 for {n_bad} frequency bins which "
-                              f"can be a real problem as it means that there are no sites "
-                              f"for those bins. This may be due to ``n_ingroups`` "
-                              f"being too large, or the number of provided sites being very "
-                              f"small. You may also want to consider setting ``use_prior`` to ``False`` "
-                              f"to avoid unreliable ancestral state inference and undefined ancestral "
-                              f"state probabilities.")
-
-        # return the probabilities
-        return probs
+        return None
 
     @staticmethod
     def get_p_tree(
@@ -2150,7 +2316,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
 
         # if the focal base is missing, return a probability of 0
         if base == -1:
-            return 0
+            return 0.0
 
         # iterator over all possible internal node combinations
         for i, internal_nodes in enumerate(itertools.product(range(4), repeat=n_outgroups - 1)):
@@ -2256,39 +2422,6 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
 
         return compute_likelihood
 
-    def get_likelihood_polarization(self, i: int) -> Callable[[List[float]], float]:
-        """
-        Get the likelihood function.
-
-        :param i: The ith frequency bin.
-        The likelihood function evaluated for the ith frequency bin.
-        """
-        # make variables available in the closure
-        configs = self.configs
-        n_ingroups = self.n_ingroups
-
-        def compute_likelihood(params: List[float]) -> float:
-            """
-            Compute the negative log likelihood of the parameters.
-
-            :param params: The probability of polarization.
-            :return: The negative log likelihood.
-            """
-            # get the probability of polarization for the ith frequency bin
-            pi = params[0]
-
-            # mask for sites that have i minor alleles
-            i_minor = n_ingroups - configs.n_major == i
-
-            # weight the sites by the probability of polarization
-            # TODO is this the right way round?
-            p_configs = pi * configs.p_major[i_minor] + (1 - pi) * configs.p_minor[i_minor]
-
-            # return the negative log likelihood
-            return -(np.log(p_configs) * configs.multiplicity[i_minor]).sum()
-
-        return compute_likelihood
-
     def get_probs(self) -> np.ndarray[float, (...,)]:
         """
         Get the probabilities for the ancestral allele being the major allele for the sites used to estimate the
@@ -2347,13 +2480,13 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
     def _get_ancestral_base(
             self,
             config: SiteConfig
-    ) -> (int, (float, float, float, float)):
+    ) -> (int, float, float, float):
         """
         Get the ancestral allele for each site.
 
         :param config: The site configuration.
-        :return: The ancestral allele and a tuple of probability for the major being ancestral, the first base being
-        ancestral, the second base being ancestral, and the polarization probability if using a prior.
+        :return: The ancestral allele, probability for the major being ancestral, the first base being
+        ancestral, the second base being ancestral.
         """
         # get the probability for the major allele
         p_minor = self.get_p_config(
@@ -2385,13 +2518,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         if np.isnan(p_ancestral):
             self.logger.warning(f'p_ancestral is NaN for config {config.to_dict()}')
 
-        if self.use_prior:
-            # polarization prior for the major allele for the ith frequency bin
-            pi = self.p_polarization[self.n_ingroups - config.n_major]
-        else:
-            pi = np.nan
-
-        return ancestral_base, (p_ancestral, p_minor, p_major, pi)
+        return ancestral_base, p_ancestral, p_minor, p_major
 
     def _get_ancestral_from_prob(
             self,
@@ -2430,7 +2557,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             base_minor: str,
             base_major: str,
             outgroup_bases: List[str]
-    ) -> (int, (float, float, float, float)):
+    ) -> (int, float, float, float):
         """
         Get the ancestral allele for the given site information.
 
@@ -2440,8 +2567,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         :param base_minor: The minor allele.
         :param base_major: The major allele.
         :param outgroup_bases: The outgroup bases.
-        :return: The ancestral allele and a tuple of probability for the major being ancestral, the first base being
-            ancestral, the second base being ancestral, and the polarization probability if using a prior.
+        :return: The ancestral allele, probability for the major being ancestral, the first base being
+            ancestral, the second base being ancestral.
         """
         return self._get_ancestral_base(SiteConfig(dict(
             n_major=n_major,
@@ -2492,8 +2619,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         :param n_major: The number or numbers of major alleles.
         :return: The probability or probabilities that the ancestral allele is the major allele.
         """
-        if self.use_prior:
-            # polarization prior for the major allele for the ith frequency bin
+        if self.prior in ['adaptive', 'kingman']:
+            # polarization prior for the major allele
             pi = self.p_polarization[self.n_ingroups - n_major]
 
             # get the probability that the major allele is ancestral
@@ -2515,29 +2642,37 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         config = self.parse_variant(variant)
 
         if config is not None:
-            i_ancestral, (p_ancestral, p_minor, p_major, pi) = self._get_ancestral_base(config)
+            i_ancestral, p_ancestral, p_minor, p_major = self._get_ancestral_base(config)
 
             # only proceed if the ancestral allele is known
             if i_ancestral is not None:
                 ancestral_base = self._get_base_string(i_ancestral)
 
                 if self.logger.level <= logging.DEBUG:
-                    self.logger.debug(
+                    # define debug message
+                    debug_message = (
                         f"ancestral base: {ancestral_base}, "
                         f"p_ancestral={p_ancestral:.4f}, "
                         f"p_minor={p_minor:.4f}, p_major={p_major:.4f}, "
-                        f"pi={pi:.4f}, "
                         f"outgroup_bases={str(self._get_base_string(config.outgroup_bases))}, "
                         f"n_major={config.n_major}, major_base={self._get_base_string(config.major_base)}, "
                         f"minor_base={self._get_base_string(config.minor_base)}, "
                         f"ref_base={variant.REF[0]}"
                     )
 
+                    # add pi if we use the polarization prior
+                    if self.prior in ['adaptive', 'kingman']:
+                        pi = self.p_polarization[self.n_ingroups - config.n_major]
+                        debug_message += f", pi={pi:.4f}"
+
+                    # log the debug message
+                    self.logger.debug(debug_message)
+
                 # set the ancestral allele
-                variant.INFO[self.annotator.info_ancestral] = ancestral_base
+                variant.INFO[self.handler.info_ancestral] = ancestral_base
 
                 # set info field for the probability of the ancestral allele
-                variant.INFO[self.annotator.info_ancestral + "_info"] = (
+                variant.INFO[self.handler.info_ancestral + "_info"] = (
                     f"p_ancestral={p_ancestral:.4f}, "
                     f"p_major={p_minor:.4f}, "
                     f"p_minor={p_major:.4f}"
@@ -2566,44 +2701,14 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         :param ylabel: Label for y-axis.
         :return: Axes object
         """
-        return Visualization.plot_likelihoods(
-            likelihoods=self.likelihoods,
+        return Visualization.plot_scatter(
+            values=self.likelihoods,
             file=file,
             show=show,
             title=title,
             scale=scale,
             ax=ax,
             ylabel=ylabel,
-        )
-
-    def plot_polarisation(
-            self,
-            file: str = None,
-            show: bool = True,
-            title: str = 'ancestral allele probabilities',
-            scale: Literal['lin', 'log'] = 'lin',
-            ax: plt.Axes = None,
-            ylabel: str = 'p'
-    ) -> plt.Axes:
-        """
-        Visualize the polarization probabilities using a scatter plot.
-
-        :param scale: y-scale of the plot.
-        :param title: Plot title.
-        :param file: File to save plot to.
-        :param show: Whether to show plot.
-        :param ax: Axes object to plot on.
-        :param ylabel: y-axis label.
-        :return: Axes object
-        """
-        return Visualization.plot_likelihoods(
-            likelihoods=self.p_polarization,
-            file=file,
-            show=show,
-            title=title,
-            scale=scale,
-            ax=ax,
-            ylabel=ylabel
         )
 
 
@@ -2661,18 +2766,18 @@ class ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
         with open(config_file, 'w') as f:
             f.write(f"n_outgroup {self.anc.n_outgroups}\n")
             f.write(f"model {models[self.anc.model.__class__.__name__]}\n")
-            f.write(f"nrandom {self.anc.n_runs_rate}\n")
+            f.write(f"nrandom {self.anc.n_runs}\n")
 
     def infer(
             self,
-            bin: str = 'EST_SFS',
+            binary: str = 'EST_SFS',
             wd: str = None,
             execute: Callable = None,
     ):
         """
         Infer the ancestral allele using EST-SFS.
 
-        :param bin: The path to the EST-SFS binary.
+        :param binary: The path to the EST-SFS binary.
         :param wd: The working directory.
         :param execute: The function to execute the bash command.
         """
@@ -2703,7 +2808,7 @@ class ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
             self.create_config_file(config_file.name)
 
             # construct command string
-            command = (f"{bin} "
+            command = (f"{binary} "
                        f"{config_file.name} "
                        f"{sites_file.name} "
                        f"{seed_file.name} "
@@ -2718,7 +2823,7 @@ class ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
 
             self.parse_est_sfs_output(out_p.name)
 
-    def parse_est_sfs_output(self, file: str) -> pd.DataFrame:
+    def parse_est_sfs_output(self, file: str):
         """
         Parse the output of the EST-SFS program containing the site probabilities.
 
@@ -2737,7 +2842,7 @@ class ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
                     if i == 4:
                         # parse likelihoods
                         self.likelihoods = np.array(line.split()[2:], dtype=float)
-                        self.likelihood = self.likelihoods.min()
+                        self.likelihood = np.min(self.likelihoods)
                     if i == 5:
                         # parse MLE parameters
                         data = np.array(line.split()[2:])
@@ -2755,9 +2860,31 @@ class ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
         self.probs.rename(columns={1: 'config', 2: 'prob'}, inplace=True)
 
 
-class Annotator(VCFHandler):
+class Annotator(MultiHandler):
     """
     Annotate a VCF file with the given annotations.
+
+    Example usage:
+
+    ::
+
+        import fastdfe as fd
+
+        ann = fd.Annotator(
+            vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/"
+                "1000_genomes_project/release/20181203_biallelic_SNV/"
+                "ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
+            fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
+                               "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
+            gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                     "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
+            output='sapiens.chr21.degeneracy.vcf.gz',
+            annotations=[fd.DegeneracyAnnotation()],
+            aliases=dict(chr21=['21'])
+        )
+
+        ann.annotate()
+
     """
 
     def __init__(
@@ -2765,10 +2892,13 @@ class Annotator(VCFHandler):
             vcf: str,
             output: str,
             annotations: List[Annotation],
+            gff_file: str | None = None,
+            fasta_file: str | None = None,
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
             seed: int | None = 0,
-            cache: bool = True
+            cache: bool = True,
+            aliases: Dict[str, List[str]] = {},
     ):
         """
         Create a new annotator instance.
@@ -2776,17 +2906,27 @@ class Annotator(VCFHandler):
         :param vcf: The path to the VCF file, can be gzipped, urls are also supported
         :param output: The path to the output file
         :param annotations: The annotations to apply.
+        :param gff_file: The path to the GFF file, can be gzipped, urls are also supported. Required for
+            annotations that require a GFF file.
+        :param fasta_file: The path to the FASTA file, can be gzipped, urls are also supported. Required for
+            annotations that require a FASTA file.
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
         :param max_sites: Maximum number of sites to consider
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param cache: Whether to cache files downloaded from urls
+        :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
+            This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.
+
         """
         super().__init__(
             vcf=vcf,
+            gff_file=gff_file,
+            fasta_file=fasta_file,
             info_ancestral=info_ancestral,
             max_sites=max_sites,
             seed=seed,
-            cache=cache
+            cache=cache,
+            aliases=aliases
         )
 
         self.output: str = output
@@ -2797,24 +2937,18 @@ class Annotator(VCFHandler):
         """
         Annotate the VCF file.
         """
-        # count the number of sites
-        self.n_sites = self.count_sites()
-
-        # create the reader
-        reader = VCF(self.download_if_url(self.vcf))
-
         # provide annotator to annotations and add info fields
         for annotation in self.annotations:
-            annotation._setup(self, reader)
+            annotation._setup(self)
 
         # create the writer
-        writer = Writer(self.output, reader)
+        writer = Writer(self.output, self._reader)
 
         # get progress bar
         with self.get_pbar() as pbar:
 
             # iterate over the sites
-            for i, variant in enumerate(reader):
+            for i, variant in enumerate(self._reader):
 
                 # apply annotations
                 for annotation in self.annotations:
@@ -2837,4 +2971,4 @@ class Annotator(VCFHandler):
 
         # close the writer and reader
         writer.close()
-        reader.close()
+        self._reader.close()

@@ -16,7 +16,6 @@ sphinx:
    configuration: docs/conf.py
 
 # Additional formats
-# formats:
 #    - pdf
 
 # Python requirements

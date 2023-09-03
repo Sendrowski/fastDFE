@@ -215,11 +215,12 @@ class BaseInferenceTestCase(InferenceTestCase):
             sfs_neut=Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
             sfs_sel=Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
             model=model,
-            do_bootstrap=True
+            do_bootstrap=True,
+            n_runs=10
         )
         inference_log.run()
 
-        model = copy.copy(model)
+        model = GammaExpParametrization()
         model.scales = dict(
             S_d='lin',
             b='lin',
@@ -232,6 +233,7 @@ class BaseInferenceTestCase(InferenceTestCase):
             sfs_sel=Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
             model=model,
             do_bootstrap=True,
+            n_runs=10
         )
         inference_lin.run()
 
@@ -253,9 +255,14 @@ class BaseInferenceTestCase(InferenceTestCase):
         # assert np.all(cis_lin[0] < cis_log[1])
         # assert np.all(cis_log[0] < cis_lin[1])
 
+        # not always true
         # assert inference_log.likelihood > inference_lin.likelihood
 
+        # using log scales appears to provide a lower likelihood in general
+        # but things become more equal when increasing ``n_runs``
         self.assertAlmostEqual(inference_log.likelihood, inference_lin.likelihood, places=0)
+
+        pass
 
     def test_restore_serialized_inference(self):
         """
