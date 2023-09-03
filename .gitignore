@@ -1,5 +1,5 @@
 /resources/genome/
-/resources/EST-SFS
+/resources/EST-SFS/
 /snakemake/results/
 /snakemake/scratch/
 .snakemake/
