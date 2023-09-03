@@ -9,7 +9,7 @@ __date__ = "2023-02-26"
 import logging
 from abc import abstractmethod
 from functools import wraps
-from typing import Callable, List, Union, Dict
+from typing import Callable, List, Union, Dict, Tuple, Literal
 
 import numpy as np
 from scipy.stats import gamma, expon
@@ -55,19 +55,19 @@ class Parametrization:
     """
 
     #: Default initial parameters
-    x0 = {}
+    x0: Dict[str, float] = {}
 
     #: Default parameter bounds
-    bounds = {}
+    bounds: Dict[str, Tuple[float, float]] = {}
+
+    #: Scales over which to optimize the parameters, either 'log' or 'lin'
+    scales: Dict[str, Literal['lin', 'log']] = {}
 
     #: The kind of submodels supported by holding some parameters fixed
-    submodels = dict(
+    submodels: Dict[str, Dict[str, float]] = dict(
         full=dict(),
         dele=dict()
     )
-
-    #: Scales over which to optimize the parameters, either 'log' or 'lin'
-    scales = {}
 
     def __init__(self):
         """
@@ -180,7 +180,7 @@ class GammaExpParametrization(Parametrization):
     """
 
     #: Default initial parameters
-    x0 = dict(
+    x0: Dict[str, float] = dict(
         S_d=-1000,
         b=0.4,
         p_b=0.05,
@@ -188,7 +188,7 @@ class GammaExpParametrization(Parametrization):
     )
 
     #: Default parameter bounds, using non-zero lower bounds for S_d and S_B due to log-scaled scales
-    bounds = dict(
+    bounds: Dict[str, Tuple[float, float]] = dict(
         S_d=(-1e5, -1e-2),
         b=(0.01, 10),
         p_b=(0, 0.5),
@@ -196,7 +196,7 @@ class GammaExpParametrization(Parametrization):
     )
 
     #: Scales over which to optimize the parameters
-    scales = dict(
+    scales: Dict[str, Literal['lin', 'log']] = dict(
         S_d='log',
         b='log',
         p_b='lin',
@@ -204,7 +204,7 @@ class GammaExpParametrization(Parametrization):
     )
 
     #: The kind of submodels supported by holding some parameters fixed
-    submodels = dict(
+    submodels: Dict[str, Dict[str, float]] = dict(
         full=dict(),
         dele=dict(
             p_b=0,
@@ -319,28 +319,28 @@ class DisplacedGammaParametrization(Parametrization):
     """
 
     #: Default initial parameters
-    x0 = dict(
+    x0: Dict[str, float] = dict(
         S_mean=-100,
         b=1,
         S_max=1
     )
 
     #: Default parameter bounds
-    bounds = dict(
+    bounds: Dict[str, Tuple[float, float]] = dict(
         S_mean=(-100000, -0.01),
         b=(0.01, 10),
         S_max=(0.001, 100)
     )
 
     #: Scales over which to optimize the parameters
-    scales = dict(
+    scales: Dict[str, Literal['lin', 'log']] = dict(
         S_mean='log',
         b='lin',
         S_max='log'
     )
 
     #: The kind of submodels supported by holding some parameters fixed
-    submodels = dict(
+    submodels: Dict[str, Dict[str, float]] = dict(
         full=dict(),
         dele=dict()
     )
@@ -424,7 +424,7 @@ class GammaDiscreteParametrization(Parametrization):
     """
 
     #: Default initial parameters
-    x0 = dict(
+    x0: Dict[str, float] = dict(
         S_d=-1000,
         b=0.4,
         p_b=0.05,
@@ -432,7 +432,7 @@ class GammaDiscreteParametrization(Parametrization):
     )
 
     #: default parameter bounds
-    bounds = dict(
+    bounds: Dict[str, Tuple[float, float]] = dict(
         S_d=(-1e5, -1e-2),
         b=(0.01, 10),
         p_b=(0, 0.5),
@@ -440,7 +440,7 @@ class GammaDiscreteParametrization(Parametrization):
     )
 
     #: scales over which to optimize the parameters
-    scales = dict(
+    scales: Dict[str, Literal['lin', 'log']] = dict(
         S_d='log',
         b='log',
         p_b='lin',
@@ -448,7 +448,7 @@ class GammaDiscreteParametrization(Parametrization):
     )
 
     #: The kind of submodels supported by holding some parameters fixed
-    submodels = dict(
+    submodels: Dict[str, Dict[str, float]] = dict(
         full=dict(),
         dele=dict(
             p_b=0,
@@ -569,22 +569,23 @@ class DiscreteParametrization(Parametrization):
         self.params = np.array([f"S{i}" for i in range(self.k)])
 
         #: Parameter names that are not fixed
-        self.param_names = self.params[1:-1].tolist()
+        self.param_names: List[str] = self.params[1:-1].tolist()
 
         #: Fixed parameters
         self.fixed_params = {self.params[0]: 0, self.params[-1]: 0}
 
         #: Default initial parameters
-        self.x0 = dict((p, 1 / (self.k - 2)) for p in self.param_names)
+        self.x0: Dict[str, float] = dict((p, 1 / (self.k - 2)) for p in self.param_names)
 
         #: Default parameter bounds
-        self.bounds = dict((p, (0, 1)) for p in self.param_names)
+        self.bounds: Dict[str, Tuple[float, float]] = dict((p, (0, 1)) for p in self.param_names)
 
         #: Scales
-        self.scales = dict((p, 'lin') for p in self.param_names)
+        # noinspection all
+        self.scales: Dict[str, Literal['lin', 'log']] = dict((p, 'lin') for p in self.param_names)
 
         #: Submodels
-        self.submodels = dict(
+        self.submodels: Dict[str, Dict[str, float]] = dict(
             full=dict(),
             dele=dict((p, 0) for p in self.params[1:-1][self.intervals[1:-2] < 0])
         )
@@ -730,16 +731,17 @@ class DiscreteFractionalParametrization(Parametrization):
         self.fixed_params = {self.params[0]: 0, self.params[-2]: 1, self.params[-1]: 0}
 
         #: Default initial parameters
-        self.x0 = self.to_fractional(dict((p, 1 / (self.k - 2)) for p in self.param_names))
+        self.x0: Dict[str, float] = self.to_fractional(dict((p, 1 / (self.k - 2)) for p in self.param_names))
 
         #: Default parameter bounds
-        self.bounds = dict((p, (0, 1)) for p in self.param_names)
+        self.bounds: Dict[str, Tuple[float, float]] = dict((p, (0, 1)) for p in self.param_names)
 
         #: Scales
-        self.scales = dict((p, 'lin') for p in self.param_names)
+        # noinspection all
+        self.scales: Dict[str, Literal['lin', 'log']] = dict((p, 'lin') for p in self.param_names)
 
         #: Submodels
-        self.submodels = dict(
+        self.submodels: Dict[str, Dict[str, float]] = dict(
             full=dict(),
             dele=dict((p, 0) for p in self.params[1:-1][self.intervals[1:-2] < 0])
         )
