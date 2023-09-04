@@ -793,3 +793,59 @@ class ParserTestCase(TestCase):
         fd.Inference.plot_inferred_parameters(inferences, labels=[f"n={n}" for n in sample_sizes], scale='lin')
 
         pass
+
+    def test_parser_betula_include_samples(self):
+        """
+        Test that the parser includes only the samples that are given in the include_samples parameter.
+        """
+        p = fd.Parser(
+            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            n=20,
+            include_samples=['ASP01', 'ASP02', 'ASP03']
+        )
+
+        p._setup()
+
+        self.assertEqual(np.sum(p._samples_mask), 3)
+
+    def test_parser_betula_include_all_samples(self):
+        """
+        Test that the parser includes all samples if the include_samples parameter is not given.
+        """
+        p = fd.Parser(
+            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            n=20
+        )
+
+        p._setup()
+
+        self.assertEqual(np.sum(p._samples_mask), 377)
+
+    def test_parser_betula_exclude_two_samples(self):
+        """
+        Test that the parser excludes the samples that are given in the exclude_samples parameter.
+        """
+        p = fd.Parser(
+            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            n=20,
+            exclude_samples=['ASP01', 'ASP02']
+        )
+
+        p._setup()
+
+        self.assertEqual(np.sum(p._samples_mask), 375)
+
+    def test_parser_betula_include_exclude(self):
+        """
+        Test that both include and exclude samples work together.
+        """
+        p = fd.Parser(
+            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            n=20,
+            include_samples=['ASP01', 'ASP02', 'ASP03'],
+            exclude_samples=['ASP02']
+        )
+
+        p._setup()
+
+        self.assertEqual(np.sum(p._samples_mask), 2)

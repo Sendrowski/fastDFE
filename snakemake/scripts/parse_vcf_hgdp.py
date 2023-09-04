@@ -6,6 +6,8 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-05-25"
 
+import numpy as np
+
 try:
     import sys
 
@@ -20,11 +22,13 @@ try:
     out_csv = snakemake.output.csv
     out_png = snakemake.output.png
     aliases = snakemake.params.aliases
+    max_sites = snakemake.params.get('max_sites', np.inf)
+    n_samples = snakemake.params.get('n_samples', 1000000)
     n = snakemake.params.get('n', 20)
 except NameError:
     # testing
     testing = True
-    chr = "8"
+    chr = "9"
     vcf_file = f"results/vcf/hgdp/{chr}/opts.vcf.gz"
     fasta = f"results/fasta/hgdp/{chr}.fasta.gz"
     gff = f"results/gff/hgdp/{chr}.corrected.gff3.gz"
@@ -32,7 +36,9 @@ except NameError:
     out_csv = "scratch/parse_csv_hgdp.spectra.csv"
     out_png = "scratch/parse_csv_hgdp.spectra.png"
     aliases = {f"chr{chr}": [chr]}
-    n = 35
+    max_sites = 10000
+    n_samples = 10000
+    n = 20
 
 import pandas as pd
 
@@ -46,8 +52,9 @@ p = fd.Parser(
     fasta=fasta,
     gff=gff,
     aliases=aliases,
+    max_sites=max_sites,
     target_site_counter=fd.TargetSiteCounter(
-        n_samples=1000000,
+        n_samples=n_samples,
         n_target_sites=fd.Annotation.count_target_sites(
             file=gff
         )[chr]
@@ -60,7 +67,7 @@ p = fd.Parser(
         fd.PolyAllelicFiltration()
     ],
     stratifications=[fd.DegeneracyStratification()],
-    samples=samples,
+    include_samples=samples,
     info_ancestral='AA_ensembl'
 )
 

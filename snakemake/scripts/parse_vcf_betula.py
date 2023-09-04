@@ -44,7 +44,7 @@ p = Parser(
     annotations=[DegeneracyAnnotation()],
     filtrations=[CodingSequenceFiltration()],
     stratifications=[DegeneracyStratification()],
-    samples=pd.read_csv(samples_file).iloc[:, 0].tolist()
+    include_samples=pd.read_csv(samples_file).iloc[:, 0].tolist()
 )
 
 sfs = p.parse()

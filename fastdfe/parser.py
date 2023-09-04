@@ -824,7 +824,8 @@ class Parser(MultiHandler):
             stratifications: List[Stratification] = [],
             annotations: List[Annotation] = [],
             filtrations: List[Filtration] = [PolyAllelicFiltration()],
-            samples: List[str] = None,
+            include_samples: List[str] = None,
+            exclude_samples: List[str] = None,
             max_sites: int = np.inf,
             seed: int | None = 0,
             cache: bool = True,
@@ -849,7 +850,10 @@ class Parser(MultiHandler):
         :param stratifications: List of stratifications to use.
         :param annotations: List of annotations to use.
         :param filtrations: List of filtrations to use.
-        :param samples: List of sample names to consider. If ``None``, all samples are considered.
+        :param include_samples: List of sample names to consider when determining the SFS. If ``None``, all samples are used.
+            Note that this restriction does not apply to the annotations and filtrations.
+        :param exclude_samples: List of sample names to exclude when determining the SFS. If ``None``, no samples are excluded.
+            Note that this restriction does not apply to the annotations and filtrations.
         :param max_sites: Maximum number of sites to parse from the VCF file.
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param cache: Whether to cache files downloaded from URLs.
@@ -881,11 +885,14 @@ class Parser(MultiHandler):
         #: The number of individuals in the sample
         self.n: int = int(n)
 
-        #: The list of samples to use
-        self.samples: List[str] | None = samples
+        #: The list of samples to include
+        self.include_samples: List[str] | None = include_samples
+
+        #: The list of samples to exclude
+        self.exclude_samples: List[str] | None = exclude_samples
 
         #: The mask of samples to use
-        self.samples_mask: np.ndarray | None = None
+        self._samples_mask: np.ndarray | None = None
 
         #: Whether to skip sites that are not polarized, i.e., without a valid info tag providing the ancestral allele
         self.skip_non_polarized: bool = skip_non_polarized
@@ -964,7 +971,7 @@ class Parser(MultiHandler):
         if variant.is_snp:
 
             # obtain called bases
-            genotypes = get_called_bases(variant.gt_bases[self.samples_mask])
+            genotypes = get_called_bases(variant.gt_bases[self._samples_mask])
 
             # number of samples
             n_samples = len(genotypes)
@@ -1069,11 +1076,8 @@ class Parser(MultiHandler):
         # log the stratifications
         self.logger.info(f'Using stratification: {representation}.')
 
-        # create samples mask
-        if self.samples is None:
-            self.samples_mask = np.ones(len(self._reader.samples)).astype(bool)
-        else:
-            self.samples_mask = np.isin(self._reader.samples, self.samples)
+        # prepare samples mask
+        self._prepare_samples_mask()
 
         # setup annotations
         for annotation in self.annotations:
@@ -1082,6 +1086,22 @@ class Parser(MultiHandler):
         # setup filtrations
         for f in self.filtrations:
             f._setup(self)
+
+    def _prepare_samples_mask(self):
+        """
+        Prepare the samples mask.
+        """
+        # determine samples to include
+        if self.include_samples is None:
+            mask = np.ones(len(self._reader.samples)).astype(bool)
+        else:
+            mask = np.isin(self._reader.samples, self.include_samples)
+
+        # determine samples to exclude
+        if self.exclude_samples is not None:
+            mask &= ~np.isin(self._reader.samples, self.exclude_samples)
+
+        self._samples_mask = mask
 
     def _teardown(self):
         """
