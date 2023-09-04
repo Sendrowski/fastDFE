@@ -1,0 +1,15 @@
+do_bootstrap: false
+model: GammaExpParametrization
+n_bootstraps: 10
+parallelize: false
+x0:
+  all:
+    S_b: 2
+    S_d: -10000
+    p_b: 0.1
+    b: 0.2
+    eps: 0
+fixed_params:
+  all:
+    p_b: 0
+    S_b: 1

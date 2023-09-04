@@ -1,0 +1,9 @@
+do_bootstrap: true
+model: GammaExpParametrization
+n_bootstraps: 1000
+n_runs: 100
+parallelize: false
+fixed_params:
+  all:
+    p_b: 0
+    S_b: 1
