@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inference on H. sapiens &mdash; fastDFE beta documentation</title>
+  <title>Inference on H. sapiens &mdash; fastDFE 1.0.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -116,23 +116,18 @@
 <span class="n">parser</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Parser</span><span class="p">(</span>
     <span class="n">vcf</span><span class="o">=</span><span class="s2">&quot;http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/&quot;</span>
         <span class="s2">&quot;20181203_biallelic_SNV/ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz&quot;</span><span class="p">,</span>
+    <span class="n">fasta_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/&quot;</span>
+               <span class="s2">&quot;dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz&quot;</span><span class="p">,</span>
+    <span class="n">gff_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
+             <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz&quot;</span><span class="p">,</span>
+    <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr21</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;21&#39;</span><span class="p">]),</span>
     <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">annotations</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyAnnotation</span><span class="p">(</span>
-            <span class="n">fasta_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/&quot;</span>
-                       <span class="s2">&quot;dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz&quot;</span><span class="p">,</span>
-            <span class="n">gff_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
-                     <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz&quot;</span><span class="p">,</span>
-            <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr21</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;21&#39;</span><span class="p">])</span>
-        <span class="p">),</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyAnnotation</span><span class="p">(),</span>
         <span class="n">fd</span><span class="o">.</span><span class="n">MaximumParsimonyAncestralAnnotation</span><span class="p">()</span>
     <span class="p">],</span>
     <span class="n">filtrations</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">fd</span><span class="o">.</span><span class="n">CodingSequenceFiltration</span><span class="p">(</span>
-            <span class="n">gff_file</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
-                     <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz&quot;</span><span class="p">,</span>
-            <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr21</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;21&#39;</span><span class="p">])</span>
-        <span class="p">)</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">CodingSequenceFiltration</span><span class="p">()</span>
     <span class="p">],</span>
     <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span><span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyStratification</span><span class="p">()],</span>
 <span class="p">)</span>

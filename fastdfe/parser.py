@@ -559,10 +559,12 @@ class TargetSiteCounter:
         Initialize counter.
 
         :param n_target_sites: The total number of sites (mono- and polymorphic) that would be present in the VCF file
-        if it contained monomorphic sites. This number should be considerably larger than the number of polymorphic
-            sites in the VCF file. This value is not extremely important for the DFE inference, but the order of
-            magnitude should be correct in any case.
-        :param n_samples: The number of sites to sample from the fasta file.
+            if it contained monomorphic sites. This number should be considerably larger than the number of polymorphic
+            sites in the VCF file. This value is not very important for the DFE inference, the ratio of synonymous to
+            non-synonymous sites being more informative, but the order of magnitude should be correct in any case.
+        :param n_samples: The number of sites to sample from the fasta file. Many sampled sites will not be valid as
+            they are non-coding. To obtain good estimates, a few thousand sites should be sampled per type of site
+            (depending on the stratifications used).
         """
         #: The logger
         self.logger = logger.getChild(self.__class__.__name__)

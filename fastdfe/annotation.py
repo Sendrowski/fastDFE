@@ -854,7 +854,7 @@ class SubstitutionModel(ABC):
     """
 
     #: The possible transitions
-    transitions: np.ndarray[int, (..., ...)] = np.array([
+    _transitions: np.ndarray[int, (..., ...)] = np.array([
         (base_indices['A'], base_indices['G']),
         (base_indices['G'], base_indices['A']),
         (base_indices['C'], base_indices['T']),
@@ -1260,8 +1260,9 @@ class AdaptivePolarizationPrior(PolarizationPrior):
     same prior as used in the EST-SFS paper. This prior is adaptive in the sense that the polarization probabilities
     are optimized for each frequency bin given the site configurations. This is the most accurate prior, but requires
     a lot of sites to be accurate. You can check that the polarization probabilities are smooth enough across 
-    frequency counts by calling :meth:`plot_polarization`. If they are not smooth enough, you can increase the number
-    of sites, decrease the number of ingroups, or use :class:`~fastdfe.prior.KingmanPolarizationPrior` instead.
+    frequency counts by calling :meth:`~fastdfe.annotation.PolarizationPrior.plot_polarization`. If they are not
+    smooth enough, you can increase the number of sites, decrease the number of ingroups, or
+    use :class:`~fastdfe.annotation.KingmanPolarizationPrior` instead.
     """
 
     def __init__(
@@ -1433,29 +1434,33 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
     (https://doi.org/10.1534/genetics.118.301120). The info field ``AA``
     is added to the VCF file, which holds the ancestral allele. To be used with
     :class:`Annotator` or :class:`~fastdfe.parser.Parser`. This class can also be used
-    independently, see the :meth:`from_dataframe`, :meth:`from_data` and :meth:`from_est_est` methods.
+    independently, see the :meth:`from_dataframe`, :meth:`from_data` and :meth:`from_est_sfs` methods.
 
     Initially, the branch rates are determined using MLE. You can also choose a prior for the polarization
     probabilities (see :class:`PolarizationPrior`). Eventually, for every site, the probability that the major allele is
     ancestral is then calculated.
 
     Differences to EST-SFS:
+
     * (Neglecting the polarization prior), we use an equal probability of the major and minor allele being ancestral
-        if no outgroup information is available for the site in question. EST-SFS appears to assign a probability of
-        1 to the major allele being ancestral in this case.
+      if no outgroup information is available for the site in question. EST-SFS appears to assign a probability of
+      1 to the major allele being ancestral in this case.
+
     * The branch rates have non-zero lower bounds by default.
+
     * The polarization prior corresponds to the Kingman coalescent probability by default. Using an adaptive prior
-        as in the EST-SFS paper is also possible, but this is only recommended if the number of sites used for the
-        inference is large (see ``prior``).
+      as in the EST-SFS paper is also possible, but this is only recommended if the number of sites used for the
+      inference is large (see ``prior``).
 
     TODO make major allele definition predictable
 
     .. warning::
         Still experimental. Use with caution.
+
     """
 
     #: The data types for the data frame
-    dtypes = dict(
+    _dtypes = dict(
         n_major=np.int8,
         multiplicity=np.int16,
         sites=object,
@@ -1468,7 +1473,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
     )
 
     #: The columns to group by.
-    group_cols = ['major_base', 'minor_base', 'outgroup_bases', 'n_major']
+    _group_cols = ['major_base', 'minor_base', 'outgroup_bases', 'n_major']
 
     def __init__(
             self,
@@ -1507,7 +1512,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             check that the likelihoods of the different runs are similar by calling :meth:`plot_likelihoods`.
         :param parallelize: Whether to parallelize the computation across multiple cores.
         :param prior: The prior to use for the polarization probabilities. See :class:`PolarizationPrior`, 
-        :class:`KingmanPolarizationPrior` and :class:`AdaptivePolarizationPrior` for more information.
+            :class:`KingmanPolarizationPrior` and :class:`AdaptivePolarizationPrior` for more information.
         :param max_sites: The maximum number of sites to consider. This is useful if the number of sites is very large.
             Choosing a reasonably large subset of sites (on the order of a few thousand bi-allelic sites) can speed up
             the computation considerably as parsing can be slow. This subset is then used to calibrate the rate
@@ -1562,7 +1567,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         self.reader: VCF | None = None
 
         #: The data frame holding all site configurations.
-        self.configs: pd.DataFrame = pd.DataFrame(columns=list(self.dtypes.keys()))
+        self.configs: pd.DataFrame = pd.DataFrame(columns=list(self._dtypes.keys()))
 
         #: The probability of all sites per frequency bin.
         self.p_bins: Dict[str, np.ndarray[float, (n_ingroups - 1,)]] | None = None
@@ -1780,7 +1785,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
 
         # determine the number of major alleles per site
         data['major_base'] = data_sorted[:, -1]
-        data['major_base'] = data.major_base.astype(cls.dtypes['major_base'])
+        data['major_base'] = data.major_base.astype(cls._dtypes['major_base'])
 
         # determine the mono-allelic sites
         poly_allelic = (ingroup_data > 1).sum(axis=1) > 1
@@ -1853,7 +1858,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
                 # concatenate with previous data if available
                 data = pd.concat([data, parsed])
 
-            data = data.groupby(cls.group_cols, as_index=False, dropna=False).sum()
+            data = data.groupby(cls._group_cols, as_index=False, dropna=False).sum()
 
         # check if there is data
         if data is None:
@@ -2016,7 +2021,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
 
         if not grouped:
             # only keep the columns that are needed
-            data = data[cls.group_cols]
+            data = data[cls._group_cols]
 
             # retain site index
             data['sites'] = data.index
@@ -2025,18 +2030,18 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
             data['outgroup_bases'] = data['outgroup_bases'].apply(tuple)
 
             # group by all columns in the chunk and keep track of the site indices
-            data = data.groupby(cls.group_cols, as_index=False, dropna=False).agg(list).reset_index(drop=True)
+            data = data.groupby(cls._group_cols, as_index=False, dropna=False).agg(list).reset_index(drop=True)
 
         # determine the multiplicity
         data['multiplicity'] = data['sites'].apply(lambda x: len(x))
 
         # add missing columns with NA as default value
-        for col in cls.dtypes:
+        for col in cls._dtypes:
             if col not in data.columns:
                 data[col] = None
 
         # convert to the correct dtypes
-        data = data.astype(cls.dtypes)
+        data = data.astype(cls._dtypes)
 
         # determine the number of outgroups
         n_outgroups = data.outgroup_bases.apply(len).max()
@@ -2069,8 +2074,8 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         Load the variants from the VCF reader and parse them.
         """
         # initialize data frame
-        self.configs = pd.DataFrame(columns=list(self.dtypes.keys()))
-        self.configs.astype(self.dtypes)
+        self.configs = pd.DataFrame(columns=list(self._dtypes.keys()))
+        self.configs.astype(self._dtypes)
 
         # columns to use as index
         index_cols = ['major_base', 'minor_base', 'outgroup_bases', 'n_major']
@@ -2712,7 +2717,7 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
         )
 
 
-class ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
+class _ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
     """
     A wrapper around EST-SFS. Used for testing.
     """

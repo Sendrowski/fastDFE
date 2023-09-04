@@ -9,7 +9,7 @@ from matplotlib.collections import PathCollection
 from numpy import testing
 from pandas.testing import assert_frame_equal
 
-from fastdfe.annotation import ESTSFSAncestralAnnotation
+from fastdfe.annotation import _ESTSFSAncestralAnnotation
 from fastdfe.io_handlers import count_sites, GFFHandler
 from testing import prioritize_installed_packages
 
@@ -1055,11 +1055,11 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
     @staticmethod
     def compare_with_est_sfs(
             anc: fd.MaximumLikelihoodAncestralAnnotation
-    ) -> (ESTSFSAncestralAnnotation, pd.DataFrame):
+    ) -> (_ESTSFSAncestralAnnotation, pd.DataFrame):
         """
         Compare the results of the MaximumLikelihoodAncestralAnnotation class with the results of EST-SFS.
         """
-        est_sfs = ESTSFSAncestralAnnotation(anc)
+        est_sfs = _ESTSFSAncestralAnnotation(anc)
 
         if anc.prior is None:
             binary = "resources/EST-SFS/cmake-build-debug/EST_SFS_no_prior"

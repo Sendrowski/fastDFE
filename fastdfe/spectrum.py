@@ -349,7 +349,7 @@ class Spectrum(Iterable):
 
 class Spectra:
     """
-    Class for holding and manipulating spectra of multiple types.
+    Class for holding and manipulating site-frequency spectra of multiple types.
     """
 
     def __init__(self, data: Dict[str, list | np.ndarray]):

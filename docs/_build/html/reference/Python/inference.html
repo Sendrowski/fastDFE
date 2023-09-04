@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DFE Inference &mdash; fastDFE beta documentation</title>
+  <title>DFE Inference &mdash; fastDFE 1.0.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -154,9 +154,9 @@
 </div>
 <div class="cell_output docutils container">
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Discretization: Precomputing linear DFE-SFS transformation using midpoint integration.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {&#39;all.p_b&#39;: (&#39;0&#39;, &#39;0&#39;, &#39;0.5&#39;)} and lower bound for {}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.p_b: (0, 0, 0.5)} and lower bound for {}, but this might be nothing to worry about.</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Successfully finished optimization after 69 iterations and 510 function evaluations, obtaining a log-likelihood of -34.6321629044744.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Inferred parameters: {&#39;all.S_d&#39;: -9868.270989289615, &#39;all.b&#39;: 0.1508097745704915, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 0.0002191946595685579, &#39;all.eps&#39;: 0.006854664823870646}.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Inferred parameters: {all.S_d: -9868.270989289615, all.b: 0.1508097745704915, all.p_b: 0.0, all.S_b: 0.0002191946595685579, all.eps: 0.006854664823870646}.</span>
 </pre></div>
 </div>
 </div>
@@ -201,7 +201,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 121.26it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Bootstrapping: 100%|██████████| 100/100 [00:01&lt;00:00, 88.86it/s]
 </pre></div>
 </div>
 <img alt="../../_images/752b7841ba2a547c509d7478aa094af09f796dfe29f3d75f9981d384f3df0a1d.png" src="../../_images/752b7841ba2a547c509d7478aa094af09f796dfe29f3d75f9981d384f3df0a1d.png" />
@@ -235,8 +235,8 @@
 <div class="cell_output docutils container">
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Discretization: Precomputing linear DFE-SFS transformation using midpoint integration.</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Successfully finished optimization after 20 iterations and 78 function evaluations, obtaining a log-likelihood of -35.437981269154704.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Inferred parameters: {&#39;all.S_d&#39;: -33214.794997237914, &#39;all.b&#39;: 0.13054515138416597, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 1.0, &#39;all.eps&#39;: 0.0}.</span>
-Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 317.56it/s]
+<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Inferred parameters: {all.S_d: -33214.794997237914, all.b: 0.13054515138416597, all.p_b: 0.0, all.S_b: 1.0, all.eps: 0.0}.</span>
+Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 266.58it/s]
 <span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 4 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
 </pre></div>
 </div>
@@ -260,9 +260,9 @@ Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 317
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {&#39;all.p_b&#39;: (&#39;0&#39;, &#39;0.0043796961&#39;, &#39;0.5&#39;)} and lower bound for {&#39;all.S_b&#39;: (&#39;0.0001&#39;, &#39;100&#39;, &#39;100&#39;)}, but this might be nothing to worry about.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.p_b: (0, 0.0043796961, 0.5)} and lower bound for {all.S_b: (0.0001, 100, 100)}, but this might be nothing to worry about.</span>
 <span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 2 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {&#39;all.p_b&#39;: (&#39;0&#39;, &#39;0&#39;, &#39;0.5&#39;)} and lower bound for {}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.p_b: (0, 0, 0.5)} and lower bound for {}, but this might be nothing to worry about.</span>
 </pre></div>
 </div>
 <img alt="../../_images/7466c24ae46cb0a24d9f96e1505bc003ba1e0170b8c4a73f6553cf1873a9c147.png" src="../../_images/7466c24ae46cb0a24d9f96e1505bc003ba1e0170b8c4a73f6553cf1873a9c147.png" />
@@ -366,10 +366,10 @@ Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 317
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {&#39;all.S_b&#39;: (&#39;0.0001&#39;, &#39;0.0001&#39;, &#39;100&#39;), &#39;all.eps&#39;: (&#39;0&#39;, &#39;0&#39;, &#39;0.15&#39;)} and lower bound for {}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {&#39;all.p_b&#39;: (&#39;0&#39;, &#39;0&#39;, &#39;0.5&#39;)} and lower bound for {}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {&#39;all.S_b&#39;: (&#39;0.0001&#39;, &#39;0.0001&#39;, &#39;100&#39;), &#39;all.eps&#39;: (&#39;0&#39;, &#39;0.00043810205&#39;, &#39;0.15&#39;)} and lower bound for {}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {&#39;pubescens.S_b&#39;: (&#39;0.0001&#39;, &#39;0.00010020816&#39;, &#39;100&#39;), &#39;pendula:pubescens.eps&#39;: (&#39;0&#39;, &#39;0.0012048178&#39;, &#39;0.15&#39;)} and lower bound for {}, but this might be nothing to worry about.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.S_b: (0.0001, 0.0001, 100), all.eps: (0, 0, 0.15)} and lower bound for {}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.p_b: (0, 0, 0.5)} and lower bound for {}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.S_b: (0.0001, 0.0001, 100), all.eps: (0, 0.00043810205, 0.15)} and lower bound for {}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {pubescens.S_b: (0.0001, 0.00010020816, 100), pendula:pubescens.eps: (0, 0.0012048178, 0.15)} and lower bound for {}, but this might be nothing to worry about.</span>
 </pre></div>
 </div>
 </div>
@@ -382,7 +382,7 @@ Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 317
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/bc56acd0bc3507ce1ba0efa731316feedde12c2740b131484334a81a2d30b017.png" src="../../_images/bc56acd0bc3507ce1ba0efa731316feedde12c2740b131484334a81a2d30b017.png" />
+<img alt="../../_images/465764fd8e62ce4cf123a7f1799fffe75b063cba569839567c59f20344aab23c.png" src="../../_images/465764fd8e62ce4cf123a7f1799fffe75b063cba569839567c59f20344aab23c.png" />
 </div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">marginal.pendula</span></code> and <code class="docutils literal notranslate"><span class="pre">marginal.pubescens</span></code> are the marginal inferences for the respective type. <code class="docutils literal notranslate"><span class="pre">marginal.all</span></code> is the marginal inference obtaining by adding up the spectra of all types. <code class="docutils literal notranslate"><span class="pre">joint.pendula</span></code> and <code class="docutils literal notranslate"><span class="pre">join.pubescens</span></code> are the joint inferences for the respective type. We can see that <code class="docutils literal notranslate"><span class="pre">eps</span></code> and <code class="docutils literal notranslate"><span class="pre">S_d</span></code> are indeed shared between the two. The parameter <code class="docutils literal notranslate"><span class="pre">alpha</span></code> in the plot denotes the proportion of beneficial non-synonymous substitutions. Each marginal inference is a <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> object itself and can be accessed via <code class="docutils literal notranslate"><span class="pre">inf.marginal_inferences[type]</span></code>.</p>
@@ -394,7 +394,7 @@ Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 317
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/6a9bd5bf5aebb7f4d71fd169477e43fb324365ca3d4210a6e2c678550f2ad12b.png" src="../../_images/6a9bd5bf5aebb7f4d71fd169477e43fb324365ca3d4210a6e2c678550f2ad12b.png" />
+<img alt="../../_images/04ff6849e7b8a67ff49e42e5fa8288fa8a5415dda710c13dceb30d153f1299e9.png" src="../../_images/04ff6849e7b8a67ff49e42e5fa8288fa8a5415dda710c13dceb30d153f1299e9.png" />
 </div>
 </div>
 <section id="model-comparison">
@@ -460,8 +460,8 @@ Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 317
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {&#39;all.S_d&#39;: (&#39;-100000&#39;, &#39;-100000&#39;, &#39;-0.01&#39;)} and lower bound for {}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {&#39;all.S_d&#39;: (&#39;-100000&#39;, &#39;-100000&#39;, &#39;-0.01&#39;)} and lower bound for {}, but this might be nothing to worry about.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.S_d: (-100000, -100000, -0.01)} and lower bound for {}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.S_d: (-100000, -100000, -0.01)} and lower bound for {}, but this might be nothing to worry about.</span>
 <span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 2 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
 <span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
 </pre></div>
@@ -476,7 +476,7 @@ Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 317
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/ee8bdcee08bc66d0a9e9fed2d17e5591102b55e94bb1412fdbf6559455d66ae1.png" src="../../_images/ee8bdcee08bc66d0a9e9fed2d17e5591102b55e94bb1412fdbf6559455d66ae1.png" />
+<img alt="../../_images/a51b9e5fa81e20a315f5a45ade5e33059b4df104dccb705579e7a9e92af612d7.png" src="../../_images/a51b9e5fa81e20a315f5a45ade5e33059b4df104dccb705579e7a9e92af612d7.png" />
 </div>
 </div>
 <p>We see that <code class="docutils literal notranslate"><span class="pre">S_d</span></code> does not vary among the jointly-inferred types and this is because it does not vary linearly along the arbitrary covariates we specified. Indeed, looking at the mean over all bootstraps for our covariate we see that it is close to 0. Note that covariates are named <code class="docutils literal notranslate"><span class="pre">c0</span></code>, <code class="docutils literal notranslate"><span class="pre">c1</span></code>, etc. by default.</p>
@@ -487,7 +487,7 @@ Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 317
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>6.976126029984499e-05
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>6.058063323872589e-05
 </pre></div>
 </div>
 </div>
@@ -502,13 +502,13 @@ Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 317
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {&#39;all.S_d&#39;: (&#39;-100000&#39;, &#39;-100000&#39;, &#39;-0.01&#39;)} and lower bound for {}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {&#39;all.S_d&#39;: (&#39;-100000&#39;, &#39;-100000&#39;, &#39;-0.01&#39;)} and lower bound for {}, but this might be nothing to worry about.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.S_d: (-100000, -100000, -0.01)} and lower bound for {}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.S_d: (-100000, -100000, -0.01)} and lower bound for {}, but this might be nothing to worry about.</span>
 <span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 2 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
 <span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
 </pre></div>
 </div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.0
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.9998078235961599
 </pre></div>
 </div>
 </div>

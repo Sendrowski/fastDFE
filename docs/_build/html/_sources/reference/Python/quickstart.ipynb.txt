@@ -12,11 +12,25 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 1,
    "metadata": {
-    "is_executing": true
+    "ExecuteTime": {
+     "end_time": "2023-08-23T12:36:04.470782Z",
+     "start_time": "2023-08-23T12:36:02.347771Z"
+    }
    },
-   "outputs": [],
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001B[32mINFO:fastdfe.Discretization: Precomputing linear DFE-SFS transformation using midpoint integration.\u001B[0m\n",
+      "\u001B[33mWARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.p_b: (0, 0, 0.5)} and lower bound for {}, but this might be nothing to worry about.\u001B[0m\n",
+      "\u001B[32mINFO:fastdfe.BaseInference: Successfully finished optimization after 69 iterations and 510 function evaluations, obtaining a log-likelihood of -34.6321629044744.\u001B[0m\n",
+      "\u001B[32mINFO:fastdfe.BaseInference: Inferred parameters: {all.S_d: -9868.270989289615, all.b: 0.1508097745704915, all.p_b: 0.0, all.S_b: 0.0002191946595685579, all.eps: 0.006854664823870646}.\u001B[0m\n"
+     ]
+    }
+   ],
    "source": [
     "import fastdfe as fd\n",
     "\n",
@@ -48,8 +62,8 @@
    "execution_count": 2,
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-08-23T11:37:06.582345Z",
-     "start_time": "2023-08-23T11:37:06.472431Z"
+     "end_time": "2023-08-23T12:36:04.582657Z",
+     "start_time": "2023-08-23T12:36:04.474199Z"
     }
    },
    "outputs": [
@@ -78,8 +92,8 @@
    "execution_count": 3,
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-08-23T11:37:06.695986Z",
-     "start_time": "2023-08-23T11:37:06.590357Z"
+     "end_time": "2023-08-23T12:36:04.691727Z",
+     "start_time": "2023-08-23T12:36:04.581985Z"
     }
    },
    "outputs": [
@@ -117,8 +131,8 @@
    "execution_count": 4,
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-08-23T11:37:07.803717Z",
-     "start_time": "2023-08-23T11:37:06.696672Z"
+     "end_time": "2023-08-23T12:36:05.714043Z",
+     "start_time": "2023-08-23T12:36:04.693092Z"
     }
    },
    "outputs": [
@@ -126,7 +140,7 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "Bootstrapping: 100%|██████████| 100/100 [00:00<00:00, 110.56it/s]\n"
+      "Bootstrapping: 100%|██████████| 100/100 [00:00<00:00, 122.26it/s]\n"
      ]
     },
     {
@@ -157,8 +171,8 @@
    "execution_count": 5,
    "metadata": {
     "ExecuteTime": {
-     "end_time": "2023-08-23T11:37:07.867239Z",
-     "start_time": "2023-08-23T11:37:07.801296Z"
+     "end_time": "2023-08-23T12:36:05.781592Z",
+     "start_time": "2023-08-23T12:36:05.715771Z"
     }
    },
    "outputs": [],

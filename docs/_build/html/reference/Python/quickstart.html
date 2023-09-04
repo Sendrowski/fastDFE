@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quickstart &mdash; fastDFE beta documentation</title>
+  <title>Quickstart &mdash; fastDFE 1.0.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -133,6 +133,14 @@
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Discretization: Precomputing linear DFE-SFS transformation using midpoint integration.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.p_b: (0, 0, 0.5)} and lower bound for {}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Successfully finished optimization after 69 iterations and 510 function evaluations, obtaining a log-likelihood of -34.6321629044744.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Inferred parameters: {all.S_d: -9868.270989289615, all.b: 0.1508097745704915, all.p_b: 0.0, all.S_b: 0.0002191946595685579, all.eps: 0.006854664823870646}.</span>
+</pre></div>
+</div>
+</div>
 </div>
 <p>fastDFE uses maximum likelihood estimation (MLE) to find the DFE. By default, 10 local optimization runs are carried out to make sure a reasonably good global optimum has been bound. The DFE furthermore needs to parametrized where <a class="reference internal" href="../../modules/parametrization.html#fastdfe.parametrization.GammaExpParametrization" title="fastdfe.parametrization.GammaExpParametrization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GammaExpParametrization</span></code></a> is used by default.</p>
 <p>We can now plot the inferred DFE in discretized form (cf. <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference.plot_discretized" title="fastdfe.base_inference.BaseInference.plot_discretized"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_discretized()</span></code></a>).</p>
@@ -174,7 +182,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 110.56it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 122.26it/s]
 </pre></div>
 </div>
 <img alt="../../_images/752b7841ba2a547c509d7478aa094af09f796dfe29f3d75f9981d384f3df0a1d.png" src="../../_images/752b7841ba2a547c509d7478aa094af09f796dfe29f3d75f9981d384f3df0a1d.png" />

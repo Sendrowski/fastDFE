@@ -25,9 +25,11 @@ fastDFE offers a range of features to facilitate DFE inference, including:
 * Nested model comparison with LRTs
 * Customizable DFE parametrizations
 * Estimation of α, the proportion of beneficial substitutions
+* Built-in VCF parser for extracting site frequency spectra (SFS) with support for versatile stratifications, annotations and filtrations
+* Site degeneracy and synonymy annotation
+* Ancestral allele annotation
 * Serialization of objects and result summaries
 * Support for YAML configuration files facilitating usage
-* Built-in VCF parser for extracting site frequency spectra (SFS) with support for versatile stratifications and annotations
 
 .. bibliography::
    :style: plain
