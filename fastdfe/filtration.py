@@ -271,8 +271,7 @@ class DeviantOutgroupFiltration(Filtration):
 
         :param outgroups: The name of the outgroup samples to consider.
         :param ingroups: The name of the ingroup samples to consider, defaults to all samples but the outgroups.
-        :param strict_mode: Whether to filter out sites where no outgroup sample is present, defaults to ``True``
-        which is recommended.
+        :param strict_mode: Whether to filter out sites where no outgroup sample is present, defaults to ``True``.
         """
         super().__init__()
 

@@ -627,10 +627,16 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['T', 'C', 'C'], ancestral_expected='T'),
             dict(n_major=15, major_base='G', minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='G'),
             dict(n_major=15, major_base=None, minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='N'),
-            dict(n_major=19, major_base='A', minor_base=None, outgroup_bases=['T', 'T', 'T'], ancestral_expected='T'),
-            dict(n_major=19, major_base='A', minor_base=None, outgroup_bases=['T', 'T'], ancestral_expected='T'),
+
+            # this counterintuitive but we can only consider bases that are present in the ingroup
+            dict(n_major=19, major_base='A', minor_base=None, outgroup_bases=['T', 'T', 'T'], ancestral_expected='A'),
+            dict(n_major=19, major_base='A', minor_base=None, outgroup_bases=['T', 'T'], ancestral_expected='A'),
+
+            # this works because 'T' is present in the ingroup
             dict(n_major=19, major_base='A', minor_base='T', outgroup_bases=['T', 'T', 'T'], ancestral_expected='T'),
-            dict(n_major=19, major_base='A', minor_base='G', outgroup_bases=['T', 'T', 'T'], ancestral_expected='T'),
+
+            # this again doesn't work because 'T' is not present in the ingroup
+            dict(n_major=19, major_base='A', minor_base='G', outgroup_bases=['T', 'T', 'T'], ancestral_expected='A'),
         ]
 
         anc = fd.MaximumLikelihoodAncestralAnnotation.from_data(

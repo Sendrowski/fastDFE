@@ -1452,11 +1452,20 @@ class MaximumLikelihoodAncestralAnnotation(AncestralAlleleAnnotation):
       as in the EST-SFS paper is also possible, but this is only recommended if the number of sites used for the
       inference is large (see ``prior``).
 
-    TODO make major allele definition predictable
+    Known limitations (in common with EST-SFS):
+
+    * The model only consider the probabilities of bases present in the ingroups. This means that, if a site is fixed
+      for ``A`` in the ingroups, for example, but all outgroups have ``T``, then the probability of ``A`` being
+      ancestral is 1 as ``T`` is not considered. We therefore cannot estimate divergent sites with this model. This
+      is not a problem for DFE inference with fastDFE, as divergent counts are not considered, but it may be a problem
+      for other applications.
+
+    * The model can only handle sites that have at most 2 ingroup alleles. It is recommended to filter out sites
+      with more than 2 ingroup alleles (see :class:`~fastdfe.filtration.PolyAllelicFiltration`).
 
     .. warning::
         Still experimental. Use with caution.
-
+        TODO make major allele assignment predictable
     """
 
     #: The data types for the data frame
