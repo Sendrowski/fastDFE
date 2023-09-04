@@ -136,7 +136,8 @@ rule all:
             #expand("results/graphs/comp/pca/hgdp/inference/{chr}/{opts}/[all,Japanese].png",chr=[21], opts=['opts.subset.50000']),
             #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[10,20].config.{config}/[all,Japanese].dfe.png",chr=[1, 2, 3], opts=['opts'], config=['default']),
             #expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/inference/{chr}/{opts}.n.10.config.{config}/[all].dfe.png",chr=[1, 2, 21, 22],opts=['opts'],config=['default']),
-            expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/inference/{chr}/{opts}.n.[5,10,15,20,25,30,35,40].config.{config}/[all].dfe.png",chr=[1],opts=['opts'],config=['default']),
+            expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/inference/{chr}/{opts}.n.[5,10,15,20,25,30,35,40].config.{config}/[all].dfe.png",chr=[
+                1, 2, 3, 'all'],opts=['opts'],config=['default']),
             #expand("results/graphs/fastdfe/hgdp/inference/{chr}/{opts}.n.10.config.{config}/all.dfe.png",chr=[21],opts=['opts.vep'],config=['default']),
             #expand("results/graphs/comp/fastdfe/hominidae/[{types}].dfe.png",types=','.join(hominidae)),
             #expand("results/graphs/comp/fastdfe/hominidae/[{types}].params.png",types=','.join(hominidae)),
@@ -990,8 +991,8 @@ rule parse_vcf_hgdp:
         gff="results/gff/hgdp/{chr}.corrected.gff3.gz",
         samples="results/sample_lists/hgdp/{population}.args"
     output:
-        csv="results/spectra/hgdp/{chr}/{opts}.n.{n}/{population}.csv",
-        png="results/graphs/spectra/hgdp/{chr}/{opts}.n.{n}/{population}.png"
+        csv="results/spectra/hgdp/{chr,\d+}/{opts}.n.{n}/{population}.csv",
+        png="results/graphs/spectra/hgdp/{chr,\d+}/{opts}.n.{n}/{population}.png"
     params:
         aliases=lambda w: {f"chr{w.chr}": [f"{w.chr}"]},
         n=lambda w: int(w.n),
@@ -1000,6 +1001,18 @@ rule parse_vcf_hgdp:
         "envs/base.yaml"
     script:
         "scripts/parse_vcf_hgdp.py"
+
+# parse SFS from VCF
+rule merge_spectra_hgdp:
+    input:
+        expand("results/spectra/hgdp/{chr}/{opts}.n.{n}/{population}.csv",
+            chr=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],allow_missing=True)
+    output:
+        "results/spectra/hgdp/all/{opts}.n.{n}/{population}.csv"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/merge_spectra.py"
 
 # prepare config file for HGDP
 rule prepare_config_hgdp:
