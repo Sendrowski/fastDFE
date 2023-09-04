@@ -113,13 +113,13 @@
         }
     },
     "output_file": null,
-    "execution_time": 773.0945706367493,
+    "execution_time": 789.1619920730591,
     "summary": {
         "py/object": "fastdfe.polydfe.PolyDFEResult",
         "output_file": "results/polydfe/hgdp/inference/1/opts.n.20.config.default/all.polydfe.txt",
         "postprocessing_source": "../resources/polydfe/postprocessing/script.R",
         "data": {
-            "output_file": "/scratch/40685645/tmp6dms2v04",
+            "output_file": "/scratch/40839847/tmpquogl2ya",
             "model": "C",
             "likelihood": -128.9085,
             "criteria": 9e-05,
@@ -204,7 +204,7 @@
                 }
             ],
             "alpha": 0.008748911937850434,
-            "execution_time": 773.0945706367493
+            "execution_time": 789.1619920730591
         }
     }
 }

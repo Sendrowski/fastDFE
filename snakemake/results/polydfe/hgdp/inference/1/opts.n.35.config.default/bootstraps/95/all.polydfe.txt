@@ -1,0 +1,107 @@
+---- Running command
+---- ./polyDFE -d /scratch/40840389/tmp2b3lgm2z -m C -i /scratch/40840389/tmpynyknmq5 1 -v 1 
+---- Performing inference using model C
+
+---- Performing inference on /scratch/40840389/tmp2b3lgm2z
+----      with -i /scratch/40840389/tmpynyknmq5 1
+---- Data /scratch/40840389/tmp2b3lgm2z does not contain divergence counts. Using option -w.
+---- No mutation variability. Using Poisson likelihood.
+
+
+---- Using provided initial values
+
+-- Starting local optimization
+-- Optimizing all parameters
+  it        eps_an     theta_bar           S_d             b           p_b           S_b           r 2           r 3           r 4           r 5           r 6           r 7           r 8           r 9          r 10          r 11          r 12          r 13          r 14          r 15          r 16          r 17          r 18          r 19          r 20          r 21          r 22          r 23          r 24          r 25          r 26          r 27          r 28          r 29          r 30          r 31          r 32          r 33          r 34           ln lk          grad status 
+   0     0.0000045      0.000009        -10000           0.2           0.1             2             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1 -38229.84045286 88.5828786443   -2 
+   1     0.0000045      0.000009        -10000           0.2           0.1             2             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1 -38229.84045286           NAN   -8 
+   2     0.0000045      0.000009        -10000           0.2           0.1             2             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1 -38229.84045286           NAN   -8 
+   3     0.0000045      0.000009        -10000           0.2           0.1             2             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1 -38229.84045286 88.5828786443   -8 
+-- Local optimization: reached maximum number of likelihood evaluations allowed.
+-- Found new optimum with likelihood -38229.840452861993981 and gradient 88.58288
+
+---- Best joint likelihood found -38229.840452861993981 with gradient 88.58288
+
+---- Results for /scratch/40840389/tmp2b3lgm2z 
+--  Model: C
+--        eps_an     theta_bar             a 
+--     0.0000045      0.000009            -1 
+--           S_d             b           p_b           S_b 
+--        -10000           0.2           0.1             2 
+--           r 2           r 3           r 4           r 5           r 6           r 7           r 8           r 9          r 10          r 11          r 12          r 13          r 14          r 15          r 16          r 17          r 18          r 19          r 20          r 21          r 22          r 23          r 24          r 25          r 26          r 27          r 28          r 29          r 30          r 31          r 32          r 33          r 34 
+--             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1             1 
+
+---- Expected P_neut(i), 0 < i < n (neutral SFS per site) 
+E[P_neut(1)] = 0.0000090000
+E[P_neut(2)] = 0.0000045000
+E[P_neut(3)] = 0.0000030000
+E[P_neut(4)] = 0.0000022500
+E[P_neut(5)] = 0.0000018000
+E[P_neut(6)] = 0.0000015000
+E[P_neut(7)] = 0.0000012857
+E[P_neut(8)] = 0.0000011250
+E[P_neut(9)] = 0.0000010000
+E[P_neut(10)] = 0.0000009000
+E[P_neut(11)] = 0.0000008182
+E[P_neut(12)] = 0.0000007500
+E[P_neut(13)] = 0.0000006923
+E[P_neut(14)] = 0.0000006429
+E[P_neut(15)] = 0.0000006000
+E[P_neut(16)] = 0.0000005625
+E[P_neut(17)] = 0.0000005294
+E[P_neut(18)] = 0.0000005000
+E[P_neut(19)] = 0.0000004737
+E[P_neut(20)] = 0.0000004500
+E[P_neut(21)] = 0.0000004286
+E[P_neut(22)] = 0.0000004091
+E[P_neut(23)] = 0.0000003913
+E[P_neut(24)] = 0.0000003750
+E[P_neut(25)] = 0.0000003600
+E[P_neut(26)] = 0.0000003462
+E[P_neut(27)] = 0.0000003333
+E[P_neut(28)] = 0.0000003214
+E[P_neut(29)] = 0.0000003104
+E[P_neut(30)] = 0.0000003000
+E[P_neut(31)] = 0.0000002903
+E[P_neut(32)] = 0.0000002813
+E[P_neut(33)] = 0.0000002727
+E[P_neut(34)] = 0.0000002647
+
+---- Expected P_sel(i), 0 < i < n (selected SFS per site) 
+E[P_sel(1)] = 0.0000030957
+E[P_sel(2)] = 0.0000013647
+E[P_sel(3)] = 0.0000008592
+E[P_sel(4)] = 0.0000006236
+E[P_sel(5)] = 0.0000004884
+E[P_sel(6)] = 0.0000004012
+E[P_sel(7)] = 0.0000003405
+E[P_sel(8)] = 0.0000002960
+E[P_sel(9)] = 0.0000002620
+E[P_sel(10)] = 0.0000002353
+E[P_sel(11)] = 0.0000002138
+E[P_sel(12)] = 0.0000001962
+E[P_sel(13)] = 0.0000001814
+E[P_sel(14)] = 0.0000001690
+E[P_sel(15)] = 0.0000001584
+E[P_sel(16)] = 0.0000001493
+E[P_sel(17)] = 0.0000001414
+E[P_sel(18)] = 0.0000001344
+E[P_sel(19)] = 0.0000001284
+E[P_sel(20)] = 0.0000001230
+E[P_sel(21)] = 0.0000001183
+E[P_sel(22)] = 0.0000001141
+E[P_sel(23)] = 0.0000001104
+E[P_sel(24)] = 0.0000001071
+E[P_sel(25)] = 0.0000001041
+E[P_sel(26)] = 0.0000001016
+E[P_sel(27)] = 0.0000000993
+E[P_sel(28)] = 0.0000000973
+E[P_sel(29)] = 0.0000000956
+E[P_sel(30)] = 0.0000000942
+E[P_sel(31)] = 0.0000000930
+E[P_sel(32)] = 0.0000000920
+E[P_sel(33)] = 0.0000000913
+E[P_sel(34)] = 0.0000000908
+
+---- alpha_dfe = 0.680937
+

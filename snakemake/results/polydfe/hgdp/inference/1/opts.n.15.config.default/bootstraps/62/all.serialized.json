@@ -1,0 +1,204 @@
+{
+    "py/object": "fastdfe.polydfe.PolyDFE",
+    "logger": {
+        "py/reduce": [
+            {
+                "py/function": "logging.getLogger"
+            },
+            {
+                "py/tuple": [
+                    "fastdfe.PolyDFE"
+                ]
+            }
+        ]
+    },
+    "bootstraps": null,
+    "config": {
+        "py/object": "fastdfe.config.Config",
+        "data": {
+            "model": "GammaExpParametrization",
+            "intervals_del": {
+                "py/tuple": [
+                    -100000000.0,
+                    -1e-05,
+                    1000
+                ]
+            },
+            "intervals_ben": {
+                "py/tuple": [
+                    1e-05,
+                    10000.0,
+                    1000
+                ]
+            },
+            "integration_mode": "midpoint",
+            "linearized": true,
+            "seed": 0,
+            "opts_mle": {},
+            "n_runs": 10,
+            "x0": {
+                "all": {
+                    "S_b": 0.09636954,
+                    "S_d": -44.34681,
+                    "a": -1,
+                    "b": 0.1221405,
+                    "eps": 4.50123e-06,
+                    "eps_cont": 0,
+                    "lambda": 0,
+                    "p_b": 0.01060767,
+                    "r": [
+                        0.6268517,
+                        0.6514728,
+                        0.6820074,
+                        0.5848618,
+                        0.7565646,
+                        0.6523473,
+                        0.6349214,
+                        0.7005902,
+                        0.6139579,
+                        0.6324166,
+                        0.6421517,
+                        0.7478784,
+                        1.22486
+                    ],
+                    "theta_bar": 0.0008663822
+                }
+            },
+            "bounds": {},
+            "scales": {},
+            "fixed_params": {},
+            "shared_params": [],
+            "covariates": [],
+            "sfs_neut": {
+                "py/object": "fastdfe.spectrum.Spectra",
+                "data": {
+                    "all": [
+                        870402.438336528,
+                        809.0,
+                        215.0,
+                        158.0,
+                        118.0,
+                        96.0,
+                        84.0,
+                        80.0,
+                        56.0,
+                        71.0,
+                        50.0,
+                        38.0,
+                        61.0,
+                        50.0,
+                        57.0,
+                        0.0
+                    ]
+                }
+            },
+            "sfs_sel": {
+                "py/object": "fastdfe.spectrum.Spectra",
+                "data": {
+                    "all": [
+                        2365881.56166347,
+                        1488.0,
+                        451.0,
+                        262.0,
+                        232.0,
+                        147.0,
+                        142.0,
+                        91.0,
+                        80.0,
+                        82.0,
+                        71.0,
+                        71.0,
+                        50.0,
+                        56.0,
+                        94.0,
+                        0.0
+                    ]
+                }
+            },
+            "do_bootstrap": false,
+            "n_bootstraps": 10,
+            "parallelize": false,
+            "loss_type": "likelihood"
+        }
+    },
+    "output_file": null,
+    "execution_time": 287.8399336338043,
+    "summary": {
+        "py/object": "fastdfe.polydfe.PolyDFEResult",
+        "output_file": "results/polydfe/hgdp/inference/1/opts.n.15.config.default/bootstraps/62/all.polydfe.txt",
+        "postprocessing_source": "../resources/polydfe/postprocessing/script.R",
+        "data": {
+            "output_file": "/scratch/40840711/tmpe27hzhnb",
+            "model": "C",
+            "likelihood": -105.7973,
+            "criteria": 0.00088,
+            "params_mle": {
+                "eps": 4.50976e-06,
+                "eps_cont": 0,
+                "lambda": 0,
+                "theta_bar": 0.0008939324,
+                "a": -1,
+                "S_d": -45.82426,
+                "b": 0.1346261,
+                "p_b": 0.008052578,
+                "S_b": 0.08429605,
+                "r": [
+                    0.6231187,
+                    0.6112535,
+                    0.6951579,
+                    0.6134944,
+                    0.6939174,
+                    0.6192252,
+                    0.5680128,
+                    0.7246176,
+                    0.6411491,
+                    0.6391736,
+                    0.7141513,
+                    0.7424638,
+                    1.144739
+                ]
+            },
+            "n": 15,
+            "expec": [
+                {
+                    "E[P_z(1)]": 0.0008939287,
+                    "E[P_z(2)]": 0.000278512,
+                    "E[P_z(3)]": 0.0001821392,
+                    "E[P_z(4)]": 0.0001553556,
+                    "E[P_z(5)]": 0.0001096843,
+                    "E[P_z(6)]": 0.0001033857,
+                    "E[P_z(7)]": 7.90779e-05,
+                    "E[P_z(8)]": 6.34707e-05,
+                    "E[P_z(9)]": 7.19734e-05,
+                    "E[P_z(10)]": 5.73146e-05,
+                    "E[P_z(11)]": 5.19439e-05,
+                    "E[P_z(12)]": 5.32008e-05,
+                    "E[P_z(13)]": 5.10558e-05,
+                    "E[P_z(14)]": 7.3098e-05,
+                    "E[D_z]": null,
+                    "E[mis_z]": null
+                },
+                {
+                    "E[P_z(1)]": 0.0006404638,
+                    "E[P_z(2)]": 0.0001785523,
+                    "E[P_z(3)]": 0.0001102197,
+                    "E[P_z(4)]": 9.05276e-05,
+                    "E[P_z(5)]": 6.21612e-05,
+                    "E[P_z(6)]": 5.732e-05,
+                    "E[P_z(7)]": 4.30568e-05,
+                    "E[P_z(8)]": 3.40306e-05,
+                    "E[P_z(9)]": 3.8076e-05,
+                    "E[P_z(10)]": 2.99637e-05,
+                    "E[P_z(11)]": 2.68685e-05,
+                    "E[P_z(12)]": 2.72543e-05,
+                    "E[P_z(13)]": 2.59254e-05,
+                    "E[P_z(14)]": 3.68173e-05,
+                    "E[D_z]": null,
+                    "E[mis_z]": null
+                }
+            ],
+            "alpha": 0.01804051905101938,
+            "execution_time": 287.8399336338043
+        }
+    }
+}

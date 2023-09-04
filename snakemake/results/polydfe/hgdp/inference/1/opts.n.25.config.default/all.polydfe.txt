@@ -1,10 +1,10 @@
 ---- Running command
----- ./polyDFE -d /scratch/40683698/tmpqgi27c95 -m C -i /scratch/40683698/tmphwz7g4rl 1 -v 1 
+---- ./polyDFE -d /scratch/40839854/tmprv24mfnm -m C -i /scratch/40839854/tmpyt672yhn 1 -v 1 
 ---- Performing inference using model C
 
----- Performing inference on /scratch/40683698/tmpqgi27c95
-----      with -i /scratch/40683698/tmphwz7g4rl 1
----- Data /scratch/40683698/tmpqgi27c95 does not contain divergence counts. Using option -w.
+---- Performing inference on /scratch/40839854/tmprv24mfnm
+----      with -i /scratch/40839854/tmpyt672yhn 1
+---- Data /scratch/40839854/tmprv24mfnm does not contain divergence counts. Using option -w.
 ---- No mutation variability. Using Poisson likelihood.
 
 
@@ -202,7 +202,7 @@
 
 ---- Best joint likelihood found -156.526124808367683 with gradient 0.00008
 
----- Results for /scratch/40683698/tmpqgi27c95 
+---- Results for /scratch/40839854/tmprv24mfnm 
 --  Model: C
 --        eps_an     theta_bar             a 
 -- 0.00000450451 0.00086471942            -1 

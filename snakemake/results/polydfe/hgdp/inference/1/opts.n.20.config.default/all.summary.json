@@ -1,5 +1,5 @@
 {
-    "output_file": "/scratch/40685645/tmp6dms2v04",
+    "output_file": "/scratch/40839847/tmpquogl2ya",
     "model": "C",
     "likelihood": -128.9085,
     "criteria": 9e-05,
@@ -84,5 +84,5 @@
         }
     ],
     "alpha": 0.008748911937850434,
-    "execution_time": 773.0945706367493
+    "execution_time": 789.1619920730591
 }

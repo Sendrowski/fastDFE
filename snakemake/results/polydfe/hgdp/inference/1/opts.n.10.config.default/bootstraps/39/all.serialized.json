@@ -1,0 +1,174 @@
+{
+    "py/object": "fastdfe.polydfe.PolyDFE",
+    "logger": {
+        "py/reduce": [
+            {
+                "py/function": "logging.getLogger"
+            },
+            {
+                "py/tuple": [
+                    "fastdfe.PolyDFE"
+                ]
+            }
+        ]
+    },
+    "bootstraps": null,
+    "config": {
+        "py/object": "fastdfe.config.Config",
+        "data": {
+            "model": "GammaExpParametrization",
+            "intervals_del": {
+                "py/tuple": [
+                    -100000000.0,
+                    -1e-05,
+                    1000
+                ]
+            },
+            "intervals_ben": {
+                "py/tuple": [
+                    1e-05,
+                    10000.0,
+                    1000
+                ]
+            },
+            "integration_mode": "midpoint",
+            "linearized": true,
+            "seed": 0,
+            "opts_mle": {},
+            "n_runs": 10,
+            "x0": {
+                "all": {
+                    "S_b": 0.007920217,
+                    "S_d": -15.49506,
+                    "a": -1,
+                    "b": 0.1773756,
+                    "eps": 4.49946e-06,
+                    "eps_cont": 0,
+                    "lambda": 0,
+                    "p_b": 0.0009289272,
+                    "r": [
+                        0.756295,
+                        0.8118638,
+                        0.8203224,
+                        0.7703739,
+                        0.7596918,
+                        0.7652355,
+                        0.8437457,
+                        1.011566
+                    ],
+                    "theta_bar": 0.000731729
+                }
+            },
+            "bounds": {},
+            "scales": {},
+            "fixed_params": {},
+            "shared_params": [],
+            "covariates": [],
+            "sfs_neut": {
+                "py/object": "fastdfe.spectrum.Spectra",
+                "data": {
+                    "all": [
+                        879704.205708058,
+                        587.0,
+                        229.0,
+                        183.0,
+                        124.0,
+                        117.0,
+                        70.0,
+                        76.0,
+                        78.0,
+                        52.0,
+                        0.0
+                    ]
+                }
+            },
+            "sfs_sel": {
+                "py/object": "fastdfe.spectrum.Spectra",
+                "data": {
+                    "all": [
+                        2376145.79429194,
+                        1271.0,
+                        483.0,
+                        282.0,
+                        175.0,
+                        133.0,
+                        130.0,
+                        103.0,
+                        81.0,
+                        103.0,
+                        0.0
+                    ]
+                }
+            },
+            "do_bootstrap": false,
+            "n_bootstraps": 10,
+            "parallelize": false,
+            "loss_type": "likelihood"
+        }
+    },
+    "output_file": null,
+    "execution_time": 34.44087505340576,
+    "summary": {
+        "py/object": "fastdfe.polydfe.PolyDFEResult",
+        "output_file": "results/polydfe/hgdp/inference/1/opts.n.10.config.default/bootstraps/39/all.polydfe.txt",
+        "postprocessing_source": "../resources/polydfe/postprocessing/script.R",
+        "data": {
+            "output_file": "/scratch/40840316/tmpuu3uw5qr",
+            "model": "C",
+            "likelihood": -72.64278,
+            "criteria": 0.0001,
+            "params_mle": {
+                "eps": 4.50065e-06,
+                "eps_cont": 0,
+                "lambda": 0,
+                "theta_bar": 0.0006689966,
+                "a": -1,
+                "S_d": -5.909427,
+                "b": 0.3213888,
+                "p_b": 0.0009287044,
+                "S_b": 0.007920169,
+                "r": [
+                    0.8417568,
+                    0.8768002,
+                    0.7854813,
+                    0.848948,
+                    0.8372306,
+                    0.8939508,
+                    0.9249617,
+                    1.031333
+                ]
+            },
+            "n": 10,
+            "expec": [
+                {
+                    "E[P_z(1)]": 0.000668994,
+                    "E[P_z(2)]": 0.0002815653,
+                    "E[P_z(3)]": 0.000195525,
+                    "E[P_z(4)]": 0.0001313709,
+                    "E[P_z(5)]": 0.0001135887,
+                    "E[P_z(6)]": 9.33509e-05,
+                    "E[P_z(7)]": 8.54362e-05,
+                    "E[P_z(8)]": 7.73504e-05,
+                    "E[P_z(9)]": 7.66647e-05,
+                    "E[D_z]": null,
+                    "E[mis_z]": null
+                },
+                {
+                    "E[P_z(1)]": 0.0005332189,
+                    "E[P_z(2)]": 0.000194995,
+                    "E[P_z(3)]": 0.0001230391,
+                    "E[P_z(4)]": 7.70257e-05,
+                    "E[P_z(5)]": 6.30115e-05,
+                    "E[P_z(6)]": 4.94914e-05,
+                    "E[P_z(7)]": 4.3595e-05,
+                    "E[P_z(8)]": 3.8184e-05,
+                    "E[P_z(9)]": 3.67579e-05,
+                    "E[D_z]": null,
+                    "E[mis_z]": null
+                }
+            ],
+            "alpha": 0.0031354274493385274,
+            "execution_time": 34.44087505340576
+        }
+    }
+}

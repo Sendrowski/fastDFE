@@ -1,0 +1,144 @@
+{
+    "py/object": "fastdfe.polydfe.PolyDFE",
+    "logger": {
+        "py/reduce": [
+            {
+                "py/function": "logging.getLogger"
+            },
+            {
+                "py/tuple": [
+                    "fastdfe.PolyDFE"
+                ]
+            }
+        ]
+    },
+    "bootstraps": null,
+    "config": {
+        "py/object": "fastdfe.config.Config",
+        "data": {
+            "model": "GammaExpParametrization",
+            "intervals_del": {
+                "py/tuple": [
+                    -100000000.0,
+                    -1e-05,
+                    1000
+                ]
+            },
+            "intervals_ben": {
+                "py/tuple": [
+                    1e-05,
+                    10000.0,
+                    1000
+                ]
+            },
+            "integration_mode": "midpoint",
+            "linearized": true,
+            "seed": 0,
+            "opts_mle": {},
+            "n_runs": 10,
+            "x0": {
+                "all": {
+                    "S_b": 0.1308463,
+                    "S_d": -55.64557,
+                    "a": -1,
+                    "b": 0.1199374,
+                    "eps": 4.49599e-06,
+                    "eps_cont": 0,
+                    "lambda": 0,
+                    "p_b": 0.0151532,
+                    "r": [
+                        0.8958562,
+                        0.8771536,
+                        0.8733385
+                    ],
+                    "theta_bar": 0.0006164
+                }
+            },
+            "bounds": {},
+            "scales": {},
+            "fixed_params": {},
+            "shared_params": [],
+            "covariates": [],
+            "sfs_neut": {
+                "py/object": "fastdfe.spectrum.Spectra",
+                "data": {
+                    "all": [
+                        959544.744402331,
+                        583.0,
+                        252.0,
+                        183.0,
+                        129.0,
+                        0.0
+                    ]
+                }
+            },
+            "sfs_sel": {
+                "py/object": "fastdfe.spectrum.Spectra",
+                "data": {
+                    "all": [
+                        2580337.25559767,
+                        1054.0,
+                        448.0,
+                        253.0,
+                        187.0,
+                        0.0
+                    ]
+                }
+            },
+            "do_bootstrap": false,
+            "n_bootstraps": 10,
+            "parallelize": false,
+            "loss_type": "likelihood"
+        }
+    },
+    "output_file": null,
+    "execution_time": 18.774620294570923,
+    "summary": {
+        "py/object": "fastdfe.polydfe.PolyDFEResult",
+        "output_file": "results/polydfe/hgdp/inference/1/opts.n.5.config.default/bootstraps/99/all.polydfe.txt",
+        "postprocessing_source": "../resources/polydfe/postprocessing/script.R",
+        "data": {
+            "output_file": "/scratch/40840068/tmpw6tfh3re",
+            "model": "C",
+            "likelihood": -31.46754,
+            "criteria": 0.0001,
+            "params_mle": {
+                "eps": 4.49555e-06,
+                "eps_cont": 0,
+                "lambda": 0,
+                "theta_bar": 0.0005997949,
+                "a": -1,
+                "S_d": -17.69742,
+                "b": 0.1692796,
+                "p_b": 0.01462311,
+                "S_b": 0.1275055,
+                "r": [
+                    0.9284019,
+                    0.9036838,
+                    0.8965399
+                ]
+            },
+            "n": 5,
+            "expec": [
+                {
+                    "E[P_z(1)]": 0.0005997928,
+                    "E[P_z(2)]": 0.0002784249,
+                    "E[P_z(3)]": 0.0001806754,
+                    "E[P_z(4)]": 0.0001344371,
+                    "E[D_z]": null,
+                    "E[mis_z]": null
+                },
+                {
+                    "E[P_z(1)]": 0.000410792,
+                    "E[P_z(2)]": 0.0001674953,
+                    "E[P_z(3)]": 0.000101626,
+                    "E[P_z(4)]": 7.23579e-05,
+                    "E[D_z]": null,
+                    "E[mis_z]": null
+                }
+            ],
+            "alpha": 0.03172621690715325,
+            "execution_time": 18.774620294570923
+        }
+    }
+}
