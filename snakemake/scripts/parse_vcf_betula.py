@@ -16,8 +16,8 @@ try:
 
     testing = False
     vcf_file = snakemake.input.vcf
-    fasta_file = snakemake.input.ref
-    gff_file = snakemake.input.gff
+    fasta = snakemake.input.ref
+    gff = snakemake.input.gff
     samples_file = snakemake.input.samples
     n = snakemake.params.n
     out_csv = snakemake.output.csv
@@ -27,8 +27,8 @@ except NameError:
     # testing
     testing = True
     vcf_file = '../resources/genome/betula/all.vcf.gz'
-    fasta_file = '../resources/genome/betula/genome.fasta'
-    gff_file = '../resources/genome/betula/genome.gff.gz'
+    fasta = '../resources/genome/betula/genome.fasta'
+    gff = '../resources/genome/betula/genome.gff.gz'
     samples_file = '../resources/genome/betula/sample_sets/pendula.args'
     n = 20
     out_csv = "scratch/sfs_parsed.csv"
@@ -38,8 +38,8 @@ from fastdfe import Parser, CodingSequenceFiltration, DegeneracyAnnotation, Dege
 
 p = Parser(
     vcf=vcf_file,
-    fasta_file=fasta_file,
-    gff_file=gff_file,
+    fasta=fasta,
+    gff=gff,
     n=20,
     annotations=[DegeneracyAnnotation()],
     filtrations=[CodingSequenceFiltration()],

@@ -4,10 +4,10 @@ import fastdfe as fd
 p = fd.Parser(
     vcf="https://ngs.sanger.ac.uk//production/hgdp/hgdp_wgs.20190516/"
         "hgdp_wgs.20190516.full.chr1.vcf.gz",
-    fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
-               "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
-    gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
-             "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz",
+    fasta="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
+          "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
+    gff="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+        "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz",
     aliases=dict(chr1=['1']),
     n=10,
     target_site_counter=fd.TargetSiteCounter(

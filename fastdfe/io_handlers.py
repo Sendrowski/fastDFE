@@ -301,18 +301,18 @@ class FileHandler:
 
 class FASTAHandler(FileHandler):
 
-    def __init__(self, fasta_file: str | None, cache: bool = True, aliases: Dict[str, List[str]] = {}):
+    def __init__(self, fasta: str | None, cache: bool = True, aliases: Dict[str, List[str]] = {}):
         """
         Create a new FASTAHandler instance.
 
-        :param fasta_file: The path to the FASTA file.
+        :param fasta: The path to the FASTA file.
         :param cache: Whether to cache files that are downloaded from URLs
         :param aliases: The contig aliases.
         """
         FileHandler.__init__(self, cache=cache, aliases=aliases)
 
         #: The path to the FASTA file.
-        self.fasta_file: str = fasta_file
+        self.fasta: str = fasta
 
         #: The current contig.
         self._contig: SeqRecord | None = None
@@ -324,10 +324,10 @@ class FASTAHandler(FileHandler):
 
         :return: The reference reader.
         """
-        if self.fasta_file is None:
+        if self.fasta is None:
             return None
 
-        return self.load_fasta(self.fasta_file)
+        return self.load_fasta(self.fasta)
 
     def load_fasta(self, file: str) -> FastaIterator:
         """
@@ -404,11 +404,11 @@ class GFFHandler(FileHandler):
     GFF handler.
     """
 
-    def __init__(self, gff_file: str | None, cache: bool = True, aliases: Dict[str, List[str]] = {}):
+    def __init__(self, gff: str | None, cache: bool = True, aliases: Dict[str, List[str]] = {}):
         """
         Constructor.
 
-        :param gff_file: The path to the GFF file.
+        :param gff: The path to the GFF file.
         :param cache: Whether to cache the file.
         :param aliases: The contig aliases.
         """
@@ -418,7 +418,7 @@ class GFFHandler(FileHandler):
         self.logger = logger.getChild(self.__class__.__name__)
 
         #: The GFF file path
-        self.gff_file = gff_file
+        self.gff = gff
 
     @cached_property
     def _cds(self) -> pd.DataFrame | None:
@@ -427,7 +427,7 @@ class GFFHandler(FileHandler):
 
         :return: Dataframe with coding sequences.
         """
-        if self.gff_file is None:
+        if self.gff is None:
             return None
 
         return self._load_cds()
@@ -439,7 +439,7 @@ class GFFHandler(FileHandler):
         :return: The DataFrame.
         """
         # download and unzip if necessary
-        local_file = self.unzip_if_zipped(self.download_if_url(self.gff_file))
+        local_file = self.unzip_if_zipped(self.download_if_url(self.gff))
 
         # column labels for GFF file
         col_labels = ['seqid', 'source', 'type', 'start', 'end', 'score', 'strand', 'phase', 'attributes']
@@ -647,8 +647,8 @@ class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
     def __init__(
             self,
             vcf: str | Iterable[Variant],
-            fasta_file: str | None = None,
-            gff_file: str | None = None,
+            fasta: str | None = None,
+            gff: str | None = None,
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
             seed: int | None = 0,
@@ -659,8 +659,8 @@ class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
         Create a new MultiHandler instance.
 
         :param vcf: The path to the VCF file or an iterable of variants, can be gzipped, urls are also supported
-        :param fasta_file: The path to the FASTA file.
-        :param gff_file: The path to the GFF file.
+        :param fasta: The path to the FASTA file.
+        :param gff: The path to the GFF file.
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
         :param max_sites: Maximum number of sites to consider
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
@@ -681,7 +681,7 @@ class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
         # initialize fasta handler
         FASTAHandler.__init__(
             self,
-            fasta_file=fasta_file,
+            fasta=fasta,
             cache=cache,
             aliases=aliases
         )
@@ -689,7 +689,7 @@ class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
         # initialize gff handler
         GFFHandler.__init__(
             self,
-            gff_file=gff_file,
+            gff=gff,
             cache=cache,
             aliases=aliases
         )
@@ -700,7 +700,7 @@ class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
 
         :param class_name: The name of the class that requires a FASTA file.
         """
-        if self.fasta_file is None:
+        if self.fasta is None:
             raise ValueError(f'{class_name} requires a FASTA file to be specified.')
 
     def _require_gff(self, class_name: str):
@@ -709,7 +709,7 @@ class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
 
         :param class_name: The name of the class that requires a GFF file.
         """
-        if self.gff_file is None:
+        if self.gff is None:
             raise ValueError(f'{class_name} requires a GFF file to be specified.')
 
     def _rewind(self):

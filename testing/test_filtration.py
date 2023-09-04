@@ -187,7 +187,7 @@ class FiltrationTestCase(TestCase):
         assert f.filter_site(variant=Mock(ALT=['T']))
         assert f.filter_site(variant=Mock(ALT=[]))
 
-    def test_coding_sequence_filtration_raises_error_if_no_fasta_file_given(self):
+    def test_coding_sequence_filtration_raises_error_if_no_fasta_given(self):
         """
         Test the coding sequence filtration.
         """
@@ -209,7 +209,7 @@ class FiltrationTestCase(TestCase):
         f = fd.Filterer(
             vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
             output='scratch/test_coding_sequence_filtration.vcf',
-            gff_file="resources/genome/betula/genome.gff",
+            gff="resources/genome/betula/genome.gff",
             filtrations=[fd.CodingSequenceFiltration()],
         )
 

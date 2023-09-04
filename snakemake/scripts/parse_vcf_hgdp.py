@@ -14,8 +14,8 @@ try:
     testing = False
     chr = snakemake.params.chr
     vcf_file = snakemake.input.vcf
-    fasta_file = snakemake.input.fasta
-    gff_file = snakemake.input.gff
+    fasta = snakemake.input.fasta
+    gff = snakemake.input.gff
     samples_file = snakemake.input.samples
     out_csv = snakemake.output.csv
     out_png = snakemake.output.png
@@ -24,15 +24,15 @@ try:
 except NameError:
     # testing
     testing = True
-    chr = "1"
+    chr = "8"
     vcf_file = f"results/vcf/hgdp/{chr}/opts.vcf.gz"
-    fasta_file = f"results/fasta/hgdp/{chr}.fasta.gz"
-    gff_file = f"results/gff/hgdp/{chr}.corrected.gff3.gz"
+    fasta = f"results/fasta/hgdp/{chr}.fasta.gz"
+    gff = f"results/gff/hgdp/{chr}.corrected.gff3.gz"
     samples_file = "results/sample_lists/hgdp/all.args"
     out_csv = "scratch/parse_csv_hgdp.spectra.csv"
     out_png = "scratch/parse_csv_hgdp.spectra.png"
     aliases = {f"chr{chr}": [chr]}
-    n = 15
+    n = 35
 
 import pandas as pd
 
@@ -43,13 +43,13 @@ samples = pd.read_csv(samples_file).iloc[:, 0].tolist()
 # setup parser
 p = fd.Parser(
     vcf=vcf_file,
-    fasta_file=fasta_file,
-    gff_file=gff_file,
+    fasta=fasta,
+    gff=gff,
     aliases=aliases,
     target_site_counter=fd.TargetSiteCounter(
         n_samples=1000000,
         n_target_sites=fd.Annotation.count_target_sites(
-            file=gff_file
+            file=gff
         )[chr]
     ),
     n=n,

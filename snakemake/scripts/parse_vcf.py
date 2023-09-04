@@ -16,7 +16,7 @@ try:
 
     testing = False
     vcf_file = snakemake.input.vcf
-    fasta_file = snakemake.input.ref
+    fasta = snakemake.input.ref
     n = snakemake.params.n
     max_sites = snakemake.params.get('max_sites', np.inf)
     stratifications = snakemake.params.get('stratifications', ['DegeneracyStratification'])
@@ -26,7 +26,7 @@ except NameError:
     # testing
     testing = True
     vcf_file = 'results/vcf/betula/vcf/all.vcf.gz'
-    fasta_file = '../resources/genome/betula/genome.fasta'
+    fasta = '../resources/genome/betula/genome.fasta'
     n = 20
     max_sites = np.inf
     stratifications = [
@@ -42,7 +42,7 @@ from fastdfe.parser import BaseContextStratification
 # instantiate stratifications
 for i, s in enumerate(stratifications):
     if s == 'BaseContextStratification':
-        stratifications[i] = BaseContextStratification(fasta_file=fasta_file)
+        stratifications[i] = BaseContextStratification(fasta=fasta)
     else:
         stratifications[i] = getattr(fastdfe.parser, s)()
 

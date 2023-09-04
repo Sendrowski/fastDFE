@@ -388,8 +388,8 @@ class Filterer(MultiHandler):
             vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/"
                 "1000_genomes_project/release/20181203_biallelic_SNV/"
                 "ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
-            gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
-                     "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
+            gff="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
             output='sapiens.chr21.coding.vcf.gz',
             filtrations=[fd.CodingSequenceFiltration()],
             aliases=dict(chr21=['21'])
@@ -403,7 +403,7 @@ class Filterer(MultiHandler):
             self,
             vcf: str | Iterable[Variant],
             output: str,
-            gff_file: str | None = None,
+            gff: str | None = None,
             filtrations: List[Filtration] = [],
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
@@ -416,7 +416,7 @@ class Filterer(MultiHandler):
 
         :param vcf: The VCF file, possibly gzipped or a URL.
         :param output: The output file.
-        :param gff_file: The GFF file, possibly gzipped or a URL. This argument is required for some filtrations.
+        :param gff: The GFF file, possibly gzipped or a URL. This argument is required for some filtrations.
         :param filtrations: The filtrations.
         :param info_ancestral: The info field for the ancestral allele.
         :param max_sites: The maximum number of sites to process.
@@ -426,7 +426,7 @@ class Filterer(MultiHandler):
         """
         super().__init__(
             vcf=vcf,
-            gff_file=gff_file,
+            gff=gff,
             info_ancestral=info_ancestral,
             max_sites=max_sites,
             seed=seed,

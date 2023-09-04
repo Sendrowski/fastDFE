@@ -208,7 +208,7 @@ class ParserTestCase(TestCase):
         p = fd.Parser(
             vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
             n=20,
-            stratifications=[fd.BaseContextStratification(fasta_file='resources/genome/betula/genome.subset.20.fasta')]
+            stratifications=[fd.BaseContextStratification(fasta='resources/genome/betula/genome.subset.20.fasta')]
         )
 
         sfs = p.parse()
@@ -249,8 +249,8 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/sapiens/chr21_test.vcf.gz",
-            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz",
-            fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
+            gff="resources/genome/sapiens/hg38.sorted.gtf.gz",
+            fasta="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
             n=20,
             skip_non_polarized=True,
             annotations=[
@@ -277,8 +277,8 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/sapiens/chr21.vcf.gz",
-            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz",
-            fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
+            gff="resources/genome/sapiens/hg38.sorted.gtf.gz",
+            fasta="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
             n=10,
             target_site_counter=fd.TargetSiteCounter(
                 n_samples=100000,
@@ -308,8 +308,8 @@ class ParserTestCase(TestCase):
 
         p = fd.Parser(
             vcf="resources/genome/betula/biallelic.vcf.gz",
-            fasta_file="resources/genome/betula/genome.subset.20.fasta",
-            gff_file="resources/genome/betula/genome.gff.gz",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
             target_site_counter=fd.TargetSiteCounter(
                 n_samples=1000000,
                 n_target_sites=100000
@@ -369,8 +369,8 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/betula/all.subset.100000.vcf.gz",
-            fasta_file="resources/genome/betula/genome.subset.20.fasta",
-            gff_file="resources/genome/betula/genome.gff.gz",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
             n=20,
             annotations=[
                 fd.DegeneracyAnnotation(),
@@ -393,8 +393,8 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/betula/biallelic.vcf.gz",
-            fasta_file="resources/genome/betula/genome.fasta",
-            gff_file="resources/genome/betula/genome.gff.gz",
+            fasta="resources/genome/betula/genome.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
             n=10,
             annotations=[
                 fd.SynonymyAnnotation()
@@ -420,8 +420,8 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/betula/all.vcf.gz",
-            fasta_file="resources/genome/betula/genome.fasta",
-            gff_file="resources/genome/betula/genome.gff.gz",
+            fasta="resources/genome/betula/genome.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
             target_site_counter=None,
             n=20,
             annotations=[
@@ -437,8 +437,8 @@ class ParserTestCase(TestCase):
 
         p2 = fd.Parser(
             vcf="resources/genome/betula/biallelic.vcf.gz",
-            fasta_file="resources/genome/betula/genome.fasta",
-            gff_file="resources/genome/betula/genome.gff.gz",
+            fasta="resources/genome/betula/genome.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
             target_site_counter=fd.TargetSiteCounter(
                 n_samples=1000000,
                 n_target_sites=sfs.n_sites.sum()
@@ -477,8 +477,8 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/betula/all.vcf.gz",
-            fasta_file="resources/genome/betula/genome.fasta",
-            gff_file="resources/genome/betula/genome.gff.gz",
+            fasta="resources/genome/betula/genome.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
             n=20,
             annotations=[
                 fd.DegeneracyAnnotation()
@@ -503,9 +503,9 @@ class ParserTestCase(TestCase):
         p = fd.Parser(
             vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/"
                 "20181203_biallelic_SNV/ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
-            fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
+            fasta="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
                        "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
-            gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+            gff="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
                      "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
             aliases=dict(chr21=['21']),
             n=10,
@@ -530,8 +530,8 @@ class ParserTestCase(TestCase):
         """
         p = fd.Parser(
             vcf="resources/genome/betula/biallelic.vcf.gz",
-            fasta_file="resources/genome/betula/genome.fasta",
-            gff_file="resources/genome/betula/genome.gff.gz",
+            fasta="resources/genome/betula/genome.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
             max_sites=10000,
             n=10,
             target_site_counter=fd.TargetSiteCounter(
@@ -655,8 +655,8 @@ class ParserTestCase(TestCase):
         for i, n in enumerate(n_target_sites):
             p = fd.Parser(
                 vcf="resources/genome/betula/biallelic.vcf.gz",
-                fasta_file="resources/genome/betula/genome.fasta",
-                gff_file="resources/genome/betula/genome.gff.gz",
+                fasta="resources/genome/betula/genome.fasta",
+                gff="resources/genome/betula/genome.gff.gz",
                 max_sites=10000,
                 n=10,
                 target_site_counter=fd.TargetSiteCounter(
@@ -702,8 +702,8 @@ class ParserTestCase(TestCase):
         for i, n in enumerate(sample_sizes):
             p = fd.Parser(
                 vcf="resources/genome/betula/all.vcf.gz",
-                fasta_file="resources/genome/betula/genome.fasta",
-                gff_file="resources/genome/betula/genome.gff.gz",
+                fasta="resources/genome/betula/genome.fasta",
+                gff="resources/genome/betula/genome.gff.gz",
                 # max_sites=1000000,
                 n=n,
                 annotations=[
@@ -748,9 +748,9 @@ class ParserTestCase(TestCase):
             p = fd.Parser(
                 vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/"
                     "20181203_biallelic_SNV/ALL.chr1.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
-                fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
+                fasta="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
                            "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
-                gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                gff="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
                          "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz",
                 aliases=dict(chr1=['1']),
                 n=n,

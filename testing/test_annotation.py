@@ -118,8 +118,8 @@ class AnnotationTestCase(TestCase):
         ann = fd.Annotator(
             vcf=vcf,
             output='scratch/test_degeneracy_annotation_human_test_genome.vcf',
-            fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
-            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz",
+            fasta="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
+            gff="resources/genome/sapiens/hg38.sorted.gtf.gz",
             annotations=[deg],
         )
 
@@ -144,8 +144,8 @@ class AnnotationTestCase(TestCase):
         ann = fd.Annotator(
             vcf=vcf,
             output='scratch/test_degeneracy_annotation_human_test_genome_remote_fasta_gzipped.vcf',
-            fasta_file="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
-            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz",
+            fasta="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
+            gff="resources/genome/sapiens/hg38.sorted.gtf.gz",
             annotations=[deg],
         )
 
@@ -165,8 +165,8 @@ class AnnotationTestCase(TestCase):
         ann = fd.Annotator(
             vcf=vcf,
             output='scratch/test_degeneracy_annotation_betula_subset.vcf',
-            fasta_file="resources/genome/betula/genome.subset.20.fasta",
-            gff_file="resources/genome/betula/genome.gff.gz",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
             annotations=[
                 fd.DegeneracyAnnotation()
             ],
@@ -184,8 +184,8 @@ class AnnotationTestCase(TestCase):
         """
         ann = fd.Annotator(
             vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
-            fasta_file="resources/genome/betula/genome.subset.20.fasta",
-            gff_file="resources/genome/betula/genome.gff.gz",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
             output='scratch/test_annotator_load_vcf_from_url.vcf',
             annotations=[
                 fd.DegeneracyAnnotation()
@@ -208,8 +208,8 @@ class AnnotationTestCase(TestCase):
         ann = fd.Annotator(
             vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
             output='scratch/test_compare_synonymy_annotation_with_vep_betula.vcf',
-            fasta_file="resources/genome/betula/genome.subset.20.fasta",
-            gff_file="resources/genome/betula/genome.gff.gz",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
             annotations=[syn],
         )
 
@@ -228,8 +228,8 @@ class AnnotationTestCase(TestCase):
         ann = fd.Annotator(
             vcf="snakemake/results/vcf/sapiens/chr21.vep.vcf.gz",
             output="scratch/test_compare_synonymy_annotation_with_vep_human_chr21.vcf",
-            fasta_file="resources/genome/sapiens/chr21.fasta",
-            gff_file="resources/genome/sapiens/chr21.sorted.gff3",
+            fasta="resources/genome/sapiens/chr21.fasta",
+            gff="resources/genome/sapiens/chr21.sorted.gff3",
             aliases=dict(chr21=['21']),
             annotations=[syn]
         )
@@ -249,8 +249,8 @@ class AnnotationTestCase(TestCase):
         ann = fd.Annotator(
             vcf="snakemake/results/vcf/sapiens/chr21.snpeff.vcf.gz",
             output="scratch/test_compare_synonymy_annotation_with_snpeff_human_chr21.vcf",
-            fasta_file="resources/genome/sapiens/chr21.fasta",
-            gff_file="resources/genome/sapiens/hg38.sorted.gtf.gz",
+            fasta="resources/genome/sapiens/chr21.fasta",
+            gff="resources/genome/sapiens/hg38.sorted.gtf.gz",
             aliases=dict(chr21=['21']),
             annotations=[syn]
         )
@@ -270,8 +270,8 @@ class AnnotationTestCase(TestCase):
         ann = fd.Annotator(
             vcf="snakemake/results/vcf/hgdp/21/opts.vep.vcf.gz",
             output="scratch/test_compare_synonymy_annotation_with_vep_hgdp_chr21.vcf",
-            fasta_file="snakemake/results/fasta/hgdp/21.fasta.gz",
-            gff_file="snakemake/results/gff/hgdp/21.gff3.gz",
+            fasta="snakemake/results/fasta/hgdp/21.fasta.gz",
+            gff="snakemake/results/gff/hgdp/21.gff3.gz",
             aliases=dict(chr21=['21']),
             annotations=[syn]
         )

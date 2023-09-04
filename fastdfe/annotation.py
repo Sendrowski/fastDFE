@@ -2879,10 +2879,10 @@ class Annotator(MultiHandler):
             vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/"
                 "1000_genomes_project/release/20181203_biallelic_SNV/"
                 "ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
-            fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
-                               "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
-            gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
-                     "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
+            fasta="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
+                  "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
+            gff="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
             output='sapiens.chr21.degeneracy.vcf.gz',
             annotations=[fd.DegeneracyAnnotation()],
             aliases=dict(chr21=['21'])
@@ -2897,8 +2897,8 @@ class Annotator(MultiHandler):
             vcf: str,
             output: str,
             annotations: List[Annotation],
-            gff_file: str | None = None,
-            fasta_file: str | None = None,
+            gff: str | None = None,
+            fasta: str | None = None,
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
             seed: int | None = 0,
@@ -2911,9 +2911,9 @@ class Annotator(MultiHandler):
         :param vcf: The path to the VCF file, can be gzipped, urls are also supported
         :param output: The path to the output file
         :param annotations: The annotations to apply.
-        :param gff_file: The path to the GFF file, can be gzipped, urls are also supported. Required for
+        :param gff: The path to the GFF file, can be gzipped, urls are also supported. Required for
             annotations that require a GFF file.
-        :param fasta_file: The path to the FASTA file, can be gzipped, urls are also supported. Required for
+        :param fasta: The path to the FASTA file, can be gzipped, urls are also supported. Required for
             annotations that require a FASTA file.
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
         :param max_sites: Maximum number of sites to consider
@@ -2925,8 +2925,8 @@ class Annotator(MultiHandler):
         """
         super().__init__(
             vcf=vcf,
-            gff_file=gff_file,
-            fasta_file=fasta_file,
+            gff=gff,
+            fasta=fasta,
             info_ancestral=info_ancestral,
             max_sites=max_sites,
             seed=seed,

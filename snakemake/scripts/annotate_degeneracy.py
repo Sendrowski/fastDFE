@@ -16,15 +16,15 @@ try:
 
     testing = False
     vcf_file = snakemake.input.vcf
-    fasta_file = snakemake.input.ref
-    gff_file = snakemake.input.gff
+    fasta = snakemake.input.ref
+    gff = snakemake.input.gff
     out = snakemake.output[0]
 except ModuleNotFoundError:
     # testing
     testing = True
     vcf_file = "resources/genome/betula/all.vcf.gz"
-    fasta_file = "resources/genome/betula/genome.fasta"
-    gff_file = "resources/genome/betula/genome.gff.gz"
+    fasta = "resources/genome/betula/genome.fasta"
+    gff = "resources/genome/betula/genome.gff.gz"
     out = 'scratch/degeneracy.vcf'
 
 from fastdfe import Annotator, DegeneracyAnnotation
@@ -36,12 +36,9 @@ logging.getLogger('fastdfe').setLevel(logging.DEBUG)
 ann = Annotator(
     vcf=vcf_file,
     output=out,
-    annotations=[
-        DegeneracyAnnotation(
-            fasta_file=fasta_file,
-            gff_file=gff_file
-        )
-    ],
+    fasta=fasta,
+    gff=gff,
+    annotations=[DegeneracyAnnotation()],
 )
 
 # run annotator

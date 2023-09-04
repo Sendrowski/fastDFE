@@ -120,7 +120,7 @@ class BaseContextStratification(Stratification, FASTAHandler):
 
     def __init__(
             self,
-            fasta_file: str,
+            fasta: str,
             n_flanking: int = 1,
             aliases: Dict[str, List[str]] = {},
             cache: bool = True
@@ -129,7 +129,7 @@ class BaseContextStratification(Stratification, FASTAHandler):
         Create instance. Note that we require a fasta file to be specified
         for base context to be able to be inferred
 
-        :param fasta_file: The fasta file path, possibly gzipped or a URL
+        :param fasta: The fasta file path, possibly gzipped or a URL
         :param n_flanking: The number of flanking bases
         :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
             This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.
@@ -137,7 +137,7 @@ class BaseContextStratification(Stratification, FASTAHandler):
         """
         Stratification.__init__(self)
 
-        FASTAHandler.__init__(self, fasta_file, cache=cache, aliases=aliases)
+        FASTAHandler.__init__(self, fasta, cache=cache, aliases=aliases)
 
         #: The number of flanking bases
         self.n_flanking: int = n_flanking
@@ -657,6 +657,7 @@ class TargetSiteCounter:
                 for pos in positions:
 
                     # create dummy variant
+                    # TODO make sure once more that this is the correct base
                     variant = DummyVariant(
                         ref=record.seq[pos - 1],  # fasta is 0-based
                         pos=pos,  # VCF is 1-based
@@ -782,10 +783,10 @@ class Parser(MultiHandler):
         p = fd.Parser(
             vcf="https://ngs.sanger.ac.uk//production/hgdp/hgdp_wgs.20190516/"
                 "hgdp_wgs.20190516.full.chr1.vcf.gz",
-            fasta_file="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
-                       "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
-            gff_file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
-                     "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz",
+            fasta="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
+                  "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
+            gff="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz",
             aliases=dict(chr1=['1']),
             n=10,
             target_site_counter=fd.TargetSiteCounter(
@@ -814,10 +815,10 @@ class Parser(MultiHandler):
 
     def __init__(
             self,
-            vcf: str | Iterable[Variant],
+            vcf: str,
             n: int,
-            gff_file: str | None = None,
-            fasta_file: str | None = None,
+            gff: str | None = None,
+            fasta: str | None = None,
             info_ancestral: str = 'AA',
             skip_non_polarized: bool = False,
             stratifications: List[Stratification] = [],
@@ -833,10 +834,10 @@ class Parser(MultiHandler):
         """
         Initialize the parser.
 
-        :param vcf: The path to the VCF file or an iterable of variants, can be gzipped or a URL.
-        :param gff_file: The path to the GFF file, possibly gzipped or a URL. This file is optional and depends on
+        :param vcf: The path to the VCF file, can be gzipped or a URL.
+        :param gff: The path to the GFF file, possibly gzipped or a URL. This file is optional and depends on
             the stratifications, annotations and filtrations that are used.
-        :param fasta_file: The path to the FASTA file, possibly gzipped or a URL. This file is optional and depends on
+        :param fasta: The path to the FASTA file, possibly gzipped or a URL. This file is optional and depends on
             the annotations and filtrations that are used.
         :param n: The size of the resulting SFS. We down-sample to this number by drawing without replacement from
             the set of all available genotypes per site. Sites with fewer than ``n`` genotypes are skipped.
@@ -859,8 +860,8 @@ class Parser(MultiHandler):
         MultiHandler.__init__(
             self,
             vcf=vcf,
-            gff_file=gff_file,
-            fasta_file=fasta_file,
+            gff=gff,
+            fasta=fasta,
             info_ancestral=info_ancestral,
             max_sites=max_sites,
             seed=seed,
