@@ -135,7 +135,8 @@ from .annotation import Annotator, Annotation, MaximumParsimonyAncestralAnnotati
     MaximumLikelihoodAncestralAnnotation, DegeneracyAnnotation, SynonymyAnnotation, SubstitutionModel, \
     K2SubstitutionModel, JCSubstitutionModel, PolarizationPrior, KingmanPolarizationPrior, AdaptivePolarizationPrior
 from .filtration import Filterer, Filtration, SNPFiltration, PolyAllelicFiltration, CodingSequenceFiltration, \
-    SNVFiltration, DeviantOutgroupFiltration, AllFiltration, NoFiltration, BiasedGCConversionFiltration
+    SNVFiltration, DeviantOutgroupFiltration, AllFiltration, NoFiltration, BiasedGCConversionFiltration, \
+    ExistingOutgroupFiltration
 
 __all__ = [
     'Parametrization',
@@ -192,5 +193,6 @@ __all__ = [
     'SNVFiltration',
     'PolyAllelicFiltration',
     'BiasedGCConversionFiltration',
+    'ExistingOutgroupFiltration',
     'Filterer',
 ]

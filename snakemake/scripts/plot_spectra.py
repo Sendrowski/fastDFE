@@ -13,7 +13,7 @@ try:
     sys.path.append('..')
 
     testing = False
-    file = snakemake.input
+    file = snakemake.input[0]
     out = snakemake.output[0]
 except NameError:
     # testing

@@ -12,7 +12,7 @@ import itertools
 import logging
 from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
-from typing import List, Callable, Literal, Optional, Iterable, Dict
+from typing import List, Callable, Literal, Optional, Iterable, Dict, Tuple
 
 import numpy as np
 from Bio.SeqRecord import SeqRecord
@@ -594,8 +594,8 @@ class TargetSiteCounter:
         :return: The bounds
         """
         for alias in aliases:
-            if alias in self.parser._positions:
-                return np.min(self.parser._positions[alias]), np.max(self.parser._positions[alias])
+            if alias in self.parser._contig_bounds:
+                return self.parser._contig_bounds[alias]
 
         raise ValueError(f"Contig '{aliases}' not found in VCF file, even though it was previously parsed. "
                          f"This should not happen.")
@@ -657,7 +657,6 @@ class TargetSiteCounter:
                 for pos in positions:
 
                     # create dummy variant
-                    # TODO make sure once more that this is the correct base
                     variant = DummyVariant(
                         ref=record.seq[pos - 1],  # fasta is 0-based
                         pos=pos,  # VCF is 1-based
@@ -719,7 +718,7 @@ class TargetSiteCounter:
         Get a generator for the contigs to consider.
         """
         # iterate over contigs
-        for contig in self.parser._positions.keys():
+        for contig in self.parser._contig_bounds.keys():
             aliases = self.parser.get_aliases(contig)
 
             yield self.parser.get_contig(aliases)
@@ -735,7 +734,7 @@ class TargetSiteCounter:
         # initialize progress bar
         pbar = tqdm(
             desc="Determining contig sizes",
-            total=len(self.parser._positions),
+            total=len(self.parser._contig_bounds),
             disable=disable_pbar
         )
 
@@ -912,8 +911,8 @@ class Parser(MultiHandler):
         #: Dictionary of SFS indexed by joint type
         self.sfs: Dict[str, np.ndarray] = defaultdict(lambda: np.zeros(self.n + 1))
 
-        #: 1-based positions of included sites per contig (only when target_site_counter is used)
-        self._positions: Dict[str, List[int]] = defaultdict(list)
+        #: 1-based positions of lowest and highest site position per contig (only when target_site_counter is used)
+        self._contig_bounds: Dict[str, Tuple[int, int]] = defaultdict(lambda: (np.inf, -np.inf))
 
     def _get_ancestral(self, variant: Variant) -> str:
         """
@@ -1135,8 +1134,9 @@ class Parser(MultiHandler):
             if self._process_site(variant):
 
                 if self.target_site_counter is not None:
-                    # save position
-                    self._positions[variant.CHROM] += [variant.POS]
+                    # update bounds
+                    low, high = self._contig_bounds[variant.CHROM]
+                    self._contig_bounds[variant.CHROM] = (min(low, variant.POS), max(high, variant.POS))
             else:
                 self.n_skipped += 1
 

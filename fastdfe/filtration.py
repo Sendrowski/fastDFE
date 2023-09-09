@@ -15,7 +15,7 @@ import pandas as pd
 from cyvcf2 import Variant, Writer, VCF
 
 from .annotation import DegeneracyAnnotation
-from .io_handlers import get_major_base, MultiHandler
+from .io_handlers import get_major_base, MultiHandler, get_called_bases
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -265,13 +265,20 @@ class DeviantOutgroupFiltration(Filtration):
     allele of the ingroup samples.
     """
 
-    def __init__(self, outgroups: List[str], ingroups: List[str] = None, strict_mode: bool = True):
+    def __init__(
+            self,
+            outgroups: List[str],
+            ingroups: List[str] = None,
+            strict_mode: bool = True,
+            retain_monomorphic: bool = True
+    ):
         """
         Construct DeviantOutgroupFiltration.
 
         :param outgroups: The name of the outgroup samples to consider.
         :param ingroups: The name of the ingroup samples to consider, defaults to all samples but the outgroups.
         :param strict_mode: Whether to filter out sites where no outgroup sample is present, defaults to ``True``.
+        :param retain_monomorphic: Whether to retain monomorphic sites, defaults to ``True``, which is faster.
         """
         super().__init__()
 
@@ -283,6 +290,9 @@ class DeviantOutgroupFiltration(Filtration):
 
         #: Whether to filter out sites where no outgroup sample is present.
         self.strict_mode: bool = strict_mode
+
+        #: Whether to retain monomorphic sites.
+        self.retain_monomorphic: bool = retain_monomorphic
 
         #: The samples found in the VCF file.
         self.samples: Optional[np.ndarray] = None
@@ -305,9 +315,9 @@ class DeviantOutgroupFiltration(Filtration):
         self.samples: np.ndarray = np.array(handler._reader.samples)
 
         # create ingroup and outgroup masks
-        self.create_masks()
+        self._create_masks()
 
-    def create_masks(self):
+    def _create_masks(self):
         """
         Create ingroup and outgroup masks based on the samples.
         """
@@ -329,19 +339,78 @@ class DeviantOutgroupFiltration(Filtration):
         :param variant: The variant to filter.
         :return: ``True`` if the variant should be kept, ``False`` otherwise.
         """
-        if variant.is_snp:
-            # get major base among ingroup samples
-            ingroup_base = get_major_base(variant.gt_bases[self.ingroup_mask])
+        # keep monomorphic sites if requested
+        if not variant.is_snp and self.retain_monomorphic:
+            return True
 
-            # get major base among outgroup samples
-            outgroup_base = get_major_base(variant.gt_bases[self.outgroup_mask])
+        # get major base among ingroup samples
+        ingroup_base = get_major_base(variant.gt_bases[self.ingroup_mask])
 
-            # filter out if no outgroup base is present and strict mode is enabled
-            if outgroup_base is None:
-                return not self.strict_mode
+        # get major base among outgroup samples
+        outgroup_base = get_major_base(variant.gt_bases[self.outgroup_mask])
 
-            # filter out if outgroup base is different from ingroup base
-            return ingroup_base == outgroup_base
+        # filter out if no outgroup base is present and strict mode is enabled
+        if outgroup_base is None:
+            return not self.strict_mode
+
+        # filter out if outgroup base is different from ingroup base
+        return ingroup_base == outgroup_base
+
+
+class ExistingOutgroupFiltration(Filtration):
+    """
+    Filter out sites for which at least one of the specified outgroup samples has no called base.
+    """
+
+    def __init__(self, outgroups: List[str]):
+        """
+        Construct ExistingOutgroupFiltration.
+
+        :param outgroups: The name of the outgroup samples that need to be present to pass the filter.
+        """
+        super().__init__()
+
+        #: The outgroup samples.
+        self.outgroups: List[str] = outgroups
+
+        #: The samples found in the VCF file.
+        self.samples: Optional[np.ndarray] = None
+
+        #: The outgroup mask.
+        self.outgroup_mask: Optional[np.ndarray] = None
+
+    def _setup(self, handler: MultiHandler):
+        """
+        Touch the reader to load the samples.
+
+        :param handler: The handler.
+        """
+        super()._setup(handler)
+
+        # create samples array
+        self.samples: np.ndarray = np.array(handler._reader.samples)
+
+    def _create_mask(self):
+        """
+        Create outgroup mask based on the samples.
+        """
+        self.outgroup_mask: np.ndarray = np.isin(self.samples, self.outgroups)
+
+    @_count_filtered
+    def filter_site(self, variant: Variant) -> bool:
+        """
+        Filter site.
+
+        :param variant: The variant to filter.
+        :return: ``True`` if the variant should be kept, ``False`` otherwise.
+        """
+        # get outgroup genotypes
+        outgroups = variant.gt_bases[self.outgroup_mask]
+
+        # filter out if at least one outgroup has no called base
+        for outgroup in outgroups:
+            if len(get_called_bases(outgroup) )== 0:
+                return False
 
         return True
 
@@ -353,7 +422,7 @@ class BiasedGCConversionFiltration(Filtration):
 
     Mono-allelic sites are always retained, and we assume sites are at most bi-allelic.
 
-    .. [CITGB] See Pouyet et al., 'Background selection and biased
+    .. [CITGB] Pouyet et al., 'Background selection and biased
         gene conversion affect more than 95% of the human genome and bias demographic inferences.',
         Elife, 7:e36317, 2018
     """

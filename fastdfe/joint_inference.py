@@ -1181,7 +1181,7 @@ class JointInference(BaseInference):
 
         :return: None
         """
-        return None
+        return
 
     def _set_fixed_params(self, params: Dict[str, Dict[str, float]]):
         """

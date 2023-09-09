@@ -42,7 +42,14 @@ def get_called_bases(genotypes: np.ndarray | List[str]) -> np.ndarray:
     :param genotypes: Array of genotypes in the form of strings.
     :return: Array of called bases.
     """
-    return np.array([b for b in '/'.join(genotypes).replace('|', '/') if b in 'ACGT'])
+    # join genotypes
+    joined_genotypes = ''.join(genotypes).replace('|', '/')
+
+    # convert to numpy array of characters
+    char_array = np.array(list(joined_genotypes))
+
+    # return only characters that are in the bases list
+    return char_array[np.isin(char_array, bases)]
 
 
 def get_major_base(genotypes: np.ndarray | List[str]) -> str | None:
@@ -58,7 +65,7 @@ def get_major_base(genotypes: np.ndarray | List[str]) -> str | None:
     if len(bases) > 0:
         return Counter(bases).most_common()[0][0]
 
-    return None
+    return
 
 
 def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf) -> int:
@@ -325,7 +332,7 @@ class FASTAHandler(FileHandler):
         :return: The reference reader.
         """
         if self.fasta is None:
-            return None
+            return
 
         return self.load_fasta(self.fasta)
 
@@ -428,7 +435,7 @@ class GFFHandler(FileHandler):
         :return: Dataframe with coding sequences.
         """
         if self.gff is None:
-            return None
+            return
 
         return self._load_cds()
 

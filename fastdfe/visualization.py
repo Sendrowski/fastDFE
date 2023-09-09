@@ -535,7 +535,7 @@ class Visualization:
 
         # determine whether hatch style should be used
         if labels is None or len(labels) < 1 or '.' not in labels[i]:
-            return None
+            return
 
         # determine unique prefixes
         prefixes = set([label.split('.')[0] for label in labels if '.' in label])

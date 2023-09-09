@@ -100,35 +100,35 @@ class FiltrationTestCase(TestCase):
         mock_variant.is_snp = False
         filter_obj = fd.DeviantOutgroupFiltration(outgroups=['outgroup1'], ingroups=['ingroup1'])
         filter_obj.samples = np.array(['ingroup1', 'outgroup1'])
-        filter_obj.create_masks()
+        filter_obj._create_masks()
         assert filter_obj.filter_site(mock_variant)  # expect True as the variant is not SNP
 
         # test case 2: variant is an SNP, strict mode is enabled and no outgroup sample is present
         mock_variant.is_snp = True
         filter_obj = fd.DeviantOutgroupFiltration(outgroups=['outgroup1'], ingroups=['ingroup1'], strict_mode=True)
         filter_obj.samples = np.array(['ingroup1', 'outgroup1'])
-        filter_obj.create_masks()
+        filter_obj._create_masks()
         mock_variant.gt_bases = np.array(['A/A', './.'])
         assert not filter_obj.filter_site(mock_variant)  # expect False as no outgroup sample is present
 
         # test case 3: variant is an SNP, strict mode is disabled and no outgroup sample is present
         filter_obj = fd.DeviantOutgroupFiltration(outgroups=['outgroup1'], ingroups=['ingroup1'], strict_mode=False)
         filter_obj.samples = np.array(['ingroup1', 'outgroup1'])
-        filter_obj.create_masks()
+        filter_obj._create_masks()
         mock_variant.gt_bases = np.array(['A/A', './.'])
         assert filter_obj.filter_site(mock_variant)  # # expect True as strict mode off and no outgroup sample present
 
         # test case 4: variant is an SNP and outgroup base is different from ingroup base
         filter_obj = fd.DeviantOutgroupFiltration(outgroups=['outgroup1'], ingroups=['ingroup1'])
         filter_obj.samples = np.array(['ingroup1', 'outgroup1'])
-        filter_obj.create_masks()
+        filter_obj._create_masks()
         mock_variant.gt_bases = np.array(['A/A', 'T/T'])
         assert not filter_obj.filter_site(mock_variant)  # expect False as outgroup base is different from ingroup base
 
         # test case 5: variant is an SNP and outgroup base is same as ingroup base
         filter_obj = fd.DeviantOutgroupFiltration(outgroups=['outgroup1'], ingroups=['ingroup1'])
         filter_obj.samples = np.array(['ingroup1', 'outgroup1'])
-        filter_obj.create_masks()
+        filter_obj._create_masks()
         mock_variant.gt_bases = np.array(['A/A', 'A/A'])
         assert filter_obj.filter_site(mock_variant)  # expect True as outgroup base is same as ingroup base
 
@@ -138,7 +138,7 @@ class FiltrationTestCase(TestCase):
         filter_obj = fd.DeviantOutgroupFiltration(outgroups=['outgroup1', 'outgroup2'],
                                                   ingroups=['ingroup1', 'ingroup2'])
         filter_obj.samples = np.array(['ingroup1', 'ingroup2', 'outgroup1', 'outgroup2'])
-        filter_obj.create_masks()
+        filter_obj._create_masks()
         mock_variant.gt_bases = np.array(['A/A', 'A/T', 'A/A', 'A/G'])
         assert filter_obj.filter_site(mock_variant)  # expect True as major base 'A' is common in ingroup and outgroup
 
@@ -148,9 +148,74 @@ class FiltrationTestCase(TestCase):
         filter_obj = fd.DeviantOutgroupFiltration(outgroups=['outgroup1', 'outgroup2'],
                                                   ingroups=['ingroup1', 'ingroup2'])
         filter_obj.samples = np.array(['ingroup1', 'ingroup2', 'outgroup1', 'outgroup2'])
-        filter_obj.create_masks()
+        filter_obj._create_masks()
         mock_variant.gt_bases = np.array(['A/A', 'A/T', 'T/T', 'T/G'])
         assert not filter_obj.filter_site(mock_variant)  # expect False as major base 'A' in ingroup and 'T' in outgroup
+
+        # test case 8: make sure we retain monoallelic sites if retain_monomorphic is True
+        mock_variant = Mock(spec=Variant)
+        mock_variant.is_snp = False
+        filter_obj = fd.DeviantOutgroupFiltration(outgroups=['outgroup1', 'outgroup2'],
+                                                  ingroups=['ingroup1', 'ingroup2'], retain_monomorphic=True)
+        filter_obj.samples = np.array(['ingroup1', 'ingroup2', 'outgroup1', 'outgroup2'])
+        filter_obj._create_masks()
+        mock_variant.gt_bases = np.array(['A/A', 'A/A', 'T/T', 'T/T'])
+        assert filter_obj.filter_site(mock_variant)  # expect True as major base 'A' in ingroup and 'T' in outgroup
+
+        # test case 9: make sure we don't retain monoallelic sites if retain_monomorphic is False
+        mock_variant = Mock(spec=Variant)
+        mock_variant.is_snp = False
+        filter_obj = fd.DeviantOutgroupFiltration(outgroups=['outgroup1', 'outgroup2'],
+                                                  ingroups=['ingroup1', 'ingroup2'], retain_monomorphic=False)
+        filter_obj.samples = np.array(['ingroup1', 'ingroup2', 'outgroup1', 'outgroup2'])
+        filter_obj._create_masks()
+        mock_variant.gt_bases = np.array(['A/A', 'A/A', 'T/T', 'T/T'])
+        assert not filter_obj.filter_site(mock_variant)  # expect False as major base 'A' in ingroup and 'T' in outgroup
+
+    @staticmethod
+    def test_existing_outgroup_filtration_single_site():
+        """
+        Test the existing outgroup filtration.
+        """
+        # test case 1: variants has one fully defined outgroup sample
+        mock_variant = Mock(spec=Variant)
+        filter_obj = fd.ExistingOutgroupFiltration(outgroups=['outgroup1'])
+        filter_obj.samples = np.array(['ingroup1', 'outgroup1'])
+        filter_obj._create_mask()
+        mock_variant.gt_bases = np.array(['A/A', 'T/T'])
+        assert filter_obj.filter_site(mock_variant)
+
+        # test case 2: variants has one missing outgroup sample
+        mock_variant = Mock(spec=Variant)
+        filter_obj = fd.ExistingOutgroupFiltration(outgroups=['outgroup1'])
+        filter_obj.samples = np.array(['ingroup1', 'outgroup1'])
+        filter_obj._create_mask()
+        mock_variant.gt_bases = np.array(['A/A', './.'])
+        assert not filter_obj.filter_site(mock_variant)
+
+        # test case 3: variants has one fully defined outgroup sample and one missing outgroup sample
+        mock_variant = Mock(spec=Variant)
+        filter_obj = fd.ExistingOutgroupFiltration(outgroups=['outgroup1', 'outgroup2'])
+        filter_obj.samples = np.array(['outgroup1', 'ingroup1', 'outgroup2'])
+        filter_obj._create_mask()
+        mock_variant.gt_bases = np.array(['./.', 'A/A', 'T/T'])
+        assert not filter_obj.filter_site(mock_variant)
+
+        # test case 4: variants has one outgroup sample with one missing allele
+        mock_variant = Mock(spec=Variant)
+        filter_obj = fd.ExistingOutgroupFiltration(outgroups=['outgroup1'])
+        filter_obj.samples = np.array(['ingroup1', 'outgroup1'])
+        filter_obj._create_mask()
+        mock_variant.gt_bases = np.array(['A/A', 'T/.'])
+        assert filter_obj.filter_site(mock_variant)
+
+        # test case 5: variants has three outgroup samples with one missing allele each
+        mock_variant = Mock(spec=Variant)
+        filter_obj = fd.ExistingOutgroupFiltration(outgroups=['outgroup1', 'outgroup2', 'outgroup3'])
+        filter_obj.samples = np.array(['ingroup1', 'outgroup1', 'outgroup2', 'outgroup3'])
+        filter_obj._create_mask()
+        mock_variant.gt_bases = np.array(['A/A', 'T/.', 'T/.', 'T/.'])
+        assert filter_obj.filter_site(mock_variant)
 
     @staticmethod
     def test_snp_filtration():

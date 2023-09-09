@@ -17,8 +17,7 @@ from numpy.random._generator import Generator
 from numpy import testing
 from scipy.optimize import OptimizeResult
 
-from fastdfe import Spectrum, BaseInference, Config, Spectra, GammaExpParametrization, DisplacedGammaParametrization, \
-    DiscreteParametrization, GammaDiscreteParametrization
+import fastdfe as fd
 
 
 class InferenceTestCase(TestCase):
@@ -63,7 +62,7 @@ class InferenceTestCase(TestCase):
                 elif isinstance(value1, Generator):
                     pass
 
-                elif isinstance(value1, Spectrum):
+                elif isinstance(value1, fd.Spectrum):
                     np.testing.assert_equal(value1.to_list(), value2.to_list())
 
                 elif isinstance(value1, object):
@@ -83,27 +82,27 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Successfully run inference from config file.
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
         config.update(parallelize=True)
 
-        inference = BaseInference.from_config(config)
+        inference = fd.BaseInference.from_config(config)
         inference.run()
 
     def test_run_inference_from_config_not_parallelized(self):
         """
         Successfully run inference from config file.
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
         config.update(parallelize=False)
 
-        inference = BaseInference.from_config(config)
+        inference = fd.BaseInference.from_config(config)
         inference.run()
 
     def test_seeded_inference_is_deterministic_non_parallelized(self):
         """
         Check that inference is deterministic when seeded and not parallelized.
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
 
         config.update(
             seed=0,
@@ -112,10 +111,10 @@ class BaseInferenceTestCase(InferenceTestCase):
             n_bootstraps=2
         )
 
-        inference = BaseInference.from_config(config)
+        inference = fd.BaseInference.from_config(config)
         inference.run()
 
-        inference2 = BaseInference.from_config(config)
+        inference2 = fd.BaseInference.from_config(config)
         inference2.run()
 
         self.assertEqual(inference.params_mle, inference2.params_mle)
@@ -125,7 +124,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Check that seeded inference is deterministic when parallelized.
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
 
         config.update(
             seed=0,
@@ -134,10 +133,10 @@ class BaseInferenceTestCase(InferenceTestCase):
             n_bootstraps=2
         )
 
-        inference = BaseInference.from_config(config)
+        inference = fd.BaseInference.from_config(config)
         inference.run()
 
-        inference2 = BaseInference.from_config(config)
+        inference2 = fd.BaseInference.from_config(config)
         inference2.run()
 
         self.assertEqual(inference.params_mle, inference2.params_mle)
@@ -147,9 +146,9 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Compare inference with log scales vs linear scales.
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
 
-        model = GammaExpParametrization()
+        model = fd.GammaExpParametrization()
         model.scales = dict(
             S_d='log',
             b='log',
@@ -162,7 +161,7 @@ class BaseInferenceTestCase(InferenceTestCase):
             do_bootstrap=True
         )
 
-        inference_log = BaseInference.from_config(config)
+        inference_log = fd.BaseInference.from_config(config)
         inference_log.run()
 
         model = copy.copy(model)
@@ -174,7 +173,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         )
 
         config.update(model=model)
-        inference_lin = BaseInference.from_config(config)
+        inference_lin = fd.BaseInference.from_config(config)
         inference_lin.run()
 
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
@@ -203,7 +202,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Compare inference with log scales vs linear scales.
         """
-        model = GammaExpParametrization()
+        model = fd.GammaExpParametrization()
         model.scales = dict(
             S_d='log',
             b='log',
@@ -211,16 +210,16 @@ class BaseInferenceTestCase(InferenceTestCase):
             S_b='log'
         )
 
-        inference_log = BaseInference(
-            sfs_neut=Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
-            sfs_sel=Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+        inference_log = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
             model=model,
             do_bootstrap=True,
             n_runs=10
         )
         inference_log.run()
 
-        model = GammaExpParametrization()
+        model = fd.GammaExpParametrization()
         model.scales = dict(
             S_d='lin',
             b='lin',
@@ -228,9 +227,9 @@ class BaseInferenceTestCase(InferenceTestCase):
             S_b='lin'
         )
 
-        inference_lin = BaseInference(
-            sfs_neut=Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
-            sfs_sel=Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+        inference_lin = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
             model=model,
             do_bootstrap=True,
             n_runs=10
@@ -268,12 +267,12 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Check whether Inference can properly be serialized and restored.
         """
-        inference = BaseInference.from_config_file(self.config_file)
+        inference = fd.BaseInference.from_config_file(self.config_file)
         inference.run()
 
         serialized = 'scratch/test_serialize_inference.json'
         inference.to_file(serialized)
-        inference_restored = BaseInference.from_file(serialized)
+        inference_restored = fd.BaseInference.from_file(serialized)
 
         # self.assertEqual(inference.to_json(), inference_restored.to_json())
         self.assertEqualInference(inference, inference_restored)
@@ -283,7 +282,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Run bootstrap on inference.
         """
         # unserialize
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         # make sure the likelihoods of the different runs are cached
         self.assertEqual(len(inference.likelihoods), inference.n_runs)
@@ -303,7 +302,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         yields the same likelihood as the one reported.
         """
         # unserialize
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         self.assertAlmostEqual(inference.evaluate_likelihood(dict(all=inference.params_mle)), inference.likelihood)
 
@@ -311,13 +310,13 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Plot everything possible.
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
 
         config.update(
             do_bootstrap=False
         )
 
-        inference = BaseInference.from_config(config)
+        inference = fd.BaseInference.from_config(config)
 
         inference.plot_all()
         inference.plot_bucket_sizes()
@@ -326,13 +325,13 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Plot everything possible.
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
 
         config.update(
             do_bootstrap=True
         )
 
-        inference = BaseInference.from_config(config)
+        inference = fd.BaseInference.from_config(config)
 
         inference.plot_all()
         inference.plot_bucket_sizes()
@@ -342,7 +341,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Plot likelihoods.
         """
         # unserialize
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         inference.plot_likelihoods()
 
@@ -351,7 +350,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Plot likelihoods.
         """
         # unserialize
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         inference.plot_interval_density()
 
@@ -360,7 +359,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Plot inferred parameters.
         """
         # unserialize
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         inference.plot_inferred_parameters()
 
@@ -369,7 +368,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Plot inferred parameters.
         """
         # unserialize
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         inference.bootstrap(6)
 
@@ -380,7 +379,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Plot likelihoods.
         """
         # unserialize
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         inference.plot_observed_sfs()
 
@@ -389,7 +388,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Plot likelihoods.
         """
         # unserialize
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         _, axs = plt.subplots(ncols=2)
 
@@ -401,7 +400,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Plot everything possible.
         """
         # unserialize
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         # bootstrap
         inference.bootstrap(2)
@@ -413,7 +412,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Perform bootstrap before having run the main inference.
         """
         # unserialize
-        inference = BaseInference.from_config_file(self.config_file)
+        inference = fd.BaseInference.from_config_file(self.config_file)
 
         # bootstrap
         inference.bootstrap(2)
@@ -423,7 +422,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Compare nested likelihoods.
         """
         # unserialize
-        inference = BaseInference.from_config_file(self.config_file)
+        inference = fd.BaseInference.from_config_file(self.config_file)
 
         inference.compare_nested_models()
 
@@ -436,7 +435,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Compare nested likelihoods.
         """
         # unserialize
-        inference = BaseInference.from_config_file(self.config_file)
+        inference = fd.BaseInference.from_config_file(self.config_file)
 
         inference.compare_nested_models(do_bootstrap=False)
 
@@ -448,7 +447,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         We just make sure this triggers a run.
         """
         # unserialize
-        inference = BaseInference.from_config_file(self.config_file)
+        inference = fd.BaseInference.from_config_file(self.config_file)
 
         inference.plot_nested_models()
 
@@ -458,21 +457,21 @@ class BaseInferenceTestCase(InferenceTestCase):
         We just make sure this triggers a run.
         """
         parametrizations = [
-            GammaExpParametrization(),
-            DisplacedGammaParametrization(),
-            DiscreteParametrization(),
-            GammaDiscreteParametrization()
+            fd.GammaExpParametrization(),
+            fd.DisplacedGammaParametrization(),
+            fd.DiscreteParametrization(),
+            fd.GammaDiscreteParametrization()
         ]
 
         for p in parametrizations:
-            config = Config.from_file(self.config_file).update(
+            config = fd.Config.from_file(self.config_file).update(
                 model=p,
                 do_bootstrap=True,
                 n_bootstraps=2
             )
 
             # unserialize
-            inference = BaseInference.from_config(config)
+            inference = fd.BaseInference.from_config(config)
 
             inference.plot_nested_models(title=p.__class__.__name__)
 
@@ -480,9 +479,9 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether inference can be recreated from config.
         """
-        inf = BaseInference.from_config_file(self.config_file)
+        inf = fd.BaseInference.from_config_file(self.config_file)
 
-        inf2 = BaseInference.from_config(inf.create_config())
+        inf2 = fd.BaseInference.from_config(inf.create_config())
 
         self.assertEqualInference(inf, inf2)
 
@@ -490,8 +489,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test inference against cached result.
         """
-        inference = BaseInference.from_file(self.serialized)
-        inference2 = BaseInference.from_config(inference.create_config())
+        inference = fd.BaseInference.from_file(self.serialized)
+        inference2 = fd.BaseInference.from_config(inference.create_config())
 
         inference2.run()
 
@@ -500,7 +499,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         # inference.get_summary().to_file("scratch/test_cached_result_summary_actual.json")
 
-        def get_dict(inf: BaseInference) -> dict:
+        def get_dict(inf: fd.BaseInference) -> dict:
             exclude = ['execution_time', 'result']
 
             return dict((k, v) for k, v in inference.get_summary().__dict__.items() if k not in exclude)
@@ -511,9 +510,9 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether the run_if_necessary wrapper triggers a run if the inference has not been run yet.
         """
-        inference = BaseInference.from_config_file(self.config_file)
+        inference = fd.BaseInference.from_config_file(self.config_file)
 
-        with mock.patch.object(BaseInference, 'run', side_effect=Exception()) as mock_run:
+        with mock.patch.object(fd.BaseInference, 'run', side_effect=Exception()) as mock_run:
             try:
                 inference.plot_inferred_parameters(show=False)
             except Exception:
@@ -525,9 +524,9 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether the run_if_necessary wrapper does not trigger a run if the inference has already been run.
         """
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
-        with mock.patch.object(BaseInference, 'run') as mock_run:
+        with mock.patch.object(fd.BaseInference, 'run') as mock_run:
             inference.plot_inferred_parameters(show=False)
             mock_run.assert_not_called()
 
@@ -535,15 +534,15 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether inference can be run with a neutral SFS that has a zero entry.
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
 
         # set neutral SFS entry to zero
         sfs = config.data['sfs_neut']['all'].to_list()
         sfs[3] = 0
-        sfs = Spectrum(sfs)
-        config.data['sfs_neut'] = Spectra.from_spectrum(sfs)
+        sfs = fd.Spectrum(sfs)
+        config.data['sfs_neut'] = fd.Spectra.from_spectrum(sfs)
 
-        inference = BaseInference.from_config(config)
+        inference = fd.BaseInference.from_config(config)
 
         inference.run()
 
@@ -556,15 +555,15 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether inference can be run with a selected SFS that has a zero entry.
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
 
         # set selected SFS entry to zero
         sfs = config.data['sfs_sel']['all'].to_list()
         sfs[3] = 0
-        sfs = Spectrum(sfs)
-        config.data['sfs_sel'] = Spectra.from_spectrum(sfs)
+        sfs = fd.Spectrum(sfs)
+        config.data['sfs_sel'] = fd.Spectra.from_spectrum(sfs)
 
-        inference = BaseInference.from_config(config)
+        inference = fd.BaseInference.from_config(config)
 
         inference.run()
 
@@ -577,21 +576,21 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether inference can be run with both SFS that have a zero entry.
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
 
         # set neutral SFS entry to zero
         sfs = config.data['sfs_neut']['all'].to_list()
         sfs[3] = 0
-        sfs = Spectrum(sfs)
-        config.data['sfs_neut'] = Spectra.from_spectrum(sfs)
+        sfs = fd.Spectrum(sfs)
+        config.data['sfs_neut'] = fd.Spectra.from_spectrum(sfs)
 
         # set selected SFS entry to zero
         sfs = config.data['sfs_sel']['all'].to_list()
         sfs[3] = 0
-        sfs = Spectrum(sfs)
-        config.data['sfs_sel'] = Spectra.from_spectrum(sfs)
+        sfs = fd.Spectrum(sfs)
+        config.data['sfs_sel'] = fd.Spectra.from_spectrum(sfs)
 
-        inference = BaseInference.from_config(config)
+        inference = fd.BaseInference.from_config(config)
 
         inference.run()
 
@@ -604,11 +603,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether fixed parameters are correctly set.
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
 
         config.data['fixed_params'] = dict(all=dict(b=1.123, eps=0.123))
 
-        inference = BaseInference.from_config(config)
+        inference = fd.BaseInference.from_config(config)
 
         inference.run()
 
@@ -622,30 +621,30 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test get number of parameters to be optimized
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
 
-        assert BaseInference.from_config(config).get_n_optimized() == 5
+        assert fd.BaseInference.from_config(config).get_n_optimized() == 5
 
         config.data['fixed_params'] = dict(all=dict(S_b=1, p_b=0))
 
-        assert BaseInference.from_config(config).get_n_optimized() == 3
+        assert fd.BaseInference.from_config(config).get_n_optimized() == 3
 
     def test_non_existing_fixed_param_raises_error(self):
         """
         Test that a non-existing fixed parameter raises an error.
         """
-        config = Config.from_file(self.config_file)
+        config = fd.Config.from_file(self.config_file)
 
         config.data['fixed_params'] = dict(all=dict(S_b=1, p_b=0, foo=1))
 
         with self.assertRaises(ValueError):
-            BaseInference.from_config(config)
+            fd.BaseInference.from_config(config)
 
     def test_get_cis_params_mle_no_boostraps(self):
         """
         Get the MLE parameters from the cis inference.
         """
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         cis = inference.get_cis_params_mle()
 
@@ -655,7 +654,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Get the MLE parameters from the cis inference.
         """
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         inference.bootstrap()
 
@@ -665,7 +664,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Get the discretized DFE errors.
         """
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         inference.bootstrap()
 
@@ -675,7 +674,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Get the discretized DFE errors.
         """
-        inference = BaseInference.from_file(self.serialized)
+        inference = fd.BaseInference.from_file(self.serialized)
 
         values, errors = inference.get_discretized()
 
@@ -685,11 +684,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether a spectrum with zero monomorphic counts throws an error.
         """
-        sfs_neut = Spectrum([0, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
-        sfs_sel = Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+        sfs_neut = fd.Spectrum([0, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+        sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
 
         with self.assertRaises(ValueError):
-            BaseInference(
+            fd.BaseInference(
                 sfs_neut=sfs_neut,
                 sfs_sel=sfs_sel,
             )
@@ -698,11 +697,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether a spectrum with zero monomorphic counts throws an error.
         """
-        sfs_neut = Spectrum([1000, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
-        sfs_sel = Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+        sfs_neut = fd.Spectrum([1000, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+        sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
 
         with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')):
-            BaseInference(
+            fd.BaseInference(
                 sfs_neut=sfs_neut,
                 sfs_sel=sfs_sel,
             )
@@ -729,7 +728,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         for i, counts in enumerate(counts_list):
             for j, eps in enumerate(eps_list):
-                adjusted_counts = BaseInference.adjust_polarization(counts, eps)
+                adjusted_counts = fd.BaseInference.adjust_polarization(counts, eps)
                 assert np.isclose(np.sum(counts), np.sum(adjusted_counts))
                 assert np.allclose(adjusted_counts, expected_counts_list[i][j])
 
@@ -737,11 +736,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether estimating the full DFE with a folded SFS raises a warning.
         """
-        sfs_neut = Spectrum([1, 1, 0, 0])
-        sfs_sel = Spectrum([1, 1, 0, 0])
+        sfs_neut = fd.Spectrum([1, 1, 0, 0])
+        sfs_sel = fd.Spectrum([1, 1, 0, 0])
 
         with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')):
-            BaseInference(
+            fd.BaseInference(
                 sfs_neut=sfs_neut,
                 sfs_sel=sfs_sel,
             )
@@ -750,10 +749,10 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether a spectrum with zero monomorphic counts throws an error.
         """
-        sfs_neut = Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]).fold()
-        sfs_sel = Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]).fold()
+        sfs_neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]).fold()
+        sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]).fold()
 
-        inf = BaseInference(
+        inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
             fixed_params=dict(all=dict(S_b=1, p_b=0))
@@ -765,10 +764,10 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether a spectrum with zero monomorphic counts throws an error.
         """
-        sfs_neut = Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 652]).fold()
-        sfs_sel = Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 794]).fold()
+        sfs_neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 652]).fold()
+        sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 794]).fold()
 
-        inf = BaseInference(
+        inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
             fixed_params=dict(all=dict(S_b=1, p_b=0))
@@ -783,10 +782,10 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test whether a spectrum with zero monomorphic counts throws an error.
         """
-        sfs_neut = Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
-        sfs_sel = Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+        sfs_neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+        sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
 
-        inf = BaseInference(
+        inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel
         )

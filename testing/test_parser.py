@@ -1,8 +1,8 @@
 import logging
-from unittest.mock import Mock
 
 import pytest
 
+from fastdfe.io_handlers import get_called_bases
 from testing import prioritize_installed_packages
 
 prioritize_installed_packages()
@@ -242,8 +242,7 @@ class ParserTestCase(TestCase):
         # assert that all types are a subset of the stratification
         assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
 
-    @staticmethod
-    def test_parse_vcf_chr21_test():
+    def test_parse_vcf_chr21_test(self):
         """
         Parse human chr21 test VCF file.
         """
@@ -266,7 +265,7 @@ class ParserTestCase(TestCase):
 
         sfs = p.parse()
 
-        assert sfs.all.data.sum() == 6
+        self.assertEqual(sfs.all.data.sum(), 6)
 
     @staticmethod
     def test_parse_vcf_chr21():
@@ -279,7 +278,7 @@ class ParserTestCase(TestCase):
             vcf="resources/genome/sapiens/chr21.vcf.gz",
             gff="resources/genome/sapiens/hg38.sorted.gtf.gz",
             fasta="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
-            n=10,
+            n=8,
             target_site_counter=fd.TargetSiteCounter(
                 n_samples=100000,
                 n_target_sites=fd.Annotation.count_target_sites(
@@ -301,9 +300,9 @@ class ParserTestCase(TestCase):
 
         pass
 
-    def test_parse_betula_vcf_biallelic_infer_monomorphic(self):
+    def test_parse_betula_vcf_biallelic_infer_monomorphic_subset(self):
         """
-        Parse the VCF file of Betula spp.
+        Parse a subset of the VCF file of Betula spp.
         """
 
         p = fd.Parser(
@@ -317,7 +316,7 @@ class ParserTestCase(TestCase):
             n=20,
             max_sites=10000,
             annotations=[
-                fd.DegeneracyAnnotation( ),
+                fd.DegeneracyAnnotation(),
                 fd.MaximumParsimonyAncestralAnnotation()
             ],
             filtrations=[
@@ -424,12 +423,8 @@ class ParserTestCase(TestCase):
             gff="resources/genome/betula/genome.gff.gz",
             target_site_counter=None,
             n=20,
-            annotations=[
-                fd.DegeneracyAnnotation()
-            ],
-            filtrations=[
-                fd.CodingSequenceFiltration()
-            ],
+            annotations=[fd.DegeneracyAnnotation()],
+            filtrations=[fd.CodingSequenceFiltration()],
             stratifications=[fd.DegeneracyStratification()]
         )
 
@@ -444,12 +439,8 @@ class ParserTestCase(TestCase):
                 n_target_sites=sfs.n_sites.sum()
             ),
             n=20,
-            annotations=[
-                fd.DegeneracyAnnotation()
-            ],
-            filtrations=[
-                fd.CodingSequenceFiltration()
-            ],
+            annotations=[fd.DegeneracyAnnotation()],
+            filtrations=[fd.CodingSequenceFiltration()],
             stratifications=[fd.DegeneracyStratification()]
         )
 
@@ -468,6 +459,8 @@ class ParserTestCase(TestCase):
 
             infs.append(inf)
 
+        # the ratio of neutral to selected sites should be the same
+        # but is about 0.225 for monomorphic VCF and 0.29 for inferred monomorphic sites
         fd.Inference.plot_discretized(infs, labels=['monomorphic', 'inferred'])
 
     @pytest.mark.slow
@@ -504,9 +497,9 @@ class ParserTestCase(TestCase):
             vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/"
                 "20181203_biallelic_SNV/ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
             fasta="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
-                       "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
+                  "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
             gff="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
-                     "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
+                "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
             aliases=dict(chr21=['21']),
             n=10,
             annotations=[
@@ -553,7 +546,7 @@ class ParserTestCase(TestCase):
         self.assertEqual(sfs.n_sites.sum(), p.target_site_counter.n_target_sites)
 
         # assert that 3 contigs were parsed
-        self.assertEqual(3, len(p._positions))
+        self.assertEqual(3, len(p._contig_bounds))
 
         # make sure we also consider 3 contigs for the target site counter
         self.assertEqual(3, len(p.target_site_counter.count_contig_sizes()))
@@ -749,9 +742,9 @@ class ParserTestCase(TestCase):
                 vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/"
                     "20181203_biallelic_SNV/ALL.chr1.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
                 fasta="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
-                           "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
+                      "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
                 gff="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
-                         "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz",
+                    "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz",
                 aliases=dict(chr1=['1']),
                 n=n,
                 target_site_counter=fd.TargetSiteCounter(
@@ -849,3 +842,14 @@ class ParserTestCase(TestCase):
         p._setup()
 
         self.assertEqual(np.sum(p._samples_mask), 2)
+
+    @staticmethod
+    def test_get_called_genotypes():
+        """
+        Test the get_called_genotypes function.
+        """
+        result = get_called_bases(["A|T", "C/T", ".|G"])
+
+        expected = np.array(['A', 'T', 'C', 'T', 'G'])
+
+        np.testing.assert_array_equal(result, expected)

@@ -1157,7 +1157,7 @@ class BaseInference(AbstractInference):
             # determine degree of freedom
             d = len(fixed_simple - fixed_complex)
         else:
-            return None
+            return
 
         return self.lrt(self.likelihood, complex.likelihood, d)
 
