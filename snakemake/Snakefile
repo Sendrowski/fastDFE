@@ -137,7 +137,8 @@ rule all:
             #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[10,20].config.{config}/[all,Japanese].dfe.png",chr=[1, 2, 3], opts=['opts'], config=['default']),
             #expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/inference/{chr}/{opts}.n.10.config.{config}/[all].dfe.png",chr=[1, 2, 21, 22],opts=['opts'],config=['default']),
             #expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/inference/{chr}/{opts}.n.[5,10,15,20,25,30,35,40].config.{config}/[all].dfe.png",chr=[1, 2, 3, 'all'],opts=['opts'],config=['default']),
-            expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[5,10,15,20,25,30,35,40].config.{config}/[all].dfe.png",chr=[1, 2, 3, 'all'],opts=['opts'],config=['deleterious']),
+            expand("results/graphs/comp/spectra/hgdp/{chr}/{opts}.n.[5,10,15,20,25,30,35,40]/[all].png",chr=[1, 2, 3, 4, 5, 'all'],opts=['opts'],config=['default']),
+            #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[5,10,15,20,25,30,35,40].config.{config}/[all].dfe.png",chr=[1, 2, 3, 'all'],opts=['opts'],config=['deleterious']),
             #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[5,10,15,20,25,30,35,40].config.{config}/[all].dfe.png",chr=[1],opts=['opts'],config=['deleterious']),
             #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[10].config.{config}/[all].dfe.png",chr=[8, 9],opts=['opts'],config=['deleterious']),
             #expand("results/graphs/fastdfe/hgdp/inference/{chr}/{opts}.n.10.config.{config}/all.dfe.png",chr=[21],opts=['opts.vep'],config=['default']),
@@ -1004,7 +1005,7 @@ rule parse_vcf_hgdp:
     script:
         "scripts/parse_vcf_hgdp.py"
 
-# parse SFS from VCF
+# merge spectra for hgdp
 rule merge_spectra_hgdp:
     input:
         expand("results/spectra/hgdp/{chr}/{opts}.n.{n}/{population}.csv",
@@ -1015,6 +1016,17 @@ rule merge_spectra_hgdp:
         "envs/base.yaml"
     script:
         "scripts/merge_spectra.py"
+
+# plot SFS for hgdp
+rule plot_spectra_hgdp:
+    input:
+        "results/spectra/hgdp/all/{opts}.n.{n}/{population}.csv"
+    output:
+        "results/graphs/spectra/hgdp/all/{opts}.n.{n}/{population}.png"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/plot_spectra.py"
 
 # prepare config file for HGDP
 rule prepare_config_hgdp:
