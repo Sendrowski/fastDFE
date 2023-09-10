@@ -618,8 +618,9 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['G', '.', '.'], ancestral_expected='T'),
             dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['C', 'T', '.'], ancestral_expected='C'),
             dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['T', 'C', 'C'], ancestral_expected='T'),
-            dict(n_major=15, major_base='G', minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='G'),
-            dict(n_major=15, major_base=None, minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='N'),
+            dict(n_major=15, major_base='G', minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='A'),
+            dict(n_major=15, major_base=None, minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='A'),
+            dict(n_major=15, major_base=None, minor_base=None, outgroup_bases=['.', '.', '.'], ancestral_expected='.'),
 
             # this counterintuitive but we can only consider bases that are present in the ingroup
             dict(n_major=15, major_base='A', minor_base=None, outgroup_bases=['T', 'T', 'T'], ancestral_expected='T'),
@@ -704,27 +705,24 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         # Print the caught error message
         print("Caught error: " + str(context.exception))
 
-    def test_fewer_ingroups_than_ingroup_samples_raises_error(self):
+    def test_more_ingroups_than_ingroup_samples_raises_warning(self):
         """
-        Test that an error is raised when an outgroup is not found.
+        Test that a warning is raised when more ingroups are specified than ingroup samples are present.
         """
-        with self.assertRaises(ValueError) as context:
+        with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')):
             anc = fd.MaximumLikelihoodAncestralAnnotation(
                 ingroups=["ASP04", "ASP05"],
                 outgroups=["ERR2103730", "ERR2103731"],
-                n_ingroups=10
+                n_ingroups=5
             )
 
             ann = fd.Annotator(
                 vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-                output='scratch/test_fewer_ingroups_than_ingroup_samples_raises_error.vcf',
+                output='scratch/test_fewer_ingroups_than_ingroup_samples_raises_warning.vcf',
                 annotations=[anc]
             )
 
             ann.annotate()
-
-        # Print the caught error message
-        print("Caught error: " + str(context.exception))
 
     @staticmethod
     def test_explicitly_specified_present_samples_raises_no_error():
@@ -833,22 +831,21 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         pass
 
-    @staticmethod
-    def test_from_est_sfs_input_valid_probs():
+    def test_from_est_sfs_input_valid_probs(self):
         """
-        Test that the probabilities returned by the from_est_sfs function are valid.
+        Test that the probabilities are between 0 and 1 when using a prior.
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/test-data.txt",
             model=fd.JCSubstitutionModel(pool_branch_rates=True),
             n_runs=10,
-            prior=fd.AdaptivePolarizationPrior(),
+            prior=fd.KingmanPolarizationPrior(),
             parallelize=False
         )
 
         anc.infer()
 
-        self.assertTrue(np.all((probs >= 0) & (probs <= 1)))
+        self.assertTrue(anc.configs.p_major_ancestral.between(0, 1).all())
 
     @staticmethod
     def test_from_est_sfs_varied_chunk_sizes():
@@ -1308,11 +1305,15 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         pass
 
-    def test_ancestral_first_inner_node(self):
+    @staticmethod
+    def test_ancestral_first_inner_node():
         """
         Test the p_config function.
         """
         configs = pd.DataFrame([
+            dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['C', 'T', 'C'], expected=['C']),
+            dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['C', 'T', 'T'], expected=['C']),
+            dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['C', 'T', 'T', 'T', 'T'], expected=['C']),
             dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['C', 'T'], expected=['C', 'T']),
             dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['.', '.'], expected=['C', 'T']),
             dict(n_major=15, major_base='A', minor_base='C', outgroup_bases=['A', '.'], expected=['A']),
@@ -1324,28 +1325,31 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             dict(n_major=19, major_base='C', minor_base='A', outgroup_bases=['.', 'A'], expected=['A']),
         ])
 
-        anc = fd.MaximumLikelihoodAncestralAnnotation.from_data(
-            n_major=[15],
-            major_base=['T'],
-            minor_base=['C'],
-            outgroup_bases=[['C', 'T']],
-            n_ingroups=20,
-            prior=fd.KingmanPolarizationPrior(),
-            model=fd.JCSubstitutionModel(pool_branch_rates=True, fixed_params=dict(K=0.2)),
-        )
-
-        # dummy inference, all parameters are fixed
-        anc.infer()
-
         for i, config in configs.iterrows():
-            site_info = anc._get_site_information(SiteConfig(
+            site = SiteConfig(
                 n_major=config['n_major'],
                 major_base=fd.MaximumLikelihoodAncestralAnnotation.get_base_index(config['major_base']),
                 minor_base=fd.MaximumLikelihoodAncestralAnnotation.get_base_index(config['minor_base']),
                 outgroup_bases=fd.MaximumLikelihoodAncestralAnnotation.get_base_index(
                     np.array(config['outgroup_bases'])
-                ))
+                )
             )
+
+            anc = fd.MaximumLikelihoodAncestralAnnotation.from_data(
+                n_major=[site.n_major],
+                major_base=[site.major_base],
+                minor_base=[site.minor_base],
+                outgroup_bases=[[0 for _ in site.outgroup_bases]],
+                n_ingroups=20,
+                prior=fd.KingmanPolarizationPrior(),
+                model=fd.JCSubstitutionModel(pool_branch_rates=True, fixed_params=dict(K=0.2)),
+                pass_indices=True
+            )
+
+            # dummy inference, all parameters are fixed
+            anc.infer()
+
+            site_info = anc._get_site_information(site)
 
             probs = np.array(list(site_info.p_bases_first_node.values()))
             is_max = np.where(np.isclose(probs, np.max(probs)))[0]
@@ -1354,7 +1358,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
             np.testing.assert_array_equal(sorted(max_bases), sorted(config['expected']))
 
-        pass
+            pass
 
     def test_infer_variants_without_setup_raises_runtime_error(self):
         """
@@ -1446,4 +1450,17 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             minor_base='C',
             outgroup_bases=['C', 'T', 'C'],
             rate_params=dict(K0=0.05, K1=0.3, K2=0.1, K3=0.4, K4=0.2)
+        ).plot_tree()
+
+    @staticmethod
+    def test_plot_tree_three_outgroups_pooled_rate_params():
+        """
+        Test the plot_tree function.
+        """
+        SiteInfo(
+            n_major=15,
+            major_base='T',
+            minor_base='C',
+            outgroup_bases=['C', 'T', 'C'],
+            rate_params=dict(K=0.05)
         ).plot_tree()
