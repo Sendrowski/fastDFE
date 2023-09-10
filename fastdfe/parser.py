@@ -204,7 +204,9 @@ class BaseTransitionStratification(Stratification):
     """
     Stratify the SFS by the base transition of the mutation, i.e., ``A>T``.
 
-    TODO handle mono-allelic sites
+    .. warning::
+        This stratification only works for SNPs.
+        TODO handle mono-allelic sites
     """
 
     @_count_valid_type
@@ -241,7 +243,9 @@ class TransitionTransversionStratification(BaseTransitionStratification):
     """
     Stratify the SFS by whether we have a transition or transversion.
 
-    TODO handle mono-allelic sites
+    .. warning::
+        This stratification only works for SNPs.
+        TODO handle mono-allelic sites
     """
 
     @_count_valid_type

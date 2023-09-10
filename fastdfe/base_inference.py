@@ -84,12 +84,12 @@ class BaseInference(AbstractInference):
         eps=(0, 0.15)
     )
 
-    #: Scales for the parameters not connected to the DFE parametrization
+    #: Default scales for the parameters not connected to the DFE parametrization
     default_scales = dict(
         eps='lin'
     )
 
-    #: Default options for the MLE
+    #: Default options for the maximum likelihood optimization
     default_opts_mle = dict(
         # ftol=1e-10,
         # gtol=1e-10

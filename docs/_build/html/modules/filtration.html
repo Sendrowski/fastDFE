@@ -122,11 +122,19 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.ingroups"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.ingroups</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.outgroups"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.outgroups</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.strict_mode"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.strict_mode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.retain_monomorphic"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.retain_monomorphic</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.samples"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.samples</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.ingroup_mask"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.ingroup_mask</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.outgroup_mask"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.outgroup_mask</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.create_masks"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.create_masks()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.DeviantOutgroupFiltration.filter_site"><code class="docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration.filter_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.filtration.ExistingOutgroupFiltration"><code class="docutils literal notranslate"><span class="pre">ExistingOutgroupFiltration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.ExistingOutgroupFiltration.__init__"><code class="docutils literal notranslate"><span class="pre">ExistingOutgroupFiltration.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.ExistingOutgroupFiltration.outgroups"><code class="docutils literal notranslate"><span class="pre">ExistingOutgroupFiltration.outgroups</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.ExistingOutgroupFiltration.samples"><code class="docutils literal notranslate"><span class="pre">ExistingOutgroupFiltration.samples</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.ExistingOutgroupFiltration.outgroup_mask"><code class="docutils literal notranslate"><span class="pre">ExistingOutgroupFiltration.outgroup_mask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.filtration.ExistingOutgroupFiltration.filter_site"><code class="docutils literal notranslate"><span class="pre">ExistingOutgroupFiltration.filter_site()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.filtration.BiasedGCConversionFiltration"><code class="docutils literal notranslate"><span class="pre">BiasedGCConversionFiltration</span></code></a><ul>
@@ -391,24 +399,24 @@ Note that we assume here that within contigs, sites in the GFF file are sorted b
 
 <dl class="py class">
 <dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">DeviantOutgroupFiltration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outgroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ingroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">DeviantOutgroupFiltration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outgroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ingroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retain_monomorphic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
 <p>Filter out sites where the major allele of the specified outgroup samples differs from the major
 allele of the ingroup samples.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outgroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ingroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outgroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ingroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retain_monomorphic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Construct DeviantOutgroupFiltration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>outgroups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The name of the outgroup samples to consider.</p></li>
 <li><p><strong>ingroups</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – The name of the ingroup samples to consider, defaults to all samples but the outgroups.</p></li>
-<li><p><strong>strict_mode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to filter out sites where no outgroup sample is present, defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>strict_mode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to filter out sites where no outgroup sample is present, defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>retain_monomorphic</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to retain monomorphic sites, defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>, which is faster.</p></li>
 </ul>
 </dd>
 </dl>
-<p>which is recommended.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -430,6 +438,12 @@ allele of the ingroup samples.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.retain_monomorphic">
+<span class="sig-name descname"><span class="pre">retain_monomorphic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.retain_monomorphic" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to retain monomorphic sites.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.samples">
 <span class="sig-name descname"><span class="pre">samples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.samples" title="Permalink to this definition"></a></dt>
 <dd><p>The samples found in the VCF file.</p>
@@ -448,14 +462,61 @@ allele of the ingroup samples.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.create_masks">
-<span class="sig-name descname"><span class="pre">create_masks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.create_masks" title="Permalink to this definition"></a></dt>
-<dd><p>Create ingroup and outgroup masks based on the samples.</p>
+<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.filter_site">
+<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.filter_site" title="Permalink to this definition"></a></dt>
+<dd><p>Filter site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The variant to filter.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the variant should be kept, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.filtration.ExistingOutgroupFiltration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastdfe.filtration.</span></span><span class="sig-name descname"><span class="pre">ExistingOutgroupFiltration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outgroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.ExistingOutgroupFiltration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a></p>
+<p>Filter out sites for which at least one of the specified outgroup samples has no called base.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.filtration.ExistingOutgroupFiltration.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outgroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.ExistingOutgroupFiltration.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Construct ExistingOutgroupFiltration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>outgroups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The name of the outgroup samples that need to be present to pass the filter.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.ExistingOutgroupFiltration.outgroups">
+<span class="sig-name descname"><span class="pre">outgroups</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.filtration.ExistingOutgroupFiltration.outgroups" title="Permalink to this definition"></a></dt>
+<dd><p>The outgroup samples.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.ExistingOutgroupFiltration.samples">
+<span class="sig-name descname"><span class="pre">samples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.filtration.ExistingOutgroupFiltration.samples" title="Permalink to this definition"></a></dt>
+<dd><p>The samples found in the VCF file.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastdfe.filtration.ExistingOutgroupFiltration.outgroup_mask">
+<span class="sig-name descname"><span class="pre">outgroup_mask</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.filtration.ExistingOutgroupFiltration.outgroup_mask" title="Permalink to this definition"></a></dt>
+<dd><p>The outgroup mask.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.filtration.DeviantOutgroupFiltration.filter_site">
-<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.DeviantOutgroupFiltration.filter_site" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="fastdfe.filtration.ExistingOutgroupFiltration.filter_site">
+<span class="sig-name descname"><span class="pre">filter_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.filtration.ExistingOutgroupFiltration.filter_site" title="Permalink to this definition"></a></dt>
 <dd><p>Filter site.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -482,7 +543,7 @@ by biased gene conversion, see <a class="reference internal" href="#citgb" id="i
 <div role="list" class="citation-list">
 <div class="citation" id="citgb" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">CITGB</a><span class="fn-bracket">]</span></span>
-<p>See Pouyet et al., ‘Background selection and biased
+<p>Pouyet et al., ‘Background selection and biased
 gene conversion affect more than 95% of the human genome and bias demographic inferences.’,
 Elife, 7:e36317, 2018</p>
 </div>

@@ -1231,7 +1231,7 @@ class SiteInfo:
         if ax is None:
             ax = plt.gca()
 
-        if 'K' is self.rate_params:
+        if 'K' in self.rate_params:
             branch_lengths = {f'K{i}': self.rate_params['K'] for i in range(len(self.outgroup_bases) * 2 - 1)}
         else:
             branch_lengths = self.rate_params
@@ -1395,9 +1395,9 @@ class KingmanPolarizationPrior(PolarizationPrior):
 class AdaptivePolarizationPrior(PolarizationPrior):
     """
     Adaptive prior. To be used with :class:`MaximumLikelihoodAncestralAnnotation`. This is the
-    same prior as used in the EST-SFS paper. This prior is adaptive in the sense that the polarization probabilities
-    are optimized for each frequency bin given the site configurations. This is the most accurate prior, but requires
-    a lot of sites to be accurate. You can check that the polarization probabilities are smooth enough across 
+    same prior as used in the EST-SFS paper. This prior is adaptive in the sense that the most likely polarization
+    probabilities given the site configurations are found. This is the most accurate prior, but requires a lot of
+    sites in order to work properly. You can check that the polarization probabilities are smooth enough across
     frequency counts by calling :meth:`~fastdfe.annotation.PolarizationPrior.plot_polarization`. If they are not
     smooth enough, you can increase the number of sites, decrease the number of ingroups, or
     use :class:`~fastdfe.annotation.KingmanPolarizationPrior` instead.
@@ -1860,13 +1860,12 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
       being ancestral. That said, it is recommended to filter out sites that contains fewer than ``len(outgroups)``
       outgroups (see :class:`~fastdfe.filtration.ExistingOutgroupFiltration`).
 
-    * The model assumes a single coalescent topology for all sites, so incomplete lineage sorting is not considered,
-      and, ideally, the species tree is modelled.
+    * The model assumes a single coalescent topology for all sites which should be fine if the outgroups are
+      chosen to be sufficiently distant.
 
     .. warning::
         Still experimental. Use with caution.
-        TODO if we consider the probability of the first internal node being ancestral, we effective ignore the
-            other outgroups.
+        TODO if we consider the probability of the first internal node being ancestral, we ignore the other outgroups?
     """
 
     #: The data types for the data frame
@@ -1936,8 +1935,17 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             file. This speeds up computations, and the polarization of monomorphic sites is not informative when doing
             DFE inference with fastDFE.
         :param confidence_threshold: The confidence threshold for the ancestral allele annotation. If the probability
-            of the major allele being ancestral is below this threshold, the ancestral allele is not annotated.
+            of the major allele being ancestral is below this threshold, the ancestral allele is not annotated. This
+            value should not be lower than 0.5 in any case.
         """
+        super().__init__(
+            ingroups=ingroups,
+            outgroups=outgroups,
+            n_ingroups=n_ingroups,
+            seed=seed,
+            skip_monomorphic=skip_monomorphic
+        )
+
         # check that we have at least one outgroup
         if len(outgroups) < 1:
             raise ValueError("Must specify at least one outgroup. If you do not have any outgroup "
@@ -1948,14 +1956,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             self.logger.warning("The number of specified ingroup samples is smaller than the "
                                 "number of ingroups (assumed diploidy). Please make sure to "
                                 "provide sufficiently many ingroups.")
-
-        super().__init__(
-            ingroups=ingroups,
-            outgroups=outgroups,
-            n_ingroups=n_ingroups,
-            seed=seed,
-            skip_monomorphic=skip_monomorphic
-        )
 
         #: Whether to parallelize the computation.
         self.parallelize: bool = parallelize
@@ -2244,14 +2244,14 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         if not pass_indices:
             major_base = cls.get_base_index(np.array(list(major_base)))
             minor_base = cls.get_base_index(np.array(list(minor_base)))
-            outgroup_bases = list(cls.get_base_index(np.array(list(outgroup_bases))).reshape(len(major_base), -1))
+            outgroup_bases = cls.get_base_index(np.array(list(outgroup_bases))).reshape(len(major_base), -1)
 
         # create data frame
         data = pd.DataFrame({
             'n_major': n_major,
             'major_base': major_base,
             'minor_base': minor_base,
-            'outgroup_bases': outgroup_bases
+            'outgroup_bases': list(outgroup_bases)
         })
 
         # create from dataframe
@@ -2411,8 +2411,12 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         # reset the index
         self.configs.reset_index(inplace=True, names=index_cols)
 
-        # determine number of outgroups
-        self.configs['n_outgroups'] = np.sum(np.array(self.configs.outgroup_bases.to_list()) != -1, axis=1)
+        # create column for number of outgroups
+        self.configs['n_outgroups'] = None
+
+        if len(self.configs) > 0:
+            # determine number of outgroups
+            self.configs['n_outgroups'] = np.sum(np.array(self.configs.outgroup_bases.to_list()) != -1, axis=1)
 
         # set the number of sites
         self.n_sites = self.configs.multiplicity.sum()
@@ -2695,7 +2699,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
     def evaluate_likelihood_rates(self, params: Dict[str, float]) -> float:
         """
-        Evaluate the likelihood function given a dictionary of parameters.
+        Evaluate the likelihood function for the rate parameters.
 
         :param params: A dictionary of parameters.
         :return: The log likelihood.
@@ -2714,7 +2718,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
     def _get_likelihood_rates(self) -> Callable[[List[float]], float]:
         """
-        Get the likelihood function.
+        Get the likelihood function for the rate parameters.
 
         :return: The likelihood function.
         """
@@ -3071,6 +3075,10 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         :param n_major: The number or numbers of major alleles.
         :return: The probability or probabilities that the ancestral allele is the major allele.
         """
+        # return empty array if p_minor is empty
+        if isinstance(p_minor, np.ndarray) and len(p_minor) == 0:
+            return np.array([])
+
         try:
             if self.prior is not None:
                 # polarization prior for the major allele
