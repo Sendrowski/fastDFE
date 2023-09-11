@@ -878,7 +878,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
             assert_frame_equal(df_reference, df_test, check_dtype=False)
 
-    def test_to_est_sfs(self):
+    def test_to_est_sfs_test_data_no_poly_allelic(self):
         """
         Test the to_est_sfs function.
         """
@@ -898,6 +898,28 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         # compare files
         with open(file_in, 'r') as f1, open(file_out, 'r') as f2:
             for line1, line2 in zip(f1, f2):
+                self.assertEqual(line1.strip(), line2.strip())
+
+    def test_to_est_sfs_betula_biallelic(self):
+        """
+        Test the to_est_sfs function.
+        """
+        file_in = "resources/EST-SFS/test-betula-biallelic-10000.txt"
+        file_out = "scratch/test_to_est_sfs_betula_biallelic_10000.txt"
+
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+            file=file_in,
+            model=fd.JCSubstitutionModel(pool_branch_rates=True),
+            n_runs=10,
+            prior=fd.AdaptivePolarizationPrior(),
+            parallelize=False
+        )
+
+        anc.to_est_sfs(file_out)
+
+        # compare files
+        with open(file_in, 'r') as f1, open(file_out, 'r') as f2:
+            for i, (line1, line2) in enumerate(zip(f1, f2)):
                 self.assertEqual(line1.strip(), line2.strip())
 
     def test_parallelize_unequal_likelihoods(self):
@@ -1062,7 +1084,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         # get site probabilities
         probs = est_sfs.probs
 
-        return anc, probs[['config', 'prob']]
+        return est_sfs, probs[['config', 'prob']]
 
     @staticmethod
     def test_priors_betula_dataset():
@@ -1144,17 +1166,43 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         pass
 
-    def test_est_sfs_wrapper(self):
+    def test_compare_with_est_sfs_betula(self):
         """
         Test the EST-SFS wrapper.
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/test-betula-biallelic-10000.txt",
-            model=fd.K2SubstitutionModel(),
+            model=fd.JCSubstitutionModel(),
             n_runs=10,
             prior=None,
             parallelize=True
         )
+
+        anc.infer()
+
+        anc2, probs = self.compare_with_est_sfs(anc)
+
+        params_native = anc.params_mle
+        params_wrapper = anc2.params_mle
+
+        likelihoods_native = anc.likelihoods
+        likelihoods_wrapper = anc2.likelihoods
+
+        pass
+
+    def test_compare_with_est_sfs_test_set(self):
+        """
+        Test the EST-SFS wrapper.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+            file="resources/EST-SFS/test-data-no-poly-allelic.txt",
+            model=fd.JCSubstitutionModel(),
+            n_runs=10,
+            prior=None,
+            parallelize=True
+        )
+
+        anc.infer()
 
         anc2, probs = self.compare_with_est_sfs(anc)
 

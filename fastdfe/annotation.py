@@ -907,7 +907,7 @@ class SubstitutionModel(ABC):
         """
         self._cache = {}
 
-        for (b1, b2, i) in itertools.product(range(-1, 4), range(-1, 4), range(n_branches)):
+        for (b1, b2, i) in itertools.product(range(0, 4), range(0, 4), range(n_branches)):
             self._cache[(b1, b2, i)] = self._get_prob(b1, b2, i, params)
 
     @staticmethod
@@ -1224,7 +1224,6 @@ class SiteInfo:
         Plot the tree for a site.
 
         :param self: The site information.
-        :param branch_lengths: The branch lengths.
         :param ax: The axes to plot on.
         :param show: Whether to show the plot.
         """
@@ -1871,7 +1870,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
     #: The data types for the data frame
     _dtypes = dict(
         n_major=np.int8,
-        multiplicity=np.int16,
+        multiplicity=np.int32,
         sites=object,
         major_base=np.int8,
         minor_base=np.int8,
@@ -2060,7 +2059,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         data['major_base'] = data.major_base.astype(cls._dtypes['major_base'])
 
         # determine the mono-allelic sites
-        poly_allelic = (ingroup_data > 1).sum(axis=1) > 1
+        poly_allelic = (ingroup_data > 0).sum(axis=1) > 1
 
         # determine the minor alleles
         minor_bases = np.full(data.shape[0], -1, dtype=np.int8)
@@ -2498,7 +2497,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         self.configs.p_minor = self.get_p_configs(
             configs=self.configs,
             model=self.model,
-            n_outgroups=self.n_outgroups,
             base_type=BaseType.MINOR,
             params=self.params_mle
         )
@@ -2507,7 +2505,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         self.configs.p_major = self.get_p_configs(
             configs=self.configs,
             model=self.model,
-            n_outgroups=self.n_outgroups,
             base_type=BaseType.MAJOR,
             params=self.params_mle
         )
@@ -2571,7 +2568,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             elif i < n_branches - 1:
                 # every internal node that is not the last one combines either
                 # with the next internal node or with an outgroup
-                i_internal = (i + 1) // 2 - 1
+                i_internal = (i - 1) // 2
 
                 # get internal base
                 b1 = internal_nodes[i_internal]
@@ -2579,7 +2576,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
                 # either connect to outgroup or next internal node
                 b2 = outgroup_bases[i_internal] if i % 2 == 1 else internal_nodes[i_internal + 1]
             else:
-                # last branch connects to last outgroup
+                # last branch connects to last internal node and last outgroup
                 b1 = internal_nodes[-1]
                 b2 = outgroup_bases[-1]
 
@@ -2613,10 +2610,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         :return: The probability for a site.
         """
         n_outgroups = len(config.outgroup_bases)
-
-        # if there are no outgroups, return 0.5
-        if n_outgroups == 0:
-            return 0.5
 
         # get the focal base
         base = config.major_base if base_type == BaseType.MAJOR else config.minor_base
@@ -2669,7 +2662,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             configs: pd.DataFrame,
             model: SubstitutionModel,
             base_type: BaseType,
-            n_outgroups: int,
             params: Dict[str, float]
     ) -> np.ndarray[float, (...,)]:
         """
@@ -2678,7 +2670,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         :param configs: The site configurations.
         :param model: The substitution model.
         :param base_type: The base type.
-        :param n_outgroups: The number of outgroups.
         :param params: A dictionary of the rate parameters.
         :return: The probability for each site.
         """
@@ -2724,7 +2715,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         """
         if self.configs is None:
             raise RuntimeError("No sites available. You can't call infer() yourself when "
-                               "this class with Parser or Annotator.")
+                               "using this class with Parser or Annotator.")
 
         # only consider sites with the correct number of outgroups
         configs = self.configs[self.configs.n_outgroups == self.n_outgroups]
@@ -2754,7 +2745,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             p_sites[:, 0] = MaximumLikelihoodAncestralAnnotation.get_p_configs(
                 configs=configs,
                 model=model,
-                n_outgroups=n_outgroups,
                 base_type=BaseType.MAJOR,
                 params=params
             )
@@ -2763,7 +2753,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             p_sites[:, 1] = MaximumLikelihoodAncestralAnnotation.get_p_configs(
                 configs=configs,
                 model=model,
-                n_outgroups=n_outgroups,
                 base_type=BaseType.MINOR,
                 params=params
             )
@@ -3386,10 +3375,15 @@ class _ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
                         # parse likelihoods
                         self.likelihoods = np.array(line.split()[2:], dtype=float)
                         self.likelihood = np.min(self.likelihoods)
+
                     if i == 5:
                         # parse MLE parameters
                         data = np.array(line.split()[2:])
-                        self.params_mle = dict(zip(data[::2], data[1::2]))
+                        self.params_mle = dict(zip([d.upper() for d in data[::2]], data[1::2].astype(float)))
+
+                    if i == 6 and isinstance(self.anc.model, K2SubstitutionModel):
+                        # parse kappa
+                        self.params_mle['k'] = float(line.split()[2])
                 else:
                     filtered_lines.append(line.strip())
 
