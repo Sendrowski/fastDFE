@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>&lt;no title&gt; &mdash; fastDFE 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            fastDFE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">R Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../R/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/parser.html">VCF parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/miscellaneous.html">Miscellaneous</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/config.html">Configuration class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/parametrization.html">DFE Parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/spectrum.html">Spectrum class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/spectra.html">Spectra class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/annotation.html">VCF Annotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/filtration.html">VCF Filtration</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fastDFE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/reference/Python/example_pendula_simple.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fastdfe</span> <span class="k">as</span> <span class="nn">fd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># create inference object</span>
+<span class="n">inf</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">BaseInference</span><span class="p">(</span>
+    <span class="c1"># neutral SFS</span>
+    <span class="n">sfs_neut</span><span class="o">=</span><span class="n">fd</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span>
+        <span class="p">[</span><span class="mi">177130</span><span class="p">,</span> <span class="mi">997</span><span class="p">,</span> <span class="mi">441</span><span class="p">,</span> <span class="mi">228</span><span class="p">,</span> <span class="mi">156</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">83</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">652</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="c1"># selected SFS</span>
+    <span class="n">sfs_sel</span><span class="o">=</span><span class="n">fd</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span>
+        <span class="p">[</span><span class="mi">797939</span><span class="p">,</span><span class="mi">1329</span><span class="p">,</span> <span class="mi">499</span><span class="p">,</span> <span class="mi">265</span><span class="p">,</span> <span class="mi">162</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">117</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">94</span><span class="p">,</span> <span class="mi">119</span><span class="p">,</span> <span class="mi">794</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">n_runs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">n_bootstraps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">do_bootstrap</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">inf</span><span class="o">.</span><span class="n">run</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Discretization: Precomputing linear DFE-SFS transformation using midpoint integration.</span>
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is within 1% of the upper bound for {} and lower bound for {&#39;all.p_b&#39;: 0, &#39;all.S_b&#39;: 0.0001}, but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Successfully finished optimization after 79 iterations and 594 function evaluations, obtaining a log-likelihood of -34.63216290448145.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Inferred parameters: {&#39;all.S_d&#39;: -9867.852019677897, &#39;all.b&#39;: 0.15081059927802082, &#39;all.p_b&#39;: 0.0, &#39;all.S_b&#39;: 0.00010000034366964345, &#39;all.eps&#39;: 0.006854767570905897}.</span>
+Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 123.80it/s]
+<span class=" -Color -Color-Yellow">WARNING:fastdfe.BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">10</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_sfs_comparison</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sfs_types</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;neutral&#39;</span><span class="p">,</span> <span class="s1">&#39;selected&#39;</span><span class="p">,</span> <span class="s1">&#39;modelled&#39;</span><span class="p">])</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_discretized</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_inferred_parameters</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">inf</span><span class="o">.</span><span class="n">plot_nested_models</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/51dd159251471f136864d9664773518eb2054b51db4b717b27ec70f6288fb001.png" src="../../_images/51dd159251471f136864d9664773518eb2054b51db4b717b27ec70f6288fb001.png" />
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Janek Sendrowski.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

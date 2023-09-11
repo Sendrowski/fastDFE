@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction &mdash; fastDFE 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Installation" href="Python/installation.html" />
+    <link rel="prev" title="Welcome to fastDFE’s documentation" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            fastDFE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#motivation">Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-it-works">How it works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Python/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Python/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Python/inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Python/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Python/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Python/spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Python/parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Python/miscellaneous.html">Miscellaneous</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">R Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="R/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="R/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="R/inference.html">DFE Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="R/config.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="R/parametrizations.html">DFE parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="R/spectra.html">Working with SFS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="R/parser.html">VCF parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="R/miscellaneous.html">Miscellaneous</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules/inference.html">Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/config.html">Configuration class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/parametrization.html">DFE Parametrizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/spectrum.html">Spectrum class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/spectra.html">Spectra class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/parser.html">VCF Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/annotation.html">VCF Annotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/filtration.html">VCF Filtration</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fastDFE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Introduction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/reference/introduction.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="introduction">
+<span id="id1"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h1>
+<p>fastDFE is a user-friendly software package designed for estimating the distribution of fitness effects (DFE) in evolutionary biology, ecology, and conservation. Building upon the foundation laid by polyDFE <span id="id2">[<a class="reference internal" href="#id4" title="Paula Tataru, Maeva Mollion, Sylvain Glémin, and Thomas Bataillon. Inference of distribution of fitness effects and proportion of adaptive substitutions from polymorphism data. Genetics, 207:genetics.300323.2017, 09 2017. doi:10.1534/genetics.117.300323.">1</a>]</span>, fastDFE addresses the limitations of its predecessor by providing a faster, more flexible, and user-friendly approach to DFE inference.</p>
+<p>fastDFE is implemented in Python but also offers compatibility with R through the reticulate package, ensuring a smooth integration with existing workflows. In the R wrapper, visualizations have been reimplemented for a consistent user experience. The package is thoroughly documented and tested, ensuring its reliability and ease of use for researchers in the field.</p>
+<section id="motivation">
+<h2>Motivation<a class="headerlink" href="#motivation" title="Permalink to this heading"></a></h2>
+<p>The DFE plays a crucial role in understanding how natural selection shapes genetic variation within and between species. Accurate estimation of the DFE is essential for a wide range of applications, including conservation management, understanding species’ responses to changing environments, and the identification of functionally important genomic regions. fastDFE aims to meet the growing need for efficient and adaptable tools that can be easily adopted by researchers working with increasingly complex genomic data.</p>
+</section>
+<section id="how-it-works">
+<h2>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this heading"></a></h2>
+<p>As it precursors, fastDFE infers the DFE by contrasting the Site Frequency Spectrum (SFS) of putatively neutral (synonymous) and selected (non-synonymous) sites. The effect of demography is corrected for by introducing nuisance parameters which rescale the observed neutral SFS to the standard Kingman SFS. Assuming that demography affects the neutral and selected SFS alike, we apply the same rescaling to the observed selected SFS. To infer selection from the (demography-corrected) SFS, we make use of the expected allele frequency sojourn times obtained from Poisson Random Field (PRF) theory. In this step we need to integrate over the DFE to obtain the expected (selected) SFS. In fastDFE, this integral is linearized which results in significant speed improvements over polyDFE. To optimize for the best possible DFE, maximum likelihood optimization (MLE) is used.</p>
+</section>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this heading"></a></h2>
+<p>fastDFE offers a range of features to facilitate DFE inference, including:</p>
+<ul class="simple">
+<li><p>Joint inference of DFE among different types with shared parameters</p></li>
+<li><p>Parametric bootstrapping</p></li>
+<li><p>Easy and flexible visualization of results</p></li>
+<li><p>Inclusion of covariates and likelihood ratio tests (LRTs) to assess their significance</p></li>
+<li><p>Nested model comparison with LRTs</p></li>
+<li><p>Customizable DFE parametrizations</p></li>
+<li><p>Estimation of α, the proportion of beneficial substitutions</p></li>
+<li><p>Built-in VCF parser for extracting site frequency spectra (SFS) with support for versatile stratifications, annotations and filtrations</p></li>
+<li><p>Site degeneracy and synonymy annotation</p></li>
+<li><p>Ancestral allele annotation</p></li>
+<li><p>Serialization of objects and result summaries</p></li>
+<li><p>Support for YAML configuration files facilitating usage</p></li>
+</ul>
+<div class="docutils container" id="id3">
+<div class="citation" id="id4" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>Paula Tataru, Maeva Mollion, Sylvain Glémin, and Thomas Bataillon. Inference of distribution of fitness effects and proportion of adaptive substitutions from polymorphism data. <em>Genetics</em>, 207:genetics.300323.2017, 09 2017. <a class="reference external" href="https://doi.org/10.1534/genetics.117.300323">doi:10.1534/genetics.117.300323</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to fastDFE’s documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Python/installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Janek Sendrowski.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
