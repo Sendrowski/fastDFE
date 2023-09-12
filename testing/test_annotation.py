@@ -454,6 +454,27 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
     TODO fix branch rates to MLE estimate in tests?
     """
 
+    @staticmethod
+    def compare_with_est_sfs(
+            anc: fd.MaximumLikelihoodAncestralAnnotation
+    ) -> (_ESTSFSAncestralAnnotation, pd.DataFrame):
+        """
+        Compare the results of the MaximumLikelihoodAncestralAnnotation class with the results of EST-SFS.
+        """
+        est_sfs = _ESTSFSAncestralAnnotation(anc)
+
+        if anc.prior is None:
+            binary = "resources/EST-SFS/cmake-build-debug/EST_SFS_no_prior"
+        else:
+            binary = "resources/EST-SFS/cmake-build-debug/EST_SFS_with_prior"
+
+        est_sfs.infer(binary=binary)
+
+        # get site probabilities
+        probs = est_sfs.probs
+
+        return est_sfs, probs[['config', 'prob']]
+
     def test_negative_lower_bounds_raises_value_error(self):
         """
         Test that a ValueError is raised when the lower bound of a parameter is negative.
@@ -963,13 +984,21 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         """
         Test that a ValueError is raised when the lower bound of a parameter is negative.
         """
-        with self.assertRaises(ValueError):
-            fd.MaximumLikelihoodAncestralAnnotation(
-                outgroups=["ERR2103730", "ERR2103731"],
-                n_runs=3,
-                n_ingroups=5,
-                model=fd.JCSubstitutionModel(bounds=dict(K=(10, 9)))
-            )
+        with self.assertRaises(ValueError) as context:
+            fd.JCSubstitutionModel(bounds=dict(K=(10, 9)))
+
+        # Print the caught error message
+        print("Caught error: " + str(context.exception))
+
+    def test__zero_lower_bound_raises_value_error(self):
+        """
+        Test that a ValueError is raised when the lower bound of a parameter is negative.
+        """
+        with self.assertRaises(ValueError) as context:
+            fd.JCSubstitutionModel(bounds=dict(K=(0, 9)))
+
+        # Print the caught error message
+        print("Caught error: " + str(context.exception))
 
     @staticmethod
     @pytest.mark.slow
@@ -1065,27 +1094,6 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         )
 
         ann.annotate()
-
-    @staticmethod
-    def compare_with_est_sfs(
-            anc: fd.MaximumLikelihoodAncestralAnnotation
-    ) -> (_ESTSFSAncestralAnnotation, pd.DataFrame):
-        """
-        Compare the results of the MaximumLikelihoodAncestralAnnotation class with the results of EST-SFS.
-        """
-        est_sfs = _ESTSFSAncestralAnnotation(anc)
-
-        if anc.prior is None:
-            binary = "resources/EST-SFS/cmake-build-debug/EST_SFS_no_prior"
-        else:
-            binary = "resources/EST-SFS/cmake-build-debug/EST_SFS_with_prior"
-
-        est_sfs.infer(binary=binary)
-
-        # get site probabilities
-        probs = est_sfs.probs
-
-        return est_sfs, probs[['config', 'prob']]
 
     @staticmethod
     def test_priors_betula_dataset():

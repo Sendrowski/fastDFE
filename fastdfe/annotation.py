@@ -883,6 +883,9 @@ class SubstitutionModel(ABC):
             useful if the number of sites used is small.
         :param fixed_params: The fixed parameters. Parameters that are not fixed are optimized using MLE.
         """
+        #: The logger.
+        self.logger = logging.getLogger(self.__class__.__name__)
+
         # validate bounds
         self.validate_bounds(bounds)
 
@@ -936,8 +939,7 @@ class SubstitutionModel(ABC):
         """
         return self.bounds
 
-    @staticmethod
-    def validate_bounds(bounds: Dict[str, Tuple[float, float]]):
+    def validate_bounds(self, bounds: Dict[str, Tuple[float, float]]):
         """
         Make sure the lower bounds are positive and the upper bounds are larger than the lower bounds.
 
@@ -945,11 +947,11 @@ class SubstitutionModel(ABC):
         :raises ValueError: If the bounds are invalid
         """
         for param, (lower, upper) in bounds.items():
-            if lower < 0:
+            if lower <= 0:
                 raise ValueError(f'All lower bounds must be positive, got {lower} for {param}.')
 
-            if lower >= upper:
-                raise ValueError(f'Lower bounds must be smaller than upper bounds, got {lower} >= {upper} for {param}.')
+            if lower > upper:
+                raise ValueError(f'Lower bounds must be smaller than upper bounds, got {lower} > {upper} for {param}.')
 
     @abstractmethod
     def _get_prob(self, b1: int, b2: int, i: int, params: Dict[str, float]) -> float:
