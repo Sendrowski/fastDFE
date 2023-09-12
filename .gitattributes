@@ -1,3 +1,2 @@
 resources/genome/betula/biallelic.with_outgroups.vcf.gz filter=lfs diff=lfs merge=lfs -text
-resources/genome/betula/all.with_outgroups.vcf.gz filter=lfs diff=lfs merge=lfs -text
 resources/genome/betula/genome.fasta.gz filter=lfs diff=lfs merge=lfs -text
