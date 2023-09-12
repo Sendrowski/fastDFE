@@ -2549,6 +2549,9 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         :param params: The parameters of the model.
         :param model: The model to use. Either 'K2' or 'JC'.
         """
+        if n_outgroups < 1:
+            return 0.0
+
         # get the number of branches
         n_branches = 2 * n_outgroups - 1
 

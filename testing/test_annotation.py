@@ -972,6 +972,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             )
 
     @staticmethod
+    @pytest.mark.slow
     def test_pendula_thorough():
         """
         Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
