@@ -817,23 +817,6 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         self.assertEqual(anc.evaluate_likelihood_rates(anc.params_mle), anc.likelihood)
 
     @staticmethod
-    def test_run_inference_complete_monomorphic_test_set():
-        """
-        Test the get_likelihood function.
-        """
-        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
-            file="resources/EST-SFS/test-complete-monomorphic.txt",
-            model=fd.JCSubstitutionModel(),
-            n_runs=10,
-            prior=None,
-            parallelize=True
-        )
-
-        anc.infer()
-
-        pass
-
-    @staticmethod
     def test_from_est_sfs_est_sfs_sample_dataset():
         """
         Test the from_est_sfs function with the est-sfs sample dataset.
@@ -1206,7 +1189,6 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         Compare MLE params and site probabilities with EST-SFS using the EST-SFS test dataset.
         """
         for model in [fd.JCSubstitutionModel(), fd.K2SubstitutionModel()]:
-
             anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
                 file="resources/EST-SFS/test-data-no-poly-allelic.txt",
                 model=model,

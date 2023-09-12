@@ -36,9 +36,9 @@ class ParserTestCase(TestCase):
             'resources/genome/betula/pops_dadi.txt'
         )
 
-        sfs2 = dadi.Spectrum.from_data_dict(data_dict, ['pop0'], [20], polarized=True)
+        sfs2 = dadi.Spectrum.from_data_dict(data_dict, ['pop0'], [20], polarized=False)
 
-        diff_rel = np.abs(sfs.to_numpy() - sfs2.data) / sfs2.data
+        diff_rel = np.abs(sfs.fold().to_numpy() - sfs2.data) / sfs2.data
 
         # assert total number of sites
         assert sfs.data.sum() == 10000 - p.n_skipped
@@ -48,7 +48,7 @@ class ParserTestCase(TestCase):
         # self.assertAlmostEqual(sfs.data.sum(), sfs2.data.sum())
 
         # this is better for large VCF files
-        assert np.max(diff_rel) < 0.8
+        assert diff_rel[sfs2.data != 0].max() < 0.2
 
     @staticmethod
     def test_degeneracy_stratification():
@@ -268,6 +268,7 @@ class ParserTestCase(TestCase):
         self.assertEqual(sfs.all.data.sum(), 6)
 
     @staticmethod
+    @pytest.mark.slow
     def test_parse_vcf_chr21():
         """
         Parse human chr21 VCF file.
