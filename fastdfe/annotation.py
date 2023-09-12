@@ -1830,11 +1830,9 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
     When annotating the variants of a VCF file, we check the mostly likely ancestral allele against a simple
     ad-hoc ancestral allele annotation, and log it if they disagree. This provides a simple way to check the
-    reliability of the ancestral allele annotation.
+    reliability of the results.
 
     Differences to EST-SFS:
-
-    * The branch rates have non-zero lower bounds by default.
 
     * The polarization prior corresponds to the Kingman coalescent probability by default. Using an adaptive prior
       as in the EST-SFS paper is also possible, but this is only recommended if the number of sites used for the

@@ -450,8 +450,6 @@ class AnnotationTestCase(TestCase):
 class MaximumLikelihoodAncestralAnnotationTest(TestCase):
     """
     Test the MaximumLikelihoodAncestralAnnotation class.
-
-    TODO fix branch rates to MLE estimate in tests?
     """
 
     @staticmethod
@@ -470,10 +468,17 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         est_sfs.infer(binary=binary)
 
-        # get site probabilities
-        probs = est_sfs.probs
+        # get site information
+        site_info = pd.DataFrame(anc.get_inferred_site_information())
 
-        return est_sfs, probs[['config', 'prob']]
+        # prefix columns
+        site_info.columns = ['native.' + col for col in site_info.columns]
+
+        # add EST-SFS results to site information
+        site_info['est_sfs.config'] = est_sfs.probs.config
+        site_info['est_sfs.p_major_ancestral'] = est_sfs.probs.prob
+
+        return est_sfs, site_info
 
     def test_negative_lower_bounds_raises_value_error(self):
         """
@@ -992,7 +997,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
     def test__zero_lower_bound_raises_value_error(self):
         """
-        Test that a ValueError is raised when the lower bound of a parameter is negative.
+        Test that a ValueError is raised when the lower bound of a parameter is zero.
         """
         with self.assertRaises(ValueError) as context:
             fd.JCSubstitutionModel(bounds=dict(K=(0, 9)))
@@ -1177,7 +1182,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
     def test_compare_with_est_sfs_betula(self):
         """
-        Test the EST-SFS wrapper.
+        Compare MLE params and site probabilities with EST-SFS using the betula dataset.
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
             file="resources/EST-SFS/test-betula-biallelic-10000.txt",
@@ -1189,37 +1194,48 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         anc.infer()
 
-        anc2, probs = self.compare_with_est_sfs(anc)
+        anc2, site_info = self.compare_with_est_sfs(anc)
 
-        params_native = anc.params_mle
-        params_wrapper = anc2.params_mle
-
-        likelihoods_native = anc.likelihoods
-        likelihoods_wrapper = anc2.likelihoods
+        # very similar except when the major allele was assigned differently
+        p_major_ancestral = site_info[['native.p_major_ancestral', 'est_sfs.p_major_ancestral']]
 
         pass
 
-    def test_compare_with_est_sfs_test_set(self):
+    def test_compare_with_est_sfs(self):
         """
-        Test the EST-SFS wrapper.
+        Compare MLE params and site probabilities with EST-SFS using the EST-SFS test dataset.
         """
-        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
-            file="resources/EST-SFS/test-data-no-poly-allelic.txt",
-            model=fd.JCSubstitutionModel(),
-            n_runs=10,
-            prior=None,
-            parallelize=True
-        )
+        for model in [fd.JCSubstitutionModel(), fd.K2SubstitutionModel()]:
 
-        anc.infer()
+            anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+                file="resources/EST-SFS/test-data-no-poly-allelic.txt",
+                model=model,
+                n_runs=10,
+                prior=None,
+                parallelize=True
+            )
 
-        anc2, probs = self.compare_with_est_sfs(anc)
+            anc.infer()
 
-        params_native = anc.params_mle
-        params_wrapper = anc2.params_mle
+            est_sfs, site_info = self.compare_with_est_sfs(anc)
 
-        likelihoods_native = anc.likelihoods
-        likelihoods_wrapper = anc2.likelihoods
+            params_native = anc.params_mle
+            params_wrapper = est_sfs.params_mle
+
+            likelihoods_native = anc.likelihoods
+            likelihoods_wrapper = est_sfs.likelihoods
+
+            testing.assert_almost_equal(
+                list(params_native.values()),
+                list(params_wrapper.values()),
+                decimal=3
+            )
+
+            testing.assert_almost_equal(
+                site_info['native.p_major_ancestral'].values,
+                site_info['est_sfs.p_major_ancestral'].values,
+                decimal=5
+            )
 
         pass
 
