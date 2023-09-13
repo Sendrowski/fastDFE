@@ -701,29 +701,8 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             ann = fd.Annotator(
                 vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
                 output='scratch/test_outgroup_not_found_raises_error.vcf',
-                annotations=[anc]
-            )
-
-            ann.annotate()
-
-        # Print the caught error message
-        print("Caught error: " + str(context.exception))
-
-    def test_ingroup_not_found_raises_error(self):
-        """
-        Test that an error is raised when an outgroup is not found.
-        """
-        with self.assertRaises(ValueError) as context:
-            anc = fd.MaximumLikelihoodAncestralAnnotation(
-                ingroups=["ASP04", "ASP05", "blabla", "foo"],
-                outgroups=["ERR2103730", "ERR2103731"],
-                n_ingroups=4
-            )
-
-            ann = fd.Annotator(
-                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-                output='scratch/test_ingroup_not_found_raises_error.vcf',
-                annotations=[anc]
+                annotations=[anc],
+                max_sites=10
             )
 
             ann.annotate()
@@ -745,7 +724,8 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             ann = fd.Annotator(
                 vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
                 output='scratch/test_fewer_ingroups_than_ingroup_samples_raises_warning.vcf',
-                annotations=[anc]
+                annotations=[anc],
+                max_sites=10
             )
 
             ann.annotate()
@@ -764,10 +744,54 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
             output='scratch/test_explicitly_specified_present_samples_raises_no_error.vcf',
-            annotations=[anc]
+            annotations=[anc],
+            max_sites=10
         )
 
         ann.annotate()
+
+    def test_exclude_ingroups_no_implicit_ingroups(self):
+        """
+        Test that the exclude parameter works.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            exclude=["ASP04", "ASP05", "ASP06"],
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_ingroups=2,
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_explicitly_specified_present_samples_raises_no_error.vcf',
+            annotations=[anc],
+            max_sites=10
+        )
+
+        ann.annotate()
+
+        self.assertEqual(anc._ingroup_mask.sum(), 374)
+
+    def test_exclude_ingroups_no_explicit_ingroups(self):
+        """
+        Test that the exclude parameter works.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            ingroups=["ASP01", "ASP02", "ASP03", "ASP04", "ASP05", "ASP06"],
+            exclude=["ASP04", "ASP05", "ASP06"],
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_ingroups=2,
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_explicitly_specified_present_samples_raises_no_error.vcf',
+            annotations=[anc],
+            max_sites=10
+        )
+
+        ann.annotate()
+
+        self.assertEqual(anc._ingroup_mask.sum(), 3)
 
     def test_get_likelihood_outgroup_ancestral_allele_annotation(self):
         """

@@ -1048,9 +1048,9 @@ class Parser(MultiHandler):
 
     def _rewind(self):
         """
-        Rewind the filtrations, annotations and stratifications.
+        Rewind the filtrations, annotations and stratifications, and fasta handler.
         """
-        super()._rewind()
+        FASTAHandler._rewind(self)
 
         for f in self.filtrations:
             f._rewind()

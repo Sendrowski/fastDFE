@@ -287,7 +287,7 @@ class FileHandler:
         if cache:
             os.rename(tmp.name, path)
 
-            logger.info(f'Cached file to {path}')
+            logger.info(f'Cached file at {path}')
 
             return path
 
@@ -612,6 +612,14 @@ class VCFHandler(FileHandler):
         """
         return VCF(self.download_if_url(self.vcf))
 
+    def _rewind(self):
+        """
+        Rewind the VCF iterator.
+        """
+        if hasattr(self, '_reader'):
+            # noinspection all
+            del self._reader
+
     @cached_property
     def n_sites(self) -> int:
         """
@@ -724,6 +732,7 @@ class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
         Rewind the fasta and gff handler.
         """
         FASTAHandler._rewind(self)
+        VCFHandler._rewind(self)
 
 
 class NoTypeException(BaseException):

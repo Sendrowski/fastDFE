@@ -31,7 +31,7 @@ from cyvcf2 import Variant, Writer, VCF
 from matplotlib import pyplot as plt
 from scipy.optimize import minimize, OptimizeResult
 
-from .io_handlers import DummyVariant, MultiHandler
+from .io_handlers import DummyVariant, MultiHandler, VCFHandler
 from .io_handlers import GFFHandler, get_major_base, get_called_bases
 from .optimization import parallelize as parallelize_func, check_bounds
 from .visualization import Visualization
@@ -1573,7 +1573,8 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
             self,
             outgroups: List[str],
             n_ingroups: int,
-            ingroups: List[str] = None,
+            ingroups: List[str] | None = None,
+            exclude: List[str] = [],
             seed: int | None = 0,
             skip_monomorphic: bool = True
     ):
@@ -1587,6 +1588,7 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         :param ingroups: The ingroup samples to consider when determining the ancestral allele. A list of
             sample names as they appear in the VCF file. If ``None``, all samples except the outgroups are
             considered.
+        :param exclude: Samples to exclude from the ingroup. A list of sample names as they appear in the VCF file.
         :param seed: The seed for the random number generator.
         :param skip_monomorphic: Whether to skip monomorphic sites.
         """
@@ -1594,6 +1596,9 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 
         #: The ingroup samples to consider when determining the ancestral allele.
         self.ingroups: List[str] | None = ingroups
+
+        #: The samples excluded from the ingroup.
+        self.exclude: List[str] = exclude
 
         #: The outgroup samples to consider when determining the ancestral allele.
         self.outgroups: List[str] = outgroups
@@ -1627,17 +1632,13 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         """
         # create mask for ingroups
         if self.ingroups is None:
-            self._ingroup_mask = ~ np.isin(samples, self.outgroups)
+            self._ingroup_mask = ~ np.isin(samples, self.outgroups) & ~ np.isin(samples, self.exclude)
         else:
-            self._ingroup_mask = np.isin(samples, self.ingroups)
+            self._ingroup_mask = np.isin(samples, self.ingroups) & ~ np.isin(samples, self.exclude)
 
-            # make sure all specified ingroups are present
-            if np.sum(self._ingroup_mask) != len(self.ingroups):
-                # get missing ingroups
-                missing = np.array(self.ingroups)[~np.isin(self.ingroups, samples)]
-
-                raise ValueError("Not all specified ingroups are present in the VCF file. "
-                                 f"Missing ingroups: {', '.join(missing)}")
+        # inform of the number of ingroups
+        self.logger.info(f"Subsampling {self.n_ingroups} ingroup haplotypes "
+                         f"from {np.sum(self._ingroup_mask)} individuals in total.")
 
         # create mask for outgroups
         self._outgroup_mask = np.isin(samples, self.outgroups)
@@ -1667,7 +1668,7 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         })
 
         # set reader
-        self.reader = handler._reader
+        self._reader = VCF(self.handler.download_if_url(self.handler.vcf))
 
         # prepare masks
         self._prepare_masks(handler._reader.samples)
@@ -1888,6 +1889,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             outgroups: List[str],
             n_ingroups: int,
             ingroups: List[str] = None,
+            exclude: List[str] = None,
             n_runs: int = 10,
             model: SubstitutionModel = K2SubstitutionModel(),
             parallelize: bool = True,
@@ -1899,6 +1901,8 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
     ):
         """
         Create a new ancestral allele annotation instance.
+
+        TODO include parameter to ignore samples
 
         :param outgroups: The outgroup samples to consider when determining the ancestral allele. A list of
             sample names as they appear in the VCF file. The order of the outgroups is important as it determines
@@ -1920,6 +1924,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         :param ingroups: The ingroup samples to consider when determining the ancestral allele. If ``None``,
             all (non-outgroup) samples are considered. A list of sample names as they appear in the VCF file.
             Has to be at least as large as ``n_ingroups``.
+        :param exclude: Samples to exclude from the ingroup. A list of sample names as they appear in the VCF file.
         :param n_runs: The number of optimization runs to perform when determining the branch rates. You can
             check that the likelihoods of the different runs are similar by calling :meth:`plot_likelihoods`.
         :param parallelize: Whether to parallelize the computation across multiple cores.
@@ -1939,6 +1944,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         """
         super().__init__(
             ingroups=ingroups,
+            exclude=exclude,
             outgroups=outgroups,
             n_ingroups=n_ingroups,
             seed=seed,
@@ -1975,7 +1981,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         self.model: SubstitutionModel = model
 
         #: The VCF reader.
-        self.reader: VCF | None = None
+        self._reader: VCF | None = None
 
         #: The data frame holding all site configurations.
         self.configs: pd.DataFrame | None = None
@@ -2371,7 +2377,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         with self.handler.get_pbar(desc="Parsing sites", total=total) as pbar:
 
             # iterate over sites
-            for i, variant in enumerate(self.reader):
+            for i, variant in enumerate(self._reader):
 
                 # parse the site
                 site = self._parse_variant(variant)
@@ -2467,7 +2473,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         self.likelihood = np.max(self.likelihoods)
 
         # get the best result
-        self.result = results[np.argmax(self.likelihoods)]
+        self.result: OptimizeResult = cast(OptimizeResult, results[np.argmax(self.likelihoods)])
 
         # check if the optimization was successful
         if not self.result.success:

@@ -410,6 +410,41 @@ class ParserTestCase(TestCase):
         sfs.plot()
 
     @pytest.mark.slow
+    def test_parse_betula_complete_from_remote(self):
+        """
+        Parse the VCF file of Betula spp. using remote files.
+
+        TODO using two outgroups, we get disastrous results, very different from the ones
+            when using only one outgroup.
+        """
+        p = fd.Parser(
+            vcf="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
+                "genome/betula/biallelic.with_outgroups.subset.50000.vcf.gz?raw=true",
+            fasta="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
+                  "genome/betula/genome.subset.1000.fasta.gz?raw=true",
+            gff="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
+                "genome/betula/genome.gff.gz?raw=true",
+            n=20,
+            annotations=[
+                fd.DegeneracyAnnotation(),
+                fd.MaximumLikelihoodAncestralAnnotation(
+                    n_ingroups=20,
+                    outgroups=["ERR2103730", "ERR2103731"]
+                )
+            ],
+            filtrations=[
+                fd.CodingSequenceFiltration()
+            ],
+            stratifications=[fd.DegeneracyStratification()]
+        )
+
+        sfs = p.parse()
+
+        sfs.plot()
+
+        pass
+
+    @pytest.mark.slow
     def test_parse_betula_compare_monomorphic_vcf_with_inferred_monomorphic_betula_ingroups(self):
         """
         Parse the VCF file of Betula spp.
