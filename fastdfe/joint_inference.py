@@ -21,6 +21,7 @@ from numpy.linalg import norm
 from scipy.optimize import OptimizeResult
 from tqdm import tqdm
 
+from .settings import Settings
 from .abstract_inference import Inference
 from .base_inference import BaseInference
 from .config import Config
@@ -675,11 +676,9 @@ class JointInference(BaseInference):
             parallelize=parallelize
         )
 
-        from . import disable_pbar
-
         with tqdm(
                 total=len(self.marginal_inferences) * int(self.n_bootstraps),
-                disable=disable_pbar,
+                disable=Settings.disable_pbar,
                 desc="Bootstrapping marginal inferences"
         ) as pbar:
 

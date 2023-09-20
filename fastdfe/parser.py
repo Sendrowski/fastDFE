@@ -12,7 +12,7 @@ import itertools
 import logging
 from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
-from typing import List, Callable, Literal, Optional, Iterable, Dict, Tuple
+from typing import List, Callable, Literal, Optional, Dict, Tuple
 
 import numpy as np
 from Bio.SeqRecord import SeqRecord
@@ -20,9 +20,10 @@ from cyvcf2 import Variant
 from tqdm import tqdm
 
 from .annotation import Annotation, SynonymyAnnotation
-from .filtration import Filtration, PolyAllelicFiltration
+from .filtration import Filtration, PolyAllelicFiltration, SNPFiltration
 from .io_handlers import bases, get_called_bases, FASTAHandler, NoTypeException, \
     DummyVariant, MultiHandler
+from .settings import Settings
 from .spectrum import Spectra
 
 # logger
@@ -35,7 +36,7 @@ def _count_valid_type(func: Callable) -> Callable:
     """
 
     @functools.wraps(func)
-    def wrapper(self, variant: Variant):
+    def wrapper(self, variant: Variant | DummyVariant):
         """
         Wrapper function.
 
@@ -89,7 +90,7 @@ class Stratification(ABC):
         self.logger.info(f"Number of sites with valid type: {self.n_valid}")
 
     @abstractmethod
-    def get_type(self, variant: Variant) -> Optional[str]:
+    def get_type(self, variant: Variant | DummyVariant) -> Optional[str]:
         """
         Get type of given Variant. Only the types
         given by :meth:`get_types()` are valid, or ``None`` if
@@ -155,7 +156,7 @@ class BaseContextStratification(Stratification, FASTAHandler):
         self.contig = None
 
     @_count_valid_type
-    def get_type(self, variant: Variant) -> str:
+    def get_type(self, variant: Variant | DummyVariant) -> str:
         """
         Get the base context for a given mutation
 
@@ -210,7 +211,7 @@ class BaseTransitionStratification(Stratification):
     """
 
     @_count_valid_type
-    def get_type(self, variant: Variant) -> str:
+    def get_type(self, variant: Variant | DummyVariant) -> str:
         """
         Get the base transition for the given variant.
 
@@ -249,7 +250,7 @@ class TransitionTransversionStratification(BaseTransitionStratification):
     """
 
     @_count_valid_type
-    def get_type(self, variant: Variant) -> str:
+    def get_type(self, variant: Variant | DummyVariant) -> str:
         """
         Get the mutation type (transition or transversion) for a given mutation.
 
@@ -288,7 +289,7 @@ class AncestralBaseStratification(Stratification):
     """
 
     @_count_valid_type
-    def get_type(self, variant: Variant) -> str:
+    def get_type(self, variant: Variant | DummyVariant) -> str:
         """
         Get the type which is the reference allele.
 
@@ -329,7 +330,7 @@ class DegeneracyStratification(Stratification):
         self.get_degeneracy = custom_callback if custom_callback is not None else self._get_degeneracy_default
 
     @staticmethod
-    def _get_degeneracy_default(variant: Variant) -> Optional[Literal['neutral', 'selected']]:
+    def _get_degeneracy_default(variant: Variant | DummyVariant) -> Optional[Literal['neutral', 'selected']]:
         """
         Get degeneracy based on 'Degeneracy' tag.
 
@@ -350,7 +351,7 @@ class DegeneracyStratification(Stratification):
             raise NoTypeException(f"Degeneracy tag has invalid value: '{degeneracy}' at {variant.CHROM}:{variant.POS}")
 
     @_count_valid_type
-    def get_type(self, variant: Variant) -> Literal['neutral', 'selected']:
+    def get_type(self, variant: Variant | DummyVariant) -> Literal['neutral', 'selected']:
         """
         Get the degeneracy.
 
@@ -374,6 +375,9 @@ class SynonymyStratification(Stratification):
     Stratify SFS by synonymy (neutral or selected).
 
     :class:`~fastdfe.annotation.SynonymyAnnotation` can be used to annotate the synonymy of a site.
+
+    .. warning::
+        This stratification only works for SNPs.
     """
 
     def get_types(self) -> List[str]:
@@ -385,7 +389,7 @@ class SynonymyStratification(Stratification):
         return ['neutral', 'selected']
 
     @_count_valid_type
-    def get_type(self, variant: Variant) -> Literal['neutral', 'selected']:
+    def get_type(self, variant: Variant | DummyVariant) -> Literal['neutral', 'selected']:
         """
         Get the synonymy using the custom synonymy annotation.
 
@@ -409,6 +413,9 @@ class SynonymyStratification(Stratification):
 class VEPStratification(SynonymyStratification):
     """
     Stratify SFS by synonymy (neutral or selected) based on annotation provided by VEP.
+
+    .. warning::
+        This stratification only works for SNPs.
     """
 
     #: The tag used by VEP to annotate the synonymy
@@ -423,7 +430,7 @@ class VEPStratification(SynonymyStratification):
         return ['neutral', 'selected']
 
     @_count_valid_type
-    def get_type(self, variant: Variant) -> Literal['neutral', 'selected']:
+    def get_type(self, variant: Variant | DummyVariant) -> Literal['neutral', 'selected']:
         """
         Get the synonymy of a site.
 
@@ -444,6 +451,9 @@ class VEPStratification(SynonymyStratification):
 class SnpEffStratification(VEPStratification):
     """
     Stratify SFS by synonymy (neutral or selected) based on annotation provided by SnpEff.
+
+    .. warning::
+        This stratification only works for SNPs.
     """
 
     #: The tag used by SnpEff to annotate the synonymy
@@ -459,7 +469,7 @@ class ContigStratification(GenomePositionDependentStratification):
     Stratify SFS by contig.
     """
 
-    def get_type(self, variant: Variant) -> str:
+    def get_type(self, variant: Variant | DummyVariant) -> str:
         """
         Get the contig.
 
@@ -521,7 +531,7 @@ class ChunkedStratification(GenomePositionDependentStratification):
         """
         return [f'chunk{i}' for i in range(self.n_chunks)]
 
-    def get_type(self, variant: Variant) -> str:
+    def get_type(self, variant: Variant | DummyVariant) -> str:
         """
         Get the type.
 
@@ -547,11 +557,20 @@ class TargetSiteCounter:
     file that are found in between variants on the same contig that were parsed in the VCF.
     Ideally, we obtain the SFS by parsing VCF files that contain both mono- and polymorphic sites. This is because
     we need to know about the number of mutational opportunities for synonymous and non-synonymous sites which
-    contain plenty of information on the strength of selection.
+    contain plenty of information on the strength of selection. It is recommended to use a SNPFiltration when
+    using this class to avoid biasing the result by monomorphic sites present in the VCF file.
 
     Note that we sample sites randomly to make sure we cover the entire genome when only a subset of the genome is
     considered. This provides more speed as we don't have to parse the entire FASTA file. The actual number of
     monomorphic sites is then extrapolated from ``n_target_sites``.
+
+    .. warning::
+        This class is not compatible with stratification based on info tags that are pre-defined in the VCF file, as
+        opposed to those added dynamically using the ``annotations`` argument of the parser. We also need to
+        stratify mono-allelic sites which, in this case, won't be present in the VCF file so that they have no
+        info tags when sampling from the FASTA file, and are thus ignored by the stratifications. However, using the
+        ``annotations`` argument of the parser, the info tags the stratifications are based on are added on-the-fly,
+        also for monomorphic sites sampled from the FASTA file.
     """
 
     def __init__(
@@ -564,8 +583,8 @@ class TargetSiteCounter:
 
         :param n_target_sites: The total number of sites (mono- and polymorphic) that would be present in the VCF file
             if it contained monomorphic sites. This number should be considerably larger than the number of polymorphic
-            sites in the VCF file. This value is not very important for the DFE inference, the ratio of synonymous to
-            non-synonymous sites being more informative, but the order of magnitude should be correct in any case.
+            sites in the VCF file. This value is not extremely important for the DFE inference, the ratio of synonymous
+            to non-synonymous sites being more informative, but the order of magnitude should be correct in any case.
         :param n_samples: The number of sites to sample from the fasta file. Many sampled sites will not be valid as
             they are non-coding. To obtain good estimates, a few thousand sites should be sampled per type of site
             (depending on the stratifications used).
@@ -579,8 +598,8 @@ class TargetSiteCounter:
         #: Number of samples
         self.n_samples: int = int(n_samples)
 
-        #: The size of the contigs
-        self._contig_sizes: Dict[str, int] = {}
+        #: The spectra before inferring the number of target sites
+        self._sfs_polymorphic: Spectra | None = None
 
     def _setup(self, parser: 'Parser'):
         """
@@ -590,19 +609,34 @@ class TargetSiteCounter:
         """
         self.parser = parser
 
-    def _get_bounds(self, aliases: List[str]) -> tuple[int, int]:
-        """
-        Get the bounds for the site positions on the given contig.
+        # check if we have a SNPFiltration
+        if not any([isinstance(f, SNPFiltration) for f in self.parser.filtrations]):
+            self.logger.warning("Recommended to use a SNPFiltration when using target site "
+                                "counter to avoid biasing the result by monomorphic sites.")
 
-        :param aliases: The contig aliases
-        :return: The bounds
+    def _teardown(self):
         """
-        for alias in aliases:
-            if alias in self.parser._contig_bounds:
-                return self.parser._contig_bounds[alias]
+        Perform any necessary post-processing.
+        """
+        # tear down parser
+        self.parser._teardown()
 
-        raise ValueError(f"Contig '{aliases}' not found in VCF file, even though it was previously parsed. "
-                         f"This should not happen.")
+    def _suspend_snp_filtration(self):
+        """
+        Suspend SNP filtration to make sure we sample can actually sample monomorphic sites.
+        """
+        # store original filtrations
+        self._filtrations = self.parser.filtrations
+
+        # remove SNPFiltration
+        self.parser.filtrations = [f for f in self.parser.filtrations if not isinstance(f, SNPFiltration)]
+
+    def _resume_snp_filtration(self):
+        """
+        Resume SNP filtration.
+        """
+        # restore original filtrations
+        self.parser.filtrations = self._filtrations
 
     def count(self):
         """
@@ -613,8 +647,8 @@ class TargetSiteCounter:
         # rewind parser components
         self.parser._rewind()
 
-        # count the number of sites per contig
-        self.count_contig_sizes()
+        # suspend SNP filtration
+        self._suspend_snp_filtration()
 
         # rewind fasta iterator
         FASTAHandler._rewind(self.parser)
@@ -622,31 +656,35 @@ class TargetSiteCounter:
         # initialize random number generator
         rng = np.random.default_rng(self.parser.seed)
 
-        from . import disable_pbar
-
         # initialize progress bar
-        pbar = tqdm(total=self.n_samples, desc='Sampling target sites', disable=disable_pbar)
+        pbar = tqdm(total=self.n_samples, desc='Sampling target sites', disable=Settings.disable_pbar)
+
+        # get array of ranges per contig of parsed variants
+        ranges = np.array(list(self.parser._contig_bounds.values()))
+
+        # get range sizes
+        range_sizes = ranges[:, 1] - ranges[:, 0]
 
         # determine sampling probabilities
-        probs = np.array(list(self._contig_sizes.values())) / sum(self._contig_sizes.values())
+        probs = range_sizes / np.sum(range_sizes)
 
         # sample number of sites per contig
         samples = rng.multinomial(self.n_samples, probs)
+
+        # keep track of SFS before update
+        self._sfs_polymorphic = Spectra(self.parser.sfs)
 
         # initialize counter
         i = 0
 
         # iterate over contigs
-        for contig, n in zip(self._contig_sizes.keys(), samples):
+        for contig, bounds, n in zip(self.parser._contig_bounds.keys(), ranges, samples):
 
             # get aliases
             aliases = self.parser.get_aliases(contig)
 
-            # get bounds for site positions
-            bounds = self._get_bounds(aliases)
-
             # make sure we have a valid range
-            if bounds[1] > bounds[0]:
+            if bounds[1] > bounds[0] and n > 0:
 
                 self.logger.debug(f"Sampling {n} sites from contig '{contig}'.")
 
@@ -677,8 +715,11 @@ class TargetSiteCounter:
         # close progress bar
         pbar.close()
 
-        # tear down parser components
-        self.parser._teardown()
+        # resume SNP filtration
+        self._resume_snp_filtration()
+
+        # tear down
+        self._teardown()
 
         # notify on number of sites included in the SFS
         self.logger.info(f"{i} out of {self.n_samples} sampled sites were valid.")
@@ -693,7 +734,11 @@ class TargetSiteCounter:
         # copy spectra
         spectra = spectra.copy()
 
-        # get number of monomorphic and polymorphic sites
+        # subtract by monomorphic counts of original spectra
+        # we only want to consider the monomorphic sites sampled from the FASTA file
+        spectra.data.iloc[[0, -1], :] -= self._sfs_polymorphic.data.iloc[[0, -1], :]
+
+        # get number of monomorphic and polymorphic sites sampled from the FASTA and VCF files, respectively
         n_monomorphic = spectra.data.iloc[0, :].sum()
         n_polymorphic = spectra.data.iloc[1:, :].sum().sum()
 
@@ -710,47 +755,20 @@ class TargetSiteCounter:
                                 f"the number of target sites.")
         else:
 
-            # compute multiplicative factor
-            x = (self.n_target_sites - n_polymorphic) / n_monomorphic
+            # compute multiplicative factor to scale the total number of sites
+            # to the number of target sites plus the number of polymorphic sites
+            x = (self.n_target_sites + self._sfs_polymorphic.n_polymorphic.sum() - n_polymorphic) / n_monomorphic
 
+            # extrapolate monomorphic counts using scaling factor
             spectra.data.iloc[0, :] *= x
 
+            # subtract polymorphic counts from original spectra
+            # so that the total number of sites is equal to the number of target sites
+            # we do this to correct for the fact that, for a type, we have relatively
+            # fewer monomorphic if we have more polymorphic sites
+            spectra.data.iloc[0, :] -= self._sfs_polymorphic.n_polymorphic
+
         return spectra
-
-    def _get_records(self) -> Iterable[SeqRecord]:
-        """
-        Get a generator for the contigs to consider.
-        """
-        # iterate over contigs
-        for contig in self.parser._contig_bounds.keys():
-            aliases = self.parser.get_aliases(contig)
-
-            yield self.parser.get_contig(aliases)
-
-    def count_contig_sizes(self) -> Dict[str, int]:
-        """
-        Count the total number of sites per contig.
-
-        :return: A dictionary with the number of sites per contig.
-        """
-        from . import disable_pbar
-
-        # initialize progress bar
-        pbar = tqdm(
-            desc="Determining contig sizes",
-            total=len(self.parser._contig_bounds),
-            disable=disable_pbar
-        )
-
-        # iterate over contigs
-        for record in self._get_records():
-            self._contig_sizes[record.id] = len(record)
-            pbar.update()
-
-        # close progress bar
-        pbar.close()
-
-        return self._contig_sizes
 
 
 class Parser(MultiHandler):
@@ -784,7 +802,7 @@ class Parser(MultiHandler):
 
         # parse selected and neutral SFS from human chromosome 1
         p = fd.Parser(
-            vcf="https://ngs.sanger.ac.uk//production/hgdp/hgdp_wgs.20190516/"
+            vcf="https://ngs.sanger.ac.uk/production/hgdp/hgdp_wgs.20190516/"
                 "hgdp_wgs.20190516.full.chr1.vcf.gz",
             fasta="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
                   "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
@@ -803,6 +821,7 @@ class Parser(MultiHandler):
                 fd.DegeneracyAnnotation()
             ],
             filtrations=[
+                fd.SNPFiltration(),
                 fd.CodingSequenceFiltration()
             ],
             stratifications=[fd.DegeneracyStratification()],
@@ -853,10 +872,10 @@ class Parser(MultiHandler):
         :param stratifications: List of stratifications to use.
         :param annotations: List of annotations to use.
         :param filtrations: List of filtrations to use.
-        :param include_samples: List of sample names to consider when determining the SFS. If ``None``, all samples are used.
-            Note that this restriction does not apply to the annotations and filtrations.
-        :param exclude_samples: List of sample names to exclude when determining the SFS. If ``None``, no samples are excluded.
-            Note that this restriction does not apply to the annotations and filtrations.
+        :param include_samples: List of sample names to consider when determining the SFS. If ``None``, all samples
+            are used. Note that this restriction does not apply to the annotations and filtrations.
+        :param exclude_samples: List of sample names to exclude when determining the SFS. If ``None``, no samples
+            are excluded. Note that this restriction does not apply to the annotations and filtrations.
         :param max_sites: Maximum number of sites to parse from the VCF file.
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param cache: Whether to cache files downloaded from URLs.
@@ -916,9 +935,10 @@ class Parser(MultiHandler):
         self.sfs: Dict[str, np.ndarray] = defaultdict(lambda: np.zeros(self.n + 1))
 
         #: 1-based positions of lowest and highest site position per contig (only when target_site_counter is used)
+        # noinspection PyTypeChecker
         self._contig_bounds: Dict[str, Tuple[int, int]] = defaultdict(lambda: (np.inf, -np.inf))
 
-    def _get_ancestral(self, variant: Variant) -> str:
+    def _get_ancestral(self, variant: Variant | DummyVariant) -> str:
         """
         Determine the ancestral allele.
 
@@ -964,7 +984,7 @@ class Parser(MultiHandler):
 
         return sfs
 
-    def _parse_site(self, variant: Variant) -> bool:
+    def _parse_site(self, variant: Variant | DummyVariant) -> bool:
         """
         Parse a single site.
 

@@ -36,6 +36,67 @@ class FiltrationTestCase(TestCase):
         # assert number of sites is the same
         assert count_sites(f.vcf) == count_sites(f.output) + f.n_filtered
 
+    def test_snp_filtration_use_sample_mask_from_parser_if_specified(self):
+        """
+        Make sure the SNP filtration uses the sample mask from the parser.
+        """
+        f = fd.SNPFiltration(
+            use_parser=True,
+        )
+
+        p = fd.Parser(
+            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            filtrations=[f],
+            n=10,
+            include_samples=['ASP01', 'ASP02', 'ASP03'],
+        )
+
+        p._setup()
+
+        self.assertEqual(3, sum(p._samples_mask))
+
+        np.testing.assert_array_equal(f._samples_mask, p._samples_mask)
+
+    def test_snp_filtration_dont_use_sample_mask_from_parser_if_specified(self):
+        """
+        Make sure the SNP filtration doesn't use the sample mask from the parser.
+        """
+        f = fd.SNPFiltration(
+            use_parser=False,
+        )
+
+        p = fd.Parser(
+            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            filtrations=[f],
+            n=10,
+            include_samples=['ASP01', 'ASP02', 'ASP03'],
+        )
+
+        p._setup()
+
+        self.assertEqual(3, sum(p._samples_mask))
+
+        self.assertEqual(None, f._samples_mask)
+
+    def test_snp_filtration_include(self):
+        """
+        Make sure the SNP filtration uses the sample mask from the parser.
+        """
+        f = fd.SNPFiltration(
+            include_samples=['ASP01', 'ASP02', 'ASP03']
+        )
+
+        filterer = fd.Filterer(
+            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            output='scratch/test_snp_filtration_include.vcf',
+            filtrations=[f],
+        )
+
+        filterer._setup()
+
+        self.assertEqual(3, sum(f._samples_mask))
+        self.assertEqual(377, len(f._samples_mask))
+
     @staticmethod
     def test_filter_no_poly_allelic_filtration():
         """
@@ -152,7 +213,7 @@ class FiltrationTestCase(TestCase):
         mock_variant.gt_bases = np.array(['A/A', 'A/T', 'T/T', 'T/G'])
         assert not filter_obj.filter_site(mock_variant)  # expect False as major base 'A' in ingroup and 'T' in outgroup
 
-        # test case 8: make sure we retain monoallelic sites if retain_monomorphic is True
+        # test case 8: make sure we retain mono-allelic sites if retain_monomorphic is True
         mock_variant = Mock(spec=Variant)
         mock_variant.is_snp = False
         filter_obj = fd.DeviantOutgroupFiltration(outgroups=['outgroup1', 'outgroup2'],
@@ -162,7 +223,7 @@ class FiltrationTestCase(TestCase):
         mock_variant.gt_bases = np.array(['A/A', 'A/A', 'T/T', 'T/T'])
         assert filter_obj.filter_site(mock_variant)  # expect True as major base 'A' in ingroup and 'T' in outgroup
 
-        # test case 9: make sure we don't retain monoallelic sites if retain_monomorphic is False
+        # test case 9: make sure we don't retain mono-allelic sites if retain_monomorphic is False
         mock_variant = Mock(spec=Variant)
         mock_variant.is_snp = False
         filter_obj = fd.DeviantOutgroupFiltration(outgroups=['outgroup1', 'outgroup2'],
@@ -267,7 +328,8 @@ class FiltrationTestCase(TestCase):
 
             print(error)
 
-    def test_coding_sequence_filtration(self):
+    @staticmethod
+    def test_coding_sequence_filtration():
         """
         Test the coding sequence filtration.
         """
@@ -285,3 +347,20 @@ class FiltrationTestCase(TestCase):
 
         # assert number of sites is the same
         assert count_sites(f.vcf) - f.n_filtered == count_sites(f.output)
+
+    @staticmethod
+    def test_existing_outgroup_filtration():
+        """
+        Test the existing outgroup filtration.
+        """
+        f = fd.Filterer(
+            vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_existing_outgroup_filtration.vcf',
+            filtrations=[fd.ExistingOutgroupFiltration(outgroups=["ERR2103730", "ERR2103731"])]
+        )
+
+        f.filter()
+
+        # assert number of sites is the same
+        assert f.n_sites == 10000
+        assert f.n_filtered == 3638

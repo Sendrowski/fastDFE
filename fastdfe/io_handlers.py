@@ -28,6 +28,8 @@ from cyvcf2 import Variant, VCF
 from pandas.errors import SettingWithCopyWarning
 from tqdm import tqdm
 
+from .settings import Settings
+
 #: The DNA bases
 bases = ["A", "C", "G", "T"]
 
@@ -81,13 +83,10 @@ def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf) -> int:
     if not isinstance(vcf, str):
         return len(list(vcf))
 
-    # whether to disable the progress bar
-    from . import disable_pbar
-
     i = 0
     with open_file(vcf) as f:
 
-        with tqdm(disable=disable_pbar, desc='Counting sites') as pbar:
+        with tqdm(disable=Settings.disable_pbar, desc='Counting sites') as pbar:
 
             for line in f:
                 if not line.startswith('#'):
@@ -245,12 +244,6 @@ class FileHandler:
         :param url: The URL to download the file from.
         :return: The path to the downloaded file.
         """
-        # start the stream
-        response = requests.get(url, stream=True)
-
-        # check if the request was successful
-        response.raise_for_status()
-
         # extract the file extension from the URL
         filename = VCFHandler.get_filename(url)
 
@@ -261,10 +254,14 @@ class FileHandler:
         if cache and os.path.exists(path):
             logger.info(f'Using cached file at {path}')
             return path
-        else:
-            logger.info(f'Downloading file from {url}')
 
-        from . import disable_pbar
+        logger.info(f'Downloading file from {url}')
+
+        # start the stream
+        response = requests.get(url, stream=True)
+
+        # check if the request was successful
+        response.raise_for_status()
 
         # create a temporary file with the original file extension
         with tempfile.NamedTemporaryFile(delete=False) as tmp:
@@ -275,7 +272,7 @@ class FileHandler:
                       unit='B',
                       unit_scale=True,
                       desc="Downloading file",
-                      disable=disable_pbar) as pbar:
+                      disable=Settings.disable_pbar) as pbar:
 
                 # write the file to disk
                 for chunk in response.iter_content(chunk_size=chunk_size):
@@ -445,6 +442,8 @@ class GFFHandler(FileHandler):
 
         :return: The DataFrame.
         """
+        self.logger.info(f'Loading GFF file')
+
         # download and unzip if necessary
         local_file = self.unzip_if_zipped(self.download_if_url(self.gff))
 
@@ -459,8 +458,6 @@ class GFFHandler(FileHandler):
             strand='category',
             phase='category'
         )
-
-        self.logger.info(f'Loading GFF file.')
 
         # load GFF file
         df = pd.read_csv(
@@ -610,7 +607,7 @@ class VCFHandler(FileHandler):
 
         :return: The VCF reader.
         """
-        return VCF(self.download_if_url(self.vcf))
+        return self.load_vcf()
 
     def _rewind(self):
         """
@@ -619,6 +616,16 @@ class VCFHandler(FileHandler):
         if hasattr(self, '_reader'):
             # noinspection all
             del self._reader
+
+    def load_vcf(self) -> VCF:
+        """
+        Load a VCF file into a dictionary.
+
+        :return: The VCF reader.
+        """
+        self.logger.info("Loading VCF file")
+
+        return VCF(self.download_if_url(self.vcf))
 
     @cached_property
     def n_sites(self) -> int:
@@ -645,11 +652,9 @@ class VCFHandler(FileHandler):
         :param total: Total number of items
         :return: tqdm
         """
-        from . import disable_pbar
-
         return tqdm(
             total=self.n_sites if total == 0 else total,
-            disable=disable_pbar,
+            disable=Settings.disable_pbar,
             desc=desc
         )
 
@@ -744,7 +749,7 @@ class NoTypeException(BaseException):
 
 class DummyVariant:
     """
-    Dummy variant class to emulate a variant from a reference site.
+    Dummy variant class to emulate a mono-allelic site.
     """
 
     #: Whether the variant is an SNP

@@ -8,14 +8,15 @@ __date__ = "2023-05-11"
 
 import functools
 import logging
+from abc import ABC
 from typing import Iterable, List, Optional, Callable, Dict
 
 import numpy as np
 import pandas as pd
-from cyvcf2 import Variant, Writer, VCF
+from cyvcf2 import Variant, Writer
 
 from .annotation import DegeneracyAnnotation
-from .io_handlers import get_major_base, MultiHandler, get_called_bases
+from .io_handlers import get_major_base, MultiHandler, get_called_bases, DummyVariant
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -55,7 +56,7 @@ class Filtration:
         self.handler: MultiHandler | None = None
 
     @_count_filtered
-    def filter_site(self, variant: Variant) -> bool:
+    def filter_site(self, variant: Variant | DummyVariant) -> bool:
         """
         Filter site.
 
@@ -82,23 +83,102 @@ class Filtration:
         """
         Perform any necessary post-processing. This method is called after the actual filtration.
         """
-        self.logger.info(f"Filtered out {self.n_filtered}.")
+        self.logger.info(f"Filtered out {self.n_filtered} sites.")
 
 
-class SNPFiltration(Filtration):
+class MaskedFiltration(Filtration, ABC):
     """
-    Only keep SNPs. Note that this includes discarding mono-morphic sites.
+    Filter sites based on a samples mask.
+    """
+
+    def __init__(
+            self,
+            use_parser: bool = True,
+            include_samples: List[str] | None = None,
+            exclude_samples: List[str] | None = None
+    ):
+        """
+        Create a new filtration instance.
+
+        :param use_parser: Whether to use the samples mask from the parser, if used together with parser.
+        :param include_samples: The samples to include, defaults to all samples.
+        :param exclude_samples: The samples to exclude, defaults to no samples.
+        """
+        super().__init__()
+
+        #: Whether to use the samples mask from the parser, if used together with parser.
+        self.use_parser: bool = use_parser
+
+        #: The samples to include.
+        self.include_samples: List[str] | None = include_samples
+
+        #: The samples to exclude.
+        self.exclude_samples: List[str] | None = exclude_samples
+
+        #: The samples mask.
+        self._samples_mask: np.ndarray | None = None
+
+    def _prepare_samples_mask(self) -> np.ndarray | None:
+        """
+        Prepare the samples mask.
+
+        :return: The samples mask.
+        """
+        from .parser import Parser
+
+        if self.use_parser and isinstance(self.handler, Parser):
+
+            # use samples mask from parser
+            self._samples_mask = self.handler._samples_mask
+
+        else:
+
+            # determine samples to include
+            if self.include_samples is None:
+
+                mask = np.ones(len(self.handler._reader.samples)).astype(bool)
+            else:
+                mask = np.isin(self.handler._reader.samples, self.include_samples)
+
+            # determine samples to exclude
+            if self.exclude_samples is not None:
+                mask &= ~np.isin(self.handler._reader.samples, self.exclude_samples)
+
+            # set samples mask only if not all samples are included
+            if not np.all(mask):
+                self._samples_mask = mask
+
+    def _setup(self, handler: MultiHandler):
+        """
+        Prepare the samples mask.
+
+        :param handler: The handler.
+        """
+        super()._setup(handler)
+
+        # prepare samples mask
+        self._prepare_samples_mask()
+
+
+class SNPFiltration(MaskedFiltration):
+    """
+    Only keep SNPs. Note that this entails discarding mono-morphic sites.
     """
 
     @_count_filtered
-    def filter_site(self, variant: Variant) -> bool:
+    def filter_site(self, variant: Variant | DummyVariant) -> bool:
         """
         Filter site.
 
         :param variant: The variant to filter.
         :return: ``True`` if the variant is an SNP, ``False`` otherwise.
         """
-        return variant.is_snp
+        # simply check whether the variant is an SNP if we don't have a samples mask
+        if self._samples_mask is None or isinstance(variant, DummyVariant):
+            return variant.is_snp
+
+        # otherwise check whether the variant is an SNP among the included samples
+        return len(np.unique(get_called_bases(variant.gt_bases[self._samples_mask]))) > 1
 
 
 class SNVFiltration(Filtration):
@@ -107,7 +187,7 @@ class SNVFiltration(Filtration):
     """
 
     @_count_filtered
-    def filter_site(self, variant: Variant) -> bool:
+    def filter_site(self, variant: Variant | DummyVariant) -> bool:
         """
         Filter site.
 
@@ -117,13 +197,13 @@ class SNVFiltration(Filtration):
         return np.all([alt in ['A', 'C', 'G', 'T'] for alt in [variant.REF] + variant.ALT])
 
 
-class PolyAllelicFiltration(Filtration):
+class PolyAllelicFiltration(MaskedFiltration):
     """
     Filter out poly-allelic sites.
     """
 
     @_count_filtered
-    def filter_site(self, variant: Variant) -> bool:
+    def filter_site(self, variant: Variant | DummyVariant) -> bool:
         """
         Filter site. Note that we don't check explicitly all alleles, but rather
         rely on ``ALT`` field.
@@ -131,16 +211,21 @@ class PolyAllelicFiltration(Filtration):
         :param variant: The variant to filter.
         :return: ``True`` if the variant is not poly-allelic, ``False`` otherwise.
         """
-        return len(variant.ALT) < 2
+        # if we don't have a samples mask, simply check whether the variant is poly-allelic
+        if self._samples_mask is None or isinstance(variant, DummyVariant):
+            return len(variant.ALT) < 2
+
+        # otherwise check whether the variant is poly-allelic among the included samples
+        return len(np.unique(get_called_bases(variant.gt_bases[self._samples_mask]))) < 3
 
 
 class AllFiltration(Filtration):
     """
-    Filter out all sites. This is useful for testing purposes.
+    Filter out all sites. Only useful for testing purposes.
     """
 
     @_count_filtered
-    def filter_site(self, variant: Variant) -> bool:
+    def filter_site(self, variant: Variant | DummyVariant) -> bool:
         """
         Filter site.
 
@@ -152,11 +237,11 @@ class AllFiltration(Filtration):
 
 class NoFiltration(Filtration):
     """
-    Do not filter out any sites. This is useful for testing purposes.
+    Do not filter out any sites. Only useful for testing purposes.
     """
 
     @_count_filtered
-    def filter_site(self, variant: Variant) -> bool:
+    def filter_site(self, variant: Variant | DummyVariant) -> bool:
         """
         Filter site.
 
@@ -214,7 +299,7 @@ class CodingSequenceFiltration(Filtration):
         self.cd = None
 
     @_count_filtered
-    def filter_site(self, v: Variant) -> bool:
+    def filter_site(self, v: Variant | DummyVariant) -> bool:
         """
         Filter site by whether it is in a coding sequence.
 
@@ -332,7 +417,7 @@ class DeviantOutgroupFiltration(Filtration):
             self.ingroup_mask = np.isin(self.samples, self.ingroups)
 
     @_count_filtered
-    def filter_site(self, variant: Variant) -> bool:
+    def filter_site(self, variant: Variant | DummyVariant) -> bool:
         """
         Filter site.
 
@@ -342,6 +427,10 @@ class DeviantOutgroupFiltration(Filtration):
         # keep monomorphic sites if requested
         if not variant.is_snp and self.retain_monomorphic:
             return True
+
+        # filter out dummies if retain_monomorphic is false
+        if isinstance(variant, DummyVariant):
+            return False
 
         # get major base among ingroup samples
         ingroup_base = get_major_base(variant.gt_bases[self.ingroup_mask])
@@ -390,6 +479,9 @@ class ExistingOutgroupFiltration(Filtration):
         # create samples array
         self.samples: np.ndarray = np.array(handler._reader.samples)
 
+        # create outgroup mask
+        self._create_mask()
+
     def _create_mask(self):
         """
         Create outgroup mask based on the samples.
@@ -397,19 +489,23 @@ class ExistingOutgroupFiltration(Filtration):
         self.outgroup_mask: np.ndarray = np.isin(self.samples, self.outgroups)
 
     @_count_filtered
-    def filter_site(self, variant: Variant) -> bool:
+    def filter_site(self, variant: Variant | DummyVariant) -> bool:
         """
         Filter site.
 
         :param variant: The variant to filter.
         :return: ``True`` if the variant should be kept, ``False`` otherwise.
         """
+        # keep dummy variants
+        if isinstance(variant, DummyVariant):
+            return True
+
         # get outgroup genotypes
         outgroups = variant.gt_bases[self.outgroup_mask]
 
         # filter out if at least one outgroup has no called base
         for outgroup in outgroups:
-            if len(get_called_bases(outgroup) )== 0:
+            if len(get_called_bases(outgroup)) == 0:
                 return False
 
         return True
@@ -428,7 +524,7 @@ class BiasedGCConversionFiltration(Filtration):
     """
 
     @_count_filtered
-    def filter_site(self, variant: Variant) -> bool:
+    def filter_site(self, variant: Variant | DummyVariant) -> bool:
         """
         Remove bi-allelic sites that are not A<->T or G<->C substitutions.
 
@@ -511,7 +607,10 @@ class Filterer(MultiHandler):
         #: The number of sites that did not pass the filters.
         self.n_filtered: int = 0
 
-    def is_filtered(self, variant: Variant) -> bool:
+        #: The VCF writer.
+        self._writer: Writer | None = None
+
+    def is_filtered(self, variant: Variant | DummyVariant) -> bool:
         """
         Whether the given variant is kept.
 
@@ -526,31 +625,46 @@ class Filterer(MultiHandler):
 
         return True
 
+    def _setup(self):
+        """
+        Set up the filtrations.
+        """
+        # setup filtrations
+        for f in self.filtrations:
+            f._setup(self)
+
+        # create the writer
+        self._writer = Writer(self.output, self._reader)
+
+    def _teardown(self):
+        """
+        Tear down the filtrations.
+        """
+        for f in self.filtrations:
+            f._teardown()
+
+        # close the writer and reader
+        self._writer.close()
+        self._reader.close()
+
     def filter(self):
         """
         Filter the VCF.
         """
         self.logger.info('Start filtering')
 
-        # create the reader
-        reader = VCF(self.download_if_url(self.vcf))
-
-        # create the writer
-        writer = Writer(self.output, reader)
-
         # setup filtrations
-        for f in self.filtrations:
-            f._setup(self)
+        self._setup()
 
         # get progress bar
         with self.get_pbar() as pbar:
 
             # iterate over the sites
-            for i, variant in enumerate(reader):
+            for i, variant in enumerate(self._reader):
 
                 if self.is_filtered(variant):
                     # write the variant
-                    writer.write_record(variant)
+                    self._writer.write_record(variant)
 
                 pbar.update()
 
@@ -560,11 +674,6 @@ class Filterer(MultiHandler):
                     break
 
         # teardown filtrations
-        for f in self.filtrations:
-            f._teardown()
-
-        # close the writer and reader
-        writer.close()
-        reader.close()
+        self._teardown()
 
         self.logger.info(f'Filtered out {self.n_filtered} of {self.n_sites} sites in total.')

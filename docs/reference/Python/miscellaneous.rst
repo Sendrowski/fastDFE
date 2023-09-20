@@ -10,11 +10,11 @@ fastDFE uses the standard Python :mod:`logging` module for logging. By default, 
 
     import fastdfe
 
-    fastdfe.logger.setLevel(logging.DEBUG)
+    fastdfe.logger.setLevel("DEBUG")
 
 You can also disable the progress bar like this::
 
-    fastdfe.disable_pbar = True
+    fastdfe.Settings.disable_pbar = True
 
 
 Debugging
@@ -25,4 +25,4 @@ If you encounter an unexpected error, you might want to disable parallelization 
 Seeding
 -------
 
-fastDFE is seeded by default to ensure reproducibility (see ``seed`` in :class:`~fastdfe.base_inference.BaseInference`, :class:`~fastdfe.parser.Parser`, etc.). Randomness is required when bootstrapping, choosing initial values for different optimization runs, and when parsing the SFS from VCF files which requires taking random subsamples.
+fastDFE is seeded by default to ensure reproducibility (see ``seed`` in :class:`~fastdfe.base_inference.BaseInference`, :class:`~fastdfe.parser.Parser`, etc.). Randomness is required for various computational tasks, such as bootstrapping, choosing initial values for different optimization runs, and taking subsamples during VCF parsing.

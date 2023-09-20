@@ -91,18 +91,12 @@ class AnnotationTestCase(TestCase):
         ann = fd.Annotator(
             vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
             output='scratch/test_maximum_parsimony_annotation.vcf',
-            annotations=[fd.MaximumParsimonyAncestralAnnotation()],
-            info_ancestral='BB'
+            annotations=[fd.MaximumParsimonyAncestralAnnotation()]
         )
 
         ann.annotate()
 
-        fd.Parser(
-            'resources/genome/betula/biallelic.subset.10000.vcf.gz',
-            n=20, info_ancestral='BB'
-        ).parse().plot(title="Original")
-
-        fd.Parser(ann.output, n=20, info_ancestral='BB').parse().plot(title="Annotated")
+        fd.Parser(ann.output, n=20, info_ancestral='BB').parse().plot()
 
         # assert number of sites is the same
         assert count_sites('resources/genome/betula/biallelic.subset.10000.vcf.gz') == count_sites(ann.output)
@@ -469,7 +463,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         est_sfs.infer(binary=binary)
 
         # get site information
-        site_info = pd.DataFrame(anc.get_inferred_site_information())
+        site_info = pd.DataFrame(anc.get_inferred_site_info())
 
         # prefix columns
         site_info.columns = ['native.' + col for col in site_info.columns]
@@ -672,7 +666,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         anc.infer()
 
-        summary = pd.DataFrame(anc.get_inferred_site_information())
+        summary = pd.DataFrame(anc.get_inferred_site_info())
 
         summary['expected'] = [c['ancestral_expected'] for c in configs]
 
@@ -812,7 +806,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         ann.annotate()
 
-        self.assertEqual(anc.evaluate_likelihood_rates(anc.params_mle), anc.likelihood)
+        self.assertEqual(anc.evaluate_likelihood(anc.params_mle), anc.likelihood)
 
     @pytest.mark.slow
     def test_run_inference_full_betula_dataset(self):
@@ -838,7 +832,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         anc.to_est_sfs("resources/EST-SFS/test-betula-biallelic-100000.txt")
 
-        self.assertEqual(anc.evaluate_likelihood_rates(anc.params_mle), anc.likelihood)
+        self.assertEqual(anc.evaluate_likelihood(anc.params_mle), anc.likelihood)
 
     @staticmethod
     def test_from_est_sfs_est_sfs_sample_dataset():
@@ -854,7 +848,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         )
 
         # evaluate a ML estimates of EST-SFS
-        ll = anc.evaluate_likelihood_rates(dict(
+        ll = anc.evaluate_likelihood(dict(
             K0=0.000000,
             K1=0.061141,
             K2=0.000000,
@@ -1035,7 +1029,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         ann.annotate()
 
-        anc.evaluate_likelihood_rates(anc.params_mle)
+        anc.evaluate_likelihood(anc.params_mle)
 
         pass
 
@@ -1428,7 +1422,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             # dummy inference, all parameters are fixed
             anc.infer()
 
-            site_info = anc._get_site_information(site)
+            site_info = anc._get_site_info(site)
 
             probs = np.array(list(site_info.p_bases_first_node.values()))
             is_max = np.where(np.isclose(probs, np.max(probs)))[0]

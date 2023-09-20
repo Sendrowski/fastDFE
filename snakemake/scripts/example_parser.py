@@ -2,7 +2,7 @@ import fastdfe as fd
 
 # parse selected and neutral SFS from human chromosome 1
 p = fd.Parser(
-    vcf="https://ngs.sanger.ac.uk//production/hgdp/hgdp_wgs.20190516/"
+    vcf="https://ngs.sanger.ac.uk/production/hgdp/hgdp_wgs.20190516/"
         "hgdp_wgs.20190516.full.chr1.vcf.gz",
     fasta="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
           "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",

@@ -20,6 +20,7 @@ from scipy.optimize import minimize, OptimizeResult
 from scipy.stats import loguniform, uniform
 from tqdm import tqdm
 
+from .settings import Settings
 from .likelihood import Likelihood
 
 # get logger
@@ -45,8 +46,6 @@ def parallelize(
     :param dtype: Data type of the returned array
     :return: List of results
     """
-    from . import disable_pbar
-
     n = len(data)
 
     if parallelize and n > 1:
@@ -58,7 +57,7 @@ def parallelize(
 
     # whether to show a progress bar
     if pbar is True or (pbar is None and not parallelize and n > 1) or pbar is None and n > mp.cpu_count():
-        iterator = tqdm(iterator, total=n, disable=disable_pbar, desc=desc)
+        iterator = tqdm(iterator, total=n, disable=Settings.disable_pbar, desc=desc)
 
     return np.array(list(iterator), dtype=dtype)
 

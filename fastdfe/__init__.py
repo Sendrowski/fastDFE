@@ -99,9 +99,6 @@ formatter = ColoredFormatter('%(levelname)s:%(name)s: %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-# whether to disable the progress bar
-disable_pbar = False
-
 
 def raise_on_warning(message, category, filename, lineno, file=None, line=None):
     """
@@ -120,6 +117,7 @@ def raise_on_warning(message, category, filename, lineno, file=None, line=None):
 from .parametrization import Parametrization, GammaExpParametrization, DiscreteParametrization, \
     GammaDiscreteParametrization, DisplacedGammaParametrization, DiscreteFractionalParametrization
 from .config import Config
+from .settings import Settings
 from .abstract_inference import Inference
 from .base_inference import BaseInference, InferenceResults
 from .joint_inference import JointInference, SharedParams
@@ -146,6 +144,7 @@ __all__ = [
     'DisplacedGammaParametrization',
     'DiscreteFractionalParametrization',
     'Config',
+    'Settings',
     'Inference',
     'BaseInference',
     'JointInference',

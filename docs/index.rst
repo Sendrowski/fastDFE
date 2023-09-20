@@ -12,7 +12,7 @@ Welcome to fastDFE's documentation
 .. image:: https://badge.fury.io/py/fastdfe.svg
     :target: https://badge.fury.io/py/fastdfe
 
-fastDFE is a package for fast, flexible, and hierarchical inference of the distribution of fitness effects (DFE) from site frequency spectra (SFS).
+fastDFE is a package for fast, flexible, and hierarchical inference of the distribution of fitness effects (DFE) from site-frequency spectra (SFS).
 
 .. toctree::
    reference/introduction

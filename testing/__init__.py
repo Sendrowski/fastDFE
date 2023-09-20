@@ -36,7 +36,7 @@ logger.info(f"Running tests for {fastdfe.__file__}.")
 # only be verbose when running on Pycharm
 if 'PYCHARM_HOSTED' not in os.environ:
     matplotlib.use('Agg')
-    fastdfe.disable_pbar = True
+    fastdfe.Settings.disable_pbar = True
     logger.setLevel(logging.WARNING)
 else:
     logger.setLevel(logging.INFO)

@@ -451,9 +451,7 @@ class Visualization:
 
         :param values: Type-indexed dictionary of dataframes with parameters as columns and values as rows
         :param param_names: Parameters to plot
-        :param scale: Whether to use a linear or log scale
         :param title: Title of the plot
-        :param legend: Whether to show the legend
         :param file: File path to save plot to
         :param show: Whether to show plot
         :return: Axes

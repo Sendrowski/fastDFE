@@ -31,7 +31,7 @@ from cyvcf2 import Variant, Writer, VCF
 from matplotlib import pyplot as plt
 from scipy.optimize import minimize, OptimizeResult
 
-from .io_handlers import DummyVariant, MultiHandler, VCFHandler
+from .io_handlers import DummyVariant, MultiHandler
 from .io_handlers import GFFHandler, get_major_base, get_called_bases
 from .optimization import parallelize as parallelize_func, check_bounds
 from .visualization import Visualization
@@ -54,15 +54,15 @@ stop_codons = Bio.Data.CodonTable.standard_dna_table.stop_codons
 # start codons
 start_codons = ['ATG']
 
-# include stop codons
+# include stop codons in codon table
 for c in stop_codons:
     codon_table[c] = 'Σ'
 
 # The degeneracy of the site according to how many unique amino acids
-# are code for when change the site within the codon.
+# are coding for when changing the site within the codon.
 # We count the third position of the isoleucine codon as 2-fold degenerate.
 # This is the only site that would normally have 3-fold degeneracy
-# https://en.wikipedia.org/wiki/Codon_degeneracy
+# (https://en.wikipedia.org/wiki/Codon_degeneracy)
 unique_to_degeneracy = {0: 0, 1: 2, 2: 2, 3: 4}
 
 
@@ -101,7 +101,7 @@ class Annotation:
         """
         self.logger.info(f'Annotated {self.n_annotated} sites.')
 
-    def annotate_site(self, variant: Variant):
+    def annotate_site(self, variant: Variant | DummyVariant):
         """
         Annotate a single site.
 
@@ -214,7 +214,7 @@ class DegeneracyAnnotation(Annotation):
         self.cd_prev = None
         self.contig = None
 
-    def _parse_codon_forward(self, variant: Variant):
+    def _parse_codon_forward(self, variant: Variant | DummyVariant):
         """
         Parse the codon in forward direction.
 
@@ -262,7 +262,7 @@ class DegeneracyAnnotation(Annotation):
 
         return codon, codon_pos, codon_start, pos_codon, pos_rel
 
-    def _parse_codon_backward(self, variant: Variant):
+    def _parse_codon_backward(self, variant: Variant | DummyVariant):
         """
         Parse the codon in reverse direction.
 
@@ -313,7 +313,7 @@ class DegeneracyAnnotation(Annotation):
 
         return codon, codon_pos, codon_start, pos_codon, pos_rel
 
-    def _parse_codon(self, variant: Variant):
+    def _parse_codon(self, variant: Variant | DummyVariant):
         """
         Parse the codon for the given variant.
 
@@ -365,7 +365,7 @@ class DegeneracyAnnotation(Annotation):
 
         return codon_degeneracy
 
-    def _fetch_cds(self, v: Variant):
+    def _fetch_cds(self, v: Variant | DummyVariant):
         """
         Fetch the coding sequence for the given variant.
 
@@ -423,7 +423,7 @@ class DegeneracyAnnotation(Annotation):
         if self.cd is None or not (self.cd.start <= v.POS <= self.cd.end):
             raise LookupError(f"No coding sequence found, skipping record {v.CHROM}:{v.POS}")
 
-    def _fetch_contig(self, v: Variant):
+    def _fetch_contig(self, v: Variant | DummyVariant):
         """
         Fetch the contig for the given variant.
 
@@ -438,7 +438,7 @@ class DegeneracyAnnotation(Annotation):
             # fetch contig
             self.contig = self.handler.get_contig(aliases)
 
-    def _fetch(self, variant: Variant):
+    def _fetch(self, variant: Variant | DummyVariant):
         """
         Fetch all required data for the given variant.
 
@@ -578,7 +578,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
             'Description': 'Alt codon and extra information'
         })
 
-    def _get_alt_allele(self, variant: Variant) -> str | None:
+    def _get_alt_allele(self, variant: Variant | DummyVariant) -> str | None:
         """
         Get the alternative allele.
 
@@ -623,7 +623,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
         return codon_table[codon1] == codon_table[codon2]
 
-    def _parse_codons_vep(self, variant: Variant) -> List[str]:
+    def _parse_codons_vep(self, variant: Variant | DummyVariant) -> List[str]:
         """
         Parse the codons from the VEP annotation if present.
 
@@ -642,7 +642,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         return []
 
     @staticmethod
-    def _parse_synonymy_snpeff(variant: Variant) -> int | None:
+    def _parse_synonymy_snpeff(variant: Variant | DummyVariant) -> int | None:
         """
         Parse the synonymy from the annotation provided by SnpEff
 
@@ -671,7 +671,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         if self.n_snpeff_comparisons != 0:
             self.logger.info(f'Number of mismatches with SnpEff: {len(self.snpeff_mismatches)}')
 
-    def annotate_site(self, v: Variant):
+    def annotate_site(self, v: Variant | DummyVariant):
         """
         Annotate a single site.
 
@@ -838,7 +838,6 @@ class MaximumParsimonyAncestralAnnotation(AncestralAlleleAnnotation):
         :param variant: The variant to annotate.
         :return: The annotated variant.
         """
-        #
         if isinstance(variant, DummyVariant):
             base = variant.REF
         else:
@@ -939,7 +938,8 @@ class SubstitutionModel(ABC):
         """
         return self.bounds
 
-    def validate_bounds(self, bounds: Dict[str, Tuple[float, float]]):
+    @staticmethod
+    def validate_bounds(bounds: Dict[str, Tuple[float, float]]):
         """
         Make sure the lower bounds are positive and the upper bounds are larger than the lower bounds.
 
@@ -1450,7 +1450,7 @@ class AdaptivePolarizationPrior(PolarizationPrior):
         freq_indices = range(1, (n_ingroups + 1) // 2)
 
         # get the likelihood functions
-        funcs = dict((i, self._get_likelihood_polarization(i, configs, n_ingroups)) for i in freq_indices)
+        funcs = dict((i, self._get_likelihood(i, configs, n_ingroups)) for i in freq_indices)
 
         def optimize_polarization(args: List[Any]) -> OptimizeResult:
             """
@@ -1480,7 +1480,7 @@ class AdaptivePolarizationPrior(PolarizationPrior):
         data = np.hstack((data, initial_values.reshape((-1, 1))))
 
         # run the optimization in parallel for each frequency bin over n_runs
-        results = parallelize_func(
+        results: np.ndarray[OptimizeResult] = parallelize_func(
             func=optimize_polarization,
             data=data,
             parallelize=self.parallelize,
@@ -1504,6 +1504,7 @@ class AdaptivePolarizationPrior(PolarizationPrior):
             raise RuntimeError("Polarization probability optimizations failed with messages: " + ", ".join(failures))
 
         # get the probabilities for each frequency bin
+        # noinspection all
         probs = np.array([results[i, j].x[0] for i, j in enumerate(i_best)])
 
         # check for zeros or ones
@@ -1520,15 +1521,17 @@ class AdaptivePolarizationPrior(PolarizationPrior):
 
         # if the number of ingroups is even
         if n_ingroups % 2 == 0:
+            # noinspection all
             self.probabilities = np.concatenate(([1], probs, [0.5], 1 - probs[::-1], [0]))
         else:
             # if the number of ingroups is odd
+            # noinspection all
             self.probabilities = np.concatenate(([1], probs, 1 - probs[::-1], [0]))
 
         return self.probabilities
 
     @staticmethod
-    def _get_likelihood_polarization(
+    def _get_likelihood(
             i: int,
             configs: pd.DataFrame,
             n_ingroups: int
@@ -1636,10 +1639,6 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         else:
             self._ingroup_mask = np.isin(samples, self.ingroups) & ~ np.isin(samples, self.exclude)
 
-        # inform of the number of ingroups
-        self.logger.info(f"Subsampling {self.n_ingroups} ingroup haplotypes "
-                         f"from {np.sum(self._ingroup_mask)} individuals in total.")
-
         # create mask for outgroups
         self._outgroup_mask = np.isin(samples, self.outgroups)
 
@@ -1650,6 +1649,13 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 
             raise ValueError("Not all specified outgroups are present in the VCF file. "
                              f"Missing outgroups: {', '.join(missing)}")
+
+        # inform of the number of ingroups
+        self.logger.info(f"Subsampling {self.n_ingroups} ingroup haplotypes "
+                         f"from {np.sum(self._ingroup_mask)} individuals in total.")
+
+        # inform on outgroup samples
+        self.logger.info(f"Using {np.sum(self._outgroup_mask)} outgroup samples ({', '.join(self.outgroups)}).")
 
     def _setup(self, handler: MultiHandler):
         """
@@ -1668,7 +1674,7 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         })
 
         # set reader
-        self._reader = VCF(self.handler.download_if_url(self.handler.vcf))
+        self._reader = self.handler.load_vcf()
 
         # prepare masks
         self._prepare_masks(handler._reader.samples)
@@ -1714,7 +1720,7 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 
         return outgroup_bases
 
-    def _parse_variant(self, variant: Variant) -> SiteConfig | None:
+    def _parse_variant(self, variant: Variant | DummyVariant) -> SiteConfig | None:
         """
         Parse a VCF variant. We only SNPs that are at most bi-allelic and have at least ``n_ingroups`` ingroup.
 
@@ -1865,7 +1871,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
     .. warning::
         Still experimental. Use with caution.
-        TODO if we consider the probability of the first internal node being ancestral, we ignore the other outgroups?
+        TODO add pseudo count for monomorphic sites
     """
 
     #: The data types for the data frame
@@ -1902,15 +1908,14 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         """
         Create a new ancestral allele annotation instance.
 
-        TODO include parameter to ignore samples
-
         :param outgroups: The outgroup samples to consider when determining the ancestral allele. A list of
             sample names as they appear in the VCF file. The order of the outgroups is important as it determines
             the order of the branches in the tree, whose rates are optimized. The first outgroup is the closest
             outgroup to the ingroups, and the last outgroup is the most distant outgroup. More outgroups lead to a more
             accurate inference of the ancestral allele, but also increase the computational cost. Using more than 1
             outgroup is recommended, but more than 3 is likely not necessary. Sites where these outgroups are
-            not present are not included when optimizing the rate parameters.
+            not present are not included when optimizing the rate parameters. It is important that the outgroups
+            are not much more closely related to each other than to the ingroups.
         :param n_ingroups: The minimum number of ingroups that must be present at a site for it to be considered
             for ancestral allele inference. Note that a larger number of ingroups does not necessarily improve
             the accuracy of the ancestral allele inference (see ``prior``). A larger number of ingroups can lead
@@ -1989,7 +1994,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         #: The probability of all sites per frequency bin.
         self.p_bins: Dict[str, np.ndarray[float, (n_ingroups - 1,)]] | None = None
 
-        #: The number of sites used for inference.
+        #: The total number of sites parsed.
         self.n_sites: int | None = None
 
         #: The parameter names in the order they are passed to the optimizer.
@@ -2345,11 +2350,11 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         # assign data frame
         anc.configs = data
 
-        # assign number of sites
-        anc.n_sites = data.multiplicity.sum()
+        # set the number of sites
+        anc.n_sites = anc.configs.multiplicity.sum()
 
         # notify about the number of sites
-        anc.logger.info(f"Included {anc.n_sites} sites for the inference.")
+        anc.logger.info(f"Included {anc._get_mle_configs().multiplicity.sum()} sites for the inference.")
 
         return anc
 
@@ -2423,11 +2428,11 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             # determine number of outgroups
             self.configs['n_outgroups'] = np.sum(np.array(self.configs.outgroup_bases.to_list()) != -1, axis=1)
 
-        # set the number of sites
-        self.n_sites = self.configs.multiplicity.sum()
+        # total number of sites
+        self.n_sites = i + 1
 
         # notify about the number of sites
-        self.logger.info(f"Included {self.n_sites} sites for the inference.")
+        self.logger.info(f"Included {self._get_mle_configs().multiplicity.sum()} sites for the inference.")
 
     def infer(self):
         """
@@ -2439,7 +2444,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         bounds = self.model.get_bounds(self.n_outgroups)
 
         # get the likelihood function
-        fun = self._get_likelihood_rates()
+        fun = self._get_likelihood()
 
         def optimize_rates(x0: Dict[str, float]) -> OptimizeResult:
             """
@@ -2697,7 +2702,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
         return p_configs
 
-    def evaluate_likelihood_rates(self, params: Dict[str, float]) -> float:
+    def evaluate_likelihood(self, params: Dict[str, float]) -> float:
         """
         Evaluate the likelihood function for the rate parameters.
 
@@ -2708,7 +2713,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         self.model.cache(params, 2 * self.n_outgroups - 1)
 
         # compute the likelihood
-        ll = -self._get_likelihood_rates()([params[name] for name in self.param_names])
+        ll = -self._get_likelihood()([params[name] for name in self.param_names])
 
         # restore cached branch probabilities if necessary
         if self.params_mle is not None:
@@ -2716,7 +2721,13 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
         return ll
 
-    def _get_likelihood_rates(self) -> Callable[[List[float]], float]:
+    def _get_mle_configs(self) -> pd.DataFrame:
+        """
+        Get the site configurations with the correct number of outgroups used for the MLE.
+        """
+        return self.configs[self.configs.n_outgroups == self.n_outgroups]
+
+    def _get_likelihood(self) -> Callable[[List[float]], float]:
         """
         Get the likelihood function for the rate parameters.
 
@@ -2727,7 +2738,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
                                "using this class with Parser or Annotator.")
 
         # only consider sites with the correct number of outgroups
-        configs = self.configs[self.configs.n_outgroups == self.n_outgroups]
+        configs = self._get_mle_configs()
 
         # make variables available in the inner function
         model = self.model
@@ -2773,21 +2784,18 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
         return compute_likelihood
 
-    def _get_site_indices(self) -> np.ma.MaskedArray:
+    def _get_site_indices(self) -> np.ndarray:
         """
         Get the list of config indices for each site.
 
         :return: The list of config indices as a masked array.
         """
         # Initialize indices as a masked array with all entries masked
-        indices = np.ma.array(np.zeros(self.n_sites, dtype=int), mask=True)
+        indices = np.zeros(self.n_sites, dtype=int)
 
         for i, config in self.configs.iterrows():
             for j in config.sites:
                 indices[j] = i
-
-                # unmask the updated index
-                indices.mask[j] = False
 
         return indices
 
@@ -2928,7 +2936,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
         return probs
 
-    def get_inferred_site_information(self) -> Generator[SiteInfo, None, None]:
+    def get_inferred_site_info(self) -> Generator[SiteInfo, None, None]:
         """
         Get information on the sites used for the inference with most of the information available.
 
@@ -2942,7 +2950,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
         # iterate over the sites
         for site in sites.itertuples():
-            yield self.get_site_information(
+            yield self.get_site_info(
                 n_major=site.n_major,
                 major_base=site.major_base,
                 minor_base=site.minor_base,
@@ -2950,7 +2958,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
                 pass_indices=True
             )
 
-    def _get_site_information(self, config: SiteConfig) -> SiteInfo:
+    def _get_site_info(self, config: SiteConfig) -> SiteInfo:
         """
         Get information on the specified sites using the inferred parameters.
 
@@ -3026,7 +3034,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             rate_params=self.params_mle
         )
 
-    def get_site_information(
+    def get_site_info(
             self,
             n_major: int,
             major_base: int | str,
@@ -3057,7 +3065,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             outgroup_bases=outgroup_bases
         )
 
-        return self._get_site_information(config)
+        return self._get_site_info(config)
 
     def _calculate_p_major_ancestral(
             self,
@@ -3092,7 +3100,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
             return np.nan
 
-    def annotate_site(self, variant: Variant):
+    def annotate_site(self, variant: Variant | DummyVariant):
         """
         Annotate a single variant.
 
@@ -3109,7 +3117,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             config = self._parse_variant(variant)
 
             if config is not None:
-                site = self._get_site_information(config)
+                site = self._get_site_info(config)
 
                 # only proceed if the ancestral allele is known
                 if site.ancestral_base in bases and site.p_ancestral >= self.confidence_threshold:
@@ -3191,9 +3199,11 @@ class _AdHocAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         :return: Dictionary with site information.
         """
         # get ingroup and outgroup bases
+        # noinspection PyTypeChecker
         bases_combined = np.concatenate(([config.major_base], [config.minor_base], config.outgroup_bases))
 
         # get scores for each base
+        # noinspection PyTypeChecker
         scores = np.concatenate(([1.2], [1], [1 / i for i in range(1, len(config.outgroup_bases) + 1)]))
 
         # get valid bases
@@ -3221,7 +3231,7 @@ class _AdHocAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             ancestral_base=ancestral_base
         )
 
-    def annotate_site(self, variant: Variant):
+    def annotate_site(self, variant: Variant | DummyVariant):
         """
         Annotate a single variant.
 
@@ -3475,20 +3485,44 @@ class Annotator(MultiHandler):
             aliases=aliases
         )
 
+        #: The path to the output file.
         self.output: str = output
 
+        #: The annotations to apply.
         self.annotations: List[Annotation] = annotations
+
+        #: The VCF writer.
+        self._writer: Writer | None = None
+
+    def _setup(self):
+        """
+        Set up the annotator.
+        """
+        for annotation in self.annotations:
+            annotation._setup(self)
+
+        # create the writer
+        self._writer = Writer(self.output, self._reader)
+
+    def _teardown(self):
+        """
+        Tear down the annotator.
+        """
+        for annotation in self.annotations:
+            annotation._teardown()
+
+        # close the writer and reader
+        self._writer.close()
+        self._reader.close()
 
     def annotate(self):
         """
         Annotate the VCF file.
         """
-        # provide annotator to annotations and add info fields
-        for annotation in self.annotations:
-            annotation._setup(self)
+        self.logger.info('Start annotating')
 
-        # create the writer
-        writer = Writer(self.output, self._reader)
+        # set up the annotator
+        self._setup()
 
         # get progress bar
         with self.get_pbar() as pbar:
@@ -3501,7 +3535,7 @@ class Annotator(MultiHandler):
                     annotation.annotate_site(variant)
 
                 # write the variant
-                writer.write_record(variant)
+                self._writer.write_record(variant)
 
                 # update the progress bar
                 pbar.update()
@@ -3511,10 +3545,5 @@ class Annotator(MultiHandler):
                 if i + 1 == self.n_sites or i + 1 == self.max_sites:
                     break
 
-        # finalize annotations
-        for annotation in self.annotations:
-            annotation._teardown()
-
-        # close the writer and reader
-        writer.close()
-        self._reader.close()
+        # tear down the annotator
+        self._teardown()

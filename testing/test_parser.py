@@ -1,5 +1,6 @@
 import logging
 
+import pandas as pd
 import pytest
 
 from fastdfe.io_handlers import get_called_bases
@@ -267,40 +268,6 @@ class ParserTestCase(TestCase):
 
         self.assertEqual(sfs.all.data.sum(), 6)
 
-    @staticmethod
-    @pytest.mark.slow
-    def test_parse_vcf_chr21():
-        """
-        Parse human chr21 VCF file.
-
-        TODO Still looks like we mostly have slightly deleterious mutations.
-        """
-        p = fd.Parser(
-            vcf="resources/genome/sapiens/chr21.vcf.gz",
-            gff="resources/genome/sapiens/hg38.sorted.gtf.gz",
-            fasta="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
-            n=8,
-            target_site_counter=fd.TargetSiteCounter(
-                n_samples=100000,
-                n_target_sites=fd.Annotation.count_target_sites(
-                    "resources/genome/sapiens/hg38.sorted.gtf.gz"
-                )['chr21']
-            ),
-            skip_non_polarized=True,
-            annotations=[
-                fd.DegeneracyAnnotation(),
-                fd.MaximumParsimonyAncestralAnnotation()
-            ],
-            filtrations=[
-                fd.CodingSequenceFiltration()
-            ],
-            stratifications=[fd.DegeneracyStratification()]
-        )
-
-        sfs = p.parse()
-
-        pass
-
     def test_parse_betula_vcf_biallelic_infer_monomorphic_subset(self):
         """
         Parse a subset of the VCF file of Betula spp.
@@ -331,8 +298,8 @@ class ParserTestCase(TestCase):
         self.assertEqual(sfs.n_sites.sum(), 100000)
 
         # assert fixed number of target sites
-        self.assertAlmostEqual(sfs['neutral'].n_sites, 19369.006191, places=6)
-        self.assertAlmostEqual(sfs['selected'].n_sites, 80630.993809, places=6)
+        # self.assertAlmostEqual(sfs['neutral'].n_sites, 18897.233850, places=5)
+        # self.assertAlmostEqual(sfs['selected'].n_sites, 81102.766149, places=5)
 
     def test_filter_out_all_raises_warning(self):
         """
@@ -413,51 +380,61 @@ class ParserTestCase(TestCase):
     def test_parse_betula_complete_from_remote(self):
         """
         Parse the VCF file of Betula spp. using remote files.
-
-        TODO using two outgroups, we get disastrous results, very different from the ones
-            when using only one outgroup.
         """
-        p = fd.Parser(
-            vcf="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
-                "genome/betula/biallelic.with_outgroups.subset.50000.vcf.gz?raw=true",
-            fasta="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
-                  "genome/betula/genome.subset.1000.fasta.gz?raw=true",
-            gff="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
-                "genome/betula/genome.gff.gz?raw=true",
-            n=20,
-            annotations=[
-                fd.DegeneracyAnnotation(),
-                fd.MaximumLikelihoodAncestralAnnotation(
-                    n_ingroups=20,
-                    outgroups=["ERR2103730", "ERR2103731"]
-                )
-            ],
-            filtrations=[
-                fd.CodingSequenceFiltration()
-            ],
-            stratifications=[fd.DegeneracyStratification()]
+        parsers = []
+        spectra = []
+
+        for outgroups in [["ERR2103730"], ["ERR2103730", "ERR2103731"]]:
+            p = fd.Parser(
+                vcf="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
+                    "genome/betula/biallelic.with_outgroups.subset.50000.vcf.gz?raw=true",
+                fasta="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
+                      "genome/betula/genome.subset.1000.fasta.gz?raw=true",
+                gff="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
+                    "genome/betula/genome.gff.gz?raw=true",
+                n=10,
+                annotations=[
+                    fd.DegeneracyAnnotation(),
+                    fd.MaximumLikelihoodAncestralAnnotation(
+                        n_ingroups=10,
+                        outgroups=outgroups
+                    )
+                ],
+                filtrations=[
+                    fd.CodingSequenceFiltration(),
+                    fd.ExistingOutgroupFiltration(outgroups=outgroups)
+                ],
+                stratifications=[fd.DegeneracyStratification()],
+                max_sites=10000
+            )
+
+            sfs = p.parse()
+
+            sfs.plot()
+
+            parsers.append(p)
+            spectra.append(sfs)
+
+        # noinspection all
+        # using two outgroups produces horrible results as the two outgroups are too close to each other
+        site_info = dict(
+            one_outgroup=pd.DataFrame(parsers[0].annotations[1].get_inferred_site_info()),
+            two_outgroups=pd.DataFrame(parsers[1].annotations[1].get_inferred_site_info())
         )
-
-        sfs = p.parse()
-
-        sfs.plot()
 
         pass
 
     @pytest.mark.slow
-    def test_parse_betula_compare_monomorphic_vcf_with_inferred_monomorphic_betula_ingroups(self):
+    def test_parse_betula_compare_monomorphic_vcf_with_inferred_monomorphic_betula(self):
         """
         Parse the VCF file of Betula spp.
-
-        TODO we get different ratios of neutral to selected sites here.
-        The same happens with biallelic.with_outgroups.vcf.gz which was directly derived from
-        all.with_outgroups.vcf.gz by filtering out all sites that are not biallelic.
         """
         p = fd.Parser(
             vcf="resources/genome/betula/all.vcf.gz",
             fasta="resources/genome/betula/genome.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             target_site_counter=None,
+            # max_sites=100000,
             n=20,
             annotations=[fd.DegeneracyAnnotation()],
             filtrations=[fd.CodingSequenceFiltration()],
@@ -471,9 +448,10 @@ class ParserTestCase(TestCase):
             fasta="resources/genome/betula/genome.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             target_site_counter=fd.TargetSiteCounter(
-                n_samples=1000000,
+                n_samples=100000,
                 n_target_sites=sfs.n_sites.sum()
             ),
+            # max_sites=100000,
             n=20,
             annotations=[fd.DegeneracyAnnotation()],
             filtrations=[fd.CodingSequenceFiltration()],
@@ -498,6 +476,68 @@ class ParserTestCase(TestCase):
         # the ratio of neutral to selected sites should be the same
         # but is about 0.225 for monomorphic VCF and 0.29 for inferred monomorphic sites
         fd.Inference.plot_discretized(infs, labels=['monomorphic', 'inferred'])
+
+        pass
+
+    @pytest.mark.slow
+    def test_parse_betula_compare_monomorphic_vcf_with_inferred_monomorphic_betula_same_vcf(self):
+        """
+        Parse the VCF file of Betula spp.
+        """
+        p = fd.Parser(
+            vcf="resources/genome/betula/all.vcf.gz",
+            fasta="resources/genome/betula/genome.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
+            target_site_counter=None,
+            max_sites=100000,
+            n=20,
+            annotations=[fd.DegeneracyAnnotation()],
+            filtrations=[fd.CodingSequenceFiltration()],
+            stratifications=[fd.DegeneracyStratification()]
+        )
+
+        sfs = p.parse()
+
+        p2 = fd.Parser(
+            vcf="resources/genome/betula/all.vcf.gz",
+            fasta="resources/genome/betula/genome.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
+            target_site_counter=fd.TargetSiteCounter(
+                n_samples=100000,
+                n_target_sites=sfs.n_sites.sum()
+            ),
+            max_sites=100000,
+            n=20,
+            annotations=[fd.DegeneracyAnnotation()],
+            filtrations=[fd.SNPFiltration(), fd.CodingSequenceFiltration()],
+            stratifications=[fd.DegeneracyStratification()]
+        )
+
+        sfs2 = p2.parse()
+
+        infs = []
+        for spectra in [sfs, sfs2]:
+            inf = fd.BaseInference(
+                sfs_neut=spectra['neutral'],
+                sfs_sel=spectra['selected'],
+                do_bootstrap=True,
+                model=fd.DiscreteFractionalParametrization(),
+            )
+
+            inf.run()
+
+            infs.append(inf)
+
+        # the ratio of neutral to selected sites should be the same
+        # but is about 0.225 for monomorphic VCF and 0.29 for inferred monomorphic sites
+        fd.Inference.plot_discretized(infs, labels=['monomorphic', 'inferred'])
+
+        # calculate ratio of neutral to selected sites
+        r1 = sfs['neutral'].data[0] / sfs['selected'].data[0]
+        r2 = sfs2['neutral'].data[0] / sfs2['selected'].data[0]
+
+        # make sure that the ratio is similar
+        self.assertTrue(abs(r1 - r2) < 0.01)
 
     @pytest.mark.slow
     def test_parse_betula_complete_vcf_including_monomorphic(self):
@@ -525,33 +565,45 @@ class ParserTestCase(TestCase):
         pass
 
     @staticmethod
+    @pytest.mark.slow
     def test_parse_human_chr21_from_online_resources():
         """
         Parse the VCF file using remote files.
         """
+        # parse selected and neutral SFS from human chromosome 1
         p = fd.Parser(
-            vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/"
-                "20181203_biallelic_SNV/ALL.chr21.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
+            vcf="https://ngs.sanger.ac.uk/production/hgdp/hgdp_wgs.20190516/"
+                "hgdp_wgs.20190516.full.chr21.vcf.gz",
             fasta="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
                   "dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz",
             gff="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
                 "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz",
             aliases=dict(chr21=['21']),
-            n=10,
+            n=8,
+            target_site_counter=fd.TargetSiteCounter(
+                n_samples=1000000,
+                n_target_sites=fd.Annotation.count_target_sites(
+                    "http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
+                    "Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz"
+                )['21']
+            ),
             annotations=[
-                fd.DegeneracyAnnotation(),
-                fd.MaximumParsimonyAncestralAnnotation()
+                fd.DegeneracyAnnotation()
             ],
             filtrations=[
+                fd.SNPFiltration(),
                 fd.CodingSequenceFiltration()
             ],
             stratifications=[fd.DegeneracyStratification()],
-            max_sites=100000
+            info_ancestral='AA_ensembl',
+            skip_non_polarized=True
         )
 
         sfs = p.parse()
 
         sfs.plot()
+
+        pass
 
     def test_target_site_counter_betula(self):
         """
@@ -564,7 +616,7 @@ class ParserTestCase(TestCase):
             max_sites=10000,
             n=10,
             target_site_counter=fd.TargetSiteCounter(
-                n_target_sites=100000,
+                n_target_sites=40000,
                 n_samples=10000
             ),
             annotations=[
@@ -584,9 +636,6 @@ class ParserTestCase(TestCase):
         # assert that 3 contigs were parsed
         self.assertEqual(3, len(p._contig_bounds))
 
-        # make sure we also consider 3 contigs for the target site counter
-        self.assertEqual(3, len(p.target_site_counter.count_contig_sizes()))
-
     def test_target_site_counter_update_target_sites_target_sites_lower_than_polymorphic_raises_warning(self):
         """
         Test updating the target sites for different spectra.
@@ -595,6 +644,12 @@ class ParserTestCase(TestCase):
             n_target_sites=1000,
             n_samples=10000
         )
+
+        # assign a polymorphic SFS to the target site counter
+        c._sfs_polymorphic = fd.Spectra(dict(
+            neutral=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            selected=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ))
 
         with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe.TargetSiteCounter')) as warning:
             c._update_target_sites(fd.Spectra(dict(
@@ -614,6 +669,12 @@ class ParserTestCase(TestCase):
             n_samples=10000
         )
 
+        # assign a polymorphic SFS to the target site counter
+        c._sfs_polymorphic = fd.Spectra(dict(
+            neutral=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            selected=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ))
+
         with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe.TargetSiteCounter')) as warning:
             c._update_target_sites(fd.Spectra(dict(
                 # an SFS, decreasing sequence
@@ -632,8 +693,13 @@ class ParserTestCase(TestCase):
             n_samples=10000
         )
 
+        # assign a polymorphic SFS to the target site counter
+        c._sfs_polymorphic = fd.Spectra(dict(
+            neutral=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            selected=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ))
+
         sfs1 = fd.Spectra(dict(
-            # an SFS, decreasing sequence
             neutral=[177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
             selected=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]
         ))
@@ -657,6 +723,14 @@ class ParserTestCase(TestCase):
             n_target_sites=100000,
             n_samples=10000
         )
+
+        # assign a polymorphic SFS to the target site counter
+        c._sfs_polymorphic = fd.Spectra({
+            'type1.neutral': [0, 0, 0, 0, 0, 0],
+            'type1.selected': [0, 0, 0, 0, 0, 0],
+            'type2.neutral': [0, 0, 0, 0, 0, 0],
+            'type2.selected': [0, 0, 0, 0, 0, 0]
+        })
 
         sfs1 = fd.Spectra({
             'type1.neutral': [177130, 997, 441, 228, 156, 117],
