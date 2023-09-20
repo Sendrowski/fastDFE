@@ -14,4 +14,4 @@ slurm/
 *.sqlite
 .Rproj.user/
 .Rhistory
-.RData/
+.RData
