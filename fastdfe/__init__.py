@@ -129,7 +129,7 @@ from .parser import Parser, Stratification, BaseTransitionStratification, BaseCo
     SynonymyStratification, VEPStratification, SnpEffStratification, ContigStratification, ChunkedStratification, \
     TargetSiteCounter
 from .io_handlers import VCFHandler, FASTAHandler, GFFHandler, FileHandler
-from .annotation import Annotator, Annotation, MaximumParsimonyAncestralAnnotation, \
+from .annotation import Annotator, Annotation, MaximumParsimonyAncestralAnnotation, SiteInfo, \
     MaximumLikelihoodAncestralAnnotation, DegeneracyAnnotation, SynonymyAnnotation, SubstitutionModel, \
     K2SubstitutionModel, JCSubstitutionModel, PolarizationPrior, KingmanPolarizationPrior, AdaptivePolarizationPrior
 from .filtration import Filterer, Filtration, SNPFiltration, PolyAllelicFiltration, CodingSequenceFiltration, \
@@ -172,6 +172,7 @@ __all__ = [
     'ChunkedStratification',
     'Annotator',
     'Annotation',
+    'SiteInfo',
     'MaximumParsimonyAncestralAnnotation',
     'MaximumLikelihoodAncestralAnnotation',
     'PolarizationPrior',

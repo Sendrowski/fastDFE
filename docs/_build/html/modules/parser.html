@@ -70,7 +70,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../reference/R/config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/R/parametrizations.html">DFE parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/R/spectra.html">Working with SFS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/R/parser.html">VCF parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/R/parser.html">VCF Parsing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/R/miscellaneous.html">Miscellaneous</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
@@ -83,12 +83,13 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">VCF Parsing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.parser.Stratification"><code class="docutils literal notranslate"><span class="pre">Stratification</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.Stratification.__init__"><code class="docutils literal notranslate"><span class="pre">Stratification.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.Stratification.handler"><code class="docutils literal notranslate"><span class="pre">Stratification.handler</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.Stratification.parser"><code class="docutils literal notranslate"><span class="pre">Stratification.parser</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.Stratification.n_valid"><code class="docutils literal notranslate"><span class="pre">Stratification.n_valid</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.Stratification.get_type"><code class="docutils literal notranslate"><span class="pre">Stratification.get_type()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.Stratification.get_types"><code class="docutils literal notranslate"><span class="pre">Stratification.get_types()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.parser.SNPStratification"><code class="docutils literal notranslate"><span class="pre">SNPStratification</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.parser.BaseContextStratification"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.BaseContextStratification.__init__"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.BaseContextStratification.n_flanking"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification.n_flanking</span></code></a></li>
@@ -155,7 +156,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.TargetSiteCounter.n_target_sites"><code class="docutils literal notranslate"><span class="pre">TargetSiteCounter.n_target_sites</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.TargetSiteCounter.n_samples"><code class="docutils literal notranslate"><span class="pre">TargetSiteCounter.n_samples</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.TargetSiteCounter.count"><code class="docutils literal notranslate"><span class="pre">TargetSiteCounter.count()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.parser.TargetSiteCounter.count_contig_sizes"><code class="docutils literal notranslate"><span class="pre">TargetSiteCounter.count_contig_sizes()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.parser.Parser"><code class="docutils literal notranslate"><span class="pre">Parser</span></code></a><ul>
@@ -219,9 +219,9 @@ Stratifying the SFS is supported by providing a list of <a class="reference inte
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.parser.Stratification.handler">
-<span class="sig-name descname"><span class="pre">handler</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.parser.Stratification.handler" title="Permalink to this definition"></a></dt>
-<dd><p>MultiHandler instance</p>
+<dt class="sig sig-object py" id="fastdfe.parser.Stratification.parser">
+<span class="sig-name descname"><span class="pre">parser</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.parser.Stratification.parser" title="Permalink to this definition"></a></dt>
+<dd><p>Parser instance</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -232,13 +232,13 @@ Stratifying the SFS is supported by providing a list of <a class="reference inte
 
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.Stratification.get_type">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.Stratification.get_type" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">fastdfe.io_handlers.DummyVariant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.Stratification.get_type" title="Permalink to this definition"></a></dt>
 <dd><p>Get type of given Variant. Only the types
 given by <a class="reference internal" href="#fastdfe.parser.Stratification.get_types" title="fastdfe.parser.Stratification.get_types"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_types()</span></code></a> are valid, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if
 no type could be determined.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">DummyVariant</span></code>) – The vcf site</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
@@ -266,13 +266,20 @@ no type could be determined.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="fastdfe.parser.SNPStratification">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SNPStratification</span></span><a class="headerlink" href="#fastdfe.parser.SNPStratification" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Abstract class for stratifications that can only handle SNPs. We need to issue a warning in this case.</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="fastdfe.parser.BaseContextStratification">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BaseContextStratification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fasta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_flanking</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.BaseContextStratification" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FASTAHandler</span></code></p>
 <p>Stratify the SFS by the base context of the mutation. The number of flanking bases
 can be configured. Note that we attempt to take the ancestral allele as the
-middle base. If <code class="docutils literal notranslate"><span class="pre">skip_non_polarized</span></code> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, we skip sites
-that are not polarized, otherwise we use the reference allele as the middle base.</p>
+middle base. If <code class="docutils literal notranslate"><span class="pre">skip_non_polarized</span></code> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>, we use the reference
+allele as the middle base.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.BaseContextStratification.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fasta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_flanking</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.BaseContextStratification.__init__" title="Permalink to this definition"></a></dt>
@@ -305,11 +312,11 @@ This is used to match the contig names in the VCF file with the contig names in 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.BaseContextStratification.get_type">
-<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.BaseContextStratification.get_type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">fastdfe.io_handlers.DummyVariant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.BaseContextStratification.get_type" title="Permalink to this definition"></a></dt>
 <dd><p>Get the base context for a given mutation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">DummyVariant</span></code>) – The vcf site</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
@@ -339,20 +346,19 @@ This is used to match the contig names in the VCF file with the contig names in 
 <dl class="py class">
 <dt class="sig sig-object py" id="fastdfe.parser.BaseTransitionStratification">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BaseTransitionStratification</span></span><a class="headerlink" href="#fastdfe.parser.BaseTransitionStratification" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.parser.SNPStratification" title="fastdfe.parser.SNPStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">SNPStratification</span></code></a></p>
 <p>Stratify the SFS by the base transition of the mutation, i.e., <code class="docutils literal notranslate"><span class="pre">A&gt;T</span></code>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>This stratification only works for SNPs.
-TODO handle mono-allelic sites</p>
+<p>This stratification only works for SNPs. You thus need to update the number of mono-allelic sites manually.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.BaseTransitionStratification.get_type">
-<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.BaseTransitionStratification.get_type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">fastdfe.io_handlers.DummyVariant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.BaseTransitionStratification.get_type" title="Permalink to this definition"></a></dt>
 <dd><p>Get the base transition for the given variant.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">DummyVariant</span></code>) – The vcf site</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
@@ -389,16 +395,15 @@ TODO handle mono-allelic sites</p>
 <p>Stratify the SFS by whether we have a transition or transversion.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>This stratification only works for SNPs.
-TODO handle mono-allelic sites</p>
+<p>This stratification only works for SNPs. You thus need to update the number of mono-allelic sites manually.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.TransitionTransversionStratification.get_type">
-<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.TransitionTransversionStratification.get_type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">fastdfe.io_handlers.DummyVariant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.TransitionTransversionStratification.get_type" title="Permalink to this definition"></a></dt>
 <dd><p>Get the mutation type (transition or transversion) for a given mutation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">DummyVariant</span></code>) – The vcf site</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
@@ -430,17 +435,16 @@ TODO handle mono-allelic sites</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AncestralBaseStratification</span></span><a class="headerlink" href="#fastdfe.parser.AncestralBaseStratification" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a></p>
 <p>Stratify the SFS by the base context of the mutation: the reference base.
-If <code class="docutils literal notranslate"><span class="pre">skip_non_polarized</span></code> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, we skip sites
-that are not polarized, otherwise we use the reference allele as ancestral base.
-By default, we use the <code class="docutils literal notranslate"><span class="pre">AA</span></code> tag to determine the ancestral allele.</p>
+If <code class="docutils literal notranslate"><span class="pre">skip_non_polarized</span></code> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>, we use the reference allele as
+ancestral base. By default, we use the <code class="docutils literal notranslate"><span class="pre">AA</span></code> tag to determine the ancestral allele.</p>
 <p>Any subclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">AncestralAnnotation</span></code> can be used to annotate the ancestral allele.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.AncestralBaseStratification.get_type">
-<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.AncestralBaseStratification.get_type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">fastdfe.io_handlers.DummyVariant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.AncestralBaseStratification.get_type" title="Permalink to this definition"></a></dt>
 <dd><p>Get the type which is the reference allele.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">DummyVariant</span></code>) – The vcf site</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
@@ -493,11 +497,11 @@ By default, we use the <code class="docutils literal notranslate"><span class="p
 
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.DegeneracyStratification.get_type">
-<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.DegeneracyStratification.get_type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">fastdfe.io_handlers.DummyVariant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.DegeneracyStratification.get_type" title="Permalink to this definition"></a></dt>
 <dd><p>Get the degeneracy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">DummyVariant</span></code>) – The vcf site</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'neutral'</span></code>, <code class="docutils literal notranslate"><span class="pre">'selected'</span></code>]</p>
@@ -530,9 +534,13 @@ By default, we use the <code class="docutils literal notranslate"><span class="p
 <dl class="py class">
 <dt class="sig sig-object py" id="fastdfe.parser.SynonymyStratification">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SynonymyStratification</span></span><a class="headerlink" href="#fastdfe.parser.SynonymyStratification" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#fastdfe.parser.SNPStratification" title="fastdfe.parser.SNPStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">SNPStratification</span></code></a></p>
 <p>Stratify SFS by synonymy (neutral or selected).</p>
 <p><a class="reference internal" href="annotation.html#fastdfe.annotation.SynonymyAnnotation" title="fastdfe.annotation.SynonymyAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SynonymyAnnotation</span></code></a> can be used to annotate the synonymy of a site.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This stratification only works for SNPs. You thus need to update the number of mono-allelic sites manually.</p>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.SynonymyStratification.get_types">
 <span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.SynonymyStratification.get_types" title="Permalink to this definition"></a></dt>
@@ -549,11 +557,11 @@ By default, we use the <code class="docutils literal notranslate"><span class="p
 
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.SynonymyStratification.get_type">
-<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.SynonymyStratification.get_type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">fastdfe.io_handlers.DummyVariant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.SynonymyStratification.get_type" title="Permalink to this definition"></a></dt>
 <dd><p>Get the synonymy using the custom synonymy annotation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">DummyVariant</span></code>) – The vcf site</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'neutral'</span></code>, <code class="docutils literal notranslate"><span class="pre">'selected'</span></code>]</p>
@@ -571,6 +579,10 @@ By default, we use the <code class="docutils literal notranslate"><span class="p
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VEPStratification</span></span><a class="headerlink" href="#fastdfe.parser.VEPStratification" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#fastdfe.parser.SynonymyStratification" title="fastdfe.parser.SynonymyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">SynonymyStratification</span></code></a></p>
 <p>Stratify SFS by synonymy (neutral or selected) based on annotation provided by VEP.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This stratification only works for SNPs. You thus need to update the number of mono-allelic sites manually.</p>
+</div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parser.VEPStratification.info_tag">
 <span class="sig-name descname"><span class="pre">info_tag</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CSQ'</span></em><a class="headerlink" href="#fastdfe.parser.VEPStratification.info_tag" title="Permalink to this definition"></a></dt>
@@ -593,11 +605,11 @@ By default, we use the <code class="docutils literal notranslate"><span class="p
 
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.VEPStratification.get_type">
-<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.VEPStratification.get_type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">fastdfe.io_handlers.DummyVariant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.VEPStratification.get_type" title="Permalink to this definition"></a></dt>
 <dd><p>Get the synonymy of a site.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">DummyVariant</span></code>) – The vcf site</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'neutral'</span></code>, <code class="docutils literal notranslate"><span class="pre">'selected'</span></code>]</p>
@@ -615,6 +627,10 @@ By default, we use the <code class="docutils literal notranslate"><span class="p
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SnpEffStratification</span></span><a class="headerlink" href="#fastdfe.parser.SnpEffStratification" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#fastdfe.parser.VEPStratification" title="fastdfe.parser.VEPStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">VEPStratification</span></code></a></p>
 <p>Stratify SFS by synonymy (neutral or selected) based on annotation provided by SnpEff.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This stratification only works for SNPs. You thus need to update the number of mono-allelic sites manually.</p>
+</div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parser.SnpEffStratification.info_tag">
 <span class="sig-name descname"><span class="pre">info_tag</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ANN'</span></em><a class="headerlink" href="#fastdfe.parser.SnpEffStratification.info_tag" title="Permalink to this definition"></a></dt>
@@ -636,11 +652,11 @@ By default, we use the <code class="docutils literal notranslate"><span class="p
 <p>Stratify SFS by contig.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.ContigStratification.get_type">
-<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.ContigStratification.get_type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">fastdfe.io_handlers.DummyVariant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.ContigStratification.get_type" title="Permalink to this definition"></a></dt>
 <dd><p>Get the contig.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">DummyVariant</span></code>) – The vcf site</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
@@ -717,11 +733,11 @@ By default, we use the <code class="docutils literal notranslate"><span class="p
 
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.ChunkedStratification.get_type">
-<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.ChunkedStratification.get_type" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cyvcf2.cyvcf2.Variant</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">fastdfe.io_handlers.DummyVariant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.ChunkedStratification.get_type" title="Permalink to this definition"></a></dt>
 <dd><p>Get the type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code>) – The vcf site</p>
+<dd class="field-odd"><p><strong>variant</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">DummyVariant</span></code>) – The vcf site</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
@@ -743,10 +759,20 @@ This class is used in conjunction with <a class="reference internal" href="#fast
 file that are found in between variants on the same contig that were parsed in the VCF.
 Ideally, we obtain the SFS by parsing VCF files that contain both mono- and polymorphic sites. This is because
 we need to know about the number of mutational opportunities for synonymous and non-synonymous sites which
-contain plenty of information on the strength of selection.</p>
+contain plenty of information on the strength of selection. It is recommended to use a SNPFiltration when
+using this class to avoid biasing the result by monomorphic sites present in the VCF file.</p>
 <p>Note that we sample sites randomly to make sure we cover the entire genome when only a subset of the genome is
 considered. This provides more speed as we don’t have to parse the entire FASTA file. The actual number of
 monomorphic sites is then extrapolated from <code class="docutils literal notranslate"><span class="pre">n_target_sites</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This class is not compatible with stratifications based on info tags that are pre-defined in the VCF file, as
+opposed to those added dynamically using the <code class="docutils literal notranslate"><span class="pre">annotations</span></code> argument of the parser. We also need to
+stratify mono-allelic sites which, in this case, won’t be present in the VCF file so that they have no
+info tags when sampling from the FASTA file, and are thus ignored by the stratifications. However, using the
+<code class="docutils literal notranslate"><span class="pre">annotations</span></code> argument of the parser, the info tags the stratifications are based on are added on-the-fly,
+also for monomorphic sites sampled from the FASTA file.</p>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.TargetSiteCounter.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_target_sites</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.TargetSiteCounter.__init__" title="Permalink to this definition"></a></dt>
@@ -756,8 +782,8 @@ monomorphic sites is then extrapolated from <code class="docutils literal notran
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_target_sites</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The total number of sites (mono- and polymorphic) that would be present in the VCF file
 if it contained monomorphic sites. This number should be considerably larger than the number of polymorphic
-sites in the VCF file. This value is not very important for the DFE inference, the ratio of synonymous to
-non-synonymous sites being more informative, but the order of magnitude should be correct in any case.</p></li>
+sites in the VCF file. This value is not extremely important for the DFE inference, the ratio of synonymous
+to non-synonymous sites being more informative, but the order of magnitude should be correct in any case.</p></li>
 <li><p><strong>n_samples</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of sites to sample from the fasta file. Many sampled sites will not be valid as
 they are non-coding. To obtain good estimates, a few thousand sites should be sampled per type of site
 (depending on the stratifications used).</p></li>
@@ -795,70 +821,65 @@ they are non-coding. To obtain good estimates, a few thousand sites should be sa
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.parser.TargetSiteCounter.count_contig_sizes">
-<span class="sig-name descname"><span class="pre">count_contig_sizes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.TargetSiteCounter.count_contig_sizes" title="Permalink to this definition"></a></dt>
-<dd><p>Count the total number of sites per contig.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary with the number of sites per contig.</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="fastdfe.parser.Parser">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">vcf:</span> <span class="pre">str,</span> <span class="pre">n:</span> <span class="pre">int,</span> <span class="pre">gff:</span> <span class="pre">typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">fasta:</span> <span class="pre">typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">info_ancestral:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'AA',</span> <span class="pre">skip_non_polarized:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">stratifications:</span> <span class="pre">typing.List[fastdfe.parser.Stratification]</span> <span class="pre">=</span> <span class="pre">[],</span> <span class="pre">annotations:</span> <span class="pre">typing.List[fastdfe.annotation.Annotation]</span> <span class="pre">=</span> <span class="pre">[],</span> <span class="pre">filtrations:</span> <span class="pre">typing.List[fastdfe.filtration.Filtration]</span> <span class="pre">=</span> <span class="pre">[&lt;fastdfe.filtration.PolyAllelicFiltration</span> <span class="pre">object&gt;],</span> <span class="pre">include_samples:</span> <span class="pre">typing.Optional[typing.List[str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">exclude_samples:</span> <span class="pre">typing.Optional[typing.List[str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">max_sites:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">inf,</span> <span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">cache:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">aliases:</span> <span class="pre">typing.Dict[str,</span> <span class="pre">typing.List[str]]</span> <span class="pre">=</span> <span class="pre">{},</span> <span class="pre">target_site_counter:</span> <span class="pre">typing.Optional[fastdfe.parser.TargetSiteCounter]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.Parser" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">vcf:</span> <span class="pre">str,</span> <span class="pre">n:</span> <span class="pre">int,</span> <span class="pre">gff:</span> <span class="pre">typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">fasta:</span> <span class="pre">typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">info_ancestral:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'AA',</span> <span class="pre">skip_non_polarized:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">stratifications:</span> <span class="pre">typing.List[fastdfe.parser.Stratification]</span> <span class="pre">=</span> <span class="pre">[],</span> <span class="pre">annotations:</span> <span class="pre">typing.List[fastdfe.annotation.Annotation]</span> <span class="pre">=</span> <span class="pre">[],</span> <span class="pre">filtrations:</span> <span class="pre">typing.List[fastdfe.filtration.Filtration]</span> <span class="pre">=</span> <span class="pre">[&lt;fastdfe.filtration.PolyAllelicFiltration</span> <span class="pre">object&gt;],</span> <span class="pre">include_samples:</span> <span class="pre">typing.Optional[typing.List[str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">exclude_samples:</span> <span class="pre">typing.Optional[typing.List[str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">max_sites:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">inf,</span> <span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">cache:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">aliases:</span> <span class="pre">typing.Dict[str,</span> <span class="pre">typing.List[str]]</span> <span class="pre">=</span> <span class="pre">{},</span> <span class="pre">target_site_counter:</span> <span class="pre">typing.Optional[fastdfe.parser.TargetSiteCounter]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.Parser" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultiHandler</span></code></p>
 <p>Parse site-frequency spectra from VCF files.</p>
 <p>By default, the parser looks at the <code class="docutils literal notranslate"><span class="pre">AA</span></code> tag in the VCF file’s info field to retrieve
 the correct polarization. Sites for which this tag is not well-defined are by default
-included (see <code class="docutils literal notranslate"><span class="pre">skip_non_polarized</span></code>). Note that non-polarized frequency spectra provide much less
-information on the DFE than polarized spectra.</p>
-<p>This class also offers on-the-fly annotation of the VCF sites such as the degeneracy of the sites
-and their ancestral alleles. This is done by providing a list of annotations to the parser which are
+ignored (see <code class="docutils literal notranslate"><span class="pre">skip_non_polarized</span></code>).</p>
+<p>This class also offers on-the-fly annotation of the VCF sites such as site degeneracy and
+ancestral allele state. This is done by providing a list of annotations to the parser which are
 applied in the order they are provided.</p>
-<p>The parser also allows to filter sites based on site properties. This is done by
-providing a list of filtrations to the parser. By default, we filter out poly-allelic
-sites.</p>
+<p>The parser also allows to filter sites based on site properties which is done by
+passing a list of filtrations. By default, we filter out poly-allelic sites as sites are assumed to be
+at most bi-allelic.</p>
 <p>In addition, the parser allows to stratify the SFS by providing a list of stratifications. This is useful
 to obtain the SFS for different types of sites for which we can jointly infer the DFEs using
 <a class="reference internal" href="inference.html#fastdfe.joint_inference.JointInference" title="fastdfe.joint_inference.JointInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">JointInference</span></code></a>.</p>
+<p>To correctly determine the number of target sites when parsing a VCF file that does not contain monomorphic sites,
+we can use a <a class="reference internal" href="#fastdfe.parser.TargetSiteCounter" title="fastdfe.parser.TargetSiteCounter"><code class="xref py py-class docutils literal notranslate"><span class="pre">TargetSiteCounter</span></code></a>. This class is used in conjunction with the parser and
+samples sites from the given fasta file that are found in between variants on the same contig that were parsed
+in the VCF.</p>
 <p>Note that we assume the sites in the VCF file to be sorted by position in ascending order (per contig).</p>
 <p>Example usage:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fastdfe</span> <span class="k">as</span> <span class="nn">fd</span>
 
-<span class="c1"># parse selected and neutral SFS from human chromosome 1</span>
+<span class="c1"># Parse selected and neutral SFS from human chromosome 1.</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Parser</span><span class="p">(</span>
-    <span class="n">vcf</span><span class="o">=</span><span class="s2">&quot;https://ngs.sanger.ac.uk//production/hgdp/hgdp_wgs.20190516/&quot;</span>
+    <span class="n">vcf</span><span class="o">=</span><span class="s2">&quot;https://ngs.sanger.ac.uk/production/hgdp/hgdp_wgs.20190516/&quot;</span>
         <span class="s2">&quot;hgdp_wgs.20190516.full.chr1.vcf.gz&quot;</span><span class="p">,</span>
     <span class="n">fasta</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/&quot;</span>
           <span class="s2">&quot;dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz&quot;</span><span class="p">,</span>
     <span class="n">gff</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
         <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz&quot;</span><span class="p">,</span>
-    <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr1</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">]),</span>
-    <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr1</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">]),</span>  <span class="c1"># mapping for contig names</span>
+    <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>  <span class="c1"># SFS sample size</span>
+    <span class="c1"># we use a target site counter to infer the number of target sites.</span>
     <span class="n">target_site_counter</span><span class="o">=</span><span class="n">fd</span><span class="o">.</span><span class="n">TargetSiteCounter</span><span class="p">(</span>
         <span class="n">n_samples</span><span class="o">=</span><span class="mi">1000000</span><span class="p">,</span>
+        <span class="c1"># determine number of target sites by looking at total length of coding sequences</span>
         <span class="n">n_target_sites</span><span class="o">=</span><span class="n">fd</span><span class="o">.</span><span class="n">Annotation</span><span class="o">.</span><span class="n">count_target_sites</span><span class="p">(</span>
             <span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
             <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz&quot;</span>
         <span class="p">)[</span><span class="s1">&#39;1&#39;</span><span class="p">]</span>
     <span class="p">),</span>
+    <span class="c1"># add degeneracy annotation for sites</span>
     <span class="n">annotations</span><span class="o">=</span><span class="p">[</span>
         <span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyAnnotation</span><span class="p">()</span>
     <span class="p">],</span>
     <span class="n">filtrations</span><span class="o">=</span><span class="p">[</span>
+        <span class="c1"># exclude non-SNPs as we infer monomorphic sites with target site counter</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">SNPFiltration</span><span class="p">(),</span>
+        <span class="c1"># filter out sites not in coding sequences</span>
         <span class="n">fd</span><span class="o">.</span><span class="n">CodingSequenceFiltration</span><span class="p">()</span>
     <span class="p">],</span>
+    <span class="c1"># stratify by 4-fold/0-fold degeneracy</span>
     <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span><span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyStratification</span><span class="p">()],</span>
-    <span class="n">info_ancestral</span><span class="o">=</span><span class="s1">&#39;AA_ensembl&#39;</span><span class="p">,</span>
-    <span class="n">skip_non_polarized</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">info_ancestral</span><span class="o">=</span><span class="s1">&#39;AA_ensembl&#39;</span>
 <span class="p">)</span>
 
 <span class="n">sfs</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
@@ -868,7 +889,7 @@ to obtain the SFS for different types of sites for which we can jointly infer th
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parser.Parser.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">vcf:</span> <span class="pre">str,</span> <span class="pre">n:</span> <span class="pre">int,</span> <span class="pre">gff:</span> <span class="pre">typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">fasta:</span> <span class="pre">typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">info_ancestral:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'AA',</span> <span class="pre">skip_non_polarized:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">stratifications:</span> <span class="pre">typing.List[fastdfe.parser.Stratification]</span> <span class="pre">=</span> <span class="pre">[],</span> <span class="pre">annotations:</span> <span class="pre">typing.List[fastdfe.annotation.Annotation]</span> <span class="pre">=</span> <span class="pre">[],</span> <span class="pre">filtrations:</span> <span class="pre">typing.List[fastdfe.filtration.Filtration]</span> <span class="pre">=</span> <span class="pre">[&lt;fastdfe.filtration.PolyAllelicFiltration</span> <span class="pre">object&gt;],</span> <span class="pre">include_samples:</span> <span class="pre">typing.Optional[typing.List[str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">exclude_samples:</span> <span class="pre">typing.Optional[typing.List[str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">max_sites:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">inf,</span> <span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">cache:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">aliases:</span> <span class="pre">typing.Dict[str,</span> <span class="pre">typing.List[str]]</span> <span class="pre">=</span> <span class="pre">{},</span> <span class="pre">target_site_counter:</span> <span class="pre">typing.Optional[fastdfe.parser.TargetSiteCounter]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.Parser.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">vcf:</span> <span class="pre">str,</span> <span class="pre">n:</span> <span class="pre">int,</span> <span class="pre">gff:</span> <span class="pre">typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">fasta:</span> <span class="pre">typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">info_ancestral:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'AA',</span> <span class="pre">skip_non_polarized:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">stratifications:</span> <span class="pre">typing.List[fastdfe.parser.Stratification]</span> <span class="pre">=</span> <span class="pre">[],</span> <span class="pre">annotations:</span> <span class="pre">typing.List[fastdfe.annotation.Annotation]</span> <span class="pre">=</span> <span class="pre">[],</span> <span class="pre">filtrations:</span> <span class="pre">typing.List[fastdfe.filtration.Filtration]</span> <span class="pre">=</span> <span class="pre">[&lt;fastdfe.filtration.PolyAllelicFiltration</span> <span class="pre">object&gt;],</span> <span class="pre">include_samples:</span> <span class="pre">typing.Optional[typing.List[str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">exclude_samples:</span> <span class="pre">typing.Optional[typing.List[str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">max_sites:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">inf,</span> <span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">cache:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">aliases:</span> <span class="pre">typing.Dict[str,</span> <span class="pre">typing.List[str]]</span> <span class="pre">=</span> <span class="pre">{},</span> <span class="pre">target_site_counter:</span> <span class="pre">typing.Optional[fastdfe.parser.TargetSiteCounter]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parser.Parser.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Initialize the parser.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -883,15 +904,15 @@ the set of all available genotypes per site. Sites with fewer than <code class="
 <li><p><strong>info_ancestral</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The tag in the INFO field that contains ancestral allele information. Consider using
 an ancestral allele annotation if this information is not available yet.</p></li>
 <li><p><strong>skip_non_polarized</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to skip poly-morphic sites that are not polarized, i.e., without a valid
-info tag providing the ancestral allele. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code> so that we use the reference allele as the
-ancestral allele in such cases.</p></li>
+info tag providing the ancestral allele. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, we use the reference allele as ancestral allele (
+only recommended if working with folded spectra).</p></li>
 <li><p><strong>stratifications</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#fastdfe.parser.Stratification" title="fastdfe.parser.Stratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stratification</span></code></a>]) – List of stratifications to use.</p></li>
 <li><p><strong>annotations</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="annotation.html#fastdfe.annotation.Annotation" title="fastdfe.annotation.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a>]) – List of annotations to use.</p></li>
 <li><p><strong>filtrations</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="filtration.html#fastdfe.filtration.Filtration" title="fastdfe.filtration.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filtration</span></code></a>]) – List of filtrations to use.</p></li>
-<li><p><strong>include_samples</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – List of sample names to consider when determining the SFS. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, all samples are used.
-Note that this restriction does not apply to the annotations and filtrations.</p></li>
-<li><p><strong>exclude_samples</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – List of sample names to exclude when determining the SFS. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no samples are excluded.
-Note that this restriction does not apply to the annotations and filtrations.</p></li>
+<li><p><strong>include_samples</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – List of sample names to consider when determining the SFS. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, all samples
+are used. Note that this restriction does not apply to the annotations and filtrations.</p></li>
+<li><p><strong>exclude_samples</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – List of sample names to exclude when determining the SFS. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no samples
+are excluded. Note that this restriction does not apply to the annotations and filtrations.</p></li>
 <li><p><strong>max_sites</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Maximum number of sites to parse from the VCF file.</p></li>
 <li><p><strong>seed</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Seed for the random number generator. Use <code class="docutils literal notranslate"><span class="pre">None</span></code> for no seed.</p></li>
 <li><p><strong>cache</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to cache files downloaded from URLs.</p></li>

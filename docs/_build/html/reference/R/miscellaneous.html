@@ -26,7 +26,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Inference" href="../../modules/inference.html" />
-    <link rel="prev" title="VCF parsing" href="parser.html" /> 
+    <link rel="prev" title="VCF Parsing" href="parser.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -70,7 +70,7 @@
 <li class="toctree-l1"><a class="reference internal" href="config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parametrizations.html">DFE parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="spectra.html">Working with SFS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parser.html">VCF parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parser.html">VCF Parsing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Miscellaneous</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#object-oriented-design">Object-Oriented Design</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#logging">Logging</a></li>
@@ -142,7 +142,7 @@
 </pre></div>
 </div>
 <p>You can also disable the progress bar like this</p>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">fastdfe</span><span class="o">$</span><span class="n">disable_pbar</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="kc">TRUE</span>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">fastdfe</span><span class="o">$</span><span class="n">Settings</span><span class="o">$</span><span class="n">disable_pbar</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="kc">TRUE</span>
 </pre></div>
 </div>
 </section>
@@ -152,7 +152,7 @@
 </section>
 <section id="seeding">
 <h2>Seeding<a class="headerlink" href="#seeding" title="Permalink to this heading"></a></h2>
-<p>fastDFE is seeded by default to ensure reproducibility (see <code class="docutils literal notranslate"><span class="pre">seed</span></code> in <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>, <a class="reference internal" href="../../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>, etc.). Randomness is required when bootstrapping, choosing initial values for different optimization runs, and when parsing the SFS from VCF files which requires taking random subsamples.</p>
+<p>fastDFE is seeded by default to ensure reproducibility (see <code class="docutils literal notranslate"><span class="pre">seed</span></code> in <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>, <a class="reference internal" href="../../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>, etc.). Randomness is required for various computational tasks, such as bootstrapping, choosing initial values for different optimization runs, and taking subsamples during VCF parsing.</p>
 </section>
 </section>
 
@@ -160,7 +160,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="parser.html" class="btn btn-neutral float-left" title="VCF parsing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="parser.html" class="btn btn-neutral float-left" title="VCF Parsing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../../modules/inference.html" class="btn btn-neutral float-right" title="Inference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

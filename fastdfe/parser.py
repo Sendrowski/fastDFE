@@ -19,10 +19,10 @@ from Bio.SeqRecord import SeqRecord
 from cyvcf2 import Variant
 from tqdm import tqdm
 
-from .annotation import Annotation, SynonymyAnnotation
+from .annotation import Annotation, SynonymyAnnotation, DegeneracyAnnotation
 from .filtration import Filtration, PolyAllelicFiltration, SNPFiltration
 from .io_handlers import bases, get_called_bases, FASTAHandler, NoTypeException, \
-    DummyVariant, MultiHandler
+    DummyVariant, MultiHandler, is_monomorphic_snp
 from .settings import Settings
 from .spectrum import Spectra
 
@@ -62,20 +62,20 @@ class Stratification(ABC):
         """
         self.logger = logger.getChild(self.__class__.__name__)
 
-        #: MultiHandler instance
-        self.handler: Optional['Parser'] = None
+        #: Parser instance
+        self.parser: Optional['Parser'] = None
 
         #: The number of sites that didn't have a type.
         self.n_valid: int = 0
 
-    def _setup(self, handler: MultiHandler):
+    def _setup(self, parser: 'Parser'):
         """
-        Provide the stratification with some context by specifying the handler.
+        Provide the stratification with some context by specifying the parser.
         This should be done before calling :meth:`get_type`.
 
-        :param handler: The handler
+        :param parser: The parser
         """
-        self.handler = handler
+        self.parser = parser
 
     def _rewind(self):
         """
@@ -111,12 +111,30 @@ class Stratification(ABC):
         pass
 
 
+class SNPStratification(Stratification, ABC):
+    """
+    Abstract class for stratifications that can only handle SNPs. We need to issue a warning in this case.
+    """
+
+    def _setup(self, parser: 'Parser'):
+        """
+        Set up the stratification.
+
+        :param parser: The parser
+        """
+        super()._setup(parser)
+
+        # issue warning if we have an SNP stratification
+        self.logger.warning(f"{self.__class__.__name__} can only handle SNPs and not mono-allelic sites. "
+                            "This means you have to update the number of mono-allelic sites manually.")
+
+
 class BaseContextStratification(Stratification, FASTAHandler):
     """
     Stratify the SFS by the base context of the mutation. The number of flanking bases
     can be configured. Note that we attempt to take the ancestral allele as the
-    middle base. If ``skip_non_polarized`` is set to ``True``, we skip sites
-    that are not polarized, otherwise we use the reference allele as the middle base.
+    middle base. If ``skip_non_polarized`` is set to ``False``, we use the reference
+    allele as the middle base.
     """
 
     def __init__(
@@ -166,7 +184,7 @@ class BaseContextStratification(Stratification, FASTAHandler):
         pos = variant.POS - 1
 
         # get the ancestral allele
-        aa = self.handler._get_ancestral(variant)
+        aa = self.parser._get_ancestral(variant)
 
         # get aliases
         aliases = self.get_aliases(variant.CHROM)
@@ -201,13 +219,12 @@ class BaseContextStratification(Stratification, FASTAHandler):
         return [''.join(c) for c in itertools.product(bases, repeat=2 * self.n_flanking + 1)]
 
 
-class BaseTransitionStratification(Stratification):
+class BaseTransitionStratification(SNPStratification):
     """
     Stratify the SFS by the base transition of the mutation, i.e., ``A>T``.
 
     .. warning::
-        This stratification only works for SNPs.
-        TODO handle mono-allelic sites
+        This stratification only works for SNPs. You thus need to update the number of mono-allelic sites manually.
     """
 
     @_count_valid_type
@@ -220,7 +237,7 @@ class BaseTransitionStratification(Stratification):
         :raises NoTypeException: if not type could be determined
         """
         if variant.is_snp:
-            ancestral = self.handler._get_ancestral(variant)
+            ancestral = self.parser._get_ancestral(variant)
 
             derived = variant.REF if variant.REF != ancestral else variant.ALT[0]
 
@@ -245,8 +262,7 @@ class TransitionTransversionStratification(BaseTransitionStratification):
     Stratify the SFS by whether we have a transition or transversion.
 
     .. warning::
-        This stratification only works for SNPs.
-        TODO handle mono-allelic sites
+        This stratification only works for SNPs. You thus need to update the number of mono-allelic sites manually.
     """
 
     @_count_valid_type
@@ -281,9 +297,8 @@ class TransitionTransversionStratification(BaseTransitionStratification):
 class AncestralBaseStratification(Stratification):
     """
     Stratify the SFS by the base context of the mutation: the reference base.
-    If ``skip_non_polarized`` is set to ``True``, we skip sites
-    that are not polarized, otherwise we use the reference allele as ancestral base.
-    By default, we use the ``AA`` tag to determine the ancestral allele.
+    If ``skip_non_polarized`` is set to ``False``, we use the reference allele as
+    ancestral base. By default, we use the ``AA`` tag to determine the ancestral allele.
 
     Any subclass of :class:`~fastdfe.parser.AncestralAnnotation` can be used to annotate the ancestral allele.
     """
@@ -296,7 +311,7 @@ class AncestralBaseStratification(Stratification):
         :param variant: The vcf site
         :return: reference allele
         """
-        return self.handler._get_ancestral(variant)
+        return self.parser._get_ancestral(variant)
 
     def get_types(self) -> List[str]:
         """
@@ -370,14 +385,14 @@ class DegeneracyStratification(Stratification):
         return ['neutral', 'selected']
 
 
-class SynonymyStratification(Stratification):
+class SynonymyStratification(SNPStratification):
     """
     Stratify SFS by synonymy (neutral or selected).
 
     :class:`~fastdfe.annotation.SynonymyAnnotation` can be used to annotate the synonymy of a site.
 
     .. warning::
-        This stratification only works for SNPs.
+        This stratification only works for SNPs. You thus need to update the number of mono-allelic sites manually.
     """
 
     def get_types(self) -> List[str]:
@@ -415,7 +430,7 @@ class VEPStratification(SynonymyStratification):
     Stratify SFS by synonymy (neutral or selected) based on annotation provided by VEP.
 
     .. warning::
-        This stratification only works for SNPs.
+        This stratification only works for SNPs. You thus need to update the number of mono-allelic sites manually.
     """
 
     #: The tag used by VEP to annotate the synonymy
@@ -453,7 +468,7 @@ class SnpEffStratification(VEPStratification):
     Stratify SFS by synonymy (neutral or selected) based on annotation provided by SnpEff.
 
     .. warning::
-        This stratification only works for SNPs.
+        This stratification only works for SNPs. You thus need to update the number of mono-allelic sites manually.
     """
 
     #: The tag used by SnpEff to annotate the synonymy
@@ -484,7 +499,7 @@ class ContigStratification(GenomePositionDependentStratification):
 
         :return: List of contexts
         """
-        return list(self.handler._reader.seqnames)
+        return list(self.parser._reader.seqnames)
 
 
 class ChunkedStratification(GenomePositionDependentStratification):
@@ -509,16 +524,16 @@ class ChunkedStratification(GenomePositionDependentStratification):
         #: Number of sites seen so far
         self.counter: int = 0
 
-    def _setup(self, handler: MultiHandler):
+    def _setup(self, parser: 'Parser'):
         """
         Set up the stratification.
 
-        :param handler: The handler
+        :param parser: The parser
         """
-        super()._setup(handler)
+        super()._setup(parser)
 
         # compute base chunk size and remainder
-        base_chunk_size, remainder = divmod(handler.n_sites, self.n_chunks)
+        base_chunk_size, remainder = divmod(parser.n_sites, self.n_chunks)
 
         # create list of chunk sizes
         self.chunk_sizes = [base_chunk_size + (i < remainder) for i in range(self.n_chunks)]
@@ -565,7 +580,7 @@ class TargetSiteCounter:
     monomorphic sites is then extrapolated from ``n_target_sites``.
 
     .. warning::
-        This class is not compatible with stratification based on info tags that are pre-defined in the VCF file, as
+        This class is not compatible with stratifications based on info tags that are pre-defined in the VCF file, as
         opposed to those added dynamically using the ``annotations`` argument of the parser. We also need to
         stratify mono-allelic sites which, in this case, won't be present in the VCF file so that they have no
         info tags when sampling from the FASTA file, and are thus ignored by the stratifications. However, using the
@@ -613,6 +628,13 @@ class TargetSiteCounter:
         if not any([isinstance(f, SNPFiltration) for f in self.parser.filtrations]):
             self.logger.warning("Recommended to use a SNPFiltration when using target site "
                                 "counter to avoid biasing the result by monomorphic sites.")
+
+        # check if have degeneracy stratification but no degeneracy annotation
+        if any([isinstance(s, DegeneracyStratification) for s in self.parser.stratifications]) \
+                and not any([isinstance(a, DegeneracyAnnotation) for a in self.parser.annotations]):
+            self.logger.warning("When using TargetSiteCounter with DegeneracyStratification, "
+                                "make sure to provide DegeneracyAnnotation to make sure the "
+                                "sites sampled from the FASTA file also have a degeneracy tag.")
 
     def _teardown(self):
         """
@@ -777,20 +799,24 @@ class Parser(MultiHandler):
 
     By default, the parser looks at the ``AA`` tag in the VCF file's info field to retrieve
     the correct polarization. Sites for which this tag is not well-defined are by default
-    included (see ``skip_non_polarized``). Note that non-polarized frequency spectra provide much less
-    information on the DFE than polarized spectra.
+    ignored (see ``skip_non_polarized``).
 
-    This class also offers on-the-fly annotation of the VCF sites such as the degeneracy of the sites
-    and their ancestral alleles. This is done by providing a list of annotations to the parser which are
+    This class also offers on-the-fly annotation of the VCF sites such as site degeneracy and
+    ancestral allele state. This is done by providing a list of annotations to the parser which are
     applied in the order they are provided.
 
-    The parser also allows to filter sites based on site properties. This is done by
-    providing a list of filtrations to the parser. By default, we filter out poly-allelic
-    sites.
+    The parser also allows to filter sites based on site properties which is done by
+    passing a list of filtrations. By default, we filter out poly-allelic sites as sites are assumed to be
+    at most bi-allelic.
 
     In addition, the parser allows to stratify the SFS by providing a list of stratifications. This is useful
     to obtain the SFS for different types of sites for which we can jointly infer the DFEs using
     :class:`~fastdfe.joint_inference.JointInference`.
+
+    To correctly determine the number of target sites when parsing a VCF file that does not contain monomorphic sites,
+    we can use a :class:`~fastdfe.parser.TargetSiteCounter`. This class is used in conjunction with the parser and
+    samples sites from the given fasta file that are found in between variants on the same contig that were parsed
+    in the VCF.
 
     Note that we assume the sites in the VCF file to be sorted by position in ascending order (per contig).
 
@@ -800,7 +826,7 @@ class Parser(MultiHandler):
 
         import fastdfe as fd
 
-        # parse selected and neutral SFS from human chromosome 1
+        # Parse selected and neutral SFS from human chromosome 1.
         p = fd.Parser(
             vcf="https://ngs.sanger.ac.uk/production/hgdp/hgdp_wgs.20190516/"
                 "hgdp_wgs.20190516.full.chr1.vcf.gz",
@@ -808,25 +834,30 @@ class Parser(MultiHandler):
                   "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
             gff="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
                 "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz",
-            aliases=dict(chr1=['1']),
-            n=10,
+            aliases=dict(chr1=['1']),  # mapping for contig names
+            n=10,  # SFS sample size
+            # we use a target site counter to infer the number of target sites.
             target_site_counter=fd.TargetSiteCounter(
                 n_samples=1000000,
+                # determine number of target sites by looking at total length of coding sequences
                 n_target_sites=fd.Annotation.count_target_sites(
                     "http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
                     "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz"
                 )['1']
             ),
+            # add degeneracy annotation for sites
             annotations=[
                 fd.DegeneracyAnnotation()
             ],
             filtrations=[
+                # exclude non-SNPs as we infer monomorphic sites with target site counter
                 fd.SNPFiltration(),
+                # filter out sites not in coding sequences
                 fd.CodingSequenceFiltration()
             ],
+            # stratify by 4-fold/0-fold degeneracy
             stratifications=[fd.DegeneracyStratification()],
-            info_ancestral='AA_ensembl',
-            skip_non_polarized=True
+            info_ancestral='AA_ensembl'
         )
 
         sfs = p.parse()
@@ -842,7 +873,7 @@ class Parser(MultiHandler):
             gff: str | None = None,
             fasta: str | None = None,
             info_ancestral: str = 'AA',
-            skip_non_polarized: bool = False,
+            skip_non_polarized: bool = True,
             stratifications: List[Stratification] = [],
             annotations: List[Annotation] = [],
             filtrations: List[Filtration] = [PolyAllelicFiltration()],
@@ -867,8 +898,8 @@ class Parser(MultiHandler):
         :param info_ancestral: The tag in the INFO field that contains ancestral allele information. Consider using
             an ancestral allele annotation if this information is not available yet.
         :param skip_non_polarized: Whether to skip poly-morphic sites that are not polarized, i.e., without a valid
-            info tag providing the ancestral allele. Default is ``False`` so that we use the reference allele as the
-            ancestral allele in such cases.
+            info tag providing the ancestral allele. If ``False``, we use the reference allele as ancestral allele (
+            only recommended if working with folded spectra).
         :param stratifications: List of stratifications to use.
         :param annotations: List of annotations to use.
         :param filtrations: List of filtrations to use.
@@ -944,7 +975,8 @@ class Parser(MultiHandler):
 
         :param variant: The vcf site
         :return: Ancestral allele
-        :raises NoTypeException: If the site is not polarized and ``skip_non_polarized`` is ``True``
+        :raises NoTypeException: If the site is not polarized and ``skip_non_polarized`` is ``True`` or if
+            the ancestral allele or reference allele (in case of monomorphic sites) is not a valid base.
         """
         if variant.is_snp:
             # obtain ancestral allele
@@ -956,7 +988,7 @@ class Parser(MultiHandler):
 
             # if we skip non-polarized sites, we raise an error here
             if self.skip_non_polarized:
-                raise NoTypeException("No valid AA tag found so we skip the site")
+                raise NoTypeException("No valid AA tag found")
 
         # if we don't skip non-polarized sites, or if the site is not an SNP
         # we return the reference allele if valid
@@ -1016,14 +1048,15 @@ class Parser(MultiHandler):
             # determine ancestral allele count
             n_aa = counter[aa]
 
-            # determine down-projected allele count
+            # Determine down-projected allele count.
+            # Here we implicitly assume that the site is bi-allelic.
             k = self.rng.hypergeometric(ngood=n_samples - n_aa, nbad=n_aa, nsample=self.n)
 
         # if we have a mono-allelic SNPs
-        elif not (variant.is_mnp or variant.is_indel or variant.is_deletion or variant.is_sv) and len(variant.REF) == 1:
+        elif is_monomorphic_snp(variant):
             # if we don't have an SNP, we assume the reference allele to be the ancestral allele,
             # so the derived allele count is 0
-            # The polarization of monomorphic sites is not important for DFE inference, in any case
+            # The polarization of monomorphic sites is not important for DFE inference with fastDFE, in any case
             k = 0
         else:
             # skip other types of sites
@@ -1035,7 +1068,7 @@ class Parser(MultiHandler):
             # create joint type
             t = '.'.join([s.get_type(variant) for s in self.stratifications]) or 'all'
 
-            # add count by 1
+            # add count of 1
             self.sfs[t][k] += 1
 
         except NoTypeException as e:

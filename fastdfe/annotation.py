@@ -515,11 +515,17 @@ class SynonymyAnnotation(DegeneracyAnnotation):
     Synonymy annotation. This class annotates a variant with the synonymous/non-synonymous status.
 
     This annotation adds the info fields ``Synonymous`` and ``Synonymous_Info``, which hold
-    the synonymous status (Synonymous (0) or non-synonymous (1)) and the codon information, respectively.
+    the synonymy (Synonymous [0] or non-synonymous [1]) and the codon information, respectively.
     To be used with :class:`~fastdfe.parser.SynonymyStratification`.
 
     For this annotation to work, we require a FASTA and GFF file (passed to :class:`~fastdfe.parser.Parser` or
     :class:`~fastdfe.annotation.Annotator`).
+
+    This class was tested against `VEP <VEP_>`_ and `SnpEff <SnpEff_>`_ and provides the same annotations in almost
+    all cases.
+
+    .. _VEP: https://www.ensembl.org/info/docs/tools/vep/index.html
+    .. _SnpEff: https://pcingola.github.io/SnpEff/
 
     .. warning::
         Not recommended for use with :class:`~fastdfe.parser.Parser` as we also need to annotate mono-allelic sites.
@@ -593,8 +599,6 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
             return variant.ALT[0]
 
-        return
-
     @staticmethod
     def mutate(codon: str, alt: str, pos: int) -> str:
         """
@@ -656,8 +660,6 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
         if 'missense_variant' in ann:
             return 0
-
-        return
 
     def _teardown(self):
         """
@@ -838,20 +840,39 @@ class MaximumParsimonyAncestralAnnotation(AncestralAlleleAnnotation):
         :param variant: The variant to annotate.
         :return: The annotated variant.
         """
-        if isinstance(variant, DummyVariant):
-            base = variant.REF
-        else:
-            # get the major base
-            base = get_major_base(variant.gt_bases[self.samples_mask])
-
-        # take base if defined
-        major_allele = base if base is not None else '.'
-
         # set the ancestral allele
-        variant.INFO[self.handler.info_ancestral] = major_allele
+        variant.INFO[self.handler.info_ancestral] = self._get_ancestral(variant, self.samples_mask)
 
         # increase the number of annotated sites
         self.n_annotated += 1
+
+    @staticmethod
+    def _get_ancestral(
+            variant: Variant | DummyVariant,
+            mask: np.ndarray,
+    ) -> str:
+        """
+        Get the ancestral allele for the given variant.
+
+        :param variant: The variant to annotate.
+        :param mask: The mask for the ingroups.
+        :return: The ancestral allele.
+        """
+        # take reference allele as ancestral if dummy variant
+        if isinstance(variant, DummyVariant):
+            return variant.REF
+
+        # take only base to be ancestral if we have a monomorphic snv
+        if not variant.is_snp and variant.REF in bases:
+            b = get_called_bases(variant.gt_bases[mask])
+
+            return b[0] if len(b) == 1 else '.'
+
+        # take major base to be ancestral if we have an SNP
+        if variant.is_snp:
+            return get_major_base(variant.gt_bases[mask]) or '.'
+
+        return '.'
 
 
 class SubstitutionModel(ABC):
@@ -1314,15 +1335,38 @@ class PolarizationPrior(ABC):
     into the estimates. 
     """
 
-    def __init__(self):
+    def __init__(self, allow_divergence: bool = True):
         """
-        Create a new prior instance.
+        Create a new instance.
+
+        :param allow_divergence: Whether to allow divergence. If ``True``, the probability of the minor allele
+            being ancestral, which is not contained in the ingroup subsample but rather in all specified ingroups
+            or among the outgroup, is taken to be the same as if it was present in the ingroup subsample with
+            frequency 1. This is a hack, but allows us to consider alleles that are not present in the ingroup
+            subsample.
         """
         #: The logger.
         self.logger = logger.getChild(self.__class__.__name__)
 
+        #: Whether to allow divergence.
+        self.allow_divergence: bool = allow_divergence
+
         #: The polarization probabilities.
         self.probabilities: np.ndarray[float, (...,)] | None = None
+
+    def _add_divergence(self):
+        """
+        Add divergence to the polarization probabilities.
+        """
+        # take divergence probabilities to be the same as alleles of frequency 1
+        if self.allow_divergence:
+            self.probabilities[0] = self.probabilities[1]
+            self.probabilities[-1] = self.probabilities[-2]
+
+        # set divergence probabilities to 0
+        else:
+            self.probabilities[0] = 1
+            self.probabilities[-1] = 0
 
     @abstractmethod
     def get_prior(self, configs: pd.DataFrame, n_ingroups: int) -> np.ndarray:
@@ -1383,12 +1427,12 @@ class KingmanPolarizationPrior(PolarizationPrior):
         """
         self.probabilities = np.zeros(n_ingroups + 1)
 
-        # first entry is 1
-        self.probabilities[0] = 1
-
         # calculate polarization probabilities
         for i in range(1, n_ingroups):
             self.probabilities[i] = 1 / i / (1 / i + 1 / (n_ingroups - i))
+
+        # add divergence probabilities
+        self._add_divergence()
 
         return self.probabilities
 
@@ -1528,6 +1572,9 @@ class AdaptivePolarizationPrior(PolarizationPrior):
             # noinspection all
             self.probabilities = np.concatenate(([1], probs, 1 - probs[::-1], [0]))
 
+        # add divergence probabilities
+        self._add_divergence()
+
         return self.probabilities
 
     @staticmethod
@@ -1579,7 +1626,6 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
             ingroups: List[str] | None = None,
             exclude: List[str] = [],
             seed: int | None = 0,
-            skip_monomorphic: bool = True
     ):
         """
         Create a new ancestral allele annotation instance.
@@ -1593,8 +1639,11 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
             considered.
         :param exclude: Samples to exclude from the ingroup. A list of sample names as they appear in the VCF file.
         :param seed: The seed for the random number generator.
-        :param skip_monomorphic: Whether to skip monomorphic sites.
         """
+        # make sure the number of ingroups is at least 2
+        if n_ingroups < 2:
+            raise ValueError("The number of ingroups must be at least 2.")
+
         super().__init__()
 
         #: The ingroup samples to consider when determining the ancestral allele.
@@ -1607,7 +1656,7 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         self.outgroups: List[str] = outgroups
 
         #: The number of ingroups.
-        self.n_ingroups: int = n_ingroups
+        self.n_ingroups: int = int(n_ingroups)
 
         #: The number of outgroups.
         self.n_outgroups: int = len(outgroups)
@@ -1623,9 +1672,6 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 
         #: The ingroup mask.
         self._ingroup_mask: np.ndarray | None = None
-
-        #: Whether to skip monomorphic sites.
-        self.skip_monomorphic: bool = skip_monomorphic
 
     def _prepare_masks(self, samples: List[str]):
         """
@@ -1701,28 +1747,36 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
     @staticmethod
     def _get_outgroup_bases(
             genotypes: np.ndarray[str],
-            n_outgroups: int
-    ) -> np.ndarray[int]:
+            n_outgroups: int,
+            minor_base: str
+    ) -> np.ndarray[str]:
         """
-        Get the outgroup bases for a variant.
+        Get the outgroup bases for a variant. We favour the minor allele as it provides more information about
+        the ancestral allele.
 
         :param genotypes: The VCF genotype strings.
         :param n_outgroups: The number of outgroups.
+        :param minor_base: The minor base.
         :return: The outgroup bases.
         """
-        outgroup_bases = np.full(n_outgroups, -1, dtype=int)
+        outgroup_bases = np.full(n_outgroups, 'N')
 
         for i, genotype in enumerate(genotypes):
-            bases = get_called_bases([genotype])
+            called_bases = get_called_bases([genotype])
 
-            if len(bases) > 0:
-                outgroup_bases[i] = base_indices[bases[0]]
+            if len(called_bases) > 0:
+
+                # take the minor allele if it is present in the outgroup
+                if minor_base in called_bases:
+                    outgroup_bases[i] = minor_base
+                else:
+                    outgroup_bases[i] = called_bases[0]
 
         return outgroup_bases
 
     def _parse_variant(self, variant: Variant | DummyVariant) -> SiteConfig | None:
         """
-        Parse a VCF variant. We only SNPs that are at most bi-allelic and have at least ``n_ingroups`` ingroup.
+        Parse a VCF variant. We only consider SNPs that are bi-allelic in the in- and outgroups.
 
         :param variant: The variant.
         :return: The site configuration.
@@ -1730,40 +1784,42 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         if not variant.is_snp:
             return
 
-        # get the called ingroup and outgroup bases
+        # get the called ingroup bases
         ingroups = get_called_bases(variant.gt_bases[self._ingroup_mask])
 
         # get the numer of called ingroup and outgroup bases
         n_ingroups = len(ingroups)
 
-        # only consider sites with enough ingroups and outgroups
+        # only consider sites with enough ingroups
         if n_ingroups >= self.n_ingroups:
 
-            # subsample ingroups
-            subsample_ingroups = self._subsample(ingroups, size=self.n_ingroups)
+            # get the called outgroup bases
+            outgroups = get_called_bases(variant.gt_bases[self._outgroup_mask])
 
-            # get the counts of ingroups and outgroups
-            counts_ingroups = Counter(subsample_ingroups)
+            # get total base counts
+            counts = Counter(np.concatenate((ingroups, outgroups)))
 
-            # only consider sites where the ingroups are at most bi-allelic
-            if len(counts_ingroups) <= 2:
+            # only consider sites where the in- and outgroups are at most bi-allelic
+            if len(counts) == 2:
+                # subsample ingroups
+                subsample_ingroups = self._subsample(ingroups, size=self.n_ingroups)
 
-                # get the major and minor allele
-                most_common = counts_ingroups.most_common()
+                # get the major allele count
+                most_common = Counter(subsample_ingroups).most_common()
 
                 # get the bases
-                bases: List[str] = list(counts_ingroups.keys())
+                b: List[str] = list(counts.keys())
 
-                # take the other allele as the minor allele
-                if len(counts_ingroups) == 2:
-                    minor_base = base_indices[bases[0] if bases[0] != most_common[0][0] else bases[1]]
-                else:
-                    minor_base = -1
+                # Take the other allele as the minor allele. We like to keep track of the minor allele
+                # even if it wasn't contained in the ingroup subsample.
+                minor_base = base_indices[b[0] if b[0] != most_common[0][0] else b[1]]
 
                 # get the outgroup bases
+                # it is important we don't mix the outgroup individuals
                 outgroup_bases = self._get_outgroup_bases(
                     genotypes=variant.gt_bases[self._outgroup_mask],
-                    n_outgroups=self.n_outgroups
+                    n_outgroups=self.n_outgroups,
+                    minor_base=minor_base
                 )
 
                 # create site configuration
@@ -1771,13 +1827,11 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
                     major_base=base_indices[most_common[0][0]],
                     n_major=most_common[0][1],
                     minor_base=minor_base,
-                    outgroup_bases=outgroup_bases,
+                    outgroup_bases=self.get_base_index(outgroup_bases),
                     multiplicity=1
                 )
 
                 return site
-
-        return
 
     @staticmethod
     def get_base_string(indices: int | np.ndarray[int]) -> str | np.ndarray[str]:
@@ -1839,6 +1893,8 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
     ad-hoc ancestral allele annotation, and log it if they disagree. This provides a simple way to check the
     reliability of the results.
 
+    Only variants that are at most bi-allelic in the provided in- and outgroups are annotated.
+
     Differences to EST-SFS:
 
     * The polarization prior corresponds to the Kingman coalescent probability by default. Using an adaptive prior
@@ -1870,8 +1926,8 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
       chosen to be sufficiently distant.
 
     .. warning::
+        TODO remove this notice once the model has been tested more thoroughly.
         Still experimental. Use with caution.
-        TODO add pseudo count for monomorphic sites
     """
 
     #: The data types for the data frame
@@ -1902,7 +1958,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             prior: PolarizationPrior | None = KingmanPolarizationPrior(),
             max_sites: int = np.inf,
             seed: int | None = 0,
-            skip_monomorphic: bool = True,
             confidence_threshold: float = 0.8
     ):
         """
@@ -1940,9 +1995,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             the computation considerably as parsing can be slow. This subset is then used to calibrate the rate
             parameters, and possibly the polarization priors.
         :param seed: The seed for the random number generator. If ``None``, a random seed is chosen.
-        :param skip_monomorphic: Whether to skip sites that are monomorphic in the ingroups when annotating the VCF
-            file. This speeds up computations, and the polarization of monomorphic sites is not informative when doing
-            DFE inference with fastDFE.
         :param confidence_threshold: The confidence threshold for the ancestral allele annotation. If the probability
             of the major allele being ancestral is below this threshold, the ancestral allele is not annotated. This
             value should not be lower than 0.5 in any case.
@@ -1952,8 +2004,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             exclude=exclude,
             outgroups=outgroups,
             n_ingroups=n_ingroups,
-            seed=seed,
-            skip_monomorphic=skip_monomorphic
+            seed=seed
         )
 
         # check that we have at least one outgroup
@@ -1980,7 +2031,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         self.prior: PolarizationPrior | None = prior
 
         #: Number of random ML starts when determining the rate parameters
-        self.n_runs: int = n_runs
+        self.n_runs: int = int(n_runs)
 
         #: The substitution model.
         self.model: SubstitutionModel = model
@@ -2026,7 +2077,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         super()._setup(handler)
 
         # load data
-        self._load_variants()
+        self._parse_variants()
 
         # infer ancestral alleles
         self.infer()
@@ -2167,41 +2218,49 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
         :param file: The output file name.
         """
-        # ungroup the data
-        ungrouped = self.configs.explode('sites')
+        # get config indices for each site
+        indices = self._get_site_indices()
 
-        # sort by sites column
-        ungrouped = ungrouped.sort_values('sites')
+        # remove sites that are not included
+        indices = indices[indices != -1]
+
+        # get the sites
+        sites = self.configs.iloc[indices]
 
         with open(file, 'w') as f:
 
             # iterate over rows
-            for i, row in ungrouped.iterrows():
+            for i, site in sites.iterrows():
 
                 # ingroup counts
                 ingroups = np.zeros(4, dtype=int)
 
                 # major allele count
-                ingroups[row['major_base']] = row['n_major']
+                ingroups[site['major_base']] = site['n_major']
 
                 # minor allele count if not mono-allelic
-                if row['minor_base'] != -1:
-                    ingroups[row['minor_base']] = self.n_ingroups - row['n_major']
+                if site['minor_base'] != -1:
+                    ingroups[site['minor_base']] = self.n_ingroups - site['n_major']
 
                 # write ingroup counts
                 outgroups = np.zeros((self.n_outgroups, 4), dtype=int)
 
                 # fill outgroup counts
-                for j, base in enumerate(row['outgroup_bases']):
+                for j, base in enumerate(site['outgroup_bases']):
                     if base != -1:
                         outgroups[j, base] = 1
 
+                # write line
                 f.write(
                     ','.join(ingroups.astype(str)) +
                     '\t' +
                     '\t'.join([','.join(o) for o in outgroups.astype(str)]) +
                     '\n'
                 )
+
+                # break if we reached the maximum number of sites
+                if i + 1 >= self.max_sites:
+                    break
 
     @classmethod
     def from_data(
@@ -2358,7 +2417,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
         return anc
 
-    def _load_variants(self):
+    def _parse_variants(self):
         """
         Load the variants from the VCF reader and parse them.
         """
@@ -2428,7 +2487,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             # determine number of outgroups
             self.configs['n_outgroups'] = np.sum(np.array(self.configs.outgroup_bases.to_list()) != -1, axis=1)
 
-        # total number of sites
+        # total number of sites considered
         self.n_sites = i + 1
 
         # notify about the number of sites
@@ -2539,8 +2598,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
                 n_ingroups=self.n_ingroups
             )
 
-        return
-
     @staticmethod
     def get_p_tree(
             base: int,
@@ -2628,7 +2685,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         # get the focal base
         base = config.major_base if base_type == BaseType.MAJOR else config.minor_base
 
-        # if the focal base is missing, return a probability of 0
+        # if the focal base is missing we return a probability of 0
         if base == -1:
             return 0.0
 
@@ -2725,6 +2782,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         """
         Get the site configurations with the correct number of outgroups used for the MLE.
         """
+        # only consider sites with the full number of outgroups
         return self.configs[self.configs.n_outgroups == self.n_outgroups]
 
     def _get_likelihood(self) -> Callable[[List[float]], float]:
@@ -2739,6 +2797,11 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
         # only consider sites with the correct number of outgroups
         configs = self._get_mle_configs()
+
+        # Set the minor base to -1 if the major allele is fixed.
+        # We don't want to consider minor allele not present in the subsample
+        # when optimizing the branch rates.
+        configs.loc[configs.n_major == self.n_ingroups, 'minor_base'] = -1
 
         # make variables available in the inner function
         model = self.model
@@ -2788,59 +2851,15 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         """
         Get the list of config indices for each site.
 
-        :return: The list of config indices as a masked array.
+        :return: The list of config indices, use -1 for sites that are not included.
         """
-        # Initialize indices as a masked array with all entries masked
-        indices = np.zeros(self.n_sites, dtype=int)
+        indices = np.full(self.n_sites, -1, dtype=int)
 
         for i, config in self.configs.iterrows():
             for j in config.sites:
                 indices[j] = i
 
         return indices
-
-    def _get_ancestral_base(
-            self,
-            config: SiteConfig
-    ) -> (int, float, float, float):
-        """
-        Get the ancestral allele for each site.
-
-        :param config: The site configuration.
-        :return: The ancestral allele, probability for the major being ancestral, the first base being
-        ancestral, the second base being ancestral.
-        """
-        # get the probability for the major allele
-        p_minor = self.get_p_config(
-            config=config,
-            base_type=BaseType.MINOR,
-            params=self.params_mle,
-            model=self.model
-        )
-
-        # get the probability for the minor allele
-        p_major = self.get_p_config(
-            config=config,
-            base_type=BaseType.MAJOR,
-            params=self.params_mle,
-            model=self.model
-        )
-
-        # get the probability of the major allele being ancestral
-        p_major_ancestral = self._calculate_p_major_ancestral(p_minor=p_minor, p_major=p_major, n_major=config.n_major)
-
-        # determine the ancestral allele
-        ancestral_base = self._get_ancestral_from_prob(
-            p_major_ancestral=p_major_ancestral,
-            major_base=config.major_base,
-            minor_base=config.minor_base
-        )
-
-        # check for NaNs
-        if np.isnan(p_major_ancestral):
-            self.logger.warning(f'p_major_ancestral is NaN for config {config}')
-
-        return ancestral_base, p_major_ancestral, p_minor, p_major
 
     def _get_ancestral_from_prob(
             self,
@@ -2864,7 +2883,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
                 np.array([minor_base])
             )[0]
 
-        # initialize masked array
+        # initialize array
         ancestral_bases = np.full(p_major_ancestral.shape, -1, dtype=np.int8)
 
         ancestral_bases[p_major_ancestral >= 0.5] = major_base[p_major_ancestral >= 0.5]
@@ -2936,14 +2955,18 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
         return probs
 
-    def get_inferred_site_info(self) -> Generator[SiteInfo, None, None]:
+    def _get_inferred_site_info(self) -> Generator[SiteInfo, None, None]:
         """
-        Get information on the sites used for the inference with most of the information available.
+        Get the site information for the sites included parsed. Note that not all sites are included
+        here, so you can use :meth:`get_site_info` to get the site information for a specific site.
 
         :return: A generator yielding a dictionary with the site information (see :meth:`get_site_information`).
         """
         # get config indices for each site
         indices = self._get_site_indices()
+
+        # remove sites that are not included
+        indices = indices[indices != -1]
 
         # get the sites
         sites = self.configs.iloc[indices]
@@ -3007,15 +3030,9 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         p_first_node_ancestral = p_bases_first_node[i_max] / total if total > 0 else 0
         first_node_ancestral = self.get_base_string(i_max)
 
-        # For sites with fewer than two outgroups, we use the probability of the major
-        # allele being ancestral. Otherwise, we use the probability of the first node
-        # being ancestral.
-        if np.sum(np.array(config.outgroup_bases) != -1) < 2:
-            p_ancestral = config.p_major_ancestral
-            ancestral_base = major_ancestral
-        else:
-            p_ancestral = p_first_node_ancestral
-            ancestral_base = first_node_ancestral
+        # Use the probability of the major allele being ancestral.
+        p_ancestral = config.p_major_ancestral
+        ancestral_base = major_ancestral
 
         return SiteInfo(
             n_major=config.n_major,
@@ -3096,6 +3113,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             # get the probability that the major allele is ancestral
             return p_major / (p_major + p_minor)
 
+        # only occurs when we deal with scalars
         except ZeroDivisionError:
 
             return np.nan
@@ -3111,7 +3129,12 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         ancestral_base = '.'
         ancestral_info = '.'
 
-        if not self.skip_monomorphic or variant.is_snp:
+        # use maximum parsimony if we don't have an SNP
+        if isinstance(variant, DummyVariant) or not variant.is_snp:
+            ancestral_base = MaximumParsimonyAncestralAnnotation._get_ancestral(variant, self._ingroup_mask)
+
+        # use MLE inference if we have an SNP
+        if variant.is_snp:
 
             # parse the site
             config = self._parse_variant(variant)
@@ -3141,9 +3164,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
                         # append site to mismatches
                         self.mismatches.append(site)
 
-                    # increase the number of annotated sites
-                    self.n_annotated += 1
-
                     # update annotation
                     ancestral_base = site.ancestral_base
                     ancestral_info = str(site_dict)
@@ -3153,6 +3173,9 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
         # set info field
         variant.INFO[self.handler.info_ancestral + "_info"] = ancestral_info
+
+        # increase the number of annotated sites
+        self.n_annotated += 1
 
     def plot_likelihoods(
             self,
@@ -3204,7 +3227,7 @@ class _AdHocAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
         # get scores for each base
         # noinspection PyTypeChecker
-        scores = np.concatenate(([1.2], [1], [1 / i for i in range(1, len(config.outgroup_bases) + 1)]))
+        scores = np.concatenate(([1.2], [1], [1 for i in range(1, len(config.outgroup_bases) + 1)]))
 
         # get valid bases
         is_valid = bases_combined != -1
@@ -3238,8 +3261,12 @@ class _AdHocAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         :param variant: The variant to annotate.
         :return: The annotated variant.
         """
-        if self.skip_monomorphic and not variant.is_snp:
-            return
+        ancestral_base = '.'
+        ancestral_info = '.'
+
+        # use maximum parsimony if we have a non-SNP
+        if isinstance(variant, DummyVariant) or not variant.is_snp:
+            ancestral_base = MaximumParsimonyAncestralAnnotation._get_ancestral(variant, self._ingroup_mask)
 
         # parse the site
         config = self._parse_variant(variant)
@@ -3253,11 +3280,14 @@ class _AdHocAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
                 if site['major_base'] != site['ancestral_base']:
                     self.logger.debug(dict(site=f"{variant.CHROM}:{variant.POS}") | site)
 
-                # set the ancestral allele
-                variant.INFO[self.handler.info_ancestral] = site['ancestral_base']
+                    ancestral_base = site['ancestral_base']
+                    ancestral_info = str(site)
 
-                # set info field
-                variant.INFO[self.handler.info_ancestral + "_info"] = str(site)
+        # set the ancestral allele
+        variant.INFO[self.handler.info_ancestral] = ancestral_base
+
+        # set info field
+        variant.INFO[self.handler.info_ancestral + "_info"] = ancestral_info
 
         # increase the number of annotated sites
         self.n_annotated += 1

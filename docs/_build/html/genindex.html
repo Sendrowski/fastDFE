@@ -67,7 +67,7 @@
 <li class="toctree-l1"><a class="reference internal" href="reference/R/config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/R/parametrizations.html">DFE parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/R/spectra.html">Working with SFS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/R/parser.html">VCF parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/R/parser.html">VCF Parsing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/R/miscellaneous.html">Miscellaneous</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
@@ -178,6 +178,8 @@
 </li>
         <li><a href="modules/annotation.html#fastdfe.annotation.K2SubstitutionModel.__init__">(K2SubstitutionModel method)</a>
 </li>
+        <li><a href="modules/filtration.html#fastdfe.filtration.MaskedFiltration.__init__">(MaskedFiltration method)</a>
+</li>
         <li><a href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.__init__">(MaximumLikelihoodAncestralAnnotation method)</a>
 </li>
         <li><a href="modules/annotation.html#fastdfe.annotation.MaximumParsimonyAncestralAnnotation.__init__">(MaximumParsimonyAncestralAnnotation method)</a>
@@ -243,6 +245,8 @@
 </li>
       <li><a href="modules/filtration.html#fastdfe.filtration.AllFiltration">AllFiltration (class in fastdfe.filtration)</a>
 </li>
+      <li><a href="modules/annotation.html#fastdfe.annotation.PolarizationPrior.allow_divergence">allow_divergence (PolarizationPrior attribute)</a>
+</li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.alpha">alpha (BaseInference property)</a>
 
       <ul>
@@ -273,8 +277,12 @@
       </ul></li>
       <li><a href="modules/annotation.html#fastdfe.annotation.Annotation">Annotation (class in fastdfe.annotation)</a>
 </li>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.annotations">annotations (Parser attribute)</a>
+      <li><a href="modules/annotation.html#fastdfe.annotation.Annotator.annotations">annotations (Annotator attribute)</a>
+
+      <ul>
+        <li><a href="modules/parser.html#fastdfe.parser.Parser.annotations">(Parser attribute)</a>
 </li>
+      </ul></li>
       <li><a href="modules/annotation.html#fastdfe.annotation.Annotator">Annotator (class in fastdfe.annotation)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.optimization.Covariate.apply">apply() (Covariate method)</a>
@@ -421,8 +429,6 @@
       </ul></li>
       <li><a href="modules/parser.html#fastdfe.parser.TargetSiteCounter.count">count() (TargetSiteCounter method)</a>
 </li>
-      <li><a href="modules/parser.html#fastdfe.parser.TargetSiteCounter.count_contig_sizes">count_contig_sizes() (TargetSiteCounter method)</a>
-</li>
       <li><a href="modules/annotation.html#fastdfe.annotation.Annotation.count_target_sites">count_target_sites() (Annotation static method)</a>
 </li>
       <li><a href="modules/parser.html#fastdfe.parser.ChunkedStratification.counter">counter (ChunkedStratification attribute)</a>
@@ -518,13 +524,19 @@
       <ul>
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.evaluate_likelihood">(JointInference method)</a>
 </li>
+        <li><a href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.evaluate_likelihood">(MaximumLikelihoodAncestralAnnotation method)</a>
+</li>
       </ul></li>
-      <li><a href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.evaluate_likelihood_rates">evaluate_likelihood_rates() (MaximumLikelihoodAncestralAnnotation method)</a>
+      <li><a href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.exclude">exclude (OutgroupAncestralAlleleAnnotation attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.exclude_samples">exclude_samples (Parser attribute)</a>
+      <li><a href="modules/filtration.html#fastdfe.filtration.MaskedFiltration.exclude_samples">exclude_samples (MaskedFiltration attribute)</a>
+
+      <ul>
+        <li><a href="modules/parser.html#fastdfe.parser.Parser.exclude_samples">(Parser attribute)</a>
 </li>
+      </ul></li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.execution_time">execution_time (BaseInference attribute)</a>
 
       <ul>
@@ -797,8 +809,6 @@
       </ul></li>
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.get_inferences">get_inferences() (JointInference method)</a>
 </li>
-      <li><a href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_inferred_site_information">get_inferred_site_information() (MaximumLikelihoodAncestralAnnotation method)</a>
-</li>
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.get_L2_residual">get_L2_residual() (JointInference method)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.get_n_optimized">get_n_optimized() (BaseInference method)</a>
@@ -855,7 +865,7 @@
       </ul></li>
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.get_shared_param_names">get_shared_param_names() (JointInference method)</a>
 </li>
-      <li><a href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_site_information">get_site_information() (MaximumLikelihoodAncestralAnnotation method)</a>
+      <li><a href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_site_info">get_site_info() (MaximumLikelihoodAncestralAnnotation method)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.abstract_inference.Inference.get_stats_discretized">get_stats_discretized() (Inference static method)</a>
 </li>
@@ -928,8 +938,6 @@
       <ul>
         <li><a href="modules/filtration.html#fastdfe.filtration.Filtration.handler">(Filtration attribute)</a>
 </li>
-        <li><a href="modules/parser.html#fastdfe.parser.Stratification.handler">(Stratification attribute)</a>
-</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -947,8 +955,12 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modules/parser.html#fastdfe.parser.Parser.include_samples">include_samples (Parser attribute)</a>
+      <li><a href="modules/filtration.html#fastdfe.filtration.MaskedFiltration.include_samples">include_samples (MaskedFiltration attribute)</a>
+
+      <ul>
+        <li><a href="modules/parser.html#fastdfe.parser.Parser.include_samples">(Parser attribute)</a>
 </li>
+      </ul></li>
       <li><a href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.infer">infer() (MaximumLikelihoodAncestralAnnotation method)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.abstract_inference.Inference">Inference (class in fastdfe.abstract_inference)</a>
@@ -1070,6 +1082,8 @@
 </li>
         <li><a href="modules/annotation.html#fastdfe.annotation.PolarizationPrior.logger">(PolarizationPrior attribute)</a>
 </li>
+        <li><a href="modules/annotation.html#fastdfe.annotation.SubstitutionModel.logger">(SubstitutionModel attribute)</a>
+</li>
         <li><a href="modules/parser.html#fastdfe.parser.TargetSiteCounter.logger">(TargetSiteCounter attribute)</a>
 </li>
       </ul></li>
@@ -1098,6 +1112,8 @@
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.marginal_inferences">marginal_inferences (JointInference attribute)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.marginals_without_all">marginals_without_all() (JointInference method)</a>
+</li>
+      <li><a href="modules/filtration.html#fastdfe.filtration.MaskedFiltration">MaskedFiltration (class in fastdfe.filtration)</a>
 </li>
       <li><a href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.max_sites">max_sites (MaximumLikelihoodAncestralAnnotation attribute)</a>
 </li>
@@ -1296,8 +1312,12 @@
         <li><a href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.outgroups">(OutgroupAncestralAlleleAnnotation attribute)</a>
 </li>
       </ul></li>
-      <li><a href="modules/filtration.html#fastdfe.filtration.Filterer.output">output (Filterer attribute)</a>
+      <li><a href="modules/annotation.html#fastdfe.annotation.Annotator.output">output (Annotator attribute)</a>
+
+      <ul>
+        <li><a href="modules/filtration.html#fastdfe.filtration.Filterer.output">(Filterer attribute)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -1385,6 +1405,8 @@
       <li><a href="modules/config.html#fastdfe.config.Config.parse_polydfe_sfs_config">parse_polydfe_sfs_config() (Config method)</a>
 </li>
       <li><a href="modules/parser.html#fastdfe.parser.Parser">Parser (class in fastdfe.parser)</a>
+</li>
+      <li><a href="modules/parser.html#fastdfe.parser.Stratification.parser">parser (Stratification attribute)</a>
 </li>
       <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.perform_lrt_covariates">perform_lrt_covariates() (JointInference method)</a>
 </li>
@@ -1511,8 +1533,6 @@
 </li>
       </ul></li>
       <li><a href="modules/annotation.html#fastdfe.annotation.SiteInfo.rate_params">rate_params (SiteInfo attribute)</a>
-</li>
-      <li><a href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.reader">reader (MaximumLikelihoodAncestralAnnotation attribute)</a>
 </li>
       <li><a href="modules/spectra.html#fastdfe.spectrum.Spectra.rename">rename() (Spectra method)</a>
 </li>
@@ -1656,8 +1676,6 @@
 </li>
       <li><a href="modules/annotation.html#fastdfe.annotation.SiteConfig.sites">sites (SiteConfig attribute)</a>
 </li>
-      <li><a href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.skip_monomorphic">skip_monomorphic (OutgroupAncestralAlleleAnnotation attribute)</a>
-</li>
       <li><a href="modules/parser.html#fastdfe.parser.Parser.skip_non_polarized">skip_non_polarized (Parser attribute)</a>
 </li>
       <li><a href="modules/annotation.html#fastdfe.annotation.SynonymyAnnotation.snpeff_mismatches">snpeff_mismatches (SynonymyAnnotation attribute)</a>
@@ -1665,6 +1683,8 @@
       <li><a href="modules/parser.html#fastdfe.parser.SnpEffStratification">SnpEffStratification (class in fastdfe.parser)</a>
 </li>
       <li><a href="modules/filtration.html#fastdfe.filtration.SNPFiltration">SNPFiltration (class in fastdfe.filtration)</a>
+</li>
+      <li><a href="modules/parser.html#fastdfe.parser.SNPStratification">SNPStratification (class in fastdfe.parser)</a>
 </li>
       <li><a href="modules/filtration.html#fastdfe.filtration.SNVFiltration">SNVFiltration (class in fastdfe.filtration)</a>
 </li>
@@ -1788,14 +1808,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/config.html#fastdfe.config.Config.update">update() (Config method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/inference.html#fastdfe.base_inference.BaseInference.update_properties">update_properties() (BaseInference method)</a>
 
       <ul>
         <li><a href="modules/inference.html#fastdfe.joint_inference.JointInference.update_properties">(JointInference method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/filtration.html#fastdfe.filtration.MaskedFiltration.use_parser">use_parser (MaskedFiltration attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 

@@ -75,7 +75,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../R/config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../R/parametrizations.html">DFE parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../R/spectra.html">Working with SFS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../R/parser.html">VCF parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../R/parser.html">VCF Parsing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../R/miscellaneous.html">Miscellaneous</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
@@ -121,11 +121,11 @@
 <p>fastDFE uses the standard Python <code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code> module for logging. By default, fastDFE logs to the console at the <code class="docutils literal notranslate"><span class="pre">INFO</span></code> level. You can change the logging level, to for example <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fastdfe</span>
 
-<span class="n">fastdfe</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">fastdfe</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can also disable the progress bar like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fastdfe</span><span class="o">.</span><span class="n">disable_pbar</span> <span class="o">=</span> <span class="kc">True</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fastdfe</span><span class="o">.</span><span class="n">Settings</span><span class="o">.</span><span class="n">disable_pbar</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 </div>
 </section>
@@ -135,7 +135,7 @@
 </section>
 <section id="seeding">
 <h2>Seeding<a class="headerlink" href="#seeding" title="Permalink to this heading"></a></h2>
-<p>fastDFE is seeded by default to ensure reproducibility (see <code class="docutils literal notranslate"><span class="pre">seed</span></code> in <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>, <a class="reference internal" href="../../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>, etc.). Randomness is required when bootstrapping, choosing initial values for different optimization runs, and when parsing the SFS from VCF files which requires taking random subsamples.</p>
+<p>fastDFE is seeded by default to ensure reproducibility (see <code class="docutils literal notranslate"><span class="pre">seed</span></code> in <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>, <a class="reference internal" href="../../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>, etc.). Randomness is required for various computational tasks, such as bootstrapping, choosing initial values for different optimization runs, and taking subsamples during VCF parsing.</p>
 </section>
 </section>
 

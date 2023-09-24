@@ -15,7 +15,7 @@ import tempfile
 import warnings
 from collections import Counter
 from functools import cached_property
-from typing import List, Iterable, TextIO, Dict, Optional, Tuple
+from typing import List, Iterable, TextIO, Dict, Optional, Tuple, Union
 from urllib.parse import urlparse
 
 import numpy as np
@@ -67,7 +67,16 @@ def get_major_base(genotypes: np.ndarray | List[str]) -> str | None:
     if len(bases) > 0:
         return Counter(bases).most_common()[0][0]
 
-    return
+
+def is_monomorphic_snp(variant: Union[Variant, 'DummyVariant']) -> bool:
+    """
+    Whether the given variant is a monomorphic SNP.
+
+    :param variant: The vcf site
+    :return: Whether the site is a monomorphic SNP
+    """
+    return (not (variant.is_snp or variant.is_mnp or variant.is_indel or variant.is_deletion or variant.is_sv)
+            and variant.REF in bases)
 
 
 def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf) -> int:

@@ -69,7 +69,7 @@
 <li class="toctree-l1"><a class="reference internal" href="reference/R/config.html">Configuration files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/R/parametrizations.html">DFE parametrizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/R/spectra.html">Working with SFS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/R/parser.html">VCF parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/R/parser.html">VCF Parsing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/R/miscellaneous.html">Miscellaneous</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
@@ -114,7 +114,7 @@
 <a class="reference external image-reference" href="https://codecov.io/gh/Sendrowski/fastDFE"><img alt="https://codecov.io/gh/Sendrowski/fastDFE/branch/master/graph/badge.svg?token=0LUE8SZYBJ" src="https://codecov.io/gh/Sendrowski/fastDFE/branch/master/graph/badge.svg?token=0LUE8SZYBJ" /></a>
 <a class="reference external image-reference" href="https://fastdfe.readthedocs.io/en/latest/?badge=latest"><img alt="Documentation Status" src="https://readthedocs.org/projects/fastdfe/badge/?version=latest" /></a>
 <a class="reference external image-reference" href="https://badge.fury.io/py/fastdfe"><img alt="https://badge.fury.io/py/fastdfe.svg" src="https://badge.fury.io/py/fastdfe.svg" /></a>
-<p>fastDFE is a package for fast, flexible, and hierarchical inference of the distribution of fitness effects (DFE) from site frequency spectra (SFS).</p>
+<p>fastDFE is a package for fast, flexible, and hierarchical inference of the distribution of fitness effects (DFE) from site-frequency spectra (SFS).</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="reference/introduction.html">Introduction</a><ul>
@@ -180,7 +180,7 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/Python/parser.html#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/Python/parser.html#stratifications">Stratifications</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/Python/parser.html#annotations">Annotations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="reference/Python/parser.html#degeneracy-and-synonymy-annotations">Degeneracy and Synonymy Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/Python/parser.html#degeneracy-annotation">Degeneracy Annotation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/Python/parser.html#ancestral-allele-annotation">Ancestral Allele Annotation</a></li>
 </ul>
 </li>
@@ -242,11 +242,11 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/R/spectra.html#folded-spectra">Folded spectra</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="reference/R/parser.html">VCF parsing</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/R/parser.html">VCF Parsing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/R/parser.html#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/R/parser.html#stratifications">Stratifications</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/R/parser.html#annotations">Annotations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="reference/R/parser.html#degeneracy-and-synonymy-annotations">Degeneracy and Synonymy Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/R/parser.html#degeneracy-annotation">Degeneracy Annotation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/R/parser.html#ancestral-allele-annotation">Ancestral Allele Annotation</a></li>
 </ul>
 </li>
@@ -666,12 +666,13 @@
 <li class="toctree-l1"><a class="reference internal" href="modules/parser.html">VCF Parsing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification"><code class="docutils literal notranslate"><span class="pre">Stratification</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification.__init__"><code class="docutils literal notranslate"><span class="pre">Stratification.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification.handler"><code class="docutils literal notranslate"><span class="pre">Stratification.handler</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification.parser"><code class="docutils literal notranslate"><span class="pre">Stratification.parser</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification.n_valid"><code class="docutils literal notranslate"><span class="pre">Stratification.n_valid</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification.get_type"><code class="docutils literal notranslate"><span class="pre">Stratification.get_type()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Stratification.get_types"><code class="docutils literal notranslate"><span class="pre">Stratification.get_types()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.SNPStratification"><code class="docutils literal notranslate"><span class="pre">SNPStratification</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseContextStratification"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseContextStratification.__init__"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.BaseContextStratification.n_flanking"><code class="docutils literal notranslate"><span class="pre">BaseContextStratification.n_flanking</span></code></a></li>
@@ -738,7 +739,6 @@
 <li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.TargetSiteCounter.n_target_sites"><code class="docutils literal notranslate"><span class="pre">TargetSiteCounter.n_target_sites</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.TargetSiteCounter.n_samples"><code class="docutils literal notranslate"><span class="pre">TargetSiteCounter.n_samples</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.TargetSiteCounter.count"><code class="docutils literal notranslate"><span class="pre">TargetSiteCounter.count()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/parser.html#fastdfe.parser.TargetSiteCounter.count_contig_sizes"><code class="docutils literal notranslate"><span class="pre">TargetSiteCounter.count_contig_sizes()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="modules/parser.html#fastdfe.parser.Parser"><code class="docutils literal notranslate"><span class="pre">Parser</span></code></a><ul>
@@ -800,6 +800,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SubstitutionModel"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SubstitutionModel.__init__"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SubstitutionModel.logger"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.logger</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SubstitutionModel.pool_branch_rates"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.pool_branch_rates</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SubstitutionModel.fixed_params"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.fixed_params</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.SubstitutionModel.bounds"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.bounds</span></code></a></li>
@@ -861,6 +862,7 @@
 <li class="toctree-l2"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.PolarizationPrior"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.PolarizationPrior.__init__"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.PolarizationPrior.logger"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior.logger</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.PolarizationPrior.allow_divergence"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior.allow_divergence</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.PolarizationPrior.probabilities"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior.probabilities</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.PolarizationPrior.get_prior"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior.get_prior()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.PolarizationPrior.plot_polarization"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior.plot_polarization()</span></code></a></li>
@@ -882,12 +884,12 @@
 <li class="toctree-l2"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation"><code class="docutils literal notranslate"><span class="pre">OutgroupAncestralAlleleAnnotation</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.__init__"><code class="docutils literal notranslate"><span class="pre">OutgroupAncestralAlleleAnnotation.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.ingroups"><code class="docutils literal notranslate"><span class="pre">OutgroupAncestralAlleleAnnotation.ingroups</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.exclude"><code class="docutils literal notranslate"><span class="pre">OutgroupAncestralAlleleAnnotation.exclude</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.outgroups"><code class="docutils literal notranslate"><span class="pre">OutgroupAncestralAlleleAnnotation.outgroups</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.n_ingroups"><code class="docutils literal notranslate"><span class="pre">OutgroupAncestralAlleleAnnotation.n_ingroups</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.n_outgroups"><code class="docutils literal notranslate"><span class="pre">OutgroupAncestralAlleleAnnotation.n_outgroups</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.seed"><code class="docutils literal notranslate"><span class="pre">OutgroupAncestralAlleleAnnotation.seed</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.rng"><code class="docutils literal notranslate"><span class="pre">OutgroupAncestralAlleleAnnotation.rng</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.skip_monomorphic"><code class="docutils literal notranslate"><span class="pre">OutgroupAncestralAlleleAnnotation.skip_monomorphic</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.get_base_string"><code class="docutils literal notranslate"><span class="pre">OutgroupAncestralAlleleAnnotation.get_base_string()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.OutgroupAncestralAlleleAnnotation.get_base_index"><code class="docutils literal notranslate"><span class="pre">OutgroupAncestralAlleleAnnotation.get_base_index()</span></code></a></li>
 </ul>
@@ -900,7 +902,6 @@
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.prior"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.prior</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_runs"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.n_runs</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.model"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.model</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.reader"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.reader</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.configs"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.configs</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.p_bins"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.p_bins</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.n_sites"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.n_sites</span></code></a></li>
@@ -918,15 +919,16 @@
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_p_tree"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_p_tree()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_p_config"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_p_config()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_p_configs"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_p_configs()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.evaluate_likelihood_rates"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.evaluate_likelihood_rates()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_inferred_site_information"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_inferred_site_information()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_site_information"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_site_information()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.evaluate_likelihood"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.evaluate_likelihood()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_site_info"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.get_site_info()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.annotate_site()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.plot_likelihoods"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation.plot_likelihoods()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotator"><code class="docutils literal notranslate"><span class="pre">Annotator</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotator.__init__"><code class="docutils literal notranslate"><span class="pre">Annotator.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotator.output"><code class="docutils literal notranslate"><span class="pre">Annotator.output</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotator.annotations"><code class="docutils literal notranslate"><span class="pre">Annotator.annotations</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/annotation.html#fastdfe.annotation.Annotator.annotate"><code class="docutils literal notranslate"><span class="pre">Annotator.annotate()</span></code></a></li>
 </ul>
 </li>
@@ -939,6 +941,13 @@
 <li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filtration.logger"><code class="docutils literal notranslate"><span class="pre">Filtration.logger</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filtration.handler"><code class="docutils literal notranslate"><span class="pre">Filtration.handler</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.Filtration.filter_site"><code class="docutils literal notranslate"><span class="pre">Filtration.filter_site()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.MaskedFiltration"><code class="docutils literal notranslate"><span class="pre">MaskedFiltration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.MaskedFiltration.__init__"><code class="docutils literal notranslate"><span class="pre">MaskedFiltration.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.MaskedFiltration.use_parser"><code class="docutils literal notranslate"><span class="pre">MaskedFiltration.use_parser</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.MaskedFiltration.include_samples"><code class="docutils literal notranslate"><span class="pre">MaskedFiltration.include_samples</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.MaskedFiltration.exclude_samples"><code class="docutils literal notranslate"><span class="pre">MaskedFiltration.exclude_samples</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="modules/filtration.html#fastdfe.filtration.SNPFiltration"><code class="docutils literal notranslate"><span class="pre">SNPFiltration</span></code></a><ul>

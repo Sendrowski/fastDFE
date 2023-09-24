@@ -24,8 +24,7 @@ p = fd.Parser(
         fd.CodingSequenceFiltration()
     ],
     stratifications=[fd.DegeneracyStratification()],
-    info_ancestral='AA_ensembl',
-    skip_non_polarized=True
+    info_ancestral='AA_ensembl'
 )
 
 sfs = p.parse()

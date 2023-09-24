@@ -252,7 +252,6 @@ class ParserTestCase(TestCase):
             gff="resources/genome/sapiens/hg38.sorted.gtf.gz",
             fasta="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
             n=20,
-            skip_non_polarized=True,
             annotations=[
                 fd.DegeneracyAnnotation(),
                 fd.MaximumParsimonyAncestralAnnotation()
