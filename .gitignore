@@ -9,6 +9,7 @@
 .idea/
 __pycache__/
 scratch/
+out/
 slurm/
 .env
 *.sqlite
