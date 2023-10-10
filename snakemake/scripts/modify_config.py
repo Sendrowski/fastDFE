@@ -11,7 +11,7 @@ try:
 
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
 
     testing = False
@@ -27,10 +27,10 @@ except NameError:
     )
     out = 'scratch/config_modified.yaml'
 
-import fastdfe
+import fastdfe as fd
 
 # create config object
-config = fastdfe.Config.from_file(config_file)
+config = fd.Config.from_file(config_file)
 
 # merge config with new options
 config.data |= opts

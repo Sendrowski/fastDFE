@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Miscellaneous &mdash; fastDFE 1.0.0 documentation</title>
+  <title>Miscellaneous &mdash; fastDFE 1.1.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -72,10 +72,10 @@
 <li class="toctree-l1"><a class="reference internal" href="spectra.html">Working with SFS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parser.html">VCF Parsing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Miscellaneous</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#object-oriented-design">Object-Oriented Design</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#logging">Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#seeding">Seeding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#object-oriented-design">Object-Oriented Design</a></li>
 </ul>
 </li>
 </ul>
@@ -117,22 +117,6 @@
              
   <section id="miscellaneous">
 <span id="reference-r-miscellaneous"></span><h1>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this heading"></a></h1>
-<section id="object-oriented-design">
-<h2>Object-Oriented Design<a class="headerlink" href="#object-oriented-design" title="Permalink to this heading"></a></h2>
-<p>The fastDFE Python library is implemented using an object-oriented design. This paradigm may be less familiar to R users. To aid comprehension, our documentation often demonstrates how class methods are invoked directly on the class itself. For example:</p>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">inference</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">fastdfe</span><span class="o">$</span><span class="nf">BaseInference</span><span class="p">(</span><span class="kc">...</span><span class="p">)</span>
-
-<span class="n">fastdfe</span><span class="o">$</span><span class="n">BaseInference</span><span class="o">$</span><span class="nf">run</span><span class="p">(</span><span class="n">inference</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>In this style, the <code class="docutils literal notranslate"><span class="pre">run</span></code> method is called directly on the <code class="docutils literal notranslate"><span class="pre">BaseInference</span></code> class, and the instance (<code class="docutils literal notranslate"><span class="pre">inference</span></code>) is passed as an argument.</p>
-<p>Alternatively, the method can also be invoked implicitly on an instance of the class, as shown below:</p>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">inference</span><span class="o">$</span><span class="nf">run</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>Here, the <code class="docutils literal notranslate"><span class="pre">run</span></code> method is called on the <code class="docutils literal notranslate"><span class="pre">inference</span></code> instance directly. This is more in line with traditional object-oriented programming.</p>
-<p>Both approaches are functionally equivalent, but the first method provides a more explicit demonstration of the relationship between the method and the class to which it belongs.</p>
-</section>
 <section id="logging">
 <h2>Logging<a class="headerlink" href="#logging" title="Permalink to this heading"></a></h2>
 <p>fastDFE uses the standard Python <code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code> module for logging. By default, fastDFE logs to the console at the <code class="docutils literal notranslate"><span class="pre">INFO</span></code> level. You can change the logging level, to for example <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> as follows</p>
@@ -153,6 +137,22 @@
 <section id="seeding">
 <h2>Seeding<a class="headerlink" href="#seeding" title="Permalink to this heading"></a></h2>
 <p>fastDFE is seeded by default to ensure reproducibility (see <code class="docutils literal notranslate"><span class="pre">seed</span></code> in <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>, <a class="reference internal" href="../../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a>, etc.). Randomness is required for various computational tasks, such as bootstrapping, choosing initial values for different optimization runs, and taking subsamples during VCF parsing.</p>
+</section>
+<section id="object-oriented-design">
+<h2>Object-Oriented Design<a class="headerlink" href="#object-oriented-design" title="Permalink to this heading"></a></h2>
+<p>The fastDFE Python library is implemented using an object-oriented design. This paradigm may be less familiar to R users. To aid comprehension, our documentation often demonstrates how class methods are invoked directly on the class itself. For example:</p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">inference</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">fastdfe</span><span class="o">$</span><span class="nf">BaseInference</span><span class="p">(</span><span class="kc">...</span><span class="p">)</span>
+
+<span class="n">fastdfe</span><span class="o">$</span><span class="n">BaseInference</span><span class="o">$</span><span class="nf">run</span><span class="p">(</span><span class="n">inference</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this style, the <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference.run" title="fastdfe.base_inference.BaseInference.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> method is called directly on the <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> class, and its instance is passed as an argument.</p>
+<p>Alternatively, the method can also be invoked implicitly on an instance of the class, as shown below:</p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">inference</span><span class="o">$</span><span class="nf">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Here, the <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference.run" title="fastdfe.base_inference.BaseInference.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> method is called on the <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> instance directly. This is more in line with traditional object-oriented programming.</p>
+<p>Both approaches are functionally equivalent, but the first method provides a more explicit demonstration of the relationship between the method and the class to which it belongs.</p>
 </section>
 </section>
 

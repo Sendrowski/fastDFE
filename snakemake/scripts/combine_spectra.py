@@ -9,7 +9,7 @@ __date__ = "2022-30-03"
 try:
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
 
     testing = False
@@ -29,12 +29,11 @@ except NameError:
     ]
     out = "scratch/spectra.csv"
 
-import fastdfe
-from fastdfe import Spectra
+import fastdfe as fd
 
-spectra = Spectra({})
+spectra = fd.Spectra({})
 for name, file in zip(names, files):
-    s = fastdfe.spectrum.parse_polydfe_sfs_config(file)
+    s = fd.spectrum.parse_polydfe_sfs_config(file)
 
     spectra['sfs_neut.' + name] = s['sfs_neut']
     spectra['sfs_sel.' + name] = s['sfs_sel']

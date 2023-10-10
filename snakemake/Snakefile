@@ -130,6 +130,14 @@ hominidae = [
 rule all:
     input:
         (
+            #expand("results/sfs/betula/{sample_set}/{n}/sfs.csv", sample_set=['pendula', 'pubescens'], n=[10, 20]),
+            #expand("results/sfs/betula/{sample_set}/{n}/sfs.polarized-on-the-fly.csv", sample_set=['pendula', 'pubescens'], n=[10, 20]),
+            #expand("results/vcf/betula/{name}.vcf.gz",name=['biallelic.polarized',
+            #                                                'biallelic.polarized.subset.10000',
+            #                                                'biallelic.polarized.subset.50000',
+            #                                                'all.polarized',
+            #                                                'all.polarized.subset.10000',
+            #                                                'all.polarized.subset.200000']),
             #expand("results/graphs/fastdfe/arabidopsis/cov/{param}.{col}.params.png", param=['S_d'], col=['age.rsa']),
             #expand("results/sfs/betula/{sample_set}/{n}/sfs.csv", sample_set=['pendula', 'pubescens'], n=[20]),
             #expand("results/graphs/comp/spectra/hgdp/inference/{chr}/{opts}/[all,Japanese].png",chr=[21, 1], opts=['opts.subset.50000.n.10', 'opts.subset.50000.n.20']),
@@ -137,7 +145,7 @@ rule all:
             #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[10,20].config.{config}/[all,Japanese].dfe.png",chr=[1, 2, 3], opts=['opts'], config=['default']),
             #expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/inference/{chr}/{opts}.n.10.config.{config}/[all].dfe.png",chr=[1, 2, 21, 22],opts=['opts'],config=['default']),
             #expand("results/graphs/comp/[fastdfe,polydfe]/hgdp/inference/{chr}/{opts}.n.[5,10,15,20,25,30,35,40].config.{config}/[all].dfe.png",chr=[1, 2, 3, 'all'],opts=['opts'],config=['default']),
-            expand("results/graphs/comp/spectra/hgdp/{chr}/{opts}.n.[5,10,15,20,25,30,35,40]/[all].png",chr=[1, 2, 3, 4, 5, 'all'],opts=['opts'],config=['default']),
+            #expand("results/graphs/comp/spectra/hgdp/{chr}/{opts}.n.[5,10,15,20,25,30,35,40]/[all].png",chr=[1, 2, 3, 4, 5, 'all'],opts=['opts'],config=['default']),
             #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[5,10,15,20,25,30,35,40].config.{config}/[all].dfe.png",chr=[1, 2, 3, 'all'],opts=['opts'],config=['deleterious']),
             #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[5,10,15,20,25,30,35,40].config.{config}/[all].dfe.png",chr=[1],opts=['opts'],config=['deleterious']),
             #expand("results/graphs/comp/fastdfe/hgdp/inference/{chr}/{opts}.n.[10].config.{config}/[all].dfe.png",chr=[8, 9],opts=['opts'],config=['deleterious']),
@@ -163,7 +171,7 @@ rule all:
             #    type=['mle_params', 'dfe_discretized']
             #),
             #expand("results/graphs/{tool}/{config}/sfs_comparison.png",config=configs, tool=['fastdfe', 'polydfe']),
-            #expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
+            expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
             #expand("results/fastdfe/{config}_bootstrapped_sequential_100/serialized.json",config=configs),
             #expand("results/spectra/betula/pendula/{s}/all.csv",
             #    s=[
@@ -173,7 +181,7 @@ rule all:
             #        'DegeneracyStratification.BaseContextStratification.BaseTransitionStratification'
             #    ]
             #)
-            #expand(f"results/graphs/comp/tool_comp/[{','.join([f'{n}_bootstrapped_100' for n in configs])}]/discretized.png"),
+            #expand(f"results/graphs/tool_comp/pendula_C_full_bootstrapped_10/discretized.png"),
             #expand("results/fastdfe/{species}_{model}_{type}/config.yaml",species=['pendula', 'pubescens'],model=['C'],type=['full', 'full_anc']),
             #expand("results/graphs/fastdfe/{config}/dfe_discretized.png",config=['pendula_C_full', 'pendula_C_full_anc', 'pubescens_C_full', 'pubescens_C_full_anc']),
             #expand("results/polydfe/{config}/bootstrapped_{n}/serialized.json",config=['pendula_C_full_anc'],n=10),
@@ -1203,16 +1211,33 @@ rule infer_dfe_hominidae_covariates:
     script:
         "scripts/check_covariates.py"
 
-# parse betula SFS directly from original VCF file
+# parse betula SFS which are already polarized
 rule parse_vcf_betula:
     input:
-        vcf='../resources/genome/betula/all.vcf.gz',
+        vcf='../resources/genome/betula/all.polarized.vcf.gz',
         ref='../resources/genome/betula/genome.fasta',
         gff='../resources/genome/betula/genome.gff.gz',
         samples='../resources/genome/betula/sample_sets/{sample_set}.args'
     output:
         csv="results/sfs/betula/{sample_set}/{n}/sfs.csv",
         png="results/graphs/sfs/betula/{sample_set}/{n}/sfs.png"
+    params:
+        n=lambda w: int(w.n)
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/parse_vcf_betula.py"
+
+# parse betula SFS, and polarize them on the fly
+rule parse_polarize_vcf_betula:
+    input:
+        vcf='../resources/genome/betula/all.vcf.gz',
+        ref='../resources/genome/betula/genome.fasta',
+        gff='../resources/genome/betula/genome.gff.gz',
+        samples='../resources/genome/betula/sample_sets/{sample_set}.args'
+    output:
+        csv="results/sfs/betula/{sample_set}/{n}/sfs.polarized-on-the-fly.csv",
+        png="results/graphs/sfs/betula/{sample_set}/{n}/sfs.polarized-on-the-fly.png"
     params:
         n=lambda w: int(w.n)
     conda:
@@ -1250,3 +1275,25 @@ rule infer_dfe_arabidopsis_covariates:
         "envs/base.yaml"
     script:
         "scripts/check_covariates.py"
+
+# annotate polarization
+rule annotation_polarization_betula:
+    input:
+        vcf="../resources/genome/betula/{name}.vcf.gz"
+    output:
+        "results/vcf/betula/{name}.polarized.vcf.gz"
+    params:
+        outgroups=["ERR2103730"],
+        n_ingroups=20,
+        exclude=["ERR2103731"],
+        confidence_threshold=0
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/annotate_polarization.py"
+
+module subset_vcf:
+    snakefile:
+        "rules/subset_vcf.smk"
+
+use rule * from subset_vcf

@@ -9,7 +9,7 @@ __date__ = "2023-03-02"
 try:
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
 
     testing = False
@@ -29,9 +29,9 @@ except NameError:
     out_mle_params = "scratch/mle_params.png"
     out_bucket_sizes = "scratch/bucket_sizes.png"
 
-import fastdfe
+import fastdfe as fd
 
-inference = fastdfe.BaseInference.from_file(input)
+inference = fd.BaseInference.from_file(input)
 
 if out_dfe_continuous is not None:
     inference.plot_continuous(file=out_dfe_continuous, show=testing)

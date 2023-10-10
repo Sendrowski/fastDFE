@@ -11,6 +11,10 @@ from fastdfe.polydfe import PolyDFEResult, PolyDFE
 
 
 class PolyDFEWrapperTestCase(TestCase):
+    """
+    Test polyDFE wrapper.
+    """
+
     polydfe_bin = 'resources/polydfe/bin/polyDFE-2.0-macOS-64-bit'
     postprocessing_source = os.getcwd() + '/' + PolyDFEResult.default_postprocessing_source
 

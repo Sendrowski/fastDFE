@@ -198,6 +198,9 @@ class PolyDFE(AbstractInference):
     def from_config_file(cls, file: str) -> Self:
         """
         Load from config object.
+
+        :param file: Config file path, possibly URL.
+        :return: Inference object.
         """
         return cls.from_config(Config.from_file(file))
 

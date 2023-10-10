@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DFE Parametrizations &mdash; fastDFE 1.0.0 documentation</title>
+  <title>DFE Parametrizations &mdash; fastDFE 1.1.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -182,9 +182,9 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="fastdfe.parametrization.Parametrization">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Parametrization</span></span><a class="headerlink" href="#fastdfe.parametrization.Parametrization" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Base class for parametrizing a DFE by a set of parameters.
-Note that <a class="reference internal" href="#fastdfe.parametrization.Parametrization.get_pdf" title="fastdfe.parametrization.Parametrization.get_pdf"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_pdf()</span></code></a> is not required to be implemented, provided that the
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for DFE parametrizations.</p>
+<p>Note that <a class="reference internal" href="#fastdfe.parametrization.Parametrization.get_pdf" title="fastdfe.parametrization.Parametrization.get_pdf"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_pdf()</span></code></a> is not required to be implemented, provided that the
 linearized mode of fastDFE is used (which is highly recommended).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.Parametrization.x0">
@@ -227,10 +227,10 @@ linearized mode of fastDFE is used (which is highly recommended).</p>
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.Parametrization.get_pdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get probability distribution function of DFE.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Function that accepts an array of selection coefficients and returns their probability density</p>
 </dd>
 </dl>
@@ -241,10 +241,10 @@ linearized mode of fastDFE is used (which is highly recommended).</p>
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.Parametrization.get_cdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get probability distribution function of DFE.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Function that accepts an array of selection coefficients and returns their cumulative probability</p>
 </dd>
 </dl>
@@ -303,7 +303,7 @@ provides a good amount of flexibility to accommodate this.</p>
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S_d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.GammaExpParametrization.get_pdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get PDF.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S_d</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Mean selection coefficient for deleterious mutations</p></li>
 <li><p><strong>b</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Shape parameter for gamma distribution</p></li>
@@ -311,10 +311,10 @@ provides a good amount of flexibility to accommodate this.</p>
 <li><p><strong>S_b</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Mean selection coefficient for beneficial mutations</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Function that accepts an array of selection coefficients and returns their probability density</p>
 </dd>
 </dl>
@@ -325,7 +325,7 @@ provides a good amount of flexibility to accommodate this.</p>
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S_d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.GammaExpParametrization.get_cdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get CDF.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S_d</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Mean selection coefficient for deleterious mutations</p></li>
 <li><p><strong>b</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Shape parameter for gamma distribution</p></li>
@@ -333,10 +333,10 @@ provides a good amount of flexibility to accommodate this.</p>
 <li><p><strong>S_b</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Mean selection coefficient for beneficial mutations</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Function that accepts an array of selection coefficients and returns their cumulative probability</p>
 </dd>
 </dl>
@@ -362,7 +362,12 @@ provides a good amount of flexibility to accommodate this.</p>
 </ul>
 <p>This parametrization uses a single gamma distribution for both positive and negative selection coefficients.
 This is a less flexible parametrization, which may produce results similar to the other models while requiring
-fewer parameters. It also does not allow for a purely deleterious sub-parametrization.</p>
+fewer parameters.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This model does not allow for a purely deleterious sub-parametrization, so
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">Inference.compare_nested_models()</span></code> won’t work as expected.</p>
+</div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DisplacedGammaParametrization.x0">
 <span class="sig-name descname"><span class="pre">x0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'S_max':</span> <span class="pre">1,</span> <span class="pre">'S_mean':</span> <span class="pre">-100,</span> <span class="pre">'b':</span> <span class="pre">1}</span></em><a class="headerlink" href="#fastdfe.parametrization.DisplacedGammaParametrization.x0" title="Permalink to this definition"></a></dt>
@@ -392,10 +397,10 @@ fewer parameters. It also does not allow for a purely deleterious sub-parametriz
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S_mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.DisplacedGammaParametrization.get_pdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get PDF.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Function that accepts an array of selection coefficients and returns their probability density</p>
 </dd>
 </dl>
@@ -406,10 +411,10 @@ fewer parameters. It also does not allow for a purely deleterious sub-parametriz
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S_mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.DisplacedGammaParametrization.get_cdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get CDF.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Function that accepts an array of selection coefficients and returns their cumulative probability</p>
 </dd>
 </dl>
@@ -465,7 +470,7 @@ selection coefficients. The results should be rather similar in most cases.</p>
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S_d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.GammaDiscreteParametrization.get_pdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get PDF.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S_d</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Mean of the DFE for S &gt;= 0</p></li>
 <li><p><strong>b</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Shape of the gamma distribution</p></li>
@@ -473,10 +478,10 @@ selection coefficients. The results should be rather similar in most cases.</p>
 <li><p><strong>S_b</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Shared selection coefficient of all positively selected mutations up to S_b</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Function that accepts an array of selection coefficients and returns their probability density</p>
 </dd>
 </dl>
@@ -487,7 +492,7 @@ selection coefficients. The results should be rather similar in most cases.</p>
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S_d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.GammaDiscreteParametrization.get_cdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get CDF.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S_d</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Mean of the DFE for S &gt;= 0</p></li>
 <li><p><strong>b</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Shape of the gamma distribution</p></li>
@@ -495,10 +500,10 @@ selection coefficients. The results should be rather similar in most cases.</p>
 <li><p><strong>S_b</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Shared selection coefficient of all positively selected mutations up to S_b</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Function that accepts an array of selection coefficients and returns their cumulative probability</p>
 </dd>
 </dl>
@@ -526,7 +531,7 @@ we have to re-normalize the parameters to make sure they sum up to 1.</p>
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intervals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([-100000,</span> <span class="pre">-100,</span> <span class="pre">-10,</span> <span class="pre">-1,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">1000])</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Constructor.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>intervals</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – The intervals of the discrete distribution.</p>
 </dd>
 </dl>
@@ -573,13 +578,13 @@ we have to re-normalize the parameters to make sure they sum up to 1.</p>
 <span class="sig-name descname"><span class="pre">get_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.get_pdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get PDF.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>kwargs</strong> – Parameter values S1, S2, …, Sk</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Function that computes the PDF for given S values</p>
 </dd>
 </dl>
@@ -590,13 +595,13 @@ we have to re-normalize the parameters to make sure they sum up to 1.</p>
 <span class="sig-name descname"><span class="pre">get_cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.DiscreteParametrization.get_cdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get CDF.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>kwargs</strong> – Parameter values S1, S2, …, Sk</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Function that computes the CDF for given S values</p>
 </dd>
 </dl>
@@ -614,16 +619,15 @@ is determined by the sum of masses to the left, i.e.</p>
 <p><span class="math notranslate nohighlight">\(S_i = \hat{S}_i \sum_{j&lt;i} S_j, i = 1, \dots, k - 1\)</span>,</p>
 <p><span class="math notranslate nohighlight">\(S_k = 1 - \sum_{j=1}^{k-1} S_j\)</span>.</p>
 <p>This parametrization has the advantage of not imposing a shape on the DFE. For a reasonably fine parametrization,
-the number of parameters is larger than those of the other models, however. It is preferable over
-<a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization" title="fastdfe.parametrization.DiscreteParametrization"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiscreteParametrization</span></code></a> as it has one parameter less and does not impose a constraint on the parameters.
-Another disadvantage is that there might be <cite>gaps</cite> in the estimated DFE, which is not possible with the other
-parametrizations.</p>
+the number of parameters is larger than those of the other models, however. It is more easily optimized than
+<a class="reference internal" href="#fastdfe.parametrization.DiscreteParametrization" title="fastdfe.parametrization.DiscreteParametrization"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiscreteParametrization</span></code></a> as it has one parameter less but its parameters are more difficult to interpret.
+One disadvantage with discrete parametrizations is that there may be <cite>gaps</cite> in the estimated DFE.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.parametrization.DiscreteFractionalParametrization.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intervals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([-100000,</span> <span class="pre">-100,</span> <span class="pre">-10,</span> <span class="pre">-1,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">1000])</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.DiscreteFractionalParametrization.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Constructor.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>intervals</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – The intervals of the discrete distribution.</p>
 </dd>
 </dl>
@@ -671,13 +675,13 @@ parametrizations.</p>
 <dd><p>Convert representation of fraction of total mass to the left
 to representation of fractions which sum to 1.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – Parameter values S0, S2, …, Sk</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Converted parameters</p>
 </dd>
 </dl>
@@ -689,13 +693,13 @@ to representation of fractions which sum to 1.</p>
 <dd><p>Invert the to_nominal operation: Convert representation of fractions which sum to 1
 back to representation of fraction of total mass to the left.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – Converted parameters (nominal space)</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Original parameters (parameter space)</p>
 </dd>
 </dl>
@@ -706,13 +710,13 @@ back to representation of fraction of total mass to the left.</p>
 <span class="sig-name descname"><span class="pre">get_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.DiscreteFractionalParametrization.get_pdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get PDF.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>kwargs</strong> – Parameter values S1, S2, …, Sk-1</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Function that computes the PDF for given S values</p>
 </dd>
 </dl>
@@ -723,13 +727,13 @@ back to representation of fraction of total mass to the left.</p>
 <span class="sig-name descname"><span class="pre">get_cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.parametrization.DiscreteFractionalParametrization.get_cdf" title="Permalink to this definition"></a></dt>
 <dd><p>Get CDF.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>kwargs</strong> – Parameter values S1, S2, …, Sk-1</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Function that computes the CDF for given S values</p>
 </dd>
 </dl>

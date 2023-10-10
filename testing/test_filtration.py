@@ -1,3 +1,6 @@
+from functools import cached_property
+from typing import List
+
 import numpy as np
 from cyvcf2 import Variant
 
@@ -364,3 +367,33 @@ class FiltrationTestCase(TestCase):
         # assert number of sites is the same
         assert f.n_sites == 10000
         assert f.n_filtered == 3638
+
+    @staticmethod
+    def test_biased_gc_conversion_filtration():
+        """
+        Test the SNV filtration.
+        """
+        f = fd.BiasedGCConversionFiltration()
+
+        class VariantMock:
+            def __init__(self, REF: str, ALT: List[str]):
+                self.REF = REF
+                self.ALT = ALT
+
+            @cached_property
+            def is_snp(self):
+                return len(self.ALT) == 0 or self.REF != self.ALT[0]
+
+        assert f.filter_site(variant=VariantMock(REF='A', ALT=['A']))
+        assert f.filter_site(variant=VariantMock(REF='T', ALT=['T']))
+        assert f.filter_site(variant=VariantMock(REF='T', ALT=[]))
+
+        assert not f.filter_site(variant=VariantMock(REF='A', ALT=['G']))
+        assert not f.filter_site(variant=VariantMock(REF='G', ALT=['A']))
+        assert not f.filter_site(variant=VariantMock(REF='C', ALT=['T']))
+        assert not f.filter_site(variant=VariantMock(REF='T', ALT=['G']))
+
+        assert f.filter_site(variant=VariantMock(REF='C', ALT=['G']))
+        assert f.filter_site(variant=VariantMock(REF='G', ALT=['C']))
+        assert f.filter_site(variant=VariantMock(REF='A', ALT=['T']))
+        assert f.filter_site(variant=VariantMock(REF='T', ALT=['A']))

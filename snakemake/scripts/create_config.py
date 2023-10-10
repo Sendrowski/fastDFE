@@ -12,7 +12,7 @@ try:
 
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
 
     testing = False
@@ -30,10 +30,10 @@ except ModuleNotFoundError:
     model = 'DiscreteParametrization'
     out = 'scratch/config.yaml'
 
-import fastdfe
+import fastdfe as fd
 
 # create config object
-config = fastdfe.Config(
+config = fd.Config(
     polydfe_spectra_config=spectra_file,
     polydfe_init_file=init_file,
     do_bootstrap=do_bootstrap,

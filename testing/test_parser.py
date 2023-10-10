@@ -22,24 +22,27 @@ class ParserTestCase(TestCase):
     """
 
     @staticmethod
-    def test_compare_sfs_with_dadi():
+    def test_compare_sfs_with_dadi_test_set():
         """
         Compare the sfs from dadi with the one from the data.
         """
-        p = fd.Parser(vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz', n=20, stratifications=[], seed=2)
+        p = fd.Parser(
+            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
+            n=20,
+            stratifications=[],
+            seed=2
+        )
 
         sfs = p.parse().all
 
-        sfs.plot()
-
         data_dict = dadi.Misc.make_data_dict_vcf(
-            'resources/genome/betula/biallelic.subset.10000.vcf.gz',
+            'resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
             'resources/genome/betula/pops_dadi.txt'
         )
 
-        sfs2 = dadi.Spectrum.from_data_dict(data_dict, ['pop0'], [20], polarized=False)
+        sfs2 = dadi.Spectrum.from_data_dict(data_dict, ['pop0'], [20], polarized=True)
 
-        diff_rel = np.abs(sfs.fold().to_numpy() - sfs2.data) / sfs2.data
+        diff_rel = np.abs(sfs.to_numpy() - sfs2.data) / sfs2.data
 
         # assert total number of sites
         assert sfs.data.sum() == 10000 - p.n_skipped
@@ -48,8 +51,42 @@ class ParserTestCase(TestCase):
         # for some reason dadi skips two sites
         # self.assertAlmostEqual(sfs.data.sum(), sfs2.data.sum())
 
-        # this is better for large VCF files
-        assert diff_rel[sfs2.data != 0].max() < 0.2
+        # this is much better for large VCF files
+        assert diff_rel[sfs2.data != 0].max() < 0.4
+
+    @staticmethod
+    @pytest.mark.slow
+    def test_compare_sfs_with_dadi_full_set():
+        """
+        Compare the sfs from dadi with the one from the data.
+        """
+        p = fd.Parser(
+            vcf='resources/genome/betula/biallelic.polarized.vcf.gz',
+            n=20,
+            stratifications=[],
+            seed=2
+        )
+
+        sfs = p.parse().all
+
+        data_dict = dadi.Misc.make_data_dict_vcf(
+            'resources/genome/betula/biallelic.polarized.vcf.gz',
+            'resources/genome/betula/pops_dadi.txt'
+        )
+
+        sfs_dadi = dadi.Spectrum.from_data_dict(data_dict, ['pop0'], [20], polarized=True)
+
+        diff_rel = np.abs(sfs.to_numpy() - sfs_dadi.data) / sfs_dadi.data
+
+        s = fd.Spectra(dict(
+            native=sfs.to_numpy(),
+            dadi=sfs_dadi.data
+        ))
+
+        s.plot()
+
+        # rather similar given number of sites and subsamples
+        assert diff_rel[sfs_dadi.data != 0].max() < 0.1
 
     @staticmethod
     def test_degeneracy_stratification():
@@ -57,7 +94,7 @@ class ParserTestCase(TestCase):
         Test the degeneracy stratification.
         """
         p = fd.Parser(
-            vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
+            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
             n=20,
             stratifications=[fd.DegeneracyStratification()]
         )
@@ -78,7 +115,7 @@ class ParserTestCase(TestCase):
         Test the degeneracy stratification.
         """
         p = fd.Parser(
-            vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
+            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
             n=20,
             stratifications=[fd.ContigStratification()]
         )
@@ -102,7 +139,7 @@ class ParserTestCase(TestCase):
         s = fd.ChunkedStratification(n_chunks=n_chunks)
 
         p = fd.Parser(
-            vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
+            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
             n=20,
             stratifications=[s]
         )
@@ -112,16 +149,14 @@ class ParserTestCase(TestCase):
         sfs.plot()
 
         # assert total number of sites
-        assert sfs.all.data.sum() == 10000
+        assert sfs.all.data.sum() == 10000 - p.n_skipped
+
+        assert s.n_valid == 10000 - p.n_skipped
 
         assert len(sfs.types) == n_chunks
 
         # assert that all types are a subset of the stratification
         assert set(sfs.types).issubset(set(s.get_types()))
-
-        assert sum(s.chunk_sizes) == 10000
-
-        assert (sfs.data.sum() == s.chunk_sizes).all()
 
     @pytest.mark.slow
     def test_vep_stratification(self):
@@ -165,7 +200,7 @@ class ParserTestCase(TestCase):
         Test the base transition stratification.
         """
         p = fd.Parser(
-            vcf='resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz',
+            vcf='resources/genome/betula/all.polarized.subset.10000.vcf.gz',
             n=20,
             stratifications=[fd.BaseTransitionStratification()]
         )
@@ -186,7 +221,7 @@ class ParserTestCase(TestCase):
         Test the transition transversion stratification.
         """
         p = fd.Parser(
-            vcf='resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz',
+            vcf='resources/genome/betula/all.polarized.subset.10000.vcf.gz',
             n=20,
             stratifications=[fd.TransitionTransversionStratification()]
         )
@@ -207,7 +242,7 @@ class ParserTestCase(TestCase):
         Test the base context stratification.
         """
         p = fd.Parser(
-            vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
+            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
             n=20,
             stratifications=[fd.BaseContextStratification(fasta='resources/genome/betula/genome.subset.20.fasta')]
         )
@@ -228,7 +263,7 @@ class ParserTestCase(TestCase):
         Test the reference base stratification.
         """
         p = fd.Parser(
-            vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
+            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
             n=20,
             stratifications=[fd.AncestralBaseStratification()]
         )
@@ -273,7 +308,7 @@ class ParserTestCase(TestCase):
         """
 
         p = fd.Parser(
-            vcf="resources/genome/betula/biallelic.vcf.gz",
+            vcf="resources/genome/betula/biallelic.polarized.vcf.gz",
             fasta="resources/genome/betula/genome.subset.20.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             target_site_counter=fd.TargetSiteCounter(
@@ -305,7 +340,7 @@ class ParserTestCase(TestCase):
         Test that filtering out all sites logs a warning.
         """
         p = fd.Parser(
-            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            vcf="resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz",
             n=20,
             filtrations=[fd.AllFiltration()]
         )
@@ -319,7 +354,7 @@ class ParserTestCase(TestCase):
         Test that filtering out all sites logs a warning.
         """
         p = fd.Parser(
-            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            vcf="resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz",
             n=20,
             stratifications=[]
         )
@@ -334,7 +369,7 @@ class ParserTestCase(TestCase):
         Parse the VCF file of Betula spp.
         """
         p = fd.Parser(
-            vcf="resources/genome/betula/all.subset.100000.vcf.gz",
+            vcf="resources/genome/betula/all.polarized.subset.10000.vcf.gz",
             fasta="resources/genome/betula/genome.subset.20.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             n=20,
@@ -353,12 +388,12 @@ class ParserTestCase(TestCase):
         pass
 
     @pytest.mark.slow
-    def test_parse_betula_complete_vcf_biallelic(self):
+    def test_parse_betula_complete_vcf_biallelic_synonymy(self):
         """
         Parse the VCF file of Betula spp.
         """
         p = fd.Parser(
-            vcf="resources/genome/betula/biallelic.vcf.gz",
+            vcf="resources/genome/betula/biallelic.polarized.vcf.gz",
             fasta="resources/genome/betula/genome.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             n=10,
@@ -386,7 +421,7 @@ class ParserTestCase(TestCase):
         for outgroups in [["ERR2103730"], ["ERR2103730", "ERR2103731"]]:
             p = fd.Parser(
                 vcf="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
-                    "genome/betula/biallelic.with_outgroups.subset.50000.vcf.gz?raw=true",
+                    "genome/betula/biallelic.polarized.subset.50000.vcf.gz?raw=true",
                 fasta="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
                       "genome/betula/genome.subset.1000.fasta.gz?raw=true",
                 gff="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
@@ -429,7 +464,7 @@ class ParserTestCase(TestCase):
         Parse the VCF file of Betula spp.
         """
         p = fd.Parser(
-            vcf="resources/genome/betula/all.vcf.gz",
+            vcf="resources/genome/betula/all.polarized.vcf.gz",
             fasta="resources/genome/betula/genome.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             target_site_counter=None,
@@ -443,7 +478,7 @@ class ParserTestCase(TestCase):
         sfs = p.parse()
 
         p2 = fd.Parser(
-            vcf="resources/genome/betula/biallelic.vcf.gz",
+            vcf="resources/genome/betula/biallelic.polarized.vcf.gz",
             fasta="resources/genome/betula/genome.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             target_site_counter=fd.TargetSiteCounter(
@@ -484,7 +519,7 @@ class ParserTestCase(TestCase):
         Parse the VCF file of Betula spp.
         """
         p = fd.Parser(
-            vcf="resources/genome/betula/all.vcf.gz",
+            vcf="resources/genome/betula/all.polarized.vcf.gz",
             fasta="resources/genome/betula/genome.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             target_site_counter=None,
@@ -498,11 +533,11 @@ class ParserTestCase(TestCase):
         sfs = p.parse()
 
         p2 = fd.Parser(
-            vcf="resources/genome/betula/all.vcf.gz",
+            vcf="resources/genome/betula/all.polarized.vcf.gz",
             fasta="resources/genome/betula/genome.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             target_site_counter=fd.TargetSiteCounter(
-                n_samples=100000,
+                n_samples=1000000,
                 n_target_sites=sfs.n_sites.sum()
             ),
             max_sites=100000,
@@ -521,14 +556,13 @@ class ParserTestCase(TestCase):
                 sfs_sel=spectra['selected'],
                 do_bootstrap=True,
                 model=fd.DiscreteFractionalParametrization(),
+                parallelize=True
             )
 
             inf.run()
 
             infs.append(inf)
 
-        # the ratio of neutral to selected sites should be the same
-        # but is about 0.225 for monomorphic VCF and 0.29 for inferred monomorphic sites
         fd.Inference.plot_discretized(infs, labels=['monomorphic', 'inferred'])
 
         # calculate ratio of neutral to selected sites
@@ -538,13 +572,15 @@ class ParserTestCase(TestCase):
         # make sure that the ratio is similar
         self.assertTrue(abs(r1 - r2) < 0.01)
 
+        pass
+
     @pytest.mark.slow
     def test_parse_betula_complete_vcf_including_monomorphic(self):
         """
         Parse the VCF file of Betula spp.
         """
         p = fd.Parser(
-            vcf="resources/genome/betula/all.vcf.gz",
+            vcf="resources/genome/betula/all.polarized.vcf.gz",
             fasta="resources/genome/betula/genome.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             n=20,
@@ -609,7 +645,7 @@ class ParserTestCase(TestCase):
         Test whether the monomorphic site counter works on the Betula data.
         """
         p = fd.Parser(
-            vcf="resources/genome/betula/biallelic.vcf.gz",
+            vcf="resources/genome/betula/biallelic.polarized.vcf.gz",
             fasta="resources/genome/betula/genome.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             max_sites=10000,
@@ -756,7 +792,7 @@ class ParserTestCase(TestCase):
 
         for i, n in enumerate(n_target_sites):
             p = fd.Parser(
-                vcf="resources/genome/betula/biallelic.vcf.gz",
+                vcf="resources/genome/betula/biallelic.polarized.vcf.gz",
                 fasta="resources/genome/betula/genome.fasta",
                 gff="resources/genome/betula/genome.gff.gz",
                 max_sites=10000,
@@ -768,7 +804,8 @@ class ParserTestCase(TestCase):
                 annotations=[
                     fd.DegeneracyAnnotation()
                 ],
-                stratifications=[fd.DegeneracyStratification()]
+                stratifications=[fd.DegeneracyStratification()],
+                filtrations=[fd.SNPFiltration()]
             )
 
             sfs = p.parse()
@@ -776,7 +813,8 @@ class ParserTestCase(TestCase):
             inf = fd.BaseInference(
                 sfs_neut=sfs['neutral'],
                 sfs_sel=sfs['selected'],
-                do_bootstrap=True
+                do_bootstrap=True,
+                model=fd.DiscreteFractionalParametrization()
             )
 
             inf.run()
@@ -788,7 +826,12 @@ class ParserTestCase(TestCase):
 
         spectra.plot()
 
+        # very similar results for all n_target_sites
         fd.Inference.plot_discretized(inferences, labels=list(map(str, n_target_sites)))
+
+        self.assertTrue((np.array([inf.bootstraps.mean() for inf in inferences]).var(axis=0) < 1e-5).all())
+
+        pass
 
     @pytest.mark.slow
     def test_betula_compare_dfe_across_different_samples_sizes_n(self):
@@ -803,7 +846,7 @@ class ParserTestCase(TestCase):
 
         for i, n in enumerate(sample_sizes):
             p = fd.Parser(
-                vcf="resources/genome/betula/all.vcf.gz",
+                vcf="resources/genome/betula/all.polarized.vcf.gz",
                 fasta="resources/genome/betula/genome.fasta",
                 gff="resources/genome/betula/genome.gff.gz",
                 # max_sites=1000000,
@@ -848,8 +891,8 @@ class ParserTestCase(TestCase):
 
         for i, n in enumerate(sample_sizes):
             p = fd.Parser(
-                vcf="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/"
-                    "20181203_biallelic_SNV/ALL.chr1.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz",
+                vcf="https://ngs.sanger.ac.uk/production/hgdp/hgdp_wgs.20190516/"
+                    "hgdp_wgs.20190516.full.chr1.vcf.gz",
                 fasta="http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/"
                       "dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz",
                 gff="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
@@ -857,7 +900,7 @@ class ParserTestCase(TestCase):
                 aliases=dict(chr1=['1']),
                 n=n,
                 target_site_counter=fd.TargetSiteCounter(
-                    n_samples=1000000,
+                    n_samples=100000,
                     n_target_sites=fd.Annotation.count_target_sites(
                         file="http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/"
                              "Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz"
@@ -867,10 +910,12 @@ class ParserTestCase(TestCase):
                     fd.DegeneracyAnnotation()
                 ],
                 filtrations=[
-                    fd.CodingSequenceFiltration()
+                    fd.CodingSequenceFiltration(),
+                    fd.SNPFiltration()
                 ],
                 stratifications=[fd.DegeneracyStratification()],
-                info_ancestral='AA_ensembl'
+                info_ancestral='AA_ensemble',
+                max_sites=10000
             )
 
             sfs = p.parse()

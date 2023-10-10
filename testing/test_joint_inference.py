@@ -404,7 +404,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Check that random covariates are not significant.
         """
         # parse SFS
-        spectra = Spectra.from_file("resources/SFS/spectra/pendula_degeneracy_ref_base_tutorial.csv")
+        spectra = Spectra.from_file("resources/SFS/betula/pendula/degeneracy_ref_base_tutorial.csv")
 
         # create inference object
         inf = JointInference(
@@ -435,7 +435,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Check that strong correlation between covariates is detected as significant.
         """
         # parse SFS
-        spectra = Spectra.from_file("resources/SFS/spectra/pendula_degeneracy_ref_base_tutorial.csv")
+        spectra = Spectra.from_file("resources/SFS/betula/pendula/degeneracy_ref_base_tutorial.csv")
 
         # create inference object
         inf = JointInference(
@@ -469,7 +469,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Check that covariates are plotted correctly.
         """
         # parse SFS
-        spectra = Spectra.from_file("resources/SFS/spectra/pendula_degeneracy_ref_base_tutorial.csv")
+        spectra = Spectra.from_file("resources/SFS/betula/pendula/degeneracy_ref_base_tutorial.csv")
 
         # create inference object
         inf = JointInference(

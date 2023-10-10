@@ -410,6 +410,10 @@ class DeviantOutgroupFiltration(Filtration):
         # create outgroup masks
         self.outgroup_mask: np.ndarray = np.isin(self.samples, self.outgroups)
 
+        # make sure all outgroups are present
+        if self.outgroup_mask.sum() != len(self.outgroups):
+            raise ValueError(f'Not all outgroup samples are present in the VCF file: {self.outgroups}')
+
         # create ingroup mask
         if self.ingroups is None:
             self.ingroup_mask = ~self.outgroup_mask
@@ -516,7 +520,8 @@ class BiasedGCConversionFiltration(Filtration):
     Only retain A<->T and G<->C substitutions (which are unaffected
     by biased gene conversion, see [CITGB]_).
 
-    Mono-allelic sites are always retained, and we assume sites are at most bi-allelic.
+    Mono-allelic sites are always retained, and we assume sites are at most bi-allelic. Note that the number of
+    mutational target sites is reduced by this filtration.
 
     .. [CITGB] Pouyet et al., 'Background selection and biased
         gene conversion affect more than 95% of the human genome and bias demographic inferences.',
@@ -532,7 +537,7 @@ class BiasedGCConversionFiltration(Filtration):
         :return: ``True`` if the variant should be kept, ``False`` otherwise.
         """
         if variant.is_snp and len(variant.ALT) > 0:
-            return variant.REF in 'AT' and variant.ALT[0] in 'AT' or variant.REF in 'GC' and variant.ALT[0] in 'GC'
+            return (variant.REF, variant.ALT[0]) in [('A', 'T'), ('T', 'A'), ('G', 'C'), ('C', 'G')]
 
         return True
 

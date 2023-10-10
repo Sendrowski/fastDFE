@@ -14,7 +14,7 @@ try:
 
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
 
     testing = False
@@ -33,11 +33,10 @@ except ModuleNotFoundError:
     }
     out = "scratch/parametrization.png"
 
-import fastdfe
-from fastdfe.discretization import Discretization
+import fastdfe as fd
 
-p = fastdfe.GammaExpParametrization()
-d = Discretization(
+p = fd.GammaExpParametrization()
+d = fd.Discretization(
     n=n,
     intervals_ben=(1e-15, 1000, 1000),
     intervals_del=(-1000000, -1e-15, 1000)

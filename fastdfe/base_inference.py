@@ -179,6 +179,11 @@ class BaseInference(AbstractInference):
             raise ValueError('Some of the provided SFS have zero ancestral monomorphic counts. '
                              'Note that we require monomorphic counts in order to infer the mutation rate.')
 
+        # check that we have polymorphic counts
+        if self.sfs_neut.n_polymorphic == 0 or self.sfs_neut.n_polymorphic == 0:
+            raise ValueError('Some of the provided SFS have zero polymorphic counts. '
+                             'Note that we require polymorphic counts in order to infer the DFE.')
+
         #: The DFE parametrization
         self.model: Parametrization = parametrization._from_string(model)
 
@@ -358,7 +363,7 @@ class BaseInference(AbstractInference):
         self.logger.debug('Inference already run, not running again.')
 
     @staticmethod
-    def run_if_required_wrapper(func):
+    def _run_if_required_wrapper(func):
         """
         Decorator to run inference if required.
 
@@ -394,7 +399,7 @@ class BaseInference(AbstractInference):
 
         :param pbar: Whether to show a progress bar.
         :param do_bootstrap: Whether to perform bootstrapping.
-        :param kwargs: Keyword arguments.
+        :param kwargs: Additional keyword arguments which are ignored.
         :return: Modelled SFS.
         """
         # check if locked
@@ -440,10 +445,10 @@ class BaseInference(AbstractInference):
         params_mle['all'] = self.model._normalize(params_mle['all'])
 
         # assign optimization result and MLE parameters
-        self.assign_result(result, params_mle['all'])
+        self._assign_result(result, params_mle['all'])
 
         # report on optimization result
-        self.report_result(result, params_mle)
+        self._report_result(result, params_mle)
 
         # add execution time
         self.execution_time += time.time() - start_time
@@ -460,7 +465,7 @@ class BaseInference(AbstractInference):
 
         :return: Callback functions for modelling SFS counts for each type.
         """
-        return dict(all=lambda params: self.model_sfs(
+        return dict(all=lambda params: self._model_sfs(
             params,
             sfs_neut=self.sfs_neut,
             sfs_sel=self.sfs_sel
@@ -485,7 +490,7 @@ class BaseInference(AbstractInference):
 
         return lk
 
-    def assign_result(self, result: OptimizeResult, params_mle: dict):
+    def _assign_result(self, result: OptimizeResult, params_mle: dict):
         """
         Assign optimization result and MLE parameters.
 
@@ -497,7 +502,7 @@ class BaseInference(AbstractInference):
         self.likelihood = -result.fun
 
         # get SFS for MLE parameters
-        counts_mle, _ = self.model_sfs(
+        counts_mle, _ = self._model_sfs(
             params=params_mle,
             sfs_neut=self.sfs_neut,
             sfs_sel=self.sfs_sel
@@ -509,7 +514,7 @@ class BaseInference(AbstractInference):
         # L2 norm of fit minus observed SFS
         self.L2_residual = norm(self.sfs_mle.polymorphic - self.sfs_sel.polymorphic, 2)
 
-    def report_result(self, result: OptimizeResult, params: dict):
+    def _report_result(self, result: OptimizeResult, params: dict):
         """
         Inform on optimization result.
 
@@ -618,7 +623,7 @@ class BaseInference(AbstractInference):
         self.bootstrap_results = list(result[:, 0])
 
         # add estimates for alpha to the bootstraps
-        self.add_alpha_to_bootstraps()
+        self._add_alpha_to_bootstraps()
 
         # add execution time
         self.execution_time += time.time() - start_time
@@ -629,7 +634,7 @@ class BaseInference(AbstractInference):
 
         return self.bootstraps
 
-    def add_alpha_to_bootstraps(self):
+    def _add_alpha_to_bootstraps(self):
         """
         Add estimates for alpha to the bootstraps.
         """
@@ -680,7 +685,7 @@ class BaseInference(AbstractInference):
             n_runs=1,
             debug_iterations=False,
             print_info=False,
-            get_counts=dict(all=lambda params: self.model_sfs(
+            get_counts=dict(all=lambda params: self._model_sfs(
                 params,
                 sfs_neut=sfs_neut,
                 sfs_sel=sfs_sel
@@ -722,7 +727,7 @@ class BaseInference(AbstractInference):
 
         return scaled_bounds
 
-    def model_sfs(self, params: dict, sfs_neut: Spectrum, sfs_sel: Spectrum) -> (np.ndarray, np.ndarray):
+    def _model_sfs(self, params: dict, sfs_neut: Spectrum, sfs_sel: Spectrum) -> (np.ndarray, np.ndarray):
         """
         Model the selected SFS from the given parameters.
 
@@ -738,7 +743,7 @@ class BaseInference(AbstractInference):
         counts_modelled *= sfs_neut.theta * sfs_sel.n_sites
 
         # add contribution of demography and polarization error
-        counts_modelled = self.add_demography(sfs_neut, counts_modelled, eps=params['eps'])
+        counts_modelled = self._add_demography(sfs_neut, counts_modelled, eps=params['eps'])
 
         # fold if necessary
         if self.folded:
@@ -750,7 +755,7 @@ class BaseInference(AbstractInference):
         return counts_modelled, counts_sel
 
     @staticmethod
-    def adjust_polarization(counts: np.ndarray, eps: float) -> np.ndarray:
+    def _adjust_polarization(counts: np.ndarray, eps: float) -> np.ndarray:
         """
         Adjust the polarization of the given SFS where
         eps is the rate of ancestral misidentification.
@@ -761,7 +766,7 @@ class BaseInference(AbstractInference):
         """
         return (1 - eps) * counts + eps * counts[::-1]
 
-    def add_demography(self, sfs_neut: Spectrum, counts_sel: np.ndarray, eps: float) -> np.ndarray:
+    def _add_demography(self, sfs_neut: Spectrum, counts_sel: np.ndarray, eps: float) -> np.ndarray:
         """
         Add the effect of demography to counts_sel by considering
         how counts_neut is perturbed relative to the standard coalescent.
@@ -776,8 +781,8 @@ class BaseInference(AbstractInference):
         counts_kingman = standard_kingman(self.n).polymorphic * sfs_neut.theta * sfs_neut.n_sites
 
         # apply polarization error to neutral and selected counts
-        counts_neut_adjusted = self.adjust_polarization(sfs_neut.polymorphic, eps)
-        counts_sel_adjusted = self.adjust_polarization(counts_sel, eps)
+        counts_neut_adjusted = self._adjust_polarization(sfs_neut.polymorphic, eps)
+        counts_sel_adjusted = self._adjust_polarization(counts_sel, eps)
 
         # These counts transform the standard Kingman case to the observed
         # neutral SFS when multiplied and thus account for demography as we assume
@@ -787,7 +792,7 @@ class BaseInference(AbstractInference):
         # adjust for demography and polarization error
         return r * counts_sel_adjusted
 
-    @run_if_required_wrapper
+    @_run_if_required_wrapper
     def plot_continuous(
             self,
             file: str = None,
@@ -844,7 +849,7 @@ class BaseInference(AbstractInference):
             ax=ax
         )
 
-    @run_if_required_wrapper
+    @_run_if_required_wrapper
     def plot_bucket_sizes(
             self,
             file: str = None,
@@ -877,7 +882,7 @@ class BaseInference(AbstractInference):
             ax=ax
         )
 
-    @run_if_required_wrapper
+    @_run_if_required_wrapper
     def plot_interval_density(
             self,
             file: str = None,
@@ -983,7 +988,7 @@ class BaseInference(AbstractInference):
             ax=ax
         )
 
-    @run_if_required_wrapper
+    @_run_if_required_wrapper
     def plot_all(self, show: bool = True):
         """
         Plot a bunch of plots.
@@ -1020,7 +1025,7 @@ class BaseInference(AbstractInference):
             bootstrap_type=bootstrap_type
         )
 
-    @run_if_required_wrapper
+    @_run_if_required_wrapper
     def plot_inferred_parameters(
             self,
             confidence_intervals: bool = True,
@@ -1030,7 +1035,6 @@ class BaseInference(AbstractInference):
             show: bool = True,
             title: str = 'parameter estimates',
             scale: Literal['lin', 'log', 'symlog'] = 'log',
-            legend: bool = True,
             ax: plt.Axes = None,
             kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
             **kwargs
@@ -1040,7 +1044,6 @@ class BaseInference(AbstractInference):
 
         :param scale: y-scale of the plot.
         :param title: Plot title.
-        :param legend: Whether to show the legend.
         :param confidence_intervals: Whether to show confidence intervals.
         :param bootstrap_type: Type of bootstrap to use.
         :param ci_level: Confidence level for the confidence intervals.
@@ -1064,7 +1067,7 @@ class BaseInference(AbstractInference):
             kwargs_legend=kwargs_legend,
         )
 
-    @run_if_required_wrapper
+    @_run_if_required_wrapper
     def plot_inferred_parameters_boxplot(
             self,
             file: str = None,
@@ -1089,7 +1092,7 @@ class BaseInference(AbstractInference):
             title=title
         )
 
-    @run_if_required_wrapper
+    @_run_if_required_wrapper
     def plot_likelihoods(
             self,
             file: str = None,
@@ -1161,7 +1164,7 @@ class BaseInference(AbstractInference):
 
         return self.lrt(self.likelihood, complex.likelihood, d)
 
-    @run_if_required_wrapper
+    @_run_if_required_wrapper
     @functools.lru_cache
     def compare_nested_models(self, do_bootstrap: bool = True) -> (np.ndarray, Dict[str, 'BaseInference']):
         """
@@ -1280,7 +1283,7 @@ class BaseInference(AbstractInference):
         )
 
     @functools.wraps(AbstractInference.plot_discretized)
-    @run_if_required_wrapper
+    @_run_if_required_wrapper
     def plot_discretized(self, *args, **kwargs):
         return super().plot_discretized(*args, **kwargs)
 
@@ -1377,7 +1380,7 @@ class BaseInference(AbstractInference):
         """
         Load from config file.
 
-        :param file: Config file path.
+        :param file: Config file path, possibly URL.
         :return: Inference object.
         """
         from fastdfe import Config

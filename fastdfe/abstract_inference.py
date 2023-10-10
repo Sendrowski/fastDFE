@@ -162,7 +162,6 @@ class Inference:
             show: bool = True,
             title: str = 'parameter estimates',
             scale: Literal['lin', 'log', 'symlog'] = 'log',
-            legend: bool = True,
             ax: plt.Axes = None,
             kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
             **kwargs
@@ -183,9 +182,9 @@ class Inference:
         :param show: Whether to show the plot.
         :param title: Title of the plot.
         :param ax: Axes of the plot.
-        :param kwargs: Additional arguments for the plot.
         :return: Axes of the plot.
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param kwargs: Additional arguments which are ignored.
         :raises ValueError: If no inference objects are given.
         """
         if len(inferences) == 0:

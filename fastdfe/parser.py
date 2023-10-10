@@ -19,10 +19,10 @@ from Bio.SeqRecord import SeqRecord
 from cyvcf2 import Variant
 from tqdm import tqdm
 
-from .annotation import Annotation, SynonymyAnnotation, DegeneracyAnnotation
+from .annotation import Annotation, SynonymyAnnotation, DegeneracyAnnotation, AncestralAlleleAnnotation
 from .filtration import Filtration, PolyAllelicFiltration, SNPFiltration
 from .io_handlers import bases, get_called_bases, FASTAHandler, NoTypeException, \
-    DummyVariant, MultiHandler, is_monomorphic_snp
+    DummyVariant, MultiHandler, VCFHandler, is_monomorphic_snp
 from .settings import Settings
 from .spectrum import Spectra
 
@@ -484,6 +484,7 @@ class ContigStratification(GenomePositionDependentStratification):
     Stratify SFS by contig.
     """
 
+    @_count_valid_type
     def get_type(self, variant: Variant | DummyVariant) -> str:
         """
         Get the contig.
@@ -504,7 +505,11 @@ class ContigStratification(GenomePositionDependentStratification):
 
 class ChunkedStratification(GenomePositionDependentStratification):
     """
-    Stratify SFS by creating ``n`` chunks of roughly equal size.
+    Stratify SFS by creating ``n`` contiguous chunks of roughly equal size.
+
+    .. note::
+        Since the total number of sites is not known in advance, we cannot create contiguous
+        chunks of exactly equal size.
     """
 
     def __init__(self, n_chunks: int):
@@ -546,6 +551,7 @@ class ChunkedStratification(GenomePositionDependentStratification):
         """
         return [f'chunk{i}' for i in range(self.n_chunks)]
 
+    @_count_valid_type
     def get_type(self, variant: Variant | DummyVariant) -> str:
         """
         Get the type.
@@ -929,7 +935,7 @@ class Parser(MultiHandler):
         # warn if SynonymyAnnotation is used
         if any(isinstance(a, SynonymyAnnotation) for a in annotations):
             logger.warning("SynonymyAnnotation is not recommended to be used with the parser as "
-                           "it is not possible to determine the synonymy of monomorphic sites."
+                           "it is not possible to determine the synonymy of monomorphic sites. "
                            "Consider using DegeneracyAnnotation instead.")
 
         #: The target site counter
@@ -961,6 +967,9 @@ class Parser(MultiHandler):
 
         #: The number of sites that were skipped for various reasons
         self.n_skipped: int = 0
+
+        #: The number of sites that were skipped because they had no valid ancestral allele
+        self.n_no_ancestral: int = 0
 
         #: Dictionary of SFS indexed by joint type
         self.sfs: Dict[str, np.ndarray] = defaultdict(lambda: np.zeros(self.n + 1))
@@ -1040,6 +1049,7 @@ class Parser(MultiHandler):
                 # determine ancestral allele
                 aa = self._get_ancestral(variant)
             except NoTypeException:
+                self.n_no_ancestral += 1
                 return False
 
             # count called bases
@@ -1094,10 +1104,7 @@ class Parser(MultiHandler):
             annotation.annotate_site(variant)
 
         # parse site
-        if not self._parse_site(variant):
-            return False
-
-        return True
+        return self._parse_site(variant)
 
     def _rewind(self):
         """
@@ -1211,17 +1218,27 @@ class Parser(MultiHandler):
         # tear down components
         self._teardown()
 
-        # close VCF reader
-        self._reader.close()
+        # inform about number of sites without ancestral tag
+        if self.n_no_ancestral > 0:
+            self.logger.info(f'Skipped {self.n_no_ancestral} sites without ancestral allele information.')
 
         if len(self.sfs) == 0:
             self.logger.warning(f"No sites were included in the spectra. If this is not expected, "
                                 "please check that all components work as expected. You can also "
                                 "set the log level to DEBUG.")
+
+            # warn that sites might not be polarized
+            if self.skip_non_polarized and not any(isinstance(a, AncestralAlleleAnnotation) for a in self.annotations):
+                self.logger.warning("Your variants might not be polarized and thus not included in the spectra. "
+                                    "If this is the case, consider using an ancestral allele annotation or setting "
+                                    "'skip_non_polarized' to False.")
         else:
             n_included = self.n_sites - self.n_skipped
 
             self.logger.info(f'Included {n_included} out of {self.n_sites} sites in total from the VCF file.')
+
+        # close VCF reader
+        VCFHandler._rewind(self)
 
         # count target sites
         if self.target_site_counter is not None and self.n_skipped < self.n_sites:

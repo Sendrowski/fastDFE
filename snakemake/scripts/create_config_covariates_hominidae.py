@@ -11,7 +11,7 @@ import pandas as pd
 try:
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
     testing = False
     types = snakemake.params.types

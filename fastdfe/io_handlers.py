@@ -117,9 +117,9 @@ def download_if_url(path: str, cache: bool = True) -> str:
     :param cache: Whether to cache the file.
     :return: The path to the downloaded file or the original path.
     """
-    if VCFHandler.is_url(path):
+    if FileHandler.is_url(path):
         # download the file and return path
-        return VCFHandler.download_file(path, cache=cache)
+        return FileHandler.download_file(path, cache=cache)
 
     return path
 
@@ -254,10 +254,10 @@ class FileHandler:
         :return: The path to the downloaded file.
         """
         # extract the file extension from the URL
-        filename = VCFHandler.get_filename(url)
+        filename = FileHandler.get_filename(url)
 
         # create a temporary file path
-        path = tempfile.gettempdir() + '/' + VCFHandler.hash(url) + '.' + filename
+        path = tempfile.gettempdir() + '/' + FileHandler.hash(url) + '.' + filename
 
         # check if the file is already cached
         if cache and os.path.exists(path):

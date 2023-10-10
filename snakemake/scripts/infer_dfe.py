@@ -9,8 +9,9 @@ __date__ = "2023-02-26"
 try:
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
+
     testing = False
     config_file = snakemake.input[0]
     out_summary = snakemake.output.summary

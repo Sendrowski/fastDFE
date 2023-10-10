@@ -9,7 +9,7 @@ __date__ = "2023-03-16"
 try:
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
 
     testing = False
@@ -21,13 +21,12 @@ except NameError:
     input = "results/fastdfe/pendula_C_full_bootstrapped_100/serialized.json"
     out = "scratch/lrt.png"
 
-import fastdfe
-import logging
+import fastdfe as fd
 
-logging.getLogger('fastdfe').setLevel(logging.INFO)
+fd.logger.setLevel(logging.INFO)
 
 # load object from file
-inference = fastdfe.BaseInference.from_file(input)
+inference = fd.BaseInference.from_file(input)
 
 # compare nested models
 inference.plot_nested_models(file=out, show=testing)

@@ -12,6 +12,7 @@ from typing import List, Literal, Dict, Tuple
 
 import yaml
 
+from .io_handlers import download_if_url
 from .json_handlers import CustomEncoder
 from .optimization import Covariate
 from .optimization import SharedParams, merge_dicts
@@ -281,10 +282,10 @@ class Config:
         """
         Load object from file.
 
-        :param file: Path to file.
+        :param file: Path to file, possibly gzipped.
         :return: Config object.
         """
-        with open(file, 'r') as fh:
+        with open(download_if_url(file), 'r') as fh:
             return Config.from_yaml(fh.read())
 
     def get_polydfe_model(self) -> str:

@@ -7,7 +7,7 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-02-26"
 
 import logging
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from functools import wraps
 from typing import Callable, List, Union, Dict, Tuple, Literal
 
@@ -47,9 +47,10 @@ def _to_string(model: Union['Parametrization', str]) -> str:
     return model
 
 
-class Parametrization:
+class Parametrization(ABC):
     """
-    Base class for parametrizing a DFE by a set of parameters.
+    Base class for DFE parametrizations.
+
     Note that :func:`get_pdf` is not required to be implemented, provided that the
     linearized mode of fastDFE is used (which is highly recommended).
     """
@@ -314,7 +315,11 @@ class DisplacedGammaParametrization(Parametrization):
 
     This parametrization uses a single gamma distribution for both positive and negative selection coefficients.
     This is a less flexible parametrization, which may produce results similar to the other models while requiring
-    fewer parameters. It also does not allow for a purely deleterious sub-parametrization.
+    fewer parameters.
+
+    .. warning::
+        This model does not allow for a purely deleterious sub-parametrization, so
+        :meth:`Inference.compare_nested_models` won't work as expected.
 
     """
 
@@ -671,7 +676,7 @@ class DiscreteParametrization(Parametrization):
             # make sure we don't go out of bounds which can happen if S is np.inf
             i[i >= self.k] = self.k - 1
 
-            # cumulative probability up into previous bin
+            # cumulative probability up to previous bin
             cum_prev = cum[np.maximum(i - 1, np.zeros_like(S, dtype=int))]
 
             # probability in current bin
@@ -695,10 +700,9 @@ class DiscreteFractionalParametrization(Parametrization):
     :math:`S_k = 1 - \sum_{j=1}^{k-1} S_j`.
 
     This parametrization has the advantage of not imposing a shape on the DFE. For a reasonably fine parametrization,
-    the number of parameters is larger than those of the other models, however. It is preferable over
-    :class:`DiscreteParametrization` as it has one parameter less and does not impose a constraint on the parameters.
-    Another disadvantage is that there might be `gaps` in the estimated DFE, which is not possible with the other
-    parametrizations.
+    the number of parameters is larger than those of the other models, however. It is more easily optimized than
+    :class:`DiscreteParametrization` as it has one parameter less but its parameters are more difficult to interpret.
+    One disadvantage with discrete parametrizations is that there may be `gaps` in the estimated DFE.
     """
 
     def __init__(

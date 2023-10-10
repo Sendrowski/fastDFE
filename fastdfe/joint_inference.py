@@ -152,15 +152,15 @@ class JointInference(BaseInference):
         self.shared_params = expand_shared(shared_params, self.types, self.optimization.param_names)
 
         # add covariates as shared parameters
-        self.add_covariates_as_shared(covariates)
+        self._add_covariates_as_shared(covariates)
 
         # check if the shared parameters were specified correctly
         self.check_shared_params()
 
         # throw error if joint inference does not make sense
         if not self.joint_inference_makes_sense():
-            self.logger.warning('Joint inference does not make sense as there are no parameters to be shared '
-                                'across more than one types. If this is not intended consider running '
+            self.logger.warning('Joint inference does not make sense as no parameters are shared '
+                                'across more than one type. If this is not intended consider running '
                                 'several marginal inferences instead, which is more efficient.')
 
         # issue notice
@@ -342,13 +342,13 @@ class JointInference(BaseInference):
 
         return cast(List[str], np.unique(shared).tolist())
 
-    def add_covariates_as_shared(self, covariates: List[Covariate]):
+    def _add_covariates_as_shared(self, covariates: List[Covariate]):
         """
         Add covariates as shared parameters.
 
         :param covariates: List of covariates.
         """
-        cov_but_not_shared = self.determine_unshared_covariates(covariates)
+        cov_but_not_shared = self._determine_unshared_covariates(covariates)
 
         # add parameters with covariates to shared parameters
         if len(cov_but_not_shared) > 0:
@@ -359,9 +359,10 @@ class JointInference(BaseInference):
             # add to shared parameters
             self.shared_params.append(SharedParams(params=cov_but_not_shared, types=self.types))
 
-    def determine_unshared_covariates(self, covariates):
+    def _determine_unshared_covariates(self, covariates):
         """
         Determine which covariates are not shared.
+
         :param covariates:
         :return:
         """
@@ -389,12 +390,12 @@ class JointInference(BaseInference):
         """
 
         # run marginal optimization
-        self.run_marginal()
+        self._run_marginal()
 
         # run joint optimization
-        return self.run_joint()
+        return self._run_joint()
 
-    def run_marginal(self):
+    def _run_marginal(self):
         """
         Run marginal optimization.
 
@@ -455,14 +456,14 @@ class JointInference(BaseInference):
         """
         return dict((t, inf) for t, inf in self.marginal_inferences.items() if t != 'all')
 
-    def run_joint(self) -> Spectrum:
+    def _run_joint(self) -> Spectrum:
         """
         Run joint optimization.
 
         :return: Modelled SFS.
         """
         # issue notice
-        self.logger.debug(f'Running joint inference.')
+        self.logger.info(f'Running joint inference for types {self.types}.')
 
         # issue notice
         self.logger.debug(f'Starting numerical optimization of {self.n_runs} '
@@ -496,18 +497,18 @@ class JointInference(BaseInference):
             params_mle[t] = self.model._normalize(params_mle[t])
 
         # report on optimization result
-        self.report_result(self.result, params_mle)
+        self._report_result(self.result, params_mle)
 
         # assign optimization result and MLE parameters for each type
         for t, inf in self.joint_inferences.items():
             params_mle[t] = correct_values(
-                params=self.add_covariates(params_mle[t], t),
+                params=self._add_covariates(params_mle[t], t),
                 bounds=self.bounds,
                 scales=self.scales
             )
 
             # remove effect of covariates and assign result
-            inf.assign_result(self.result, params_mle[t])
+            inf._assign_result(self.result, params_mle[t])
 
             # assign execution time
             inf.execution_time = time.time() - start_time
@@ -546,13 +547,13 @@ class JointInference(BaseInference):
         """
         # Note that it's important we bind t into the lambda function
         # at the time of creation.
-        return dict((t, (lambda params, t=t: inf.model_sfs(
-            correct_values(self.add_covariates(params, t), self.bounds, self.scales),
+        return dict((t, (lambda params, t=t: inf._model_sfs(
+            correct_values(self._add_covariates(params, t), self.bounds, self.scales),
             sfs_neut=self.joint_inferences[t].sfs_neut,
             sfs_sel=self.joint_inferences[t].sfs_sel
         ))) for t, inf in self.joint_inferences.items())
 
-    @BaseInference.run_if_required_wrapper
+    @BaseInference._run_if_required_wrapper
     @functools.lru_cache
     def run_joint_without_covariates(self, do_bootstrap: bool = True) -> 'JointInference':
         """
@@ -593,7 +594,7 @@ class JointInference(BaseInference):
             intervals_del=self.discretization.intervals_del,
             integration_mode=self.discretization.integration_mode,
             linearized=self.discretization.linearized,
-            model=self.model.__class__.__name__,
+            model=self.model,
             seed=self.seed,
             opts_mle=self.optimization.opts_mle,
             x0=self.x0,
@@ -609,7 +610,7 @@ class JointInference(BaseInference):
             n_runs=self.n_runs
         )
 
-    @BaseInference.run_if_required_wrapper
+    @BaseInference._run_if_required_wrapper
     def perform_lrt_covariates(self, do_bootstrap: bool = True) -> float:
         """
         Perform likelihood ratio test against joint inference without covariates.
@@ -621,7 +622,7 @@ class JointInference(BaseInference):
 
         :param do_bootstrap: Whether to bootstrap. This improves the accuracy of the p-value. Note
             that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
-        :return: Likelihood ratio test statistic.
+        :return: Likelihood ratio test p-value.
         """
         if len(self.covariates) == 0:
             raise ValueError('No covariates were specified.')
@@ -635,7 +636,7 @@ class JointInference(BaseInference):
 
         return self.lrt(simple.likelihood, self.likelihood, len(self.covariates))
 
-    def add_covariates(self, params: dict, type: str) -> dict:
+    def _add_covariates(self, params: dict, type: str) -> dict:
         """
         Add covariates to parameters.
 
@@ -714,7 +715,7 @@ class JointInference(BaseInference):
 
         # run bootstraps
         result = parallelize_func(
-            func=self.run_joint_bootstrap_sample,
+            func=self._run_joint_bootstrap_sample,
             data=seeds,
             parallelize=self.parallelize,
             pbar=True,
@@ -745,7 +746,7 @@ class JointInference(BaseInference):
             inf.bootstraps = self.bootstraps.filter(regex=f'{t}\\..*').rename(columns=lambda x: x.split('.')[-1])
 
             # add estimates for alpha to the bootstraps
-            inf.add_alpha_to_bootstraps()
+            inf._add_alpha_to_bootstraps()
 
         # add execution time
         self.execution_time += time.time() - start_time
@@ -763,7 +764,7 @@ class JointInference(BaseInference):
         if self.bootstraps is None:
             self.bootstrap()
 
-    def run_joint_bootstrap_sample(self, seed: int = None) -> (OptimizeResult, dict):
+    def _run_joint_bootstrap_sample(self, seed: int = None) -> (OptimizeResult, dict):
         """
         Resample the observed selected SFS and rerun the optimization procedure.
         We take the MLE params as initial params here.
@@ -781,8 +782,8 @@ class JointInference(BaseInference):
             debug_iterations=False,
             print_info=False,
             desc="Bootstrapping joint inference",
-            get_counts=dict((t, lambda params, t=t: inf.model_sfs(
-                correct_values(self.add_covariates(params, t), self.bounds, self.scales),
+            get_counts=dict((t, lambda params, t=t: inf._model_sfs(
+                correct_values(self._add_covariates(params, t), self.bounds, self.scales),
                 sfs_neut=self.resample_sfs(self.marginal_inferences[t].sfs_neut, seed=seed),
                 sfs_sel=self.resample_sfs(self.marginal_inferences[t].sfs_sel, seed=seed)
             )) for t, inf in self.marginals_without_all().items())
@@ -797,7 +798,7 @@ class JointInference(BaseInference):
 
             # add covariates for each type
             params_mle[t] = correct_values(
-                params=self.add_covariates(params_mle[t], t),
+                params=self._add_covariates(params_mle[t], t),
                 bounds=self.bounds,
                 scales=self.scales
             )
@@ -837,7 +838,7 @@ class JointInference(BaseInference):
         # add parameters for covariates and return
         return merge_dicts(packed, {':'.join(self.types): self.x0_cov})
 
-    @BaseInference.run_if_required_wrapper
+    @BaseInference._run_if_required_wrapper
     def perform_lrt_shared(self, do_bootstrap: bool = True) -> float:
         """
         Compare likelihood of joint inference with product of marginal likelihoods.
@@ -894,7 +895,7 @@ class JointInference(BaseInference):
 
         return inferences
 
-    @BaseInference.run_if_required_wrapper
+    @BaseInference._run_if_required_wrapper
     def plot_discretized(
             self,
             file: str = None,
@@ -1000,7 +1001,7 @@ class JointInference(BaseInference):
             kwargs_legend=kwargs_legend
         )
 
-    @BaseInference.run_if_required_wrapper
+    @BaseInference._run_if_required_wrapper
     def plot_continuous(
             self,
             file: str = None,
@@ -1046,7 +1047,7 @@ class JointInference(BaseInference):
 
         return Inference.plot_continuous(**locals())
 
-    @BaseInference.run_if_required_wrapper
+    @BaseInference._run_if_required_wrapper
     def plot_inferred_parameters(
             self,
             file: str = None,
@@ -1056,15 +1057,14 @@ class JointInference(BaseInference):
             show: bool = True,
             title: str = 'inferred parameters',
             labels: List[str] = None,
-            legend: bool = True,
             ax: plt.Axes = None,
+            scale: Literal['lin', 'log', 'symlog'] = 'log',
             kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
             **kwargs: List[str]
     ) -> plt.Axes:
         """
         Plot discretized DFE comparing the different types.
 
-        :param legend: Whether to show legend
         :param labels: Labels for types
         :param title: Title of plot
         :param bootstrap_type: Type of bootstrap
@@ -1073,6 +1073,7 @@ class JointInference(BaseInference):
         :param file: File to save plot to
         :param show: Whether to show plot
         :param ax: Axes object
+        :param scale: y-scale
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes object
         """
@@ -1080,7 +1081,7 @@ class JointInference(BaseInference):
 
         return Inference.plot_inferred_parameters(**locals())
 
-    @BaseInference.run_if_required_wrapper
+    @BaseInference._run_if_required_wrapper
     def plot_inferred_parameters_boxplot(
             self,
             file: str = None,

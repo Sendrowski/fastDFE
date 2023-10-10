@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quickstart &mdash; fastDFE 1.0.0 documentation</title>
+  <title>Quickstart &mdash; fastDFE 1.1.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -118,22 +118,13 @@
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading"></a></h1>
 <section id="basic-inference">
 <h2>Basic inference<a class="headerlink" href="#basic-inference" title="Permalink to this heading"></a></h2>
-<p>The easiest way to get started is by using the <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> class which infers the DFE from a single pairs of SFSs, one neutral and one selected. In this example we create <a class="reference internal" href="../../modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a> objects holding the SFS counts and pass it to <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>. Note that we are required to specify the number of monomorphic sites (the last and first entries of the specified counts).</p>
+<p>The easiest way to get started is by using the <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> class which infers the DFE from a single pair of frequency spectra, one neutral and one selected. In this example we create <a class="reference internal" href="../../modules/spectrum.html#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a> objects holding the SFS counts and pass them to <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a>. Note that we are required to specify the number of monomorphic sites (the last and first entries of the specified counts which correspond to the number of mono-allelic sites where the ancestral and derived allele is fixed, respectively).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">fastdfe</span><span class="p">)</span>
 
 <span class="c1"># load the fastdfe package</span>
 <span class="n">fastdfe</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">load_fastdfe</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Warning message in poetry_config(required_module):
-“This project appears to use Poetry for Python dependency management.
-However, the &#39;poetry&#39; command line tool is not available.
-reticulate will be unable to activate this project.
-Please ensure that &#39;poetry&#39; is available on the PATH.”
 </pre></div>
 </div>
 </div>

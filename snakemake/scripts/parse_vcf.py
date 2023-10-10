@@ -11,7 +11,7 @@ import numpy as np
 try:
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
 
     testing = False
@@ -35,19 +35,17 @@ except NameError:
     ]
     out = "scratch/sfs_parsed.csv"
 
-import fastdfe
-from fastdfe import Parser
-from fastdfe.parser import BaseContextStratification
+import fastdfe as fd
 
 # instantiate stratifications
 for i, s in enumerate(stratifications):
     if s == 'BaseContextStratification':
-        stratifications[i] = BaseContextStratification(fasta=fasta)
+        stratifications[i] = fd.BaseContextStratification(fasta=fasta)
     else:
         stratifications[i] = getattr(fastdfe.parser, s)()
 
 # instantiate parser
-p = Parser(
+p = fd.Parser(
     n=n,
     vcf=vcf_file,
     max_sites=max_sites,

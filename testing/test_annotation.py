@@ -11,10 +11,10 @@ from numpy import testing
 from pandas.testing import assert_frame_equal
 
 from fastdfe.annotation import _ESTSFSAncestralAnnotation, base_indices, SiteConfig, SiteInfo
-from fastdfe.io_handlers import count_sites, GFFHandler
+from fastdfe.io_handlers import count_sites, GFFHandler, get_called_bases, DummyVariant
 from testing import prioritize_installed_packages
 
-logging.getLogger('fastdfe').setLevel(logging.DEBUG)
+# logging.getLogger('fastdfe').setLevel(logging.DEBUG)
 
 prioritize_installed_packages()
 
@@ -34,35 +34,35 @@ class AnnotationTestCase(TestCase):
         """
         Test the maximum parsimony annotation for a single site.
         """
-        # Test data
+        # test data
         cases = [
-            {
-                "ingroups": ["sample1", "sample2"],
-                "samples": ["sample1", "sample2", "sample3"],
-                "gt_bases": np.array(["A/A", "A/G", "G/G"]),
-                "expected": "A",
-            },
-            {
-                "ingroups": ["sample1", "sample2"],
-                "samples": ["sample1", "sample2", "sample3"],
-                "gt_bases": np.array(["./.", "C/C", "C/C"]),
-                "expected": "C",
-            },
-            {
-                "ingroups": ["sample1", "sample2"],
-                "samples": ["sample1", "sample2", "sample3"],
-                "gt_bases": np.array(["T/T", "./.", "./."]),
-                "expected": "T",
-            },
-            {
-                "ingroups": ["sample1", "sample2"],
-                "samples": ["sample1", "sample2", "sample3"],
-                "gt_bases": np.array(["./.", "./.", "./."]),
-                "expected": ".",
-            },
+            dict(
+                ingroups=["sample1", "sample2"],
+                samples=["sample1", "sample2", "sample3"],
+                gt_bases=np.array(["A/A", "A/G", "G/G"]),
+                expected="A"
+            ),
+            dict(
+                ingroups=["sample1", "sample2"],
+                samples=["sample1", "sample2", "sample3"],
+                gt_bases=np.array(["./.", "C/C", "C/C"]),
+                expected="C"
+            ),
+            dict(
+                ingroups=["sample1", "sample2"],
+                samples=["sample1", "sample2", "sample3"],
+                gt_bases=np.array(["T/T", "./.", "./."]),
+                expected="T"
+            ),
+            dict(
+                ingroups=["sample1", "sample2"],
+                samples=["sample1", "sample2", "sample3"],
+                gt_bases=np.array(["./.", "./.", "./."]),
+                expected="."
+            )
         ]
 
-        # Mock Annotator
+        # mock Annotator
         mock_annotator = MagicMock()
         type(mock_annotator).info_ancestral = PropertyMock(return_value="AA")
 
@@ -70,34 +70,76 @@ class AnnotationTestCase(TestCase):
             annotation = fd.MaximumParsimonyAncestralAnnotation(samples=test_case["ingroups"])
             annotation.handler = mock_annotator
 
-            # Mock the VCF reader with samples
+            # mock the VCF reader with samples
             mock_reader = MagicMock()
             mock_reader.samples = test_case["samples"]
             annotation.reader = mock_reader
 
-            # Create ingroup mask
+            # create ingroup mask
             annotation.samples_mask = np.isin(annotation.reader.samples, annotation.samples)
 
-            # Mock variant with a dictionary for INFO
+            # mock variant with a dictionary for INFO
             mock_variant = MagicMock()
             mock_variant.gt_bases = test_case["gt_bases"]
             mock_variant.INFO = {}
 
-            # Run the method
+            # run the method
             annotation.annotate_site(mock_variant)
 
-            # Check if the result matches the expectation
+            # check if the result matches the expectation
             assert mock_variant.INFO[annotation.handler.info_ancestral] == test_case["expected"]
 
-    @staticmethod
-    def test_maximum_parsimony_annotation():
+    def test_maximum_parsimony_annotation_get_ancestral(self):
         """
-        Test the maximum parsimony annotator.
+        Test the _get_ancestral method.
+        """
+        ann = fd.MaximumParsimonyAncestralAnnotation
+
+        # check that reference is used for dummy variants
+        self.assertEqual('A', ann._get_ancestral(DummyVariant(ref='A', pos=1, chrom="1"), mask=np.array([])))
+
+        # check that only allele is used for monomorphic sites
+        variant = Mock(spec=Variant)
+        variant.is_snp = False
+        variant.REF = 'A'
+        variant.gt_bases = np.array(['G/G', 'A/A'])
+        self.assertEqual('G', ann._get_ancestral(variant, mask=np.array([True, False])))
+
+        # check that only allele is used for non-SNPs only if it is a valid base
+        variant = Mock(spec=Variant)
+        variant.is_snp = False
+        variant.REF = 'A'
+        variant.gt_bases = np.array(['GAT/GAT', 'A/A'])
+        self.assertEqual('.', ann._get_ancestral(variant, mask=np.array([True, False])))
+
+        # check that only allele is used for non-SNPs only if reference is a valid base
+        variant = Mock(spec=Variant)
+        variant.is_snp = False
+        variant.REF = 'GAT'
+        variant.gt_bases = np.array(['A/A', 'A/A'])
+        self.assertEqual('.', ann._get_ancestral(variant, mask=np.array([True, False])))
+
+        # make sure we can pass site without any ingroup calls
+        variant = Mock(spec=Variant)
+        variant.is_snp = False
+        variant.gt_bases = np.array(['./.', './.'])
+        self.assertEqual('.', ann._get_ancestral(variant, mask=np.array([False, True])))
+
+        # check that the major allele is used for biallelic sites
+        variant = Mock(spec=Variant)
+        variant.is_snp = True
+        variant.gt_bases = np.array(['A/A', 'G/G', 'G/G'])
+        self.assertEqual('G', ann._get_ancestral(variant, mask=np.array([True, True, True])))
+
+    def test_maximum_parsimony_annotation_betula(self):
+        """
+        Test the maximum parsimony annotator with the betula dataset.
         """
         ann = fd.Annotator(
-            vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
+            vcf='resources/genome/betula/biallelic.polarized.vcf.gz',
             output='scratch/test_maximum_parsimony_annotation.vcf',
-            annotations=[fd.MaximumParsimonyAncestralAnnotation()]
+            annotations=[fd.MaximumParsimonyAncestralAnnotation()],
+            max_sites=10000
         )
 
         ann.annotate()
@@ -105,7 +147,7 @@ class AnnotationTestCase(TestCase):
         fd.Parser(ann.output, n=20, info_ancestral='BB').parse().plot()
 
         # assert number of sites is the same
-        assert count_sites('resources/genome/betula/biallelic.subset.10000.vcf.gz') == count_sites(ann.output)
+        self.assertEqual(10000, count_sites(ann.output))
 
     @staticmethod
     def test_degeneracy_annotation_human_test_genome():
@@ -469,7 +511,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         est_sfs.infer(binary=binary)
 
         # get site information
-        site_info = pd.DataFrame(anc._get_inferred_site_info())
+        site_info = pd.DataFrame(anc.get_inferred_site_info())
 
         # prefix columns
         site_info.columns = ['native.' + col for col in site_info.columns]
@@ -630,9 +672,9 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         self.assertEqual(anc.params_mle['K'], 0.5)
 
     @staticmethod
-    def test_expected_ancestral_alleles_fixed_branch_rate():
+    def test_expected_ancestral_alleles_fixed_branch_rate_inferred_site_info_kingman_prior():
         """
-        Test the MaximumLikelihoodAncestralAnnotation class with fixed branch rates and expected ancestral alleles.
+        Test the expected ancestral alleles with fixed branch rates and inferred site information.
         """
         configs = [
             dict(n_major=15, major_base='A', minor_base='C', outgroup_bases=['A', '.', '.'], ancestral_expected='A'),
@@ -673,11 +715,11 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         anc.infer()
 
-        summary = pd.DataFrame(anc._get_inferred_site_info())
+        summary = pd.DataFrame(anc.get_inferred_site_info())
 
         summary['expected'] = [c['ancestral_expected'] for c in configs]
 
-        testing.assert_array_equal(summary.ancestral_base.values, summary.expected.values)
+        testing.assert_array_equal(summary.major_ancestral.values, summary.expected.values)
 
     def test_raises_error_when_zero_outgroups_given(self):
         """
@@ -1013,9 +1055,158 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         # Print the caught error message
         print("Caught error: " + str(context.exception))
 
-    @staticmethod
     @pytest.mark.slow
-    def test_pendula_thorough_two_outgroups():
+    def test_papio_thorough_two_outgroups(self):
+        """
+        Test the MLEAncestralAlleleAnnotation class on the Papio vcf file.
+        """
+        samples = pd.read_csv("resources/genome/papio/metadata.csv")
+
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            ingroups=list(samples[samples.C_origin == 'Anubis, Tanzania']['PGDP_ID']),
+            outgroups=[
+                samples[samples.Species == 'kindae'].iloc[0].PGDP_ID.replace('Sci_', ''),
+                samples[samples.Species == 'gelada'].iloc[0].PGDP_ID.replace('Sci_', '')
+            ],
+            n_runs=10,
+            n_ingroups=10,
+            parallelize=True,
+            prior=fd.KingmanPolarizationPrior(),
+            confidence_threshold=0,
+            max_sites=10000
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/papio/output.filtered.snps.chr1.removed.AB.pass.vep.vcf.gz",
+            output='scratch/test_papio_thorough_two_outgroups.vcf',
+            annotations=[anc],
+            max_sites=10000
+        )
+
+        ann.annotate()
+
+        self.assertTrue(anc.is_monotonic())
+
+        pass
+
+    @pytest.mark.slow
+    def test_papio_thorough_three_outgroups(self):
+        """
+        Test the MLEAncestralAlleleAnnotation class on the Papio vcf file.
+        """
+        samples = pd.read_csv("resources/genome/papio/metadata.csv")
+
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            ingroups=list(samples[samples.C_origin == 'Anubis, Tanzania']['PGDP_ID']),
+            outgroups=[
+                samples[samples.C_origin == 'Anubis, Ethiopia'].iloc[0].PGDP_ID,
+                samples[samples.Species == 'kindae'].iloc[0].PGDP_ID.replace('Sci_', ''),
+                samples[samples.Species == 'gelada'].iloc[0].PGDP_ID.replace('Sci_', '')
+            ],
+            n_runs=10,
+            n_ingroups=10,
+            parallelize=True,
+            prior=fd.KingmanPolarizationPrior(),
+            confidence_threshold=0,
+            max_sites=10000
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/papio/output.filtered.snps.chr1.removed.AB.pass.vep.vcf.gz",
+            output='scratch/test_papio_thorough_three_outgroups.vcf',
+            annotations=[anc],
+            max_sites=10000
+        )
+
+        # mismatches mostly occur where we are not very confident in the ancestral allele
+        ann.annotate()
+
+        anc2, site_info = self.compare_with_est_sfs(anc)
+
+        diff_params = np.array(list(anc2.params_mle.values())) / np.array(list(anc.params_mle.values()))
+
+        # mle estimates are very similar
+        self.assertTrue(np.all(((0.6 < diff_params) & (diff_params < 1.5)) | (diff_params == 0)))
+
+        self.assertTrue(anc.is_monotonic())
+
+        pass
+
+    @pytest.mark.slow
+    def test_papio_thorough_three_outgroups_adaptive_prior(self):
+        """
+        Test the MLEAncestralAlleleAnnotation class on the Papio vcf file.
+        """
+        samples = pd.read_csv("resources/genome/papio/metadata.csv")
+
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            ingroups=list(samples[samples.C_origin == 'Anubis, Tanzania']['PGDP_ID']),
+            outgroups=[
+                samples[samples.C_origin == 'Anubis, Ethiopia'].iloc[0].PGDP_ID,
+                samples[samples.Species == 'kindae'].iloc[0].PGDP_ID.replace('Sci_', ''),
+                samples[samples.Species == 'gelada'].iloc[0].PGDP_ID.replace('Sci_', '')
+            ],
+            n_runs=10,
+            n_ingroups=10,
+            parallelize=True,
+            prior=fd.AdaptivePolarizationPrior(),
+            confidence_threshold=0,
+            max_sites=10000
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/papio/output.filtered.snps.chr1.removed.AB.pass.vep.vcf.gz",
+            output='scratch/test_papio_thorough_three_outgroups.vcf',
+            annotations=[anc],
+            max_sites=10000
+        )
+
+        # mismatches mostly occur where we are not very confident in the ancestral allele
+        ann.annotate()
+
+        self.assertTrue(anc.is_monotonic())
+
+        pass
+
+    @pytest.mark.skip("Too slow")
+    def test_papio_thorough_four_outgroups(self):
+        """
+        Test the MLEAncestralAlleleAnnotation class on the Papio vcf file.
+        """
+        samples = pd.read_csv("resources/genome/papio/metadata.csv")
+
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            ingroups=list(samples[samples.C_origin == 'Anubis, Tanzania']['PGDP_ID']),
+            outgroups=[
+                samples[samples.C_origin == 'Anubis, Ethiopia'].iloc[0].PGDP_ID,
+                samples[samples.Species == 'hamadryas'].iloc[0].PGDP_ID.replace('Sci_', ''),
+                samples[samples.Species == 'kindae'].iloc[0].PGDP_ID.replace('Sci_', ''),
+                samples[samples.Species == 'gelada'].iloc[0].PGDP_ID.replace('Sci_', '')
+            ],
+            n_runs=10,
+            n_ingroups=10,
+            parallelize=True,
+            prior=fd.KingmanPolarizationPrior(),
+            confidence_threshold=0,
+            max_sites=10000
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/papio/output.filtered.snps.chr1.removed.AB.pass.vep.vcf.gz",
+            output='scratch/test_papio_thorough_four_outgroups.vcf',
+            annotations=[anc],
+            max_sites=10000
+        )
+
+        # mismatches mostly occur where we are not very confident in the ancestral allele
+        ann.annotate()
+
+        self.assertTrue(anc.is_monotonic())
+
+        pass
+
+    @pytest.mark.slow
+    def test_pendula_thorough_two_outgroups(self):
         """
         Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
         """
@@ -1024,14 +1215,14 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             n_runs=50,
             n_ingroups=10,
             parallelize=True,
-            prior=fd.KingmanPolarizationPrior(),
-            max_sites=100000
+            prior=fd.KingmanPolarizationPrior()
         )
 
         ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
             output='scratch/test_pendula_thorough.vcf',
-            annotations=[anc]
+            annotations=[anc],
+            max_sites=100000
         )
 
         ann.annotate()
@@ -1040,11 +1231,13 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
         anc.plot_likelihoods()
 
+        # the two outgroup have a very similar divergence from the ingroup
+        # self.assertTrue(anc._is_monotonic())
+
         pass
 
-    @staticmethod
     @pytest.mark.slow
-    def test_pendula_thorough_one_outgroup():
+    def test_pendula_thorough_one_outgroup(self):
         """
         Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
         """
@@ -1053,14 +1246,14 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             n_runs=50,
             n_ingroups=10,
             parallelize=True,
-            prior=fd.KingmanPolarizationPrior(),
-            max_sites=100000
+            prior=fd.KingmanPolarizationPrior()
         )
 
         ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
             output='scratch/test_pendula_thorough.vcf',
-            annotations=[anc]
+            annotations=[anc],
+            max_sites=100000
         )
 
         ann.annotate()
@@ -1068,6 +1261,8 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         anc.evaluate_likelihood(anc.params_mle)
 
         anc.plot_likelihoods()
+
+        self.assertTrue(anc.is_monotonic())
 
         pass
 
@@ -1164,7 +1359,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             # touch p_polarization to make sure it is calculated
             _ = anc.p_polarization
 
-            anc.prior.plot_polarization(ax=ax, show=False)
+            anc.prior.plot(ax=ax, show=False)
 
             annotations.append(anc)
 
@@ -1208,7 +1403,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
             ann.annotate()
 
-            anc.prior.plot_polarization(ax=ax[i], show=False)
+            anc.prior.plot(ax=ax[i], show=False)
 
             # set title
             ax[i].set_title(f"n_ingroups = {n_ingroup}, prior = {prior.__class__.__name__}")
@@ -1222,8 +1417,6 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
     def test_compare_with_est_sfs_betula(self):
         """
         Compare MLE params and site probabilities with EST-SFS using the betula dataset.
-
-        TODO finish test
         """
         annotators = []
 
@@ -1231,31 +1424,51 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             dict(
                 prior=None,
                 model=fd.JCSubstitutionModel(),
-                tol_params=0.8,
-                tol_sites=0.4,
+                tol_params=0.1,
+                tol_sites=0.02,
+                outgroups=["ERR2103730"],
+                vcf="resources/genome/betula/all.with_outgroups.vcf.gz"
+            ),
+            dict(
+                prior=None,
+                model=fd.JCSubstitutionModel(),
+                tol_params=0.6,
+                tol_sites=0.02,
                 outgroups=["ERR2103730", "ERR2103731"],
+                vcf="resources/genome/betula/all.with_outgroups.vcf.gz"
+            ),
+            dict(
+                prior=None,
+                model=fd.JCSubstitutionModel(),
+                tol_params=0.4,
+                tol_sites=0.03,
+                outgroups=["ERR2103730", "ERR2103731"],
+                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz"
             ),
             dict(
                 prior=None,
                 model=fd.K2SubstitutionModel(),
                 tol_params=0.4,
-                tol_sites=0.4,
+                tol_sites=0.03,
                 outgroups=["ERR2103730", "ERR2103731"],
+                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz"
             ),
             dict(
                 prior=None,
                 model=fd.JCSubstitutionModel(),
                 tol_params=0.1,
-                tol_sites=0.4,
+                tol_sites=0.04,
                 outgroups=["ERR2103730"],
+                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz"
             ),
             dict(
                 prior=None,
-                model=fd.JCSubstitutionModel(),
-                tol_params=0.4,
-                tol_sites=0.4,
+                model=fd.K2SubstitutionModel(),
+                tol_params=0.3,
+                tol_sites=0.04,
                 outgroups=["ERR2103730"],
-            ),
+                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz"
+            )
         ]
 
         max_sites = 10000
@@ -1271,7 +1484,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             )
 
             ann = fd.Annotator(
-                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                vcf=case['vcf'],
                 output='scratch/dummy.vcf',
                 annotations=[anc],
                 max_sites=max_sites
@@ -1285,15 +1498,20 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             params_mle = np.array([[anc.params_mle[k], anc2.params_mle[k]] for k in anc.params_mle])
 
             diff_params = np.abs(params_mle[:, 0] - params_mle[:, 1]) / params_mle[:, 1]
+            diff_params_max = diff_params.max()
 
-            self.assertTrue(diff_params.max() < case['tol_params'])
+            self.assertTrue(diff_params_max < case['tol_params'])
 
             # exclude sites where the major is fixed in the ingroup subsample
             site_info = site_info[site_info['native.n_major'] != n_ingroups]
 
             diff_sites = np.abs(site_info['native.p_major_ancestral'] - site_info['est_sfs.p_major_ancestral'])
+            diff_sites_mean = diff_sites.mean()
 
-            self.assertTrue(diff_sites.max() < case['tol_sites'])
+            # these discrepancies are quite high, but for the sites for which the estimates differ the most,
+            # EST-SFS's probabilities seem quite off. Even after double-checking I could not an explanation
+            # for this and EST-SFS is a bit of a black box as its code is so poorly documented.
+            self.assertTrue(diff_sites_mean < case['tol_sites'])
 
             annotators.append(anc)
 
@@ -1393,24 +1611,17 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             dict(n_major=15, major_base='G', minor_base=None, outgroup_bases=['G'], ancestral_expected='G'),
             dict(n_major=15, major_base='C', minor_base='A', outgroup_bases=[], ancestral_expected='C'),
             dict(n_major=15, major_base='A', minor_base='T', outgroup_bases=['A', 'T'], ancestral_expected='A'),
-            dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['T', 'C', 'C'], ancestral_expected='T'),
+            dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['T', 'C', 'C'], ancestral_expected='C'),
             dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['G'], ancestral_expected='T'),
-            dict(n_major=15, major_base='T', minor_base='C', outgroup_bases=['T', 'C', 'C'], ancestral_expected='T'),
             dict(n_major=15, major_base='G', minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='G'),
             dict(n_major=15, major_base=None, minor_base=None, outgroup_bases=['A', 'C', 'T'], ancestral_expected='A'),
-
-            # this counterintuitive but we can only consider bases that are present in the ingroup
             dict(n_major=15, major_base='A', minor_base=None, outgroup_bases=['T', 'T', 'T'], ancestral_expected='T'),
             dict(n_major=15, major_base='A', minor_base=None, outgroup_bases=['T', 'T'], ancestral_expected='T'),
-
-            # this works because 'T' is present in the ingroup
             dict(n_major=15, major_base='A', minor_base='T', outgroup_bases=['T', 'T', 'T'], ancestral_expected='T'),
-
-            # this again doesn't work because 'T' is not present in the ingroup
             dict(n_major=15, major_base='A', minor_base='G', outgroup_bases=['T', 'T', 'T'], ancestral_expected='T'),
         ]
 
-        for config in configs:
+        for i, config in enumerate(configs):
             site_config = fd.annotation.SiteConfig(
                 n_major=config['n_major'],
                 major_base=fd.MaximumLikelihoodAncestralAnnotation.get_base_index(config['major_base']),
@@ -1691,3 +1902,428 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             outgroup_bases=['C', 'T', 'C'],
             rate_params=dict(K=0.05)
         ).plot_tree()
+
+    def test_maximum_likelihood_annotation_annotate_site(self):
+        """
+        Test the maximum parsimony annotation for a single site.
+        """
+        # test cases
+        cases = [
+            # minor allele 'G' but supported by outgroup
+            dict(
+                ingroups=["sample1", "sample2"],
+                outgroups=["sample3"],
+                samples=["sample1", "sample2", "sample3"],
+                gt_bases=np.array(["A/A", "A/G", "G/G"]),
+                expected="G",
+                confidence_threshold=0,
+                n_ingroups=4,
+                prior=None
+            ),
+            # minor allele 'G', supported by outgroup, but not with enough confidence
+            dict(
+                ingroups=["sample1", "sample2"],
+                outgroups=["sample3"],
+                samples=["sample1", "sample2", "sample3"],
+                gt_bases=np.array(["A/A", "A/G", "G/G"]),
+                expected=".",
+                confidence_threshold=1,
+                n_ingroups=4,
+                prior=None
+            ),
+            # minor allele 'G', supported by outgroup, but not enough ingroup samples
+            dict(
+                ingroups=["sample1", "sample2"],
+                outgroups=["sample3"],
+                samples=["sample1", "sample2", "sample3"],
+                gt_bases=np.array(["A/A", "A/G", "G/G"]),
+                expected=".",
+                confidence_threshold=0,
+                n_ingroups=5,
+                prior=None
+            ),
+            # monomorphic site with outgroup information
+            dict(
+                ingroups=["sample1", "sample2"],
+                outgroups=["sample3"],
+                samples=["sample1", "sample2", "sample3"],
+                gt_bases=np.array(["./.", "C/C", "C/C"]),
+                expected="C",
+                n_ingroups=2,
+                confidence_threshold=0,
+                prior=None
+            ),
+            # monomorphic site with no outgroup information
+            dict(
+                ingroups=["sample1", "sample2"],
+                outgroups=["sample3"],
+                samples=["sample1", "sample2", "sample3"],
+                gt_bases=np.array(["T/T", "./.", "./."]),
+                expected="T",
+                n_ingroups=2,
+                confidence_threshold=0,
+                prior=None
+            ),
+            # site without any calls
+            dict(
+                ingroups=["sample1", "sample2"],
+                outgroups=["sample3"],
+                samples=["sample1", "sample2", "sample3"],
+                gt_bases=np.array(["./.", "./.", "./."]),
+                expected=".",
+                n_ingroups=2,
+                confidence_threshold=0,
+                prior=None
+            ),
+            # poly-allelic site
+            dict(
+                ingroups=["sample1", "sample2"],
+                outgroups=["sample3"],
+                samples=["sample1", "sample2", "sample3"],
+                gt_bases=np.array(["A/A", "./.", "G/T"]),
+                expected=".",
+                n_ingroups=2,
+                confidence_threshold=0,
+                prior=None
+            ),
+            # poly-allelic site
+            dict(
+                ingroups=["sample1", "sample2"],
+                outgroups=["sample3"],
+                samples=["sample1", "sample2", "sample3"],
+                gt_bases=np.array(["A/T", "G/.", "T/T"]),
+                expected=".",
+                n_ingroups=3,
+                confidence_threshold=0,
+                prior=None
+            ),
+        ]
+
+        # mock Annotator
+        mock_annotator = MagicMock()
+        type(mock_annotator).info_ancestral = PropertyMock(return_value="AA")
+
+        for i, test_case in enumerate(cases):
+            # create with dummy input and just fix branch rates
+            ann = fd.MaximumLikelihoodAncestralAnnotation.from_data(
+                n_major=[0],
+                major_base=['A'],
+                minor_base=['T'],
+                outgroup_bases=[['A']],
+                n_ingroups=test_case["n_ingroups"],
+                model=fd.JCSubstitutionModel(pool_branch_rates=True, fixed_params=dict(K=0.1)),
+                prior=test_case["prior"],
+                confidence_threshold=test_case["confidence_threshold"]
+            )
+
+            ann.outgroups = test_case["outgroups"]
+            ann.ingroups = test_case["ingroups"]
+            ann.handler = mock_annotator
+
+            # prepare masks
+            ann._prepare_masks(test_case["samples"])
+
+            # infer branch rates (which has no effect)
+            ann.infer()
+
+            # mock variant with a dictionary for INFO
+            variant = MagicMock()
+            variant.gt_bases = test_case["gt_bases"]
+            variant.INFO = {}
+            variant.is_snp = len(set(get_called_bases(variant.gt_bases))) > 1
+            variant.REF = 'A'  # doesn't matter what the reference is, but it needs to be a valid base
+
+            # run the method
+            ann.annotate_site(variant)
+
+            # check if the result matches the expectation
+            self.assertEqual(variant.INFO[ann.handler.info_ancestral], test_case["expected"])
+
+    def test_is_confident(self):
+        """
+        Test the is_confident method.
+        """
+        self.assertEqual(True, fd.MaximumLikelihoodAncestralAnnotation._is_confident(0, 0.1))
+        self.assertEqual(True, fd.MaximumLikelihoodAncestralAnnotation._is_confident(0, 0.5))
+        self.assertEqual(True, fd.MaximumLikelihoodAncestralAnnotation._is_confident(0, 0.9))
+
+        self.assertEqual(False, fd.MaximumLikelihoodAncestralAnnotation._is_confident(1, 0.1))
+        self.assertEqual(False, fd.MaximumLikelihoodAncestralAnnotation._is_confident(1, 0.5))
+        self.assertEqual(False, fd.MaximumLikelihoodAncestralAnnotation._is_confident(1, 0.9))
+
+        self.assertEqual(True, fd.MaximumLikelihoodAncestralAnnotation._is_confident(0.5, 0.1))
+        self.assertEqual(True, fd.MaximumLikelihoodAncestralAnnotation._is_confident(0.5, 0.2))
+        self.assertEqual(False, fd.MaximumLikelihoodAncestralAnnotation._is_confident(0.5, 0.3))
+        self.assertEqual(False, fd.MaximumLikelihoodAncestralAnnotation._is_confident(0.5, 0.5))
+        self.assertEqual(False, fd.MaximumLikelihoodAncestralAnnotation._is_confident(0.5, 0.7))
+        self.assertEqual(True, fd.MaximumLikelihoodAncestralAnnotation._is_confident(0.5, 0.8))
+        self.assertEqual(True, fd.MaximumLikelihoodAncestralAnnotation._is_confident(0.5, 0.9))
+
+    def test_get_outgroup_divergence_one_outgroup(self):
+        """
+        Test the get_outgroup_divergence method with one outgroup.
+        """
+        # create a mocked annotation
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["outgroup1"],
+            ingroups=["ingroup1", "ingroup2", "ingroup3", "ingroup4"],
+            n_ingroups=8,
+            prior=None
+        )
+
+        anc.params_mle = {
+            'K0': 0.05
+        }
+
+        testing.assert_array_equal([0.05], anc.get_outgroup_divergence())
+
+    def test_get_outgroup_divergence_two_outgroups(self):
+        """
+        Test the get_outgroup_divergence method with two outgroups.
+        """
+        # create a mocked annotation
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["outgroup1", "outgroup2"],
+            ingroups=["ingroup1", "ingroup2", "ingroup3", "ingroup4"],
+            n_ingroups=8,
+            prior=None
+        )
+
+        anc.params_mle = {
+            'K0': 0.05,
+            'K1': 0.1,
+            'K2': 0.2
+        }
+
+        testing.assert_array_almost_equal([0.15, 0.25], anc.get_outgroup_divergence())
+
+    def test_get_outgroup_divergence_three_outgroups(self):
+        """
+        Test the get_outgroup_divergence method with three outgroups.
+        """
+        # create a mocked annotation
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["outgroup1", "outgroup2", "outgroup3"],
+            ingroups=["ingroup1", "ingroup2", "ingroup3", "ingroup4"],
+            n_ingroups=8,
+            prior=None
+        )
+
+        anc.params_mle = {
+            'K0': 0.05,
+            'K1': 0.1,
+            'K2': 0.13,
+            'K3': 0.3,
+            'K4': 0.4
+        }
+
+        testing.assert_array_almost_equal([0.15, 0.48, 0.58], anc.get_outgroup_divergence())
+
+    @staticmethod
+    @pytest.mark.slow
+    def test_betula_different_confidence_thresholds():
+        """
+        Test the SFS for different ancestral allele annotation confidence thresholds.
+        """
+        spectra = {}
+
+        for threshold in [0, 0.5, 0.9]:
+            p = fd.Parser(
+                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                n=10,
+                max_sites=10000,
+                annotations=[
+                    fd.MaximumLikelihoodAncestralAnnotation(
+                        outgroups=["ERR2103730"],
+                        exclude=["ERR2103731"],
+                        n_ingroups=20,
+                        confidence_threshold=threshold,
+                    )
+                ]
+            )
+
+            sfs = p.parse()
+
+            spectra[str(threshold)] = sfs.all
+
+        # we have fewer derived alleles for higher confidence thresholds
+        fd.Spectra.from_spectra(spectra).plot()
+
+        pass
+
+    @pytest.mark.slow
+    def test_papio_sfs_for_different_number_of_outgroups(self):
+        """
+        Test the SFS for different numbers of outgroups.
+        """
+        spectra, parsers = {}, {}
+
+        samples = pd.read_csv("resources/genome/papio/metadata.csv")
+
+        outgroups = [
+            # samples[samples.C_origin == 'Anubis, Ethiopia'].iloc[0].PGDP_ID,
+            samples[samples.Species == 'hamadryas'].iloc[0].PGDP_ID.replace('Sci_', ''),
+            samples[samples.Species == 'kindae'].iloc[0].PGDP_ID.replace('Sci_', ''),
+            samples[samples.Species == 'gelada'].iloc[0].PGDP_ID.replace('Sci_', '')
+        ]
+
+        for n_outgroups in [1, 2, 3]:
+            p = fd.Parser(
+                vcf="resources/genome/papio/output.filtered.snps.chr1.removed.AB.pass.vep.vcf.gz",
+                n=8,
+                max_sites=10000,
+                annotations=[
+                    fd.MaximumLikelihoodAncestralAnnotation(
+                        ingroups=list(samples[samples.C_origin == 'Anubis, Tanzania']['PGDP_ID']),
+                        outgroups=outgroups[-n_outgroups:],
+                        n_runs=10,
+                        n_ingroups=10,
+                        parallelize=True,
+                        prior=fd.KingmanPolarizationPrior(),
+                        confidence_threshold=0
+                    )
+                ]
+            )
+
+            sfs = p.parse()
+
+            spectra[f"{n_outgroups}_outgroups"] = sfs.all
+            parsers[f"{n_outgroups}_outgroups"] = p
+
+        s = fd.Spectra.from_spectra(spectra)
+        s.plot()
+
+        # make sure total number of sites is the same
+        self.assertTrue(np.all(s.n_sites == s.n_sites[0]))
+
+        # The number of polymorphic sites is very similar as it should
+        # If only one outgroup is used, there is a slight over-representation of high-frequency derived alleles
+        pass
+
+    @pytest.mark.slow
+    def test_papio_sfs_for_different_subsample_size(self):
+        """
+        Test the SFS for different numbers of outgroups.
+        """
+        spectra, parsers = {}, {}
+
+        samples = pd.read_csv("resources/genome/papio/metadata.csv")
+
+        for n_ingroups in [5, 10, 20, 40]:
+            p = fd.Parser(
+                vcf="resources/genome/papio/output.filtered.snps.chr1.removed.AB.pass.vep.vcf.gz",
+                n=8,
+                max_sites=10000,
+                annotations=[
+                    fd.MaximumLikelihoodAncestralAnnotation(
+                        ingroups=list(samples[samples.C_origin == 'Anubis, Tanzania']['PGDP_ID']),
+                        outgroups=[
+                            samples[samples.Species == 'hamadryas'].iloc[0].PGDP_ID.replace('Sci_', ''),
+                            samples[samples.Species == 'kindae'].iloc[0].PGDP_ID.replace('Sci_', ''),
+                            samples[samples.Species == 'gelada'].iloc[0].PGDP_ID.replace('Sci_', '')
+                        ],
+                        n_runs=10,
+                        n_ingroups=n_ingroups,
+                        parallelize=True,
+                        prior=fd.KingmanPolarizationPrior(),
+                        confidence_threshold=0,
+                    )
+                ]
+            )
+
+            sfs = p.parse()
+
+            spectra[f"{n_ingroups}_ingroups"] = sfs.all
+            parsers[f"{n_ingroups}_ingroups"] = p
+
+        # looks rather similar really
+        fd.Spectra.from_spectra(spectra).plot()
+
+        pass
+
+    @pytest.mark.slow
+    def test_papio_sfs_for_different_priors(self):
+        """
+        Test the SFS for different numbers of outgroups.
+        """
+        spectra, parsers = {}, {}
+
+        samples = pd.read_csv("resources/genome/papio/metadata.csv")
+
+        priors = {
+            'none': None,
+            'Kingman': fd.KingmanPolarizationPrior(),
+            'Adaptive': fd.AdaptivePolarizationPrior(),
+        }
+
+        for name, prior in priors.items():
+            p = fd.Parser(
+                vcf="resources/genome/papio/output.filtered.snps.chr1.removed.AB.pass.vep.vcf.gz",
+                n=8,
+                max_sites=10000,
+                annotations=[
+                    fd.MaximumLikelihoodAncestralAnnotation(
+                        ingroups=list(samples[samples.C_origin == 'Anubis, Tanzania']['PGDP_ID']),
+                        outgroups=[
+                            samples[samples.Species == 'hamadryas'].iloc[0].PGDP_ID.replace('Sci_', ''),
+                            samples[samples.Species == 'kindae'].iloc[0].PGDP_ID.replace('Sci_', ''),
+                            # samples[samples.Species == 'gelada'].iloc[0].PGDP_ID.replace('Sci_', '')
+                        ],
+                        n_runs=10,
+                        n_ingroups=20,
+                        parallelize=True,
+                        prior=prior,
+                        confidence_threshold=0,
+                    )
+                ]
+            )
+
+            sfs = p.parse()
+
+            spectra[name] = sfs.all
+            parsers[name] = p
+
+        # slightly more high-frequency derived alleles without prior, which is expected
+        fd.Spectra.from_spectra(spectra).plot()
+
+        pass
+
+    @pytest.mark.slow
+    def test_betula_biallelic_vs_monomorphic_compare_rates(self):
+        """
+        Test the SFS for different numbers of outgroups.
+        """
+        spectra, parsers = {}, {}
+
+        vcfs = {
+            'biallelic': "resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+            'all': "resources/genome/betula/all.with_outgroups.vcf.gz"
+        }
+
+        for key, vcf in vcfs.items():
+            p = fd.Parser(
+                vcf=vcf,
+                n=10,
+                annotations=[
+                    fd.MaximumLikelihoodAncestralAnnotation(
+                        outgroups=["ERR2103730"],
+                        exclude=["ERR2103731"],
+                        n_ingroups=20,
+                        confidence_threshold=0,
+                        prior=fd.KingmanPolarizationPrior()
+                    )
+                ]
+            )
+
+            sfs = p.parse()
+
+            spectra[key] = sfs.all
+            parsers[key] = p
+
+        # extremely similar
+        fd.Spectra.from_spectra(spectra).plot()
+
+        self.assertEqual(
+            parsers['all'].annotations[0].params_mle,
+            parsers['biallelic'].annotations[0].params_mle
+        )

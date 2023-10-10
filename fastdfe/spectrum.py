@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
+from .io_handlers import download_if_url
 from .visualization import Visualization
 
 # get logger
@@ -612,7 +613,7 @@ class Spectra:
         """
         return Spectra.from_dataframe(self.data.copy())
 
-    def to_multi_index(self) -> 'Spectra':
+    def _to_multi_index(self) -> 'Spectra':
         """
         Convert to Spectra object with multi-indexed columns.
 
@@ -624,7 +625,7 @@ class Spectra:
 
         return other
 
-    def to_single_index(self) -> 'Spectra':
+    def _to_single_index(self) -> 'Spectra':
         """
         Convert to Spectra object with single-indexed columns (using dot notation).
 
@@ -657,7 +658,7 @@ class Spectra:
         # cast to int
         level = [int(l) for l in level] if isinstance(level, Iterable) else int(level)
 
-        return Spectra.from_dataframe(self.to_multi_index().data.groupby(axis=1, level=level).sum()).to_single_index()
+        return Spectra.from_dataframe(self._to_multi_index().data.T.groupby(level=level).sum().T)._to_single_index()
 
     def has_dots(self) -> bool:
         """
@@ -724,10 +725,10 @@ class Spectra:
         """
         Save object to file.
 
-        :param file: File name
+        :param file: Path to file, possibly URL
         :return: Spectra object
         """
-        return Spectra.from_dataframe(pd.read_csv(file))
+        return Spectra.from_dataframe(pd.read_csv(download_if_url(file)))
 
     @staticmethod
     def from_spectra(spectra: Dict[str, Spectrum]) -> 'Spectra':
@@ -828,6 +829,19 @@ class Spectra:
         :return: Spectra with prefixed types
         """
         return self.rename([prefix + '.' + col for col in self.types])
+
+    def reorder_levels(self, levels: List[int]) -> 'Spectra':
+        """
+        Reorder levels.
+
+        :param levels: New order of levels
+        :return: Spectra with reordered levels
+        """
+        s = self._to_multi_index()
+        s.data.columns = s.data.columns.reorder_levels(levels)
+        s = s._to_single_index()
+
+        return s
 
     def print(self):
         """

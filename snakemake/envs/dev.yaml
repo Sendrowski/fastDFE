@@ -1,15 +1,15 @@
 name: dev-fastdfe
-channels:
-  - conda-forge
 dependencies:
+  - python=3.10
   - dadi
   - r-base
   - rpy2
   - r-rjsonio
   - r-irkernel
-  - jupyterlab
   - r-usethis
   - r-devtools
+  - jupyterlab
+  - jupyter
   - pip
   - pip:
     - pytest

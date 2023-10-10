@@ -1190,8 +1190,8 @@ class Optimization:
             # issue warning
             logger.warning(
                 f'The MLE estimate is close to the upper bound '
-                f'for {near_lower_unscaled} and lower bound '
-                f'for {near_upper_unscaled} [(lower, value, upper)], but '
+                f'for {near_upper_unscaled} and lower bound '
+                f'for {near_lower_unscaled} [(lower, value, upper)], but '
                 f'this might be nothing to worry about.'
             )
 

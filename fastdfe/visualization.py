@@ -430,7 +430,7 @@ class Visualization:
         ax.set_title(title)
 
         # change to log-scale if specified
-        if scale == 'log':
+        if scale in ['log', 'symlog']:
             ax.set_yscale('symlog', linthresh=1e-3)
 
         # remove x-margins
@@ -826,8 +826,8 @@ class Visualization:
     @clear_show_save
     def plot_nested_models(
             P: np.ndarray,
-            labels_x: list,
-            labels_y: list,
+            labels_x: list | np.ndarray,
+            labels_y: list | np.ndarray,
             ax: plt.Axes,
             file: str = None,
             show: bool = True,

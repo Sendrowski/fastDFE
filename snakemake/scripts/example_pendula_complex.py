@@ -1,5 +1,8 @@
 import fastdfe as fd
 
+basepath = ("https://github.com/Sendrowski/fastDFE/"
+            "blob/dev/resources/genome/betula/")
+
 # instantiate parser
 p = fd.Parser(
     n=10,

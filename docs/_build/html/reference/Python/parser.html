@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VCF Parsing &mdash; fastDFE 1.0.0 documentation</title>
+  <title>VCF Parsing &mdash; fastDFE 1.1.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -140,12 +140,11 @@
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># instantiate parser</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Parser</span><span class="p">(</span>
     <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
-    <span class="n">vcf</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/biallelic.subset.50000.vcf.gz?raw=true&quot;</span><span class="p">,</span>
+    <span class="n">vcf</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/biallelic.polarized.subset.50000.vcf.gz?raw=true&quot;</span><span class="p">,</span>
     <span class="n">fasta</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/genome.subset.1000.fasta.gz?raw=true&quot;</span><span class="p">,</span>
     <span class="n">gff</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/genome.gff.gz?raw=true&quot;</span><span class="p">,</span>
     <span class="n">annotations</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyAnnotation</span><span class="p">(),</span>
-        <span class="n">fd</span><span class="o">.</span><span class="n">MaximumParsimonyAncestralAnnotation</span><span class="p">()</span>  <span class="c1"># only partly recommended</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyAnnotation</span><span class="p">()</span>
     <span class="p">],</span>
     <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span><span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyStratification</span><span class="p">()]</span>
 <span class="p">)</span>
@@ -158,19 +157,18 @@
 <div class="cell_output docutils container">
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Parser: Using stratification: [neutral, selected].</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.Parser: Loading VCF file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/211142f65e7c.biallelic.subset.50000.vcf.gz</span>
+<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/336e1346dbe4.biallelic.polarized.subset.50000.vcf.gz</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.Parser: Loading GFF file</span>
 <span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/2d03158a125f.genome.gff.gz</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.Parser: Loading FASTA file</span>
 <span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/eb1f2b2b0185.genome.subset.1000.fasta.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/211142f65e7c.biallelic.subset.50000.vcf.gz</span>
-Counting sites: 50000it [00:01, 32702.15it/s]
-Processing sites: 100%|██████████| 50000/50000 [02:07&lt;00:00, 392.84it/s]
+<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/336e1346dbe4.biallelic.polarized.subset.50000.vcf.gz</span>
+Counting sites: 50000it [00:01, 33067.14it/s]
+Processing sites: 100%|██████████| 50000/50000 [01:23&lt;00:00, 599.40it/s]
 <span class=" -Color -Color-Green">INFO:fastdfe.PolyAllelicFiltration: Filtered out 0 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyStratification: Number of sites with valid type: 14084</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyAnnotation: Annotated 18906 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.MaximumParsimonyAncestralAnnotation: Annotated 50000 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Included 14084 out of 50000 sites in total from the VCF file.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyStratification: Number of sites with valid type: 13771</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyAnnotation: Annotated 19002 sites.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Included 13771 out of 50000 sites in total from the VCF file.</span>
 </pre></div>
 </div>
 </div>
@@ -186,7 +184,7 @@ Processing sites: 100%|██████████| 50000/50000 [02:07&lt;00:
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 512x384 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../../_images/feb8a78547aeda31a581b5f1da580b451f66ae5990614aff22b5a0f9b71c8b8c.png" src="../../_images/feb8a78547aeda31a581b5f1da580b451f66ae5990614aff22b5a0f9b71c8b8c.png" />
+<img alt="../../_images/fd1b952bed91d15a626dd72f2b1ce920e040601a6e803a698b477b431c539aa0.png" src="../../_images/fd1b952bed91d15a626dd72f2b1ce920e040601a6e803a698b477b431c539aa0.png" />
 </div>
 </div>
 <p>fastDFE relies here on VCF info tags to determine the degeneracy of a site but this behavior can be customized (cf. <a class="reference internal" href="../../modules/parser.html#fastdfe.parser.DegeneracyStratification" title="fastdfe.parser.DegeneracyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyStratification</span></code></a>).</p>
@@ -199,12 +197,11 @@ Processing sites: 100%|██████████| 50000/50000 [02:07&lt;00:
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># instantiate parser</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Parser</span><span class="p">(</span>
     <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">vcf</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/biallelic.subset.50000.vcf.gz?raw=true&quot;</span><span class="p">,</span>
+    <span class="n">vcf</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/biallelic.polarized.subset.50000.vcf.gz?raw=true&quot;</span><span class="p">,</span>
     <span class="n">fasta</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/genome.subset.1000.fasta.gz?raw=true&quot;</span><span class="p">,</span>
     <span class="n">gff</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/genome.gff.gz?raw=true&quot;</span><span class="p">,</span>
     <span class="n">annotations</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyAnnotation</span><span class="p">(),</span>
-        <span class="n">fd</span><span class="o">.</span><span class="n">MaximumParsimonyAncestralAnnotation</span><span class="p">()</span>  <span class="c1"># only partly recommended</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyAnnotation</span><span class="p">()</span>
     <span class="p">],</span>
     <span class="n">stratifications</span><span class="o">=</span><span class="p">[</span>
         <span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyStratification</span><span class="p">(),</span>
@@ -220,20 +217,19 @@ Processing sites: 100%|██████████| 50000/50000 [02:07&lt;00:
 <div class="cell_output docutils container">
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Parser: Using stratification: [neutral, selected].[A, C, G, T].</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.Parser: Loading VCF file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/211142f65e7c.biallelic.subset.50000.vcf.gz</span>
+<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/336e1346dbe4.biallelic.polarized.subset.50000.vcf.gz</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.Parser: Loading GFF file</span>
 <span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/2d03158a125f.genome.gff.gz</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.Parser: Loading FASTA file</span>
 <span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/eb1f2b2b0185.genome.subset.1000.fasta.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/211142f65e7c.biallelic.subset.50000.vcf.gz</span>
-Counting sites: 50000it [00:01, 32319.40it/s]
-Processing sites: 100%|██████████| 50000/50000 [02:08&lt;00:00, 389.27it/s]
+<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/336e1346dbe4.biallelic.polarized.subset.50000.vcf.gz</span>
+Counting sites: 50000it [00:01, 33853.21it/s]
+Processing sites: 100%|██████████| 50000/50000 [01:22&lt;00:00, 604.44it/s]
 <span class=" -Color -Color-Green">INFO:fastdfe.PolyAllelicFiltration: Filtered out 0 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyStratification: Number of sites with valid type: 14084</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.AncestralBaseStratification: Number of sites with valid type: 14084</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyAnnotation: Annotated 18906 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.MaximumParsimonyAncestralAnnotation: Annotated 50000 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Included 14084 out of 50000 sites in total from the VCF file.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyStratification: Number of sites with valid type: 13771</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.AncestralBaseStratification: Number of sites with valid type: 13771</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyAnnotation: Annotated 19002 sites.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Included 13771 out of 50000 sites in total from the VCF file.</span>
 </pre></div>
 </div>
 </div>
@@ -249,7 +245,7 @@ Processing sites: 100%|██████████| 50000/50000 [02:08&lt;00:
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 512x384 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../../_images/713fc495096f23ca8f12436caf9bb744f2f2104c64ab7480fdb7537ac967182c.png" src="../../_images/713fc495096f23ca8f12436caf9bb744f2f2104c64ab7480fdb7537ac967182c.png" />
+<img alt="../../_images/c1b18ec6f900b23c97b5601f73ec79c3e8d49e5915c8284806e39614d9789bf8.png" src="../../_images/c1b18ec6f900b23c97b5601f73ec79c3e8d49e5915c8284806e39614d9789bf8.png" />
 </div>
 </div>
 <p>Note that fastDFE requires the ancestral state of sites to be determined. The <a class="reference internal" href="../../modules/parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a> achieves this by examining the <code class="docutils literal notranslate"><span class="pre">AA</span></code> field, although this behavior can be customized.</p>
@@ -268,7 +264,7 @@ Processing sites: 100%|██████████| 50000/50000 [02:08&lt;00:
     <span class="n">fasta</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/genome.subset.1000.fasta.gz?raw=true&quot;</span><span class="p">,</span>
     <span class="n">gff</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/genome.gff.gz?raw=true&quot;</span><span class="p">,</span>
     <span class="n">annotations</span><span class="o">=</span><span class="p">[</span><span class="n">fd</span><span class="o">.</span><span class="n">DegeneracyAnnotation</span><span class="p">()],</span>
-    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;out/genome.deg.vcf.gz&quot;</span>
+    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;genome.deg.vcf.gz&quot;</span>
 <span class="p">)</span>
 
 <span class="n">ann</span><span class="o">.</span><span class="n">annotate</span><span class="p">()</span>
@@ -282,10 +278,12 @@ Processing sites: 100%|██████████| 50000/50000 [02:08&lt;00:
 <span class=" -Color -Color-Green">INFO:fastdfe.Annotator: Loading FASTA file</span>
 <span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/eb1f2b2b0185.genome.subset.1000.fasta.gz</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.Annotator: Loading VCF file</span>
+<span class=" -Color -Color-Green">INFO:fastdfe: Downloading file from https://github.com/Sendrowski/fastDFE/blob/dev/resources/genome/betula/biallelic.subset.10000.vcf.gz?raw=true</span>
+Downloading file: 100%|██████████| 14.5M/14.5M [00:00&lt;00:00, 25.7MB/s]
+<span class=" -Color -Color-Green">INFO:fastdfe: Cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
 <span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
-Counting sites: 10000it [00:00, 32111.27it/s]
-Processing sites: 100%|██████████| 10000/10000 [00:02&lt;00:00, 3844.01it/s]
+Counting sites: 10000it [00:00, 34263.83it/s]
+Processing sites: 100%|██████████| 10000/10000 [00:02&lt;00:00, 4172.96it/s]
 <span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyAnnotation: Annotated 3566 sites.</span>
 </pre></div>
 </div>
@@ -294,7 +292,7 @@ Processing sites: 100%|██████████| 10000/10000 [00:02&lt;00:
 </section>
 <section id="ancestral-allele-annotation">
 <h3>Ancestral Allele Annotation<a class="headerlink" href="#ancestral-allele-annotation" title="Permalink to this heading"></a></h3>
-<p>Currently, two ancestral allele annotations are available: <a class="reference internal" href="../../modules/annotation.html#fastdfe.annotation.MaximumParsimonyAncestralAnnotation" title="fastdfe.annotation.MaximumParsimonyAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumParsimonyAncestralAnnotation</span></code></a> and <a class="reference internal" href="../../modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a>. The former is straightforward but susceptible to errors, and only appropriate if no outgroup information is available. Some errors can be avoided by incorporating <a class="reference internal" href="../../modules/filtration.html#fastdfe.filtration.DeviantOutgroupFiltration" title="fastdfe.filtration.DeviantOutgroupFiltration"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviantOutgroupFiltration</span></code></a>. Alternatively, DFE inference can also be performed on folded spectra, but please note that this will yield less precise estimates. <a class="reference internal" href="../../modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a> is more sophisticated and requires one or several outgroup to be specified. Its underlying model is very similar to <a class="reference external" href="https://doi.org/10.1534/genetics.118.301120">EST-SFS</a>.</p>
+<p>Currently, two ancestral allele annotations are available: <a class="reference internal" href="../../modules/annotation.html#fastdfe.annotation.MaximumParsimonyAncestralAnnotation" title="fastdfe.annotation.MaximumParsimonyAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumParsimonyAncestralAnnotation</span></code></a> and <a class="reference internal" href="../../modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a>. The former is straightforward but susceptible to errors, and only appropriate if no outgroup information is available. Alternatively, if outgroups are missing, DFE inference can also be performed on folded spectra, but please note that this will yield less precise estimates. Ideally, we would like to use <a class="reference internal" href="../../modules/annotation.html#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a>, which is more sophisticated and requires one or several outgroup to be specified. Its underlying model is very similar to <a class="reference external" href="https://doi.org/10.1534/genetics.118.301120">EST-SFS</a>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># example for ancestral allele annotation with outgroups</span>
@@ -304,7 +302,7 @@ Processing sites: 100%|██████████| 10000/10000 [00:02&lt;00:
         <span class="n">outgroups</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ERR2103730&quot;</span><span class="p">,</span> <span class="s2">&quot;ERR2103731&quot;</span><span class="p">],</span>
         <span class="n">n_ingroups</span><span class="o">=</span><span class="mi">15</span>
     <span class="p">)],</span>
-    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;out/genome.aa.vcf.gz&quot;</span>
+    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;genome.aa.vcf.gz&quot;</span>
 <span class="p">)</span>
 
 <span class="n">ann</span><span class="o">.</span><span class="n">annotate</span><span class="p">()</span>
@@ -314,19 +312,21 @@ Processing sites: 100%|██████████| 10000/10000 [00:02&lt;00:
 <div class="cell_output docutils container">
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Annotator: Start annotating</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.Annotator: Loading VCF file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/d2a32f6ed097.biallelic.with_outgroups.subset.10000.vcf.gz</span>
+<span class=" -Color -Color-Green">INFO:fastdfe: Downloading file from https://github.com/Sendrowski/fastDFE/blob/dev/resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz?raw=true</span>
+Downloading file: 100%|██████████| 13.9M/13.9M [00:00&lt;00:00, 18.8MB/s]
+<span class=" -Color -Color-Green">INFO:fastdfe: Cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/d2a32f6ed097.biallelic.with_outgroups.subset.10000.vcf.gz</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.Annotator: Loading VCF file</span>
 <span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/d2a32f6ed097.biallelic.with_outgroups.subset.10000.vcf.gz</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.MaximumLikelihoodAncestralAnnotation: Subsampling 15 ingroup haplotypes from 377 individuals in total.</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.MaximumLikelihoodAncestralAnnotation: Using 2 outgroup samples (ERR2103730, ERR2103731).</span>
 <span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/d2a32f6ed097.biallelic.with_outgroups.subset.10000.vcf.gz</span>
-Counting sites: 10000it [00:00, 32576.89it/s]
-Parsing sites: 100%|██████████| 10000/10000 [00:24&lt;00:00, 411.04it/s]
+Counting sites: 10000it [00:00, 35109.53it/s]
+Parsing sites: 100%|██████████| 10000/10000 [00:26&lt;00:00, 377.75it/s]
 <span class=" -Color -Color-Green">INFO:fastdfe.MaximumLikelihoodAncestralAnnotation: Included 7041 sites for the inference.</span>
-Optimizing rates: 100%|██████████| 10/10 [00:02&lt;00:00,  3.39it/s]
-Processing sites: 100%|██████████| 10000/10000 [00:24&lt;00:00, 406.97it/s]
-<span class=" -Color -Color-Green">INFO:fastdfe.MaximumLikelihoodAncestralAnnotation: Annotated 10000 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.MaximumLikelihoodAncestralAnnotation: There were 0 mismatches between the most likely ancestral allele and the ad-hoc ancestral allele annotation.</span>
+Optimizing rates: 100%|██████████| 10/10 [00:02&lt;00:00,  3.51it/s]
+Processing sites: 100%|██████████| 10000/10000 [00:28&lt;00:00, 351.08it/s]
+<span class=" -Color -Color-Green">INFO:fastdfe.MaximumLikelihoodAncestralAnnotation: Annotated 9977 sites.</span>
+<span class=" -Color -Color-Green">INFO:fastdfe.MaximumLikelihoodAncestralAnnotation: There were 1374 mismatches between the most likely ancestral allele and the ad-hoc ancestral allele annotation.</span>
 </pre></div>
 </div>
 </div>
@@ -342,7 +342,7 @@ Processing sites: 100%|██████████| 10000/10000 [00:24&lt;00:
 <span class="n">f</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Filterer</span><span class="p">(</span>
     <span class="n">vcf</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/biallelic.subset.10000.vcf.gz?raw=true&quot;</span><span class="p">,</span>
     <span class="n">filtrations</span><span class="o">=</span><span class="p">[</span><span class="n">fd</span><span class="o">.</span><span class="n">BiasedGCConversionFiltration</span><span class="p">()],</span>
-    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;out/genome.gc.vcf.gz&quot;</span>
+    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;genome.gc.vcf.gz&quot;</span>
 <span class="p">)</span>
 
 <span class="n">f</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span>
@@ -354,8 +354,8 @@ Processing sites: 100%|██████████| 10000/10000 [00:24&lt;00:
 <span class=" -Color -Color-Green">INFO:fastdfe.Filterer: Loading VCF file</span>
 <span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
 <span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
-Counting sites: 10000it [00:00, 32068.55it/s]
-Processing sites: 100%|██████████| 10000/10000 [00:00&lt;00:00, 11466.39it/s]
+Counting sites: 10000it [00:00, 33967.83it/s]
+Processing sites: 100%|██████████| 10000/10000 [00:00&lt;00:00, 11321.98it/s]
 <span class=" -Color -Color-Green">INFO:fastdfe.BiasedGCConversionFiltration: Filtered out 7903 sites.</span>
 <span class=" -Color -Color-Green">INFO:fastdfe.Filterer: Filtered out 7903 of 10000 sites in total.</span>
 </pre></div>

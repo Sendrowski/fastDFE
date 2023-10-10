@@ -11,7 +11,7 @@ import pandas as pd
 try:
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
     testing = False
     sfs_file = snakemake.input[0]
@@ -24,7 +24,7 @@ except NameError:
     sfs_file = "results/sfs_covariates/arabidopsis.csv"
     col = 'age.rsa'
     param = 'b'
-    out = "scratch/joint_inference.yaml"
+    out = "scratch/sfs_arabidopsis.yaml"
 
 from fastdfe import Config, Spectra, JointInference, SharedParams, Covariate, DiscreteFractionalParametrization
 

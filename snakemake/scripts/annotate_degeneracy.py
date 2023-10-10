@@ -1,5 +1,5 @@
 """
-Run the annotator on a VCF file.
+Annotate degeneracy of variants in a VCF file.
 """
 
 __author__ = "Janek Sendrowski"
@@ -11,7 +11,7 @@ try:
 
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
 
     testing = False

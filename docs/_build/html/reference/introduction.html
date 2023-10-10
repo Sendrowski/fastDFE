@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; fastDFE 1.0.0 documentation</title>
+  <title>Introduction &mdash; fastDFE 1.1.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -22,6 +22,7 @@
         <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -53,6 +54,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#motivation">Motivation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-it-works">How it works</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 </ul>
@@ -116,39 +118,61 @@
              
   <section id="introduction">
 <span id="id1"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h1>
-<p>fastDFE is a user-friendly software package designed for estimating the distribution of fitness effects (DFE) in evolutionary biology, ecology, and conservation. Building upon the foundation laid by polyDFE <span id="id2">[<a class="reference internal" href="#id4" title="Paula Tataru, Maeva Mollion, Sylvain Glémin, and Thomas Bataillon. Inference of distribution of fitness effects and proportion of adaptive substitutions from polymorphism data. Genetics, 207:genetics.300323.2017, 09 2017. doi:10.1534/genetics.117.300323.">1</a>]</span>, fastDFE addresses the limitations of its predecessor by providing a faster, more flexible, and user-friendly approach to DFE inference.</p>
+<p>fastDFE is a software package designed for estimating the distribution of fitness effects (DFE) from site-frequency spectra (SFS). Building upon the foundation laid by polyDFE <span id="id2">[<a class="reference internal" href="#id6" title="Paula Tataru, Maeva Mollion, Sylvain Glémin, and Thomas Bataillon. Inference of distribution of fitness effects and proportion of adaptive substitutions from polymorphism data. Genetics, 207:genetics.300323.2017, 09 2017. doi:10.1534/genetics.117.300323.">4</a>]</span>, fastDFE addresses the limitations of its predecessor by providing a faster, more flexible, and user-friendly approach to DFE inference.</p>
 <p>fastDFE is implemented in Python but also offers compatibility with R through the reticulate package, ensuring a smooth integration with existing workflows. In the R wrapper, visualizations have been reimplemented for a consistent user experience. The package is thoroughly documented and tested, ensuring its reliability and ease of use for researchers in the field.</p>
 <section id="motivation">
 <h2>Motivation<a class="headerlink" href="#motivation" title="Permalink to this heading"></a></h2>
-<p>The DFE plays a crucial role in understanding how natural selection shapes genetic variation within and between species. Accurate estimation of the DFE is essential for a wide range of applications, including conservation management, understanding species’ responses to changing environments, and the identification of functionally important genomic regions. fastDFE aims to meet the growing need for efficient and adaptable tools that can be easily adopted by researchers working with increasingly complex genomic data.</p>
+<p>The DFE is instrumental in understanding how natural selection shapes genetic variation. SFS-based methods for estimating the DFE condense population genetic variation by quantifying the number of alleles at specific frequencies, discarding details about which sites exhibited which frequencies. As a result, we obtain one DFE for all variants used. This approach provides limited information when considering a single DFE, but its utility significantly increases when comparing DFEs across multiple species, populations, or genomic regions. fastDFE improves upon the groundwork laid by polyDFE, overcoming its constraints such as extensive computational time and limited scalability <span id="id3">[<a class="reference internal" href="#id7" title="Paula Tataru and Thomas Bataillon. polyDFEv2.0: testing for invariance of the distribution of fitness effects within and across species. Bioinformatics, 35(16):2868-2869, 01 2019. doi:10.1093/bioinformatics/bty1060.">3</a>, <a class="reference internal" href="#id6" title="Paula Tataru, Maeva Mollion, Sylvain Glémin, and Thomas Bataillon. Inference of distribution of fitness effects and proportion of adaptive substitutions from polymorphism data. Genetics, 207:genetics.300323.2017, 09 2017. doi:10.1534/genetics.117.300323.">4</a>]</span>. It is specifically designed to facilitate and encourage the joint inference of multiple DFEs at once. Given the importance of consistency when comparing DFEs from different datasets, it’s essential to derive the SFS in a similar manner to ensure results are directly comparable. To aid this process, fastDFE includes a VCF parser, enabling the extraction of the necessary SFS input data from raw VCF files.</p>
 </section>
 <section id="how-it-works">
 <h2>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this heading"></a></h2>
-<p>As it precursors, fastDFE infers the DFE by contrasting the Site Frequency Spectrum (SFS) of putatively neutral (synonymous) and selected (non-synonymous) sites. The effect of demography is corrected for by introducing nuisance parameters which rescale the observed neutral SFS to the standard Kingman SFS. Assuming that demography affects the neutral and selected SFS alike, we apply the same rescaling to the observed selected SFS. To infer selection from the (demography-corrected) SFS, we make use of the expected allele frequency sojourn times obtained from Poisson Random Field (PRF) theory. In this step we need to integrate over the DFE to obtain the expected (selected) SFS. In fastDFE, this integral is linearized which results in significant speed improvements over polyDFE. To optimize for the best possible DFE, maximum likelihood optimization (MLE) is used.</p>
+<p>As it precursors, fastDFE infers the DFE by contrasting the site-frequency spectrum (SFS) of putatively neutral (synonymous) and selected (nonsynonymous) sites <span id="id4">[<a class="reference internal" href="#id9" title="Nicolas Galtier. Adaptive protein evolution in animals and the effective population size hypothesis. PLoS genetics, 12:e1005774, 01 2016. doi:10.1371/journal.pgen.1005774.">1</a>, <a class="reference internal" href="#id8" title="Peter Keightley and Adam Eyre-Walker. Joint inference of the distribution of fitness effects of deleterious mutations and population demography based on nucleotide polymorphism frequencies. Genetics, 177:2251-61, 01 2008. doi:10.1534/genetics.107.080663.">2</a>, <a class="reference internal" href="#id6" title="Paula Tataru, Maeva Mollion, Sylvain Glémin, and Thomas Bataillon. Inference of distribution of fitness effects and proportion of adaptive substitutions from polymorphism data. Genetics, 207:genetics.300323.2017, 09 2017. doi:10.1534/genetics.117.300323.">4</a>]</span>. fastDFE builds upon the model of polyDFE, introducing several improvements: The impact of demography is corrected for by introducing nuisance parameters which are fit so as to re-scale the observed neutral SFS to the standard Kingman SFS. Assuming that demography affects the neutral and selected SFS alike, we apply the same re-scaling to the observed selected SFS. Unlike polyDFE, demography is inferred solely from the synonymous sites, which should provide sufficient information for reasonably large sample sizes, and has the benefit to speed up calculations. To infer selection from the (demography-corrected) SFS, we also make use of the expected allele frequency sojourn times obtained from Poisson random field (PRF) theory. Obtaining the modeled (selected) SFS requires integrating over the DFE in question. In fastDFE, this integral is discretized, precomputed and cached, leading to significant speed enhancements over polyDFE while producing very similar results. Discontinuities and asymptotes are furthermore handled properly by parametrizing the DFE by means of its cumulative distribution function, which provides more reliable estimates. Ultimately, the most likely DFE is obtained using maximum likelihood estimation (MLE).</p>
 </section>
 <section id="features">
 <h2>Features<a class="headerlink" href="#features" title="Permalink to this heading"></a></h2>
-<p>fastDFE offers a range of features to facilitate DFE inference, including:</p>
+<p>fastDFE offers a range of features designed to facilitate DFE inference.</p>
+<p><strong>Workflow</strong>: streamlining the overall data preparation and inference process:</p>
 <ul class="simple">
-<li><p>Joint inference of DFE among different types with shared parameters</p></li>
-<li><p>Parametric bootstrapping</p></li>
-<li><p>Easy and flexible visualization of results</p></li>
+<li><p>Built-in VCF-to-SFS parser, with support for versatile stratification, site annotation, and filtering</p></li>
+<li><p>Site-degeneracy annotation</p></li>
+<li><p>Ancestral-allele annotation with outgroups</p></li>
+<li><p>Utilities to determine the number of mutational target sites when monomorphic sites are not present in the provided VCF file</p></li>
+<li><p>Support for configuration files, facilitating reproducibility</p></li>
+<li><p>Serialization of objects and result summaries</p></li>
+<li><p>Object-oriented and customizable design</p></li>
+</ul>
+<p><strong>Modeling</strong>: robust utilities for fitting models to data and estimating DFE parameters:</p>
+<ul class="simple">
+<li><p>Joint inference of DFE across different types which share parameters</p></li>
 <li><p>Inclusion of covariates and likelihood ratio tests (LRTs) to assess their significance</p></li>
+<li><p>Parametric bootstrapping</p></li>
 <li><p>Nested model comparison with LRTs</p></li>
 <li><p>Customizable DFE parametrizations</p></li>
-<li><p>Estimation of α, the proportion of beneficial substitutions</p></li>
-<li><p>Built-in VCF parser for extracting site frequency spectra (SFS) with support for versatile stratifications, annotations and filtrations</p></li>
-<li><p>Site degeneracy and synonymy annotation</p></li>
-<li><p>Ancestral allele annotation</p></li>
-<li><p>Serialization of objects and result summaries</p></li>
-<li><p>Support for YAML configuration files facilitating usage</p></li>
+<li><p>Estimation of <span class="math notranslate nohighlight">\(\alpha\)</span>, the proportion of beneficial substitutions</p></li>
 </ul>
-<div class="docutils container" id="id3">
-<div class="citation" id="id4" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
-<p>Paula Tataru, Maeva Mollion, Sylvain Glémin, and Thomas Bataillon. Inference of distribution of fitness effects and proportion of adaptive substitutions from polymorphism data. <em>Genetics</em>, 207:genetics.300323.2017, 09 2017. <a class="reference external" href="https://doi.org/10.1534/genetics.117.300323">doi:10.1534/genetics.117.300323</a>.</p>
-</div>
-</div>
+<p><strong>Visualization</strong>: encompassing a variety of visualization utilities:</p>
+<ul class="simple">
+<li><p>Visualization of DFE, nested model p-values, inferred parameters, and their confidence intervals and more</p></li>
+<li><p>Support for both Python and R</p></li>
+</ul>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h2>
+<div class="docutils container" id="id5">
+<dl class="citation">
+<dt class="label" id="id9"><span class="brackets"><a class="fn-backref" href="#id4">1</a></span></dt>
+<dd><p>Nicolas Galtier. Adaptive protein evolution in animals and the effective population size hypothesis. <em>PLoS genetics</em>, 12:e1005774, 01 2016. <a class="reference external" href="https://doi.org/10.1371/journal.pgen.1005774">doi:10.1371/journal.pgen.1005774</a>.</p>
+</dd>
+<dt class="label" id="id8"><span class="brackets"><a class="fn-backref" href="#id4">2</a></span></dt>
+<dd><p>Peter Keightley and Adam Eyre-Walker. Joint inference of the distribution of fitness effects of deleterious mutations and population demography based on nucleotide polymorphism frequencies. <em>Genetics</em>, 177:2251–61, 01 2008. <a class="reference external" href="https://doi.org/10.1534/genetics.107.080663">doi:10.1534/genetics.107.080663</a>.</p>
+</dd>
+<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd><p>Paula Tataru and Thomas Bataillon. polyDFEv2.0: testing for invariance of the distribution of fitness effects within and across species. <em>Bioinformatics</em>, 35(16):2868–2869, 01 2019. <a class="reference external" href="https://doi.org/10.1093/bioinformatics/bty1060">doi:10.1093/bioinformatics/bty1060</a>.</p>
+</dd>
+<dt class="label" id="id6"><span class="brackets">4</span><span class="fn-backref">(<a href="#id2">1</a>,<a href="#id3">2</a>,<a href="#id4">3</a>)</span></dt>
+<dd><p>Paula Tataru, Maeva Mollion, Sylvain Glémin, and Thomas Bataillon. Inference of distribution of fitness effects and proportion of adaptive substitutions from polymorphism data. <em>Genetics</em>, 207:genetics.300323.2017, 09 2017. <a class="reference external" href="https://doi.org/10.1534/genetics.117.300323">doi:10.1534/genetics.117.300323</a>.</p>
+</dd>
+</dl>
 </div>
 </section>
 </section>

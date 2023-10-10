@@ -417,3 +417,34 @@ class SpectraTestCase(TestCase):
         ))
 
         assert np.all(spectra.n_monomorphic == pd.Series(dict(type1=11, type2=66)))
+
+    def test_reorder_levels(self):
+        """
+        Test whether the reorder_levels method works as expected.
+        """
+        spectra = Spectra({
+            "type1.subtype1.subsubtype1": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            "type1.subtype1.subsubtype2": [1, 4, 12, 4, 5, 6, 7, 8, 9, 10],
+            "type1.subtype2.subsubtype1": [1, 7, 7, 4, 5, 6, 7, 8, 9, 10],
+            "type1.subtype2.subsubtype2": [1, 8, 3, 4, 5, 6, 7, 8, 9, 10],
+            "type2.subtype1.subsubtype1": [1, 0, 1, 4, 5, 6, 7, 8, 9, 10],
+            "type2.subtype1.subsubtype2": [1, 6, 3, 4, 5, 6, 7, 8, 9, 10],
+        })
+
+        spectra2 = spectra.reorder_levels([1, 0, 2])
+
+        self.assertEqual(spectra2.types, [
+            "subtype1.type1.subsubtype1",
+            "subtype1.type1.subsubtype2",
+            "subtype2.type1.subsubtype1",
+            "subtype2.type1.subsubtype2",
+            "subtype1.type2.subsubtype1",
+            "subtype1.type2.subsubtype2",
+        ])
+
+        testing.assert_array_equal(spectra2.to_list(), spectra.reorder_levels([1, 0, 2]).to_list())
+
+        testing.assert_array_equal(
+            list(spectra2["subtype1.type1.subsubtype1"]),
+            list(spectra["type1.subtype1.subsubtype1"])
+        )

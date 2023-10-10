@@ -68,6 +68,7 @@ install_fastdfe <- function(version = NULL, force = FALSE, silent = FALSE) {
   if (force || !fastdfe_is_installed()) {
     reticulate::py_install(
       package_name, 
+      method = "conda",
       pip = TRUE, 
       version = version, 
       ignore_installed = TRUE

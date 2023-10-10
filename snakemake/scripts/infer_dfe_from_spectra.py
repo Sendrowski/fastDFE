@@ -9,8 +9,9 @@ __date__ = "2023-05-25"
 try:
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
+
     testing = False
     spectra_file = snakemake.input.spectra
     out_serialized = snakemake.output.serialized

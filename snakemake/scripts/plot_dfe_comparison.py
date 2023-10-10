@@ -9,7 +9,7 @@ __date__ = "2023-03-02"
 try:
     import sys
 
-    # necessary to import dfe module
+    # necessary to import fastdfe locally
     sys.path.append('..')
 
     testing = False
@@ -24,10 +24,10 @@ except NameError:
     ]
     out = "scratch/comp.png"
 
-import fastdfe
+import fastdfe as fd
 
-inferences = [fastdfe.BaseInference.from_file(input) for input in inputs]
+inferences = [fd.BaseInference.from_file(input) for input in inputs]
 
-fastdfe.Inference.plot_discretized(inferences, labels=['pendula', 'pubescens'])
+fd.Inference.plot_discretized(inferences, labels=['pendula', 'pubescens'])
 
 pass

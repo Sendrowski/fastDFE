@@ -460,6 +460,7 @@ class BaseInferenceTestCase(InferenceTestCase):
             fd.GammaExpParametrization(),
             fd.DisplacedGammaParametrization(),
             fd.DiscreteParametrization(),
+            fd.DiscreteFractionalParametrization(),
             fd.GammaDiscreteParametrization()
         ]
 
@@ -728,7 +729,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         for i, counts in enumerate(counts_list):
             for j, eps in enumerate(eps_list):
-                adjusted_counts = fd.BaseInference.adjust_polarization(counts, eps)
+                adjusted_counts = fd.BaseInference._adjust_polarization(counts, eps)
                 assert np.isclose(np.sum(counts), np.sum(adjusted_counts))
                 assert np.allclose(adjusted_counts, expected_counts_list[i][j])
 
@@ -805,3 +806,32 @@ class BaseInferenceTestCase(InferenceTestCase):
             [inf.params_mle[k] for k in expected],
             [expected[k] for k in expected]
         )
+
+    def test_few_polymorphic_sites_raises_no_error(self):
+        """
+        Test whether a spectrum with few polymorphic sites raises no error.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum([1243, 0, 0, 1, 0, 0, 0]),
+            sfs_sel=fd.Spectrum([12421, 0, 0, 0, 0, 1, 0]),
+        )
+
+        # There are sometimes problems with the optimization for spectra like these,
+        # but this should be nothing to worry about
+        inf.run()
+
+        inf.plot_discretized()
+
+        pass
+
+    def test_no_polymorphic_sites_raises_error(self):
+        """
+        Test whether a spectrum with zero monomorphic counts throws an error.
+        """
+        with self.assertRaises(ValueError) as context:
+            fd.BaseInference(
+                sfs_neut=fd.Spectrum([1243, 0, 0, 0, 0, 0, 0]),
+                sfs_sel=fd.Spectrum([12421, 0, 0, 0, 0, 0, 0]),
+            )
+
+        print(context.exception)
