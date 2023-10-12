@@ -713,11 +713,21 @@ class JointInference(BaseInference):
 
             seeds = [None] * int(self.n_bootstraps)
 
+        def run_bootstrap(seed: int = None) -> (OptimizeResult, dict):
+            """
+            Run joint bootstrap sample.
+
+            :param seed: Random seed
+            :return: Optimization result and dictionary of MLE params
+            """
+            return self._run_joint_bootstrap_sample(seed=seed)
+
         # run bootstraps
+        # TODO parallelization rather slows down the process somehow
         result = parallelize_func(
-            func=self._run_joint_bootstrap_sample,
+            func=run_bootstrap,
             data=seeds,
-            parallelize=self.parallelize,
+            parallelize=False,
             pbar=True,
             desc="Bootstrapping joint inference"
         )
