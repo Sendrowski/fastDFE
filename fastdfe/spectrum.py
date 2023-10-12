@@ -156,6 +156,35 @@ class Spectrum(Iterable):
 
         return Spectrum(data)
 
+    def subsample(self, n: int) -> 'Spectrum':
+        """
+        Subsample spectrum to a given sample size.
+
+        .. warning::
+            The SFS counts are cast to integers before subsampling so this will only provide sensible results
+            if the SFS counts are integers or if they are large enough to be approximated by integers.
+
+        :param n: Sample size
+        :return: Subsampled spectrum
+        """
+        if n >= self.n:
+            raise ValueError(f'Subsampled sample size {n} must be smaller than original sample size {self.n}.')
+
+        samples = np.array([])
+
+        # iterate over spectrum and subsample hypergeometrically
+        for i, m in enumerate(self.data.astype(int)):
+            # cast count to int and subsample
+            s = np.random.hypergeometric(ngood=i, nbad=self.n - i, nsample=n, size=m)
+
+            # append subsampled counts
+            samples = np.concatenate((samples, s))
+
+        # determine histogram of subsampled counts
+        hist = np.histogram(samples, bins=np.arange(n + 2))
+
+        return Spectrum(hist[0])
+
     def is_folded(self) -> bool:
         """
         Check if the site-frequency spectrum is folded.
@@ -855,12 +884,20 @@ class Spectra:
 
         :return: Folded spectra
         """
-        spectra = self.to_spectra()
+        return Spectra.from_spectra({t: s.fold() for t, s in self.to_spectra().items()})
 
-        for t, s in spectra.items():
-            spectra[t] = s.fold()
+    def subsample(self, n: int) -> 'Spectra':
+        """
+        Subsample spectra to a given sample size.
 
-        return Spectra.from_spectra(spectra)
+        .. warning::
+            The SFS counts are cast to integers before subsampling so this will only provide sensible results
+            if the SFS counts are integers or if they are large enough to be approximated by integers.
+
+        :param n: Sample size
+        :return: Subsampled spectra
+        """
+        return Spectra.from_spectra({t: s.subsample(n) for t, s in self.to_spectra().items()})
 
     def is_folded(self) -> Dict[str, bool]:
         """

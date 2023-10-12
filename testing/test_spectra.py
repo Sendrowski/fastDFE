@@ -448,3 +448,42 @@ class SpectraTestCase(TestCase):
             list(spectra2["subtype1.type1.subsubtype1"]),
             list(spectra["type1.subtype1.subsubtype1"])
         )
+
+    def test_subsample_spectrum(self):
+        """
+        Test whether the subsample method works as expected.
+        """
+        kingman = Spectrum.standard_kingman(30) * 10000
+
+        sub = kingman.subsample(10)
+
+        s = Spectra.from_spectra(dict(
+            actual=Spectrum.standard_kingman(10) * 10000,
+            subsampled=sub
+        ))
+
+        s.plot()
+
+        self.assertEqual(10, sub.n)
+
+        diff_rel = np.abs(s['actual'].polymorphic - s['subsampled'].polymorphic) / s['actual'].polymorphic
+
+        self.assertTrue(np.all(diff_rel < 0.1))
+
+    def test_larger_subsample_size_raises_value_error(self):
+        """
+        Test whether the subsample method raises a ValueError when the requested subsample size is larger than the
+        original sample size.
+        """
+        self.assertRaises(ValueError, Spectrum.standard_kingman(30).subsample, 40)
+
+    def test_subsample_spectra(self):
+        """
+        Test whether the subsample method works as expected.
+        """
+        spectra = Spectra({
+            "type1.subtype1.subsubtype1": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            "type1.subtype1.subsubtype2": [1, 4, 12, 4, 5, 6, 7, 8, 9, 10],
+        })
+
+        spectra.subsample(7).plot()
