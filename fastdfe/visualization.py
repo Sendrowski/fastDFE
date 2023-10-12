@@ -649,13 +649,11 @@ class Visualization:
         if log_scale:
             ax.set_yscale('log')
 
-        if len(labels) == 1:
-            ax.set_title(labels[0])
-        elif len(labels) > 1:
+        # set title
+        ax.set_title(title)
 
-            # set title
-            ax.set_title(title)
-
+        # show legend if more than one label
+        if len(labels) > 1:
             ax.legend(**kwargs_legend)
 
         # show and save plot
