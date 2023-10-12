@@ -914,8 +914,7 @@ class ParserTestCase(TestCase):
                     fd.SNPFiltration()
                 ],
                 stratifications=[fd.DegeneracyStratification()],
-                info_ancestral='AA_ensemble',
-                max_sites=10000
+                info_ancestral='AA_ensembl'
             )
 
             sfs = p.parse()
