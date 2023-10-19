@@ -466,9 +466,12 @@ class BaseInference(AbstractInference):
         :return: Callback functions for modelling SFS counts for each type.
         """
         return dict(all=lambda params: self._model_sfs(
-            params,
+            discretization=self.discretization,
+            model=self.model,
+            params=params,
             sfs_neut=self.sfs_neut,
-            sfs_sel=self.sfs_sel
+            sfs_sel=self.sfs_sel,
+            folded=self.folded
         ))
 
     def evaluate_likelihood(self, params: Dict[str, Dict[str, float]]) -> float:
@@ -504,8 +507,11 @@ class BaseInference(AbstractInference):
         # get SFS for MLE parameters
         counts_mle, _ = self._model_sfs(
             params=params_mle,
+            discretization=self.discretization,
+            model=self.model,
             sfs_neut=self.sfs_neut,
-            sfs_sel=self.sfs_sel
+            sfs_sel=self.sfs_sel,
+            folded=self.folded
         )
 
         # create spectrum object from polymorphic counts
@@ -528,7 +534,7 @@ class BaseInference(AbstractInference):
                              f"of -{result.fun}.")
         else:
             self.logger.warning("Numerical optimization did not terminate normally, so "
-                                "the result might be compromised. Consider adjusting "
+                                "the result might be unreliable. Consider adjusting "
                                 "the optimization parameters (increasing `gtol` or `n_runs`) "
                                 "or decrease the number of optimized parameters.")
 
@@ -587,14 +593,11 @@ class BaseInference(AbstractInference):
             self.logger.debug(f"Running {self.n_bootstraps} bootstrap samples "
                               f"in parallel on {min(mp.cpu_count(), self.n_bootstraps)} cores.")
 
-            # We need to assign new random states to the subprocesses.
-            # Otherwise, they would all produce the same result.
-            seeds = self.rng.integers(0, high=2 ** 32, size=int(self.n_bootstraps))
-
         else:
             self.logger.debug(f"Running {self.n_bootstraps} bootstrap samples sequentially.")
 
-            seeds = [None] * int(self.n_bootstraps)
+        # seeds for bootstraps
+        seeds = self.rng.integers(0, high=2 ** 32, size=int(self.n_bootstraps))
 
         # run bootstraps
         result = optimization.parallelize(
@@ -643,28 +646,6 @@ class BaseInference(AbstractInference):
         # add alpha estimates
         self.bootstraps['alpha'] = self.bootstraps.apply(lambda r: self.get_alpha(dict(r)), axis=1)
 
-    def resample_sfs(self, sfs: Spectrum, seed: int = None) -> Spectrum:
-        """
-        Resample SFS assuming independent Poisson counts.
-
-        :param sfs: Spectrum to resample.
-        :param seed: Seed for random number generator.
-        :return: Resampled spectrum.
-        """
-        if seed is not None:
-            rng = np.random.default_rng(seed=seed)
-        else:
-            rng = self.rng
-
-        # resample polymorphic sites only
-        polymorphic = rng.poisson(lam=sfs.polymorphic)
-
-        return Spectrum.from_polydfe(
-            polymorphic=polymorphic,
-            n_sites=sfs.n_sites,
-            n_div=sfs.n_div
-        )
-
     def run_bootstrap_sample(self, seed: int = None) -> (OptimizeResult, dict):
         """
         Resample the observed selected SFS and rerun the optimization procedure.
@@ -674,8 +655,8 @@ class BaseInference(AbstractInference):
         :return: Optimization result and MLE parameters.
         """
         # resample spectra
-        sfs_sel = self.resample_sfs(self.sfs_sel, seed=seed)
-        sfs_neut = self.resample_sfs(self.sfs_neut, seed=seed)
+        sfs_sel = self.sfs_sel.resample(seed=seed)
+        sfs_neut = self.sfs_neut.resample(seed=seed)
 
         # perform numerical minimization
         result, params_mle = self.optimization.run(
@@ -686,9 +667,12 @@ class BaseInference(AbstractInference):
             debug_iterations=False,
             print_info=False,
             get_counts=dict(all=lambda params: self._model_sfs(
-                params,
+                discretization=self.discretization,
+                model=self.model,
+                params=params,
                 sfs_neut=sfs_neut,
-                sfs_sel=sfs_sel
+                sfs_sel=sfs_sel,
+                folded=self.folded
             )),
             desc='Bootstrapping'
         )
@@ -727,26 +711,38 @@ class BaseInference(AbstractInference):
 
         return scaled_bounds
 
-    def _model_sfs(self, params: dict, sfs_neut: Spectrum, sfs_sel: Spectrum) -> (np.ndarray, np.ndarray):
+    @classmethod
+    def _model_sfs(
+            cls,
+            discretization: Discretization,
+            model: Parametrization,
+            params: dict,
+            sfs_neut: Spectrum,
+            sfs_sel: Spectrum,
+            folded: bool
+    ) -> (np.ndarray, np.ndarray):
         """
         Model the selected SFS from the given parameters.
 
+        :param discretization: Discretization instance.
+        :param model: Parametrization instance.
+        :param params: Dictionary of parameters.
         :param sfs_sel: Observed spectrum of selected sites.
         :param sfs_neut: Observed spectrum of neutral sites.
-        :param params: Dictionary of parameters.
+        :param folded: Whether the SFS are folded.
         :return: Array of modelled and observed counts
         """
         # obtain modelled selected SFS
-        counts_modelled = self.discretization.model_selection_sfs(self.model, params)
+        counts_modelled = discretization.model_selection_sfs(model, params)
 
         # adjust for mutation rate and mutational target size
         counts_modelled *= sfs_neut.theta * sfs_sel.n_sites
 
         # add contribution of demography and polarization error
-        counts_modelled = self._add_demography(sfs_neut, counts_modelled, eps=params['eps'])
+        counts_modelled = cls._add_demography(sfs_neut, counts_modelled, eps=params['eps'])
 
         # fold if necessary
-        if self.folded:
+        if folded:
             counts_sel = sfs_sel.fold().polymorphic
             counts_modelled = Spectrum.from_polymorphic(counts_modelled).fold().polymorphic
         else:
@@ -766,23 +762,30 @@ class BaseInference(AbstractInference):
         """
         return (1 - eps) * counts + eps * counts[::-1]
 
-    def _add_demography(self, sfs_neut: Spectrum, counts_sel: np.ndarray, eps: float) -> np.ndarray:
+    @classmethod
+    def _add_demography(
+            cls,
+            sfs_neut: Spectrum,
+            counts_sel: np.ndarray,
+            eps: float
+    ) -> np.ndarray:
         """
         Add the effect of demography to counts_sel by considering
         how counts_neut is perturbed relative to the standard coalescent.
         The polarization error is also included here.
 
+        :param n: Sample size.
         :param sfs_neut: Observed spectrum of neutral sites.
         :param counts_sel: Modelled counts of selected sites.
         :param eps: Rate of ancestral misidentification.
         :return: Adjusted counts of selected sites.
         """
         # normalized counts of the standard coalescent
-        counts_kingman = standard_kingman(self.n).polymorphic * sfs_neut.theta * sfs_neut.n_sites
+        counts_kingman = standard_kingman(sfs_neut.n).polymorphic * sfs_neut.theta * sfs_neut.n_sites
 
         # apply polarization error to neutral and selected counts
-        counts_neut_adjusted = self._adjust_polarization(sfs_neut.polymorphic, eps)
-        counts_sel_adjusted = self._adjust_polarization(counts_sel, eps)
+        counts_neut_adjusted = cls._adjust_polarization(sfs_neut.polymorphic, eps)
+        counts_sel_adjusted = cls._adjust_polarization(counts_sel, eps)
 
         # These counts transform the standard Kingman case to the observed
         # neutral SFS when multiplied and thus account for demography as we assume

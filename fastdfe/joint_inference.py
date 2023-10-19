@@ -10,7 +10,7 @@ import copy
 import functools
 import logging
 import time
-from typing import List, Dict, Tuple, Literal, Optional, cast
+from typing import List, Dict, Tuple, Literal, Optional, cast, Callable
 
 import jsonpickle
 import multiprocess as mp
@@ -502,7 +502,7 @@ class JointInference(BaseInference):
         # assign optimization result and MLE parameters for each type
         for t, inf in self.joint_inferences.items():
             params_mle[t] = correct_values(
-                params=self._add_covariates(params_mle[t], t),
+                params=Covariate._apply(self.covariates, params_mle[t], t),
                 bounds=self.bounds,
                 scales=self.scales
             )
@@ -548,9 +548,12 @@ class JointInference(BaseInference):
         # Note that it's important we bind t into the lambda function
         # at the time of creation.
         return dict((t, (lambda params, t=t: inf._model_sfs(
-            correct_values(self._add_covariates(params, t), self.bounds, self.scales),
+            discretization=self.discretization,
+            model=self.model,
+            params=correct_values(Covariate._apply(self.covariates, params, t), self.bounds, self.scales),
             sfs_neut=self.joint_inferences[t].sfs_neut,
-            sfs_sel=self.joint_inferences[t].sfs_sel
+            sfs_sel=self.joint_inferences[t].sfs_sel,
+            folded=self.folded
         ))) for t, inf in self.joint_inferences.items())
 
     @BaseInference._run_if_required_wrapper
@@ -636,22 +639,73 @@ class JointInference(BaseInference):
 
         return self.lrt(simple.likelihood, self.likelihood, len(self.covariates))
 
-    def _add_covariates(self, params: dict, type: str) -> dict:
+    def _get_run_bootstrap_sample(self) -> Callable[[int], Tuple[OptimizeResult, dict]]:
         """
-        Add covariates to parameters.
+        Get function which runs a single bootstrap sample.
 
-        :param params: Dict of parameters
-        :param type: SFS type
-        :return: Dict of parameters with covariates added
+        :return: Static function which runs a single bootstrap sample, taking an optional seed and returning the
+            optimization result and the MLE parameters.
         """
-        for k, cov in self.covariates.items():
-            params = cov.apply(
-                covariate=params[k],
-                type=type,
-                params=params
+        optimization = self.optimization
+        discretization = self.discretization
+        covariates = self.covariates
+        model = self.model
+        types = self.types
+        folded = self.folded
+        params_mle_raw = self.params_mle_raw
+        scales_linear = self.get_scales_linear()
+        bounds_linear = self.get_bounds_linear()
+        scales = self.scales
+        bounds = self.bounds
+        sfs_neut = dict((t, self.marginal_inferences[t].sfs_neut) for t in self.types)
+        sfs_sel = dict((t, self.marginal_inferences[t].sfs_sel) for t in self.types)
+
+        def run_bootstrap_sample(seed: int = None) -> (OptimizeResult, dict):
+            """
+            Resample the observed selected SFS and rerun the optimization procedure.
+            We take the MLE params as initial params here.
+            We make this function static to improve performance when parallelizing.
+
+            :return: Optimization result and dictionary of MLE params
+            """
+            # perform joint optimization
+            # Note that it's important we bind t into the lambda function
+            # at the time of creation.
+            result, params_mle = optimization.run(
+                x0=params_mle_raw,
+                scales=scales_linear,
+                bounds=bounds_linear,
+                n_runs=1,
+                debug_iterations=False,
+                print_info=False,
+                desc="Bootstrapping joint inference",
+                get_counts=dict((t, lambda params, t=t: BaseInference._model_sfs(
+                    discretization=discretization,
+                    model=model,
+                    params=correct_values(Covariate._apply(covariates, params, t), bounds, scales),
+                    sfs_neut=sfs_neut[t].resample(seed=seed),
+                    sfs_sel=sfs_sel[t].resample(seed=seed),
+                    folded=folded
+                )) for t in types)
             )
 
-        return params
+            # unpack shared parameters
+            params_mle = unpack_shared(params_mle)
+
+            for t in types:
+                # normalize parameters for each type
+                params_mle[t] = model._normalize(params_mle[t])
+
+                # add covariates for each type
+                params_mle[t] = correct_values(
+                    params=Covariate._apply(covariates, params_mle[t], t),
+                    bounds=bounds,
+                    scales=scales
+                )
+
+            return result, params_mle
+
+        return run_bootstrap_sample
 
     def bootstrap(
             self,
@@ -704,30 +758,17 @@ class JointInference(BaseInference):
             self.logger.debug(f"Running {self.n_bootstraps} joint bootstrap samples "
                               f"in parallel on {min(mp.cpu_count(), self.n_bootstraps)} cores.")
 
-            # We need to assign new random states to the subprocesses.
-            # Otherwise, they would all produce the same result.
-            seeds = self.rng.integers(0, high=2 ** 32, size=int(self.n_bootstraps))
-
         else:
             self.logger.debug(f"Running {self.n_bootstraps} joint bootstrap samples sequentially.")
 
-            seeds = [None] * int(self.n_bootstraps)
-
-        def run_bootstrap(seed: int = None) -> (OptimizeResult, dict):
-            """
-            Run joint bootstrap sample.
-
-            :param seed: Random seed
-            :return: Optimization result and dictionary of MLE params
-            """
-            return self._run_joint_bootstrap_sample(seed=seed)
+        # seeds for bootstraps
+        seeds = self.rng.integers(0, high=2 ** 32, size=int(self.n_bootstraps))
 
         # run bootstraps
-        # TODO parallelization rather slows down the process somehow
         result = parallelize_func(
-            func=run_bootstrap,
+            func=self._get_run_bootstrap_sample(),
             data=seeds,
-            parallelize=False,
+            parallelize=self.parallelize,
             pbar=True,
             desc="Bootstrapping joint inference"
         )
@@ -751,7 +792,6 @@ class JointInference(BaseInference):
 
         # assign bootstrap parameters to joint inference objects
         for t, inf in self.joint_inferences.items():
-
             # filter for columns belonging to the current type
             inf.bootstraps = self.bootstraps.filter(regex=f'{t}\\..*').rename(columns=lambda x: x.split('.')[-1])
 
@@ -773,47 +813,6 @@ class JointInference(BaseInference):
         """
         if self.bootstraps is None:
             self.bootstrap()
-
-    def _run_joint_bootstrap_sample(self, seed: int = None) -> (OptimizeResult, dict):
-        """
-        Resample the observed selected SFS and rerun the optimization procedure.
-        We take the MLE params as initial params here.
-
-        :return: Optimization result and dictionary of MLE params
-        """
-        # perform joint optimization
-        # Note that it's important we bind t into the lambda function
-        # at the time of creation.
-        result, params_mle = self.optimization.run(
-            x0=self.params_mle_raw,
-            scales=self.get_scales_linear(),
-            bounds=self.get_bounds_linear(),
-            n_runs=1,
-            debug_iterations=False,
-            print_info=False,
-            desc="Bootstrapping joint inference",
-            get_counts=dict((t, lambda params, t=t: inf._model_sfs(
-                correct_values(self._add_covariates(params, t), self.bounds, self.scales),
-                sfs_neut=self.resample_sfs(self.marginal_inferences[t].sfs_neut, seed=seed),
-                sfs_sel=self.resample_sfs(self.marginal_inferences[t].sfs_sel, seed=seed)
-            )) for t, inf in self.marginals_without_all().items())
-        )
-
-        # unpack shared parameters
-        params_mle = unpack_shared(params_mle)
-
-        for t in self.types:
-            # normalize parameters for each type
-            params_mle[t] = self.model._normalize(params_mle[t])
-
-            # add covariates for each type
-            params_mle[t] = correct_values(
-                params=self._add_covariates(params_mle[t], t),
-                bounds=self.bounds,
-                scales=self.scales
-            )
-
-        return result, params_mle
 
     def get_x0(self) -> Dict[str, Dict[str, float]]:
         """

@@ -487,3 +487,6 @@ class SpectraTestCase(TestCase):
         })
 
         spectra.subsample(7).plot()
+
+        # make sure n_sites is the same
+        testing.assert_array_equal(spectra.subsample(7).n_sites, spectra.n_sites)

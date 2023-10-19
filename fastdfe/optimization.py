@@ -20,8 +20,8 @@ from scipy.optimize import minimize, OptimizeResult
 from scipy.stats import loguniform, uniform
 from tqdm import tqdm
 
-from .settings import Settings
 from .likelihood import Likelihood
+from .settings import Settings
 
 # get logger
 logger = logging.getLogger('fastdfe').getChild('Optimization')
@@ -797,6 +797,25 @@ class Covariate:
             modified[self.param] += covariate * self.values[type]
 
         return modified
+
+    @staticmethod
+    def _apply(covariates: Dict[str, 'Covariate'], params: dict, type: str) -> dict:
+        """
+        Apply given covariates to given parameters.
+
+        :param covariates: Dictionary of covariates to add
+        :param params: Dict of parameters
+        :param type: SFS type
+        :return: Dict of parameters with covariates added
+        """
+        for k, cov in covariates.items():
+            params = cov.apply(
+                covariate=params[k],
+                type=type,
+                params=params
+            )
+
+        return params
 
 
 class Optimization:

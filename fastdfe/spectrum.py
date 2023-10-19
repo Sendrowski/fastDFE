@@ -170,20 +170,35 @@ class Spectrum(Iterable):
         if n >= self.n:
             raise ValueError(f'Subsampled sample size {n} must be smaller than original sample size {self.n}.')
 
-        samples = np.array([])
+        subsample = np.zeros(n + 1, dtype=int)
+
+        # add monomorphic counts
+        subsample[0] = self.data[0]
+        subsample[-1] = self.data[-1]
 
         # iterate over spectrum and subsample hypergeometrically
-        for i, m in enumerate(self.data.astype(int)):
+        for i, m in enumerate(self.polymorphic.astype(int)):
             # cast count to int and subsample
-            s = np.random.hypergeometric(ngood=i, nbad=self.n - i, nsample=n, size=m)
+            samples = np.random.hypergeometric(ngood=i + 1, nbad=self.n - i - 1, nsample=n, size=m)
 
-            # append subsampled counts
-            samples = np.concatenate((samples, s))
+            # add subsampled counts
+            subsample += np.histogram(samples, bins=np.arange(n + 2))[0]
 
-        # determine histogram of subsampled counts
-        hist = np.histogram(samples, bins=np.arange(n + 2))
+        return Spectrum(subsample)
 
-        return Spectrum(hist[0])
+    def resample(self, seed: int = None) -> 'Spectrum':
+        """
+        Resample SFS assuming independent Poisson counts.
+
+        :param seed: Seed for random number generator.
+        :return: Resampled spectrum.
+        """
+        return Spectrum.from_polydfe(
+            # resample polymorphic sites only
+            polymorphic=np.random.default_rng(seed=seed).poisson(lam=self.polymorphic),
+            n_sites=self.n_sites,
+            n_div=self.n_div
+        )
 
     def is_folded(self) -> bool:
         """
@@ -592,7 +607,7 @@ class Spectra:
         Get item.
 
         :param keys: String or list of strings, possibly regex to match type names
-        :return: Spectrum or Spectra depending on the number of matches
+        :return: Spectrum or Spectra object depending on the number of matches
         """
         # whether the input in an array
         is_array = isinstance(keys, (np.ndarray, list, tuple))
