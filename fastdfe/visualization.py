@@ -258,7 +258,7 @@ class Visualization:
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes
         """
-        from fastdfe.discretization import get_midpoints_and_spacing
+        from .discretization import get_midpoints_and_spacing
 
         n_bins = len(bins) - 1
         n_dfes = len(values)
