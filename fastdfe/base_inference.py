@@ -1379,16 +1379,17 @@ class BaseInference(AbstractInference):
         return cls(**config.data)
 
     @classmethod
-    def from_config_file(cls, file: str) -> Self:
+    def from_config_file(cls, file: str, cache: bool = True) -> Self:
         """
         Load from config file.
 
         :param file: Config file path, possibly URL.
+        :param cache: Whether to use the cache if available.
         :return: Inference object.
         """
-        from fastdfe import Config
+        from . import Config
 
-        return cls.from_config(Config.from_file(file))
+        return cls.from_config(Config.from_file(file, cache=cache))
 
     def get_summary(self) -> 'InferenceResults':
         """

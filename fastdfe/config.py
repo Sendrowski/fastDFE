@@ -278,14 +278,15 @@ class Config:
         return Config.from_dict(yaml.load(data, Loader=yaml.Loader))
 
     @staticmethod
-    def from_file(file: str) -> 'Config':
+    def from_file(file: str, cache: bool = True) -> 'Config':
         """
         Load object from file.
 
         :param file: Path to file, possibly gzipped.
+        :param cache: Whether to use the cache if available.
         :return: Config object.
         """
-        with open(download_if_url(file), 'r') as fh:
+        with open(download_if_url(file, cache=cache), 'r') as fh:
             return Config.from_yaml(fh.read())
 
     def get_polydfe_model(self) -> str:
