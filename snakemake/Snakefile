@@ -1246,7 +1246,7 @@ rule parse_polarize_vcf_betula:
         "scripts/parse_vcf_betula.py"
 
 # create config files for checking covariates
-rule create_config_covariates_arabidopsis:
+rule infer_dfe_covariates_arabidopsis:
     input:
         "results/sfs_covariates/arabidopsis.csv"
     output:
@@ -1257,9 +1257,10 @@ rule create_config_covariates_arabidopsis:
     conda:
         "envs/base.yaml"
     script:
-        "scripts/create_config_covariates_arabidopsis.py"
+        "scripts/infer_dfe_covariates_arabidopsis.py"
 
 # run joint inference using covariates
+# TODO no longer used
 rule infer_dfe_arabidopsis_covariates:
     input:
         "results/fastdfe/arabidopsis/cov/{param}.{col}.yaml"

@@ -24,6 +24,6 @@ p = fd.Parser(
 # obtain SFS
 spectra: fd.Spectra = p.parse()
 
-spectra.plot()
+spectra.plot(title="SFS")
 
 pass

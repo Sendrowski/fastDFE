@@ -38,7 +38,7 @@ genes = pd.read_csv(sfs_file, sep="\t")
 genes['group'] = pd.qcut(
     x=genes[col],
     q=n_bins,
-    labels=[f"bin_{i}" for i in range(1, n_bins + 1)],
+    labels=[f"bin_{i}" for i in range(n_bins)],
 )
 
 # group by bins
