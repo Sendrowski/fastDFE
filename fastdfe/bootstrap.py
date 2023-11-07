@@ -93,11 +93,11 @@ class Bootstrap:
         Get error values and confidence intervals from the list of original
         values and its bootstraps for a list of parameters.
 
-        :param values: The original values
-        :param bs: The bootstraps
-        :param ci_level: The confidence level
-        :param bootstrap_type: The bootstrap type
-        :return: Arrays of errors and confidence intervals
+        :param values: The original values.
+        :param bs: Array containing bootstraps as first and the values as second dimension.
+        :param ci_level: The confidence level.
+        :param bootstrap_type: The bootstrap type.
+        :return: Arrays of errors and confidence intervals.
         """
         # number of values
         n_values = len(values)

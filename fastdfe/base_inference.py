@@ -894,7 +894,6 @@ class BaseInference(AbstractInference):
             interval_labels: List[str] = None,
             color: str = 'C0',
             ax: plt.Axes = None
-
     ) -> plt.Axes:
         """
         Plot density of the discretization intervals chosen. Note that although this plot looks similar, this is
@@ -914,12 +913,17 @@ class BaseInference(AbstractInference):
 
         return Visualization.plot_interval_density(
             density=self.discretization.get_interval_density(intervals),
-            **locals()
+            file=file,
+            show=show,
+            intervals=intervals,
+            interval_labels=interval_labels,
+            color=color,
+            ax=ax
         )
 
     def plot_sfs_comparison(
             self,
-            sfs_types: List[Literal['modelled', 'observed', 'modelled', 'neutral']] = ['modelled', 'observed'],
+            sfs_types: List[Literal['modelled', 'observed', 'selected', 'neutral']] = ['modelled', 'observed'],
             labels: List[str] = None,
             file: str = None,
             show: bool = True,
@@ -928,7 +932,6 @@ class BaseInference(AbstractInference):
             use_subplots: bool = False,
             show_monomorphic: bool = False,
             kwargs_legend: dict = dict(prop=dict(size=8)),
-
     ) -> plt.Axes:
         """
         Plot SFS comparison.
@@ -972,7 +975,6 @@ class BaseInference(AbstractInference):
             file: str = None,
             show: bool = True,
             ax: plt.Axes = None
-
     ) -> plt.Axes:
         """
         Plot neutral and selected SFS.

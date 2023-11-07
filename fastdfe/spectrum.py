@@ -448,7 +448,7 @@ class Spectra:
 
         :return: Total number of polymorphic counts for each type
         """
-        return np.sum(self.polymorphic)
+        return self.polymorphic.sum()
 
     @staticmethod
     def from_list(data: list | np.ndarray, types: List) -> 'Spectra':

@@ -21,14 +21,15 @@ from numpy.linalg import norm
 from scipy.optimize import OptimizeResult
 from tqdm import tqdm
 
-from .settings import Settings
 from .abstract_inference import Inference
 from .base_inference import BaseInference
+from .bootstrap import Bootstrap
 from .config import Config
 from .optimization import Optimization, SharedParams, pack_shared, expand_shared, \
     Covariate, flatten_dict, merge_dicts, correct_values, parallelize as parallelize_func, expand_fixed, \
     collapse_fixed, unpack_shared
 from .parametrization import Parametrization
+from .settings import Settings
 from .spectrum import Spectrum, Spectra
 from .visualization import Visualization
 
@@ -876,30 +877,47 @@ class JointInference(BaseInference):
     def get_inferences(
             self,
             types: List[str] = None,
-            labels: List[str] = None
+            labels: List[str] = None,
+            show_marginals: bool = True
     ) -> Dict[str, 'BaseInference']:
         """
         Get all inference objects as dictionary.
 
+        :param types: Types to include
+        :param labels: Labels for types
+        :param show_marginals: Whether to also show marginal inferences
         :return: Dictionary of base inference objects indexed by type and joint vs marginal subtypes
         """
-        marginal = self.marginal_inferences
-        joint = self.joint_inferences
 
-        # filter types if types are given
-        if types is not None:
-            marginal = dict((k, v) for k, v in marginal.items() if k in types)
-            joint = dict((k, v) for k, v in joint.items() if k in types)
+        def get(infs: Dict[str, BaseInference], prefix: str) -> Dict[str, BaseInference]:
+            """
+            Get filtered and prefixed inferences.
 
-        # add prefix to keys
-        marginal = dict(('marginal.' + k, v) for k, v in marginal.items())
-        joint = dict(('joint.' + k, v) for k, v in joint.items())
+            :param infs: Dictionary of inferences.
+            :param prefix: Prefix
+            :return: Dictionary of inferences
+            """
+            # filter types if types are given
+            if types is not None:
+                infs = dict((k, v) for k, v in infs.items() if k in types)
 
-        # merge dictionaries
-        inferences = marginal | joint
+            # add prefix to keys
+            return dict((prefix + '.' + k, v) for k, v in infs.items())
+
+        # get joint inferences
+        inferences = get(self.joint_inferences, 'joint')
+
+        if show_marginals:
+            # include marginal inferences
+            inferences = get(self.marginal_inferences, 'marginal') | inferences
 
         # use labels as keys if given
         if labels is not None:
+
+            if len(labels) != len(inferences):
+                raise ValueError(f'Number of labels ({len(labels)}) does not match '
+                                 f'number of inferences ({len(inferences)}).')
+
             inferences = dict(zip(labels, inferences.values()))
 
         return inferences
@@ -910,11 +928,10 @@ class JointInference(BaseInference):
             file: str = None,
             show: bool = True,
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            show_marginals: bool = True,
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
-            intervals_del: (float, float, int) = (-1.0e+8, -1.0e-5, 1000),
-            intervals_ben: (float, float, int) = (1.0e-5, 1.0e4, 1000),
             title: str = 'discretized DFE comparison',
             labels: List[str] = None,
             kwargs_legend: dict = dict(prop=dict(size=8)),
@@ -925,19 +942,18 @@ class JointInference(BaseInference):
 
         :param labels: Labels for types
         :param title: Title of plot
-        :param intervals_ben: Interval boundaries for beneficial DFE
-        :param intervals_del: Interval boundaries for deleterious DFE
+        :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bars.
+        :param show_marginals: Whether to also show marginal inferences
         :param bootstrap_type: Type of bootstrap
         :param ci_level: Confidence level
         :param confidence_intervals: Whether to plot confidence intervals
         :param file: File to save plot to
         :param show: Whether to show plot
-        :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bars.
         :param ax: Axes object
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
         :return: Axes object
         """
-        labels, inferences = zip(*self.get_inferences(labels=labels).items())
+        labels, inferences = zip(*self.get_inferences(labels=labels, show_marginals=show_marginals).items())
 
         return Inference.plot_discretized(**locals())
 
@@ -1112,6 +1128,77 @@ class JointInference(BaseInference):
         labels, inferences = zip(*self.get_inferences(labels=labels).items())
 
         return Inference.plot_inferred_parameters_boxplot(**locals())
+
+    @BaseInference._run_if_required_wrapper
+    def plot_covariate(
+            self,
+            index: int = 0,
+            file: str = None,
+            show: bool = True,
+            title: str = None,
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            show_types: bool = True,
+            ci_level: float = 0.05,
+            xlabel: str = "cov",
+            ylabel: str = None,
+            ax: plt.Axes = None
+    ) -> plt.Axes:
+        """
+        Plot the covariate given by the index.
+
+        :param index: The index of the covariate.
+        :param file: File to save plot to.
+        :param show: Whether to show plot.
+        :param title: Plot title.
+        :param bootstrap_type: Bootstrap type.
+        :param show_types: Whether to show types on second x-axis.
+        :param ci_level: Confidence level.
+        :param xlabel: X-axis label.
+        :param ylabel: Y-axis label, defaults to the covariate parameter name.
+        :param ax: Axes object to plot on.
+        :return: Axes object.
+        """
+        key = f"c{index}"
+
+        # check if covariate exists
+        if key not in self.covariates:
+            raise ValueError(f"Covariate with index {index} does not exist.")
+
+        # default title
+        if title is None:
+            title = f'covariate {key}'
+
+        cov = self.covariates[key]
+        values = [self.params_mle[t][cov.param] for t in self.types]
+
+        # get errors if bootstrapped
+        errors = None
+        if self.bootstraps is not None:
+            bootstraps = np.array([self.bootstraps[f"{t}.{cov.param}"] for t in self.types]).T
+
+            # compute errors
+            errors = Bootstrap.get_errors(
+                values=values,
+                bs=bootstraps,
+                bootstrap_type=bootstrap_type,
+                ci_level=ci_level
+            )[0]
+
+            # take mean of bootstraps as values
+            values = bootstraps.mean(axis=0)
+
+        return Visualization.plot_covariate(
+            covariates=[cov.values[t] for t in self.types],
+            values=values,
+            errors=errors,
+            file=file,
+            show=show,
+            title=title,
+            xlabel=xlabel,
+            ylabel=ylabel or cov.param,
+            labels=self.types if show_types else None,
+            ax=ax
+        )
 
     def get_cis_params_mle(
             self,

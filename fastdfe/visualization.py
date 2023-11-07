@@ -211,7 +211,7 @@ class Visualization:
 
         # show legend if labels were given
         if labels is not None:
-            plt.legend(**kwargs_legend)
+            ax.legend(**kwargs_legend)
 
         # remove x-margins
         ax.autoscale(tight=True, axis='x')
@@ -274,7 +274,7 @@ class Visualization:
                     values[i] if scale_density else values[i] / interval_sizes,
                     label=labels[i] if labels is not None else None)
 
-            # plot error bars
+            # visualize errors
             if errors is not None and errors[i] is not None:
                 ax.fill_between(
                     x=x,
@@ -293,7 +293,7 @@ class Visualization:
 
         # show legend if labels were given
         if labels is not None:
-            plt.legend(**kwargs_legend)
+            ax.legend(**kwargs_legend)
 
         # remove x-margins
         ax.set_xmargin(0)
@@ -320,7 +320,11 @@ class Visualization:
         ax.set_xticklabels(ticks_new)
 
     @staticmethod
-    def name_to_label(key: str, param_names: list | np.ndarray, vals: list | np.ndarray) -> str:
+    def name_to_label(
+            key: str,
+            param_names: list | np.ndarray = None,
+            vals: list | np.ndarray = None
+    ) -> str:
         """
         Map parameter name to label.
 
@@ -337,6 +341,10 @@ class Visualization:
 
         # map to new name
         label = label_mapping[key] if key in label_mapping else key
+
+        # wrap in math mode tags
+        if param_names is None:
+            return '$' + label + '$'
 
         # get index of parameter
         k = np.where(np.array(param_names) == key)[0][0]
@@ -424,7 +432,7 @@ class Visualization:
 
         # show legend if specified
         if legend:
-            plt.legend(**kwargs_legend)
+            ax.legend(**kwargs_legend)
 
         # set title
         ax.set_title(title)
@@ -432,6 +440,9 @@ class Visualization:
         # change to log-scale if specified
         if scale in ['log', 'symlog']:
             ax.set_yscale('symlog', linthresh=1e-3)
+
+            # add y-margin at top
+            ax.set_ylim(top=ax.get_ylim()[1] * 2)
 
         # remove x-margins
         ax.autoscale(tight=True, axis='x')
@@ -833,7 +844,6 @@ class Visualization:
             title: str = None,
             vmin: float = 1e-10,
             vmax: float = 1,
-
     ) -> plt.Axes:
         """
         Plot p-values of nested likelihoods.
@@ -914,9 +924,9 @@ class Visualization:
 
         return ax
 
+    @staticmethod
     @clear_show_save
     def plot_interval_density(
-            self,
             ax: plt.Axes,
             density: np.ndarray,
             intervals: list | np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
@@ -924,12 +934,11 @@ class Visualization:
             file: str = None,
             show: bool = True,
             color: str = 'C0',
-
     ) -> plt.Axes:
         """
         Plot density of the discretization intervals chosen.
 
-        :param density:
+        :param density: Discretized density.
         :param color: Color of the bars.
         :param file: File to save plot to.
         :param show: Whether to show plot.
@@ -965,5 +974,61 @@ class Visualization:
 
         # remove x-margins
         ax.autoscale(tight=True, axis='x')
+
+        return ax
+
+    @staticmethod
+    @clear_show_save
+    def plot_covariate(
+            covariates: list | np.ndarray,
+            values: list | np.ndarray,
+            xlabel: str,
+            ylabel: str,
+            labels: list | np.ndarray = None,
+            errors: list | np.ndarray = None,
+            file: str = None,
+            show: bool = True,
+            title: str = 'likelihoods',
+            ax: plt.Axes = None
+    ) -> plt.Axes:
+        """
+
+        :param covariates: The covariate values.
+        :param values: The MLE parameter values.
+        :param xlabel: X-axis label.
+        :param ylabel: Y-axis label.
+        :param labels: Labels for the different types
+        :param errors: The errors on the MLE parameter values.
+        :param labels: Labels for the different types
+        :param file: File to save plot to
+        :param show: Whether to show plot
+        :param title: Title of plot
+        :param ax: Axes to plot on
+        :return: Axes
+        """
+        ax.scatter(x=covariates, y=np.array(values))
+
+        # plot error bars
+        if errors is not None:
+            ax.errorbar(
+                x=covariates,
+                y=np.array(values),
+                yerr=np.array(errors),
+                fmt='none',
+                capsize=3
+            )
+
+        # set labels
+        ax.set(xlabel=xlabel, ylabel=Visualization.name_to_label(ylabel))
+
+        # set title
+        ax.set_title(title)
+
+        # Add second x-axis on top of the plot to show the labels
+        if labels is not None:
+            ax2 = ax.twiny()
+            ax2.set_xticks(covariates)
+            ax2.set_xticklabels(labels, rotation=45, ha='left')
+            ax2.set_xlim(ax.get_xlim())
 
         return ax

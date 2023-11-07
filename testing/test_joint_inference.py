@@ -185,6 +185,61 @@ class JointInferenceTestCase(InferenceTestCase):
 
         inference.plot_all()
 
+    @staticmethod
+    def test_plot_covariate():
+        """
+        Test the plot_covariate method.
+        """
+        inference = JointInference.from_file(
+            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+        )
+
+        inference.plot_covariate()
+
+        pass
+
+    @staticmethod
+    def test_plot_not_showing_types():
+        """
+        Test the plot_covariate method.
+        """
+        inference = JointInference.from_file(
+            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+        )
+
+        inference.plot_covariate(show_types=False)
+
+        pass
+
+    @staticmethod
+    def test_plot_covariate_bootstrap():
+        """
+        Test the plot_covariate method.
+        """
+        inference = JointInference.from_file(
+            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+        )
+
+        inference.bootstrap(2)
+
+        inference.plot_covariate()
+
+        pass
+
+    @staticmethod
+    def test_plot_discretized_without_showing_marginals():
+        """
+        Test the plot_discretized method
+        """
+        inference = JointInference.from_file(
+            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+        )
+
+        inference.plot_discretized(show_marginals=False)
+
+        pass
+
+
     def test_evaluate_likelihood_same_as_mle_results(self):
         """
         Check that evaluating the loss function at the MLE results
