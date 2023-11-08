@@ -21,7 +21,7 @@ axs = plt.subplots(2, 2, figsize=(11, 7))[1].flatten()
 # plot results
 types = ['neutral', 'selected']
 inf.plot_sfs_comparison(ax=axs[0], show=False, sfs_types=types)
-inf.plot_sfs_comparison(ax=axs[1], show=False)
+inf.plot_sfs_comparison(ax=axs[1], show=False, colors=['C1', 'C5'])
 inf.plot_inferred_parameters(ax=axs[2], show=False)
 inf.plot_discretized(ax=axs[3], show=True)
 

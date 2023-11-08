@@ -949,8 +949,8 @@ class JointInference(BaseInference):
         :param confidence_intervals: Whether to plot confidence intervals
         :param file: File to save plot to
         :param show: Whether to show plot
-        :param ax: Axes object
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param ax: Axes to plot on. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes object
         """
         labels, inferences = zip(*self.get_inferences(labels=labels, show_marginals=show_marginals).items())
@@ -959,9 +959,10 @@ class JointInference(BaseInference):
 
     def plot_sfs_comparison(
             self,
-            sfs_types: List[Literal['modelled', 'observed', 'selected', 'neutral']] = ['modelled', 'observed'],
+            sfs_types: List[Literal['modelled', 'observed', 'selected', 'neutral']] = ['observed', 'modelled'],
             types: List[str] = None,
             labels: List[str] = None,
+            colors: List[str] = None,
             file: str = None,
             show: bool = True,
             ax: plt.Axes = None,
@@ -976,14 +977,15 @@ class JointInference(BaseInference):
 
         :param types: Types to plot
         :param file: File to save plot to
-        :param labels: Labels for types
+        :param labels: Labels for types.
+        :param colors: Colors for types. Only for Python visualization backend.
         :param sfs_types: Types of SFS to plot
         :param show: Whether to show plot
-        :param ax: Axes object
+        :param ax: Axes to plot on. Only for Python visualization backend and if ``use_subplots`` is ``False``.
         :param title: Plot title
-        :param use_subplots: Whether to use subplots
+        :param use_subplots: Whether to use subplots. Only for Python visualization backend.
         :param show_monomorphic: Whether to show monomorphic counts
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes object
         """
         if 'modelled' in sfs_types:
@@ -1017,6 +1019,7 @@ class JointInference(BaseInference):
         return Visualization.plot_spectra(
             spectra=[list(v) for v in spectra.values()],
             labels=list(spectra.keys()) if labels is None else labels,
+            colors=colors,
             file=file,
             show=show,
             ax=ax,
@@ -1061,8 +1064,8 @@ class JointInference(BaseInference):
         :param file: File to save plot to
         :param show: Whether to show plot
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
-        :param ax: Axes object
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object
         """
         if intervals is None:
@@ -1097,9 +1100,9 @@ class JointInference(BaseInference):
         :param confidence_intervals: Whether to plot confidence intervals
         :param file: File to save plot to
         :param show: Whether to show plot
-        :param ax: Axes object
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :param scale: y-scale
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes object
         """
         labels, inferences = zip(*self.get_inferences(labels=labels).items())
@@ -1155,7 +1158,7 @@ class JointInference(BaseInference):
         :param ci_level: Confidence level.
         :param xlabel: X-axis label.
         :param ylabel: Y-axis label, defaults to the covariate parameter name.
-        :param ax: Axes object to plot on.
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object.
         """
         key = f"c{index}"

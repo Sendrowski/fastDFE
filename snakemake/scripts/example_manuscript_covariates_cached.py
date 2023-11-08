@@ -13,4 +13,4 @@ inf.plot_discretized(
     show=True
 )
 
-pass
+# plt.savefig("scratch/joint_inference_covariates.png")

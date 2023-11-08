@@ -367,8 +367,8 @@ class Spectrum(Iterable):
         :param file: File to save plot to
         :param title: Title of plot
         :param show_monomorphic: Whether to show monomorphic counts
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
-        :param ax: Axes to plot on
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes
         """
         return Visualization.plot_spectra(
@@ -810,10 +810,10 @@ class Spectra:
         :param show: Whether to show the plot
         :param file: File name to save the plot to
         :param title: Plot title
-        :param use_subplots: Whether to use subplots
+        :param use_subplots: Whether to use subplots. Only for Python visualization backend.
         :param show_monomorphic: Whether to show monomorphic sites
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
-        :param ax: Axes to plot on
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param ax: Axes to plot on. Only for Python visualization backend and if ``use_subplots`` is ``False``.
         :return: Axes
         """
         return Visualization.plot_spectra(

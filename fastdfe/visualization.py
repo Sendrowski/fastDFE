@@ -161,8 +161,8 @@ class Visualization:
         :param file: File path to save plot to
         :param show: Whether to show plot
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bars.
-        :param ax: Axes to plot on
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param ax: Axes to plot on.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`.
         :return: Axes
         """
         # number of intervals
@@ -254,8 +254,8 @@ class Visualization:
         :param file: File path to save plot to
         :param show: Whether to show plot
         :param scale_density: Whether to scale the density by the bin size
-        :param ax: Axes to plot on
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param ax: Axes to plot on.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`.
         :return: Axes
         """
         from .discretization import get_midpoints_and_spacing
@@ -383,8 +383,8 @@ class Visualization:
         :param values: Dictionary of parameter values with the parameter in the same order as ``labels``
         :param file: File path to save plot to
         :param show: Whether to show plot
-        :param ax: Axes to plot on
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param ax: Axes to plot on.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`.
         :return: Axes
         """
         n_types = len(values)
@@ -560,6 +560,7 @@ class Visualization:
             ax: plt.Axes,
             spectra: List[List[float]] | np.ndarray,
             labels: List[str] | np.ndarray = [],
+            colors: List[str] | np.ndarray = None,
             log_scale: bool = False,
             use_subplots: bool = False,
             show_monomorphic: bool = False,
@@ -574,16 +575,17 @@ class Visualization:
 
         :param show_monomorphic: Whether to show monomorphic site counts
         :param n_ticks: Number of x-ticks to use
-        :param ax: Axes to plot on, only if ``use_subplots`` is ``False``
-        :param use_subplots: Whether to use subplots
+        :param ax: Axes to plot on.
+        :param ax: Axes to plot on. Only for Python visualization backend and if ``use_subplots`` is ``False``.
         :param title: Title of plot
         :param spectra: List of lists of spectra or a 2D array in which each row is a spectrum in the
             same order as ``labels``
+        :param colors: List of colors for each spectrum.
         :param labels: List of labels for each spectrum
         :param log_scale: Whether to use logarithmic y-scale
         :param file: File to save plot to
         :param show: Whether to show the plot
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`.
         :return: Axes
         """
         if len(spectra) == 0:
@@ -602,6 +604,7 @@ class Visualization:
                 Visualization.plot_spectra(
                     spectra=[spectra[i]],
                     labels=[labels[i]] if len(labels) else [],
+                    colors=[colors[i]] if colors else None,
                     ax=axes[i],
                     n_ticks=15 // min(2, n_cols),
                     log_scale=log_scale,
@@ -636,6 +639,7 @@ class Visualization:
                 height=sfs if show_monomorphic else sfs[1:-1],
                 width=width,
                 label=labels[i] if len(labels) else None,
+                color=colors[i] if colors else None,
                 linewidth=0,
                 hatch=Visualization.get_hatch(i, labels)
             )
@@ -713,7 +717,7 @@ class Visualization:
         :param s: Selection coefficients
         :param file: File to save plot to
         :param show: Whether to show plot
-        :param ax: Axes to plot on
+        :param ax: Axes to plot on.
         :return: Axes
         """
         ax.plot(np.arange(len(s)), model.get_pdf(**params)(s))
@@ -742,7 +746,7 @@ class Visualization:
         :param model: DFE parametrization
         :param params: Parameters to be used for parametrization
         :param s: Selection coefficients
-        :param ax: Axes to plot on
+        :param ax: Axes to plot on.
         :param file: File to save plot to
         :param show: Whether to show plot
         :return: Axes
@@ -776,7 +780,7 @@ class Visualization:
         :param file: File to save plot to
         :param show: Whether to show plot
         :param title: Title of plot
-        :param ax: Axes to plot on
+        :param ax: Axes to plot on.
         :param ylabel: Label of y-axis
         :return: Axes
         """
@@ -813,7 +817,7 @@ class Visualization:
         :param title: Title of plot
         :param file: File to save plot to
         :param show: Whether to show plot
-        :param ax: Axes to plot on
+        :param ax: Axes to plot on.
         :return: Axes
         """
         # plot line
@@ -855,7 +859,7 @@ class Visualization:
         :param show: Whether to show plot
         :param cmap: Colormap to use
         :param title: Title of plot
-        :param ax: Axes to plot on
+        :param ax: Axes to plot on.
         :param vmin: Minimum value for colorbar
         :param vmax: Maximum value for colorbar
         :return: Axes
@@ -1003,7 +1007,7 @@ class Visualization:
         :param file: File to save plot to
         :param show: Whether to show plot
         :param title: Title of plot
-        :param ax: Axes to plot on
+        :param ax: Axes to plot on.
         :return: Axes
         """
         ax.scatter(x=covariates, y=np.array(values))

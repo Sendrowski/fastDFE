@@ -830,8 +830,8 @@ class BaseInference(AbstractInference):
         :param scale: y-scale
         :param scale_density: Whether to scale the density by the x-axis interval size
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
-        :param ax: Axes object to plot on.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object
         """
         if intervals is None:
@@ -869,7 +869,7 @@ class BaseInference(AbstractInference):
         :param file: File to save plot to.
         :param show: Whether to show plot.
         :param title: Plot title.
-        :param ax: Axes object to plot on.
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object
         """
         # evaluate at fixed parameters
@@ -904,7 +904,7 @@ class BaseInference(AbstractInference):
         :param show: Whether to show plot.
         :param interval_labels: Labels for the intervals.
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
-        :param ax: Axes object to plot on.
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object
         """
         # issue warning
@@ -923,8 +923,9 @@ class BaseInference(AbstractInference):
 
     def plot_sfs_comparison(
             self,
-            sfs_types: List[Literal['modelled', 'observed', 'selected', 'neutral']] = ['modelled', 'observed'],
+            sfs_types: List[Literal['modelled', 'observed', 'selected', 'neutral']] = ['observed', 'modelled'],
             labels: List[str] = None,
+            colors: List[str] = None,
             file: str = None,
             show: bool = True,
             ax: plt.Axes = None,
@@ -938,13 +939,14 @@ class BaseInference(AbstractInference):
 
         :param file: File to save plot to.
         :param labels: Labels for the SFS.
+        :param colors: Colors for the SFS. Only for Python visualization backend.
         :param sfs_types: Types of SFS to plot.
         :param show: Whether to show plot.
-        :param ax: Axes object to plot on.
+        :param ax: Axes to plot on. Only for Python visualization backend and if ``use_subplots`` is ``False``.
         :param title: Plot title
-        :param use_subplots: Whether to use subplots
+        :param use_subplots: Whether to use subplots. Only for Python visualization backend.
         :param show_monomorphic: Whether to show monomorphic counts
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes object
         """
         if 'modelled' in sfs_types:
@@ -960,6 +962,7 @@ class BaseInference(AbstractInference):
         return Visualization.plot_spectra(
             spectra=[list(mapping[t]) for t in sfs_types],
             labels=sfs_types if labels is None else labels,
+            colors=colors,
             file=file,
             show=show,
             ax=ax,
@@ -982,7 +985,7 @@ class BaseInference(AbstractInference):
         :param file: File to save plot to.
         :param labels: Labels for the SFS.
         :param show: Whether to show plot.
-        :param ax: Axes object to plot on.
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object
         """
         return self.plot_sfs_comparison(
@@ -1054,8 +1057,8 @@ class BaseInference(AbstractInference):
         :param ci_level: Confidence level for the confidence intervals.
         :param file: File to save plot to.
         :param show: Whether to show plot.
-        :param ax: Axes object to plot on.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param ax: Axes to plot on. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes object
         """
         return Inference.plot_inferred_parameters(
@@ -1115,7 +1118,7 @@ class BaseInference(AbstractInference):
         :param title: Plot title.
         :param file: File to save plot to.
         :param show: Whether to show plot.
-        :param ax: Axes object to plot on.
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :param ylabel: Label for the y-axis.
         :return: Axes object
         """
@@ -1249,7 +1252,7 @@ class BaseInference(AbstractInference):
         :param transpose: Whether to transpose the matrix.
         :param cmap: Colormap to use.
         :param title: Plot title.
-        :param ax: Axes object to plot on.
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :param do_bootstrap: Whether to perform bootstrapping. This is recommended to get more accurate p-values.
         :return: Axes object
         """

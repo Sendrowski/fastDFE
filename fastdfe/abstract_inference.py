@@ -57,8 +57,8 @@ class Inference:
         :param title: Title of the plot.
         :param labels: Labels for the DFEs.
         :param kwargs: Additional arguments for the plot.
-        :param ax: Axes of the plot.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param ax: Axes to plot on. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes of the plot.
         """
         # get data from inference objects
@@ -126,8 +126,8 @@ class Inference:
         :param labels: Labels for the DFEs.
         :param scale: y-scale of the plot.
         :param scale_density: Whether to scale the density by the x-axis interval size.
-        :param ax: Axes of the plot.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param ax: Axes to plot on. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :param kwargs: Additional arguments for the plot.
         :return: Axes of the plot.
         """
@@ -181,9 +181,9 @@ class Inference:
         :param file: Path to file to save the plot to.
         :param show: Whether to show the plot.
         :param title: Title of the plot.
-        :param ax: Axes of the plot.
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes of the plot.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :param kwargs: Additional arguments which are ignored.
         :raises ValueError: If no inference objects are given.
         """
@@ -535,8 +535,8 @@ class AbstractInference(ABC):
         :param file: File to save the plot to
         :param show: Whether to show the plot
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bars.
-        :param ax: Axes to plot to
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param ax: Axes to plot on. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes
         """
         return Inference.plot_discretized(

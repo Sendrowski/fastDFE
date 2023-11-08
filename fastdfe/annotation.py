@@ -1259,7 +1259,7 @@ class SiteInfo:
         Plot the tree for a site.
 
         :param self: The site information.
-        :param ax: The axes to plot on.
+        :param ax: Axes to plot on.
         :param show: Whether to show the plot.
         """
         if ax is None:
@@ -1406,7 +1406,7 @@ class PolarizationPrior(ABC):
         :param title: Plot title.
         :param file: File to save plot to.
         :param show: Whether to show plot.
-        :param ax: Axes object to plot on.
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :param ylabel: y-axis label.
         :return: Axes object
         """
@@ -3304,7 +3304,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         :param title: Plot title.
         :param file: File to save plot to.
         :param show: Whether to show plot.
-        :param ax: Axes object to plot on.
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :param ylabel: Label for y-axis.
         :return: Axes object
         """

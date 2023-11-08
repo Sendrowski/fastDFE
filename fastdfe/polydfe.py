@@ -351,13 +351,13 @@ class PolyDFE(AbstractInference):
         :param ci_level: Confidence interval level
         :param bootstrap_type: Type of bootstrap
         :param legend: Show legend
-        :param ax: Axes object
+        :param ax: Axes to plot on. Only for Python visualization backend.
         :param title: Title of the plot
         :param show: Show the plot
         :param file: File to save the plot to
         :param show: Show the plot
-        :param ax: Axes object
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`
+        :param ax: Axes to plot on. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes object
         """
         return Inference.plot_inferred_parameters(
