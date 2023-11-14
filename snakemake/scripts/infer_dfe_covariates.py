@@ -14,9 +14,11 @@ try:
     testing = False
     config_file = snakemake.input[0]
     kwargs_legend = snakemake.params.get('legend', {})
+    figsize = snakemake.params.get('figsize', (20, 10))
     out_summary = snakemake.output.summary
     out_serialized = snakemake.output.serialized
     out_dfe = snakemake.output.get('dfe', None)
+    out_covariates = snakemake.output.get('covariates', None)
     out_spectra = snakemake.output.get('spectra', None)
     out_params = snakemake.output.get('params', None)
 except NameError:
@@ -25,18 +27,20 @@ except NameError:
     # config_file = 'results/configs/example_1_C_full_anc/config.yaml'
     # config_file = 'results/configs/example_1_C_deleterious_anc_bootstrapped_100/config.yaml'
     # config_file = 'results/configs/pendula_C_full_anc_bootstrapped_100/config.yaml'
-    config_file = 'scratch/S_d.yaml'
+    config_file = 'results/fastdfe/arabidopsis/cov/S_d.mean.rsa.10.20.yaml'
     kwargs_legend = {}
+    figsize = (20, 10)
     out_summary = "scratch/summary.json"
     out_serialized = "scratch/serialized.json"
     out_dfe = "scratch/dfe.png"
+    out_covariates = "scratch/covariates.png"
     out_spectra = "scratch/spectra.png"
     out_params = "scratch/params.png"
 
-from fastdfe import JointInference
+import fastdfe as fd
 
 # create from config
-inf = JointInference.from_config_file(config_file)
+inf = fd.JointInference.from_config_file(config_file)
 
 # perform inference
 inf.run()
@@ -59,6 +63,7 @@ inf.plot_inferred_parameters(
 )
 
 inf.plot_sfs_comparison(
+    use_subplots=True,
     file=out_spectra,
     show=testing,
     title=f'SFS comparison, {p}, {c0}',
@@ -70,6 +75,12 @@ inf.plot_discretized(
     show=testing,
     title=f'DFE comparison, {p}, {c0}',
     kwargs_legend=kwargs_legend
+)
+
+inf.plot_covariate(
+    file=out_covariates,
+    show=testing,
+    title=f'covariate comparison, {p}, {c0}'
 )
 
 pass
