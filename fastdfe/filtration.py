@@ -8,7 +8,7 @@ __date__ = "2023-05-11"
 
 import functools
 import logging
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Iterable, List, Optional, Callable, Dict
 
 import numpy as np
@@ -37,7 +37,7 @@ def _count_filtered(func: Callable) -> Callable:
     return wrapper
 
 
-class Filtration:
+class Filtration(ABC):
     """
     Base class for filtering sites based on certain criteria.
     """
@@ -55,6 +55,7 @@ class Filtration:
         #: The handler.
         self.handler: MultiHandler | None = None
 
+    @abstractmethod
     @_count_filtered
     def filter_site(self, variant: Variant | DummyVariant) -> bool:
         """
