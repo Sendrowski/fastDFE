@@ -998,23 +998,23 @@ class JointInference(BaseInference):
             neutral='sfs_neut'
         )
 
-        inferences = self.get_inferences(types=types).items()
+        inferences = self.get_inferences(types=types)
 
-        def get_label(type: str, sfs_type: str) -> str:
+        def get_label(t: str, sfs_type: str) -> str:
             """
             Get label for types.
 
-            :param type: Type
+            :param t: Type
             :param sfs_type: SFS type
             :return: Label
             """
-            subtypes = type.split('.')
+            subtypes = t.split('.')
 
             # insert sfs type at second position
-            return '.'.join(np.insert(subtypes, 1, sfs_type))
+            return '.'.join([subtypes[0]] + [sfs_type] + subtypes[1:])
 
         # get spectra
-        spectra = {get_label(t, sfs): getattr(inf, mapping[sfs]) for t, inf in inferences for sfs in sfs_types}
+        spectra = {get_label(t, sfs): getattr(inf, mapping[sfs]) for t, inf in inferences.items() for sfs in sfs_types}
 
         return Visualization.plot_spectra(
             spectra=[list(v) for v in spectra.values()],
