@@ -18,6 +18,7 @@ try:
     sfs_file = snakemake.input[0]
     col = snakemake.params.col
     n_bins = snakemake.params.n_bins
+    subsample_size = snakemake.params.subsample_size
     param = snakemake.params.param
     out = snakemake.output[0]
 except NameError:
@@ -25,7 +26,8 @@ except NameError:
     testing = True
     sfs_file = "results/sfs_covariates/arabidopsis.csv"
     col = 'mean.rsa'
-    n_bins = 10
+    n_bins = 15
+    subsample_size = 20
     param = 'S_d'
     out = "scratch/sfs_arabidopsis.yaml"
 
@@ -33,6 +35,8 @@ import fastdfe as fd
 
 # read SFS stratified by gene
 genes = pd.read_csv(sfs_file, sep="\t")
+
+genes['count'] = 1
 
 # create bins
 genes['group'] = pd.qcut(
@@ -71,15 +75,14 @@ covariates = fd.Covariate(
 
 # create config object
 config = fd.Config(
-    sfs_neut=sfs_neut.subsample(20),
-    sfs_sel=sfs_sel.subsample(20),
+    sfs_neut=sfs_neut.subsample(subsample_size),
+    sfs_sel=sfs_sel.subsample(subsample_size),
     shared_params=[fd.SharedParams(params='all', types='all')],
     covariates=[covariates],
-    n_runs=10,
+    n_runs=20,
     n_bootstraps=100,
     do_bootstrap=True,
-    parallelize=True,
-    seed=1234
+    parallelize=True
 )
 
 # plot SFS

@@ -113,7 +113,7 @@ wildcard_constraints:
     pop="[a-zA-Z]+",
     param="[a-zA-Z0-9_]+",
     config='\w+',
-    population='\w+',
+    population='\w+'
 
 hominidae = [
     'bonobo',
@@ -130,6 +130,7 @@ hominidae = [
 rule all:
     input:
         (
+            expand("results/graphs/fastdfe/arabidopsis/cov/{param}/{col}/{n_bins}.{subsample_size}.params.png", param=['S_d', 'b'], col=['mean.rsa', 'mean.DGrantham', 'mean.dis'], n_bins=[5, 10, 15], subsample_size=[10, 20, 30]),
             #expand("results/sfs/betula/{sample_set}/{n}/sfs.csv", sample_set=['pendula', 'pubescens'], n=[10, 20]),
             #expand("results/sfs/betula/{sample_set}/{n}/sfs.polarized-on-the-fly.csv", sample_set=['pendula', 'pubescens'], n=[10, 20]),
             #expand("results/vcf/betula/{name}.vcf.gz",name=['biallelic.polarized',
@@ -138,7 +139,6 @@ rule all:
             #                                                'all.polarized',
             #                                                'all.polarized.subset.10000',
             #                                                'all.polarized.subset.200000']),
-            #expand("results/graphs/fastdfe/arabidopsis/cov/{param}.{col}.params.png", param=['S_d'], col=['age.rsa']),
             #expand("results/sfs/betula/{sample_set}/{n}/sfs.csv", sample_set=['pendula', 'pubescens'], n=[20]),
             #expand("results/graphs/comp/spectra/hgdp/inference/{chr}/{opts}/[all,Japanese].png",chr=[21, 1], opts=['opts.subset.50000.n.10', 'opts.subset.50000.n.20']),
             #expand("results/graphs/comp/pca/hgdp/inference/{chr}/{opts}/[all,Japanese].png",chr=[21], opts=['opts.subset.50000']),
@@ -171,7 +171,7 @@ rule all:
             #    type=['mle_params', 'dfe_discretized']
             #),
             #expand("results/graphs/{tool}/{config}/sfs_comparison.png",config=configs, tool=['fastdfe', 'polydfe']),
-            expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
+            #expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
             #expand("results/fastdfe/{config}_bootstrapped_sequential_100/serialized.json",config=configs),
             #expand("results/spectra/betula/pendula/{s}/all.csv",
             #    s=[
@@ -1126,7 +1126,7 @@ rule plot_polydfe_inference_hgdp:
         "results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/bootstraps/{population}.serialized.json"
     output:
         dfe_discretized="results/graphs/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/{population}.dfe.png",
-        mle_params="results/graphs/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/{population}.params.png",
+        mle_params="results/graphs/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/{population}.params.png"
     conda:
         dev_env
     script:
@@ -1209,7 +1209,7 @@ rule infer_dfe_hominidae_covariates:
     conda:
         "envs/base.yaml"
     script:
-        "scripts/check_covariates.py"
+        "scripts/infer_dfe_covariates.py"
 
 # parse betula SFS which are already polarized
 rule parse_vcf_betula:
@@ -1250,32 +1250,32 @@ rule infer_dfe_covariates_arabidopsis:
     input:
         "results/sfs_covariates/arabidopsis.csv"
     output:
-        "results/fastdfe/arabidopsis/cov/{param}.{col}.yaml"
+        "results/fastdfe/arabidopsis/cov/{param}/{col}/{n_bins}.{subsample_size}.yaml"
     params:
         param="{param}",
-        col="{col}"
+        col="{col}",
+        n_bins=lambda w: int(w.n_bins),
+        subsample_size=lambda w: int(w.subsample_size)
     conda:
         "envs/base.yaml"
     script:
-        "scripts/infer_dfe_covariates_arabidopsis.py"
+        "scripts/create_config_covariates_arabidopsis.py"
 
 # run joint inference using covariates
-# TODO no longer used
 rule infer_dfe_arabidopsis_covariates:
     input:
-        "results/fastdfe/arabidopsis/cov/{param}.{col}.yaml"
+        "results/fastdfe/arabidopsis/cov/{param}/{col}/{n_bins}.{subsample_size}.yaml"
     output:
-        serialized="results/fastdfe/arabidopsis/cov/{param}.{col}.serialized.json",
-        summary="results/fastdfe/arabidopsis/cov/{param}.{col}.summary.json",
-        dfe="results/graphs/fastdfe/arabidopsis/cov/{param}.{col}.dfe.png",
-        spectra="results/graphs/fastdfe/arabidopsis/cov/{param}.{col}.spectra.png",
-        params="results/graphs/fastdfe/arabidopsis/cov/{param}.{col}.params.png"
-    params:
-        legend=dict(bbox_to_anchor=(1, 0.5),ncol=3,fontsize=8)
+        serialized="results/fastdfe/arabidopsis/cov/{param}/{col}/{n_bins}.{subsample_size}.serialized.json",
+        summary="results/fastdfe/arabidopsis/cov/{param}/{col}/{n_bins}.{subsample_size}.summary.json",
+        dfe="results/graphs/fastdfe/arabidopsis/cov/{param}/{col}/{n_bins}.{subsample_size}.dfe.png",
+        covariates="results/graphs/fastdfe/arabidopsis/cov/{param}/{col}/{n_bins}.{subsample_size}.covariates.png",
+        spectra="results/graphs/fastdfe/arabidopsis/cov/{param}/{col}/{n_bins}.{subsample_size}.spectra.png",
+        params="results/graphs/fastdfe/arabidopsis/cov/{param}/{col}/{n_bins}.{subsample_size}.params.png"
     conda:
         "envs/base.yaml"
     script:
-        "scripts/check_covariates.py"
+        "scripts/infer_dfe_covariates.py"
 
 # annotate polarization
 rule annotation_polarization_betula:
