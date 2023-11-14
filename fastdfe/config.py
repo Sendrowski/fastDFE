@@ -218,7 +218,7 @@ class Config:
 
         :return: YAML string
         """
-        return yaml.dump(json.loads(self.to_json()))
+        return yaml.dump(json.loads(self.to_json()), sort_keys=False)
 
     def to_file(self, file: str):
         """
