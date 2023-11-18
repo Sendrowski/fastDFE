@@ -821,7 +821,7 @@ class Parser(MultiHandler):
 
     To correctly determine the number of target sites when parsing a VCF file that does not contain monomorphic sites,
     we can use a :class:`~fastdfe.parser.TargetSiteCounter`. This class is used in conjunction with the parser and
-    samples sites from the given fasta file that are found in between variants on the same contig that were parsed
+    samples sites from the given FASTA file that are found in between variants on the same contig that were parsed
     in the VCF.
 
     Note that we assume the sites in the VCF file to be sorted by position in ascending order (per contig).
