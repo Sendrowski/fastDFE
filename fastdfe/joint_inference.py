@@ -481,7 +481,7 @@ class JointInference(BaseInference):
             bounds=self.bounds,
             n_runs=self.n_runs,
             get_counts=self.get_counts(),
-            desc='Performing joint inference'
+            desc=f'{self.__class__.__name__}>Performing joint inference'
         )
 
         # assign likelihoods
@@ -679,7 +679,7 @@ class JointInference(BaseInference):
                 n_runs=1,
                 debug_iterations=False,
                 print_info=False,
-                desc="Bootstrapping joint inference",
+                desc=f"{self.__class__.__name__}>Bootstrapping joint inference",
                 get_counts=dict((t, lambda params, t=t: BaseInference._model_sfs(
                     discretization=discretization,
                     model=model,
@@ -735,7 +735,7 @@ class JointInference(BaseInference):
         with tqdm(
                 total=len(self.marginal_inferences) * int(self.n_bootstraps),
                 disable=Settings.disable_pbar,
-                desc="Bootstrapping marginal inferences"
+                desc=f"{self.__class__.__name__}>Bootstrapping marginal inferences"
         ) as pbar:
 
             # bootstrap marginal inferences
@@ -771,7 +771,7 @@ class JointInference(BaseInference):
             data=seeds,
             parallelize=self.parallelize,
             pbar=True,
-            desc="Bootstrapping joint inference"
+            desc=f"{self.__class__.__name__}>Bootstrapping joint inference"
         )
 
         # number of successful runs

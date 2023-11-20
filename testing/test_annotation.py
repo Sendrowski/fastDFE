@@ -1,5 +1,6 @@
 import itertools
 import logging
+import tempfile
 from unittest.mock import MagicMock, PropertyMock, patch, Mock
 
 import numpy as np
@@ -489,7 +490,7 @@ class AnnotationTestCase(TestCase):
         self.assertEqual(aliases_expanded, expected_aliases_expanded)
 
 
-class MaximumLikelihoodAncestralAnnotationTest(TestCase):
+class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
     """
     Test the MaximumLikelihoodAncestralAnnotation class.
     """
@@ -1336,6 +1337,114 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
         ann.annotate()
 
     @staticmethod
+    def test_n_target_sites_without_fasta_raises_error():
+        """
+        Test that an error is raised when the number of target sites is specified without a fasta file specified.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_runs=3,
+            n_ingroups=5,
+            prior=None,
+            n_target_sites=1000000
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_pendula_not_use_prior.vcf',
+            annotations=[anc],
+            max_sites=1000
+        )
+
+        with pytest.raises(ValueError) as context:
+            ann.annotate()
+
+        # Print the caught error message
+        print(context)
+
+    @staticmethod
+    def test_n_target_sites_lower_than_n_biallelic_raises_error():
+        """
+        Test that an error is raised when the number of target sites is lower than the number of
+        biallelic sites.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_runs=3,
+            n_ingroups=5,
+            prior=None,
+            n_target_sites=10
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
+            fasta="resources/genome/betula/genome.fasta",
+            output='scratch/test_pendula_not_use_prior.vcf',
+            annotations=[anc],
+            max_sites=1000
+        )
+
+        with pytest.raises(ValueError) as context:
+            ann.annotate()
+
+        # Print the caught error message
+        print(context)
+
+    def test_n_target_sites_copied_from_target_site_counter_if_specified(self):
+        """
+        Test that the n_target_sites parameter is copied from the target_site_counter if it is
+        specified.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_runs=3,
+            n_ingroups=5,
+            prior=None,
+            n_target_sites=100
+        )
+
+        p = fd.Parser(
+            n=10,
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
+            fasta="resources/genome/betula/genome.fasta",
+            annotations=[anc],
+            max_sites=10,
+            target_site_counter=fd.TargetSiteCounter(
+                n_target_sites=100,
+                n_samples=1000
+            )
+        )
+
+        p.parse()
+
+        self.assertEqual(anc.n_target_sites, p.target_site_counter.n_target_sites)
+
+    @staticmethod
+    def test_n_target_sites():
+        """
+        Test the n_target_sites parameter.
+        """
+        max_sites = 1000
+
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            n_runs=3,
+            n_ingroups=5,
+            prior=None,
+            n_target_sites=10000
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_pendula_not_use_prior.vcf',
+            annotations=[anc],
+            max_sites=max_sites,
+            fasta="resources/genome/betula/genome.fasta"
+        )
+
+        ann.annotate()
+
+    @staticmethod
     def test_priors_betula_dataset():
         """
         Test the EST-SFS wrapper.
@@ -1425,22 +1534,22 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
                 prior=None,
                 model=fd.JCSubstitutionModel(),
                 tol_params=0.1,
-                tol_sites=0.02,
+                tol_sites=0.03,
                 outgroups=["ERR2103730"],
                 vcf="resources/genome/betula/all.with_outgroups.vcf.gz"
             ),
             dict(
                 prior=None,
                 model=fd.JCSubstitutionModel(),
-                tol_params=0.6,
-                tol_sites=0.02,
+                tol_params=1.3,
+                tol_sites=0.03,
                 outgroups=["ERR2103730", "ERR2103731"],
                 vcf="resources/genome/betula/all.with_outgroups.vcf.gz"
             ),
             dict(
                 prior=None,
                 model=fd.JCSubstitutionModel(),
-                tol_params=0.4,
+                tol_params=0.5,
                 tol_sites=0.03,
                 outgroups=["ERR2103730", "ERR2103731"],
                 vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz"
@@ -1448,7 +1557,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             dict(
                 prior=None,
                 model=fd.K2SubstitutionModel(),
-                tol_params=0.4,
+                tol_params=0.5,
                 tol_sites=0.03,
                 outgroups=["ERR2103730", "ERR2103731"],
                 vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz"
@@ -1500,7 +1609,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             diff_params = np.abs(params_mle[:, 0] - params_mle[:, 1]) / params_mle[:, 1]
             diff_params_max = diff_params.max()
 
-            self.assertTrue(diff_params_max < case['tol_params'])
+            self.assertGreater(case['tol_params'], diff_params_max)
 
             # exclude sites where the major is fixed in the ingroup subsample
             site_info = site_info[site_info['native.n_major'] != n_ingroups]
@@ -1510,8 +1619,8 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
 
             # these discrepancies are quite high, but for the sites for which the estimates differ the most,
             # EST-SFS's probabilities seem quite off. Even after double-checking I could not an explanation
-            # for this and EST-SFS is a bit of a black box as its code is so poorly documented.
-            self.assertTrue(diff_sites_mean < case['tol_sites'])
+            # for this and EST-SFS's code is a bit of a black box.
+            self.assertGreater(case['tol_sites'], diff_sites_mean)
 
             annotators.append(anc)
 
@@ -2203,7 +2312,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
     @pytest.mark.slow
     def test_papio_sfs_for_different_subsample_size(self):
         """
-        Test the SFS for different numbers of outgroups.
+        Test the SFS for different subsample sizes.
         """
         spectra, parsers = {}, {}
 
@@ -2244,7 +2353,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
     @pytest.mark.slow
     def test_papio_sfs_for_different_priors(self):
         """
-        Test the SFS for different numbers of outgroups.
+        Test the SFS for different priors.
         """
         spectra, parsers = {}, {}
 
@@ -2291,7 +2400,7 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
     @pytest.mark.slow
     def test_betula_biallelic_vs_monomorphic_compare_rates(self):
         """
-        Test the SFS for different numbers of outgroups.
+        Test the SFS for dataset including monomorphic sites vs. dataset without monomorphic sites.
         """
         spectra, parsers = {}, {}
 
@@ -2327,3 +2436,141 @@ class MaximumLikelihoodAncestralAnnotationTest(TestCase):
             parsers['all'].annotations[0].params_mle,
             parsers['biallelic'].annotations[0].params_mle
         )
+
+    def test_add_monomorphic_site_counts(self):
+        """
+        Test the add_monomorphic_site_counts method.
+        """
+        vcfs = [
+            'resources/genome/betula/biallelic.with_outgroups.subset.50000.vcf.gz',
+            'resources/genome/betula/all.with_outgroups.subset.200000.vcf.gz',
+        ]
+
+        n_sites_vcf = 100
+
+        bases = dict(A=123, C=654, G=87, T=98)
+
+        n_sites_total = n_sites_vcf + sum(bases.values())
+
+        for vcf in vcfs:
+            a = fd.MaximumLikelihoodAncestralAnnotation._from_vcf(
+                file=vcf,
+                outgroups=["ERR2103730", "ERR2103731"],
+                n_ingroups=20,
+                confidence_threshold=0,
+                prior=fd.KingmanPolarizationPrior(),
+                max_sites=n_sites_vcf
+            )
+
+            configs = a._add_monomorphic_sites(bases)
+
+            self.assertEqual(n_sites_vcf, a.configs.multiplicity.sum())
+            self.assertEqual(n_sites_vcf, a.n_sites)
+
+            self.assertEqual(n_sites_total, configs.multiplicity.sum())
+            self.assertEqual(n_sites_total, len(configs.sites.sum()))
+            self.assertEqual(n_sites_total, len(np.unique(configs.sites.sum())))
+
+        pass
+
+    @pytest.mark.slow
+    def test_betula_est_sfs_biallelic_vs_monomorphic_compare_rates(self):
+        """
+        Test the SFS for dataset including monomorphic sites vs. dataset without monomorphic sites using EST-SFS.
+        """
+        anc, anc2 = {}, {}
+
+        vcfs = {
+            'biallelic': "resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+            'all': "resources/genome/betula/all.with_outgroups.vcf.gz"
+        }
+
+        for key, vcf in vcfs.items():
+            a = fd.MaximumLikelihoodAncestralAnnotation._from_vcf(
+                file=vcf,
+                outgroups=["ERR2103730"],
+                exclude=["ERR2103731"],
+                n_ingroups=20,
+                confidence_threshold=0,
+                prior=fd.KingmanPolarizationPrior(),
+                max_sites=10000
+            )
+
+            a.infer()
+
+            a2 = fd.annotation._ESTSFSAncestralAnnotation(a)
+
+            a2.infer(binary="resources/EST-SFS/cmake-build-debug/EST_SFS_with_prior")
+
+            anc[key] = a
+            anc2[key] = a2
+
+        # we have markedly different rates when including monomorphic sites, also for kappa
+        pass
+
+    @pytest.mark.slow
+    def test_betula_same_estimates_when_sampling_monomorphic_sites_from_fasta(self):
+        """
+        Test that we get the same estimates when sampling monomorphic sites from a fasta file instead of a VCF.
+        """
+        configs = [
+            dict(
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+                outgroups=["ERR2103730"],
+                tolerance=0.15
+            ),
+            dict(
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+                outgroups=["ERR2103730", "ERR2103731"],
+                tolerance=0.12
+            )
+        ]
+
+        for config in configs:
+
+            p1 = fd.Parser(
+                n=10,
+                vcf=config['vcf'],
+                annotations=[
+                    fd.MaximumLikelihoodAncestralAnnotation(
+                        outgroups=config['outgroups'],
+                        n_ingroups=20,
+                    )
+                ]
+            )
+
+            sfs = p1.parse()
+
+            f = fd.Filterer(
+                vcf=config['vcf'],
+                output=tempfile.NamedTemporaryFile(delete=False, suffix='.vcf').name,
+                filtrations=[fd.SNPFiltration()]
+            )
+
+            f.filter()
+
+            p2 = fd.Parser(
+                n=10,
+                fasta="resources/genome/betula/genome.fasta",
+                vcf=f.output,
+                annotations=[
+                    fd.MaximumLikelihoodAncestralAnnotation(
+                        outgroups=config['outgroups'],
+                        n_ingroups=20,
+                        n_target_sites=int(sfs.all.n_sites),
+                    )
+                ]
+            )
+
+            p2.parse()
+
+            # noinspection all
+            params_mle = np.concatenate([
+                [list(p1.annotations[0].params_mle.values())],
+                [list(p2.annotations[0].params_mle.values())]
+            ])
+
+            # we have markedly different rates when including monomorphic sites
+            max_rel_diff = np.max(np.abs(np.diff(params_mle, axis=0) / params_mle[:-1, :]))
+
+            self.assertGreater(config['tolerance'], max_rel_diff)

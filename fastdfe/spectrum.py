@@ -764,15 +764,18 @@ class Spectra:
         """
         return Spectra.from_dict(data.to_dict())
 
-    @staticmethod
-    def from_file(file: str) -> 'Spectra':
+    @classmethod
+    def from_file(cls, file: str) -> 'Spectra':
         """
         Save object to file.
 
         :param file: Path to file, possibly URL
         :return: Spectra object
         """
-        return Spectra.from_dataframe(pd.read_csv(download_if_url(file)))
+        return Spectra.from_dataframe(pd.read_csv(download_if_url(
+            file,
+            desc=f'{cls.__name__}>Downloading file'))
+        )
 
     @staticmethod
     def from_spectra(spectra: Dict[str, Spectrum]) -> 'Spectra':

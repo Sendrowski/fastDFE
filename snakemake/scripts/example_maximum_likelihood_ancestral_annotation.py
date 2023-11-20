@@ -3,12 +3,11 @@ import fastdfe as fd
 
 ann = fd.Annotator(
     vcf="https://github.com/Sendrowski/fastDFE/"
-        "blob/dev/resources/genome/betula/biallelic."
-        "with_outgroups.subset.50000.vcf.gz?raw=true",
+        "blob/dev/resources/genome/betula/all."
+        "with_outgroups.subset.10000.vcf.gz?raw=true",
     annotations=[fd.MaximumLikelihoodAncestralAnnotation(
         outgroups=["ERR2103730"],
-        n_ingroups=15,
-        max_sites=10000
+        n_ingroups=15
     )],
     output="genome.polarized.vcf.gz"
 )

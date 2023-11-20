@@ -12,7 +12,7 @@ import re
 import subprocess
 import tempfile
 from abc import ABC, abstractmethod
-from collections import Counter
+from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import cached_property
@@ -30,10 +30,12 @@ from Bio.SeqRecord import SeqRecord
 from cyvcf2 import Variant, Writer, VCF
 from matplotlib import pyplot as plt
 from scipy.optimize import minimize, OptimizeResult
+from tqdm import tqdm
 
-from .io_handlers import DummyVariant, MultiHandler
+from .io_handlers import DummyVariant, MultiHandler, FASTAHandler
 from .io_handlers import GFFHandler, get_major_base, get_called_bases
 from .optimization import parallelize as parallelize_func, check_bounds
+from .settings import Settings
 from .visualization import Visualization
 
 # get logger
@@ -66,7 +68,7 @@ for c in stop_codons:
 unique_to_degeneracy = {0: 0, 1: 2, 2: 2, 3: 4}
 
 
-class Annotation:
+class Annotation(ABC):
 
     def __init__(self):
         """
@@ -101,6 +103,7 @@ class Annotation:
         """
         self.logger.info(f'Annotated {self.n_annotated} sites.')
 
+    @abstractmethod
     def annotate_site(self, variant: Variant | DummyVariant):
         """
         Annotate a single site.
@@ -551,7 +554,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
     .. warning::
         Not recommended for use with :class:`~fastdfe.parser.Parser` as we also need to annotate mono-allelic sites.
-        Consider using :class:`~fastdfe.parser.DegeneracyAnnotation` and
+        Consider using :class:`~fastdfe.annotation.DegeneracyAnnotation` and
         :class:`~fastdfe.parser.DegeneracyStratification` instead.
     """
 
@@ -1331,7 +1334,7 @@ class SiteInfo:
 
 class BaseType(Enum):
     """
-    The base type.
+    The base type, either major or minor.
     """
     MINOR = 0
     MAJOR = 1
@@ -1541,7 +1544,7 @@ class AdaptivePolarizationPrior(PolarizationPrior):
             data=data,
             parallelize=self.parallelize,
             pbar=True,
-            desc="Optimizing polarization priors",
+            desc=f"{self.__class__.__name__}>Optimizing polarization priors",
             dtype=object
         ).reshape(len(freq_indices), self.n_runs)
 
@@ -1626,7 +1629,7 @@ class AdaptivePolarizationPrior(PolarizationPrior):
         return compute_likelihood
 
 
-class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
+class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
     """
     Abstract class for annotation of ancestral alleles using outgroup information.
     """
@@ -1687,6 +1690,10 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 
         #: The ingroup mask.
         self._ingroup_mask: np.ndarray[bool] | None = None
+
+        #: 1-based positions of lowest and highest site position per contig (only when target_site_counter is used)
+        # noinspection PyTypeChecker
+        self._contig_bounds: Dict[str, Tuple[int, int]] = defaultdict(lambda: (np.inf, -np.inf))
 
     def _prepare_masks(self, samples: List[str]):
         """
@@ -1794,15 +1801,11 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 
     def _parse_variant(self, variant: Variant | DummyVariant) -> SiteConfig | None:
         """
-        Parse a VCF variant. We only consider SNPs that are bi-allelic in the in- and outgroups.
+        Parse a VCF variant. We only consider sites that are at most bi-allelic in the in- and outgroups.
 
         :param variant: The variant.
-        :return: The site configuration or ``None`` if the variant is not bi-allelic in the in- and outgroups.
-        :raises MonomorphicSiteException: If the site is monomorphic.
+        :return: The site configuration or ``None`` if the site is not valid.
         """
-        if not variant.is_snp:
-            raise MonomorphicSiteException
-
         # get the called ingroup bases
         ingroups = get_called_bases(variant.gt_bases[self._ingroup_mask])
 
@@ -1819,8 +1822,8 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
             # get total base counts
             counts = Counter(np.concatenate((ingroups, outgroups)))
 
-            # only consider sites where the in- and outgroups are bi-allelic
-            if len(counts) == 2:
+            # only consider sites where the in- and outgroups are at most bi-allelic
+            if len(counts) <= 2:
                 # subsample ingroups
                 subsample_ingroups = self._subsample(ingroups, size=self.n_ingroups)
 
@@ -1830,9 +1833,12 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
                 # get the bases
                 b: List[str] = list(counts.keys())
 
-                # Take the other allele as the minor allele. We like to keep track of the minor allele
-                # even if it wasn't contained in the ingroup subsample.
-                minor_base: str = b[0] if b[0] != most_common[0][0] else b[1]
+                if len(counts) == 2:
+                    # Take the other allele as the minor allele. We keep track of the minor allele
+                    # even if it wasn't contained in the ingroup subsample.
+                    minor_base: str = b[0] if b[0] != most_common[0][0] else b[1]
+                else:
+                    minor_base: str = '.'
 
                 # get the outgroup bases
                 # it is important we don't mix the outgroup individuals
@@ -1847,15 +1853,12 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
                 site = SiteConfig(
                     major_base=base_indices[most_common[0][0]],
                     n_major=most_common[0][1],
-                    minor_base=base_indices[minor_base],
+                    minor_base=self.get_base_index(minor_base),
                     outgroup_bases=self.get_base_index(outgroup_bases),
                     multiplicity=1
                 )
 
                 return site
-
-            elif len(counts) == 1:
-                raise MonomorphicSiteException
 
     @staticmethod
     def get_base_string(indices: int | np.ndarray[int]) -> str | np.ndarray[str]:
@@ -1901,53 +1904,48 @@ class OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         return -1
 
 
-class MonomorphicSiteException(Exception):
+class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
     """
-    Exception raised when a site is monomorphic.
-    """
-    pass
-
-
-class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
-    """
-    Annotation of ancestral alleles using a method very similar to EST-SFS
-    (https://doi.org/10.1534/genetics.118.301120). The info field ``AA``
-    is added to the VCF file, which holds the ancestral allele. To be used with
+    Annotation of ancestral alleles following the probabilistic model of EST-SFS
+    (https://doi.org/10.1534/genetics.118.301120). By default, the info field ``AA``
+    (see :attr:`Annotator.info_ancestral`) is added to the VCF file, which holds the ancestral allele. To be used with
     :class:`Annotator` or :class:`~fastdfe.parser.Parser`. This class can also be used
     independently, see the :meth:`from_dataframe`, :meth:`from_data` and :meth:`from_est_sfs` methods.
 
-    Initially, the branch rates are determined using MLE. You can also choose a prior for the polarization
-    probabilities (see :class:`PolarizationPrior`). Eventually, for every site, the probability that the major allele is
-    ancestral is then calculated.
+    Initially, the branch rates are determined using MLE. Similar to :class:`Parser`, we can also specify the number of
+    mutational target sites (see the `n_target_sites` argument) in case our VCF file does not contain the full set of
+    monomorphic sites. This is necessary to obtain realistic branch rate estimates.You can also choose a prior for the
+    polarization probabilities (see :class:`PolarizationPrior`). Eventually, for every site, the probability that the
+    major allele is ancestral is calculated.
 
-    When annotating the variants of a VCF file, we check the mostly likely ancestral allele against a naive
+    When annotating the variants of a VCF file, we check the most likely ancestral allele against a naive
     ad-hoc ancestral allele annotation, and record the sites for which we have disagreement. You might want to
     sanity-check the mismatches to make sure the model has been properly specified (see :attr:`mismatches`).
 
-    Important points:
-
-    * Only variants that are at most bi-allelic in the provided in- and outgroups are annotated.
-
-    * The polarization prior corresponds to the Kingman coalescent probability by default. Using an adaptive prior
-      as in the EST-SFS paper is also possible, but this is only recommended if the number of sites used for the
-      inference is large (see :attr:`prior`).
-
-    * The model can only handle sites that have at most 2 alleles across the in- and outgroups, so sites with more than
-      2 alleles are ignored.
-
-    * The model determines the probability of the major allele being ancestral opposed to the minor allele. This can
-      be problematic if the actual ancestral allele is not contained in the ingroup (possibly due to subsampling).
-      To avoid this issue, we also keep track of potential minor alleles at frequency 0. If we were to ignore this, it
-      would be impossible to infer divergence, i.e. fixed derived allele that are no longer observed in the ingroups (
-      see :attr:`PolarizationPrior.allow_divergence`. That said, divergence counts are not informative on DFE inference
-      with fastDFE.
-
     .. note::
-        The model assumes a single coalescent topology for all sites, in which all outgroups coalesce first with the
-        ingroup and not with each other. It is important to specify the outgroups in order of increasing divergence
-        and not to select outgroups that are not much more closely related to each other than to the ingroup (as this
-        would produce a different coalescent topology than the one assumed). The assumption of a single fixed topology
-        should be good enough given that in- and outgroup are sufficiently diverged.
+
+        * The polarization prior corresponds to the Kingman coalescent probability by default. Using an adaptive prior,
+          as in the EST-SFS paper, is also possible, but this is only recommended if the number of sites used for the
+          inference is large (see :attr:`prior`).
+
+        * The model can only handle sites that have at most 2 alleles across the in- and outgroups, so sites with more
+          than 2 alleles are ignored. Only variants that are at most bi-allelic in the provided in- and outgroups are
+          annotated.
+
+        * The model determines the probability of the major allele being ancestral opposed to the minor allele. This can
+          be problematic if the actual ancestral allele is not contained in the ingroup (possibly due to subsampling).
+          To avoid this issue, we also keep track of potential minor alleles at frequency 0. If we were to ignore this,
+          it would be impossible to infer divergence, i.e. fixed derived allele that are no longer observed in the
+          ingroups (see :attr:`PolarizationPrior.allow_divergence`). That said, divergence counts are not informative
+          on DFE inference with fastDFE.
+
+        * The model assumes a single coalescent topology for all sites, in which all outgroups coalesce first with the
+          ingroup and not with each other. It is important to specify the outgroups in order of increasing divergence
+          and not to select outgroups that are not much more closely related to each other than to the ingroup (as this
+          would produce a different coalescent topology than the one assumed). You can call
+          :meth:`get_outgroup_divergence` after the inference to check the estimated branch rates for each outgroup.
+          The assumption of a single fixed topology should be good enough given that in- and outgroups are sufficiently
+          diverged.
 
     Example usage:
 
@@ -1956,13 +1954,14 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         import fastdfe as fd
 
         ann = fd.Annotator(
-            vcf=url + "resources/genome/betula/biallelic.with_outgroups.subset.50000.vcf.gz?raw=true",
+            vcf="https://github.com/Sendrowski/fastDFE/"
+                "blob/dev/resources/genome/betula/all."
+                "with_outgroups.subset.10000.vcf.gz?raw=true",
             annotations=[fd.MaximumLikelihoodAncestralAnnotation(
                 outgroups=["ERR2103730"],
-                n_ingroups=15,
-                max_sites=10000
+                n_ingroups=15
             )],
-            output="out/genome.polarized.vcf.gz"
+            output="genome.polarized.vcf.gz"
         )
 
         ann.annotate()
@@ -1989,15 +1988,16 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             self,
             outgroups: List[str],
             n_ingroups: int,
-            ingroups: List[str] = None,
-            exclude: List[str] = None,
+            ingroups: List[str] | None = None,
+            exclude: List[str] | None = None,
             n_runs: int = 10,
             model: SubstitutionModel = K2SubstitutionModel(),
             parallelize: bool = True,
             prior: PolarizationPrior | None = KingmanPolarizationPrior(),
             max_sites: int = np.inf,
             seed: int | None = 0,
-            confidence_threshold: float = 0
+            confidence_threshold: float = 0,
+            n_target_sites: int | None = None
     ):
         """
         Create a new ancestral allele annotation instance.
@@ -2044,6 +2044,18 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             the ancestral allele is annotated. This is useful to avoid annotating sites where the ancestral allele
             state is not clear. Use values close to 0 to annotate as many sites as possible, and values close to 1
             to annotate only sites where the ancestral allele state is very clear.
+        :param n_target_sites: The total number of target sites if this class is used in conjunction with
+            :class:`Parser` or :class:`Annotator`. This is useful if the provided set of sites only
+            consists of bi-allelic sites. Specify here the total number of sites underlying the given dataset, i.e.,
+            both mono- and bi-allelic sites. Ignoring mono-allelic sites will lead to overestimation of the rate
+            parameters. For this to work, a FASTA file must be provided from which the mono-allelic sites can be
+            sampled. Sampling takes place between the variants of the last and first site on every contig considered
+            in the VCF file. Use `None` to disable this feature. Note that the number of target sites is automatically
+            carried over if not specified and this class is used together with :class:`Parser`. In order to use this
+            feature, you must also specify a FASTA file to :class:`Parser` or :class:`Annotator`. Also note that we
+            extrapolate the number of mono-allelic sites to be sampled from the FASTA file based on the ratio of
+            sites with called outgroup bases parsed from the VCF file. This is done to obtain branch rates that are
+            comparable to the ones obtained when using a VCF file that contains both mono- and bi-allelic sites.
         """
         super().__init__(
             ingroups=ingroups,
@@ -2096,7 +2108,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         #: The probability of all sites per frequency bin.
         self.p_bins: Dict[str, np.ndarray[float, (n_ingroups - 1,)]] | None = None
 
-        #: The total number of sites parsed.
+        #: The total number of valid sites parsed (including sites not considered for ancestral allele inference).
         self.n_sites: int | None = None
 
         #: The parameter names in the order they are passed to the optimizer.
@@ -2119,19 +2131,160 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         # for sites that were actually annotated.
         self.mismatches: List[SiteInfo] = []
 
+        #: The total number of target sites.
+        self.n_target_sites: int | None = n_target_sites
+
     def _setup(self, handler: MultiHandler):
         """
-        Add info fields to the header.
+        Parse the VCF file and perform the optimization.
 
         :param handler: The handler.
         """
+        from .parser import Parser, TargetSiteCounter
+
         super()._setup(handler)
+
+        # try to carry over n_target_sites and fasta file from Parser
+        if isinstance(handler, Parser) and isinstance(handler.target_site_counter, TargetSiteCounter):
+
+            if self.n_target_sites is None:
+                self.n_target_sites = handler.target_site_counter.n_target_sites
+
+                self.logger.debug(f"Using n_target_sites={self.n_target_sites} from Parser.")
+
+        if self.n_target_sites is not None:
+            # check that we have a fasta file if we sample mono-allelic sites
+            handler._require_fasta(self.__class__.__name__)
 
         # load data
         self._parse_variants()
 
+        # sample mono-allelic sites if necessary
+        if self.n_target_sites is not None:
+            self._sample_mono_allelic_sites()
+
+        # notify about the number of sites
+        self.logger.info(f"Included {self._get_mle_configs().multiplicity.sum()} sites for the inference.")
+
         # infer ancestral alleles
         self.infer()
+
+    def _get_n_samples_fasta(self) -> int:
+        """
+        Get the number of sites to be sampled from the FASTA file. This assumed that the sites have not
+        been sampled yet.
+        """
+        # ratio of parsed sites to sites used for MLE
+        ratio_mle = self._get_mle_configs().multiplicity.sum() / self.n_sites
+
+        return int(ratio_mle * (self.n_target_sites - self.n_sites))
+
+    def _get_n_sites(self) -> int:
+        """
+        Get the number of sites to consider.
+        """
+        return self.configs.multiplicity.sum()
+
+    def _sample_mono_allelic_sites(self):
+        """
+        Sample mono-allelic sites from the FASTA file.
+        """
+        # inform
+        self.logger.info(f"Sampling mono-allelic sites.")
+
+        if self.n_target_sites < self.n_sites:
+            raise ValueError(f"The number of target sites ({self.n_target_sites}) must be at least "
+                             f"as large as the number of sites parsed ({self.n_sites}).")
+
+        # number of mono-allelic sites to sample
+        n_samples = self._get_n_samples_fasta()
+
+        # initialize progress bar
+        pbar = tqdm(
+            total=n_samples,
+            desc=f'{self.__class__.__name__}>Sampling mono-allelic sites',
+            disable=Settings.disable_pbar
+        )
+
+        # get array of ranges per contig of parsed variants
+        ranges = np.array(list(self._contig_bounds.values()))
+
+        # get range sizes
+        range_sizes = ranges[:, 1] - ranges[:, 0]
+
+        # determine sampling probabilities
+        probs = range_sizes / np.sum(range_sizes)
+
+        # sample number of sites per contig
+        sample_counts = self.rng.multinomial(n_samples, probs)
+
+        # sampled bases
+        samples = dict(A=0, C=0, G=0, T=0)
+
+        # iterate over contigs
+        for contig, bounds, n in zip(self._contig_bounds.keys(), ranges, sample_counts):
+            # get aliases
+            aliases = self.handler.get_aliases(contig)
+
+            # make sure we have a valid range
+            if bounds[1] > bounds[0] and n > 0:
+                self.logger.debug(f"Sampling {n} sites from contig '{contig}'.")
+
+                # fetch contig
+                record = self.handler.get_contig(aliases, notify=False)
+
+                # sample sites
+                i = 0
+                while i < n:
+                    pos = self.rng.integers(*bounds)
+
+                    base = record.seq[pos - 1]
+
+                    if base in bases:
+                        # increase counters
+                        samples[base] += 1
+                        i += 1
+                        pbar.update()
+
+        # close progress bar
+        pbar.close()
+
+        # rewind fasta iterator
+        FASTAHandler._rewind(self.handler)
+
+        # add site counts to data frame
+        self.configs = self._add_monomorphic_sites(samples)
+
+        # update number of sites
+        self.n_sites = self._get_n_sites()
+
+    def _add_monomorphic_sites(self, samples: Dict[str, int]):
+        """
+        Add monomorphic sites to the data frame holding the site configurations.
+
+        :param samples: The samples.
+        :return: The data frame.
+        """
+
+        # get indices for new sites
+        sites = np.concatenate(([self.n_sites], self.n_sites + np.cumsum(list(samples.values()))))
+
+        # construct data frame of new sites
+        df = pd.DataFrame(dict(
+            n_major=self.n_ingroups,
+            major_base=base_indices[base],
+            minor_base=-1,
+            outgroup_bases=(base_indices[base],) * self.n_outgroups,
+            multiplicity=count,
+            sites=list(range(sites[i], sites[i + 1])),
+            n_outgroups=self.n_outgroups
+        ) for i, (base, count) in enumerate(samples.items()))
+
+        # add to data frame
+        configs = pd.concat((self.configs, df))
+
+        # aggregate
+        return configs.groupby(self._group_cols + ['n_outgroups'], as_index=False, dropna=False).sum()
 
     def _teardown(self):
         """
@@ -2196,7 +2349,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         # assign the outgroup data, convert to tuples for hashing
         data['outgroup_bases'] = [tuple(row) for row in outgroup_data]
 
-        # return new columns
+        # return new columns only
         return data.drop(range(n_outgroups + 1), axis=1)
 
     @classmethod
@@ -2390,6 +2543,69 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         )
 
     @classmethod
+    def _from_vcf(
+            cls,
+            file: str,
+            outgroups: List[str],
+            n_ingroups: int,
+            ingroups: List[str] = None,
+            exclude: List[str] = None,
+            n_runs: int = 10,
+            model: SubstitutionModel = K2SubstitutionModel(),
+            parallelize: bool = True,
+            prior: PolarizationPrior | None = KingmanPolarizationPrior(),
+            max_sites: int = np.inf,
+            seed: int | None = 0,
+            confidence_threshold: float = 0
+    ) -> 'MaximumLikelihoodAncestralAnnotation':
+        """
+        Create an instance from a VCF file. In most cases, it is recommended to use the :class:`Annotator` or
+        :class:`~fastdfe.parser.Parser` classes instead.
+
+        :param file: The VCF file.
+        :param outgroups: Same as in :meth:`__init__`.
+        :param n_ingroups: Same as in :meth:`__init__`.
+        :param ingroups: Same as in :meth:`__init__`.
+        :param exclude: Same as in :meth:`__init__`.
+        :param n_runs: Same as in :meth:`__init__`.
+        :param model: Same as in :meth:`__init__`.
+        :param parallelize: Same as in :meth:`__init__`.
+        :param prior: Same as in :meth:`__init__`.
+        :param max_sites: Same as in :meth:`__init__`.
+        :param seed: Same as in :meth:`__init__`.
+        :param confidence_threshold: Same as in :meth:`__init__`.
+        :param n_target_sites: Same as in :meth:`__init__`.
+        :param fasta: Same as in :meth:`__init__`.
+        :return: The instance.
+        """
+        # create instance
+        anc = MaximumLikelihoodAncestralAnnotation(
+            outgroups=outgroups,
+            n_ingroups=n_ingroups,
+            ingroups=ingroups,
+            exclude=exclude,
+            n_runs=n_runs,
+            model=model,
+            parallelize=parallelize,
+            prior=prior,
+            max_sites=max_sites,
+            seed=seed,
+            confidence_threshold=confidence_threshold
+        )
+
+        # set up the handler
+        super(cls, anc)._setup(MultiHandler(
+            vcf=file,
+            max_sites=max_sites,
+            seed=seed
+        ))
+
+        # parse the variants
+        anc._parse_variants()
+
+        return anc
+
+    @classmethod
     def from_dataframe(
             cls,
             data: pd.DataFrame,
@@ -2468,8 +2684,8 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         # assign data frame
         anc.configs = data
 
-        # set the number of sites
-        anc.n_sites = anc.configs.multiplicity.sum()
+        # set the number of sites (which coincides with number of sites parsed)
+        anc.n_sites = anc._get_n_sites()
 
         # notify about the number of sites
         anc.logger.info(f"Included {anc._get_mle_configs().multiplicity.sum()} sites for the inference.")
@@ -2478,7 +2694,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
     def _parse_variants(self):
         """
-        Load the variants from the VCF file and parse them. We only consider bi-allelic sites.
+        Parse variants from VCF file.
         """
         # initialize data frame
         self.configs = pd.DataFrame(columns=list(self._dtypes.keys()))
@@ -2496,20 +2712,25 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         # determine the total number of sites to be parsed
         total = self.handler.n_sites if self.max_sites == np.inf else self.max_sites
 
+        # initialize counter in case we do not parse any sites
+        i = -1
+
         # create progress bar
-        with self.handler.get_pbar(desc="Parsing sites", total=total) as pbar:
+        with self.handler.get_pbar(desc=f"{self.__class__.__name__}>Parsing sites", total=total) as pbar:
 
             # iterate over sites
             for i, variant in enumerate(self._reader):
 
-                try:
-                    # parse the site
-                    site = self._parse_variant(variant)
-                except MonomorphicSiteException:
-                    site = None
+                # parse the site
+                site = self._parse_variant(variant)
 
                 # check if site is not None
                 if site is not None:
+
+                    if self.n_target_sites is not None:
+                        # update bounds
+                        low, high = self._contig_bounds[variant.CHROM]
+                        self._contig_bounds[variant.CHROM] = (min(low, variant.POS), max(high, variant.POS))
 
                     site_index = (
                         site.major_base,
@@ -2552,9 +2773,6 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         # total number of sites considered
         self.n_sites = i + 1
 
-        # notify about the number of sites
-        self.logger.info(f"Included {self._get_mle_configs().multiplicity.sum()} sites for the inference.")
-
     def infer(self):
         """
         Infer the ancestral allele probabilities for the data provided. This method is only supposed to be called
@@ -2588,7 +2806,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             data=[self.model.get_x0(bounds, self.rng) for _ in range(self.n_runs)],
             parallelize=self.parallelize,
             pbar=True,
-            desc="Optimizing rates",
+            desc=f"{self.__class__.__name__}>Optimizing rates",
             dtype=object
         )
 
@@ -2631,6 +2849,14 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         # cache the branch probabilities for the MLE parameters
         self._renew_cache()
 
+        # renew site configuration cache
+        self._update_configs()
+
+    def _update_configs(self):
+        """
+        Renew site configuration cache.
+        """
+
         # obtain the probability for each site and minor allele under the MLE rate parameters
         self.configs.p_minor = self.get_p_configs(
             configs=self.configs,
@@ -2654,6 +2880,22 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             p_major=self.configs['p_major'].values,
             n_major=self.configs['n_major'].values
         )
+
+    def set_mle_params(self, params: Dict[str, float]):
+        """
+        Set the MLE parameters and update the cache and site configurations. Use this method if you want to
+        use different parameters for the annotation.
+
+        :param params: The new parameters.
+        """
+        # set the parameters
+        self.params_mle = params
+
+        # renew cache
+        self._renew_cache()
+
+        # renew site configuration cache
+        self._update_configs()
 
     def is_monotonic(self) -> bool:
         """
@@ -2869,7 +3111,8 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
     def _get_mle_configs(self) -> pd.DataFrame:
         """
-        Get the site configurations with the correct number of outgroups used for the MLE.
+        Get the site configurations used for the MLE with only included sites with
+        the correct number of outgroups.
         """
         # only consider sites with the full number of outgroups
         return self.configs[self.configs.n_outgroups == self.n_outgroups]
@@ -2881,8 +3124,8 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         :return: The likelihood function.
         """
         if self.configs is None:
-            raise RuntimeError("No sites available. You can't call infer() yourself when "
-                               "using this class with Parser or Annotator.")
+            raise RuntimeError("No sites available. Note that you can't call infer() yourself "
+                               "when using this class with Parser or Annotator.")
 
         # only consider sites with the correct number of outgroups
         configs = self._get_mle_configs()
@@ -3026,8 +3269,10 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         :param i_internal: The index of the internal node.
         :return: The probabilities for each base and site.
         """
+        # number of outgroups considered
         n_outgroups = len(site.outgroup_bases)
 
+        # no internal nodes if there are fewer than two outgroups
         if n_outgroups < 2:
             return np.full(4, self._get_internal_prob(site))
 
@@ -3215,7 +3460,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
     def annotate_site(self, variant: Variant | DummyVariant):
         """
-        Annotate a single variant.
+        Annotate a single site.
 
         :param variant: The variant to annotate.
         :return: The annotated variant.
@@ -3231,19 +3476,9 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
             # increase the number of annotated sites
             self.n_annotated += 1
 
-        # use MLE inference if we have an SNP
-        if variant.is_snp:
+        else:
 
-            try:
-                # parse the site
-                config = self._parse_variant(variant)
-            except MonomorphicSiteException:
-                ancestral_base = MaximumParsimonyAncestralAnnotation._get_ancestral(variant, self._ingroup_mask)
-
-                # increase the number of annotated sites
-                self.n_annotated += 1
-
-                config = None
+            config = self._parse_variant(variant)
 
             if config is not None:
                 site = self._get_site_info(config)
@@ -3355,7 +3590,7 @@ class MaximumLikelihoodAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         return rates
 
 
-class _AdHocAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
+class _AdHocAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
     """
     Ad-hoc ancestral allele annotation using simple rules. Used for testing.
     """
@@ -3374,7 +3609,7 @@ class _AdHocAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
         # get scores for each base
         # noinspection PyTypeChecker
-        scores = np.concatenate(([1.2], [1], [1 for i in range(1, len(config.outgroup_bases) + 1)]))
+        scores = np.concatenate(([1.2], [1], [1 for _ in range(1, len(config.outgroup_bases) + 1)]))
 
         # get valid bases
         is_valid = bases_combined != -1
@@ -3403,7 +3638,7 @@ class _AdHocAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
 
     def annotate_site(self, variant: Variant | DummyVariant):
         """
-        Annotate a single variant. Mono-allelic sites are assigned the major allele as ancestral. Sites with
+        Annotate a single sites. Mono-allelic sites are assigned the major allele as ancestral. Sites with
         more than two alleles are ignored.
 
         :param variant: The variant to annotate.
@@ -3415,17 +3650,13 @@ class _AdHocAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
         # use maximum parsimony if we have a mono-allelic site
         if isinstance(variant, DummyVariant) or not variant.is_snp:
             ancestral_base = MaximumParsimonyAncestralAnnotation._get_ancestral(variant, self._ingroup_mask)
+            ancestral_info = 'monomorphic'
 
-        try:
-            # parse the site
-            config = self._parse_variant(variant)
-        except MonomorphicSiteException:
-            # if the sub-sample is mono-allelic we use also maximum parsimony
-            ancestral_base = MaximumParsimonyAncestralAnnotation._get_ancestral(variant, self._ingroup_mask)
-
-            config = None
+        # parse the site
+        config = self._parse_variant(variant)
 
         if config is not None:
+
             site = self._get_site_information(config)
 
             # only proceed if the ancestral allele is known
@@ -3434,8 +3665,8 @@ class _AdHocAncestralAnnotation(OutgroupAncestralAlleleAnnotation):
                 if site['major_base'] != site['ancestral_base']:
                     self.logger.debug(dict(site=f"{variant.CHROM}:{variant.POS}") | site)
 
-                    ancestral_base = site['ancestral_base']
-                    ancestral_info = str(site)
+                ancestral_base = site['ancestral_base']
+                ancestral_info = str(site)
 
         # set the ancestral allele
         variant.INFO[self.handler.info_ancestral] = ancestral_base
@@ -3599,6 +3830,15 @@ class _ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
         # rename columns
         self.probs.rename(columns={1: 'config', 2: 'prob'}, inplace=True)
 
+    def annotate_site(self, variant: Variant | DummyVariant):
+        """
+        Not implemented.
+
+        :param variant: The variant to annotate.
+        :raises: NotImplementedError
+        """
+        raise NotImplementedError
+
 
 class Annotator(MultiHandler):
     """
@@ -3709,7 +3949,7 @@ class Annotator(MultiHandler):
         self._setup()
 
         # get progress bar
-        with self.get_pbar() as pbar:
+        with self.get_pbar(desc=f"{self.__class__.__name__}>Processing sites") as pbar:
 
             # iterate over the sites
             for i, variant in enumerate(self._reader):

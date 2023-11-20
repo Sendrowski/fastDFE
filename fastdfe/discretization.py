@@ -280,7 +280,7 @@ class Discretization:
             func=compute_slice,
             data=np.arange(self.n - 1),
             parallelize=self.parallelize,
-            desc="Precomputing",
+            desc=f"{self.__class__.__name__}>Precomputing",
             dtype=float
         )
 

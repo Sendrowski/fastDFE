@@ -663,7 +663,7 @@ class Filterer(MultiHandler):
         self._setup()
 
         # get progress bar
-        with self.get_pbar() as pbar:
+        with self.get_pbar(desc=f"{self.__class__.__name__}>Processing sites") as pbar:
 
             # iterate over the sites
             for i, variant in enumerate(self._reader):

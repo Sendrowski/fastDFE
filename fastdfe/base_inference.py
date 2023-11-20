@@ -432,7 +432,7 @@ class BaseInference(AbstractInference):
             get_counts=self.get_counts(),
             n_runs=self.n_runs,
             pbar=pbar,
-            desc='Performing inference'
+            desc=f'{self.__class__.__name__}>Performing inference'
         )
 
         # assign likelihoods
@@ -605,7 +605,7 @@ class BaseInference(AbstractInference):
             data=seeds,
             parallelize=self.parallelize,
             pbar=pbar,
-            desc='Bootstrapping'
+            desc=f'{self.__class__.__name__}>Bootstrapping'
         )
 
         # number of successful runs
@@ -674,7 +674,7 @@ class BaseInference(AbstractInference):
                 sfs_sel=sfs_sel,
                 folded=self.folded
             )),
-            desc='Bootstrapping'
+            desc=f'{self.__class__.__name__}>Bootstrapping'
         )
 
         # unpack shared parameters

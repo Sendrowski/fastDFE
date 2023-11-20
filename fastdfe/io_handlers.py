@@ -79,12 +79,17 @@ def is_monomorphic_snp(variant: Union[Variant, 'DummyVariant']) -> bool:
             and variant.REF in bases)
 
 
-def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf) -> int:
+def count_sites(
+        vcf: str | Iterable[Variant],
+        max_sites: int = np.inf,
+        desc: str = 'Counting sites'
+) -> int:
     """
     Count the number of sites in the VCF.
 
     :param vcf: The path to the VCF file or an iterable of variants
     :param max_sites: Maximum number of sites to consider
+    :param desc: Description for the progress bar
     :return: Number of sites
     """
 
@@ -95,7 +100,7 @@ def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf) -> int:
     i = 0
     with open_file(vcf) as f:
 
-        with tqdm(disable=Settings.disable_pbar, desc='Counting sites') as pbar:
+        with tqdm(disable=Settings.disable_pbar, desc=desc) as pbar:
 
             for line in f:
                 if not line.startswith('#'):
@@ -109,17 +114,18 @@ def count_sites(vcf: str | Iterable[Variant], max_sites: int = np.inf) -> int:
     return i
 
 
-def download_if_url(path: str, cache: bool = True) -> str:
+def download_if_url(path: str, cache: bool = True, desc: str = 'Downloading file') -> str:
     """
     Download the VCF file if it is a URL.
 
     :param path: The path to the VCF file.
     :param cache: Whether to cache the file.
+    :param desc: Description for the progress bar
     :return: The path to the downloaded file or the original path.
     """
     if FileHandler.is_url(path):
         # download the file and return path
-        return FileHandler.download_file(path, cache=cache)
+        return FileHandler.download_file(path, cache=cache, desc=desc)
 
     return path
 
@@ -142,6 +148,9 @@ class FileHandler:
     Base class for file handling.
     """
 
+    #: The logger instance
+    logger = logger.getChild(__qualname__)
+
     def __init__(self, cache: bool = True, aliases: Dict[str, List[str]] = {}):
         """
         Create a new FileHandler instance.
@@ -149,9 +158,6 @@ class FileHandler:
         :param cache: Whether to cache files that are downloaded from URLs
         :param aliases: The contig aliases.
         """
-        #: The logger instance
-        self.logger = logger.getChild(self.__class__.__name__)
-
         #: Whether to cache files that are downloaded from URLs
         self.cache: bool = cache
 
@@ -199,7 +205,7 @@ class FileHandler:
         :param path: The path to the VCF file.
         :return: The path to the downloaded file or the original path.
         """
-        return download_if_url(path, cache=self.cache)
+        return download_if_url(path, cache=self.cache, desc=f'{self.__class__.__name__}>Downloading file')
 
     @staticmethod
     def unzip_if_zipped(file: str):
@@ -244,13 +250,14 @@ class FileHandler:
         """
         return hashlib.sha1(s.encode()).hexdigest()[:12]
 
-    @staticmethod
-    def download_file(url: str, cache: bool = True) -> str:
+    @classmethod
+    def download_file(cls, url: str, cache: bool = True, desc: str = 'Downloading file') -> str:
         """
         Download a file from a URL.
 
         :param cache: Whether to cache the file.
         :param url: The URL to download the file from.
+        :param desc: Description for the progress bar
         :return: The path to the downloaded file.
         """
         # extract the file extension from the URL
@@ -261,10 +268,10 @@ class FileHandler:
 
         # check if the file is already cached
         if cache and os.path.exists(path):
-            logger.info(f'Using cached file at {path}')
+            cls.logger.info(f'Using cached file at {path}')
             return path
 
-        logger.info(f'Downloading file from {url}')
+        cls.logger.info(f'Downloading file from {url}')
 
         # start the stream
         response = requests.get(url, stream=True)
@@ -280,7 +287,7 @@ class FileHandler:
             with tqdm(total=total_size,
                       unit='B',
                       unit_scale=True,
-                      desc="Downloading file",
+                      desc=desc,
                       disable=Settings.disable_pbar) as pbar:
 
                 # write the file to disk
@@ -293,7 +300,7 @@ class FileHandler:
         if cache:
             os.rename(tmp.name, path)
 
-            logger.info(f'Cached file at {path}')
+            cls.logger.info(f'Cached file at {path}')
 
             return path
 
@@ -651,7 +658,11 @@ class VCFHandler(FileHandler):
 
         :return: Number of sites
         """
-        return count_sites(self.download_if_url(self.vcf), max_sites=self.max_sites)
+        return count_sites(
+            vcf=self.download_if_url(self.vcf),
+            max_sites=self.max_sites,
+            desc=f'{self.__class__.__name__}>Counting sites'
+        )
 
     def get_pbar(self, desc: str = "Processing sites", total: int | None = 0) -> tqdm:
         """

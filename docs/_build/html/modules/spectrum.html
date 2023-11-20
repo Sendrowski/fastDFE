@@ -92,6 +92,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.to_numpy"><code class="docutils literal notranslate"><span class="pre">Spectrum.to_numpy()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.theta"><code class="docutils literal notranslate"><span class="pre">Spectrum.theta</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.fold"><code class="docutils literal notranslate"><span class="pre">Spectrum.fold()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.subsample"><code class="docutils literal notranslate"><span class="pre">Spectrum.subsample()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.resample"><code class="docutils literal notranslate"><span class="pre">Spectrum.resample()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.is_folded"><code class="docutils literal notranslate"><span class="pre">Spectrum.is_folded()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.normalize"><code class="docutils literal notranslate"><span class="pre">Spectrum.normalize()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectrum.copy"><code class="docutils literal notranslate"><span class="pre">Spectrum.copy()</span></code></a></li>
@@ -283,6 +285,45 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectrum.subsample">
+<span class="sig-name descname"><span class="pre">subsample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectrum.subsample" title="Permalink to this definition"></a></dt>
+<dd><p>Subsample spectrum to a given sample size.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The SFS counts are cast to integers before subsampling so this will only provide sensible results
+if the SFS counts are integers or if they are large enough to be approximated by integers.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Sample size</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Subsampled spectrum</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectrum.resample">
+<span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectrum.resample" title="Permalink to this definition"></a></dt>
+<dd><p>Resample SFS assuming independent Poisson counts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>seed</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Seed for random number generator.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectrum" title="fastdfe.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Resampled spectrum.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectrum.is_folded">
 <span class="sig-name descname"><span class="pre">is_folded</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectrum.is_folded" title="Permalink to this definition"></a></dt>
 <dd><p>Check if the site-frequency spectrum is folded.</p>
@@ -386,8 +427,8 @@ Note that the monomorphic counts are included here, although ignored.</p>
 <li><p><strong>file</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – File to save plot to</p></li>
 <li><p><strong>title</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Title of plot</p></li>
 <li><p><strong>show_monomorphic</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to show monomorphic counts</p></li>
-<li><p><strong>kwargs_legend</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Keyword arguments passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">plt.legend()</span></code></p></li>
-<li><p><strong>ax</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code>]) – Axes to plot on</p></li>
+<li><p><strong>kwargs_legend</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Keyword arguments passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">plt.legend()</span></code>. Only for Python visualization backend.</p></li>
+<li><p><strong>ax</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code>]) – Axes to plot on. Only for Python visualization backend.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>

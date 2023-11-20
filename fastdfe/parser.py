@@ -685,7 +685,11 @@ class TargetSiteCounter:
         rng = np.random.default_rng(self.parser.seed)
 
         # initialize progress bar
-        pbar = tqdm(total=self.n_samples, desc='Sampling target sites', disable=Settings.disable_pbar)
+        pbar = tqdm(
+            total=self.n_samples,
+            desc=f'{self.__class__.__name__}>Sampling target sites',
+            disable=Settings.disable_pbar
+        )
 
         # get array of ranges per contig of parsed variants
         ranges = np.array(list(self.parser._contig_bounds.values()))
@@ -1189,7 +1193,10 @@ class Parser(MultiHandler):
         # set up parser
         self._setup()
 
-        pbar = self.get_pbar(total=self.n_sites)
+        pbar = self.get_pbar(
+            total=self.n_sites,
+            desc=f"{self.__class__.__name__}>Processing sites"
+        )
 
         # iterate over variants
         for i, variant in enumerate(self._reader):

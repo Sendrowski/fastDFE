@@ -121,6 +121,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.reorder_levels"><code class="docutils literal notranslate"><span class="pre">Spectra.reorder_levels()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.print"><code class="docutils literal notranslate"><span class="pre">Spectra.print()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.fold"><code class="docutils literal notranslate"><span class="pre">Spectra.fold()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.subsample"><code class="docutils literal notranslate"><span class="pre">Spectra.subsample()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.is_folded"><code class="docutils literal notranslate"><span class="pre">Spectra.is_folded()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.spectrum.Spectra.sort_types"><code class="docutils literal notranslate"><span class="pre">Spectra.sort_types()</span></code></a></li>
 </ul>
@@ -547,7 +548,7 @@ are summed over the levels that were not specified.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.from_file">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.from_file" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.from_file" title="Permalink to this definition"></a></dt>
 <dd><p>Save object to file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -606,10 +607,10 @@ are summed over the levels that were not specified.</p>
 <li><p><strong>show</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to show the plot</p></li>
 <li><p><strong>file</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – File name to save the plot to</p></li>
 <li><p><strong>title</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Plot title</p></li>
-<li><p><strong>use_subplots</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use subplots</p></li>
+<li><p><strong>use_subplots</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use subplots. Only for Python visualization backend.</p></li>
 <li><p><strong>show_monomorphic</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to show monomorphic sites</p></li>
-<li><p><strong>kwargs_legend</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Keyword arguments passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">plt.legend()</span></code></p></li>
-<li><p><strong>ax</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code>]) – Axes to plot on</p></li>
+<li><p><strong>kwargs_legend</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Keyword arguments passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">plt.legend()</span></code>. Only for Python visualization backend.</p></li>
+<li><p><strong>ax</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code>]) – Axes to plot on. Only for Python visualization backend and if <code class="docutils literal notranslate"><span class="pre">use_subplots</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -728,6 +729,28 @@ Note that we ignore zero counts in the last entry i.e. fixed derived alleles.</p
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Folded spectra</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastdfe.spectrum.Spectra.subsample">
+<span class="sig-name descname"><span class="pre">subsample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.spectrum.Spectra.subsample" title="Permalink to this definition"></a></dt>
+<dd><p>Subsample spectra to a given sample size.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The SFS counts are cast to integers before subsampling so this will only provide sensible results
+if the SFS counts are integers or if they are large enough to be approximated by integers.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Sample size</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastdfe.spectrum.Spectra" title="fastdfe.spectrum.Spectra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spectra</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Subsampled spectra</p>
 </dd>
 </dl>
 </dd></dl>

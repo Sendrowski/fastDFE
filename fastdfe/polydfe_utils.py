@@ -15,7 +15,7 @@ import pandas as pd
 from .spectrum import Spectrum
 
 # get logger
-logger = logging.getLogger('fastdfe')
+logger = logging.getLogger('fastdfe').getChild('polydfe')
 
 #: model mapping
 models = dict(
