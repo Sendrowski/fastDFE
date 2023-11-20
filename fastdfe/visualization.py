@@ -583,6 +583,7 @@ class Visualization:
         :param colors: List of colors for each spectrum.
         :param labels: List of labels for each spectrum
         :param log_scale: Whether to use logarithmic y-scale
+        :param use_subplots: Whether to use subplots
         :param file: File to save plot to
         :param show: Whether to show the plot
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`.

@@ -14,7 +14,8 @@ from fastdfe import spectrum, Spectra, Spectrum
 class SpectraTestCase(TestCase):
     n = 20
 
-    def test_multiply_by_scalar(self):
+    @staticmethod
+    def test_multiply_by_scalar():
         """
         Test that multiplying a spectra by a scalar works as expected.
         """
@@ -26,7 +27,8 @@ class SpectraTestCase(TestCase):
         testing.assert_array_equal(np.arange(20) * 4, s[['all']].to_list()[0])
         testing.assert_array_equal(np.arange(3, 23) * 4, s[['sub']].to_list()[0])
 
-    def test_restore_from_list(self):
+    @staticmethod
+    def test_restore_from_list():
         """
         Test that restoring a spectra from a list works as expected.
         """
@@ -39,7 +41,8 @@ class SpectraTestCase(TestCase):
 
         testing.assert_array_equal(s.to_numpy(), s2.to_numpy())
 
-    def test_multiply_by_list(self):
+    @staticmethod
+    def test_multiply_by_list():
         """
         Test that multiplying a spectra by a list works as expected.
         """
@@ -169,7 +172,8 @@ class SpectraTestCase(TestCase):
         testing.assert_equal(s.n_div, n_div)
         testing.assert_equal(s.n_sites, n_sites)
 
-    def test_wattersons_estimator(self):
+    @staticmethod
+    def test_wattersons_estimator():
         """
         Test that the wattersons_estimator method works as expected.
         """
@@ -182,6 +186,12 @@ class SpectraTestCase(TestCase):
         """
         (spectrum.standard_kingman(self.n) * 4).plot()
 
+    def test_plot_spectrum_log_scale(self):
+        """
+        Test that the plot_spectrum method works as expected when using a log scale.
+        """
+        (spectrum.standard_kingman(self.n) * 4).plot(log_scale=True)
+
     def test_plot_spectra(self):
         """
         Test that the plot_spectra method works as expected.
@@ -191,6 +201,15 @@ class SpectraTestCase(TestCase):
             sub=spectrum.standard_kingman(self.n) * 2
         )).plot()
 
+    def test_plot_spectra_log_scale(self):
+        """
+        Test that the plot_spectra method works as expected when using a log scale.
+        """
+        Spectra.from_spectra(dict(
+            all=spectrum.standard_kingman(self.n) * 4,
+            sub=spectrum.standard_kingman(self.n) * 2
+        )).plot(log_scale=True)
+
     def test_plot_spectra_use_subplots(self):
         """
         Test that the plot_spectra method works as expected.
@@ -199,6 +218,15 @@ class SpectraTestCase(TestCase):
             all=spectrum.standard_kingman(self.n) * 4,
             sub=spectrum.standard_kingman(self.n) * 2
         )).plot(use_subplots=True)
+
+    def test_plot_spectra_use_subplots_log_scale(self):
+        """
+        Test that the plot_spectra method works as expected when using a log scale.
+        """
+        Spectra.from_spectra(dict(
+            all=spectrum.standard_kingman(self.n) * 4,
+            sub=spectrum.standard_kingman(self.n) * 2
+        )).plot(use_subplots=True, log_scale=True)
 
     def test_select_wildcard(self):
         """
@@ -214,7 +242,8 @@ class SpectraTestCase(TestCase):
         assert isinstance(s['sub.*'], Spectrum)
         assert isinstance(s[['sub.*']], Spectra)
 
-    def test_merge_level(self):
+    @staticmethod
+    def test_merge_level():
         """
         Test that the merge_level method works as expected.
         """
@@ -231,7 +260,8 @@ class SpectraTestCase(TestCase):
 
         pd.testing.assert_frame_equal(s.data, expected.data)
 
-    def test_add_spectra(self):
+    @staticmethod
+    def test_add_spectra():
         """
         Test that the add_spectra method works as expected.
         """
@@ -254,7 +284,8 @@ class SpectraTestCase(TestCase):
 
         pd.testing.assert_frame_equal(s.data, expected.data)
 
-    def test_rename_spectra(self):
+    @staticmethod
+    def test_rename_spectra():
         """
         Test that the rename_spectra method works as expected.
         """
@@ -269,7 +300,8 @@ class SpectraTestCase(TestCase):
 
         assert spectra.types == ["subsub.subtype1.type1", "subsub.subtype1.type2", "subsub.subtype2.type1"]
 
-    def test_fold_spectrum(self):
+    @staticmethod
+    def test_fold_spectrum():
         """
         Test that the folding of spectra works as expected
         """
@@ -296,7 +328,8 @@ class SpectraTestCase(TestCase):
         for d in data:
             self.assertEqual(Spectrum(d['s']).is_folded(), d['folded'])
 
-    def test_folding_folded_spectrum_has_no_effect(self):
+    @staticmethod
+    def test_folding_folded_spectrum_has_no_effect():
         """
         Test that folding a folded spectrum has no effect
         """
@@ -310,7 +343,8 @@ class SpectraTestCase(TestCase):
         for s in data:
             np.testing.assert_array_equal(Spectrum(s).fold().fold().data, Spectrum(s).fold().data)
 
-    def test_fold_spectra(self):
+    @staticmethod
+    def test_fold_spectra():
         """
         Test that the folding of spectra works as expected
         """
@@ -327,7 +361,8 @@ class SpectraTestCase(TestCase):
         assert not np.array(list(s.is_folded().values())).all()
         assert np.array(list(s_folded.is_folded().values())).all()
 
-    def test_has_dots(self):
+    @staticmethod
+    def test_has_dots():
         """
         Test that the has_dots() method works as expected
         """
@@ -340,7 +375,8 @@ class SpectraTestCase(TestCase):
             'test.foo': Spectrum([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
         }).has_dots() is True
 
-    def test_replace_dots(self):
+    @staticmethod
+    def test_replace_dots():
         """
         Test that the replace_dots() method works as expected
         """
@@ -351,7 +387,8 @@ class SpectraTestCase(TestCase):
         assert s.has_dots() is False
         assert s.types == ['test_foo']
 
-    def test_drop_empty(self):
+    @staticmethod
+    def test_drop_empty():
         """
         Test that the drop_empty() method works as expected
         """
@@ -361,7 +398,8 @@ class SpectraTestCase(TestCase):
             type3=Spectrum([1, 2, 3, 4, 5, 6, 7, 8, 9, 65]),
         )).drop_empty().types == ['type1', 'type3']
 
-    def test_drop_zero_entries(self):
+    @staticmethod
+    def test_drop_zero_entries():
         """
         Test that the drop_zero_entries() method works as expected
         """
@@ -372,7 +410,8 @@ class SpectraTestCase(TestCase):
             type4=Spectrum([1, 2, 0, 4, 5, 6, 7, 8, 9, 65]),
         )).drop_zero_entries().types == ['type3']
 
-    def test_drop_sparse(self):
+    @staticmethod
+    def test_drop_sparse():
         """
         Test that the drop_zero_entries() method works as expected
         """
@@ -389,25 +428,29 @@ class SpectraTestCase(TestCase):
         assert spectra.drop_sparse(n_polymorphic=41).types == ['type3']
         assert spectra.drop_sparse(n_polymorphic=44).types == []
 
-    def test_add_spectrum(self):
+    @staticmethod
+    def test_add_spectrum():
         """
         Test whether two spectrum objects can be added.
         """
         testing.assert_array_equal((Spectrum([1, 2, 3]) + Spectrum([3, 4, 5])).data, Spectrum([4, 6, 8]).data)
 
-    def test_subtract_spectrum(self):
+    @staticmethod
+    def test_subtract_spectrum():
         """
         Test whether two spectrum objects can be subtracted.
         """
         testing.assert_array_equal((Spectrum([3, 4, 5]) - Spectrum([1, 2, 3])).data, [2, 2, 2])
 
-    def test_normalize_spectrum(self):
+    @staticmethod
+    def test_normalize_spectrum():
         """
         Test whether two spectrum objects can be normalized.
         """
         testing.assert_array_equal(Spectrum([10, 1, 2, 3, 10]).normalize().data, [10, 1 / 6, 1 / 3, 1 / 2, 10])
 
-    def test_spectra_n_monomorphic(self):
+    @staticmethod
+    def test_spectra_n_monomorphic():
         """
         Test whether the n_monomorphic property works as expected.
         """
@@ -477,7 +520,8 @@ class SpectraTestCase(TestCase):
         """
         self.assertRaises(ValueError, Spectrum.standard_kingman(30).subsample, 40)
 
-    def test_subsample_spectra(self):
+    @staticmethod
+    def test_subsample_spectra():
         """
         Test whether the subsample method works as expected.
         """

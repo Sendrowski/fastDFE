@@ -356,6 +356,7 @@ class Spectrum(Iterable):
             show: bool = True,
             file: str = None,
             title: str = None,
+            log_scale: bool = False,
             show_monomorphic: bool = False,
             kwargs_legend: dict = dict(prop=dict(size=8)),
             ax: plt.Axes = None
@@ -363,10 +364,11 @@ class Spectrum(Iterable):
         """
         Plot spectrum.
 
-        :param show: Whether to show plot
-        :param file: File to save plot to
-        :param title: Title of plot
-        :param show_monomorphic: Whether to show monomorphic counts
+        :param show: Whether to show plot.
+        :param file: File to save plot to.
+        :param title: Title of plot.
+        :param log_scale: Whether to use log scale on y-axis.
+        :param show_monomorphic: Whether to show monomorphic counts.
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes
@@ -376,6 +378,7 @@ class Spectrum(Iterable):
             file=file,
             show=show,
             title=title,
+            log_scale=log_scale,
             show_monomorphic=show_monomorphic,
             ax=ax,
             kwargs_legend=kwargs_legend
@@ -802,6 +805,7 @@ class Spectra:
             show: bool = True,
             file: str = None,
             title: str = None,
+            log_scale: bool = False,
             use_subplots: bool = False,
             show_monomorphic: bool = False,
             kwargs_legend: dict = dict(prop=dict(size=8)),
@@ -810,11 +814,12 @@ class Spectra:
         """
         Visualize spectra.
 
-        :param show: Whether to show the plot
-        :param file: File name to save the plot to
-        :param title: Plot title
+        :param show: Whether to show the plot.
+        :param file: File name to save the plot to.
+        :param title: Plot title.
+        :param log_scale: Whether to use log scale on y-axis.
         :param use_subplots: Whether to use subplots. Only for Python visualization backend.
-        :param show_monomorphic: Whether to show monomorphic sites
+        :param show_monomorphic: Whether to show monomorphic sites.
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :param ax: Axes to plot on. Only for Python visualization backend and if ``use_subplots`` is ``False``.
         :return: Axes
@@ -825,6 +830,7 @@ class Spectra:
             file=file,
             show=show,
             title=title,
+            log_scale=log_scale,
             use_subplots=use_subplots,
             show_monomorphic=show_monomorphic,
             kwargs_legend=kwargs_legend,
