@@ -22,10 +22,10 @@ try:
 except ModuleNotFoundError:
     # testing
     testing = True
-    vcf_file = "resources/genome/betula/all.vcf.gz"
+    vcf_file = "resources/genome/betula/all.polarized.subset.200000.vcf.gz"
     fasta = "resources/genome/betula/genome.fasta"
     gff = "resources/genome/betula/genome.gff.gz"
-    out = 'scratch/degeneracy.vcf'
+    out = 'resources/genome/betula/all.polarized.deg.subset.200000.vcf.gz'
 
 from fastdfe import Annotator, DegeneracyAnnotation
 import logging

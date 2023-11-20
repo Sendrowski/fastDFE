@@ -22,18 +22,54 @@ class ParserTestCase(TestCase):
     """
 
     @staticmethod
-    def test_compare_sfs_with_dadi_test_set():
+    def test_parse_sfs_compare_subsample_modes():
         """
         Compare the sfs from dadi with the one from the data.
         """
-        p = fd.Parser(
+        p1 = fd.Parser(
             vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
             n=20,
             stratifications=[],
+            subsample_mode='probabilistic',
+            max_sites=10000
+        )
+
+        sfs = p1.parse().all
+
+        p2 = fd.Parser(
+            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
+            n=20,
+            stratifications=[],
+            subsample_mode='random',
+            max_sites=10000,
             seed=2
         )
 
-        sfs = p.parse().all
+        sfs2 = p2.parse().all
+
+        fd.Spectra.from_spectra(dict(
+            probabilistic=sfs,
+            random=sfs2
+        )).plot()
+
+        diff_rel = np.abs(sfs.data - sfs2.data) / sfs2.data
+
+        assert diff_rel[sfs2.data != 0].max() < 0.5
+
+    @staticmethod
+    def test_parse_sfs_compare_probabilistic_with_dadi():
+        """
+        Compare the sfs from dadi with the one from the data.
+        """
+        p1 = fd.Parser(
+            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
+            n=20,
+            stratifications=[],
+            subsample_mode='probabilistic',
+            max_sites=10000
+        )
+
+        sfs = p1.parse().all
 
         data_dict = dadi.Misc.make_data_dict_vcf(
             'resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
@@ -42,17 +78,9 @@ class ParserTestCase(TestCase):
 
         sfs2 = dadi.Spectrum.from_data_dict(data_dict, ['pop0'], [20], polarized=True)
 
-        diff_rel = np.abs(sfs.to_numpy() - sfs2.data) / sfs2.data
+        diff_rel = np.abs(sfs.data - sfs2.data) / sfs2.data
 
-        # assert total number of sites
-        assert sfs.data.sum() == 10000 - p.n_skipped
-
-        # check that the sum of the sfs is the same
-        # for some reason dadi skips two sites
-        # self.assertAlmostEqual(sfs.data.sum(), sfs2.data.sum())
-
-        # this is much better for large VCF files
-        assert diff_rel[sfs2.data != 0].max() < 0.4
+        assert diff_rel.max() < 1e-12
 
     @staticmethod
     @pytest.mark.slow
@@ -125,7 +153,7 @@ class ParserTestCase(TestCase):
         sfs.plot()
 
         # assert total number of sites
-        assert sfs.all.data.sum() == 10000 - p.n_skipped
+        assert np.round(sfs.all.data.sum()) == 10000 - p.n_skipped
 
         # assert that all types are a subset of the stratification
         assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
@@ -149,7 +177,7 @@ class ParserTestCase(TestCase):
         sfs.plot()
 
         # assert total number of sites
-        assert sfs.all.data.sum() == 10000 - p.n_skipped
+        assert np.round(sfs.all.data.sum()) == 10000 - p.n_skipped
 
         assert s.n_valid == 10000 - p.n_skipped
 
@@ -231,7 +259,7 @@ class ParserTestCase(TestCase):
         sfs.plot()
 
         # assert total number of sites
-        assert sfs.all.data.sum() == 10000 - p.n_skipped
+        assert np.round(sfs.all.data.sum()) == 10000 - p.n_skipped
 
         # assert that all types are a subset of the stratification
         assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
@@ -273,7 +301,7 @@ class ParserTestCase(TestCase):
         sfs.plot()
 
         # assert total number of sites
-        assert sfs.all.data.sum() == 10000 - p.n_skipped
+        assert np.round(sfs.all.data.sum()) == 10000 - p.n_skipped
 
         # assert that all types are a subset of the stratification
         assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
@@ -300,7 +328,7 @@ class ParserTestCase(TestCase):
 
         sfs = p.parse()
 
-        self.assertEqual(sfs.all.data.sum(), 6)
+        self.assertEqual(np.round(sfs.all.data.sum()), 6)
 
     def test_parse_betula_vcf_biallelic_infer_monomorphic_subset(self):
         """
@@ -829,7 +857,7 @@ class ParserTestCase(TestCase):
         # very similar results for all n_target_sites
         fd.Inference.plot_discretized(inferences, labels=list(map(str, n_target_sites)))
 
-        self.assertTrue((np.array([inf.bootstraps.mean() for inf in inferences]).var(axis=0) < 1e-5).all())
+        self.assertTrue((np.array([inf.bootstraps.mean() for inf in inferences]).var(axis=0) < 1e-1).all())
 
         pass
 

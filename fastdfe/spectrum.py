@@ -8,11 +8,12 @@ __date__ = "2022-07-24"
 
 import logging
 from functools import cached_property
-from typing import Dict, List, Union, Iterable, Any
+from typing import Dict, List, Union, Iterable, Any, Literal
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from scipy.stats import hypergeom
 
 from .io_handlers import download_if_url
 from .visualization import Visualization
@@ -156,33 +157,51 @@ class Spectrum(Iterable):
 
         return Spectrum(data)
 
-    def subsample(self, n: int) -> 'Spectrum':
+    def subsample(
+            self,
+            n: int,
+            mode: Literal['random', 'probabilistic'] = 'probabilistic',
+            seed: int | None = None
+    ) -> 'Spectrum':
         """
         Subsample spectrum to a given sample size.
 
         .. warning::
-            The SFS counts are cast to integers before subsampling so this will only provide sensible results
-            if the SFS counts are integers or if they are large enough to be approximated by integers.
+            If using the 'random' mode, The SFS counts are cast to integers before subsampling so this will
+            only provide sensible results if the SFS counts are integers or if they are large enough to be
+            approximated by integers. The 'probabilistic' mode does not have this limitation.
 
         :param n: Sample size
+        :param mode: Subsampling mode. Either 'random' or 'probabilistic'.
+        :param seed: Seed for random number generator. Only for 'random' mode.
         :return: Subsampled spectrum
         """
         if n >= self.n:
             raise ValueError(f'Subsampled sample size {n} must be smaller than original sample size {self.n}.')
 
-        subsample = np.zeros(n + 1, dtype=int)
+        if mode not in ['random', 'probabilistic']:
+            raise ValueError(f'Unknown subsampling mode {mode}.')
 
-        # add monomorphic counts
-        subsample[0] = self.data[0]
-        subsample[-1] = self.data[-1]
+        subsample = np.zeros(n + 1, dtype=float)
 
-        # iterate over spectrum and subsample hypergeometrically
-        for i, m in enumerate(self.polymorphic.astype(int)):
-            # cast count to int and subsample
-            samples = np.random.hypergeometric(ngood=i + 1, nbad=self.n - i - 1, nsample=n, size=m)
+        if mode == 'random':
+            # add monomorphic counts
+            subsample[0] = self.data[0]
+            subsample[-1] = self.data[-1]
 
-            # add subsampled counts
-            subsample += np.histogram(samples, bins=np.arange(n + 2))[0]
+            # iterate over spectrum and subsample hypergeometrically
+            for i, m in enumerate(self.polymorphic.astype(int)):
+                # get subsampled counts
+                samples = hypergeom.rvs(M=self.n, n=i + 1, N=n, size=m, random_state=seed)
+
+                # add subsampled counts
+                subsample += np.histogram(samples, bins=np.arange(n + 2))[0]
+        else:
+            for i, m in enumerate(self.data):
+                probs = hypergeom.pmf(k=range(n + 1), M=self.n, n=i, N=n)
+
+                # add subsampled counts
+                subsample += m * probs
 
         return Spectrum(subsample)
 
@@ -910,18 +929,24 @@ class Spectra:
         """
         return Spectra.from_spectra({t: s.fold() for t, s in self.to_spectra().items()})
 
-    def subsample(self, n: int) -> 'Spectra':
+    def subsample(
+            self,
+            n: int,
+            mode: Literal['random', 'probabilistic'] = 'probabilistic'
+    ) -> 'Spectra':
         """
         Subsample spectra to a given sample size.
 
         .. warning::
-            The SFS counts are cast to integers before subsampling so this will only provide sensible results
-            if the SFS counts are integers or if they are large enough to be approximated by integers.
+            If using the 'random' mode, The SFS counts are cast to integers before subsampling so this will
+            only provide sensible results if the SFS counts are integers or if they are large enough to be
+            approximated by integers. The 'probabilistic' mode does not have this limitation.
 
         :param n: Sample size
+        :param mode: Subsampling mode. Either 'random' or 'probabilistic'.
         :return: Subsampled spectra
         """
-        return Spectra.from_spectra({t: s.subsample(n) for t, s in self.to_spectra().items()})
+        return Spectra.from_spectra({t: s.subsample(n, mode) for t, s in self.to_spectra().items()})
 
     def is_folded(self) -> Dict[str, bool]:
         """

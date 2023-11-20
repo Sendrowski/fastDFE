@@ -12,6 +12,7 @@ import itertools
 import logging
 from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
+from scipy.stats import hypergeom
 from typing import List, Callable, Literal, Optional, Dict, Tuple
 
 import numpy as np
@@ -605,7 +606,7 @@ class TargetSiteCounter:
         :param n_target_sites: The total number of sites (mono- and polymorphic) that would be present in the VCF file
             if it contained monomorphic sites. This number should be considerably larger than the number of polymorphic
             sites in the VCF file. This value is not extremely important for the DFE inference, the ratio of synonymous
-            to non-synonymous sites being more informative, but the order of magnitude should be correct in any case.
+            to non-synonymous sites being more informative, but the order of magnitude should be correct, in any case.
         :param n_samples: The number of sites to sample from the fasta file. Many sampled sites will not be valid as
             they are non-coding. To obtain good estimates, a few thousand sites should be sampled per type of site
             (depending on the stratifications used).
@@ -893,7 +894,8 @@ class Parser(MultiHandler):
             seed: int | None = 0,
             cache: bool = True,
             aliases: Dict[str, List[str]] = {},
-            target_site_counter: TargetSiteCounter = None
+            target_site_counter: TargetSiteCounter = None,
+            subsample_mode: Literal['random', 'probabilistic'] = 'probabilistic',
     ):
         """
         Initialize the parser.
@@ -923,6 +925,9 @@ class Parser(MultiHandler):
         :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
             This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.
         :param target_site_counter: The target site counter. If ``None``, we do not sample target sites.
+        :param subsample_mode: The subsampling mode. For ``random``, we draw once without replacement from the set of all
+            available genotypes per site. For ``probabilistic``, we add up the hypergeometric distribution for all
+            sites. This will produce a smoother SFS, especially when a small number of sites is considered.
         """
         MultiHandler.__init__(
             self,
@@ -981,6 +986,13 @@ class Parser(MultiHandler):
         #: 1-based positions of lowest and highest site position per contig (only when target_site_counter is used)
         # noinspection PyTypeChecker
         self._contig_bounds: Dict[str, Tuple[int, int]] = defaultdict(lambda: (np.inf, -np.inf))
+
+        if subsample_mode not in ['random', 'probabilistic']:
+            raise ValueError(f"Subsampling mode '{subsample_mode}' is not valid. "
+                             f"Valid modes are 'random' and 'probabilistic'.")
+
+        #: The subsampling mode
+        self.subsample_mode: Literal['random', 'probabilistic'] = subsample_mode
 
     def _get_ancestral(self, variant: Variant | DummyVariant) -> str:
         """
@@ -1064,14 +1076,20 @@ class Parser(MultiHandler):
 
             # Determine down-projected allele count.
             # Here we implicitly assume that the site is bi-allelic.
-            k = self.rng.hypergeometric(ngood=n_samples - n_aa, nbad=n_aa, nsample=self.n)
+            if self.subsample_mode == 'random':
+                m = np.zeros(self.n + 1)
+                k = hypergeom.rvs(M=n_samples, n=n_samples - n_aa, N=self.n, random_state=self.rng)
+                m[k] = 1
+            else:
+                m = hypergeom.pmf(k=range(self.n + 1), M=n_samples, n=n_samples - n_aa, N=self.n)
 
         # if we have a mono-allelic SNPs
         elif is_monomorphic_snp(variant):
             # if we don't have an SNP, we assume the reference allele to be the ancestral allele,
             # so the derived allele count is 0
             # The polarization of monomorphic sites is not important for DFE inference with fastDFE, in any case
-            k = 0
+            m = np.zeros(self.n + 1)
+            m[0] = 1
         else:
             # skip other types of sites
             self._logger.debug(f'Site is not a valid single nucleotide site at {variant.CHROM}:{variant.POS}.')
@@ -1082,8 +1100,8 @@ class Parser(MultiHandler):
             # create joint type
             t = '.'.join([s.get_type(variant) for s in self.stratifications]) or 'all'
 
-            # add count of 1
-            self.sfs[t][k] += 1
+            # add mass
+            self.sfs[t] += m
 
         except NoTypeException as e:
             self._logger.debug(e)

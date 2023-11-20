@@ -495,13 +495,13 @@ class SpectraTestCase(TestCase):
             list(spectra["type1.subtype1.subsubtype1"])
         )
 
-    def test_subsample_spectrum(self):
+    def test_subsample_spectrum_random(self):
         """
         Test whether the subsample method works as expected.
         """
         kingman = Spectrum.standard_kingman(30) * 10000
 
-        sub = kingman.subsample(10)
+        sub = kingman.subsample(10, mode='random')
 
         s = Spectra.from_spectra(dict(
             actual=Spectrum.standard_kingman(10) * 10000,
@@ -515,6 +515,27 @@ class SpectraTestCase(TestCase):
         diff_rel = np.abs(s['actual'].polymorphic - s['subsampled'].polymorphic) / s['actual'].polymorphic
 
         self.assertTrue(np.all(diff_rel < 0.1))
+
+    def test_subsample_spectrum_probabilistic_vs_random(self):
+        """
+        Test random vs probabilistic subsampling.
+        """
+        kingman = Spectrum.standard_kingman(30) * 10000
+
+        sub_random = kingman.subsample(10, mode='random')
+        sub_probabilistic = kingman.subsample(10, mode='probabilistic')
+
+        s = Spectra.from_spectra(dict(
+            actual=Spectrum.standard_kingman(10) * 10000,
+            random=sub_random,
+            probabilistic=sub_probabilistic
+        ))
+
+        s.plot()
+
+        diff_rel = np.abs(s['actual'].polymorphic - s['probabilistic'].polymorphic) / s['probabilistic'].polymorphic
+
+        self.assertTrue(np.all(diff_rel < 1e-15))
 
     def test_larger_subsample_size_raises_value_error(self):
         """
@@ -533,7 +554,7 @@ class SpectraTestCase(TestCase):
             "type1.subtype1.subsubtype2": [1, 4, 12, 4, 5, 6, 7, 8, 9, 10],
         })
 
-        spectra.subsample(7).plot()
+        spectra.subsample(7, mode='random').plot()
 
         # make sure n_sites is the same
         testing.assert_array_equal(spectra.subsample(7).n_sites, spectra.n_sites)

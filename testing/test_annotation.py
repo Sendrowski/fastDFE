@@ -2303,7 +2303,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         s.plot()
 
         # make sure total number of sites is the same
-        self.assertTrue(np.all(s.n_sites == s.n_sites[0]))
+        np.testing.assert_almost_equal(s.n_sites, [s.n_sites[0]] * 3)
 
         # The number of polymorphic sites is very similar as it should
         # If only one outgroup is used, there is a slight over-representation of high-frequency derived alleles
