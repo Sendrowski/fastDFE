@@ -155,20 +155,21 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Parser: Using stratification: [neutral, selected].</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Loading VCF file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/336e1346dbe4.biallelic.polarized.subset.50000.vcf.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Loading GFF file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/2d03158a125f.genome.gff.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Loading FASTA file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/eb1f2b2b0185.genome.subset.1000.fasta.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/336e1346dbe4.biallelic.polarized.subset.50000.vcf.gz</span>
-Counting sites: 50000it [00:01, 33067.14it/s]
-Processing sites: 100%|██████████| 50000/50000 [01:23&lt;00:00, 599.40it/s]
-<span class=" -Color -Color-Green">INFO:fastdfe.PolyAllelicFiltration: Filtered out 0 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyStratification: Number of sites with valid type: 13771</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyAnnotation: Annotated 19002 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Included 13771 out of 50000 sites in total from the VCF file.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:Parser: Using stratification: [neutral, selected].</span>
+<span class=" -Color -Color-Green">INFO:Parser: Loading VCF file</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/70975cbc50c2.biallelic.polarized.subset.50000.vcf.gz</span>
+<span class=" -Color -Color-Green">INFO:Parser: Loading GFF file</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/2d03158a125f.genome.gff.gz</span>
+<span class=" -Color -Color-Green">INFO:Parser: Loading FASTA file</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/eb1f2b2b0185.genome.subset.1000.fasta.gz</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/70975cbc50c2.biallelic.polarized.subset.50000.vcf.gz</span>
+Parser&gt;Counting sites: 50000it [00:01, 29213.10it/s]
+Parser&gt;Processing sites: 100%|██████████| 50000/50000 [01:29&lt;00:00, 561.77it/s]
+<span class=" -Color -Color-Green">INFO:PolyAllelicFiltration: Filtered out 0 sites.</span>
+<span class=" -Color -Color-Green">INFO:DegeneracyStratification: Number of sites with valid type: 13771</span>
+<span class=" -Color -Color-Green">INFO:DegeneracyAnnotation: Annotated 19002 sites.</span>
+<span class=" -Color -Color-Green">INFO:Parser: Skipped 1669 sites without ancestral allele information.</span>
+<span class=" -Color -Color-Green">INFO:Parser: Included 13771 out of 50000 sites in total from the VCF file.</span>
 </pre></div>
 </div>
 </div>
@@ -215,21 +216,22 @@ Processing sites: 100%|██████████| 50000/50000 [01:23&lt;00:
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Parser: Using stratification: [neutral, selected].[A, C, G, T].</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Loading VCF file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/336e1346dbe4.biallelic.polarized.subset.50000.vcf.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Loading GFF file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/2d03158a125f.genome.gff.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Loading FASTA file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/eb1f2b2b0185.genome.subset.1000.fasta.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/336e1346dbe4.biallelic.polarized.subset.50000.vcf.gz</span>
-Counting sites: 50000it [00:01, 33853.21it/s]
-Processing sites: 100%|██████████| 50000/50000 [01:22&lt;00:00, 604.44it/s]
-<span class=" -Color -Color-Green">INFO:fastdfe.PolyAllelicFiltration: Filtered out 0 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyStratification: Number of sites with valid type: 13771</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.AncestralBaseStratification: Number of sites with valid type: 13771</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyAnnotation: Annotated 19002 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Parser: Included 13771 out of 50000 sites in total from the VCF file.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:Parser: Using stratification: [neutral, selected].[A, C, G, T].</span>
+<span class=" -Color -Color-Green">INFO:Parser: Loading VCF file</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/70975cbc50c2.biallelic.polarized.subset.50000.vcf.gz</span>
+<span class=" -Color -Color-Green">INFO:Parser: Loading GFF file</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/2d03158a125f.genome.gff.gz</span>
+<span class=" -Color -Color-Green">INFO:Parser: Loading FASTA file</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/eb1f2b2b0185.genome.subset.1000.fasta.gz</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/70975cbc50c2.biallelic.polarized.subset.50000.vcf.gz</span>
+Parser&gt;Counting sites: 50000it [00:01, 32198.10it/s]
+Parser&gt;Processing sites: 100%|██████████| 50000/50000 [01:26&lt;00:00, 578.26it/s]
+<span class=" -Color -Color-Green">INFO:PolyAllelicFiltration: Filtered out 0 sites.</span>
+<span class=" -Color -Color-Green">INFO:DegeneracyStratification: Number of sites with valid type: 13771</span>
+<span class=" -Color -Color-Green">INFO:AncestralBaseStratification: Number of sites with valid type: 13771</span>
+<span class=" -Color -Color-Green">INFO:DegeneracyAnnotation: Annotated 19002 sites.</span>
+<span class=" -Color -Color-Green">INFO:Parser: Skipped 1666 sites without ancestral allele information.</span>
+<span class=" -Color -Color-Green">INFO:Parser: Included 13771 out of 50000 sites in total from the VCF file.</span>
 </pre></div>
 </div>
 </div>
@@ -272,19 +274,19 @@ Processing sites: 100%|██████████| 50000/50000 [01:22&lt;00:
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Annotator: Start annotating</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Annotator: Loading GFF file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/2d03158a125f.genome.gff.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Annotator: Loading FASTA file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/eb1f2b2b0185.genome.subset.1000.fasta.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Annotator: Loading VCF file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Downloading file from https://github.com/Sendrowski/fastDFE/blob/dev/resources/genome/betula/biallelic.subset.10000.vcf.gz?raw=true</span>
-Downloading file: 100%|██████████| 14.5M/14.5M [00:00&lt;00:00, 25.7MB/s]
-<span class=" -Color -Color-Green">INFO:fastdfe: Cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
-Counting sites: 10000it [00:00, 34263.83it/s]
-Processing sites: 100%|██████████| 10000/10000 [00:02&lt;00:00, 4172.96it/s]
-<span class=" -Color -Color-Green">INFO:fastdfe.DegeneracyAnnotation: Annotated 3566 sites.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:Annotator: Start annotating</span>
+<span class=" -Color -Color-Green">INFO:Annotator: Loading GFF file</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/2d03158a125f.genome.gff.gz</span>
+<span class=" -Color -Color-Green">INFO:Annotator: Loading FASTA file</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/eb1f2b2b0185.genome.subset.1000.fasta.gz</span>
+<span class=" -Color -Color-Green">INFO:Annotator: Loading VCF file</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Downloading file from https://github.com/Sendrowski/fastDFE/blob/dev/resources/genome/betula/biallelic.subset.10000.vcf.gz?raw=true</span>
+Annotator&gt;Downloading file: 100%|██████████| 14.5M/14.5M [00:00&lt;00:00, 36.0MB/s]
+<span class=" -Color -Color-Green">INFO:FileHandler: Cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
+Annotator&gt;Counting sites: 10000it [00:00, 32560.91it/s]
+Annotator&gt;Processing sites: 100%|██████████| 10000/10000 [00:02&lt;00:00, 3796.83it/s]
+<span class=" -Color -Color-Green">INFO:DegeneracyAnnotation: Annotated 3566 sites.</span>
 </pre></div>
 </div>
 </div>
@@ -297,10 +299,10 @@ Processing sites: 100%|██████████| 10000/10000 [00:02&lt;00:
 <div class="cell_input docutils container">
 <div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># example for ancestral allele annotation with outgroups</span>
 <span class="n">ann</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Annotator</span><span class="p">(</span>
-    <span class="n">vcf</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz?raw=true&quot;</span><span class="p">,</span>
+    <span class="n">vcf</span><span class="o">=</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz?raw=true&quot;</span><span class="p">,</span>
     <span class="n">annotations</span><span class="o">=</span><span class="p">[</span><span class="n">fd</span><span class="o">.</span><span class="n">MaximumLikelihoodAncestralAnnotation</span><span class="p">(</span>
-        <span class="n">outgroups</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ERR2103730&quot;</span><span class="p">,</span> <span class="s2">&quot;ERR2103731&quot;</span><span class="p">],</span>
-        <span class="n">n_ingroups</span><span class="o">=</span><span class="mi">15</span>
+        <span class="n">outgroups</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ERR2103730&quot;</span><span class="p">],</span>
+        <span class="n">n_ingroups</span><span class="o">=</span><span class="mi">10</span>
     <span class="p">)],</span>
     <span class="n">output</span><span class="o">=</span><span class="s2">&quot;genome.aa.vcf.gz&quot;</span>
 <span class="p">)</span>
@@ -310,23 +312,21 @@ Processing sites: 100%|██████████| 10000/10000 [00:02&lt;00:
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Annotator: Start annotating</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Annotator: Loading VCF file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Downloading file from https://github.com/Sendrowski/fastDFE/blob/dev/resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz?raw=true</span>
-Downloading file: 100%|██████████| 13.9M/13.9M [00:00&lt;00:00, 18.8MB/s]
-<span class=" -Color -Color-Green">INFO:fastdfe: Cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/d2a32f6ed097.biallelic.with_outgroups.subset.10000.vcf.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Annotator: Loading VCF file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/d2a32f6ed097.biallelic.with_outgroups.subset.10000.vcf.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.MaximumLikelihoodAncestralAnnotation: Subsampling 15 ingroup haplotypes from 377 individuals in total.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.MaximumLikelihoodAncestralAnnotation: Using 2 outgroup samples (ERR2103730, ERR2103731).</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/d2a32f6ed097.biallelic.with_outgroups.subset.10000.vcf.gz</span>
-Counting sites: 10000it [00:00, 35109.53it/s]
-Parsing sites: 100%|██████████| 10000/10000 [00:26&lt;00:00, 377.75it/s]
-<span class=" -Color -Color-Green">INFO:fastdfe.MaximumLikelihoodAncestralAnnotation: Included 7041 sites for the inference.</span>
-Optimizing rates: 100%|██████████| 10/10 [00:02&lt;00:00,  3.51it/s]
-Processing sites: 100%|██████████| 10000/10000 [00:28&lt;00:00, 351.08it/s]
-<span class=" -Color -Color-Green">INFO:fastdfe.MaximumLikelihoodAncestralAnnotation: Annotated 9977 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.MaximumLikelihoodAncestralAnnotation: There were 1374 mismatches between the most likely ancestral allele and the ad-hoc ancestral allele annotation.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:Annotator: Start annotating</span>
+<span class=" -Color -Color-Green">INFO:Annotator: Loading VCF file</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/a3b0e449a317.all.with_outgroups.subset.10000.vcf.gz</span>
+<span class=" -Color -Color-Green">INFO:Annotator: Loading VCF file</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/a3b0e449a317.all.with_outgroups.subset.10000.vcf.gz</span>
+<span class=" -Color -Color-Green">INFO:MaximumLikelihoodAncestralAnnotation: Subsampling 10 ingroup haplotypes from 378 individuals in total.</span>
+<span class=" -Color -Color-Green">INFO:MaximumLikelihoodAncestralAnnotation: Using 1 outgroup samples (ERR2103730).</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/a3b0e449a317.all.with_outgroups.subset.10000.vcf.gz</span>
+Annotator&gt;Counting sites: 10000it [00:00, 84526.45it/s]
+MaximumLikelihoodAncestralAnnotation&gt;Parsing sites: 100%|██████████| 10000/10000 [00:23&lt;00:00, 431.66it/s]
+<span class=" -Color -Color-Green">INFO:MaximumLikelihoodAncestralAnnotation: Included 6689 sites for the inference.</span>
+MaximumLikelihoodAncestralAnnotation&gt;Optimizing rates: 100%|██████████| 10/10 [00:00&lt;00:00, 43.76it/s]
+Annotator&gt;Processing sites: 100%|██████████| 10000/10000 [00:10&lt;00:00, 956.85it/s]
+<span class=" -Color -Color-Green">INFO:MaximumLikelihoodAncestralAnnotation: Annotated 10000 sites.</span>
+<span class=" -Color -Color-Green">INFO:MaximumLikelihoodAncestralAnnotation: There were 0 mismatches between the most likely ancestral allele and the ad-hoc ancestral allele annotation.</span>
 </pre></div>
 </div>
 </div>
@@ -350,14 +350,14 @@ Processing sites: 100%|██████████| 10000/10000 [00:28&lt;00:
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Filterer: Start filtering</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Filterer: Loading VCF file</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
-<span class=" -Color -Color-Green">INFO:fastdfe: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
-Counting sites: 10000it [00:00, 33967.83it/s]
-Processing sites: 100%|██████████| 10000/10000 [00:00&lt;00:00, 11321.98it/s]
-<span class=" -Color -Color-Green">INFO:fastdfe.BiasedGCConversionFiltration: Filtered out 7903 sites.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.Filterer: Filtered out 7903 of 10000 sites in total.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:Filterer: Start filtering</span>
+<span class=" -Color -Color-Green">INFO:Filterer: Loading VCF file</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
+<span class=" -Color -Color-Green">INFO:FileHandler: Using cached file at /var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/7a41c74709e8.biallelic.subset.10000.vcf.gz</span>
+Filterer&gt;Counting sites: 10000it [00:00, 32954.68it/s]
+Filterer&gt;Processing sites: 100%|██████████| 10000/10000 [00:00&lt;00:00, 11243.24it/s]
+<span class=" -Color -Color-Green">INFO:BiasedGCConversionFiltration: Filtered out 7903 sites.</span>
+<span class=" -Color -Color-Green">INFO:Filterer: Filtered out 7903 of 10000 sites in total.</span>
 </pre></div>
 </div>
 </div>

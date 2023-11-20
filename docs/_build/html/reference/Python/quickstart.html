@@ -134,10 +134,10 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:fastdfe.Discretization: Precomputing linear DFE-SFS transformation using midpoint integration.</span>
-<span class=" -Color -Color-Yellow">WARNING:fastdfe.Optimization: The MLE estimate is close to the upper bound for {all.p_b: (0, 0, 0.5)} and lower bound for {}, but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Successfully finished optimization after 69 iterations and 510 function evaluations, obtaining a log-likelihood of -34.6321629044744.</span>
-<span class=" -Color -Color-Green">INFO:fastdfe.BaseInference: Inferred parameters: {all.S_d: -9868.270989289615, all.b: 0.1508097745704915, all.p_b: 0.0, all.S_b: 0.0002191946595685579, all.eps: 0.006854664823870646}.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:Discretization: Precomputing linear DFE-SFS transformation using midpoint integration.</span>
+<span class=" -Color -Color-Yellow">WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.p_b: (0, 0, 0.5)} [(lower, value, upper)], but this might be nothing to worry about.</span>
+<span class=" -Color -Color-Green">INFO:BaseInference: Successfully finished optimization after 71 iterations and 798 function evaluations, obtaining a log-likelihood of -34.632162904367874.</span>
+<span class=" -Color -Color-Green">INFO:BaseInference: Inferred parameters: {all.S_d: -9868.141535825358, all.b: 0.15081002610768834, all.p_b: 0.0, all.S_b: 0.00013748258869574994, all.eps: 0.006854695811121613}.</span>
 </pre></div>
 </div>
 </div>
@@ -151,7 +151,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/1041148e01f541a126e6e153182fff9ce407f6d421a9a7d05eb2c785a188ca9f.png" src="../../_images/1041148e01f541a126e6e153182fff9ce407f6d421a9a7d05eb2c785a188ca9f.png" />
+<img alt="../../_images/119ac0c245957a6a187d4d5483294827c2d1c23aa7e83573dbf30d0fed2d8416.png" src="../../_images/119ac0c245957a6a187d4d5483294827c2d1c23aa7e83573dbf30d0fed2d8416.png" />
 </div>
 </div>
 <p>We can also plot a comparison of the (selected) modelled and observed SFS (cf. <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference.plot_sfs_comparison" title="fastdfe.base_inference.BaseInference.plot_sfs_comparison"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_sfs_comparison()</span></code></a>).</p>
@@ -165,7 +165,7 @@
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 512x384 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../../_images/722642972d36ac6e6f849676940c535baa72f0f49291803a996cfa6e781b4d26.png" src="../../_images/722642972d36ac6e6f849676940c535baa72f0f49291803a996cfa6e781b4d26.png" />
+<img alt="../../_images/ff7c775c8ba6a2ad0ef2f2164c9092b0de7dd9315fb72216c814c94c15d7963a.png" src="../../_images/ff7c775c8ba6a2ad0ef2f2164c9092b0de7dd9315fb72216c814c94c15d7963a.png" />
 </div>
 </div>
 </section>
@@ -182,10 +182,11 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 122.26it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:05&lt;00:00, 19.22it/s]
+<span class=" -Color -Color-Yellow">WARNING:BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
 </pre></div>
 </div>
-<img alt="../../_images/752b7841ba2a547c509d7478aa094af09f796dfe29f3d75f9981d384f3df0a1d.png" src="../../_images/752b7841ba2a547c509d7478aa094af09f796dfe29f3d75f9981d384f3df0a1d.png" />
+<img alt="../../_images/9695889ff47f85d129ca7093514b3ce59f93a271a30f106b8b01fc9a839291d9.png" src="../../_images/9695889ff47f85d129ca7093514b3ce59f93a271a30f106b8b01fc9a839291d9.png" />
 </div>
 </div>
 </section>

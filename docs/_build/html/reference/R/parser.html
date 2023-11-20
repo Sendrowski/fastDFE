@@ -245,10 +245,10 @@
 <div class="cell_input docutils container">
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="c1"># example for ancestral allele annotation with outgroups</span>
 <span class="n">ann</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fd</span><span class="o">$</span><span class="nf">Annotator</span><span class="p">(</span>
-<span class="w">    </span><span class="n">vcf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">paste0</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz?raw=true&quot;</span><span class="p">),</span>
+<span class="w">    </span><span class="n">vcf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">paste0</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz?raw=true&quot;</span><span class="p">),</span>
 <span class="w">    </span><span class="n">annotations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="n">fd</span><span class="o">$</span><span class="nf">MaximumLikelihoodAncestralAnnotation</span><span class="p">(</span>
-<span class="w">        </span><span class="n">outgroups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s">&quot;ERR2103730&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ERR2103731&quot;</span><span class="p">),</span>
-<span class="w">        </span><span class="n">n_ingroups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">15</span>
+<span class="w">        </span><span class="n">outgroups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s">&quot;ERR2103730&quot;</span><span class="p">),</span>
+<span class="w">        </span><span class="n">n_ingroups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span>
 <span class="w">    </span><span class="p">)),</span>
 <span class="w">    </span><span class="n">output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;genome.aa.vcf.gz&quot;</span>
 <span class="p">)</span>
