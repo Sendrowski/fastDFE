@@ -14,6 +14,9 @@ from fastdfe.parametrization import DiscreteParametrization, GammaDiscreteParame
 
 
 class ParametrizationTestCase(TestCase):
+    """
+    Test the parametrization classes.
+    """
     n = 20
 
     config_file = "testing/configs/pendula_C_full_anc/config.yaml"

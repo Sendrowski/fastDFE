@@ -17,7 +17,7 @@ import fastdfe as fd
 
 class FiltrationTestCase(TestCase):
     """
-    Test the filter.
+    Test the filterer and filtration classes.
     """
 
     @staticmethod

@@ -11,6 +11,9 @@ from fastdfe.likelihood import Likelihood
 
 
 class LikelihoodTestCase(TestCase):
+    """
+    Test the Likelihood class.
+    """
 
     def test_stirling_approximation(self):
         """

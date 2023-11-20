@@ -11,6 +11,9 @@ from fastdfe.optimization import Covariate
 
 
 class ConfigTestCase(TestCase):
+    """
+    Test the Config class.
+    """
     maxDiff = None
 
     config_file = "testing/configs/pendula_C_full_anc/config.yaml"

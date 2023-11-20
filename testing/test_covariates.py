@@ -9,6 +9,9 @@ from fastdfe.optimization import Covariate
 
 
 class CovariateTestCase(TestCase):
+    """
+    Test the Covariate class.
+    """
     def custom_apply_callback(self, covariate: float, type: str, params: Dict[str, float]) -> Dict[str, float]:
         modified = params.copy()
         if "a" in params:

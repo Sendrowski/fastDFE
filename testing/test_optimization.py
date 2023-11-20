@@ -18,6 +18,9 @@ from numpy import testing
 
 
 class OptimizationTestCase(TestCase):
+    """
+    Test the Optimization class.
+    """
 
     def test_pack_unpack_restores_dict(self):
         """

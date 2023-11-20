@@ -12,6 +12,9 @@ from fastdfe import spectrum, Spectra, Spectrum
 
 
 class SpectraTestCase(TestCase):
+    """
+    Test the Spectrum and Spectra classes.
+    """
     n = 20
 
     @staticmethod

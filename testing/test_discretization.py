@@ -15,6 +15,9 @@ from fastdfe.discretization import H_fixed, H_fixed_regularized
 
 
 class DiscretizationTestCase(TestCase):
+    """
+    Test the Discretization class.
+    """
     n = 20
 
     @staticmethod

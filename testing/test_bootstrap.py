@@ -11,6 +11,9 @@ from fastdfe.bootstrap import Bootstrap
 
 
 class BootstrapTestCase(TestCase):
+    """
+    Test the Bootstrap class.
+    """
     def test_ci_percentile(self):
         x = np.arange(100)
 

@@ -12,6 +12,9 @@ from testing.test_base_inference import InferenceTestCase
 
 
 class JointInferenceTestCase(InferenceTestCase):
+    """
+    Test the JointInference class.
+    """
     config_file = "testing/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
 
     maxDiff = None
@@ -238,7 +241,6 @@ class JointInferenceTestCase(InferenceTestCase):
         inference.plot_discretized(show_marginals=False)
 
         pass
-
 
     def test_evaluate_likelihood_same_as_mle_results(self):
         """

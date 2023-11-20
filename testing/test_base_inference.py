@@ -21,6 +21,9 @@ import fastdfe as fd
 
 
 class InferenceTestCase(TestCase):
+    """
+    Test inference.
+    """
     def assertEqualInference(self, obj1: object, obj2: object, ignore_keys=[]):
         """
         Compare Inference objects, recursively comparing their attributes.
@@ -73,6 +76,9 @@ class InferenceTestCase(TestCase):
 
 
 class BaseInferenceTestCase(InferenceTestCase):
+    """
+    Test BaseInference.
+    """
     config_file = "testing/configs/pendula_C_full_anc/config.yaml"
     serialized = "testing/fastdfe/pendula_C_full_anc/serialized.json"
 
