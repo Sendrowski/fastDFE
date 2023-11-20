@@ -149,7 +149,7 @@ class FileHandler:
     """
 
     #: The logger instance
-    logger = logger.getChild(__qualname__)
+    _logger = logger.getChild(__qualname__)
 
     def __init__(self, cache: bool = True, aliases: Dict[str, List[str]] = {}):
         """
@@ -268,10 +268,10 @@ class FileHandler:
 
         # check if the file is already cached
         if cache and os.path.exists(path):
-            cls.logger.info(f'Using cached file at {path}')
+            cls._logger.info(f'Using cached file at {path}')
             return path
 
-        cls.logger.info(f'Downloading file from {url}')
+        cls._logger.info(f'Downloading file from {url}')
 
         # start the stream
         response = requests.get(url, stream=True)
@@ -300,7 +300,7 @@ class FileHandler:
         if cache:
             os.rename(tmp.name, path)
 
-            cls.logger.info(f'Cached file at {path}')
+            cls._logger.info(f'Cached file at {path}')
 
             return path
 
@@ -356,7 +356,7 @@ class FASTAHandler(FileHandler):
         :param file: The path to The FASTA file path, possibly gzipped or a URL
         :return: Iterator over the sequences.
         """
-        self.logger.info("Loading FASTA file")
+        self._logger.info("Loading FASTA file")
 
         # download and unzip if necessary
         local_file = self.unzip_if_zipped(self.download_if_url(file))
@@ -391,7 +391,7 @@ class FASTAHandler(FileHandler):
             # if rewind is ``True``, we can rewind the iterator and try again
             if rewind:
                 if notify:
-                    self.logger.info("Rewinding FASTA iterator.")
+                    self._logger.info("Rewinding FASTA iterator.")
 
                 # renew fasta iterator
                 FASTAHandler._rewind(self)
@@ -435,7 +435,7 @@ class GFFHandler(FileHandler):
         FileHandler.__init__(self, cache=cache, aliases=aliases)
 
         #: The logger
-        self.logger = logger.getChild(self.__class__.__name__)
+        self._logger = logger.getChild(self.__class__.__name__)
 
         #: The GFF file path
         self.gff = gff
@@ -458,7 +458,7 @@ class GFFHandler(FileHandler):
 
         :return: The DataFrame.
         """
-        self.logger.info(f'Loading GFF file')
+        self._logger.info(f'Loading GFF file')
 
         # download and unzip if necessary
         local_file = self.unzip_if_zipped(self.download_if_url(self.gff))
@@ -639,7 +639,7 @@ class VCFHandler(FileHandler):
 
         :return: The VCF reader.
         """
-        self.logger.info("Loading VCF file")
+        self._logger.info("Loading VCF file")
 
         return VCF(self.download_if_url(self.vcf))
 

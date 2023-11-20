@@ -28,7 +28,7 @@ class InferenceTestCase(TestCase):
         :param obj2: Second object
         :param ignore_keys: Keys to ignore
         """
-        ignore_keys += ['logger']
+        ignore_keys += ['_logger']
 
         if not hasattr(obj1, '__dict__'):
             self.assertEqual(obj1, obj2)

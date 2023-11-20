@@ -160,12 +160,12 @@ class JointInference(BaseInference):
 
         # throw error if joint inference does not make sense
         if not self.joint_inference_makes_sense():
-            self.logger.warning('Joint inference does not make sense as no parameters are shared '
-                                'across more than one type. If this is not intended consider running '
-                                'several marginal inferences instead, which is more efficient.')
+            self._logger.warning('Joint inference does not make sense as no parameters are shared '
+                                 'across more than one type. If this is not intended consider running '
+                                 'several marginal inferences instead, which is more efficient.')
 
         # issue notice
-        self.logger.info(f'Using shared parameters {self.shared_params}.')
+        self._logger.info(f'Using shared parameters {self.shared_params}.')
 
         #: Covariates indexed by parameter name
         self.covariates: Dict[str, Covariate] = {f"c{i}": cov for i, cov in enumerate(covariates)}
@@ -174,7 +174,7 @@ class JointInference(BaseInference):
         cov_repr = dict((k, dict(param=v.param, values=v.values)) for k, v in self.covariates.items())
 
         # issue notice
-        self.logger.info(f'Including covariates: {cov_repr}.')
+        self._logger.info(f'Including covariates: {cov_repr}.')
 
         # parameter names for covariates
         args_cov = list(self.covariates.keys())
@@ -183,7 +183,7 @@ class JointInference(BaseInference):
         bounds_cov = dict((k, cov.bounds) for k, cov in self.covariates.items())
 
         #: Initial values for covariates
-        self.x0_cov = dict((k, cov.x0) for k, cov in self.covariates.items())
+        self._x0_cov = dict((k, cov.x0) for k, cov in self.covariates.items())
 
         # use linear scale for covariates
         scales_cov = dict((k, cov.bounds_scale) for k, cov in self.covariates.items())
@@ -225,10 +225,10 @@ class JointInference(BaseInference):
 
         #: parameter scales
         self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = \
-            self.model.scales | self.default_scales | scales_cov | scales
+            self.model.scales | self._default_scales | scales_cov | scales
 
         #: parameter bounds
-        self.bounds: Dict[str, Tuple[float, float]] = self.model.bounds | self.default_bounds | bounds | bounds_cov
+        self.bounds: Dict[str, Tuple[float, float]] = self.model.bounds | self._default_bounds | bounds | bounds_cov
 
         # create optimization instance for joint inference
         # take initial values and bounds from marginal inferences
@@ -353,9 +353,9 @@ class JointInference(BaseInference):
 
         # add parameters with covariates to shared parameters
         if len(cov_but_not_shared) > 0:
-            self.logger.info(f'Parameters {cov_but_not_shared} have '
-                             f'covariates and thus need to be shared. '
-                             f'Adding them to shared parameters.')
+            self._logger.info(f'Parameters {cov_but_not_shared} have '
+                              f'covariates and thus need to be shared. '
+                              f'Adding them to shared parameters.')
 
             # add to shared parameters
             self.shared_params.append(SharedParams(params=cov_but_not_shared, types=self.types))
@@ -412,7 +412,7 @@ class JointInference(BaseInference):
             :return: Tuple of type and inference object.
             """
             # issue notice
-            self.logger.info(f"Running marginal inference for type '{data[0]}'.")
+            self._logger.info(f"Running marginal inference for type '{data[0]}'.")
 
             data[1].run_if_required(
                 do_bootstrap=False,
@@ -431,10 +431,10 @@ class JointInference(BaseInference):
 
         # skip marginal inference if only one type was specified
         if len(self.types) == 1:
-            self.logger.info('Skipping marginal inference as only one type was specified.')
+            self._logger.info('Skipping marginal inference as only one type was specified.')
         else:
             # issue notice
-            self.logger.info(f'Running marginal inferences for types {self.types}.')
+            self._logger.info(f'Running marginal inferences for types {self.types}.')
 
         # optionally parallelize marginal inferences
         run_inferences = dict(parallelize_func(
@@ -464,12 +464,12 @@ class JointInference(BaseInference):
         :return: Modelled SFS.
         """
         # issue notice
-        self.logger.info(f'Running joint inference for types {self.types}.')
+        self._logger.info(f'Running joint inference for types {self.types}.')
 
         # issue notice
-        self.logger.debug(f'Starting numerical optimization of {self.n_runs} '
-                          'independently initialized samples which are run ' +
-                          ('in parallel.' if self.parallelize else 'sequentially.'))
+        self._logger.debug(f'Starting numerical optimization of {self.n_runs} '
+                           'independently initialized samples which are run ' +
+                           ('in parallel.' if self.parallelize else 'sequentially.'))
 
         # starting time of joint inference
         start_time = time.time()
@@ -578,7 +578,7 @@ class JointInference(BaseInference):
         other = JointInference.from_config(config)
 
         # issue notice
-        self.logger.info('Running joint inference without covariates.')
+        self._logger.info('Running joint inference without covariates.')
 
         # run inference
         other.run()
@@ -740,7 +740,7 @@ class JointInference(BaseInference):
 
             # bootstrap marginal inferences
             for t, inf in self.marginal_inferences.items():
-                self.logger.info(f"Bootstrapping type '{t}'.")
+                self._logger.info(f"Bootstrapping type '{t}'.")
 
                 inf.bootstrap(
                     n_samples=int(self.n_bootstraps),
@@ -756,11 +756,11 @@ class JointInference(BaseInference):
         # parallelize computations if desired
         if self.parallelize:
 
-            self.logger.debug(f"Running {self.n_bootstraps} joint bootstrap samples "
-                              f"in parallel on {min(mp.cpu_count(), self.n_bootstraps)} cores.")
+            self._logger.debug(f"Running {self.n_bootstraps} joint bootstrap samples "
+                               f"in parallel on {min(mp.cpu_count(), self.n_bootstraps)} cores.")
 
         else:
-            self.logger.debug(f"Running {self.n_bootstraps} joint bootstrap samples sequentially.")
+            self._logger.debug(f"Running {self.n_bootstraps} joint bootstrap samples sequentially.")
 
         # seeds for bootstraps
         seeds = self.rng.integers(0, high=2 ** 32, size=int(self.n_bootstraps))
@@ -779,11 +779,11 @@ class JointInference(BaseInference):
 
         # issue warning if some runs did not finish successfully
         if n_success < self.n_bootstraps:
-            self.logger.warning(f"{self.n_bootstraps - n_success} out of {self.n_bootstraps} bootstrap samples "
-                                "did not terminate normally during numerical optimization. "
-                                "The confidence intervals might thus be unreliable. Consider adjusting "
-                                "the optimization parameters (increasing `gtol` or `n_runs`) "
-                                "or decrease the number of optimized parameters.")
+            self._logger.warning(f"{self.n_bootstraps - n_success} out of {self.n_bootstraps} bootstrap samples "
+                                 "did not terminate normally during numerical optimization. "
+                                 "The confidence intervals might thus be unreliable. Consider adjusting "
+                                 "the optimization parameters (increasing `gtol` or `n_runs`) "
+                                 "or decrease the number of optimized parameters.")
 
         # dataframe of MLE estimates in flattened format
         self.bootstraps = pd.DataFrame([flatten_dict(r) for r in result[:, 1]])
@@ -846,7 +846,7 @@ class JointInference(BaseInference):
         packed = pack_shared(x0, self.shared_params, shared)
 
         # add parameters for covariates and return
-        return merge_dicts(packed, {':'.join(self.types): self.x0_cov})
+        return merge_dicts(packed, {':'.join(self.types): self._x0_cov})
 
     @BaseInference._run_if_required_wrapper
     def perform_lrt_shared(self, do_bootstrap: bool = True) -> float:

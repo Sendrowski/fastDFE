@@ -256,7 +256,7 @@ class PolyDFE(AbstractInference):
                            f"-v 1 > {output_file}")
 
                 # log command signature
-                self.logger.info(f"Running: '{command}'")
+                self._logger.info(f"Running: '{command}'")
 
                 # execute command
                 execute(command)

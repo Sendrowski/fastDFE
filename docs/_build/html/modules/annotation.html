@@ -84,8 +84,6 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">VCF Annotation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.Annotation"><code class="docutils literal notranslate"><span class="pre">Annotation</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.__init__"><code class="docutils literal notranslate"><span class="pre">Annotation.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.logger"><code class="docutils literal notranslate"><span class="pre">Annotation.logger</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.handler"><code class="docutils literal notranslate"><span class="pre">Annotation.handler</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.n_annotated"><code class="docutils literal notranslate"><span class="pre">Annotation.n_annotated</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.annotate_site"><code class="docutils literal notranslate"><span class="pre">Annotation.annotate_site()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.Annotation.count_target_sites"><code class="docutils literal notranslate"><span class="pre">Annotation.count_target_sites()</span></code></a></li>
@@ -93,10 +91,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.__init__"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.cd"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.cd</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.cd_next"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.cd_next</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.cd_prev"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.cd_prev</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.contig"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.contig</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.mismatches"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.mismatches</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.n_skipped"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.n_skipped</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation.errors"><code class="docutils literal notranslate"><span class="pre">DegeneracyAnnotation.errors</span></code></a></li>
@@ -123,7 +117,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.__init__"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.logger"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.logger</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.pool_branch_rates"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.pool_branch_rates</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.fixed_params"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.fixed_params</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.bounds"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.bounds</span></code></a></li>
@@ -131,7 +124,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.get_x0"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.get_x0()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.get_bounds"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.get_bounds()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.validate_bounds"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.validate_bounds()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.SubstitutionModel.get_prob"><code class="docutils literal notranslate"><span class="pre">SubstitutionModel.get_prob()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.JCSubstitutionModel"><code class="docutils literal notranslate"><span class="pre">JCSubstitutionModel</span></code></a><ul>
@@ -181,24 +173,18 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.PolarizationPrior"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.PolarizationPrior.__init__"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.PolarizationPrior.logger"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior.logger</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.PolarizationPrior.allow_divergence"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior.allow_divergence</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.PolarizationPrior.probabilities"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior.probabilities</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.PolarizationPrior.get_prior"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior.get_prior()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.PolarizationPrior.plot"><code class="docutils literal notranslate"><span class="pre">PolarizationPrior.plot()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.KingmanPolarizationPrior"><code class="docutils literal notranslate"><span class="pre">KingmanPolarizationPrior</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.KingmanPolarizationPrior.get_prior"><code class="docutils literal notranslate"><span class="pre">KingmanPolarizationPrior.get_prior()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.KingmanPolarizationPrior"><code class="docutils literal notranslate"><span class="pre">KingmanPolarizationPrior</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.AdaptivePolarizationPrior"><code class="docutils literal notranslate"><span class="pre">AdaptivePolarizationPrior</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.AdaptivePolarizationPrior.__init__"><code class="docutils literal notranslate"><span class="pre">AdaptivePolarizationPrior.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.AdaptivePolarizationPrior.n_runs"><code class="docutils literal notranslate"><span class="pre">AdaptivePolarizationPrior.n_runs</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.AdaptivePolarizationPrior.parallelize"><code class="docutils literal notranslate"><span class="pre">AdaptivePolarizationPrior.parallelize</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.AdaptivePolarizationPrior.seed"><code class="docutils literal notranslate"><span class="pre">AdaptivePolarizationPrior.seed</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.AdaptivePolarizationPrior.rng"><code class="docutils literal notranslate"><span class="pre">AdaptivePolarizationPrior.rng</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.annotation.AdaptivePolarizationPrior.get_prior"><code class="docutils literal notranslate"><span class="pre">AdaptivePolarizationPrior.get_prior()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a><ul>
@@ -287,18 +273,6 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.Annotation.logger">
-<span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#fastdfe.annotation.Annotation.logger" title="Permalink to this definition"></a></dt>
-<dd><p>The logger.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.Annotation.handler">
-<span class="sig-name descname"><span class="pre">handler</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#fastdfe.annotation.Annotator" title="fastdfe.annotation.Annotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotator</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.Annotation.handler" title="Permalink to this definition"></a></dt>
-<dd><p>The annotator.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.annotation.Annotation.n_annotated">
 <span class="sig-name descname"><span class="pre">n_annotated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#fastdfe.annotation.Annotation.n_annotated" title="Permalink to this definition"></a></dt>
 <dd><p>The number of annotated sites.</p>
@@ -378,30 +352,6 @@ of a site (0, 2, 4) and extra information about the degeneracy, respectively. To
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation.cd">
-<span class="sig-name descname"><span class="pre">cd</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.cd" title="Permalink to this definition"></a></dt>
-<dd><p>The current coding sequence or the closest coding sequence downstream.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation.cd_next">
-<span class="sig-name descname"><span class="pre">cd_next</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.cd_next" title="Permalink to this definition"></a></dt>
-<dd><p>The coding sequence following the current coding sequence.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation.cd_prev">
-<span class="sig-name descname"><span class="pre">cd_prev</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.cd_prev" title="Permalink to this definition"></a></dt>
-<dd><p>The coding sequence preceding the current coding sequence.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation.contig">
-<span class="sig-name descname"><span class="pre">contig</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">SeqRecord</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.contig" title="Permalink to this definition"></a></dt>
-<dd><p>The current contig.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.annotation.DegeneracyAnnotation.mismatches">
 <span class="sig-name descname"><span class="pre">mismatches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Variant</span></code><span class="pre">]</span></em><a class="headerlink" href="#fastdfe.annotation.DegeneracyAnnotation.mismatches" title="Permalink to this definition"></a></dt>
 <dd><p>The variants that could not be annotated correctly.</p>
@@ -447,7 +397,7 @@ all cases.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Not recommended for use with <a class="reference internal" href="parser.html#fastdfe.parser.Parser" title="fastdfe.parser.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code></a> as we also need to annotate mono-allelic sites.
-Consider using <code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyAnnotation</span></code> and
+Consider using <a class="reference internal" href="#fastdfe.annotation.DegeneracyAnnotation" title="fastdfe.annotation.DegeneracyAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyAnnotation</span></code></a> and
 <a class="reference internal" href="parser.html#fastdfe.parser.DegeneracyStratification" title="fastdfe.parser.DegeneracyStratification"><code class="xref py py-class docutils literal notranslate"><span class="pre">DegeneracyStratification</span></code></a> instead.</p>
 </div>
 <dl class="py method">
@@ -613,12 +563,6 @@ useful if the number of sites used is small.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.logger">
-<span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.logger" title="Permalink to this definition"></a></dt>
-<dd><p>The logger.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.pool_branch_rates">
 <span class="sig-name descname"><span class="pre">pool_branch_rates</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.pool_branch_rates" title="Permalink to this definition"></a></dt>
 <dd><p>Whether to pool the branch rates.</p>
@@ -697,28 +641,6 @@ useful if the number of sites used is small.</p></li>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If the bounds are invalid</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.annotation.SubstitutionModel.get_prob">
-<span class="sig-name descname"><span class="pre">get_prob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.SubstitutionModel.get_prob" title="Permalink to this definition"></a></dt>
-<dd><p>Get the probability of a branch using the substitution model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>b1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – First nucleotide state.</p></li>
-<li><p><strong>b2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Second nucleotide state.</p></li>
-<li><p><strong>i</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the branch.</p></li>
-<li><p><strong>params</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The parameters for the model.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The probability of the branch.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -987,7 +909,7 @@ useful if the number of sites used is small.</p></li>
 <dt class="sig sig-object py" id="fastdfe.annotation.BaseType">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BaseType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.BaseType" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
-<p>The base type.</p>
+<p>The base type, either major or minor.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.annotation.BaseType.MINOR">
 <span class="sig-name descname"><span class="pre">MINOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#fastdfe.annotation.BaseType.MINOR" title="Permalink to this definition"></a></dt>
@@ -1026,12 +948,6 @@ subsample.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.annotation.PolarizationPrior.logger">
-<span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#fastdfe.annotation.PolarizationPrior.logger" title="Permalink to this definition"></a></dt>
-<dd><p>The logger.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.annotation.PolarizationPrior.allow_divergence">
 <span class="sig-name descname"><span class="pre">allow_divergence</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#fastdfe.annotation.PolarizationPrior.allow_divergence" title="Permalink to this definition"></a></dt>
 <dd><p>Whether to allow divergence.</p>
@@ -1041,23 +957,6 @@ subsample.</p>
 <dt class="sig sig-object py" id="fastdfe.annotation.PolarizationPrior.probabilities">
 <span class="sig-name descname"><span class="pre">probabilities</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">,</span> <span class="pre">(</span><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code><span class="pre">,</span> <span class="pre">)]]</span></em><a class="headerlink" href="#fastdfe.annotation.PolarizationPrior.probabilities" title="Permalink to this definition"></a></dt>
 <dd><p>The polarization probabilities.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.annotation.PolarizationPrior.get_prior">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ingroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.PolarizationPrior.get_prior" title="Permalink to this definition"></a></dt>
-<dd><p>Get the polarization probabilities.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>configs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – The site configurations.</p></li>
-<li><p><strong>n_ingroups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of ingroups.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1092,23 +991,6 @@ subsample.</p>
 <dd><p>Bases: <a class="reference internal" href="#fastdfe.annotation.PolarizationPrior" title="fastdfe.annotation.PolarizationPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolarizationPrior</span></code></a></p>
 <p>Prior based on the standard Kingman coalescent. To be used with 
 <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumLikelihoodAncestralAnnotation</span></code></a>.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.annotation.KingmanPolarizationPrior.get_prior">
-<span class="sig-name descname"><span class="pre">get_prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ingroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.KingmanPolarizationPrior.get_prior" title="Permalink to this definition"></a></dt>
-<dd><p>Get the polarization probabilities.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>configs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – The site configurations.</p></li>
-<li><p><strong>n_ingroups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of ingroups.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -1160,26 +1042,6 @@ run should be sufficient as only one parameter is optimized.</p></li>
 <dt class="sig sig-object py" id="fastdfe.annotation.AdaptivePolarizationPrior.rng">
 <span class="sig-name descname"><span class="pre">rng</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code></em><a class="headerlink" href="#fastdfe.annotation.AdaptivePolarizationPrior.rng" title="Permalink to this definition"></a></dt>
 <dd><p>The random number generator.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="fastdfe.annotation.AdaptivePolarizationPrior.get_prior">
-<span class="sig-name descname"><span class="pre">get_prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ingroups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.annotation.AdaptivePolarizationPrior.get_prior" title="Permalink to this definition"></a></dt>
-<dd><p>Get the polarization probabilities.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>configs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – The site configurations.</p></li>
-<li><p><strong>n_ingroups</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of ingroups.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, (<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, )]</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The polarization probabilities.</p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>

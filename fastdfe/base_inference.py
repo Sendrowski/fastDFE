@@ -75,22 +75,22 @@ class BaseInference(AbstractInference):
     """
 
     #: Default parameters not connected to the DFE parametrization
-    default_x0 = dict(
+    _default_x0 = dict(
         eps=0.0
     )
 
     #: Default parameter bounds not connected to the DFE parametrization
-    default_bounds = dict(
+    _default_bounds = dict(
         eps=(0, 0.15)
     )
 
     #: Default scales for the parameters not connected to the DFE parametrization
-    default_scales = dict(
+    _default_scales = dict(
         eps='lin'
     )
 
     #: Default options for the maximum likelihood optimization
-    default_opts_mle = dict(
+    _default_opts_mle = dict(
         # ftol=1e-10,
         # gtol=1e-10
     )
@@ -217,8 +217,8 @@ class BaseInference(AbstractInference):
 
         # raise warning if theta is unusually large
         if self.theta > 0.05 or self.sfs_sel.theta > 0.05:
-            self.logger.warning("Mutation rate appears unusually high. "
-                                "This is a reminder to provide monomorphic site counts.")
+            self._logger.warning("Mutation rate appears unusually high. "
+                                 "This is a reminder to provide monomorphic site counts.")
 
         #: MLE estimates of the initial optimization
         self.params_mle: Optional[Dict[str, float]] = None
@@ -257,10 +257,10 @@ class BaseInference(AbstractInference):
         self.check_fixed_params_exist()
 
         #: parameter scales
-        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = self.model.scales | self.default_scales | scales
+        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = self.model.scales | self._default_scales | scales
 
         #: parameter bounds
-        self.bounds: Dict[str, Tuple[float, float]] = self.model.bounds | self.default_bounds | bounds
+        self.bounds: Dict[str, Tuple[float, float]] = self.model.bounds | self._default_bounds | bounds
 
         if optimization is None:
             # create optimization instance
@@ -269,7 +269,7 @@ class BaseInference(AbstractInference):
             self.optimization: Optimization = Optimization(
                 bounds=self.bounds,
                 scales=self.scales,
-                opts_mle=self.default_opts_mle | opts_mle,
+                opts_mle=self._default_opts_mle | opts_mle,
                 loss_type=loss_type,
                 param_names=self.param_names,
                 parallelize=self.parallelize,
@@ -286,12 +286,12 @@ class BaseInference(AbstractInference):
             fixed = set(self.fixed_params['all'].keys()) if 'all' in self.fixed_params else set()
 
             if not fixed_dele.issubset(fixed):
-                self.logger.warning("You are estimating the full DFE, but the SFS are folded. "
-                                    "This is not recommend as the folded SFS contains little information "
-                                    "on beneficial mutations.")
+                self._logger.warning("You are estimating the full DFE, but the SFS are folded. "
+                                     "This is not recommend as the folded SFS contains little information "
+                                     "on beneficial mutations.")
 
         #: Initial values
-        self.x0 = dict(all=self.model.x0 | self.default_x0 | (x0['all'] if 'all' in x0 else {}))
+        self.x0 = dict(all=self.model.x0 | self._default_x0 | (x0['all'] if 'all' in x0 else {}))
 
         #: Bootstrapped MLE parameter estimates
         self.bootstraps: Optional[pd.DataFrame] = None
@@ -356,11 +356,11 @@ class BaseInference(AbstractInference):
         :return: DFE parametrization and modelled SFS.
         """
         if self.execution_time == 0:
-            self.logger.debug('Inference needs to be run first, triggering run.')
+            self._logger.debug('Inference needs to be run first, triggering run.')
 
             return self.run(*args, **kwargs)
 
-        self.logger.debug('Inference already run, not running again.')
+        self._logger.debug('Inference already run, not running again.')
 
     @staticmethod
     def _run_if_required_wrapper(func):
@@ -414,9 +414,9 @@ class BaseInference(AbstractInference):
         )
 
         # perform MLE
-        self.logger.debug(f'Starting numerical optimization of {self.n_runs} '
-                          'independently initialized samples which are run ' +
-                          ('in parallel.' if self.parallelize else 'sequentially.'))
+        self._logger.debug(f'Starting numerical optimization of {self.n_runs} '
+                           'independently initialized samples which are run ' +
+                           ('in parallel.' if self.parallelize else 'sequentially.'))
 
         # Access cached property to trigger potential pre-computation
         # of linearization. This is necessary if the optimization is
@@ -529,19 +529,19 @@ class BaseInference(AbstractInference):
         """
         # report on optimization result
         if result.success:
-            self.logger.info(f"Successfully finished optimization after {result.nit} iterations "
-                             f"and {result.nfev} function evaluations, obtaining a log-likelihood "
-                             f"of -{result.fun}.")
+            self._logger.info(f"Successfully finished optimization after {result.nit} iterations "
+                              f"and {result.nfev} function evaluations, obtaining a log-likelihood "
+                              f"of -{result.fun}.")
         else:
-            self.logger.warning("Numerical optimization did not terminate normally, so "
-                                "the result might be unreliable. Consider adjusting "
-                                "the optimization parameters (increasing `gtol` or `n_runs`) "
-                                "or decrease the number of optimized parameters.")
+            self._logger.warning("Numerical optimization did not terminate normally, so "
+                                 "the result might be unreliable. Consider adjusting "
+                                 "the optimization parameters (increasing `gtol` or `n_runs`) "
+                                 "or decrease the number of optimized parameters.")
 
         # param string for MLE params
         param_string = str(flatten_dict(params)).replace('\'', '')
 
-        self.logger.info(f"Inferred parameters: {param_string}.")
+        self._logger.info(f"Inferred parameters: {param_string}.")
 
     def update_properties(self, **kwargs) -> Self:
         """
@@ -590,11 +590,11 @@ class BaseInference(AbstractInference):
         # parallelize computations if desired
         if self.parallelize:
 
-            self.logger.debug(f"Running {self.n_bootstraps} bootstrap samples "
-                              f"in parallel on {min(mp.cpu_count(), self.n_bootstraps)} cores.")
+            self._logger.debug(f"Running {self.n_bootstraps} bootstrap samples "
+                               f"in parallel on {min(mp.cpu_count(), self.n_bootstraps)} cores.")
 
         else:
-            self.logger.debug(f"Running {self.n_bootstraps} bootstrap samples sequentially.")
+            self._logger.debug(f"Running {self.n_bootstraps} bootstrap samples sequentially.")
 
         # seeds for bootstraps
         seeds = self.rng.integers(0, high=2 ** 32, size=int(self.n_bootstraps))
@@ -613,11 +613,11 @@ class BaseInference(AbstractInference):
 
         # issue warning if some runs did not finish successfully
         if n_success < self.n_bootstraps:
-            self.logger.warning(f"{self.n_bootstraps - n_success} out of {self.n_bootstraps} bootstrap samples "
-                                "did not terminate normally during numerical optimization. "
-                                "The confidence intervals might thus be unreliable. Consider adjusting "
-                                "the optimization parameters (increasing `gtol` or `n_runs`) "
-                                "or decrease the number of optimized parameters.")
+            self._logger.warning(f"{self.n_bootstraps - n_success} out of {self.n_bootstraps} bootstrap samples "
+                                 "did not terminate normally during numerical optimization. "
+                                 "The confidence intervals might thus be unreliable. Consider adjusting "
+                                 "the optimization parameters (increasing `gtol` or `n_runs`) "
+                                 "or decrease the number of optimized parameters.")
 
             # dataframe of MLE estimates
         self.bootstraps = pd.DataFrame([r['all'] for r in result[:, 1]])
@@ -641,7 +641,7 @@ class BaseInference(AbstractInference):
         """
         Add estimates for alpha to the bootstraps.
         """
-        self.logger.debug('Computing estimates for alpha.')
+        self._logger.debug('Computing estimates for alpha.')
 
         # add alpha estimates
         self.bootstraps['alpha'] = self.bootstraps.apply(lambda r: self.get_alpha(dict(r)), axis=1)
@@ -774,7 +774,6 @@ class BaseInference(AbstractInference):
         how counts_neut is perturbed relative to the standard coalescent.
         The polarization error is also included here.
 
-        :param n: Sample size.
         :param sfs_neut: Observed spectrum of neutral sites.
         :param counts_sel: Modelled counts of selected sites.
         :param eps: Rate of ancestral misidentification.
@@ -909,7 +908,7 @@ class BaseInference(AbstractInference):
         """
         # issue warning
         if not self.discretization.linearized:
-            self.logger.warning('Note that the interval density is not important if the DFE was not linearized.')
+            self._logger.warning('Note that the interval density is not important if the DFE was not linearized.')
 
         return Visualization.plot_interval_density(
             density=self.discretization.get_interval_density(intervals),
@@ -1144,9 +1143,9 @@ class BaseInference(AbstractInference):
         lr = -2 * (ll_simple - ll_complex)
 
         # issue info message
-        self.logger.info(f"Simple model likelihood: {ll_simple}, "
-                         f"complex model likelihood: {ll_complex}, "
-                         f"degrees of freedom: {df}.")
+        self._logger.info(f"Simple model likelihood: {ll_simple}, "
+                          f"complex model likelihood: {ll_complex}, "
+                          f"degrees of freedom: {df}.")
 
         return chi2.sf(lr, int(df))
 
@@ -1206,7 +1205,7 @@ class BaseInference(AbstractInference):
             inference._set_fixed_params(params)
 
             # inform about fixed parameters
-            self.logger.info(f'Holding parameters fixed to {params}.')
+            self._logger.info(f'Holding parameters fixed to {params}.')
 
             # run inference
             inference.run()

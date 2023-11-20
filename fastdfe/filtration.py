@@ -50,10 +50,10 @@ class Filtration(ABC):
         Initialize filtration.
         """
         #: The logger.
-        self.logger = logger.getChild(self.__class__.__name__)
+        self._logger = logger.getChild(self.__class__.__name__)
 
         #: The handler.
-        self.handler: MultiHandler | None = None
+        self._handler: MultiHandler | None = None
 
     @abstractmethod
     @_count_filtered
@@ -72,7 +72,7 @@ class Filtration(ABC):
 
         :param handler: The handler.
         """
-        self.handler = handler
+        self._handler = handler
 
     def _rewind(self):
         """
@@ -84,7 +84,7 @@ class Filtration(ABC):
         """
         Perform any necessary post-processing. This method is called after the actual filtration.
         """
-        self.logger.info(f"Filtered out {self.n_filtered} sites.")
+        self._logger.info(f"Filtered out {self.n_filtered} sites.")
 
 
 class MaskedFiltration(Filtration, ABC):
@@ -127,23 +127,23 @@ class MaskedFiltration(Filtration, ABC):
         """
         from .parser import Parser
 
-        if self.use_parser and isinstance(self.handler, Parser):
+        if self.use_parser and isinstance(self._handler, Parser):
 
             # use samples mask from parser
-            self._samples_mask = self.handler._samples_mask
+            self._samples_mask = self._handler._samples_mask
 
         else:
 
             # determine samples to include
             if self.include_samples is None:
 
-                mask = np.ones(len(self.handler._reader.samples)).astype(bool)
+                mask = np.ones(len(self._handler._reader.samples)).astype(bool)
             else:
-                mask = np.isin(self.handler._reader.samples, self.include_samples)
+                mask = np.isin(self._handler._reader.samples, self.include_samples)
 
             # determine samples to exclude
             if self.exclude_samples is not None:
-                mask &= ~np.isin(self.handler._reader.samples, self.exclude_samples)
+                mask &= ~np.isin(self._handler._reader.samples, self.exclude_samples)
 
             # set samples mask only if not all samples are included
             if not np.all(mask):
@@ -307,7 +307,7 @@ class CodingSequenceFiltration(Filtration):
         :param v: The variant to filter.
         :return: ``True`` if the variant is in a coding sequence, ``False`` otherwise.
         """
-        aliases = self.handler.get_aliases(v.CHROM)
+        aliases = self._handler.get_aliases(v.CHROM)
 
         # if self.cd is None or not on the same chromosome or ends before the variant
         if self.cd is None or self.cd.seqid not in aliases or v.POS > self.cd.end:
@@ -320,21 +320,21 @@ class CodingSequenceFiltration(Filtration):
             })
 
             # find coding sequences downstream
-            cds = self.handler._cds[self.handler._cds['seqid'].isin(aliases) & (self.handler._cds['end'] >= v.POS)]
+            cds = self._handler._cds[self._handler._cds['seqid'].isin(aliases) & (self._handler._cds['end'] >= v.POS)]
 
             if not cds.empty:
                 # take the first coding sequence
                 self.cd = cds.iloc[0]
 
                 if self.cd.start == v.POS:
-                    self.logger.debug(f'Found coding sequence for {v.CHROM}:{v.POS}.')
+                    self._logger.debug(f'Found coding sequence for {v.CHROM}:{v.POS}.')
                 else:
-                    self.logger.debug(f'Found coding sequence downstream of {v.CHROM}:{v.POS}.')
+                    self._logger.debug(f'Found coding sequence downstream of {v.CHROM}:{v.POS}.')
 
             if self.n_processed == 0 and self.cd.start == DegeneracyAnnotation._pos_mock:
-                self.logger.warning(f'No subsequent coding sequence found on the same contig as the first variant. '
-                                    f'Please make sure this is the correct GFF file with contig names matching '
-                                    f'the VCF file. You can use the aliases parameter to match contig names.')
+                self._logger.warning(f'No subsequent coding sequence found on the same contig as the first variant. '
+                                     f'Please make sure this is the correct GFF file with contig names matching '
+                                     f'the VCF file. You can use the aliases parameter to match contig names.')
 
         self.n_processed += 1
 
@@ -657,7 +657,7 @@ class Filterer(MultiHandler):
         """
         Filter the VCF.
         """
-        self.logger.info('Start filtering')
+        self._logger.info('Start filtering')
 
         # setup filtrations
         self._setup()
@@ -682,4 +682,4 @@ class Filterer(MultiHandler):
         # teardown filtrations
         self._teardown()
 
-        self.logger.info(f'Filtered out {self.n_filtered} of {self.n_sites} sites in total.')
+        self._logger.info(f'Filtered out {self.n_filtered} of {self.n_sites} sites in total.')

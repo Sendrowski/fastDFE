@@ -60,7 +60,7 @@ class Stratification(ABC):
         """
         Create instance.
         """
-        self.logger = logger.getChild(self.__class__.__name__)
+        self._logger = logger.getChild(self.__class__.__name__)
 
         #: Parser instance
         self.parser: Optional['Parser'] = None
@@ -87,7 +87,7 @@ class Stratification(ABC):
         """
         Perform any necessary post-processing.
         """
-        self.logger.info(f"Number of sites with valid type: {self.n_valid}")
+        self._logger.info(f"Number of sites with valid type: {self.n_valid}")
 
     @abstractmethod
     def get_type(self, variant: Variant | DummyVariant) -> Optional[str]:
@@ -125,8 +125,8 @@ class SNPStratification(Stratification, ABC):
         super()._setup(parser)
 
         # issue warning if we have an SNP stratification
-        self.logger.warning(f"{self.__class__.__name__} can only handle SNPs and not mono-allelic sites. "
-                            "This means you have to update the number of mono-allelic sites manually.")
+        self._logger.warning(f"{self.__class__.__name__} can only handle SNPs and not mono-allelic sites. "
+                             "This means you have to update the number of mono-allelic sites manually.")
 
 
 class BaseContextStratification(Stratification, FASTAHandler):
@@ -191,7 +191,7 @@ class BaseContextStratification(Stratification, FASTAHandler):
 
         # check if contig is up-to-date
         if self.contig is None or self.contig.id not in aliases:
-            self.logger.debug(f"Fetching contig '{variant.CHROM}'.")
+            self._logger.debug(f"Fetching contig '{variant.CHROM}'.")
 
             # fetch contig
             self.contig = self.get_contig(aliases)
@@ -611,7 +611,7 @@ class TargetSiteCounter:
             (depending on the stratifications used).
         """
         #: The logger
-        self.logger = logger.getChild(self.__class__.__name__)
+        self._logger = logger.getChild(self.__class__.__name__)
 
         #: The total number of sites considered when parsing the VCF
         self.n_target_sites: int | None = int(n_target_sites)
@@ -632,15 +632,15 @@ class TargetSiteCounter:
 
         # check if we have a SNPFiltration
         if not any([isinstance(f, SNPFiltration) for f in self.parser.filtrations]):
-            self.logger.warning("Recommended to use a SNPFiltration when using target site "
-                                "counter to avoid biasing the result by monomorphic sites.")
+            self._logger.warning("Recommended to use a SNPFiltration when using target site "
+                                 "counter to avoid biasing the result by monomorphic sites.")
 
         # check if have degeneracy stratification but no degeneracy annotation
         if any([isinstance(s, DegeneracyStratification) for s in self.parser.stratifications]) \
                 and not any([isinstance(a, DegeneracyAnnotation) for a in self.parser.annotations]):
-            self.logger.warning("When using TargetSiteCounter with DegeneracyStratification, "
-                                "make sure to provide DegeneracyAnnotation to make sure the "
-                                "sites sampled from the FASTA file also have a degeneracy tag.")
+            self._logger.warning("When using TargetSiteCounter with DegeneracyStratification, "
+                                 "make sure to provide DegeneracyAnnotation to make sure the "
+                                 "sites sampled from the FASTA file also have a degeneracy tag.")
 
     def _teardown(self):
         """
@@ -718,7 +718,7 @@ class TargetSiteCounter:
             # make sure we have a valid range
             if bounds[1] > bounds[0] and n > 0:
 
-                self.logger.debug(f"Sampling {n} sites from contig '{contig}'.")
+                self._logger.debug(f"Sampling {n} sites from contig '{contig}'.")
 
                 # fetch contig
                 record = self.parser.get_contig(aliases, notify=False)
@@ -754,7 +754,7 @@ class TargetSiteCounter:
         self._teardown()
 
         # notify on number of sites included in the SFS
-        self.logger.info(f"{i} out of {self.n_samples} sampled sites were valid.")
+        self._logger.info(f"{i} out of {self.n_samples} sampled sites were valid.")
 
     def _update_target_sites(self, spectra: Spectra) -> Spectra:
         """
@@ -776,15 +776,15 @@ class TargetSiteCounter:
 
         # check if we have enough target sites
         if self.n_target_sites < n_polymorphic:
-            self.logger.warning(f"Number of polymorphic sites ({n_polymorphic}) exceeds the "
-                                f"number of target sites ({self.n_target_sites}) which does not make sense. "
-                                f"We leave the number of target sites unchanged. "
-                                f"Please remember to modify the number of target sites accordingly "
-                                f"if your VCF file contains only contains polymorphic sites.")
+            self._logger.warning(f"Number of polymorphic sites ({n_polymorphic}) exceeds the "
+                                 f"number of target sites ({self.n_target_sites}) which does not make sense. "
+                                 f"We leave the number of target sites unchanged. "
+                                 f"Please remember to modify the number of target sites accordingly "
+                                 f"if your VCF file contains only contains polymorphic sites.")
         elif n_monomorphic == 0:
-            self.logger.warning(f"Number of monomorphic sites is zero which should only happen "
-                                f"if there are very few sites considered. Failed to update "
-                                f"the number of target sites.")
+            self._logger.warning(f"Number of monomorphic sites is zero which should only happen "
+                                 f"if there are very few sites considered. Failed to update "
+                                 f"the number of target sites.")
         else:
 
             # compute multiplicative factor to scale the total number of sites
@@ -1046,7 +1046,7 @@ class Parser(MultiHandler):
 
             # skip if not enough samples
             if n_samples < self.n:
-                self.logger.debug(f'Skipping site due to too few samples at {variant.CHROM}:{variant.POS}.')
+                self._logger.debug(f'Skipping site due to too few samples at {variant.CHROM}:{variant.POS}.')
                 return False
 
             try:
@@ -1074,7 +1074,7 @@ class Parser(MultiHandler):
             k = 0
         else:
             # skip other types of sites
-            self.logger.debug(f'Site is not a valid single nucleotide site at {variant.CHROM}:{variant.POS}.')
+            self._logger.debug(f'Site is not a valid single nucleotide site at {variant.CHROM}:{variant.POS}.')
             return False
 
         # try to obtain type
@@ -1086,7 +1086,7 @@ class Parser(MultiHandler):
             self.sfs[t][k] += 1
 
         except NoTypeException as e:
-            self.logger.debug(e)
+            self._logger.debug(e)
             return False
 
         return True
@@ -1141,7 +1141,7 @@ class Parser(MultiHandler):
         representation = '.'.join(['[' + ', '.join(s.get_types()) + ']' for s in self.stratifications]) or "[all]"
 
         # log the stratifications
-        self.logger.info(f'Using stratification: {representation}.')
+        self._logger.info(f'Using stratification: {representation}.')
 
         # prepare samples mask
         self._prepare_samples_mask()
@@ -1227,22 +1227,22 @@ class Parser(MultiHandler):
 
         # inform about number of sites without ancestral tag
         if self.n_no_ancestral > 0:
-            self.logger.info(f'Skipped {self.n_no_ancestral} sites without ancestral allele information.')
+            self._logger.info(f'Skipped {self.n_no_ancestral} sites without ancestral allele information.')
 
         if len(self.sfs) == 0:
-            self.logger.warning(f"No sites were included in the spectra. If this is not expected, "
-                                "please check that all components work as expected. You can also "
-                                "set the log level to DEBUG.")
+            self._logger.warning(f"No sites were included in the spectra. If this is not expected, "
+                                 "please check that all components work as expected. You can also "
+                                 "set the log level to DEBUG.")
 
             # warn that sites might not be polarized
             if self.skip_non_polarized and not any(isinstance(a, AncestralAlleleAnnotation) for a in self.annotations):
-                self.logger.warning("Your variants might not be polarized and thus not included in the spectra. "
-                                    "If this is the case, consider using an ancestral allele annotation or setting "
-                                    "'skip_non_polarized' to False.")
+                self._logger.warning("Your variants might not be polarized and thus not included in the spectra. "
+                                     "If this is the case, consider using an ancestral allele annotation or setting "
+                                     "'skip_non_polarized' to False.")
         else:
             n_included = self.n_sites - self.n_skipped
 
-            self.logger.info(f'Included {n_included} out of {self.n_sites} sites in total from the VCF file.')
+            self._logger.info(f'Included {n_included} out of {self.n_sites} sites in total from the VCF file.')
 
         # close VCF reader
         VCFHandler._rewind(self)

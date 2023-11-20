@@ -77,10 +77,6 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Inference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#fastdfe.base_inference.BaseInference"><code class="docutils literal notranslate"><span class="pre">BaseInference</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.default_x0"><code class="docutils literal notranslate"><span class="pre">BaseInference.default_x0</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.default_bounds"><code class="docutils literal notranslate"><span class="pre">BaseInference.default_bounds</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.default_scales"><code class="docutils literal notranslate"><span class="pre">BaseInference.default_scales</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.default_opts_mle"><code class="docutils literal notranslate"><span class="pre">BaseInference.default_opts_mle</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.__init__"><code class="docutils literal notranslate"><span class="pre">BaseInference.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.sfs_neut"><code class="docutils literal notranslate"><span class="pre">BaseInference.sfs_neut</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.base_inference.BaseInference.sfs_sel"><code class="docutils literal notranslate"><span class="pre">BaseInference.sfs_sel</span></code></a></li>
@@ -163,7 +159,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.params_mle_raw"><code class="docutils literal notranslate"><span class="pre">JointInference.params_mle_raw</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.shared_params"><code class="docutils literal notranslate"><span class="pre">JointInference.shared_params</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.covariates"><code class="docutils literal notranslate"><span class="pre">JointInference.covariates</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.x0_cov"><code class="docutils literal notranslate"><span class="pre">JointInference.x0_cov</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.fixed_params"><code class="docutils literal notranslate"><span class="pre">JointInference.fixed_params</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.marginal_inferences"><code class="docutils literal notranslate"><span class="pre">JointInference.marginal_inferences</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.scales"><code class="docutils literal notranslate"><span class="pre">JointInference.scales</span></code></a></li>
@@ -200,10 +195,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.check_fixed_params_exist"><code class="docutils literal notranslate"><span class="pre">JointInference.check_fixed_params_exist()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.compare_nested"><code class="docutils literal notranslate"><span class="pre">JointInference.compare_nested()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.compare_nested_models"><code class="docutils literal notranslate"><span class="pre">JointInference.compare_nested_models()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.default_bounds"><code class="docutils literal notranslate"><span class="pre">JointInference.default_bounds</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.default_opts_mle"><code class="docutils literal notranslate"><span class="pre">JointInference.default_opts_mle</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.default_scales"><code class="docutils literal notranslate"><span class="pre">JointInference.default_scales</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.default_x0"><code class="docutils literal notranslate"><span class="pre">JointInference.default_x0</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.evaluate_likelihood"><code class="docutils literal notranslate"><span class="pre">JointInference.evaluate_likelihood()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.from_config"><code class="docutils literal notranslate"><span class="pre">JointInference.from_config()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fastdfe.joint_inference.JointInference.from_config_file"><code class="docutils literal notranslate"><span class="pre">JointInference.from_config_file()</span></code></a></li>
@@ -355,30 +346,6 @@ Note that BaseInference is by default seeded.</p>
 <span class="n">inf</span><span class="o">.</span><span class="n">plot_sfs_comparison</span><span class="p">()</span>
 </pre></div>
 </div>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.base_inference.BaseInference.default_x0">
-<span class="sig-name descname"><span class="pre">default_x0</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'eps':</span> <span class="pre">0.0}</span></em><a class="headerlink" href="#fastdfe.base_inference.BaseInference.default_x0" title="Permalink to this definition"></a></dt>
-<dd><p>Default parameters not connected to the DFE parametrization</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.base_inference.BaseInference.default_bounds">
-<span class="sig-name descname"><span class="pre">default_bounds</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'eps':</span> <span class="pre">(0,</span> <span class="pre">0.15)}</span></em><a class="headerlink" href="#fastdfe.base_inference.BaseInference.default_bounds" title="Permalink to this definition"></a></dt>
-<dd><p>Default parameter bounds not connected to the DFE parametrization</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.base_inference.BaseInference.default_scales">
-<span class="sig-name descname"><span class="pre">default_scales</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'eps':</span> <span class="pre">'lin'}</span></em><a class="headerlink" href="#fastdfe.base_inference.BaseInference.default_scales" title="Permalink to this definition"></a></dt>
-<dd><p>Default scales for the parameters not connected to the DFE parametrization</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.base_inference.BaseInference.default_opts_mle">
-<span class="sig-name descname"><span class="pre">default_opts_mle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#fastdfe.base_inference.BaseInference.default_opts_mle" title="Permalink to this definition"></a></dt>
-<dd><p>Default options for the maximum likelihood optimization</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="fastdfe.base_inference.BaseInference.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sfs_neut:</span> <span class="pre">fastdfe.spectrum.Spectra</span> <span class="pre">|</span> <span class="pre">fastdfe.spectrum.Spectrum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sfs_sel:</span> <span class="pre">fastdfe.spectrum.Spectra</span> <span class="pre">|</span> <span class="pre">fastdfe.spectrum.Spectrum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals_del:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span> <span class="pre">=</span> <span class="pre">(-100000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">-1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals_ben:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span> <span class="pre">=</span> <span class="pre">(1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">10000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_mode:</span> <span class="pre">typing.Literal['midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'quad']</span> <span class="pre">=</span> <span class="pre">'midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linearized:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">fastdfe.parametrization.Parametrization</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GammaExpParametrization'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Tuple[float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Literal['lin'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'log'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'symlog']]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type:</span> <span class="pre">typing.Literal['likelihood'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'L2']</span> <span class="pre">=</span> <span class="pre">'likelihood'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts_mle:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_runs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_params:</span> <span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_bootstrap:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bootstraps:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallelize:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folded:</span> <span class="pre">typing.Optional[bool]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discretization:</span> <span class="pre">typing.Optional[fastdfe.discretization.Discretization]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization:</span> <span class="pre">typing.Optional[fastdfe.optimization.Optimization]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locked:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastdfe.base_inference.BaseInference.__init__" title="Permalink to this definition"></a></dt>
@@ -1493,12 +1460,6 @@ SFS appear to be folded.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.joint_inference.JointInference.x0_cov">
-<span class="sig-name descname"><span class="pre">x0_cov</span></span><a class="headerlink" href="#fastdfe.joint_inference.JointInference.x0_cov" title="Permalink to this definition"></a></dt>
-<dd><p>Initial values for covariates</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="fastdfe.joint_inference.JointInference.fixed_params">
 <span class="sig-name descname"><span class="pre">fixed_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict[str,</span> <span class="pre">Dict[str,</span> <span class="pre">float]]</span></em><a class="headerlink" href="#fastdfe.joint_inference.JointInference.fixed_params" title="Permalink to this definition"></a></dt>
 <dd><p>fixed parameters with expanded ‘all’ type</p>
@@ -2056,30 +2017,6 @@ model using likelihood ratio tests.</p>
 <dd class="field-odd"><p>Matrix of p-values, dict of base inference objects</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.joint_inference.JointInference.default_bounds">
-<span class="sig-name descname"><span class="pre">default_bounds</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'eps':</span> <span class="pre">(0,</span> <span class="pre">0.15)}</span></em><a class="headerlink" href="#fastdfe.joint_inference.JointInference.default_bounds" title="Permalink to this definition"></a></dt>
-<dd><p>Default parameter bounds not connected to the DFE parametrization</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.joint_inference.JointInference.default_opts_mle">
-<span class="sig-name descname"><span class="pre">default_opts_mle</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#fastdfe.joint_inference.JointInference.default_opts_mle" title="Permalink to this definition"></a></dt>
-<dd><p>Default options for the maximum likelihood optimization</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.joint_inference.JointInference.default_scales">
-<span class="sig-name descname"><span class="pre">default_scales</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'eps':</span> <span class="pre">'lin'}</span></em><a class="headerlink" href="#fastdfe.joint_inference.JointInference.default_scales" title="Permalink to this definition"></a></dt>
-<dd><p>Default scales for the parameters not connected to the DFE parametrization</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="fastdfe.joint_inference.JointInference.default_x0">
-<span class="sig-name descname"><span class="pre">default_x0</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'eps':</span> <span class="pre">0.0}</span></em><a class="headerlink" href="#fastdfe.joint_inference.JointInference.default_x0" title="Permalink to this definition"></a></dt>
-<dd><p>Default parameters not connected to the DFE parametrization</p>
 </dd></dl>
 
 <dl class="py method">

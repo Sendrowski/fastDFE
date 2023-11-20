@@ -661,7 +661,7 @@ class ParserTestCase(TestCase):
         )
 
         # set log level to DEBUG
-        p.target_site_counter.logger.setLevel(logging.DEBUG)
+        p.target_site_counter._logger.setLevel(logging.DEBUG)
 
         sfs = p.parse()
 

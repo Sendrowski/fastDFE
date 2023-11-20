@@ -69,7 +69,7 @@ class AnnotationTestCase(TestCase):
 
         for test_case in cases:
             annotation = fd.MaximumParsimonyAncestralAnnotation(samples=test_case["ingroups"])
-            annotation.handler = mock_annotator
+            annotation._handler = mock_annotator
 
             # mock the VCF reader with samples
             mock_reader = MagicMock()
@@ -88,7 +88,7 @@ class AnnotationTestCase(TestCase):
             annotation.annotate_site(mock_variant)
 
             # check if the result matches the expectation
-            assert mock_variant.INFO[annotation.handler.info_ancestral] == test_case["expected"]
+            assert mock_variant.INFO[annotation._handler.info_ancestral] == test_case["expected"]
 
     def test_maximum_parsimony_annotation_get_ancestral(self):
         """
@@ -2127,7 +2127,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
             ann.outgroups = test_case["outgroups"]
             ann.ingroups = test_case["ingroups"]
-            ann.handler = mock_annotator
+            ann._handler = mock_annotator
 
             # prepare masks
             ann._prepare_masks(test_case["samples"])
@@ -2146,7 +2146,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             ann.annotate_site(variant)
 
             # check if the result matches the expectation
-            self.assertEqual(variant.INFO[ann.handler.info_ancestral], test_case["expected"])
+            self.assertEqual(variant.INFO[ann._handler.info_ancestral], test_case["expected"])
 
     def test_is_confident(self):
         """

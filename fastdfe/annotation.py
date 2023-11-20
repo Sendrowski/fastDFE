@@ -75,10 +75,10 @@ class Annotation(ABC):
         Create a new annotation instance.
         """
         #: The logger.
-        self.logger = logger.getChild(self.__class__.__name__)
+        self._logger = logger.getChild(self.__class__.__name__)
 
         #: The annotator.
-        self.handler: Annotator | None = None
+        self._handler: Annotator | None = None
 
         #: The number of annotated sites.
         self.n_annotated: int = 0
@@ -89,7 +89,7 @@ class Annotation(ABC):
 
         :param handler: The handler.
         """
-        self.handler = handler
+        self._handler = handler
 
     def _rewind(self):
         """
@@ -101,7 +101,7 @@ class Annotation(ABC):
         """
         Finalize the annotation. Called after all sites have been annotated.
         """
-        self.logger.info(f'Annotated {self.n_annotated} sites.')
+        self._logger.info(f'Annotated {self.n_annotated} sites.')
 
     @abstractmethod
     def annotate_site(self, variant: Variant | DummyVariant):
@@ -174,16 +174,16 @@ class DegeneracyAnnotation(Annotation):
         Annotation.__init__(self)
 
         #: The current coding sequence or the closest coding sequence downstream.
-        self.cd: Optional[pd.Series] = None
+        self._cd: Optional[pd.Series] = None
 
         #: The coding sequence following the current coding sequence.
-        self.cd_next: Optional[pd.Series] = None
+        self._cd_next: Optional[pd.Series] = None
 
         #: The coding sequence preceding the current coding sequence.
-        self.cd_prev: Optional[pd.Series] = None
+        self._cd_prev: Optional[pd.Series] = None
 
         #: The current contig.
-        self.contig: Optional[SeqRecord] = None
+        self._contig: Optional[SeqRecord] = None
 
         #: The variants that could not be annotated correctly.
         self.mismatches: List[Variant] = []
@@ -209,10 +209,10 @@ class DegeneracyAnnotation(Annotation):
 
         # touch the cached properties to make for a nicer logging experience
         # noinspection PyStatementEffect
-        self.handler._cds
+        self._handler._cds
 
         # noinspection PyStatementEffect
-        self.handler._ref
+        self._handler._ref
 
         handler._reader.add_info_to_header({
             'ID': 'Degeneracy',
@@ -234,10 +234,10 @@ class DegeneracyAnnotation(Annotation):
         """
         Annotation._rewind(self)
 
-        self.cd = None
-        self.cd_next = None
-        self.cd_prev = None
-        self.contig = None
+        self._cd = None
+        self._cd_next = None
+        self._cd_prev = None
+        self._contig = None
 
     def _parse_codon_forward(self, variant: Variant | DummyVariant):
         """
@@ -247,7 +247,7 @@ class DegeneracyAnnotation(Annotation):
         :return: Codon, Codon position, Codon start position, Position within codon, and relative position.
         """
         # position relative to start of coding sequence
-        pos_rel = variant.POS - (self.cd.start + int(self.cd.phase))
+        pos_rel = variant.POS - (self._cd.start + int(self._cd.phase))
 
         # position relative to codon
         pos_codon = pos_rel % 3
@@ -258,32 +258,32 @@ class DegeneracyAnnotation(Annotation):
         # the codon positions
         codon_pos = [codon_start, codon_start + 1, codon_start + 2]
 
-        if (self.cd_prev is None or self.cd_next.start == self._pos_mock) and codon_pos[0] < self.cd.start:
+        if (self._cd_prev is None or self._cd_next.start == self._pos_mock) and codon_pos[0] < self._cd.start:
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
                              f'start position of current CDS and no previous CDS was given.')
 
         # Use final positions from previous coding sequence if current codon
         # starts before start position of current coding sequence
-        if codon_pos[1] == self.cd.start:
-            codon_pos[0] = self.cd_prev.end if self.cd_prev.strand == '+' else self.cd_prev.start
-        elif codon_pos[2] == self.cd.start:
-            codon_pos[1] = self.cd_prev.end if self.cd_prev.strand == '+' else self.cd_prev.start
-            codon_pos[0] = self.cd_prev.end - 1 if self.cd_prev.strand == '+' else self.cd_prev.start + 1
+        if codon_pos[1] == self._cd.start:
+            codon_pos[0] = self._cd_prev.end if self._cd_prev.strand == '+' else self._cd_prev.start
+        elif codon_pos[2] == self._cd.start:
+            codon_pos[1] = self._cd_prev.end if self._cd_prev.strand == '+' else self._cd_prev.start
+            codon_pos[0] = self._cd_prev.end - 1 if self._cd_prev.strand == '+' else self._cd_prev.start + 1
 
-        if (self.cd_next is None or self.cd_next.start == self._pos_mock) and codon_pos[2] > self.cd.end:
+        if (self._cd_next is None or self._cd_next.start == self._pos_mock) and codon_pos[2] > self._cd.end:
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
                              f'end position of current CDS and no subsequent CDS was given.')
 
         # use initial positions from subsequent coding sequence if current codon
         # ends before end position of current coding sequence
-        if codon_pos[2] == self.cd.end + 1:
-            codon_pos[2] = self.cd_next.start if self.cd_next.strand == '+' else self.cd_next.end
-        elif codon_pos[1] == self.cd.end + 1:
-            codon_pos[1] = self.cd_next.start if self.cd_next.strand == '+' else self.cd_next.end
-            codon_pos[2] = self.cd_next.start + 1 if self.cd_next.strand == '+' else self.cd_next.end - 1
+        if codon_pos[2] == self._cd.end + 1:
+            codon_pos[2] = self._cd_next.start if self._cd_next.strand == '+' else self._cd_next.end
+        elif codon_pos[1] == self._cd.end + 1:
+            codon_pos[1] = self._cd_next.start if self._cd_next.strand == '+' else self._cd_next.end
+            codon_pos[2] = self._cd_next.start + 1 if self._cd_next.strand == '+' else self._cd_next.end - 1
 
         # seq uses 0-based positions
-        codon = ''.join([str(self.contig[int(pos - 1)]) for pos in codon_pos]).upper()
+        codon = ''.join([str(self._contig[int(pos - 1)]) for pos in codon_pos]).upper()
 
         return codon, codon_pos, codon_start, pos_codon, pos_rel
 
@@ -295,7 +295,7 @@ class DegeneracyAnnotation(Annotation):
         :return: Codon, Codon position, Codon start position, Position within codon, and relative position.
         """
         # position relative to end of coding sequence
-        pos_rel = (self.cd.end - int(self.cd.phase)) - variant.POS
+        pos_rel = (self._cd.end - int(self._cd.phase)) - variant.POS
 
         # position relative to codon end
         pos_codon = pos_rel % 3
@@ -306,32 +306,32 @@ class DegeneracyAnnotation(Annotation):
         # the codon positions
         codon_pos = [codon_start, codon_start - 1, codon_start - 2]
 
-        if (self.cd_prev is None or self.cd_next.start == self._pos_mock) and codon_pos[2] < self.cd.start:
+        if (self._cd_prev is None or self._cd_next.start == self._pos_mock) and codon_pos[2] < self._cd.start:
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
                              f'start position of current CDS and no previous CDS was given.')
 
         # Use final positions from previous coding sequence if current codon
         # ends before start position of current coding sequence.
-        if codon_pos[1] == self.cd.start:
-            codon_pos[2] = self.cd_prev.end if self.cd_prev.strand == '-' else self.cd_prev.start
-        elif codon_pos[0] == self.cd.start:
-            codon_pos[1] = self.cd_prev.end if self.cd_prev.strand == '-' else self.cd_prev.start
-            codon_pos[2] = self.cd_prev.end - 1 if self.cd_prev.strand == '-' else self.cd_prev.start + 1
+        if codon_pos[1] == self._cd.start:
+            codon_pos[2] = self._cd_prev.end if self._cd_prev.strand == '-' else self._cd_prev.start
+        elif codon_pos[0] == self._cd.start:
+            codon_pos[1] = self._cd_prev.end if self._cd_prev.strand == '-' else self._cd_prev.start
+            codon_pos[2] = self._cd_prev.end - 1 if self._cd_prev.strand == '-' else self._cd_prev.start + 1
 
-        if (self.cd_next is None or self.cd_next.start == self._pos_mock) and codon_pos[0] > self.cd.end:
+        if (self._cd_next is None or self._cd_next.start == self._pos_mock) and codon_pos[0] > self._cd.end:
             raise IndexError(f'Codon at site {variant.CHROM}:{variant.POS} overlaps with '
                              f'end position of current CDS and no subsequent CDS was given.')
 
         # use initial positions from subsequent coding sequence if current codon
         # starts before end position of current coding sequence
-        if codon_pos[0] == self.cd.end + 1:
-            codon_pos[0] = self.cd_next.start if self.cd_next.strand == '-' else self.cd_next.end
-        elif codon_pos[1] == self.cd.end + 1:
-            codon_pos[1] = self.cd_next.start if self.cd_next.strand == '-' else self.cd_next.end
-            codon_pos[0] = self.cd_next.start + 1 if self.cd_next.strand == '-' else self.cd_next.end - 1
+        if codon_pos[0] == self._cd.end + 1:
+            codon_pos[0] = self._cd_next.start if self._cd_next.strand == '-' else self._cd_next.end
+        elif codon_pos[1] == self._cd.end + 1:
+            codon_pos[1] = self._cd_next.start if self._cd_next.strand == '-' else self._cd_next.end
+            codon_pos[0] = self._cd_next.start + 1 if self._cd_next.strand == '-' else self._cd_next.end - 1
 
         # we use 0-based positions here
-        codon = ''.join(str(self.contig[int(pos - 1)]) for pos in codon_pos)
+        codon = ''.join(str(self._contig[int(pos - 1)]) for pos in codon_pos)
 
         # take complement and convert to uppercase ('n' might be lowercase)
         codon = str(Seq(codon).complement()).upper()
@@ -346,7 +346,7 @@ class DegeneracyAnnotation(Annotation):
         :return: Codon, Codon position, Codon start position, Position within codon, and relative position.
         """
 
-        if self.cd.strand == '+':
+        if self._cd.strand == '+':
             return self._parse_codon_forward(variant)
 
         return self._parse_codon_backward(variant)
@@ -398,54 +398,54 @@ class DegeneracyAnnotation(Annotation):
         :raises LookupError: If no coding sequence was found.
         """
         # get the aliases for the current chromosome
-        aliases = self.handler.get_aliases(v.CHROM)
+        aliases = self._handler.get_aliases(v.CHROM)
 
         # only fetch coding sequence if we are on a new chromosome or the
         # variant is not within the current coding sequence
-        if self.cd is None or self.cd.seqid not in aliases or v.POS > self.cd.end:
+        if self._cd is None or self._cd.seqid not in aliases or v.POS > self._cd.end:
 
             # reset coding sequences to mocking positions
-            self.cd_prev = None
-            self.cd = pd.Series({'seqid': v.CHROM, 'start': self._pos_mock, 'end': self._pos_mock})
-            self.cd_next = pd.Series({'seqid': v.CHROM, 'start': self._pos_mock, 'end': self._pos_mock})
+            self._cd_prev = None
+            self._cd = pd.Series({'seqid': v.CHROM, 'start': self._pos_mock, 'end': self._pos_mock})
+            self._cd_next = pd.Series({'seqid': v.CHROM, 'start': self._pos_mock, 'end': self._pos_mock})
 
             # filter for the current chromosome
-            on_contig = self.handler._cds[(self.handler._cds.seqid.isin(aliases))]
+            on_contig = self._handler._cds[(self._handler._cds.seqid.isin(aliases))]
 
             # filter for positions ending after the variant
             cds = on_contig[(on_contig.end >= v.POS)]
 
             if not cds.empty:
                 # take the first coding sequence
-                self.cd = cds.iloc[0]
+                self._cd = cds.iloc[0]
 
-                self.logger.debug(f'Found coding sequence: {self.cd.seqid}:{self.cd.start}-{self.cd.end}, '
-                                  f'reminder: {(self.cd.end - self.cd.start + 1) % 3}, '
-                                  f'phase: {int(self.cd.phase)}, orientation: {self.cd.strand}, '
-                                  f'current position: {v.CHROM}:{v.POS}')
+                self._logger.debug(f'Found coding sequence: {self._cd.seqid}:{self._cd.start}-{self._cd.end}, '
+                                   f'reminder: {(self._cd.end - self._cd.start + 1) % 3}, '
+                                   f'phase: {int(self._cd.phase)}, orientation: {self._cd.strand}, '
+                                   f'current position: {v.CHROM}:{v.POS}')
 
                 # filter for positions ending after the current coding sequence
-                cds = on_contig[(on_contig.start > self.cd.end)]
+                cds = on_contig[(on_contig.start > self._cd.end)]
 
                 if not cds.empty:
                     # take the first coding sequence
-                    self.cd_next = cds.iloc[0]
+                    self._cd_next = cds.iloc[0]
 
                 # filter for positions starting before the current coding sequence
-                cds = on_contig[(on_contig.end < self.cd.start)]
+                cds = on_contig[(on_contig.end < self._cd.start)]
 
                 if not cds.empty:
                     # take the last coding sequence
-                    self.cd_prev = cds.iloc[-1]
+                    self._cd_prev = cds.iloc[-1]
 
-            if self.cd.start == self._pos_mock and self.n_annotated == 0:
-                self.logger.warning(f"No coding sequence found on all of contig '{v.CHROM}' and no previous "
-                                    f'sites were annotated. Are you sure that this is the correct GFF file '
-                                    f'and that the contig names match the chromosome names in the VCF file? '
-                                    f'Note that you can also specify aliases for contig names in the VCF file.')
+            if self._cd.start == self._pos_mock and self.n_annotated == 0:
+                self._logger.warning(f"No coding sequence found on all of contig '{v.CHROM}' and no previous "
+                                     f'sites were annotated. Are you sure that this is the correct GFF file '
+                                     f'and that the contig names match the chromosome names in the VCF file? '
+                                     f'Note that you can also specify aliases for contig names in the VCF file.')
 
         # check if variant is located within coding sequence
-        if self.cd is None or not (self.cd.start <= v.POS <= self.cd.end):
+        if self._cd is None or not (self._cd.start <= v.POS <= self._cd.end):
             raise LookupError(f"No coding sequence found, skipping record {v.CHROM}:{v.POS}")
 
     def _fetch_contig(self, v: Variant | DummyVariant):
@@ -454,14 +454,14 @@ class DegeneracyAnnotation(Annotation):
 
         :param v: The variant to fetch the contig for.
         """
-        aliases = self.handler.get_aliases(v.CHROM)
+        aliases = self._handler.get_aliases(v.CHROM)
 
         # check if contig is up-to-date
-        if self.contig is None or self.contig.id not in aliases:
-            self.logger.debug(f"Fetching contig '{v.CHROM}'.")
+        if self._contig is None or self._contig.id not in aliases:
+            self._logger.debug(f"Fetching contig '{v.CHROM}'.")
 
             # fetch contig
-            self.contig = self.handler.get_contig(aliases)
+            self._contig = self._handler.get_contig(aliases)
 
     def _fetch(self, variant: Variant | DummyVariant):
         """
@@ -476,7 +476,7 @@ class DegeneracyAnnotation(Annotation):
             self._fetch_contig(variant)
         except LookupError:
             # log error as this should not happen
-            self.logger.warning(f"Could not fetch contig '{variant.CHROM}'.")
+            self._logger.warning(f"Could not fetch contig '{variant.CHROM}'.")
             raise
 
     def annotate_site(self, v: Variant | DummyVariant):
@@ -499,7 +499,7 @@ class DegeneracyAnnotation(Annotation):
             return
 
         # annotate if record is in coding sequence
-        if self.cd.seqid in self.handler.get_aliases(v.CHROM) and self.cd.start <= v.POS <= self.cd.end:
+        if self._cd.seqid in self._handler.get_aliases(v.CHROM) and self._cd.start <= v.POS <= self._cd.end:
 
             try:
                 # parse codon
@@ -508,13 +508,13 @@ class DegeneracyAnnotation(Annotation):
             except IndexError as e:
 
                 # skip site on IndexError
-                self.logger.warning(e)
+                self._logger.warning(e)
                 self.errors.append(v)
                 return
 
             # make sure the reference allele matches with the position on the reference genome
-            if str(self.contig[v.POS - 1]).upper() != v.REF.upper():
-                self.logger.warning(f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}.")
+            if str(self._contig[v.POS - 1]).upper() != v.REF.upper():
+                self._logger.warning(f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}.")
                 self.mismatches.append(v)
                 return
 
@@ -526,13 +526,13 @@ class DegeneracyAnnotation(Annotation):
                 self.n_annotated += 1
 
             v.INFO['Degeneracy'] = degeneracy
-            v.INFO['Degeneracy_Info'] = f"{pos_codon},{self.cd.strand},{codon}"
+            v.INFO['Degeneracy_Info'] = f"{pos_codon},{self._cd.strand},{codon}"
 
-            self.logger.debug(f'pos codon: {pos_codon}, pos abs: {v.POS}, '
-                              f'codon start: {codon_start}, codon: {codon}, '
-                              f'strand: {self.cd.strand}, ref allele: {self.contig[v.POS - 1]}, '
-                              f'degeneracy: {degeneracy}, codon pos: {str(codon_pos)}, '
-                              f'ref allele: {v.REF}')
+            self._logger.debug(f'pos codon: {pos_codon}, pos abs: {v.POS}, '
+                               f'codon start: {codon_start}, codon: {codon}, '
+                               f'strand: {self._cd.strand}, ref allele: {self._contig[v.POS - 1]}, '
+                               f'degeneracy: {degeneracy}, codon pos: {str(codon_pos)}, '
+                               f'ref allele: {v.REF}')
 
 
 class SynonymyAnnotation(DegeneracyAnnotation):
@@ -590,10 +590,10 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
         # touch the cached properties to make for a nicer logging experience
         # noinspection PyStatementEffect
-        self.handler._cds
+        self._handler._cds
 
         # noinspection PyStatementEffect
-        self.handler._ref
+        self._handler._ref
 
         handler._reader.add_info_to_header({
             'ID': 'Synonymy',
@@ -619,7 +619,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         if len(variant.ALT) > 0:
 
             # assume there is at most one alternative allele
-            if self.cd.strand == '-':
+            if self._cd.strand == '-':
                 return Seq(variant.ALT[0]).complement().__str__()
 
             return variant.ALT[0]
@@ -664,7 +664,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
         if match is not None:
             if len(match.groups()) != 2:
-                self.logger.info(f'VEP annotation has more than two codons: {variant.INFO.get("CSQ")}')
+                self._logger.info(f'VEP annotation has more than two codons: {variant.INFO.get("CSQ")}')
 
             return [m.upper() for m in [match[1], match[2]]]
 
@@ -693,10 +693,10 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         super()._teardown()
 
         if self.n_vep_comparisons != 0:
-            self.logger.info(f'Number of mismatches with VEP: {len(self.vep_mismatches)}')
+            self._logger.info(f'Number of mismatches with VEP: {len(self.vep_mismatches)}')
 
         if self.n_snpeff_comparisons != 0:
-            self.logger.info(f'Number of mismatches with SnpEff: {len(self.snpeff_mismatches)}')
+            self._logger.info(f'Number of mismatches with SnpEff: {len(self.snpeff_mismatches)}')
 
     def annotate_site(self, v: Variant | DummyVariant):
         """
@@ -715,7 +715,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
                 return
 
             # annotate if record is in coding sequence
-            if self.cd.start <= v.POS <= self.cd.end:
+            if self._cd.start <= v.POS <= self._cd.end:
 
                 try:
                     # parse codon
@@ -724,13 +724,13 @@ class SynonymyAnnotation(DegeneracyAnnotation):
                 except IndexError as e:
 
                     # skip site on IndexError
-                    self.logger.warning(e)
+                    self._logger.warning(e)
                     self.errors.append(v)
                     return
 
                 # make sure the reference allele matches with the position in the reference genome
-                if str(self.contig[v.POS - 1]).upper() != v.REF.upper():
-                    self.logger.warning(f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}.")
+                if str(self._contig[v.POS - 1]).upper() != v.REF.upper():
+                    self._logger.warning(f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}.")
                     self.mismatches.append(v)
                     return
 
@@ -769,8 +769,8 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
                             # make sure the codons determined by VEP are the same as our codons.
                             if set(codons_vep) != {codon, alt_codon}:
-                                self.logger.warning(f'VEP codons do not match with codons determined by '
-                                                    f'codon table for {v.CHROM}:{v.POS}')
+                                self._logger.warning(f'VEP codons do not match with codons determined by '
+                                                     f'codon table for {v.CHROM}:{v.POS}')
 
                                 self.vep_mismatches.append(v)
                                 return
@@ -782,8 +782,8 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
                     if synonymy_snpeff is not None:
                         if synonymy_snpeff != synonymy:
-                            self.logger.warning(f'SnpEff annotation does not match with custom '
-                                                f'annotation for {v.CHROM}:{v.POS}')
+                            self._logger.warning(f'SnpEff annotation does not match with custom '
+                                                 f'annotation for {v.CHROM}:{v.POS}')
 
                             self.snpeff_mismatches.append(v)
                             return
@@ -810,7 +810,7 @@ class AncestralAlleleAnnotation(Annotation, ABC):
         super()._setup(handler)
 
         handler._reader.add_info_to_header({
-            'ID': self.handler.info_ancestral,
+            'ID': self._handler.info_ancestral,
             'Number': '.',
             'Type': 'Character',
             'Description': 'Ancestral Allele'
@@ -866,9 +866,9 @@ class MaximumParsimonyAncestralAnnotation(AncestralAlleleAnnotation):
         :return: The annotated variant.
         """
         # assign the ancestral allele
-        variant.INFO[self.handler.info_ancestral] = self._get_ancestral(variant, self.samples_mask)
+        variant.INFO[self._handler.info_ancestral] = self._get_ancestral(variant, self.samples_mask)
 
-        if variant.INFO[self.handler.info_ancestral] != '.':
+        if variant.INFO[self._handler.info_ancestral] != '.':
             # increase the number of annotated sites
             self.n_annotated += 1
 
@@ -931,7 +931,7 @@ class SubstitutionModel(ABC):
         :param fixed_params: The fixed parameters. Parameters that are not fixed are optimized using MLE.
         """
         #: The logger.
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self._logger = logging.getLogger(self.__class__.__name__)
 
         # validate bounds
         self.validate_bounds(bounds)
@@ -1014,9 +1014,9 @@ class SubstitutionModel(ABC):
         """
         pass
 
-    def get_prob(self, b1: int, b2: int, i: int, params: Dict[str, float]) -> float:
+    def _get_cached_prob(self, b1: int, b2: int, i: int, params: Dict[str, float]) -> float:
         """
-        Get the probability of a branch using the substitution model.
+        Get the probability of a branch using the substitution model with caching.
 
         :param b1: First nucleotide state.
         :param b2: Second nucleotide state.
@@ -1361,7 +1361,7 @@ class PolarizationPrior(ABC):
             subsample.
         """
         #: The logger.
-        self.logger = logger.getChild(self.__class__.__name__)
+        self._logger = logger.getChild(self.__class__.__name__)
 
         #: Whether to allow divergence.
         self.allow_divergence: bool = allow_divergence
@@ -1384,7 +1384,7 @@ class PolarizationPrior(ABC):
             self.probabilities[-1] = 0
 
     @abstractmethod
-    def get_prior(self, configs: pd.DataFrame, n_ingroups: int) -> np.ndarray:
+    def _get_prior(self, configs: pd.DataFrame, n_ingroups: int) -> np.ndarray:
         """
         Get the polarization probabilities.
         
@@ -1433,7 +1433,7 @@ class KingmanPolarizationPrior(PolarizationPrior):
     :class:`MaximumLikelihoodAncestralAnnotation`.
     """
 
-    def get_prior(self, configs: pd.DataFrame, n_ingroups: int) -> np.ndarray:
+    def _get_prior(self, configs: pd.DataFrame, n_ingroups: int) -> np.ndarray:
         """
         Get the polarization probabilities.
 
@@ -1491,7 +1491,7 @@ class AdaptivePolarizationPrior(PolarizationPrior):
         #: The random number generator.
         self.rng: np.random.Generator = np.random.default_rng(seed=self.seed)
 
-    def get_prior(
+    def _get_prior(
             self,
             configs: pd.DataFrame,
             n_ingroups: int
@@ -1571,12 +1571,12 @@ class AdaptivePolarizationPrior(PolarizationPrior):
             # get the number of bad frequency bins
             n_bad = np.sum((probs == 0) | (probs == 1))
 
-            self.logger.fatal(f"Polarization probabilities are 0 for {n_bad} frequency bins which "
-                              f"can be a real problem as it means that there are no sites "
-                              f"for those bins. This may be due to ``n_ingroups`` "
-                              f"being too large, or the number of provided sites being very "
-                              f"small. If you can't increase the number of sites or decrease "
-                              f"``n_ingroups``, consider using a the Kingman prior instead.")
+            self._logger.fatal(f"Polarization probabilities are 0 for {n_bad} frequency bins which "
+                               f"can be a real problem as it means that there are no sites "
+                               f"for those bins. This may be due to ``n_ingroups`` "
+                               f"being too large, or the number of provided sites being very "
+                               f"small. If you can't increase the number of sites or decrease "
+                               f"``n_ingroups``, consider using a the Kingman prior instead.")
 
         # if the number of ingroups is even
         if n_ingroups % 2 == 0:
@@ -1722,11 +1722,11 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         self._outgroup_indices = np.array([samples.index(outgroup) for outgroup in self.outgroups])
 
         # inform of the number of ingroups
-        self.logger.info(f"Subsampling {self.n_ingroups} ingroup haplotypes "
-                         f"from {np.sum(self._ingroup_mask)} individuals in total.")
+        self._logger.info(f"Subsampling {self.n_ingroups} ingroup haplotypes "
+                          f"from {np.sum(self._ingroup_mask)} individuals in total.")
 
         # inform on outgroup samples
-        self.logger.info(f"Using {np.sum(self._outgroup_mask)} outgroup samples ({', '.join(self.outgroups)}).")
+        self._logger.info(f"Using {np.sum(self._outgroup_mask)} outgroup samples ({', '.join(self.outgroups)}).")
 
     def _setup(self, handler: MultiHandler):
         """
@@ -1738,14 +1738,14 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 
         # add info field
         handler._reader.add_info_to_header({
-            'ID': self.handler.info_ancestral + '_info',
+            'ID': self._handler.info_ancestral + '_info',
             'Number': '.',
             'Type': 'String',
             'Description': 'Additional information about the ancestral allele.'
         })
 
         # set reader
-        self._reader = self.handler.load_vcf()
+        self._reader = self._handler.load_vcf()
 
         # prepare masks
         self._prepare_masks(handler._reader.samples)
@@ -2072,14 +2072,14 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
         # check that we have enough ingroups specified if specified at all
         if ingroups is not None and len(ingroups) * 2 < n_ingroups:
-            self.logger.warning("The number of specified ingroup samples is smaller than the "
-                                "number of ingroups (assumed diploidy). Please make sure to "
-                                "provide sufficiently many ingroups.")
+            self._logger.warning("The number of specified ingroup samples is smaller than the "
+                                 "number of ingroups (assumed diploidy). Please make sure to "
+                                 "provide sufficiently many ingroups.")
 
         # raise warning on bias
         if confidence_threshold > 0:
-            self.logger.warning("Please be aware that a confidence threshold of greater than 0 biases the SFS "
-                                "towards fewer high-frequency derived alleles.")
+            self._logger.warning("Please be aware that a confidence threshold of greater than 0 biases the SFS "
+                                 "towards fewer high-frequency derived alleles.")
 
         #: Whether to parallelize the computation.
         self.parallelize: bool = parallelize
@@ -2150,7 +2150,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             if self.n_target_sites is None:
                 self.n_target_sites = handler.target_site_counter.n_target_sites
 
-                self.logger.debug(f"Using n_target_sites={self.n_target_sites} from Parser.")
+                self._logger.debug(f"Using n_target_sites={self.n_target_sites} from Parser.")
 
         if self.n_target_sites is not None:
             # check that we have a fasta file if we sample mono-allelic sites
@@ -2164,7 +2164,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             self._sample_mono_allelic_sites()
 
         # notify about the number of sites
-        self.logger.info(f"Included {self._get_mle_configs().multiplicity.sum()} sites for the inference.")
+        self._logger.info(f"Included {self._get_mle_configs().multiplicity.sum()} sites for the inference.")
 
         # infer ancestral alleles
         self.infer()
@@ -2190,7 +2190,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         Sample mono-allelic sites from the FASTA file.
         """
         # inform
-        self.logger.info(f"Sampling mono-allelic sites.")
+        self._logger.info(f"Sampling mono-allelic sites.")
 
         if self.n_target_sites < self.n_sites:
             raise ValueError(f"The number of target sites ({self.n_target_sites}) must be at least "
@@ -2224,14 +2224,14 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         # iterate over contigs
         for contig, bounds, n in zip(self._contig_bounds.keys(), ranges, sample_counts):
             # get aliases
-            aliases = self.handler.get_aliases(contig)
+            aliases = self._handler.get_aliases(contig)
 
             # make sure we have a valid range
             if bounds[1] > bounds[0] and n > 0:
-                self.logger.debug(f"Sampling {n} sites from contig '{contig}'.")
+                self._logger.debug(f"Sampling {n} sites from contig '{contig}'.")
 
                 # fetch contig
-                record = self.handler.get_contig(aliases, notify=False)
+                record = self._handler.get_contig(aliases, notify=False)
 
                 # sample sites
                 i = 0
@@ -2250,7 +2250,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         pbar.close()
 
         # rewind fasta iterator
-        FASTAHandler._rewind(self.handler)
+        FASTAHandler._rewind(self._handler)
 
         # add site counts to data frame
         self.configs = self._add_monomorphic_sites(samples)
@@ -2293,8 +2293,8 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         super()._teardown()
 
         # inform on mismatches
-        self.logger.info(f"There were {len(self.mismatches)} mismatches between the most likely "
-                         f"ancestral allele and the ad-hoc ancestral allele annotation.")
+        self._logger.info(f"There were {len(self.mismatches)} mismatches between the most likely "
+                          f"ancestral allele and the ad-hoc ancestral allele annotation.")
 
     @classmethod
     def _parse_est_sfs(cls, data: pd.DataFrame) -> pd.DataFrame:
@@ -2574,8 +2574,6 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         :param max_sites: Same as in :meth:`__init__`.
         :param seed: Same as in :meth:`__init__`.
         :param confidence_threshold: Same as in :meth:`__init__`.
-        :param n_target_sites: Same as in :meth:`__init__`.
-        :param fasta: Same as in :meth:`__init__`.
         :return: The instance.
         """
         # create instance
@@ -2688,7 +2686,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         anc.n_sites = anc._get_n_sites()
 
         # notify about the number of sites
-        anc.logger.info(f"Included {anc._get_mle_configs().multiplicity.sum()} sites for the inference.")
+        anc._logger.info(f"Included {anc._get_mle_configs().multiplicity.sum()} sites for the inference.")
 
         return anc
 
@@ -2707,16 +2705,16 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         self.configs.set_index(keys=index_cols, inplace=True)
 
         # trigger the site counter as we use it soon anyway
-        _ = self.handler.n_sites
+        _ = self._handler.n_sites
 
         # determine the total number of sites to be parsed
-        total = self.handler.n_sites if self.max_sites == np.inf else self.max_sites
+        total = self._handler.n_sites if self.max_sites == np.inf else self.max_sites
 
         # initialize counter in case we do not parse any sites
         i = -1
 
         # create progress bar
-        with self.handler.get_pbar(desc=f"{self.__class__.__name__}>Parsing sites", total=total) as pbar:
+        with self._handler.get_pbar(desc=f"{self.__class__.__name__}>Parsing sites", total=total) as pbar:
 
             # iterate over sites
             for i, variant in enumerate(self._reader):
@@ -2757,7 +2755,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
                 # explicitly stopping after ``n`` sites fixes a bug with cyvcf2:
                 # 'error parsing variant with `htslib::bcf_read` error-code: 0 and ret: -2'
-                if i + 1 == self.handler.n_sites or i + 1 == self.handler.max_sites or i + 1 == self.max_sites:
+                if i + 1 == self._handler.n_sites or i + 1 == self._handler.max_sites or i + 1 == self.max_sites:
                     break
 
         # reset the index
@@ -2836,15 +2834,15 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
         # warn if the MLE parameters are near the bounds
         if len(near_lower | near_upper) > 0:
-            self.logger.warning(f'The MLE estimate for the rates is near the upper bound for '
-                                f'{near_upper} and lower bound for {near_lower}. (The tuples denote '
-                                f'(lower, value, upper) for every parameter.)')
+            self._logger.warning(f'The MLE estimate for the rates is near the upper bound for '
+                                 f'{near_upper} and lower bound for {near_lower}. (The tuples denote '
+                                 f'(lower, value, upper) for every parameter.)')
 
         # check if the outgroup divergence is monotonically increasing
         if not self.is_monotonic():
-            self.logger.warning("The outgroup rates are not monotonically increasing. This might indicate "
-                                "that the outgroups were not specified in the order of increasing divergence. "
-                                f"rates: {dict(zip(self.outgroups, self.get_outgroup_divergence()))}")
+            self._logger.warning("The outgroup rates are not monotonically increasing. This might indicate "
+                                 "that the outgroups were not specified in the order of increasing divergence. "
+                                 f"rates: {dict(zip(self.outgroups, self.get_outgroup_divergence()))}")
 
         # cache the branch probabilities for the MLE parameters
         self._renew_cache()
@@ -2915,7 +2913,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         Get the polarization probabilities or ``None`` if ``prior`` is ``no``.
         """
         if isinstance(self.prior, PolarizationPrior):
-            return self.prior.get_prior(
+            return self.prior._get_prior(
                 configs=self.configs,
                 n_ingroups=self.n_ingroups
             )
@@ -2974,7 +2972,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
                 b2 = outgroup_bases[-1]
 
             # get the probability of the branch
-            p_branches[i] = model.get_prob(b1, b2, i, params)
+            p_branches[i] = model._get_cached_prob(b1, b2, i, params)
 
         # take product of all branch probabilities
         prod = p_branches.prod()
@@ -3500,7 +3498,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
                         # log warning if ad hoc and maximum likelihood annotation disagree
                         if site_info_ad_hoc['ancestral_base'] != site.major_ancestral:
-                            self.logger.debug(
+                            self._logger.debug(
                                 "Mismatch with ad hoc ancestral allele annotation: " +
                                 str(dict(
                                     site=f"{variant.CHROM}:{variant.POS}",
@@ -3518,10 +3516,10 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
                         self.n_annotated += 1
 
         # set the ancestral allele
-        variant.INFO[self.handler.info_ancestral] = ancestral_base
+        variant.INFO[self._handler.info_ancestral] = ancestral_base
 
         # set info field
-        variant.INFO[self.handler.info_ancestral + "_info"] = ancestral_info
+        variant.INFO[self._handler.info_ancestral + "_info"] = ancestral_info
 
     def plot_likelihoods(
             self,
@@ -3663,16 +3661,16 @@ class _AdHocAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             if site['ancestral_base'] in bases:
 
                 if site['major_base'] != site['ancestral_base']:
-                    self.logger.debug(dict(site=f"{variant.CHROM}:{variant.POS}") | site)
+                    self._logger.debug(dict(site=f"{variant.CHROM}:{variant.POS}") | site)
 
                 ancestral_base = site['ancestral_base']
                 ancestral_info = str(site)
 
         # set the ancestral allele
-        variant.INFO[self.handler.info_ancestral] = ancestral_base
+        variant.INFO[self._handler.info_ancestral] = ancestral_base
 
         # set info field
-        variant.INFO[self.handler.info_ancestral + "_info"] = ancestral_info
+        variant.INFO[self._handler.info_ancestral + "_info"] = ancestral_info
 
         # increase the number of annotated sites
         self.n_annotated += 1
@@ -3782,7 +3780,7 @@ class _ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
                        f"{out_p.name} ")
 
             # log command signature
-            self.logger.info(f"Running: '{command}'")
+            self._logger.info(f"Running: '{command}'")
 
             # execute command
             execute(command)
@@ -3943,7 +3941,7 @@ class Annotator(MultiHandler):
         """
         Annotate the VCF file.
         """
-        self.logger.info('Start annotating')
+        self._logger.info('Start annotating')
 
         # set up the annotator
         self._setup()

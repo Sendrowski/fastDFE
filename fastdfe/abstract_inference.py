@@ -471,7 +471,7 @@ class AbstractInference(ABC):
 
         :param kwargs: Keyword arguments
         """
-        self.logger = logger.getChild(self.__class__.__name__)
+        self._logger = logger.getChild(self.__class__.__name__)
 
         self.bootstraps: Optional[pd.DataFrame] = None
         self.params_mle: Optional[dict] = None
