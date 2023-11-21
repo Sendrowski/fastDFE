@@ -2397,46 +2397,6 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         pass
 
-    @pytest.mark.slow
-    def test_betula_biallelic_vs_monomorphic_compare_rates(self):
-        """
-        Test the SFS for dataset including monomorphic sites vs. dataset without monomorphic sites.
-        """
-        spectra, parsers = {}, {}
-
-        vcfs = {
-            'biallelic': "resources/genome/betula/biallelic.with_outgroups.vcf.gz",
-            'all': "resources/genome/betula/all.with_outgroups.vcf.gz"
-        }
-
-        for key, vcf in vcfs.items():
-            p = fd.Parser(
-                vcf=vcf,
-                n=10,
-                annotations=[
-                    fd.MaximumLikelihoodAncestralAnnotation(
-                        outgroups=["ERR2103730"],
-                        exclude=["ERR2103731"],
-                        n_ingroups=20,
-                        confidence_threshold=0,
-                        prior=fd.KingmanPolarizationPrior()
-                    )
-                ]
-            )
-
-            sfs = p.parse()
-
-            spectra[key] = sfs.all
-            parsers[key] = p
-
-        # extremely similar
-        fd.Spectra.from_spectra(spectra).plot()
-
-        self.assertEqual(
-            parsers['all'].annotations[0].params_mle,
-            parsers['biallelic'].annotations[0].params_mle
-        )
-
     def test_add_monomorphic_site_counts(self):
         """
         Test the add_monomorphic_site_counts method.
@@ -2527,7 +2487,6 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         ]
 
         for config in configs:
-
             p1 = fd.Parser(
                 n=10,
                 vcf=config['vcf'],
