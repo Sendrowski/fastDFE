@@ -170,7 +170,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/119ac0c245957a6a187d4d5483294827c2d1c23aa7e83573dbf30d0fed2d8416.png" src="../../_images/119ac0c245957a6a187d4d5483294827c2d1c23aa7e83573dbf30d0fed2d8416.png" />
+<img alt="../../_images/c3d2bfa0383617f8920b508d4e8ed97e60082aedb2bf29feb579ebc7be08187b.png" src="../../_images/c3d2bfa0383617f8920b508d4e8ed97e60082aedb2bf29feb579ebc7be08187b.png" />
 </div>
 </div>
 <p>We can also plot a comparison of the (selected) modelled and observed SFS (cf. <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference.plot_sfs_comparison" title="fastdfe.base_inference.BaseInference.plot_sfs_comparison"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_sfs_comparison()</span></code></a>).</p>
@@ -184,7 +184,7 @@
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 512x384 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../../_images/ff7c775c8ba6a2ad0ef2f2164c9092b0de7dd9315fb72216c814c94c15d7963a.png" src="../../_images/ff7c775c8ba6a2ad0ef2f2164c9092b0de7dd9315fb72216c814c94c15d7963a.png" />
+<img alt="../../_images/52f4af8bd41aa5fe35919eea7e8ee27c4e7a9e0dd31405d8637db4aa2e37a102.png" src="../../_images/52f4af8bd41aa5fe35919eea7e8ee27c4e7a9e0dd31405d8637db4aa2e37a102.png" />
 </div>
 </div>
 <section id="bootstrapping">
@@ -201,11 +201,10 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:05&lt;00:00, 16.70it/s]
-<span class=" -Color -Color-Yellow">WARNING:BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 121.43it/s]
 </pre></div>
 </div>
-<img alt="../../_images/9695889ff47f85d129ca7093514b3ce59f93a271a30f106b8b01fc9a839291d9.png" src="../../_images/9695889ff47f85d129ca7093514b3ce59f93a271a30f106b8b01fc9a839291d9.png" />
+<img alt="../../_images/6394bba7e70ed6239d35d5d451992384b74afa68b071961e2bd00b6fc702143a.png" src="../../_images/6394bba7e70ed6239d35d5d451992384b74afa68b071961e2bd00b6fc702143a.png" />
 </div>
 </div>
 <p>The bars indicate 95% confidence intervals. We can adjust the confidence level among other things (cf. <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference.plot_discretized" title="fastdfe.base_inference.BaseInference.plot_discretized"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_discretized()</span></code></a>).</p>
@@ -237,10 +236,10 @@
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Green">INFO:Discretization: Precomputing linear DFE-SFS transformation using midpoint integration.</span>
 <span class=" -Color -Color-Green">INFO:BaseInference: Successfully finished optimization after 18 iterations and 81 function evaluations, obtaining a log-likelihood of -35.437981269282375.</span>
 <span class=" -Color -Color-Green">INFO:BaseInference: Inferred parameters: {all.S_d: -33214.271635822195, all.b: 0.13054534831332165, all.p_b: 0.0, all.S_b: 1.0, all.eps: 0.0}.</span>
-BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:01&lt;00:00, 60.45it/s]
+BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:00&lt;00:00, 343.48it/s]
 </pre></div>
 </div>
-<img alt="../../_images/8d7d77fc7222efcbd01feb27544b3c2d55c14dff7a016196ba1dd02a8fc2afa8.png" src="../../_images/8d7d77fc7222efcbd01feb27544b3c2d55c14dff7a016196ba1dd02a8fc2afa8.png" />
+<img alt="../../_images/c42852cd12fad4348ad8e51ad26bd0946aa38e827b2689b08d4f63bf4f9a04ac.png" src="../../_images/c42852cd12fad4348ad8e51ad26bd0946aa38e827b2689b08d4f63bf4f9a04ac.png" />
 </div>
 </div>
 </section>
@@ -259,16 +258,14 @@ BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00
 </div>
 <div class="cell_output docutils container">
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">WARNING:Optimization: The MLE estimate is close to the upper bound for {all.S_b: (0.0001, 100, 100)} and lower bound for {all.p_b: (0, 0.0043795971, 0.5)} [(lower, value, upper)], but this might be nothing to worry about.</span>
-BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:03&lt;00:00, 30.74it/s]
-<span class=" -Color -Color-Yellow">WARNING:BaseInference: 2 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
+BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:01&lt;00:00, 60.71it/s]
 <span class=" -Color -Color-Yellow">WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.p_b: (0, 0, 0.5)} [(lower, value, upper)], but this might be nothing to worry about.</span>
-BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:07&lt;00:00, 13.62it/s]
-BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:02&lt;00:00, 43.77it/s]
-<span class=" -Color -Color-Yellow">WARNING:BaseInference: 3 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
-BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:03&lt;00:00, 32.11it/s]
+BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:01&lt;00:00, 61.02it/s]
+BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:01&lt;00:00, 62.78it/s]
+BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00:01&lt;00:00, 61.42it/s]
 </pre></div>
 </div>
-<img alt="../../_images/a0dbc04185f43a78c291e57f99a5118824ea1daa64f32bcf9f5e68716725b844.png" src="../../_images/a0dbc04185f43a78c291e57f99a5118824ea1daa64f32bcf9f5e68716725b844.png" />
+<img alt="../../_images/9087168a1cc9bf3c2d01930680ed7329587a48334444c9010541731f9cdbaee8.png" src="../../_images/9087168a1cc9bf3c2d01930680ed7329587a48334444c9010541731f9cdbaee8.png" />
 </div>
 </div>
 <p>Neither including beneficial mutations nor ancestral-allele mis-identification do appear to improve the fit significantly.</p>
@@ -283,7 +280,7 @@ BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/b0f28a6ce6defec01d1d3c2c7db6c5c439ee6e15424b291f4fb2b13782caa7d1.png" src="../../_images/b0f28a6ce6defec01d1d3c2c7db6c5c439ee6e15424b291f4fb2b13782caa7d1.png" />
+<img alt="../../_images/992f61dfce86585f03b8cd66f2b4148c948265adde6642537150d54aaa5257d4.png" src="../../_images/992f61dfce86585f03b8cd66f2b4148c948265adde6642537150d54aaa5257d4.png" />
 </div>
 </div>
 <p>There might be some room for improvement as the likelihoods do show some variation. We could consider increasing the <code class="docutils literal notranslate"><span class="pre">n_runs</span></code> argument.</p>
@@ -334,7 +331,7 @@ BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/2e1a3d40d61422f9df60acc56529af36ddef4e29409ee52a512ec3f0a848b235.png" src="../../_images/2e1a3d40d61422f9df60acc56529af36ddef4e29409ee52a512ec3f0a848b235.png" />
+<img alt="../../_images/c886231b6cd603a7579c37bdca6b60066e4d06dc4c46d4b3862d78037a7de66c.png" src="../../_images/c886231b6cd603a7579c37bdca6b60066e4d06dc4c46d4b3862d78037a7de66c.png" />
 </div>
 </div>
 </section>
@@ -373,10 +370,8 @@ BaseInference&gt;Bootstrapping: 100%|██████████| 100/100 [00
 <span class=" -Color -Color-Yellow">WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.p_b: (0, 0, 0.5)} [(lower, value, upper)], but this might be nothing to worry about.</span>
 <span class=" -Color -Color-Yellow">WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_b: (0.0001, 0.00010000013, 100), all.eps: (0, 0.00043831236, 0.15)} [(lower, value, upper)], but this might be nothing to worry about.</span>
 <span class=" -Color -Color-Yellow">WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {pubescens.S_b: (0.0001, 0.00010006117, 100), pendula:pubescens.eps: (0, 0.0012018546, 0.15)} [(lower, value, upper)], but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
-<span class=" -Color -Color-Yellow">WARNING:BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
-JointInference&gt;Bootstrapping marginal inferences: 100%|██████████| 300/300 [00:19&lt;00:00, 15.58it/s]
-JointInference&gt;Bootstrapping joint inference: 100%|██████████| 100/100 [00:36&lt;00:00,  2.73it/s]
+JointInference&gt;Bootstrapping marginal inferences: 100%|██████████| 300/300 [00:02&lt;00:00, 104.43it/s]
+JointInference&gt;Bootstrapping joint inference: 100%|██████████| 100/100 [00:10&lt;00:00,  9.75it/s]
 </pre></div>
 </div>
 </div>
@@ -389,7 +384,7 @@ JointInference&gt;Bootstrapping joint inference: 100%|████████�
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/d0973d674d30e82350a92a2a27ae7803415223ca89ca4a891b1cc3616b99f850.png" src="../../_images/d0973d674d30e82350a92a2a27ae7803415223ca89ca4a891b1cc3616b99f850.png" />
+<img alt="../../_images/0b46acc8ef087476ea565ef0481714e534b7b1cc0852bf1e63bf42b823e4fd64.png" src="../../_images/0b46acc8ef087476ea565ef0481714e534b7b1cc0852bf1e63bf42b823e4fd64.png" />
 </div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">marginal.pendula</span></code> and <code class="docutils literal notranslate"><span class="pre">marginal.pubescens</span></code> are the marginal inferences for the respective type. <code class="docutils literal notranslate"><span class="pre">marginal.all</span></code> is the marginal inference obtaining by adding up the spectra of all types. <code class="docutils literal notranslate"><span class="pre">joint.pendula</span></code> and <code class="docutils literal notranslate"><span class="pre">join.pubescens</span></code> are the joint inferences for the respective type. We can see that <code class="docutils literal notranslate"><span class="pre">eps</span></code> and <code class="docutils literal notranslate"><span class="pre">S_d</span></code> are indeed shared between the two. The parameter <code class="docutils literal notranslate"><span class="pre">alpha</span></code> in the plot denotes the proportion of beneficial non-synonymous substitutions. Each marginal inference is a <a class="reference internal" href="../../modules/inference.html#fastdfe.base_inference.BaseInference" title="fastdfe.base_inference.BaseInference"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseInference</span></code></a> object itself and can be accessed via <code class="docutils literal notranslate"><span class="pre">inf.marginal_inferences[type]</span></code>.</p>
@@ -401,7 +396,7 @@ JointInference&gt;Bootstrapping joint inference: 100%|████████�
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/8bbd9c5778b16d9dade1ae187ddaddb8fb01102b69a60dfc50008ac982431a9b.png" src="../../_images/8bbd9c5778b16d9dade1ae187ddaddb8fb01102b69a60dfc50008ac982431a9b.png" />
+<img alt="../../_images/6c6dd095a97eb11d0cccf452ef2876b96b1fbe9561f1b38ed713befcde24eaca.png" src="../../_images/6c6dd095a97eb11d0cccf452ef2876b96b1fbe9561f1b38ed713befcde24eaca.png" />
 </div>
 </div>
 <section id="model-comparison">
@@ -414,7 +409,7 @@ JointInference&gt;Bootstrapping joint inference: 100%|████████�
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.45293812792999666
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.44972756333922226
 </pre></div>
 </div>
 </div>
@@ -445,15 +440,14 @@ JointInference&gt;Bootstrapping joint inference: 100%|████████�
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Parser&gt;Downloading file: 100%|██████████| 101M/101M [00:20&lt;00:00, 4.86MB/s] 
-Parser&gt;Counting sites: 200000it [00:02, 81891.09it/s]
-Parser&gt;Processing sites: 100%|██████████| 200000/200000 [04:45&lt;00:00, 699.64it/s]
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Parser&gt;Counting sites: 200000it [00:02, 82729.16it/s]
+Parser&gt;Processing sites: 100%|██████████| 200000/200000 [02:59&lt;00:00, 1111.12it/s]
 </pre></div>
 </div>
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 512x384 with 0 Axes&gt;
 </pre></div>
 </div>
-<img alt="../../_images/d9ac9a211dc5c900051ce596ae827ab1e0f5d16f4e84434485577ea704895e8d.png" src="../../_images/d9ac9a211dc5c900051ce596ae827ab1e0f5d16f4e84434485577ea704895e8d.png" />
+<img alt="../../_images/ff231f2ae77768349780e6829c9a3979d6f993a5cdc6a5c41368ab054dbb4652.png" src="../../_images/ff231f2ae77768349780e6829c9a3979d6f993a5cdc6a5c41368ab054dbb4652.png" />
 </div>
 </div>
 <p>We now create the inference object from the spectra. In this contrived example we make up some covariates that covary with <code class="docutils literal notranslate"><span class="pre">S_d</span></code>, the mean strength of negative selection. Covariates introduce a linear relationship by default but this can be modified by specifying a custom callback function (see <a class="reference internal" href="../../modules/inference.html#fastdfe.optimization.Covariate" title="fastdfe.optimization.Covariate"><code class="xref py py-class docutils literal notranslate"><span class="pre">Covariate</span></code></a>).</p>
@@ -480,10 +474,8 @@ Parser&gt;Processing sites: 100%|██████████| 200000/200000 [
 <span class=" -Color -Color-Yellow">WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.</span>
 <span class=" -Color -Color-Yellow">WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.</span>
 <span class=" -Color -Color-Yellow">WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {A:C:G:T.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
-<span class=" -Color -Color-Yellow">WARNING:BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
-JointInference&gt;Bootstrapping marginal inferences: 100%|██████████| 500/500 [00:02&lt;00:00, 179.23it/s]
-JointInference&gt;Bootstrapping joint inference: 100%|██████████| 100/100 [00:08&lt;00:00, 11.49it/s]
+JointInference&gt;Bootstrapping marginal inferences: 100%|██████████| 500/500 [00:02&lt;00:00, 230.96it/s]
+JointInference&gt;Bootstrapping joint inference: 100%|██████████| 100/100 [00:08&lt;00:00, 12.04it/s]
 </pre></div>
 </div>
 </div>
@@ -496,7 +488,7 @@ JointInference&gt;Bootstrapping joint inference: 100%|████████�
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/efabf4c1e2516fe57719c4d2b1c5a7186ecdb7520f238df9d8b898d99d4e8992.png" src="../../_images/efabf4c1e2516fe57719c4d2b1c5a7186ecdb7520f238df9d8b898d99d4e8992.png" />
+<img alt="../../_images/7da05b667f6cc55bde2b1a4c9a2323b0ad3944a6b9eb06e1ed94789771ccce91.png" src="../../_images/7da05b667f6cc55bde2b1a4c9a2323b0ad3944a6b9eb06e1ed94789771ccce91.png" />
 </div>
 </div>
 <p>We see that <code class="docutils literal notranslate"><span class="pre">S_d</span></code> does not vary markedly across the jointly-inferred types and this is because it does not vary linearly along the arbitrary covariates we specified. Indeed, looking at the mean over all bootstraps for our covariate we see that it is close to 0. Note that covariates are named <code class="docutils literal notranslate"><span class="pre">c0</span></code>, <code class="docutils literal notranslate"><span class="pre">c1</span></code>, etc. by default.</p>
@@ -528,10 +520,8 @@ JointInference&gt;Bootstrapping joint inference: 100%|████████�
 <span class=" -Color -Color-Yellow">WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.</span>
 <span class=" -Color -Color-Yellow">WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.</span>
 <span class=" -Color -Color-Yellow">WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {A:C:G:T.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.</span>
-<span class=" -Color -Color-Yellow">WARNING:BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
-<span class=" -Color -Color-Yellow">WARNING:BaseInference: 1 out of 100 bootstrap samples did not terminate normally during numerical optimization. The confidence intervals might thus be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decrease the number of optimized parameters.</span>
-JointInference&gt;Bootstrapping marginal inferences: 100%|██████████| 500/500 [00:02&lt;00:00, 177.16it/s]
-JointInference&gt;Bootstrapping joint inference: 100%|██████████| 100/100 [00:08&lt;00:00, 11.54it/s]
+JointInference&gt;Bootstrapping marginal inferences: 100%|██████████| 500/500 [00:02&lt;00:00, 239.04it/s]
+JointInference&gt;Bootstrapping joint inference: 100%|██████████| 100/100 [00:08&lt;00:00, 12.10it/s]
 </pre></div>
 </div>
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.0

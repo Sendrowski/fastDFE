@@ -94,6 +94,7 @@ class JointInference(BaseInference):
             covariates: List[Covariate] = [],
             do_bootstrap: bool = False,
             n_bootstraps: int = 100,
+            n_bootstrap_retries: int = 2,
             parallelize: bool = True,
             folded: bool = None,
             **kwargs
@@ -125,6 +126,7 @@ class JointInference(BaseInference):
         :param shared_params: List of shared parameters
         :param do_bootstrap: Whether to perform bootstrapping
         :param n_bootstraps: Number of bootstraps
+        :param n_bootstrap_retries: Number of retries for bootstraps that did not terminate normally.
         :param parallelize: Whether to parallelize the optimization
         :param folded: Whether the SFS are folded. If not specified, the SFS will be folded if all of the given
             SFS appear to be folded.
@@ -212,6 +214,7 @@ class JointInference(BaseInference):
                 fixed_params=dict(all=fixed_collapsed['all']) if 'all' in fixed_collapsed else {},
                 do_bootstrap=do_bootstrap,
                 n_bootstraps=n_bootstraps,
+                n_bootstrap_retries=n_bootstrap_retries,
                 parallelize=parallelize,
                 folded=self.folded,
                 n_runs=n_runs)
@@ -266,6 +269,7 @@ class JointInference(BaseInference):
                 fixed_params=dict(all=self.fixed_params[t]) if t in self.fixed_params else {},
                 do_bootstrap=do_bootstrap,
                 n_bootstraps=n_bootstraps,
+                n_bootstrap_retries=n_bootstrap_retries,
                 parallelize=parallelize,
                 folded=self.folded,
                 n_runs=n_runs
@@ -292,6 +296,7 @@ class JointInference(BaseInference):
                 fixed_params=dict(all=self.fixed_params[t]) if t in self.fixed_params else {},
                 do_bootstrap=do_bootstrap,
                 n_bootstraps=n_bootstraps,
+                n_bootstrap_retries=n_bootstrap_retries,
                 parallelize=parallelize,
                 folded=self.folded,
                 n_runs=n_runs,
@@ -658,51 +663,61 @@ class JointInference(BaseInference):
         bounds_linear = self.get_bounds_linear()
         scales = self.scales
         bounds = self.bounds
+        n_retries = self.n_bootstrap_retries
         sfs_neut = dict((t, self.marginal_inferences[t].sfs_neut) for t in self.types)
         sfs_sel = dict((t, self.marginal_inferences[t].sfs_sel) for t in self.types)
 
-        def run_bootstrap_sample(seed: int = None) -> (OptimizeResult, dict):
+        def run_bootstrap_sample(seed: int) -> (OptimizeResult, dict):
             """
             Resample the observed selected SFS and rerun the optimization procedure.
             We take the MLE params as initial params here.
             We make this function static to improve performance when parallelizing.
+            In case the optimization does not terminate normally, we retry up to `n_retries` times.
 
             :return: Optimization result and dictionary of MLE params
             """
-            # perform joint optimization
-            # Note that it's important we bind t into the lambda function
-            # at the time of creation.
-            result, params_mle = optimization.run(
-                x0=params_mle_raw,
-                scales=scales_linear,
-                bounds=bounds_linear,
-                n_runs=1,
-                debug_iterations=False,
-                print_info=False,
-                desc=f"{self.__class__.__name__}>Bootstrapping joint inference",
-                get_counts=dict((t, lambda params, t=t: BaseInference._model_sfs(
-                    discretization=discretization,
-                    model=model,
-                    params=correct_values(Covariate._apply(covariates, params, t), bounds, scales),
-                    sfs_neut=sfs_neut[t].resample(seed=seed),
-                    sfs_sel=sfs_sel[t].resample(seed=seed),
-                    folded=folded
-                )) for t in types)
-            )
+            result, params_mle = None, None
 
-            # unpack shared parameters
-            params_mle = unpack_shared(params_mle)
+            # retry up to `n_retries` times
+            for i in range(max(n_retries, 0) + 1):
 
-            for t in types:
-                # normalize parameters for each type
-                params_mle[t] = model._normalize(params_mle[t])
-
-                # add covariates for each type
-                params_mle[t] = correct_values(
-                    params=Covariate._apply(covariates, params_mle[t], t),
-                    bounds=bounds,
-                    scales=scales
+                # perform joint optimization
+                # Note that it's important we bind t into the lambda function
+                # at the time of creation.
+                result, params_mle = optimization.run(
+                    x0=params_mle_raw,
+                    scales=scales_linear,
+                    bounds=bounds_linear,
+                    n_runs=1,
+                    debug_iterations=False,
+                    print_info=False,
+                    desc=f"{self.__class__.__name__}>Bootstrapping joint inference",
+                    get_counts=dict((t, lambda params, t=t: BaseInference._model_sfs(
+                        discretization=discretization,
+                        model=model,
+                        params=correct_values(Covariate._apply(covariates, params, t), bounds, scales),
+                        sfs_neut=sfs_neut[t].resample(seed=seed + i),
+                        sfs_sel=sfs_sel[t].resample(seed=seed + i),
+                        folded=folded
+                    )) for t in types)
                 )
+
+                # unpack shared parameters
+                params_mle = unpack_shared(params_mle)
+
+                for t in types:
+                    # normalize parameters for each type
+                    params_mle[t] = model._normalize(params_mle[t])
+
+                    # add covariates for each type
+                    params_mle[t] = correct_values(
+                        params=Covariate._apply(covariates, params_mle[t], t),
+                        bounds=bounds,
+                        scales=scales
+                    )
+
+                if result.success:
+                    return result, params_mle
 
             return result, params_mle
 
@@ -712,14 +727,17 @@ class JointInference(BaseInference):
             self,
             n_samples: int = None,
             parallelize: bool = None,
+            n_retries: int = None,
             update_likelihood: bool = True,
             **kwargs
     ) -> Optional[pd.DataFrame]:
         """
         Perform the parametric bootstrap both for the marginal and joint inferences.
 
-        :param n_samples: Number of bootstrap samples
-        :param parallelize: Whether to parallelize computations
+        :param n_samples: Number of bootstrap samples. Defaults to :attr:`n_bootstraps`.
+        :param parallelize: Whether to parallelize computations. Defaults to :attr:`parallelize`.
+        :param n_retries: Number of retries for bootstraps that did not terminate normally. Defaults to
+            :attr:`n_bootstrap_retries`.
         :param update_likelihood: Whether to update the likelihood
         :return: DataFrame with bootstrap samples
         """
@@ -729,11 +747,14 @@ class JointInference(BaseInference):
         # update properties
         self.update_properties(
             n_bootstraps=n_samples,
-            parallelize=parallelize
+            parallelize=parallelize,
+            n_bootstrap_retries=n_retries
         )
 
+        n_bootstraps = int(self.n_bootstraps)
+
         with tqdm(
-                total=len(self.marginal_inferences) * int(self.n_bootstraps),
+                total=len(self.marginal_inferences) * n_bootstraps,
                 disable=Settings.disable_pbar,
                 desc=f"{self.__class__.__name__}>Bootstrapping marginal inferences"
         ) as pbar:
@@ -743,27 +764,28 @@ class JointInference(BaseInference):
                 self._logger.info(f"Bootstrapping type '{t}'.")
 
                 inf.bootstrap(
-                    n_samples=int(self.n_bootstraps),
+                    n_samples=n_bootstraps,
                     parallelize=self.parallelize,
+                    n_retries=self.n_bootstrap_retries,
                     update_likelihood=update_likelihood,
                     pbar=False
                 )
 
-                pbar.update(int(self.n_bootstraps))
+                pbar.update(n_bootstraps)
 
         start_time = time.time()
 
         # parallelize computations if desired
         if self.parallelize:
 
-            self._logger.debug(f"Running {self.n_bootstraps} joint bootstrap samples "
-                               f"in parallel on {min(mp.cpu_count(), self.n_bootstraps)} cores.")
+            self._logger.debug(f"Running {n_bootstraps} joint bootstrap samples "
+                               f"in parallel on {min(mp.cpu_count(), n_bootstraps)} cores.")
 
         else:
-            self._logger.debug(f"Running {self.n_bootstraps} joint bootstrap samples sequentially.")
+            self._logger.debug(f"Running {n_bootstraps} joint bootstrap samples sequentially.")
 
         # seeds for bootstraps
-        seeds = self.rng.integers(0, high=2 ** 32, size=int(self.n_bootstraps))
+        seeds = self.rng.integers(0, high=2 ** 32, size=n_bootstraps)
 
         # run bootstraps
         result = parallelize_func(
@@ -778,12 +800,15 @@ class JointInference(BaseInference):
         n_success = np.sum([res.success for res in result[:, 0]])
 
         # issue warning if some runs did not finish successfully
-        if n_success < self.n_bootstraps:
-            self._logger.warning(f"{self.n_bootstraps - n_success} out of {self.n_bootstraps} bootstrap samples "
-                                 "did not terminate normally during numerical optimization. "
-                                 "The confidence intervals might thus be unreliable. Consider adjusting "
-                                 "the optimization parameters (increasing `gtol` or `n_runs`) "
-                                 "or decrease the number of optimized parameters.")
+        if n_success < n_bootstraps:
+            self._logger.warning(
+                f"{n_bootstraps - n_success} out of {n_bootstraps} bootstrap samples "
+                "did not terminate normally during numerical optimization. "
+                "The confidence intervals might thus be unreliable. Consider "
+                "increasing the number of retries (`n_retries`), "
+                "adjusting the optimization parameters (increasing `gtol` or `n_runs`), "
+                "or decreasing the number of optimized parameters."
+            )
 
         # dataframe of MLE estimates in flattened format
         self.bootstraps = pd.DataFrame([flatten_dict(r) for r in result[:, 1]])

@@ -14,7 +14,7 @@ Inference objects can be directly created from configuration files which facilit
 
    inf <- fastdfe$BaseInference$from_config(config)
 
-A configuration file typically looks like this:
+A configuration file typically looks like this, and reflects the parameters of :class:`~fastdfe.base_inference.BaseInference`, :class:`~fastdfe.joint_inference.JointInference` and :class:`~fastdfe.config.Config`.
 
 .. code-block:: yaml
 

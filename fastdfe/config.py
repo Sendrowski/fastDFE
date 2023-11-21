@@ -53,6 +53,7 @@ class Config:
             covariates: List[Covariate] = [],
             do_bootstrap: bool = False,
             n_bootstraps: int = 100,
+            n_bootstrap_retries: int = 2,
             parallelize: bool = True,
             **kwargs
     ):
@@ -85,6 +86,7 @@ class Config:
         :param covariates: Covariates for the optimization.
         :param do_bootstrap: Whether to do bootstrapping automatically.
         :param n_bootstraps: Number of bootstraps.
+        :param n_bootstrap_retries: Number of retries for bootstraps that did not terminate normally.
         :param parallelize: Whether to parallelize the optimization.
         :param kwargs: Additional keyword arguments which are ignored.
         """
@@ -109,6 +111,7 @@ class Config:
             sfs_sel=Spectra.from_spectrum(sfs_sel) if isinstance(sfs_sel, Spectrum) else sfs_sel,
             do_bootstrap=do_bootstrap,
             n_bootstraps=n_bootstraps,
+            n_bootstrap_retries=n_bootstrap_retries,
             parallelize=parallelize,
             loss_type=loss_type
         )
