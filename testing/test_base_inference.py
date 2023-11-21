@@ -24,6 +24,7 @@ class InferenceTestCase(TestCase):
     """
     Test inference.
     """
+
     def assertEqualInference(self, obj1: object, obj2: object, ignore_keys=[]):
         """
         Compare Inference objects, recursively comparing their attributes.
@@ -841,3 +842,30 @@ class BaseInferenceTestCase(InferenceTestCase):
             )
 
         print(context.exception)
+
+    @staticmethod
+    def test_spectra_with_fractional_counts():
+        """
+        Test whether a spectrum with fractional counts works as expected.
+        """
+        sfs_neut = fd.Spectrum([177130.4, 997.3, 441.2, 228.1, 156.45, 117.2, 114.9, 83.12, 105.453, 109.1, 652.05])
+        sfs_sel = fd.Spectrum([797939.4, 1329.3, 499.2, 265.1, 162.12, 104.2, 117.9, 90.12, 94.453, 119.1, 794.05])
+
+        inf_float = fd.BaseInference(
+            sfs_neut=sfs_neut,
+            sfs_sel=sfs_sel
+        )
+
+        inf_float.run()
+
+        inf_int = fd.BaseInference(
+            sfs_neut=fd.Spectrum(sfs_neut.data.astype(int)),
+            sfs_sel=fd.Spectrum(sfs_sel.data.astype(int)),
+        )
+
+        inf_int.run()
+
+        fd.Inference.plot_discretized([inf_float, inf_int], labels=['float', 'int'])
+
+        assert np.abs((inf_float.params_mle['S_d'] - inf_int.params_mle['S_d']) / inf_float.params_mle['S_d']) < 1e-2
+        assert np.abs((inf_float.params_mle['b'] - inf_int.params_mle['b']) / inf_float.params_mle['b']) < 1e-2
