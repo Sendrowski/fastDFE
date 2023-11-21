@@ -114,6 +114,7 @@ class BaseInference(AbstractInference):
             fixed_params: Dict[str, Dict[str, float]] = {},
             do_bootstrap: bool = False,
             n_bootstraps: int = 100,
+            n_bootstrap_retries: int = 2,
             parallelize: bool = True,
             folded: bool = None,
             discretization: Discretization = None,
@@ -148,6 +149,7 @@ class BaseInference(AbstractInference):
         :param fixed_params: Parameters held fixed when optimization, i.e., ``{'all': {param: value}}``
         :param do_bootstrap: Whether to do bootstrapping.
         :param n_bootstraps: Number of bootstraps.
+        :param n_bootstrap_retries: Number of retries for bootstraps that did not terminate normally.
         :param parallelize: Whether to parallelize the bootstrapping.
         :param folded: Whether the SFS are folded. If not specified, the SFS will be folded if both of the given
             SFS appear to be folded.
@@ -246,7 +248,10 @@ class BaseInference(AbstractInference):
         #: Number of bootstraps
         self.n_bootstraps: int = n_bootstraps
 
-        #: Whether to parallelize the bootstrapping
+        #: Number of retries for bootstraps that did not terminate normally
+        self.n_bootstrap_retries: int = n_bootstrap_retries
+
+        #: Whether to parallelize computations
         self.parallelize: bool = parallelize
 
         # expand 'all' type
@@ -562,14 +567,17 @@ class BaseInference(AbstractInference):
             n_samples: int = None,
             parallelize: bool = None,
             update_likelihood: bool = True,
+            n_retries: int = None,
             pbar: bool = True
     ) -> pd.DataFrame:
         """
         Perform the parametric bootstrap.
 
-        :param n_samples: Number of bootstrap samples.
-        :param parallelize: Whether to parallelize the bootstrap.
+        :param n_samples: Number of bootstrap samples. Defaults to :attr:`n_bootstraps`.
+        :param parallelize: Whether to parallelize the bootstrap. Defaults to :attr:`parallelize`.
         :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples.
+        :param n_retries: Number of retries for bootstrap samples that did not terminate normally. Defaults to
+            :attr:`n_bootstrap_retries`.
         :param pbar: Whether to show a progress bar.
         :return: Dataframe with bootstrap results.
         """
@@ -582,26 +590,29 @@ class BaseInference(AbstractInference):
         # update properties
         self.update_properties(
             n_bootstraps=n_samples,
-            parallelize=parallelize
+            parallelize=parallelize,
+            n_bootstrap_retries=n_retries
         )
+
+        n_bootstraps = int(self.n_bootstraps)
 
         start_time = time.time()
 
         # parallelize computations if desired
         if self.parallelize:
 
-            self._logger.debug(f"Running {self.n_bootstraps} bootstrap samples "
-                               f"in parallel on {min(mp.cpu_count(), self.n_bootstraps)} cores.")
+            self._logger.debug(f"Running {n_bootstraps} bootstrap samples "
+                               f"in parallel on {min(mp.cpu_count(), n_bootstraps)} cores.")
 
         else:
-            self._logger.debug(f"Running {self.n_bootstraps} bootstrap samples sequentially.")
+            self._logger.debug(f"Running {n_bootstraps} bootstrap samples sequentially.")
 
         # seeds for bootstraps
-        seeds = self.rng.integers(0, high=2 ** 32, size=int(self.n_bootstraps))
+        seeds = self.rng.integers(0, high=2 ** 32, size=n_bootstraps)
 
         # run bootstraps
         result = optimization.parallelize(
-            func=self.run_bootstrap_sample,
+            func=self._run_bootstrap_sample,
             data=seeds,
             parallelize=self.parallelize,
             pbar=pbar,
@@ -612,12 +623,15 @@ class BaseInference(AbstractInference):
         n_success = np.sum([res.success for res in result[:, 0]])
 
         # issue warning if some runs did not finish successfully
-        if n_success < self.n_bootstraps:
-            self._logger.warning(f"{self.n_bootstraps - n_success} out of {self.n_bootstraps} bootstrap samples "
-                                 "did not terminate normally during numerical optimization. "
-                                 "The confidence intervals might thus be unreliable. Consider adjusting "
-                                 "the optimization parameters (increasing `gtol` or `n_runs`) "
-                                 "or decrease the number of optimized parameters.")
+        if n_success < n_bootstraps:
+            self._logger.warning(
+                f"{n_bootstraps - n_success} out of {n_bootstraps} bootstrap samples "
+                "did not terminate normally during numerical optimization. "
+                "The confidence intervals might thus be unreliable. Consider "
+                "increasing the number of retries (`n_retries`), "
+                "adjusting the optimization parameters (increasing `gtol` or `n_runs`), "
+                "or decreasing the number of optimized parameters."
+            )
 
             # dataframe of MLE estimates
         self.bootstraps = pd.DataFrame([r['all'] for r in result[:, 1]])
@@ -646,42 +660,51 @@ class BaseInference(AbstractInference):
         # add alpha estimates
         self.bootstraps['alpha'] = self.bootstraps.apply(lambda r: self.get_alpha(dict(r)), axis=1)
 
-    def run_bootstrap_sample(self, seed: int = None) -> (OptimizeResult, dict):
+    def _run_bootstrap_sample(self, seed: int) -> (OptimizeResult, dict):
         """
         Resample the observed selected SFS and rerun the optimization procedure.
-        We take the MLE params as initial params here.
+        We take the MLE params as initial params here. In case the optimization
+        does not terminate normally, we retry up to :attr:`n_bootstrap_retries` times.
 
         :param seed: Seed for random number generator.
         :return: Optimization result and MLE parameters.
         """
-        # resample spectra
-        sfs_sel = self.sfs_sel.resample(seed=seed)
-        sfs_neut = self.sfs_neut.resample(seed=seed)
+        result, params_mle = None, None
 
-        # perform numerical minimization
-        result, params_mle = self.optimization.run(
-            x0=dict(all=self.params_mle),
-            scales=self.get_scales_linear(),
-            bounds=self.get_bounds_linear(),
-            n_runs=1,
-            debug_iterations=False,
-            print_info=False,
-            get_counts=dict(all=lambda params: self._model_sfs(
-                discretization=self.discretization,
-                model=self.model,
-                params=params,
-                sfs_neut=sfs_neut,
-                sfs_sel=sfs_sel,
-                folded=self.folded
-            )),
-            desc=f'{self.__class__.__name__}>Bootstrapping'
-        )
+        # retry up to `n_bootstrap_retries` times
+        for i in range(max(self.n_bootstrap_retries, 0) + 1):
 
-        # unpack shared parameters
-        params_mle = unpack_shared(params_mle)
+            # resample spectra
+            sfs_sel = self.sfs_sel.resample(seed=seed + i)
+            sfs_neut = self.sfs_neut.resample(seed=seed + i)
 
-        # normalize MLE estimates
-        params_mle['all'] = self.model._normalize(params_mle['all'])
+            # perform numerical minimization
+            result, params_mle = self.optimization.run(
+                x0=dict(all=self.params_mle),
+                scales=self.get_scales_linear(),
+                bounds=self.get_bounds_linear(),
+                n_runs=1,
+                debug_iterations=False,
+                print_info=False,
+                get_counts=dict(all=lambda params: self._model_sfs(
+                    discretization=self.discretization,
+                    model=self.model,
+                    params=params,
+                    sfs_neut=sfs_neut,
+                    sfs_sel=sfs_sel,
+                    folded=self.folded
+                )),
+                desc=f'{self.__class__.__name__}>Bootstrapping'
+            )
+
+            # unpack shared parameters
+            params_mle = unpack_shared(params_mle)
+
+            # normalize MLE estimates
+            params_mle['all'] = self.model._normalize(params_mle['all'])
+
+            if result.success:
+                return result, params_mle
 
         return result, params_mle
 
