@@ -1,6 +1,7 @@
 import itertools
 import logging
 import tempfile
+from collections import defaultdict
 from unittest.mock import MagicMock, PropertyMock, patch, Mock
 
 import numpy as np
@@ -709,7 +710,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             minor_base=[c['minor_base'] for c in configs],
             outgroup_bases=[c['outgroup_bases'] for c in configs],
             n_ingroups=20,
-            prior=fd.KingmanPolarizationPrior(),
+            prior=fd.KingmanPolarizationPrior(allow_divergence=True),
             model=fd.JCSubstitutionModel(pool_branch_rates=True, fixed_params=dict(K=0.1)),
             parallelize=False
         )
@@ -1207,9 +1208,9 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         pass
 
     @pytest.mark.slow
-    def test_pendula_thorough_two_outgroups(self):
+    def test_betula_thorough_two_outgroups(self):
         """
-        Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
+        Test the MLEAncestralAlleleAnnotation class on the betula vcf file.
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
@@ -1221,7 +1222,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
-            output='scratch/test_pendula_thorough.vcf',
+            output='scratch/test_betula_thorough.vcf',
             annotations=[anc],
             max_sites=100000
         )
@@ -1238,9 +1239,9 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         pass
 
     @pytest.mark.slow
-    def test_pendula_thorough_one_outgroup(self):
+    def test_betula_thorough_one_outgroup(self):
         """
-        Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
+        Test the MLEAncestralAlleleAnnotation class on the betula vcf file.
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730"],
@@ -1252,7 +1253,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
-            output='scratch/test_pendula_thorough.vcf',
+            output='scratch/test_betula_thorough.vcf',
             annotations=[anc],
             max_sites=100000
         )
@@ -1268,9 +1269,9 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         pass
 
     @staticmethod
-    def test_pendula_K2_model():
+    def test_betula_K2_model():
         """
-        Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
+        Test the MLEAncestralAlleleAnnotation class on the betula vcf file.
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
@@ -1282,7 +1283,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-            output='scratch/test_pendula_use_prior_K2_model.vcf',
+            output='scratch/test_betula_use_prior_K2_model.vcf',
             annotations=[anc],
             max_sites=1000
         )
@@ -1292,9 +1293,9 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         pass
 
     @staticmethod
-    def test_pendula_JC_model():
+    def test_betula_JC_model():
         """
-        Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
+        Test the MLEAncestralAlleleAnnotation class on the betula vcf file.
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
@@ -1306,7 +1307,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-            output='scratch/test_pendula_use_prior_JC_model.vcf',
+            output='scratch/test_betula_use_prior_JC_model.vcf',
             annotations=[anc],
             max_sites=1000
         )
@@ -1316,9 +1317,9 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         pass
 
     @staticmethod
-    def test_pendula_no_prior():
+    def test_betula_no_prior():
         """
-        Test the MLEAncestralAlleleAnnotation class on the Betula pendula vcf file.
+        Test the MLEAncestralAlleleAnnotation class on the betula vcf file.
         """
         anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
@@ -1329,7 +1330,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         ann = fd.Annotator(
             vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
-            output='scratch/test_pendula_not_use_prior.vcf',
+            output='scratch/test_betula_not_use_prior.vcf',
             annotations=[anc],
             max_sites=1000
         )
@@ -1351,7 +1352,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         ann = fd.Annotator(
             vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
-            output='scratch/test_pendula_not_use_prior.vcf',
+            output='scratch/test_betula_not_use_prior.vcf',
             annotations=[anc],
             max_sites=1000
         )
@@ -1379,7 +1380,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         ann = fd.Annotator(
             vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
             fasta="resources/genome/betula/genome.fasta",
-            output='scratch/test_pendula_not_use_prior.vcf',
+            output='scratch/test_betula_not_use_prior.vcf',
             annotations=[anc],
             max_sites=1000
         )
@@ -1436,7 +1437,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         ann = fd.Annotator(
             vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
-            output='scratch/test_pendula_not_use_prior.vcf',
+            output='scratch/test_betula_not_use_prior.vcf',
             annotations=[anc],
             max_sites=max_sites,
             fasta="resources/genome/betula/genome.fasta"
@@ -2533,3 +2534,173 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             max_rel_diff = np.max(np.abs(np.diff(params_mle, axis=0) / params_mle[:-1, :]))
 
             self.assertGreater(config['tolerance'], max_rel_diff)
+
+    @pytest.mark.slow
+    def test_sfs_for_different_datasets(self):
+        """
+        Compare the SFS for different datasets.
+        """
+        max_sites = 10000
+        spectra, parsers = {}, {}
+
+        # determine using n = 10 from betula dataset
+        target_site_multiplier = 7.23
+
+        papio = pd.read_csv("resources/genome/papio/metadata.csv")
+
+        datasets = dict(
+            anubis_one_outgroup=dict(
+                vcf="resources/genome/papio/output.filtered.snps.chr1.removed.AB.pass.vep.vcf.gz",
+                fasta="resources/genome/papio/Papio_anubis.fasta",
+                outgroups=[
+                    papio[papio.Species == 'hamadryas'].iloc[0].PGDP_ID.replace('Sci_', '')
+                ],
+                ingroups=list(papio[papio.C_origin == 'Anubis, Tanzania']['PGDP_ID']),
+                prior=fd.KingmanPolarizationPrior(),
+                n_target_sites=100000,
+                aliases=dict(chr1=['CM001491.2'])
+            ),
+            anubis_one_distant_outgroup=dict(
+                vcf="resources/genome/papio/output.filtered.snps.chr1.removed.AB.pass.vep.vcf.gz",
+                fasta="resources/genome/papio/Papio_anubis.fasta",
+                outgroups=[
+                    papio[papio.Species == 'gelada'].iloc[0].PGDP_ID.replace('Sci_', '')
+                ],
+                ingroups=list(papio[papio.C_origin == 'Anubis, Tanzania']['PGDP_ID']),
+                prior=fd.KingmanPolarizationPrior(),
+                n_target_sites=max_sites * target_site_multiplier,
+                aliases=dict(chr1=['CM001491.2'])
+            ),
+            anubis_two_outgroups=dict(
+                vcf="resources/genome/papio/output.filtered.snps.chr1.removed.AB.pass.vep.vcf.gz",
+                fasta="resources/genome/papio/Papio_anubis.fasta",
+                outgroups=[
+                    papio[papio.Species == 'hamadryas'].iloc[0].PGDP_ID.replace('Sci_', ''),
+                    papio[papio.Species == 'kindae'].iloc[0].PGDP_ID.replace('Sci_', ''),
+                ],
+                ingroups=list(papio[papio.C_origin == 'Anubis, Tanzania']['PGDP_ID']),
+                prior=fd.KingmanPolarizationPrior(),
+                n_target_sites=max_sites * target_site_multiplier,
+                aliases=dict(chr1=['CM001491.2'])
+            ),
+            pendula_one_outgroup=dict(
+                vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
+                outgroups=["ERR2103730"],
+                ingroups=pd.read_csv("resources/genome/betula/sample_sets/pendula.args", header=None)[0].tolist(),
+                prior=fd.KingmanPolarizationPrior()
+            ),
+            pendula_one_outgroup_biallelic=dict(
+                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                fasta="resources/genome/betula/genome.fasta",
+                outgroups=["ERR2103730"],
+                ingroups=pd.read_csv("resources/genome/betula/sample_sets/pendula.args", header=None)[0].tolist(),
+                prior=fd.KingmanPolarizationPrior(),
+                n_target_sites=max_sites * target_site_multiplier
+            ),
+            pubescens_one_outgroup=dict(
+                vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
+                outgroups=["ERR2103730"],
+                ingroups=pd.read_csv("resources/genome/betula/sample_sets/pubescens.args", header=None)[0].tolist(),
+                prior=fd.KingmanPolarizationPrior()
+            ),
+            betula_one_outgroup=dict(
+                vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
+                outgroups=["ERR2103730"],
+                exclude=["ERR2103731"],
+                prior=fd.KingmanPolarizationPrior()
+            ),
+            betula_two_outgroups=dict(
+                vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
+                outgroups=["ERR2103730", "ERR2103731"],
+                exclude=[],
+                prior=fd.KingmanPolarizationPrior()
+            ),
+            betula_one_outgroup_no_prior=dict(
+                vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
+                outgroups=["ERR2103730"],
+                exclude=["ERR2103731"],
+                prior=None
+            ),
+        )
+
+        for dataset, config in datasets.items():
+            p = fd.Parser(
+                vcf=config['vcf'],
+                fasta=config['fasta'] if 'fasta' in config else None,
+                aliases=config['aliases'] if 'aliases' in config else {},
+                n=10,
+                max_sites=max_sites,
+                annotations=[
+                    fd.MaximumLikelihoodAncestralAnnotation(
+                        outgroups=config['outgroups'],
+                        ingroups=config['ingroups'] if 'ingroups' in config else None,
+                        exclude=config['exclude'] if 'exclude' in config else [],
+                        n_ingroups=20,
+                        prior=config['prior'],
+                        n_target_sites=config['n_target_sites'] if 'n_target_sites' in config else None,
+                    )
+                ]
+            )
+
+            sfs = p.parse()
+
+            spectra[dataset] = sfs.all
+            parsers[dataset] = p
+
+        s = fd.Spectra.from_spectra(spectra)
+
+        # normalize by number of singletons
+        s.data /= s.data.iloc[1]
+
+        s.plot()
+
+        pass
+
+    @staticmethod
+    def test_p_ancestral_different_configs_and_params():
+        """
+        Compare the p_ancestral function for different configurations and parameters.
+        """
+        configs = dict(
+            default=dict(n_major=19, major_base='T', minor_base='C', outgroup_bases=['C']),
+        )
+
+        params = dict(
+            low=dict(k=1, K0=0.03),
+            high=dict(k=1, K0=0.3),
+        )
+
+        site_info = defaultdict(dict)
+
+        for config_name, config in configs.items():
+
+            for param_name, param in params.items():
+
+                site = SiteConfig(
+                    n_major=config['n_major'],
+                    major_base=fd.MaximumLikelihoodAncestralAnnotation.get_base_index(config['major_base']),
+                    minor_base=fd.MaximumLikelihoodAncestralAnnotation.get_base_index(config['minor_base']),
+                    outgroup_bases=fd.MaximumLikelihoodAncestralAnnotation.get_base_index(
+                        np.array(config['outgroup_bases'])
+                    )
+                )
+
+                anc = fd.MaximumLikelihoodAncestralAnnotation.from_data(
+                    n_major=[site.n_major],
+                    major_base=[site.major_base],
+                    minor_base=[site.minor_base],
+                    outgroup_bases=[[0 for _ in site.outgroup_bases]],
+                    n_ingroups=20,
+                    prior=fd.KingmanPolarizationPrior(),
+                    model=fd.JCSubstitutionModel(fixed_params=param),
+                    pass_indices=True
+                )
+
+                # dummy inference, all parameters are fixed
+                anc.infer()
+
+                site_info[(config_name, param_name)] = anc._get_site_info(site).__dict__
+
+        site_info = pd.DataFrame.from_dict(site_info)
+
+        pass

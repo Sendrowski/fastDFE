@@ -1259,7 +1259,7 @@ class SiteInfo:
             show: bool = True,
     ):
         """
-        Plot the tree for a site.
+        Plot the tree for a site. Only Python visualization is supported.
 
         :param self: The site information.
         :param ax: Axes to plot on.
@@ -1350,7 +1350,7 @@ class PolarizationPrior(ABC):
     into the estimates. 
     """
 
-    def __init__(self, allow_divergence: bool = True):
+    def __init__(self, allow_divergence: bool = False):
         """
         Create a new instance.
 
@@ -1359,6 +1359,10 @@ class PolarizationPrior(ABC):
             or among the outgroup, is taken to be the same as if it was present in the ingroup subsample with
             frequency 1. This is a hack, but allows us to consider alleles that are not present in the ingroup
             subsample.
+
+            .. warning:: Setting this to ``True`` greatly increases the probability of high-frequency derived alleles
+                which introduces a strong bias in the distribution of frequency counts, e.g., the SFS. Only use this
+                if you're interested in the most accurate ancestral state per site.
         """
         #: The logger.
         self._logger = logger.getChild(self.__class__.__name__)
@@ -1378,8 +1382,8 @@ class PolarizationPrior(ABC):
             self.probabilities[0] = self.probabilities[1]
             self.probabilities[-1] = self.probabilities[-2]
 
-        # set divergence probabilities to 0
         else:
+            # set divergence probabilities to 0
             self.probabilities[0] = 1
             self.probabilities[-1] = 0
 
@@ -1467,6 +1471,7 @@ class AdaptivePolarizationPrior(PolarizationPrior):
             self,
             n_runs: int = 1,
             parallelize: bool = True,
+            allow_divergence: bool = False,
             seed: int | None = 0
     ):
         """
@@ -1475,9 +1480,10 @@ class AdaptivePolarizationPrior(PolarizationPrior):
         :param n_runs: The number of runs to perform when determining the polarization parameters. One
             run should be sufficient as only one parameter is optimized.
         :param parallelize: Whether to parallelize the optimization.
+        :param allow_divergence: Whether to allow divergence. See :class:`PolarizationPrior` for details.
         :param seed: The seed for the random number generator.
         """
-        super().__init__()
+        super().__init__(allow_divergence=allow_divergence)
 
         #: The number of runs to use for the adaptive prior.
         self.n_runs: int = n_runs
@@ -1914,7 +1920,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
     Initially, the branch rates are determined using MLE. Similar to :class:`Parser`, we can also specify the number of
     mutational target sites (see the `n_target_sites` argument) in case our VCF file does not contain the full set of
-    monomorphic sites. This is necessary to obtain realistic branch rate estimates.You can also choose a prior for the
+    monomorphic sites. This is necessary to obtain realistic branch rate estimates. You can also choose a prior for the
     polarization probabilities (see :class:`PolarizationPrior`). Eventually, for every site, the probability that the
     major allele is ancestral is calculated.
 
@@ -1937,15 +1943,15 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
           To avoid this issue, we also keep track of potential minor alleles at frequency 0. If we were to ignore this,
           it would be impossible to infer divergence, i.e. fixed derived allele that are no longer observed in the
           ingroups (see :attr:`PolarizationPrior.allow_divergence`). That said, divergence counts are not informative
-          on DFE inference with fastDFE.
+          on DFE inference with fastDFE and allow_divergence should not be set to ``True`` if interested in the SFS.
 
         * The model assumes a single coalescent topology for all sites, in which all outgroups coalesce first with the
           ingroup and not with each other. It is important to specify the outgroups in order of increasing divergence
           and not to select outgroups that are not much more closely related to each other than to the ingroup (as this
-          would produce a different coalescent topology than the one assumed). You can call
+          would give rise to a different coalescent topology than the one assumed). You can call
           :meth:`get_outgroup_divergence` after the inference to check the estimated branch rates for each outgroup.
-          The assumption of a single fixed topology should be good enough given that in- and outgroups are sufficiently
-          diverged.
+          The assumption of a single fixed topology should be good enough provided that in- and outgroups are
+          sufficiently diverged.
 
     Example usage:
 
@@ -2037,13 +2043,16 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             the computation considerably as parsing can be slow. This subset is then used to calibrate the rate
             parameters, and possibly the polarization priors.
         :param seed: The seed for the random number generator. If ``None``, a random seed is chosen.
-        :param confidence_threshold: The confidence threshold for the ancestral allele annotation. ``This threshold
-            introduces a bias by excluding more sites with high-frequency derived alleles and should thus be 0 if
-            the SFS is to be determined.`` Only if the probability of the major allele being ancestral as opposed to
+        :param confidence_threshold: The confidence threshold for the ancestral allele annotation.
+            Only if the probability of the major allele being ancestral as opposed to
             the minor allele is not within ``((1 - confidence_threshold) / 2, 1 - (1 - confidence_threshold) / 2)``,
             the ancestral allele is annotated. This is useful to avoid annotating sites where the ancestral allele
-            state is not clear. Use values close to 0 to annotate as many sites as possible, and values close to 1
-            to annotate only sites where the ancestral allele state is very clear.
+            state is not clear. Use values close to ``0`` to annotate as many sites as possible, and values close to
+            ``1`` to annotate only sites where the ancestral allele state is very clear.
+
+            .. warning:: This threshold introduces a bias by excluding more sites with high-frequency derived alleles
+                and should thus be kept at ``0`` if the distribution of frequency counts is important, e.g., if the SFS
+                is to be determined.
         :param n_target_sites: The total number of target sites if this class is used in conjunction with
             :class:`Parser` or :class:`Annotator`. This is useful if the provided set of sites only
             consists of bi-allelic sites. Specify here the total number of sites underlying the given dataset, i.e.,

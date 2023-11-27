@@ -11,7 +11,7 @@ p = fd.Parser(
     fasta=basepath + "genome.subset.1000.fasta.gz?raw=true",
     gff=basepath + "genome.gff.gz?raw=true",
     target_site_counter=fd.TargetSiteCounter(
-        n_target_sites=200000  # total number of target sites
+        n_target_sites=350000  # total number of target sites
     ),
     annotations=[
         fd.DegeneracyAnnotation(),  # determine degeneracy

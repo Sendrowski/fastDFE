@@ -598,7 +598,7 @@ class TargetSiteCounter:
     def __init__(
             self,
             n_target_sites: int,
-            n_samples: int = int(1e6),
+            n_samples: int = int(1e5),
     ):
         """
         Initialize counter.
