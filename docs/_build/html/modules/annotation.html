@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VCF Annotation &mdash; fastDFE 1.1.1 documentation</title>
+  <title>VCF Annotation &mdash; fastDFE 1.1.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -1065,7 +1065,7 @@ run should be sufficient as only one parameter is optimized.</p></li>
 independently, see the <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_dataframe" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_dataframe"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_dataframe()</span></code></a>, <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_data" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_data()</span></code></a> and <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_est_sfs" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.from_est_sfs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_est_sfs()</span></code></a> methods.</p>
 <p>Initially, the branch rates are determined using MLE. Similar to <code class="xref py py-class docutils literal notranslate"><span class="pre">Parser</span></code>, we can also specify the number of
 mutational target sites (see the <cite>n_target_sites</cite> argument) in case our VCF file does not contain the full set of
-monomorphic sites. This is necessary to obtain realistic branch rate estimates.You can also choose a prior for the
+monomorphic sites. This is necessary to obtain realistic branch rate estimates. You can also choose a prior for the
 polarization probabilities (see <a class="reference internal" href="#fastdfe.annotation.PolarizationPrior" title="fastdfe.annotation.PolarizationPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolarizationPrior</span></code></a>). Eventually, for every site, the probability that the
 major allele is ancestral is calculated.</p>
 <p>When annotating the variants of a VCF file, we check the most likely ancestral allele against a naive
@@ -1085,14 +1085,14 @@ be problematic if the actual ancestral allele is not contained in the ingroup (p
 To avoid this issue, we also keep track of potential minor alleles at frequency 0. If we were to ignore this,
 it would be impossible to infer divergence, i.e. fixed derived allele that are no longer observed in the
 ingroups (see <a class="reference internal" href="#fastdfe.annotation.PolarizationPrior.allow_divergence" title="fastdfe.annotation.PolarizationPrior.allow_divergence"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PolarizationPrior.allow_divergence</span></code></a>). That said, divergence counts are not informative
-on DFE inference with fastDFE.</p></li>
+on DFE inference with fastDFE and allow_divergence should not be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> if interested in the SFS.</p></li>
 <li><p>The model assumes a single coalescent topology for all sites, in which all outgroups coalesce first with the
 ingroup and not with each other. It is important to specify the outgroups in order of increasing divergence
 and not to select outgroups that are not much more closely related to each other than to the ingroup (as this
-would produce a different coalescent topology than the one assumed). You can call
+would give rise to a different coalescent topology than the one assumed). You can call
 <a class="reference internal" href="#fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_outgroup_divergence" title="fastdfe.annotation.MaximumLikelihoodAncestralAnnotation.get_outgroup_divergence"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_outgroup_divergence()</span></code></a> after the inference to check the estimated branch rates for each outgroup.
-The assumption of a single fixed topology should be good enough given that in- and outgroups are sufficiently
-diverged.</p></li>
+The assumption of a single fixed topology should be good enough provided that in- and outgroups are
+sufficiently diverged.</p></li>
 </ul>
 </div>
 <p>Example usage:</p>
@@ -1158,12 +1158,12 @@ parameters, and possibly the polarization priors.</p></li>
 Only if the probability of the major allele being ancestral as opposed to
 the minor allele is not within <code class="docutils literal notranslate"><span class="pre">((1</span> <span class="pre">-</span> <span class="pre">confidence_threshold)</span> <span class="pre">/</span> <span class="pre">2,</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">(1</span> <span class="pre">-</span> <span class="pre">confidence_threshold)</span> <span class="pre">/</span> <span class="pre">2)</span></code>,
 the ancestral allele is annotated. This is useful to avoid annotating sites where the ancestral allele
-state is not clear. Use values close to 0 to annotate as many sites as possible, and values close to 1
-to annotate only sites where the ancestral allele state is very clear.</p>
+state is not clear. Use values close to <code class="docutils literal notranslate"><span class="pre">0</span></code> to annotate as many sites as possible, and values close to
+<code class="docutils literal notranslate"><span class="pre">1</span></code> to annotate only sites where the ancestral allele state is very clear.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This threshold introduces a bias by excluding more sites with high-frequency derived alleles
-and should thus be set to <cite>0</cite> if the distribution of frequency counts is important, e.g., if the SFS
+and should thus be kept at <code class="docutils literal notranslate"><span class="pre">0</span></code> if the distribution of frequency counts is important, e.g., if the SFS
 is to be determined.</p>
 </div>
 </p></li>

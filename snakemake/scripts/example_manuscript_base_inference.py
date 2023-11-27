@@ -2,8 +2,8 @@ import fastdfe as fd
 
 # create inference object
 inf = fd.BaseInference(
-    sfs_neut=fd.Spectrum([37327, 427, 123, 65, 43, 39, 38, 32, 0]),
-    sfs_sel=fd.Spectrum([160804, 642, 190, 90, 60, 43, 37, 39, 0]),
+    sfs_neut=fd.Spectrum([66200, 410, 120, 60, 42, 43, 52, 65, 0]),
+    sfs_sel=fd.Spectrum([281937, 600, 180, 87, 51, 43, 49, 61, 0]),
     model=fd.GammaExpParametrization(),  # the model to use
     n_runs=10,  # number of optimization runs
     n_bootstraps=100,  # number of bootstrap replicates
