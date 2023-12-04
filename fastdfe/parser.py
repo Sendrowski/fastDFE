@@ -757,7 +757,7 @@ class TargetSiteCounter:
         """
         Update the target sites of the spectra.
 
-        :param spectra: The spectra.
+        :param spectra: The spectra, including the sampled monomorphic sites.
         :return: The updated spectra.
         """
         # copy spectra
@@ -767,7 +767,7 @@ class TargetSiteCounter:
         # we only want to consider the monomorphic sites sampled from the FASTA file
         spectra.data.iloc[[0, -1], :] -= self._sfs_polymorphic.data.iloc[[0, -1], :]
 
-        # get number of monomorphic and polymorphic sites sampled from the FASTA and VCF files, respectively
+        # get number of monomorphic and polymorphic sites sampled from the FASTA and VCF file, respectively
         n_monomorphic = spectra.data.iloc[0, :].sum()
         n_polymorphic = spectra.data.iloc[1:, :].sum().sum()
 
@@ -791,10 +791,11 @@ class TargetSiteCounter:
             # extrapolate monomorphic counts using scaling factor
             spectra.data.iloc[0, :] *= x
 
-            # subtract polymorphic counts from original spectra
+            # subtract polymorphic counts from original spectra,
             # so that the total number of sites is equal to the number of target sites
             # we do this to correct for the fact that, for a type, we have relatively
-            # fewer monomorphic if we have more polymorphic sites
+            # fewer monomorphic sites if we have more polymorphic sites
+            # TODO include monomorphic sites here from VCF?
             spectra.data.iloc[0, :] -= self._sfs_polymorphic.n_polymorphic
 
         return spectra
