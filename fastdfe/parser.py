@@ -582,10 +582,6 @@ class TargetSiteCounter:
     contain plenty of information on the strength of selection. It is recommended to use a SNPFiltration when
     using this class to avoid biasing the result by monomorphic sites present in the VCF file.
 
-    Note that we sample sites randomly to make sure we cover the entire genome when only a subset of the genome is
-    considered. This provides more speed as we don't have to parse the entire FASTA file. The actual number of
-    monomorphic sites is then extrapolated from ``n_target_sites``.
-
     .. warning::
         This class is not compatible with stratifications based on info tags that are pre-defined in the VCF file, as
         opposed to those added dynamically using the ``annotations`` argument of the parser. We also need to
@@ -925,8 +921,8 @@ class Parser(MultiHandler):
         :param aliases: Dictionary of aliases for the contigs in the VCF file, e.g. ``{'chr1': ['1']}``.
             This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.
         :param target_site_counter: The target site counter. If ``None``, we do not sample target sites.
-        :param subsample_mode: The subsampling mode. For ``random``, we draw once without replacement from the set of all
-            available genotypes per site. For ``probabilistic``, we add up the hypergeometric distribution for all
+        :param subsample_mode: The subsampling mode. For ``random``, we draw once without replacement from the set of
+            all available genotypes per site. For ``probabilistic``, we add up the hypergeometric distribution for all
             sites. This will produce a smoother SFS, especially when a small number of sites is considered.
         """
         MultiHandler.__init__(
