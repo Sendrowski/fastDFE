@@ -594,9 +594,14 @@ class Visualization:
             return ax
 
         if use_subplots:
+
+            # clear current figure
+            plt.clf()
+
             n_plots = len(spectra)
             n_rows = int(np.ceil(np.sqrt(n_plots)))
             n_cols = int(np.ceil(np.sqrt(n_plots)))
+
             fig = plt.figure(figsize=(6.4 * n_cols ** (1 / 3), 4.8 * n_rows ** (1 / 3)))
             axes = fig.subplots(ncols=n_cols, nrows=n_rows, squeeze=False).flatten()
 
@@ -618,6 +623,9 @@ class Visualization:
 
             # make empty plots invisible
             [ax.set_visible(False) for ax in axes[n_plots:]]
+
+            # make layout tight
+            plt.tight_layout()
 
             # show and save plot
             return Visualization.show_and_save(file, show)
