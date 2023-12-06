@@ -169,7 +169,7 @@ class Spectrum(Iterable):
         .. warning::
             If using the 'random' mode, The SFS counts are cast to integers before subsampling so this will
             only provide sensible results if the SFS counts are integers or if they are large enough to be
-            approximated by integers. The 'probabilistic' mode does not have this limitation.
+            approximated well by integers. The 'probabilistic' mode does not have this limitation.
 
         :param n: Sample size
         :param mode: Subsampling mode. Either 'random' or 'probabilistic'.
