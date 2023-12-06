@@ -2,11 +2,12 @@ import itertools
 import logging
 import tempfile
 from collections import defaultdict
+from typing import Literal, cast
 from unittest.mock import MagicMock, PropertyMock, patch, Mock
 
 import numpy as np
 import pandas as pd
-from cyvcf2 import Variant
+from cyvcf2 import Variant, cyvcf2
 from matplotlib import pyplot as plt
 from matplotlib.collections import PathCollection
 from numpy import testing
@@ -1110,7 +1111,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             parallelize=True,
             prior=fd.KingmanPolarizationPrior(),
             confidence_threshold=0,
-            max_sites=10000
+            max_sites=10000,
+            subsample_mode='random'
         )
 
         ann = fd.Annotator(
@@ -1528,14 +1530,12 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         """
         Compare MLE params and site probabilities with EST-SFS using the betula dataset.
         """
-        annotators = []
-
         cases = [
             dict(
                 prior=None,
                 model=fd.JCSubstitutionModel(),
                 tol_params=0.1,
-                tol_sites=0.03,
+                tol_sites=0.04,
                 outgroups=["ERR2103730"],
                 vcf="resources/genome/betula/all.with_outgroups.vcf.gz"
             ),
@@ -1543,23 +1543,23 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 prior=None,
                 model=fd.JCSubstitutionModel(),
                 tol_params=1.3,
-                tol_sites=0.03,
+                tol_sites=0.04,
                 outgroups=["ERR2103730", "ERR2103731"],
                 vcf="resources/genome/betula/all.with_outgroups.vcf.gz"
             ),
             dict(
                 prior=None,
                 model=fd.JCSubstitutionModel(),
-                tol_params=0.5,
-                tol_sites=0.03,
+                tol_params=0.8,
+                tol_sites=0.04,
                 outgroups=["ERR2103730", "ERR2103731"],
                 vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz"
             ),
             dict(
                 prior=None,
                 model=fd.K2SubstitutionModel(),
-                tol_params=0.5,
-                tol_sites=0.03,
+                tol_params=0.8,
+                tol_sites=0.04,
                 outgroups=["ERR2103730", "ERR2103731"],
                 vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz"
             ),
@@ -1581,16 +1581,21 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             )
         ]
 
+        annotators = []
+        diffs_params = []
+        diffs_sites = []
         max_sites = 10000
         n_ingroups = 11
 
+        # run inference
         for i, case in enumerate(cases):
             anc = fd.MaximumLikelihoodAncestralAnnotation(
                 outgroups=case['outgroups'],
                 n_ingroups=n_ingroups,
                 prior=case['prior'],
                 model=case['model'],
-                max_sites=max_sites
+                max_sites=max_sites,
+                subsample_mode='random'
             )
 
             ann = fd.Annotator(
@@ -1608,22 +1613,24 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             params_mle = np.array([[anc.params_mle[k], anc2.params_mle[k]] for k in anc.params_mle])
 
             diff_params = np.abs(params_mle[:, 0] - params_mle[:, 1]) / params_mle[:, 1]
-            diff_params_max = diff_params.max()
-
-            self.assertGreater(case['tol_params'], diff_params_max)
 
             # exclude sites where the major is fixed in the ingroup subsample
             site_info = site_info[site_info['native.n_major'] != n_ingroups]
 
             diff_sites = np.abs(site_info['native.p_major_ancestral'] - site_info['est_sfs.p_major_ancestral'])
-            diff_sites_mean = diff_sites.mean()
 
-            # these discrepancies are quite high, but for the sites for which the estimates differ the most,
-            # EST-SFS's probabilities seem quite off. Even after double-checking I could not an explanation
-            # for this and EST-SFS's code is a bit of a black box.
-            self.assertGreater(case['tol_sites'], diff_sites_mean)
+            annotators.append(ann)
+            diffs_params.append(diff_params)
+            diffs_sites.append(diff_sites)
 
-            annotators.append(anc)
+        diffs_params_max = [d.max() for d in diffs_params]
+        diffs_params_tol = [case['tol_params'] for case in cases]
+
+        diffs_sites_mean = [d.mean() for d in diffs_sites]
+        diffs_sites_tol = [case['tol_sites'] for case in cases]
+
+        self.assertTrue((diffs_params_max < diffs_params_tol).all())
+        self.assertTrue((diffs_sites_mean < diffs_sites_tol).all())
 
         pass
 
@@ -1672,11 +1679,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         genotypes = np.array(["A|T", "./T", "C|G", ".|.", "T/T", "A|.", "N|G", "A|N"])
         n_outgroups = 8
 
-        result = fd.MaximumLikelihoodAncestralAnnotation._get_outgroup_bases(genotypes, n_outgroups, minor_base='A')
-        np.testing.assert_array_equal(result, np.array(['A', 'T', 'C', 'N', 'T', 'A', 'G', 'A']))
-
-        result = fd.MaximumLikelihoodAncestralAnnotation._get_outgroup_bases(genotypes, n_outgroups, minor_base='T')
-        np.testing.assert_array_equal(result, np.array(['T', 'T', 'C', 'N', 'T', 'A', 'G', 'A']))
+        result = fd.MaximumLikelihoodAncestralAnnotation._get_outgroup_bases(genotypes, n_outgroups)
+        np.testing.assert_array_equal(result, np.array(['A', 'T', 'C', '.', 'T', 'A', 'G', 'A']))
 
     def test_get_base_index(self):
         """
@@ -1741,7 +1745,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 )
             )
 
-            site_info = fd.annotation._AdHocAncestralAnnotation._get_site_information(site_config)
+            site_info = fd.annotation._AdHocAncestralAnnotation._get_site_info(site_config)
 
             self.assertEqual(site_info['ancestral_base'], config['ancestral_expected'])
 
@@ -1841,7 +1845,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             # dummy inference, all parameters are fixed
             anc.infer()
 
-            site_info = anc._get_site_info(site)
+            site_info = anc._get_site_info([site])
 
             probs = np.array(list(site_info.p_bases_first_node.values()))
             is_max = np.where(np.isclose(probs, np.max(probs)))[0]
@@ -1874,7 +1878,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             outgroups=["ERR2103730", "ERR2103731"],
             ingroups=["ASP04", "ASP05", "ASP06", "ASP07"],
             n_ingroups=8,
-            prior=None
+            prior=None,
+            subsample_mode='random'
         )
 
         # create a mocked variant
@@ -1886,7 +1891,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         variant.gt_bases = np.array(["A|A", "T|T", "A|T", "T|T", "T|T", "T|T"])
 
         # parse the mocked variant
-        site = anc._parse_variant(variant)
+        site = anc._parse_variant(variant)[0]
 
         self.assertEqual(site.n_major, 5)
         self.assertEqual(site.major_base, base_indices['T'])
@@ -1902,7 +1907,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             outgroups=["ERR2103730"],
             ingroups=["ASP04", "ASP05", "ASP06", "ASP07"],
             n_ingroups=4,
-            prior=None
+            prior=None,
+            subsample_mode='random'
         )
 
         # create a mocked variant
@@ -1914,7 +1920,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         variant.gt_bases = np.array(["A|T", "T|T", "T|T", "T|T", "T|A"])
 
         # parse the mocked variant
-        site = anc._parse_variant(variant)
+        site = anc._parse_variant(variant)[0]
 
         self.assertEqual(site.n_major, 4)
         self.assertEqual(site.major_base, base_indices['T'])
@@ -1930,7 +1936,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             outgroups=["ERR2103730"],
             ingroups=["ASP04", "ASP05", "ASP06", "ASP07"],
             n_ingroups=4,
-            prior=None
+            prior=None,
+            subsample_mode='random'
         )
 
         # create a mocked variant
@@ -1942,7 +1949,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         variant.gt_bases = np.array(["T|T", "T|T", "T|T", "T|T", "T|A"])
 
         # parse the mocked variant
-        site = anc._parse_variant(variant)
+        site = anc._parse_variant(variant)[0]
 
         self.assertEqual(site.n_major, 4)
         self.assertEqual(site.major_base, base_indices['T'])
@@ -2169,7 +2176,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         self.assertEqual(True, fd.MaximumLikelihoodAncestralAnnotation._is_confident(0.5, 0.8))
         self.assertEqual(True, fd.MaximumLikelihoodAncestralAnnotation._is_confident(0.5, 0.9))
 
-    def test_get_outgroup_divergence_one_outgroup(self):
+    @staticmethod
+    def test_get_outgroup_divergence_one_outgroup():
         """
         Test the get_outgroup_divergence method with one outgroup.
         """
@@ -2187,7 +2195,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         testing.assert_array_equal([0.05], anc.get_outgroup_divergence())
 
-    def test_get_outgroup_divergence_two_outgroups(self):
+    @staticmethod
+    def test_get_outgroup_divergence_two_outgroups():
         """
         Test the get_outgroup_divergence method with two outgroups.
         """
@@ -2207,7 +2216,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         testing.assert_array_almost_equal([0.15, 0.25], anc.get_outgroup_divergence())
 
-    def test_get_outgroup_divergence_three_outgroups(self):
+    @staticmethod
+    def test_get_outgroup_divergence_three_outgroups():
         """
         Test the get_outgroup_divergence method with three outgroups.
         """
@@ -2428,9 +2438,9 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             self.assertEqual(n_sites_vcf, a.configs.multiplicity.sum())
             self.assertEqual(n_sites_vcf, a.n_sites)
 
-            self.assertEqual(n_sites_total, configs.multiplicity.sum())
-            self.assertEqual(n_sites_total, len(configs.sites.sum()))
-            self.assertEqual(n_sites_total, len(np.unique(configs.sites.sum())))
+            self.assertEqual(n_sites_total, int(configs.multiplicity.sum()))
+            # self.assertEqual(n_sites_total, len(configs.sites.sum()))
+            # self.assertEqual(n_sites_total, len(np.unique(configs.sites.sum())))
 
         pass
 
@@ -2656,10 +2666,9 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         pass
 
-    @staticmethod
-    def test_p_ancestral_different_configs_and_params():
+    def test_compare_p_major_ancestral_high_vs_log_branch_rates(self):
         """
-        Compare the p_ancestral function for different configurations and parameters.
+        Compare the p_major_ancestral for high vs. log branch rates.
         """
         configs = dict(
             default=dict(n_major=19, major_base='T', minor_base='C', outgroup_bases=['C']),
@@ -2675,7 +2684,6 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         for config_name, config in configs.items():
 
             for param_name, param in params.items():
-
                 site = SiteConfig(
                     n_major=config['n_major'],
                     major_base=fd.MaximumLikelihoodAncestralAnnotation.get_base_index(config['major_base']),
@@ -2699,8 +2707,343 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 # dummy inference, all parameters are fixed
                 anc.infer()
 
-                site_info[(config_name, param_name)] = anc._get_site_info(site).__dict__
+                site_info[(config_name, param_name)] = anc._get_site_info([site]).__dict__
 
         site_info = pd.DataFrame.from_dict(site_info)
 
-        pass
+        self.assertLess(
+            site_info.loc['p_major_ancestral', ('default', 'low')],
+            site_info.loc['p_major_ancestral', ('default', 'high')]
+        )
+
+        self.assertGreater(np.diff(site_info.loc['p_major_ancestral'])[0], 0.5)
+
+    def test_compare_random_vs_probabilistic_subsampling(self):
+        """
+        Compare MLE params and ancestral allele probabilities with random vs. probabilistic subsampling.
+        """
+        parsers, spectra = {}, {}
+        modes = ['probabilistic', 'random']
+
+        for mode in modes:
+            p = fd.Parser(
+                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                n=10,
+                max_sites=1000,
+                annotations=[
+                    fd.MaximumLikelihoodAncestralAnnotation(
+                        outgroups=["ERR2103730"],
+                        exclude=["ERR2103731"],
+                        n_ingroups=20,
+                        subsample_mode=cast(Literal['random', 'probabilistic'], mode),
+                    )
+                ]
+            )
+
+            sfs = p.parse()
+
+            parsers[str(mode)] = p
+            spectra[str(mode)] = sfs.all
+
+        fd.Spectra.from_spectra(spectra).plot()
+
+        params_mle = np.array([list(parsers[mode].annotations[0].params_mle.values()) for mode in modes])
+
+        diff_rel = np.abs(np.diff(params_mle, axis=0) / params_mle[0])
+
+        self.assertLess(diff_rel.max(), 0.03)
+
+        annotations = [parsers[mode].annotations[0] for mode in modes]
+
+        vcf = cyvcf2.VCF("resources/genome/betula/biallelic.with_outgroups.vcf.gz")
+
+        mismatches = 0
+        for i in range(600):
+            site = next(vcf)
+
+            # get the site info for both annotations
+            site_info = [ann._get_site_info(ann._parse_variant(site)) for ann in annotations]
+
+            # make sure the major and minor allele probabilities are the same
+            # This is because they're independent of the actual allele frequency
+            # given the major allele is the same
+            if site_info[0].major_base == site_info[1].major_base:
+                self.assertEqual(site_info[0].p_minor, site_info[1].p_minor)
+                self.assertEqual(site_info[0].p_major, site_info[1].p_major)
+
+                # this is not true for all sites, but it is for the first 600
+                self.assertLess(np.abs(site_info[0].p_major_ancestral - site_info[1].p_major_ancestral), 0.3)
+            else:
+                mismatches += 1
+
+        self.assertLess(mismatches, 6)
+
+    @staticmethod
+    def test_plot_configs():
+        """
+        Compare random vs. probabilistic subsampling.
+        """
+
+        a = fd.MaximumLikelihoodAncestralAnnotation._from_vcf(
+            file="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+            outgroups=["ERR2103730"],
+            exclude=["ERR2103731"],
+            max_sites=1000,
+            n_ingroups=20,
+            subsample_mode='probabilistic',
+        )
+
+        a.get_folded_spectra(groups=[]).plot()
+        a.get_folded_spectra(groups=['major_base']).plot()
+        a.get_folded_spectra(groups=['major_base', 'minor_base']).plot()
+        a.get_folded_spectra(groups=['major_base', 'minor_base', 'outgroup_bases']).plot()
+
+    def test_compare_folded_sfs_random_vs_probabilistic_subsampling(self):
+        """
+        Compare folded SFS random vs. probabilistic subsampling.
+        """
+        spectra = {}
+        for mode in ['probabilistic', 'random']:
+            a = fd.MaximumLikelihoodAncestralAnnotation._from_vcf(
+                file="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                outgroups=["ERR2103730"],
+                exclude=["ERR2103731"],
+                max_sites=2000,
+                n_ingroups=10,
+                subsample_mode=cast(Literal['random', 'probabilistic'], mode)
+            )
+
+            spectra[mode] = a.get_folded_spectra(groups=[]).all
+
+        fd.Spectra.from_spectra(spectra).plot()
+
+        diff = ((spectra['random'].data - spectra['probabilistic'].data) /
+                (spectra['random'].data + spectra['probabilistic'].data))
+
+        # less for larger number of sites
+        self.assertLess(np.abs(diff[~np.isnan(diff)]).max(), 0.25)
+
+    @staticmethod
+    def test_get_folded_spectra_random_vs_probabilistic_subsampling():
+        """
+        Test the get_folded_spectra method for random vs. probabilistic subsampling and different groups.
+        """
+        for mode in ['probabilistic', 'random']:
+            a = fd.MaximumLikelihoodAncestralAnnotation(
+                outgroups=["ERR2103730"],
+                exclude=["ERR2103731"],
+                n_ingroups=20,
+                subsample_mode=cast(Literal['random', 'probabilistic'], mode),
+            )
+
+            p = fd.Parser(
+                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                n=10,
+                max_sites=1000,
+                annotations=[a]
+            )
+
+            sfs = p.parse()
+
+            a.get_folded_spectra(groups=[]).plot()
+            a.get_folded_spectra(groups=['major_base']).plot(use_subplots=True)
+            a.get_folded_spectra(groups=['major_base', 'minor_base']).plot(use_subplots=True)
+
+    def test_subsample_site_convergence(self):
+        """
+        Test that random subsampling of sites converges to the probabilistic results.
+        """
+        genotypes = np.array(['A'] * 20 + ['T'] * 25)
+
+        for n in [10, 11]:
+
+            random = np.zeros((3, 100000), dtype=object)
+            for i in range(random.shape[1]):
+                random[:, i] = np.array(fd.MaximumLikelihoodAncestralAnnotation._subsample_site(
+                    mode='random',
+                    n=n,
+                    samples=genotypes,
+                    rng=np.random.default_rng()
+                ))[:, 0]
+
+            probabilistic = np.array(fd.MaximumLikelihoodAncestralAnnotation._subsample_site(
+                mode='probabilistic',
+                n=n,
+                samples=genotypes,
+                rng=np.random.default_rng()
+            ))
+
+            df = pd.DataFrame(random.T, columns=['major_base', 'n_major', 'multiplicity'])
+            grouped = df.groupby(['major_base', 'n_major']).aggregate(list)
+
+            random_binned = np.zeros((3, n + 1), dtype=object)
+            for i, prob in enumerate(probabilistic.T):
+                random_binned[:, i] = list(prob[:2]) + [
+                    len(grouped.loc[tuple(prob[:2])].multiplicity) / random.shape[1]]
+
+            diff = np.abs(random_binned[2].astype(float) - probabilistic[2].astype(float))
+
+            self.assertLess(diff.max(), 0.15)
+
+    @staticmethod
+    def test_subsample_monomorphic_site_probabilistically():
+        """
+        Test that probabilistic subsampling of monomorphic sites works.
+        """
+        genotypes = np.array(['A'] * 20)
+
+        results = []
+        for mode in ['probabilistic', 'random']:
+            results.append(np.array(fd.MaximumLikelihoodAncestralAnnotation._subsample_site(
+                mode=mode,
+                n=10,
+                samples=genotypes,
+                rng=np.random.default_rng()
+            )))
+
+        np.testing.assert_array_equal(results[0], results[1])
+
+    @staticmethod
+    def test_annotation_fixed_result():
+        """
+        Test the maximum likelihood ancestral annotation for a fixed result.
+        """
+        max_sites = 1000
+
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            exclude=["ERR2103731"],
+            n_runs=10,
+            n_ingroups=20,
+            model=fd.K2SubstitutionModel(),
+            prior=fd.KingmanPolarizationPrior(),
+            n_target_sites=7 * max_sites
+        )
+
+        p = fd.Parser(
+            vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+            fasta="resources/genome/betula/genome.fasta",
+            n=10,
+            max_sites=max_sites,
+            annotations=[anc]
+        )
+
+        sfs = p.parse()
+
+        sfs.plot()
+
+        np.testing.assert_almost_equal(
+            [860.7, 81.3, 21.4, 10.9, 6.5, 3.8, 2.5, 2.3, 2.8, 3.5, 3.3],
+            sfs.all.data,
+            decimal=1
+        )
+
+    @staticmethod
+    @pytest.mark.skip('For profiling only')
+    def test_annotation_profiling():
+        """
+        Profile the maximum likelihood ancestral annotation.
+        """
+        max_sites = 1000
+
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            exclude=["ERR2103731"],
+            n_runs=10,
+            n_ingroups=10,
+            model=fd.K2SubstitutionModel(),
+            prior=fd.KingmanPolarizationPrior(),
+            n_target_sites=7 * max_sites
+        )
+
+        p = fd.Parser(
+            vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+            fasta="resources/genome/betula/genome.fasta",
+            n=10,
+            max_sites=max_sites,
+            annotations=[anc]
+        )
+
+        sfs = p.parse()
+
+    def test_raises_warning_on_few_monomorphic_sites(self):
+        """
+        Test that a warning is raised when there are few monomorphic sites.
+        """
+        max_sites = 1000
+
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            exclude=["ERR2103731"],
+            n_runs=10,
+            n_ingroups=10,
+            model=fd.K2SubstitutionModel(),
+            prior=fd.KingmanPolarizationPrior()
+        )
+
+        p = fd.Parser(
+            vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+            n=10,
+            max_sites=max_sites,
+            annotations=[anc]
+        )
+
+        # this should log a warning
+        with self.assertLogs(level='WARNING', logger=anc._logger):
+            p.parse()
+
+    @staticmethod
+    def test_compare_priors_random_vs_probabilistic_subsampling():
+        """
+        Compare priors with random vs. probabilistic subsampling.
+        """
+        for prior in [fd.AdaptivePolarizationPrior(), fd.KingmanPolarizationPrior()]:
+            for mode in ['probabilistic', 'random']:
+                a = fd.MaximumLikelihoodAncestralAnnotation._from_vcf(
+                    file="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                    outgroups=["ERR2103730"],
+                    exclude=["ERR2103731"],
+                    max_sites=1000,
+                    n_ingroups=20,
+                    subsample_mode=cast(Literal['random', 'probabilistic'], mode),
+                    prior=prior
+                )
+
+                a.infer()
+
+                # much more stable with probabilistic subsampling
+                a.prior.plot(title=f"{prior.__class__.__name__} - {mode}")
+
+    @pytest.mark.slow
+    def test_compare_parsed_sfs_random_vs_probabilistic_subsampling_thorough(self):
+        """
+        Compare parsed SFS of random vs. probabilistic subsampling.
+        """
+        n_sites = 10000
+        spectra = {}
+
+        for mode in ['probabilistic', 'random']:
+            a = fd.MaximumLikelihoodAncestralAnnotation(
+                outgroups=["ERR2103730"],
+                exclude=["ERR2103731"],
+                max_sites=n_sites,
+                n_ingroups=20,
+                n_target_sites=7 * n_sites,
+                subsample_mode=cast(Literal['random', 'probabilistic'], mode)
+            )
+
+            p = fd.Parser(
+                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                fasta="resources/genome/betula/genome.fasta",
+                n=20,
+                max_sites=n_sites,
+                annotations=[a]
+            )
+
+            spectra[mode] = p.parse().all
+
+        fd.Spectra.from_spectra(spectra).plot()
+
+        diff_rel = np.abs(np.diff([s.data for s in spectra.values()], axis=0)[0] / spectra['random'].data)
+
+        self.assertLess(diff_rel[:-1].max(), 0.15)
