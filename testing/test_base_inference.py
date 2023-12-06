@@ -8,7 +8,6 @@ import copy
 from unittest import mock
 from testing import TestCase
 from pandas.testing import assert_frame_equal
-import pytest
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -648,7 +647,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         with self.assertRaises(ValueError):
             fd.BaseInference.from_config(config)
 
-    def test_get_cis_params_mle_no_boostraps(self):
+    def test_get_cis_params_mle_no_bootstraps(self):
         """
         Get the MLE parameters from the cis inference.
         """
@@ -658,7 +657,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         assert cis is None
 
-    def test_get_cis_params_mle_with_boostraps(self):
+    def test_get_cis_params_mle_with_bootstraps(self):
         """
         Get the MLE parameters from the cis inference.
         """
@@ -668,7 +667,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         cis = inference.get_cis_params_mle()
 
-    def test_get_discretized_errors_with_boostraps(self):
+    def test_get_discretized_errors_with_bootstraps(self):
         """
         Get the discretized DFE errors.
         """
@@ -678,7 +677,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         res = inference.get_discretized()
 
-    def test_get_discretized_errors_no_boostraps(self):
+    def test_get_discretized_errors_no_bootstraps(self):
         """
         Get the discretized DFE errors.
         """
@@ -753,7 +752,8 @@ class BaseInferenceTestCase(InferenceTestCase):
                 sfs_sel=sfs_sel,
             )
 
-    def test_folded_inference_even_sample_size(self):
+    @staticmethod
+    def test_folded_inference_even_sample_size():
         """
         Test whether a spectrum with zero monomorphic counts throws an error.
         """
@@ -768,7 +768,8 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inf.plot_discretized()
 
-    def test_folded_inference_odd_sample_size(self):
+    @staticmethod
+    def test_folded_inference_odd_sample_size():
         """
         Test whether a spectrum with zero monomorphic counts throws an error.
         """
@@ -785,8 +786,8 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         pass
 
-    @pytest.mark.skip(reason="Slight variation in results")
-    def test_sample_data_fixed_result(self):
+    @staticmethod
+    def test_sample_data_fixed_result():
         """
         Test whether a spectrum with zero monomorphic counts throws an error.
         """
@@ -814,7 +815,8 @@ class BaseInferenceTestCase(InferenceTestCase):
             [expected[k] for k in expected]
         )
 
-    def test_few_polymorphic_sites_raises_no_error(self):
+    @staticmethod
+    def test_few_polymorphic_sites_raises_no_error():
         """
         Test whether a spectrum with few polymorphic sites raises no error.
         """
