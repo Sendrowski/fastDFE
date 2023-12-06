@@ -543,7 +543,7 @@ class Spectra:
 
         :return: Dictionary of spectrum objects
         """
-        return dict((t, self[t]) for t in self.types)
+        return dict((t, self.select(t, use_regex=False)) for t in self.types)
 
     def to_dataframe(self) -> pd.DataFrame:
         """
@@ -624,18 +624,31 @@ class Spectra:
         """
         return Spectra.from_dataframe(self.data.add(other.data, fill_value=0))
 
-    def __getitem__(self, keys: str | List[str] | np.ndarray | tuple) -> Union['Spectrum', 'Spectra']:
+    def __getitem__(
+            self,
+            keys: str | List[str] | np.ndarray | tuple,
+            use_regex: bool = True
+    ) -> Union['Spectrum', 'Spectra']:
         """
         Get item.
 
         :param keys: String or list of strings, possibly regex to match type names
+        :param use_regex: Whether to use regex to match type names
         :return: Spectrum or Spectra object depending on the number of matches
         """
         # whether the input in an array
         is_array = isinstance(keys, (np.ndarray, list, tuple))
 
-        # use regex to subset dataframe using column names
-        subset = self.data.loc[:, self.data.columns.str.fullmatch('|'.join(keys) if is_array else keys)]
+        if use_regex:
+            # subset dataframe using column names using regex
+            subset = self.data.loc[:, self.data.columns.str.fullmatch('|'.join(keys) if is_array else keys)]
+        else:
+            # subset dataframe using column names
+            subset = self.data.loc[:, keys]
+
+        # return spectrum object if we have a series
+        if isinstance(subset, pd.Series):
+            return Spectrum(list(subset))
 
         # return spectrum object if only one column is left
         # and if not multiple keys were supplied
@@ -662,14 +675,19 @@ class Spectra:
         """
         return self.data.__iter__()
 
-    def select(self, keys: str | List[str] | np.ndarray | tuple) -> 'Spectra':
+    def select(
+            self,
+            keys: str | List[str] | np.ndarray | tuple,
+            use_regex: bool = True
+    ) -> 'Spectra':
         """
         Select types. Alias for __getitem__.
 
         :param keys: String or list of strings, possibly regex to match type names
+        :param use_regex: Whether to use regex to match type names
         :return: Spectrum or Spectra depending on the number of matches
         """
-        return self[keys]
+        return self.__getitem__(keys, use_regex=use_regex)
 
     def copy(self) -> 'Spectra':
         """

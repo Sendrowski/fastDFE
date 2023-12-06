@@ -245,6 +245,22 @@ class SpectraTestCase(TestCase):
         assert isinstance(s['sub.*'], Spectrum)
         assert isinstance(s[['sub.*']], Spectra)
 
+    def test_select_no_regex(self):
+        """
+        Test that the select method works as expected when not using regex.
+        """
+        s = Spectra.from_spectra(dict(
+            all=spectrum.standard_kingman(self.n),
+            all2=spectrum.standard_kingman(self.n),
+            sub=spectrum.standard_kingman(self.n)
+        ))
+
+        assert isinstance(s.__getitem__('all', use_regex=False), Spectrum)
+        assert isinstance(s.__getitem__(['sub', 'all'], use_regex=False), Spectra)
+        assert len(s.__getitem__(['sub', 'all'], use_regex=False)) == 2
+        assert isinstance(s.__getitem__(['sub'], use_regex=False), Spectra)
+        assert len(s.__getitem__(['sub'], use_regex=False)) == 1
+
     @staticmethod
     def test_merge_level():
         """
