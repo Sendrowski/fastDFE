@@ -232,7 +232,8 @@ class Spectrum(Iterable):
     def normalize(self) -> 'Spectrum':
         """
         Normalize SFS so that all non-monomorphic counts add up to 1.
-        :return:
+
+        :return: Normalized spectrum
         """
         # copy array
         data = self.data.copy()
