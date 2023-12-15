@@ -767,9 +767,6 @@ Ideally, we obtain the SFS by parsing VCF files that contain both mono- and poly
 we need to know about the number of mutational opportunities for synonymous and non-synonymous sites which
 contain plenty of information on the strength of selection. It is recommended to use a SNPFiltration when
 using this class to avoid biasing the result by monomorphic sites present in the VCF file.</p>
-<p>Note that we sample sites randomly to make sure we cover the entire genome when only a subset of the genome is
-considered. This provides more speed as we don’t have to parse the entire FASTA file. The actual number of
-monomorphic sites is then extrapolated from <code class="docutils literal notranslate"><span class="pre">n_target_sites</span></code>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This class is not compatible with stratifications based on info tags that are pre-defined in the VCF file, as
@@ -919,8 +916,8 @@ are excluded. Note that this restriction does not apply to the annotations and f
 <li><p><strong>aliases</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – Dictionary of aliases for the contigs in the VCF file, e.g. <code class="docutils literal notranslate"><span class="pre">{'chr1':</span> <span class="pre">['1']}</span></code>.
 This is used to match the contig names in the VCF file with the contig names in the FASTA file and GFF file.</p></li>
 <li><p><strong>target_site_counter</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#fastdfe.parser.TargetSiteCounter" title="fastdfe.parser.TargetSiteCounter"><code class="xref py py-class docutils literal notranslate"><span class="pre">TargetSiteCounter</span></code></a>]) – The target site counter. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, we do not sample target sites.</p></li>
-<li><p><strong>subsample_mode</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'random'</span></code>, <code class="docutils literal notranslate"><span class="pre">'probabilistic'</span></code>]) – The subsampling mode. For <code class="docutils literal notranslate"><span class="pre">random</span></code>, we draw once without replacement from the set of all
-available genotypes per site. For <code class="docutils literal notranslate"><span class="pre">probabilistic</span></code>, we add up the hypergeometric distribution for all
+<li><p><strong>subsample_mode</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'random'</span></code>, <code class="docutils literal notranslate"><span class="pre">'probabilistic'</span></code>]) – The subsampling mode. For <code class="docutils literal notranslate"><span class="pre">random</span></code>, we draw once without replacement from the set of
+all available genotypes per site. For <code class="docutils literal notranslate"><span class="pre">probabilistic</span></code>, we add up the hypergeometric distribution for all
 sites. This will produce a smoother SFS, especially when a small number of sites is considered.</p></li>
 </ul>
 </dd>

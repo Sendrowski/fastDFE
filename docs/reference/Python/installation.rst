@@ -19,7 +19,7 @@ Create a new file called ``environment.yml`` with the following content:
 
    .. code-block:: yaml
 
-      name: fastdfe-env
+      name: fastdfe
       channels:
         - defaults
       dependencies:
@@ -38,7 +38,7 @@ Activate the newly created conda environment:
 
    .. code-block:: bash
 
-      conda activate fastdfe-env
+      conda activate fastdfe
 
 You are now ready to use the ``fastdfe`` package within the isolated conda environment.
 
