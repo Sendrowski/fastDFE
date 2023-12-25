@@ -3,6 +3,6 @@
 [![Documentation Status](https://readthedocs.org/projects/fastdfe/badge/?version=latest)](https://fastdfe.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/fastdfe.svg)](https://badge.fury.io/py/fastdfe)
 
-fastDFE is a package for fast, flexible, and hierarchical inference of the distribution of fitness effects (DFE) from site frequency spectra (SFS).
+fastDFE is a package for fast, flexible, and hierarchical inference of the distribution of fitness effects (DFE) from site frequency spectra (SFS). It also contains a versatile VCF-to-SFS parser with support for ancestral allele and site-degeneracy annotation.
 
 Please see the [documentation](https://fastdfe.readthedocs.io/en/latest/) for all the details.
