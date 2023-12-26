@@ -467,6 +467,8 @@ class Visualization:
         :param show: Whether to show plot
         :return: Axes
         """
+        plt.clf()
+
         # create a subplot with number of parameters axes
         fig, axs = plt.subplots(len(param_names), 1, figsize=(6, 1.4 * len(param_names)))
 
