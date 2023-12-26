@@ -225,7 +225,6 @@ class Inference:
             show: bool = True,
             title: str = 'parameter estimates',
             **kwargs
-
     ) -> plt.Axes:
         """
         Visualize several discretized DFEs given by the list of inference objects.
