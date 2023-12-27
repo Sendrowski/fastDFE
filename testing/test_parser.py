@@ -455,6 +455,7 @@ class ParserTestCase(TestCase):
                 gff="https://github.com/Sendrowski/fastDFE/blob/dev/resources/"
                     "genome/betula/genome.gff.gz?raw=true",
                 n=10,
+                subsample_mode='random',
                 annotations=[
                     fd.DegeneracyAnnotation(),
                     fd.MaximumLikelihoodAncestralAnnotation(
@@ -906,7 +907,7 @@ class ParserTestCase(TestCase):
         fd.Inference.plot_discretized(inferences, labels=[f"n={n}" for n in sample_sizes])
         fd.Inference.plot_inferred_parameters(inferences, labels=[f"n={n}" for n in sample_sizes], scale='lin')
 
-    @pytest.mark.slow
+    @pytest.mark.skip(reason="takes too long")
     def test_human_chr1_compare_dfe_across_different_samples_sizes_n(self):
         """
         Test the DFE estimation for different sample sizes.

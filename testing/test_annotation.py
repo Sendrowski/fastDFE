@@ -3019,31 +3019,40 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         """
         Compare parsed SFS of random vs. probabilistic subsampling.
         """
-        n_sites = 10000
-        spectra = {}
+        max_sites = 10000
+        spectra, parsers = {}, {}
 
         for mode in ['probabilistic', 'random']:
             a = fd.MaximumLikelihoodAncestralAnnotation(
                 outgroups=["ERR2103730"],
                 exclude=["ERR2103731"],
-                max_sites=n_sites,
+                max_sites=max_sites,
                 n_ingroups=20,
-                n_target_sites=7 * n_sites,
+                n_target_sites=7 * max_sites,
                 subsample_mode=cast(Literal['random', 'probabilistic'], mode)
             )
 
-            p = fd.Parser(
+            parsers[mode] = fd.Parser(
                 vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
                 fasta="resources/genome/betula/genome.fasta",
                 n=20,
-                max_sites=n_sites,
+                max_sites=max_sites,
                 annotations=[a]
             )
 
-            spectra[mode] = p.parse().all
+            spectra[mode] = parsers[mode].parse().all
 
         fd.Spectra.from_spectra(spectra).plot()
 
-        diff_rel = np.abs(np.diff([s.data for s in spectra.values()], axis=0)[0] / spectra['random'].data)
+        diff_rel_sfs = np.abs(np.diff([s.data for s in spectra.values()], axis=0)[0] / spectra['random'].data)
 
-        self.assertLess(diff_rel[:-1].max(), 0.15)
+        self.assertLess(diff_rel_sfs[:-1].max(), 0.15)
+
+        params_mle = np.array([list(p.annotations[0].params_mle.values()) for p in parsers.values()])
+
+        diff_ref_params = np.abs(params_mle[0] - params_mle[1]) / params_mle[0]
+
+        self.assertLess(diff_ref_params.max(), 0.01)
+
+
+

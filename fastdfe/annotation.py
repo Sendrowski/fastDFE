@@ -3401,7 +3401,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         """
         # check if data is provided using a VCF file
         if self.subsample_mode == 'probabilistic':
-            raise RuntimeError("This method is not available when using probabilistic subsampling.")
+            raise RuntimeError("get_inferred_site_info() not implemented with probabilistic subsampling.")
 
         # get config indices for each site
         indices = self._get_site_indices()
