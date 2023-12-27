@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VCF Parsing &mdash; fastDFE 1.1.2 documentation</title>
+  <title>VCF Parsing &mdash; fastDFE 1.1.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -848,12 +848,12 @@ in the VCF.</p>
 <span class="c1"># Parse selected and neutral SFS from human chromosome 1.</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Parser</span><span class="p">(</span>
     <span class="n">vcf</span><span class="o">=</span><span class="s2">&quot;https://ngs.sanger.ac.uk/production/hgdp/hgdp_wgs.20190516/&quot;</span>
-        <span class="s2">&quot;hgdp_wgs.20190516.full.chr1.vcf.gz&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hgdp_wgs.20190516.full.chr21.vcf.gz&quot;</span><span class="p">,</span>
     <span class="n">fasta</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/&quot;</span>
-          <span class="s2">&quot;dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;dna/Homo_sapiens.GRCh38.dna.chromosome.21.fa.gz&quot;</span><span class="p">,</span>
     <span class="n">gff</span><span class="o">=</span><span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
-        <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz&quot;</span><span class="p">,</span>
-    <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr1</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">]),</span>  <span class="c1"># mapping for contig names</span>
+        <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz&quot;</span><span class="p">,</span>
+    <span class="n">aliases</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">chr21</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;21&#39;</span><span class="p">]),</span>  <span class="c1"># mapping for contig names</span>
     <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>  <span class="c1"># SFS sample size</span>
     <span class="c1"># we use a target site counter to infer the number of target sites.</span>
     <span class="n">target_site_counter</span><span class="o">=</span><span class="n">fd</span><span class="o">.</span><span class="n">TargetSiteCounter</span><span class="p">(</span>
@@ -861,8 +861,8 @@ in the VCF.</p>
         <span class="c1"># determine number of target sites by looking at total length of coding sequences</span>
         <span class="n">n_target_sites</span><span class="o">=</span><span class="n">fd</span><span class="o">.</span><span class="n">Annotation</span><span class="o">.</span><span class="n">count_target_sites</span><span class="p">(</span>
             <span class="s2">&quot;http://ftp.ensembl.org/pub/release-109/gff3/homo_sapiens/&quot;</span>
-            <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.1.gff3.gz&quot;</span>
-        <span class="p">)[</span><span class="s1">&#39;1&#39;</span><span class="p">]</span>
+            <span class="s2">&quot;Homo_sapiens.GRCh38.109.chromosome.21.gff3.gz&quot;</span>
+        <span class="p">)[</span><span class="s1">&#39;21&#39;</span><span class="p">]</span>
     <span class="p">),</span>
     <span class="c1"># add degeneracy annotation for sites</span>
     <span class="n">annotations</span><span class="o">=</span><span class="p">[</span>
