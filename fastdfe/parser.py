@@ -806,7 +806,7 @@ class Parser(MultiHandler):
     Parse site-frequency spectra from VCF files.
 
     By default, the parser looks at the ``AA`` tag in the VCF file's info field to retrieve
-    the correct polarization. Sites for which this tag is not well-defined are by default
+    the correct polarization. Polymorphic sites for which this tag is not well-defined are by default
     ignored (see ``skip_non_polarized``).
 
     This class also offers on-the-fly annotation of the VCF sites such as site degeneracy and
@@ -1251,7 +1251,7 @@ class Parser(MultiHandler):
 
             # warn that sites might not be polarized
             if self.skip_non_polarized and not any(isinstance(a, AncestralAlleleAnnotation) for a in self.annotations):
-                self._logger.warning("Your variants might not be polarized and thus not included in the spectra. "
+                self._logger.warning("Your variants might not be polarized and are thus not included in the spectra. "
                                      "If this is the case, consider using an ancestral allele annotation or setting "
                                      "'skip_non_polarized' to False.")
         else:
