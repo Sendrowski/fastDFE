@@ -16,8 +16,7 @@ p = fd.Parser(
     annotations=[
         fd.DegeneracyAnnotation(),  # determine degeneracy
         fd.MaximumLikelihoodAncestralAnnotation(
-            outgroups=["ERR2103730"],  # use one outgroup
-            n_ingroups=20  # subsample size
+            outgroups=["ERR2103730"]  # use one outgroup
         )
     ],
     stratifications=[fd.DegeneracyStratification()]

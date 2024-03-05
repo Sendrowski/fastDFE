@@ -27,18 +27,8 @@ except NameError:
     # testing
     testing = True
     files = [
-        "results/graphs/fastdfe/hgdp/default/inference/1/opts.vep.n.10.config.default/all.dfe.png",
-        "results/graphs/fastdfe/hgdp/default/inference/1/opts.vep.n.10.config.default/Japanese.dfe.png",
-        "results/graphs/fastdfe/hgdp/default/inference/1/opts.vep.n.10.config.default/French.dfe.png",
-        "results/graphs/fastdfe/hgdp/vep/inference/1/opts.vep.n.10.config.default/all.dfe.png",
-        "results/graphs/fastdfe/hgdp/vep/inference/1/opts.vep.n.10.config.default/Japanese.dfe.png",
-        "results/graphs/fastdfe/hgdp/vep/inference/1/opts.vep.n.10.config.default/French.dfe.png",
-        "results/graphs/polydfe/hgdp/default/inference/1/opts.vep.n.10.config.default/all.dfe.png",
-        "results/graphs/polydfe/hgdp/default/inference/1/opts.vep.n.10.config.default/Japanese.dfe.png",
-        "results/graphs/polydfe/hgdp/default/inference/1/opts.vep.n.10.config.default/French.dfe.png",
-        "results/graphs/polydfe/hgdp/vep/inference/1/opts.vep.n.10.config.default/all.dfe.png",
-        "results/graphs/polydfe/hgdp/vep/inference/1/opts.vep.n.10.config.default/Japanese.dfe.png",
-        "results/graphs/polydfe/hgdp/vep/inference/1/opts.vep.n.10.config.default/French.dfe.png"
+        "results/graphs/slim/n_replicate=1/g=1000/L=10000000000/mu=1e-09/N=1000/s_b=0.01/b=1/s_d=0.1/p_b=0.2/n=20/dfe.inferred.png",
+        "results/graphs/slim/n_replicate=1/g=1000/L=10000000000/mu=1e-09/N=1000/s_b=0.01/b=1/s_d=0.1/p_b=0.2/n=20/dfe.modelled.png",
     ]
     n_cols = None
     n_rows = None
@@ -46,7 +36,7 @@ except NameError:
     title_size_rel = 20
     figsize = None
     dpi = 1000
-    out = "results/graphs/comp/[fastdfe,polydfe]/hgdp/[default,vep]/inference/1/opts.vep.n.10.config.default/[all,Japanese,French].dfe.png"
+    out = "scratch/combined.png"
 
 
 def get_index_common_start(strs: List[str]):
@@ -98,6 +88,9 @@ if titles is None:
     if len(titles[0]) > 30:
         titles = determine_names_dep(files)
 
+    if len(titles) != len(files):
+        titles = [''] * len(files)
+
 # determine number of rows and columns if not specified
 n_files = len(files)
 if n_cols is None and n_rows is None:
@@ -127,3 +120,5 @@ plt.savefig(out, dpi=dpi, bbox_inches='tight', pad_inches=0.1)
 
 if testing:
     plt.show()
+
+pass

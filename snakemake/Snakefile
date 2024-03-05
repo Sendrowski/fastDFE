@@ -130,7 +130,19 @@ hominidae = [
 rule all:
     input:
         (
-            expand("results/graphs/fastdfe/arabidopsis/cov/{param}/{col}/{n_bins}.{subsample_size}.params.png", param=['S_d', 'b'], col=['mean.rsa', 'mean.DGrantham', 'mean.dis'], n_bins=[5, 10, 15], subsample_size=[10, 20, 30]),
+            #"results/slim/L=100000.trees",
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png", n_replicate=[1], g=[10], n=[20], L=[int(1e10)], mu=[1e-8], N=[1000], s_b=[0, 0.01, 0.1], b=[1], s_d=[0, 0.01, 0.1], p_b=[0.05, 0.2]),
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png", n_replicate=[1], g=[1000, 10000], n=[20], L=[int(1e9)], mu=[1e-9], r=[1e-9], N=[1000], s_b=[0], b=[1], s_d=[0], p_b=[0.05]),
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
+            #    n_replicate=[1, 2],g=[10000],n=[10, 20],L=[int(1e9)],mu=[1e-9],
+            #    r=[1e-9],N=[10000],s_b=[0, 0.05],b=[1],s_d=[0, 0.1],p_b=[0.2]),
+            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
+                n_replicate=[1],g=[10000],n=[10],L=[int(1e9)],mu=[1e-9],
+                r=[1e-9],N=[10000],s_b=[0.005],b=[1],s_d=[0.001],p_b=[0.2]),
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
+            #    n_replicate=[1, 2],g=[10000],n=[20],L=[int(1e10)],mu=[1e-9],
+            #    r=[1e-9],N=[1000],s_b=[0.01],b=[1, 10],s_d=[0.1],p_b=[0.1]),
+            #expand("results/graphs/fastdfe/arabidopsis/cov/{param}/{col}/{n_bins}.{subsample_size}.params.png", param=['S_d', 'b'], col=['mean.rsa', 'mean.DGrantham', 'mean.dis'], n_bins=[5, 10, 15], subsample_size=[10, 20, 30]),
             #expand("results/sfs/betula/{sample_set}/{n}/sfs.csv", sample_set=['pendula', 'pubescens'], n=[10, 20]),
             #expand("results/sfs/betula/{sample_set}/{n}/sfs.polarized-on-the-fly.csv", sample_set=['pendula', 'pubescens'], n=[10, 20]),
             #expand("results/vcf/betula/{name}.vcf.gz",name=['biallelic.polarized',
@@ -172,6 +184,7 @@ rule all:
             #),
             #expand("results/graphs/{tool}/{config}/sfs_comparison.png",config=configs, tool=['fastdfe', 'polydfe']),
             #expand("results/graphs/comp/tool_comparison_collage/{type}.png",type=['discretized', 'inferred_params']),
+            #expand("results/graphs/comp/fastdfe/{type}_collage.png",type=['sfs_comparison_detailed']),
             #expand("results/fastdfe/{config}_bootstrapped_sequential_100/serialized.json",config=configs),
             #expand("results/spectra/betula/pendula/{s}/all.csv",
             #    s=[
@@ -315,8 +328,10 @@ rule plot_DFE_inference:
         "results/fastdfe/{config}/serialized.json"
     output:
         dfe_discretized="results/graphs/fastdfe/{config}/dfe_discretized.png",
-        dfe_log="results/graphs/fastdfe/{config}/fastdfe_log.png",
+        dfe_continuous="results/graphs/fastdfe/{config}/dfe_continuous.png",
         sfs_comparison="results/graphs/fastdfe/{config}/sfs_comparison.png",
+        sfs_comparison_detailed="results/graphs/fastdfe/{config}/sfs_comparison_detailed.png",
+        sfs_input="results/graphs/fastdfe/{config}/sfs_input.png",
         mle_params="results/graphs/fastdfe/{config}/mle_params.png",
         bucket_sizes="results/graphs/fastdfe/{config}/bucket_sizes.png"
     conda:
@@ -470,7 +485,7 @@ rule plot_tool_comparison:
 
 # plot fastdfe/polydfe collage
 # file names get too long when trying to use combine_plots
-rule tool_comparison_collage:
+rule plot_tool_comparison_collage:
     input:
         lambda w:
         expand_comparisons(f"tool_comp/[{','.join([f'{c}_bootstrapped_100' for c in configs])}]/{w.type}.png")[0]
@@ -482,7 +497,26 @@ rule tool_comparison_collage:
         n_cols=4,
         n_rows=5,
         figsize=(16, 15),
-        dpi=200
+        dpi=400
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/combine_plots.py"
+
+# plot fastdfe sfs comparison collage
+rule plot_sfs_comparison_collage:
+    input:
+        lambda w:
+        expand_comparisons(f"fastdfe/[{','.join([f'{c}_bootstrapped_100' for c in configs])}]/{w.type}.png")[0]
+    output:
+        "results/graphs/comp/fastdfe/{type}_collage.png"
+    params:
+        titles=lambda w: [c.replace('_C_','_').replace('_',' ') for c in configs],
+        title_size_rel=50,
+        n_cols=4,
+        n_rows=5,
+        figsize=(16, 15),
+        dpi=400
     conda:
         "envs/base.yaml"
     script:
@@ -1300,3 +1334,111 @@ module subset_vcf:
         "rules/subset_vcf.smk"
 
 use rule * from subset_vcf
+
+# simulate trees using SLiM
+rule simulate_trees_slim:
+    output:
+        "results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/sequence.trees"
+    params:
+        g=lambda w: int(w.g),
+        L=lambda w: int(float(w.L)),
+        mu=lambda w: float(w.mu),
+        r=lambda w: float(w.r),
+        N=lambda w: int(w.N),
+        s_b=lambda w: float(w.s_b),
+        b=lambda w: float(w.b),
+        s_d=lambda w: float(w.s_d),
+        p_b=lambda w: float(w.p_b)
+    conda:
+        "envs/slim.yaml"
+    shell:
+        """
+        slim \
+        -d "out=\'{output}\'" \
+        -d "g={params.g}" \
+        -d "length={params.L}" \
+        -d "mu={params.mu}" \
+        -d "r={params.r}" \
+        -d "N={params.N}" \
+        -d "s_b={params.s_b}" \
+        -d "b={params.b}" \
+        -d "s_d={params.s_d}" \
+        -d "p_b={params.p_b}" \
+        scripts/simulate_trees.slim
+        """
+
+# parse SLiM trees
+rule compute_sfs_slim:
+    input:
+        "results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/sequence.trees"
+    output:
+        sfs="results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv",
+        ds_continuous="results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/s.simulated.continuous.png",
+        ds_discretized="results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/s.simulated.discretized.png"
+    params:
+        n=lambda w: int(w.n),
+        L=lambda w: int(float(w.L)),
+        mu=lambda w: float(w.mu),
+        N=lambda w: int(w.N),
+        s_b=lambda w: float(w.s_b),
+        b=lambda w: float(w.b),
+        s_d=lambda w: float(w.s_d),
+        p_b=lambda w: float(w.p_b)
+    conda:
+        "envs/slim.yaml"
+    script:
+        "scripts/compute_sfs_slim.py"
+
+# plot DFE simulated using SLiM
+rule plot_dfe_slim:
+    input:
+        "results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv"
+    output:
+        "results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.simulated.png"
+    params:
+        mu=lambda w: float(w.mu),
+        s_b=lambda w: float(w.s_b),
+        b=lambda w: float(w.b),
+        s_d=lambda w: float(w.s_d),
+        p_b=lambda w: float(w.p_b)
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/plot_dfe_slim.py"
+
+# infer DFE using fastdfe from SLiM trees
+rule infer_dfe_slim:
+    input:
+        "results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv"
+    output:
+        serialized="results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/serialized.json",
+        summary="results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/summary.json",
+        dfe="results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.inferred.png",
+        model_fit="results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/model_fit.png",
+        spectra="results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/spectra.png",
+        params="results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/params.png"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/infer_dfe_slim.py"
+
+# combine DFE plots
+rule combine_dfe_plots_slim:
+    input:
+        "results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.simulated.png",
+        "results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.inferred.png"
+    output:
+        "results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/combine_plots.py"
+
+# update the documentation
+rule update_docs:
+    output:
+        directory("../docs/_build")
+    conda:
+        "envs/dev.yaml"
+    shell:
+        "make html"

@@ -1,0 +1,13 @@
+name: slim-fastdfe
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - slim
+  - pyslim
+  - numpy
+  - pandas
+  - tqdm
+  - matplotlib
+  - scipy

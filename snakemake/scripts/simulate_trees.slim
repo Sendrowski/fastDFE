@@ -1,0 +1,47 @@
+initialize()
+{
+    //setSeed(23); // For reproducibility
+    initializeSLiMModelType("WF"); // Wright-Fisher model
+    initializeTreeSeq(); // tree sequence recording
+    initializeMutationRate(mu); // mutation rate
+
+    // gamma distribution for deleterious mutations
+    initializeMutationType("m1", 0.5, "g", -s_d, b);
+
+    // exponential distribution for beneficial mutations
+    initializeMutationType("m2", 0.5, "e", s_b);
+
+    // adjusting the proportion of deleterious and beneficial mutations
+    initializeGenomicElementType("g1", c(m1, m2), c(1 - p_b, p_b));
+
+    initializeGenomicElement(g1, 1, length); // sequence length
+    initializeRecombinationRate(r); // recombination rate
+}
+
+1
+early()
+{
+    sim.addSubpop("p1", N);
+}
+/*
+100
+early()
+{
+    p1.setSubpopulationSize(500); // Population size reduced to simulate a bottleneck
+}
+
+200
+early()
+{
+    p1.setSubpopulationSize(1000); // Population size restored or further changed
+}
+*/
+1:100000000
+late()
+{
+    // noinspection all
+    if (community.tick == g) {
+        sim.treeSeqOutput(out);
+        sim.simulationFinished();
+    }
+}
