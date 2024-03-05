@@ -2,6 +2,8 @@
 /resources/EST-SFS
 /snakemake/results/
 /snakemake/scratch/
+/reports/
+/docs/_build/
 .snakemake/
 .snakemake_timestamp
 /dist/
@@ -16,4 +18,3 @@ slurm/
 .Rproj.user/
 .Rhistory
 .RData
-/reports/
