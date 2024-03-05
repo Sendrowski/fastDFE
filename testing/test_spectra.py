@@ -104,7 +104,7 @@ class SpectraTestCase(TestCase):
 
         pd.testing.assert_frame_equal(df, s.data)
 
-    def test_restore_from_file(self):
+    def test_spectra_restore_from_file(self):
         """
         Test that restoring a spectra from a file works as expected.
         """
@@ -113,11 +113,23 @@ class SpectraTestCase(TestCase):
             sub=spectrum.standard_kingman(self.n) * 2
         ))
 
-        out = "scratch/test_restore_from_file.csv"
+        out = "scratch/test_spectra_restore_from_file.csv"
         s.to_file(out)
         s2 = s.from_file(out)
 
         pd.testing.assert_frame_equal(s.data, s2.data)
+
+    def test_spectrum_restore_from_file(self):
+        """
+        Test that restoring a spectrum from a file works as expected.
+        """
+        s = spectrum.standard_kingman(self.n)
+
+        out = "scratch/test_spectrum_restore_from_file.csv"
+        s.to_file(out)
+        s2 = Spectrum.from_file(out)
+
+        testing.assert_array_almost_equal(s.data, s2.data, decimal=15)
 
     def test_restore_from_dict(self):
         """

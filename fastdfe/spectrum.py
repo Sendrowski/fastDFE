@@ -24,7 +24,7 @@ logger = logging.getLogger('fastdfe')
 
 def standard_kingman(n: int) -> 'Spectrum':
     """
-    Get standard Kingman SFS.
+    Get standard Kingman SFS for theta = 1.
 
     :param n: Standard Kingman SFS
     :return: Spectrum
@@ -125,6 +125,32 @@ class Spectrum(Iterable):
         :return: SFS counts
         """
         return list(self.data)
+
+    def to_spectra(self) -> 'Spectra':
+        """
+        Convert to Spectra object.
+
+        :return: Spectra object
+        """
+        return Spectra.from_spectrum(self)
+
+    def to_file(self, file: str):
+        """
+        Save object to file.
+
+        :param file: File name
+        """
+        self.to_spectra().to_file(file)
+
+    @staticmethod
+    def from_file(file: str) -> 'Spectrum':
+        """
+        Load object from file.
+
+        :param file: File name
+        :return: Spectrum object
+        """
+        return Spectra.from_file(file).to_spectrum()
 
     def to_numpy(self) -> np.ndarray:
         """
@@ -280,7 +306,6 @@ class Spectrum(Iterable):
         """
         Create Spectra from polyDFE specification which treats the number
         of mutational target sites and the divergence counts separately.
-        Note that the monomorphic counts are included here, although ignored.
 
         :param polymorphic: Polymorphic counts
         :param n_sites: Total number of sites
@@ -837,6 +862,14 @@ class Spectra:
         :return: Spectra object
         """
         return Spectra.from_spectra(dict(all=sfs))
+
+    def to_spectrum(self) -> Spectrum:
+        """
+        Convert to Spectrum object by summing over all types.
+
+        :return: Spectrum object
+        """
+        return self.all
 
     def plot(
             self,
