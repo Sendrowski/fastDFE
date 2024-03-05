@@ -86,7 +86,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
     def test_run_inference_from_config_parallelized(self):
         """
-        Successfully run inference from config file.
+        Run inference from config file.
         """
         config = fd.Config.from_file(self.config_file)
         config.update(parallelize=True)
@@ -96,7 +96,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
     def test_run_inference_from_config_not_parallelized(self):
         """
-        Successfully run inference from config file.
+        Run inference from config file.
         """
         config = fd.Config.from_file(self.config_file)
         config.update(parallelize=False)
@@ -715,6 +715,9 @@ class BaseInferenceTestCase(InferenceTestCase):
 
     @staticmethod
     def test_adjust_polarization():
+        """
+        Test whether polarization is adjusted correctly.
+        """
         counts_list = [np.array([1, 2, 3, 4, 5]), np.array([2, 3, 5, 7, 11])]
         eps_list = [0, 0.1, 0.5, 1]
 
