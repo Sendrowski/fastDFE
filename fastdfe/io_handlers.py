@@ -521,7 +521,7 @@ class GFFHandler(FileHandler):
         )
 
         # group by 'seqid' and calculate the sum of 'length'
-        target_sites = cds.groupby('seqid')['length'].sum().to_dict()
+        target_sites = cds.groupby('seqid', observed=False)['length'].sum().to_dict()
 
         # filter explicitly for contigs if necessary
         # as seqid is a categorical variable, groups were retained even if they were filtered out

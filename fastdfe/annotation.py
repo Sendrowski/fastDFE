@@ -2735,11 +2735,14 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             # only keep the columns that are needed
             data = data[cls._group_cols]
 
-            # retain site index
-            data['sites'] = data.index
+            # disable chained assignment warning
+            with pd.option_context('mode.chained_assignment', None):
 
-            # convert outgroup bases to tuples
-            data['outgroup_bases'] = data['outgroup_bases'].apply(tuple)
+                # retain site index
+                data['sites'] = data.index
+
+                # convert outgroup bases to tuples
+                data['outgroup_bases'] = data['outgroup_bases'].apply(tuple)
 
             # group by all columns in the chunk and keep track of the site indices
             data = data.groupby(cls._group_cols, as_index=False, dropna=False).agg(list).reset_index(drop=True)
@@ -3715,7 +3718,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         spectra = {}
         for i, group in grouped.groupby(level=groups):
 
-            if len(groups) == 1:
+            if not isinstance(i, tuple):
                 name = f"{groups[0]}={self.get_base_string(i)}"
             else:
                 name = ", ".join([f"{a}={self.get_base_string(b)}" for a, b in zip(groups, i)])

@@ -763,6 +763,9 @@ class TargetSiteCounter:
         # copy spectra
         spectra = spectra.copy()
 
+        # cast to float to avoid implicit type conversion later on
+        spectra.data = spectra.data.astype(float)
+
         # subtract by monomorphic counts of original spectra
         # we only want to consider the monomorphic sites sampled from the FASTA file
         spectra.data.iloc[[0, -1], :] -= self._sfs_polymorphic.data.iloc[[0, -1], :]
