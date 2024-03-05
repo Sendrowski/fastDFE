@@ -526,7 +526,10 @@ class JointInference(BaseInference):
         self.likelihood = -self.result.fun
 
         # calculate L2 residual
-        self.L2_residual = self.get_L2_residual()
+        self.L2_residual = self.get_residual(2)
+
+        # check L2 residual
+        self._check_L2_residual()
 
         # add execution time
         self.execution_time += time.time() - start_time
@@ -1330,12 +1333,14 @@ class JointInference(BaseInference):
         # check if the fixed parameters are compatible with the shared parameters
         self.check_no_shared_params_fixed()
 
-    def get_L2_residual(self) -> float:
+    def get_residual(self, k: int) -> float:
         """
-        L2 residual of joint inference. We calculate the residual over
-        the jointly inferred SFS for all types.
+        Residual of joint inference. We calculate the residual over the jointly inferred SFS for all types.
+
+        :param k: Order of the norm
+        :return: L2 residual
         """
         counts_mle = np.array([inf.sfs_mle.polymorphic for inf in self.joint_inferences.values()]).flatten()
         counts_sel = np.array([inf.sfs_sel.polymorphic for inf in self.joint_inferences.values()]).flatten()
 
-        return norm(counts_mle - counts_sel, 2)
+        return norm(counts_mle - counts_sel, k)

@@ -304,7 +304,7 @@ class BaseInference(AbstractInference):
         #: Bootstrap optimization results
         self.bootstrap_results: Optional[List[OptimizeResult]] = None
 
-        #: L2 norm of fit minus observed SFS
+        #: L2 norm of differential between modelled and observed SFS
         self.L2_residual: Optional[float] = None
 
         #: Random number generator seed
@@ -523,7 +523,30 @@ class BaseInference(AbstractInference):
         self.sfs_mle = Spectrum.from_polymorphic(counts_mle)
 
         # L2 norm of fit minus observed SFS
-        self.L2_residual = norm(self.sfs_mle.polymorphic - self.sfs_sel.polymorphic, 2)
+        self.L2_residual = self.get_residual(2)
+
+        # check L2 residual
+        self._check_L2_residual()
+
+    def get_residual(self, k: int) -> float:
+        """
+        Residual of the modelled and observed SFS.
+
+        :param k: Order of the norm
+        :return: L2 residual
+        """
+        return norm(self.sfs_mle.polymorphic - self.sfs_sel.polymorphic, k)
+
+    def _check_L2_residual(self):
+        """
+        Check L2 residual.
+        """
+        ratio = self.get_residual(1) / self.sfs_sel.n_polymorphic
+
+        if ratio > 0.1:
+            self._logger.warning("The L1 residual comparing the modelled and observed SFS is rather large: "
+                                 f"`norm(sfs_modelled - sfs_observed, 1) / sfs_observed.n_polymorphic` = {ratio:.3f}. "
+                                 "This indicates that the model does not fit the data well.")
 
     def _report_result(self, result: OptimizeResult, params: dict):
         """
@@ -761,17 +784,17 @@ class BaseInference(AbstractInference):
         # adjust for mutation rate and mutational target size
         counts_modelled *= sfs_neut.theta * sfs_sel.n_sites
 
-        # add contribution of demography and polarization error
+        # add contribution of demography and adjust polarization error
         counts_modelled = cls._add_demography(sfs_neut, counts_modelled, eps=params['eps'])
 
         # fold if necessary
         if folded:
-            counts_sel = sfs_sel.fold().polymorphic
+            counts_observed = sfs_sel.fold().polymorphic
             counts_modelled = Spectrum.from_polymorphic(counts_modelled).fold().polymorphic
         else:
-            counts_sel = sfs_sel.polymorphic
+            counts_observed = sfs_sel.polymorphic
 
-        return counts_modelled, counts_sel
+        return counts_modelled, counts_observed
 
     @staticmethod
     def _adjust_polarization(counts: np.ndarray, eps: float) -> np.ndarray:
@@ -803,19 +826,28 @@ class BaseInference(AbstractInference):
         :return: Adjusted counts of selected sites.
         """
         # normalized counts of the standard coalescent
-        counts_kingman = standard_kingman(sfs_neut.n).polymorphic * sfs_neut.theta * sfs_neut.n_sites
+        neutral_modelled = standard_kingman(sfs_neut.n).polymorphic * sfs_neut.theta * sfs_neut.n_sites
 
-        # apply polarization error to neutral and selected counts
-        counts_neut_adjusted = cls._adjust_polarization(sfs_neut.polymorphic, eps)
-        counts_sel_adjusted = cls._adjust_polarization(counts_sel, eps)
+        # Apply polarization error to neutral and selected counts.
+        # Note that we fail to adjust for polarization if we were to
+        # apply the error to both the selected and neutral modelled counts.
+        # In addition, note that eps is not easily interpretable,
+        # as we apply it to both neutral and selected counts, which
+        # is of course necessary. Testing this on sample datasets
+        # yields very reasonable results, compatible with polyDFE.
+        neutral_observed = cls._adjust_polarization(sfs_neut.polymorphic, eps)
+        selected_modelled = cls._adjust_polarization(counts_sel, eps)
 
         # These counts transform the standard Kingman case to the observed
         # neutral SFS when multiplied and thus account for demography as we assume
-        # the distortion in counts_neut to be due to demography only.
-        r = counts_neut_adjusted / counts_kingman
+        # the distortion in sfs_neut to be due to demography alone.
+        # Note that the nuisance parameters naturally are sensitive to a large
+        # sampling variance in the neutral SFS, which may be undesirable.
+        # However, DFE inference on `wiggly` spectra is not advisable anyway.
+        r = neutral_observed / neutral_modelled
 
         # adjust for demography and polarization error
-        return r * counts_sel_adjusted
+        return r * selected_modelled
 
     @_run_if_required_wrapper
     def plot_continuous(
@@ -1465,9 +1497,13 @@ class BaseInference(AbstractInference):
 
 
 class InferenceResults:
+    """
+    Inference results.
+    """
+
     def __init__(self, inference: BaseInference):
         """
-        Inference results.
+        Initialize object.
 
         :param inference: Inference object.
         """
