@@ -458,3 +458,11 @@ class ParametrizationTestCase(TestCase):
         observed.pop('S6')
 
         assert observed == params
+
+    def test_plot_parametrization(self):
+        """
+        Test that plotting the parametrization works.
+        """
+        GammaExpParametrization().plot(
+            params=GammaExpParametrization.x0
+        ).plot()
