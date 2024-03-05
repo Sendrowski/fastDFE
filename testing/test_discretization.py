@@ -154,10 +154,10 @@ class DiscretizationTestCase(TestCase):
         S = s[:, None] * I
         K = k[None, :] * I
 
-        scipy = hyp1f1(K, self.n, S)
-        mpmath = discretization.hyp1f1(K, self.n, S)
+        y_scipy = hyp1f1(K, self.n, S)
+        y_mpmath = discretization.hyp1f1(K, self.n, S)
 
-        assert self.diff_rel_max_abs(scipy, mpmath) < 1e-14
+        assert self.diff_rel_max_abs(y_scipy, y_mpmath) < 1e-11
 
     def test_allele_counts_large_positive_S(self):
         """

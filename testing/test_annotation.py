@@ -2854,6 +2854,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         Test that random subsampling of sites converges to the probabilistic results.
         """
         genotypes = np.array(['A'] * 20 + ['T'] * 25)
+        rng = np.random.default_rng()
 
         for n in [10, 11]:
 
@@ -2863,27 +2864,43 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                     mode='random',
                     n=n,
                     samples=genotypes,
-                    rng=np.random.default_rng()
+                    rng=rng
                 ))[:, 0]
 
             probabilistic = np.array(fd.MaximumLikelihoodAncestralAnnotation._subsample_site(
                 mode='probabilistic',
                 n=n,
                 samples=genotypes,
-                rng=np.random.default_rng()
+                rng=rng
             ))
 
-            df = pd.DataFrame(random.T, columns=['major_base', 'n_major', 'multiplicity'])
-            grouped = df.groupby(['major_base', 'n_major']).aggregate(list)
+            df = pd.DataFrame(
+                random.T,
+                columns=['major_base', 'n_major', 'multiplicity']
+            )
+
+            # change dtypes
+            df = df.astype({'n_major': int, 'multiplicity': int, 'major_base': str})
+
+            # take T always to be major allele
+            if n % 2 == 0:
+                df.loc[(df['major_base'] == 'A') & (df['n_major'] == n // 2), 'major_base'] = 'T'
+
+            grouped = df.groupby(['major_base', 'n_major']).aggregate(sum)
 
             random_binned = np.zeros((3, n + 1), dtype=object)
             for i, prob in enumerate(probabilistic.T):
-                random_binned[:, i] = list(prob[:2]) + [
-                    len(grouped.loc[tuple(prob[:2])].multiplicity) / random.shape[1]]
+
+                index = (prob[0], int(prob[1]))
+                p = 0
+                if index in grouped.index:
+                    p = grouped.loc[index].multiplicity / random.shape[1]
+
+                random_binned[:, i] = list(index) + [p]
 
             diff = np.abs(random_binned[2].astype(float) - probabilistic[2].astype(float))
 
-            self.assertLess(diff.max(), 0.15)
+            self.assertLess(diff.max(), 0.01)
 
     @staticmethod
     def test_subsample_monomorphic_site_probabilistically():
