@@ -1050,7 +1050,7 @@ class Optimization:
             # use independent Poisson likelihoods
             LL = Likelihood.log_poisson(mu=counts_modelled, k=counts_observed)
 
-            # combine likelihoods and take additive inverse
+            # combine likelihoods
             ll = np.sum(LL)
 
             # compute L2 norm
@@ -1061,7 +1061,7 @@ class Optimization:
 
             # log likelihood
             if print_debug:
-                # for setting break points
+                # check likelihood
                 if np.isnan(ll):
                     raise ValueError('Oh boy, likelihood is nan. This is no good...')
 
