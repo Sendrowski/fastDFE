@@ -16,3 +16,4 @@ slurm/
 .Rproj.user/
 .Rhistory
 .RData
+/reports/
