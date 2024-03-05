@@ -12,6 +12,7 @@ from functools import wraps
 from typing import Callable, List, Union, Dict, Tuple, Literal
 
 import numpy as np
+from matplotlib import pyplot as plt
 from scipy.stats import gamma, expon
 
 # get logger
@@ -122,18 +123,24 @@ class Parametrization(ABC):
         """
         pass
 
-    def _discretize(self, params, bins: np.ndarray) -> np.ndarray:
+    def _discretize(
+            self,
+            params,
+            bins: np.ndarray,
+            warn_mass: bool = True
+    ) -> np.ndarray:
         """
         Discretize by using the CDF.
 
         :param params: Parameters of the parametrization
         :param bins: Bins to use for discretization
+        :param warn_mass: Whether to warn if the total mass is not near 1.
         :return: Histogram
         """
         x = self.get_cdf(**params)(bins)
 
         # issue warning if values at bounds are outside [0, 1]
-        if not -1e-5 < x[0] < 1e-5 or not 1 - 1e-5 < x[-1] < 1 + 1e-5:
+        if warn_mass and (not -1e-5 < x[0] < 1e-5 or not 1 - 1e-5 < x[-1] < 1 + 1e-5):
             self._logger.warning(f'CDF evaluates to {(x[0], x[-1])} at the lower and upper '
                                  f'bounds, which is a bit off from the expected (0, 1). '
                                  f'Used parameters: {params}.')
@@ -152,6 +159,44 @@ class Parametrization(ABC):
         """
         # do nothing by default
         return params
+
+    def plot(
+            self,
+            params: dict,
+            intervals: list | np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            file: str = None,
+            show: bool = True,
+            title: str = 'discretized DFE',
+            ax: plt.Axes = None
+
+    ) -> plt.Axes:
+        """
+        Plot the discretized DFE.
+
+        :param params: Parameters of the parametrization
+        :param intervals: Intervals to use for discretization.
+        :param file: File to save the plot to.
+        :param show: Whether to show the plot.
+        :param title: Title of the plot.
+        :param ax: Axes to use for the plot.
+        :return: Axes
+        """
+        from .visualization import Visualization
+
+        values = self._discretize(params, np.array(intervals), warn_mass=False)
+
+        # check for nan values
+        if np.isnan(values).any():
+            self._logger.warning(f'NaN values in discretized DFE. Are the parameters valid?')
+
+        return Visualization.plot_discretized(
+            values=[values],
+            file=file,
+            show=show,
+            intervals=np.array(intervals),
+            title=title,
+            ax=ax
+        )
 
 
 class GammaExpParametrization(Parametrization):
@@ -188,7 +233,7 @@ class GammaExpParametrization(Parametrization):
         S_b=1
     )
 
-    #: Default parameter bounds, using non-zero lower bounds for S_d and S_B due to log-scaled scales
+    #: Default parameter bounds, using non-zero lower bounds for S_d and S_b due to log-scaled scales
     bounds: Dict[str, Tuple[float, float]] = dict(
         S_d=(-1e5, -1e-2),
         b=(0.01, 10),
@@ -477,7 +522,7 @@ class GammaDiscreteParametrization(Parametrization):
         def pdf(S: np.ndarray) -> np.ndarray:
             """
             The PDF.
-            
+
             :param S: Selection coefficients
             :return: Probability density
             """
