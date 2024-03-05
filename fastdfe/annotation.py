@@ -2059,7 +2059,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
     def __init__(
             self,
             outgroups: List[str],
-            n_ingroups: int = 20,
+            n_ingroups: int = 11,
             ingroups: List[str] | None = None,
             exclude: List[str] | None = None,
             n_runs: int = 10,
@@ -2087,15 +2087,18 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             the optimized branch rates are show markedly different values, and in any case, they should be monotonically
             increasing with the outgroups (see :meth:`get_outgroup_divergence`).
         :param n_ingroups: The minimum number of ingroups that must be present at a site for it to be considered
-            for ancestral allele inference. Note that a larger number of ingroups does not necessarily improve
+            for ancestral allele inference. The ingroup subsampling is necessary since our model requires an equal
+            number of ingroups for all sites. Note that a larger number of ingroups does not necessarily improve
             the accuracy of the ancestral allele inference (see ``prior``). A larger number of ingroups can lead
             to a large variance in the polarization probabilities, across different frequency counts. ``n_ingroups``
-            should thus only be large if the number of sites used for the inference is also large. A sensible value is
-            for a reasonable large number of sites (a few thousand) is 10 or perhaps 20 for larger numbers of sites.
-            We subsample ``n_ingroups`` ingroups from the total number of ingroups for each site, and such values
-            should provide representative subsamples in most cases. Note that if ``ingroups`` is an even number,
-            the major allele is chosen arbitrarily if the number of major alleles is equal to the number of minor
-            alleles. To avoid this, you can use an odd number of ingroups.
+            should thus only be large if the number of sites used for the inference is also large. A sensible value
+            for a reasonably large number of sites (a few thousand) is 10 or perhaps 20 for a larger numbers of sites.
+            Very small values can lead to the ingroup subsamples not being representative of the actual allele
+            frequencies at a site, especially when not using probabilistic subsampling (see ``subsample_mode``).
+            This value also influences the number of frequency bins used for the polarization probabilities, and should
+            thus not be too small. Note that if ``ingroups`` is an even number, the major allele is chosen arbitrarily
+            if the number of major alleles is equal to the number of minor alleles. To avoid this, you can use an odd
+            number of ingroups.
         :param ingroups: The ingroup samples to consider when determining the ancestral allele. If ``None``,
             all (non-outgroup) samples are considered. A list of sample names as they appear in the VCF file.
             Has to be at least as large as ``n_ingroups``.
@@ -2135,7 +2138,8 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         :param subsample_mode: The subsampling mode. For ``random``, we draw once without replacement from the set of
             all available ingroup genotypes per site. For ``probabilistic``, we integrate over the hypergeometric
             distribution when parsing and computing the ancestral probabilities. Probabilistic subsampling requires a
-            bit more time, but produces much more stable results, while requiring far fewer sites.
+            bit more time, but produces much more stable results, while requiring far fewer sites, so it is highly
+            recommended.
         """
         super().__init__(
             ingroups=ingroups,
