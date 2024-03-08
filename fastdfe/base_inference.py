@@ -545,8 +545,8 @@ class BaseInference(AbstractInference):
 
         if ratio > 0.1:
             self._logger.warning("The L1 residual comparing the modelled and observed SFS is rather large: "
-                                 f"`norm(sfs_modelled - sfs_observed, 1) / sfs_observed.n_polymorphic` = {ratio:.3f}. "
-                                 "This indicates that the model does not fit the data well.")
+                                 f"`norm(sfs_modelled - sfs_observed, 1) / sfs_observed` = {ratio:.3f}. "
+                                 "This may indicate that the model does not fit the data well.")
 
     def _report_result(self, result: OptimizeResult, params: dict):
         """
