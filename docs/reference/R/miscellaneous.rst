@@ -33,7 +33,7 @@ fastDFE is seeded by default to ensure reproducibility (see ``seed`` in :class:`
 
 Object-Oriented Design
 ----------------------
-The fastDFE Python library is implemented using an object-oriented design. This paradigm may be less familiar to R users. To aid comprehension, our documentation often demonstrates how class methods are invoked directly on the class itself. For example:
+The fastDFE Python library is implemented using an object-oriented design which carries over to the R interface. This paradigm may be less familiar to R users. To aid comprehension, our documentation often demonstrates how methods are called on the class itself rather than on an instance. For example:
 
 .. code-block:: r
 
@@ -41,14 +41,12 @@ The fastDFE Python library is implemented using an object-oriented design. This 
 
    fastdfe$BaseInference$run(inference)
 
-In this style, the :meth:`~fastdfe.base_inference.BaseInference.run` method is called directly on the :class:`~fastdfe.base_inference.BaseInference` class, and its instance is passed as an argument.
+In this style, the :meth:`~fastdfe.base_inference.BaseInference.run` method is called on the :class:`~fastdfe.base_inference.BaseInference` class, and its instance is explicitly passed as an argument.
 
-Alternatively, the method can also be invoked implicitly on an instance of the class, as shown below:
+Alternatively, :meth:`~fastdfe.base_inference.BaseInference.run` can also be called directly on an instance of a class:
 
 .. code-block:: r
 
    inference$run()
 
-Here, the :meth:`~fastdfe.base_inference.BaseInference.run` method is called on the :class:`~fastdfe.base_inference.BaseInference` instance directly. This is more in line with traditional object-oriented programming.
-
-Both approaches are functionally equivalent, but the first method provides a more explicit demonstration of the relationship between the method and the class to which it belongs.
+This is more in line with traditional object-oriented programming. Both approaches are functionally equivalent, but the first method is more verbose.
