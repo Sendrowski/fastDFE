@@ -818,6 +818,23 @@ class BaseInferenceTestCase(InferenceTestCase):
             [expected[k] for k in expected]
         )
 
+    def test_base_inference_l2_loss_type(self):
+        """
+        Test whether the L2 loss type is correctly set.
+        """
+        sfs_neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+        sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+
+        inf = fd.BaseInference(
+            sfs_neut=sfs_neut,
+            sfs_sel=sfs_sel,
+            loss_type='L2',
+            do_bootstrap=True,
+            n_bootstraps=5
+        )
+
+        inf.run()
+
     @staticmethod
     def test_few_polymorphic_sites_raises_no_error():
         """
@@ -874,3 +891,28 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         assert np.abs((inf_float.params_mle['S_d'] - inf_int.params_mle['S_d']) / inf_float.params_mle['S_d']) < 1e-2
         assert np.abs((inf_float.params_mle['b'] - inf_int.params_mle['b']) / inf_float.params_mle['b']) < 1e-2
+
+    @staticmethod
+    def test_manuscript_example():
+        """
+        Test the example from the manuscript.
+        """
+        # create inference object
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum([66200, 410, 120, 60, 42, 43, 52, 65, 0]),
+            sfs_sel=fd.Spectrum([281937, 600, 180, 87, 51, 43, 49, 61, 0]),
+            model=fd.GammaExpParametrization(),  # the model to use
+            n_runs=10,  # number of optimization runs
+            n_bootstraps=100,  # number of bootstrap replicates
+            do_bootstrap=True
+        )
+
+        # create subplots
+        axs = plt.subplots(2, 2, figsize=(11, 7))[1].flatten()
+
+        # plot results
+        types = ['neutral', 'selected']
+        inf.plot_sfs_comparison(ax=axs[0], show=False, sfs_types=types)
+        inf.plot_sfs_comparison(ax=axs[1], show=False, colors=['C1', 'C5'])
+        inf.plot_inferred_parameters(ax=axs[2], show=False)
+        inf.plot_discretized(ax=axs[3], show=True)

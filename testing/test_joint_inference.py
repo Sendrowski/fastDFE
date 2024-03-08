@@ -9,6 +9,8 @@ import pytest
 from fastdfe import JointInference, Config, SharedParams, Covariate, Spectra
 from fastdfe.optimization import flatten_dict
 from testing.test_base_inference import InferenceTestCase
+import fastdfe as fd
+import matplotlib.pyplot as plt
 
 
 class JointInferenceTestCase(InferenceTestCase):
@@ -680,3 +682,33 @@ class JointInferenceTestCase(InferenceTestCase):
                 shared_params=[SharedParams(types=["pendula", "pubescens.bar.foo"], params=["S_d", "S_b", "p_b"])],
                 do_bootstrap=True
             )
+
+    @staticmethod
+    def test_manuscript_example():
+        """
+        Test the example in the manuscript.
+
+        Note the warning on a large residual for the joint inference is not
+        unusual as the fit to each component SFS naturally is worse when sharing parameters.
+        """
+        inf = fd.JointInference.from_config_file(
+            "https://github.com/Sendrowski/fastDFE/"
+            "blob/master/resources/configs/arabidopsis/"
+            "covariates_example.yaml?raw=true"
+        )
+
+        inf.run()
+
+        # get p-value for covariate significance
+        p = inf.perform_lrt_covariates()
+
+        _, axs = plt.subplots(1, 2, figsize=(10.5, 3.5))
+        p_str = f"p = {p:.1e}" if p >= 1e-100 else "p < 1e-100"
+
+        inf.plot_covariate(ax=axs[0], xlabel='RSA', show=False)
+        inf.plot_discretized(
+            title=f"DFE comparison, " + p_str, ax=axs[1],
+            show_marginals=False, show=True
+        )
+
+        pass
