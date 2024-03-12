@@ -32,7 +32,8 @@ import fastdfe
 logger = logging.getLogger('fastdfe')
 
 logger.info(sys.version)
-logger.info(f"Running tests for {fastdfe.__file__}.")
+logger.info(f"Running tests for {fastdfe.__file__}")
+logger.info(f"fastdfe version: {fastdfe.__version__}")
 
 # only be verbose when running on Pycharm
 if 'PYCHARM_HOSTED' not in os.environ:
