@@ -1,0 +1,9 @@
+# fastdfe env as in docs
+name: docs-fastdfe
+channels:
+  - defaults
+dependencies:
+  - python>=3.10
+  - pip
+  - pip:
+      - fastdfe
