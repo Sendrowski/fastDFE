@@ -51,12 +51,12 @@ fastdfe_is_installed <- function() {
 #' @examples
 #' \dontrun{
 #' install_fastdfe()  # Installs the latest version of fastdfe
-#' install_fastdfe("1.0.0")  # Installs version 1.0.0 of fastdfe
+#' install_fastdfe("1.1.4")  # Installs version 1.1.4 of fastdfe
 #' install_fastdfe(force = TRUE)  # Reinstalls the fastdfe module
 #' }
 #' 
 #' @export
-install_fastdfe <- function(version = NULL, force = FALSE, silent = FALSE) {
+install_fastdfe <- function(version = NULL, force = FALSE, silent = FALSE, python_version = '3.11') {
   
   # Create the package string with the version if specified
   package_name <- "fastdfe"
@@ -69,7 +69,8 @@ install_fastdfe <- function(version = NULL, force = FALSE, silent = FALSE) {
     reticulate::py_install(
       package_name, 
       method = "conda",
-      pip = TRUE, 
+      pip = TRUE,
+      python_version = python_version,
       version = version, 
       ignore_installed = TRUE
    )
