@@ -130,15 +130,16 @@ hominidae = [
 rule all:
     input:
         (
+            #"../docs/_build"
             #"results/slim/L=100000.trees",
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png", n_replicate=[1], g=[10], n=[20], L=[int(1e10)], mu=[1e-8], N=[1000], s_b=[0, 0.01, 0.1], b=[1], s_d=[0, 0.01, 0.1], p_b=[0.05, 0.2]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png", n_replicate=[1], g=[1000, 10000], n=[20], L=[int(1e9)], mu=[1e-9], r=[1e-9], N=[1000], s_b=[0], b=[1], s_d=[0], p_b=[0.05]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
             #    n_replicate=[1, 2],g=[10000],n=[10, 20],L=[int(1e9)],mu=[1e-9],
             #    r=[1e-9],N=[10000],s_b=[0, 0.05],b=[1],s_d=[0, 0.1],p_b=[0.2]),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
-                n_replicate=[1],g=[10000],n=[10],L=[int(1e9)],mu=[1e-9],
-                r=[1e-9],N=[10000],s_b=[0.005],b=[1],s_d=[0.001],p_b=[0.2]),
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
+            #    n_replicate=[1],g=[10000],n=[10],L=[int(1e9)],mu=[1e-9],
+            #    r=[1e-9],N=[10000],s_b=[0.005],b=[1],s_d=[0.001],p_b=[0.2]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
             #    n_replicate=[1, 2],g=[10000],n=[20],L=[int(1e10)],mu=[1e-9],
             #    r=[1e-9],N=[1000],s_b=[0.01],b=[1, 10],s_d=[0.1],p_b=[0.1]),
@@ -1441,4 +1442,4 @@ rule update_docs:
     conda:
         "envs/dev.yaml"
     shell:
-        "make html"
+        "make html -C ../docs"
