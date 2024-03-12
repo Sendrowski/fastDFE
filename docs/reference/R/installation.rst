@@ -3,7 +3,7 @@
 Installation
 ============
 
-To install the `fastdfe` package in R, execute the following command:
+To install the ``fastdfe`` package in R, execute the following command:
 
 .. code-block:: r
 
@@ -15,15 +15,17 @@ Once the installation is successfully completed, initiate the package within you
 
    library(fastdfe)
 
-The `fastdfe` R package serves as a wrapper around the Python library but re-implements visualization through ggplot2. Because of this, the Python package must be installed separately. This can be accomplished with:
+The ``fastdfe`` R package serves as a wrapper around the Python library but re-implements visualization through ggplot2. Because of this, the Python package must be installed separately. This can be accomplished with:
 
 .. code-block:: r
 
    install_fastdfe()
 
+``fastdfe`` is compatible with Python 3.10, 3.11 and 3.12.
+
 Alternatively, you can also follow the instructions in the `Python installation guide <../python/installation.html>`_ to install the Python package.
 
-After installing the Python package, the `fastdfe` wrapper module can be loaded into your R environment using the following command:
+After installing the Python package, the ``fastdfe`` wrapper module can be loaded into your R environment using the following command:
 
 .. code-block:: r
 
