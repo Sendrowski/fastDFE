@@ -54,5 +54,7 @@ add_module_names = False
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 html_css_files = ["custom.css"]
+html_logo = "logo.png"
+html_favicon = "favicon.ico"
 
 github_url = 'https://github.com/Sendrowski/fastDFE'

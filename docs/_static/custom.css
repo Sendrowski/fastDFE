@@ -1,6 +1,11 @@
 /* Make output cells scrollable */
-
 /* div.cell_output {
     max-height: 500px;
     overflow: auto;
+}
+ */
+
+/* scale logo to 50% width */
+.icon {
+    width: 40%;
 }
