@@ -13,12 +13,10 @@ from typing import List, Optional, Literal, Tuple, Dict
 import jsonpickle
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
 from typing_extensions import Self
 
 from .bootstrap import Bootstrap
 from .parametrization import Parametrization, _from_string
-from .visualization import Visualization
 
 logger = logging.getLogger("fastdfe")
 
@@ -39,11 +37,11 @@ class Inference:
             show: bool = True,
             title: str = 'discretized DFEs',
             labels: list | np.ndarray = None,
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             kwargs_legend: dict = dict(prop=dict(size=8)),
             **kwargs
 
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Visualize several discretized DFEs given by the list of inference objects.
 
@@ -61,6 +59,8 @@ class Inference:
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes of the plot.
         """
+        from .visualization import Visualization
+
         # get data from inference objects
         values = []
         errors = []
@@ -101,11 +101,11 @@ class Inference:
             labels: list | np.ndarray = None,
             scale: Literal['lin', 'log', 'symlog'] = 'lin',
             scale_density: bool = False,
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             kwargs_legend: dict = dict(prop=dict(size=8)),
             **kwargs
 
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Visualize several DFEs given by the list of inference objects.
         By default, the PDF is plotted as is. Due to the logarithmic scale on
@@ -131,6 +131,8 @@ class Inference:
         :param kwargs: Additional arguments for the plot.
         :return: Axes of the plot.
         """
+        from .visualization import Visualization
+
         # get data from inference objects
         values = []
         errors = []
@@ -162,11 +164,11 @@ class Inference:
             show: bool = True,
             title: str = 'parameter estimates',
             scale: Literal['lin', 'log', 'symlog'] = 'log',
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
             **kwargs
 
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Visualize several discretized DFEs given by the list of inference objects.
         Note that the DFE parametrization needs to be the same for all inference objects.
@@ -174,7 +176,6 @@ class Inference:
         :param inferences: List of inference objects.
         :param labels: Unique labels for the DFEs.
         :param scale: y-scale of the plot.
-        :param legend: Whether to show a legend.
         :param confidence_intervals: Whether to plot confidence intervals.
         :param ci_level: Confidence level for confidence intervals.
         :param bootstrap_type: Type of bootstrap to use for confidence intervals.
@@ -187,6 +188,8 @@ class Inference:
         :param kwargs: Additional arguments which are ignored.
         :raises ValueError: If no inference objects are given.
         """
+        from .visualization import Visualization
+
         if len(inferences) == 0:
             raise ValueError('No inference objects given.')
 
@@ -225,7 +228,7 @@ class Inference:
             show: bool = True,
             title: str = 'parameter estimates',
             **kwargs
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Visualize several discretized DFEs given by the list of inference objects.
         Note that the DFE parametrization needs to be the same for all inference objects.
@@ -239,6 +242,8 @@ class Inference:
         :return: Axes of the plot.
         :raises ValueError: If no inference objects are given or no bootstraps are found.
         """
+        from .visualization import Visualization
+
         if len(inferences) == 0:
             raise ValueError('No inference objects given.')
 
@@ -521,9 +526,9 @@ class AbstractInference(ABC):
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
             title: str = 'discretized DFE',
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             kwargs_legend: dict = dict(prop=dict(size=8)),
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Plot discretized DFE.
 

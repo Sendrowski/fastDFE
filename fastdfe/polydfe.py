@@ -17,7 +17,6 @@ from typing import Callable, List, Optional, Literal, Dict
 import numpy as np
 import pandas as pd
 import rpy2.robjects as ro
-from matplotlib import pyplot as plt
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import ListVector
 from typing_extensions import Self
@@ -340,9 +339,9 @@ class PolyDFE(AbstractInference):
             title: str = 'parameter estimates',
             scale: Literal['lin', 'log', 'symlog'] = 'log',
             legend: bool = True,
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Visualize the inferred parameters and their confidence intervals.
 

@@ -1,7 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from fastdfe import GammaExpParametrization, BaseInference, Config, Visualization
+from fastdfe import GammaExpParametrization, BaseInference, Config
+from fastdfe.visualization import Visualization
 from fastdfe.discretization import Discretization
 from fastdfe.parametrization import DiscreteParametrization, GammaDiscreteParametrization, \
     DisplacedGammaParametrization, DiscreteFractionalParametrization

@@ -12,7 +12,6 @@ import logging
 import numpy as np
 import pandas as pd
 from jsonpickle.handlers import BaseHandler
-from scipy.optimize._lbfgsb_py import LbfgsInvHessProduct
 
 from .optimization import SharedParams, Covariate
 from .parametrization import Parametrization
@@ -134,6 +133,8 @@ class CustomEncoder(json.JSONEncoder):
         :param obj: Object
         :return: Simplified object
         """
+        from scipy.optimize._lbfgsb_py import LbfgsInvHessProduct
+
         if isinstance(obj, Spectrum):
             return obj.to_list()
 

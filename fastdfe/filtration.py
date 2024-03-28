@@ -29,6 +29,13 @@ def _count_filtered(func: Callable) -> Callable:
 
     @functools.wraps(func)
     def wrapper(self, variant):
+        """
+        Wrapper function.
+
+        :param self: Self.
+        :param variant: The variant to filter.
+        :return: The result of the decorated function.
+        """
         result = func(self, variant)
         if not result:
             self.n_filtered += 1

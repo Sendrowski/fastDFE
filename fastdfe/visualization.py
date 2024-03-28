@@ -32,9 +32,6 @@ class Visualization:
     Visualization class.
     """
 
-    # configure color map
-    # plt.rcParams['axes.prop_cycle'] = cycler('color', plt.get_cmap('Set2').colors)
-
     @classmethod
     def change_default_figsize(cls, factor: float | np.ndarray):
         """

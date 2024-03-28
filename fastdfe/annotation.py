@@ -28,8 +28,6 @@ from Bio.Phylo.BaseTree import Clade, Tree
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from cyvcf2 import Variant, Writer, VCF
-from matplotlib import pyplot as plt
-from scipy.optimize import minimize, OptimizeResult
 from scipy.stats import hypergeom
 from tqdm import tqdm
 
@@ -38,7 +36,6 @@ from .io_handlers import GFFHandler, get_major_base, get_called_bases
 from .optimization import parallelize as parallelize_func, check_bounds
 from .settings import Settings
 from .spectrum import Spectra
-from .visualization import Visualization
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -71,6 +68,9 @@ unique_to_degeneracy = {0: 0, 1: 2, 2: 2, 3: 4}
 
 
 class Annotation(ABC):
+    """
+    Base class for annotations.
+    """
 
     def __init__(self):
         """
@@ -1257,7 +1257,7 @@ class SiteInfo:
 
     def plot_tree(
             self,
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             show: bool = True,
     ):
         """
@@ -1267,6 +1267,8 @@ class SiteInfo:
         :param ax: Axes to plot on.
         :param show: Whether to show the plot.
         """
+        import matplotlib.pyplot as plt
+
         if ax is None:
             ax = plt.gca()
 
@@ -1405,9 +1407,9 @@ class PolarizationPrior(ABC):
             show: bool = True,
             title: str = 'polarization probabilities',
             scale: Literal['lin', 'log'] = 'lin',
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             ylabel: str = 'p'
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Visualize the polarization probabilities using a scatter plot.
 
@@ -1419,6 +1421,8 @@ class PolarizationPrior(ABC):
         :param ylabel: y-axis label.
         :return: Axes object
         """
+        from .visualization import Visualization
+
         if self.probabilities is None:
             raise ValueError('Polarization probabilities have not been calculated yet.')
 
@@ -1511,6 +1515,7 @@ class AdaptivePolarizationPrior(PolarizationPrior):
         :param n_ingroups: The number of ingroups.
         :return: The polarization probabilities.
         """
+        from scipy.optimize import minimize, OptimizeResult
 
         # folded frequency bin indices
         # if the number of polymorphic bins is odd, the middle bin is fixed
@@ -2209,7 +2214,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         self.likelihood: float | None = None
 
         #: Optimization result of the best run.
-        self.result: OptimizeResult | None = None
+        self.result: Optional['scipy.optimize.OptimizeResult'] = None
 
         #: The MLE parameters.
         self.params_mle: Dict[str, float] | None = None
@@ -2877,6 +2882,8 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         manually if the data is provided directly, e.g. using :meth:`from_data`, :meth:`from_dataframe` or
         :meth:`from_est_sfs`. If the data is provided using a VCF file, this method is called automatically.
         """
+        from scipy.optimize import minimize, OptimizeResult
+
         # get the bounds
         bounds = self.model.get_bounds(self.n_outgroups)
 
@@ -3659,9 +3666,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             show: bool = True,
             title: str = 'rate likelihoods',
             scale: Literal['lin', 'log'] = 'lin',
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             ylabel: str = 'lnl'
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Visualize the likelihoods of the rate optimization runs using a scatter plot.
 
@@ -3673,6 +3680,8 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         :param ylabel: Label for y-axis.
         :return: Axes object
         """
+        from .visualization import Visualization
+
         return Visualization.plot_scatter(
             values=self.likelihoods,
             file=file,

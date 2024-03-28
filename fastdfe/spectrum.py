@@ -12,11 +12,9 @@ from typing import Dict, List, Union, Iterable, Any, Literal
 
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
 from scipy.stats import hypergeom
 
 from .io_handlers import download_if_url
-from .visualization import Visualization
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -404,8 +402,8 @@ class Spectrum(Iterable):
             log_scale: bool = False,
             show_monomorphic: bool = False,
             kwargs_legend: dict = dict(prop=dict(size=8)),
-            ax: plt.Axes = None
-    ) -> plt.Axes:
+            ax: 'plt.Axes' = None
+    ) -> 'plt.Axes':
         """
         Plot spectrum.
 
@@ -418,6 +416,8 @@ class Spectrum(Iterable):
         :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes
         """
+        from .visualization import Visualization
+
         return Visualization.plot_spectra(
             spectra=[self.to_list()],
             file=file,
@@ -880,8 +880,8 @@ class Spectra:
             use_subplots: bool = False,
             show_monomorphic: bool = False,
             kwargs_legend: dict = dict(prop=dict(size=8)),
-            ax: plt.Axes = None
-    ) -> plt.Axes:
+            ax: 'plt.Axes' = None
+    ) -> 'plt.Axes':
         """
         Visualize spectra.
 
@@ -895,6 +895,8 @@ class Spectra:
         :param ax: Axes to plot on. Only for Python visualization backend and if ``use_subplots`` is ``False``.
         :return: Axes
         """
+        from .visualization import Visualization
+
         return Visualization.plot_spectra(
             spectra=list(list(v) for v in self.to_spectra().values()),
             labels=self.types,

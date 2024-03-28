@@ -16,9 +16,7 @@ import jsonpickle
 import multiprocess as mp
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
 from numpy.linalg import norm
-from scipy.optimize import OptimizeResult
 from tqdm import tqdm
 
 from .abstract_inference import Inference
@@ -31,7 +29,6 @@ from .optimization import Optimization, SharedParams, pack_shared, expand_shared
 from .parametrization import Parametrization
 from .settings import Settings
 from .spectrum import Spectrum, Spectra
-from .visualization import Visualization
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -648,7 +645,7 @@ class JointInference(BaseInference):
 
         return self.lrt(simple.likelihood, self.likelihood, len(self.covariates))
 
-    def _get_run_bootstrap_sample(self) -> Callable[[int], Tuple[OptimizeResult, dict]]:
+    def _get_run_bootstrap_sample(self) -> Callable[[int], Tuple['scipy.optimize.OptimizeResult', dict]]:
         """
         Get function which runs a single bootstrap sample.
 
@@ -670,7 +667,7 @@ class JointInference(BaseInference):
         sfs_neut = dict((t, self.marginal_inferences[t].sfs_neut) for t in self.types)
         sfs_sel = dict((t, self.marginal_inferences[t].sfs_sel) for t in self.types)
 
-        def run_bootstrap_sample(seed: int) -> (OptimizeResult, dict):
+        def run_bootstrap_sample(seed: int) -> ('scipy.optimize.OptimizeResult', dict):
             """
             Resample the observed selected SFS and rerun the optimization procedure.
             We take the MLE params as initial params here.
@@ -963,8 +960,8 @@ class JointInference(BaseInference):
             title: str = 'discretized DFE comparison',
             labels: List[str] = None,
             kwargs_legend: dict = dict(prop=dict(size=8)),
-            ax: plt.Axes = None
-    ) -> plt.Axes:
+            ax: 'plt.Axes' = None
+    ) -> 'plt.Axes':
         """
         Plot discretized DFE comparing the different types.
 
@@ -993,13 +990,13 @@ class JointInference(BaseInference):
             colors: List[str] = None,
             file: str = None,
             show: bool = True,
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             title: str = 'SFS comparison',
             use_subplots: bool = False,
             show_monomorphic: bool = False,
             kwargs_legend: dict = dict(prop=dict(size=8)),
 
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Plot SFS comparison.
 
@@ -1016,6 +1013,8 @@ class JointInference(BaseInference):
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes object
         """
+        from .visualization import Visualization
+
         if 'modelled' in sfs_types:
             self.run_if_required()
 
@@ -1071,8 +1070,8 @@ class JointInference(BaseInference):
             scale_density: bool = False,
             scale: Literal['lin', 'log', 'symlog'] = 'lin',
             kwargs_legend: dict = dict(prop=dict(size=8)),
-            ax: plt.Axes = None
-    ) -> plt.Axes:
+            ax: 'plt.Axes' = None
+    ) -> 'plt.Axes':
         """
         Plot discretized DFE. The special constants ``np.inf`` and ``-np.inf`` are also valid interval bounds.
         By default, the PDF is plotted as is. Due to the logarithmic scale on
@@ -1113,11 +1112,11 @@ class JointInference(BaseInference):
             show: bool = True,
             title: str = 'inferred parameters',
             labels: List[str] = None,
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             scale: Literal['lin', 'log', 'symlog'] = 'log',
             kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
             **kwargs: List[str]
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Plot discretized DFE comparing the different types.
 
@@ -1145,7 +1144,7 @@ class JointInference(BaseInference):
             title: str = 'inferred parameters',
             labels: List[str] = None,
             **kwargs: List[str]
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Plot discretized DFE comparing the different types.
 
@@ -1172,8 +1171,8 @@ class JointInference(BaseInference):
             ci_level: float = 0.05,
             xlabel: str = "cov",
             ylabel: str = None,
-            ax: plt.Axes = None
-    ) -> plt.Axes:
+            ax: 'plt.Axes' = None
+    ) -> 'plt.Axes':
         """
         Plot the covariate given by the index.
 
@@ -1189,6 +1188,8 @@ class JointInference(BaseInference):
         :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object.
         """
+        from .visualization import Visualization
+
         key = f"c{index}"
 
         # check if covariate exists

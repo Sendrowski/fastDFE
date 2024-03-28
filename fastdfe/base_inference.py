@@ -18,9 +18,7 @@ import jsonpickle
 import multiprocess as mp
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
 from numpy.linalg import norm
-from scipy.optimize._optimize import OptimizeResult
 from scipy.stats import chi2
 from typing_extensions import Self
 
@@ -34,7 +32,6 @@ from .optimization import Optimization, flatten_dict, pack_params, expand_fixed,
 from .parametrization import Parametrization, _from_string
 from .spectrum import Spectrum, Spectra
 from .spectrum import standard_kingman
-from .visualization import Visualization
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -238,7 +235,7 @@ class BaseInference(AbstractInference):
         self.n_runs: int = n_runs
 
         #: Numerical optimization result
-        self.result: Optional[OptimizeResult] = None
+        self.result: Optional['scipy.optimize.OptimizeResult'] = None
 
         # Bootstrap options
 
@@ -302,7 +299,7 @@ class BaseInference(AbstractInference):
         self.bootstraps: Optional[pd.DataFrame] = None
 
         #: Bootstrap optimization results
-        self.bootstrap_results: Optional[List[OptimizeResult]] = None
+        self.bootstrap_results: Optional[List['scipy.optimize.OptimizeResult']] = None
 
         #: L2 norm of differential between modelled and observed SFS
         self.L2_residual: Optional[float] = None
@@ -498,7 +495,7 @@ class BaseInference(AbstractInference):
 
         return lk
 
-    def _assign_result(self, result: OptimizeResult, params_mle: dict):
+    def _assign_result(self, result: 'scipy.optimize.OptimizeResult', params_mle: dict):
         """
         Assign optimization result and MLE parameters.
 
@@ -548,7 +545,7 @@ class BaseInference(AbstractInference):
                                  f"`norm(sfs_modelled - sfs_observed, 1) / sfs_observed` = {ratio:.3f}. "
                                  "This may indicate that the model does not fit the data well.")
 
-    def _report_result(self, result: OptimizeResult, params: dict):
+    def _report_result(self, result: 'scipy.optimize.OptimizeResult', params: dict):
         """
         Inform on optimization result.
 
@@ -683,7 +680,7 @@ class BaseInference(AbstractInference):
         # add alpha estimates
         self.bootstraps['alpha'] = self.bootstraps.apply(lambda r: self.get_alpha(dict(r)), axis=1)
 
-    def _run_bootstrap_sample(self, seed: int) -> (OptimizeResult, dict):
+    def _run_bootstrap_sample(self, seed: int) -> ('scipy.optimize.OptimizeResult', dict):
         """
         Resample the observed selected SFS and rerun the optimization procedure.
         We take the MLE params as initial params here. In case the optimization
@@ -862,9 +859,9 @@ class BaseInference(AbstractInference):
             scale: Literal['lin', 'log', 'symlog'] = 'lin',
             title: str = 'DFE',
             kwargs_legend: dict = dict(prop=dict(size=8)),
-            ax: plt.Axes = None
+            ax: 'plt.Axes' = None
 
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Plot continuous DFE.
         The special constants np.inf and -np.inf are also valid interval bounds.
@@ -912,9 +909,9 @@ class BaseInference(AbstractInference):
             file: str = None,
             show: bool = True,
             title: str = 'bucket sizes',
-            ax: plt.Axes = None
+            ax: 'plt.Axes' = None
 
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Plot mass in each bucket for the MLE DFE.
         This can be used to check if the interval bounds and spacing
@@ -926,6 +923,8 @@ class BaseInference(AbstractInference):
         :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object
         """
+        from .visualization import Visualization
+
         # evaluate at fixed parameters
         sizes = self.model._discretize(self.params_mle, self.discretization.bins)
 
@@ -947,8 +946,8 @@ class BaseInference(AbstractInference):
             intervals: list | np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             interval_labels: List[str] = None,
             color: str = 'C0',
-            ax: plt.Axes = None
-    ) -> plt.Axes:
+            ax: 'plt.Axes' = None
+    ) -> 'plt.Axes':
         """
         Plot density of the discretization intervals chosen. Note that although this plot looks similar, this is
         not the DFE!
@@ -961,6 +960,8 @@ class BaseInference(AbstractInference):
         :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object
         """
+        from .visualization import Visualization
+
         # issue warning
         if not self.discretization.linearized:
             self._logger.warning('Note that the interval density is not important if the DFE was not linearized.')
@@ -982,12 +983,12 @@ class BaseInference(AbstractInference):
             colors: List[str] = None,
             file: str = None,
             show: bool = True,
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             title: str = 'SFS comparison',
             use_subplots: bool = False,
             show_monomorphic: bool = False,
             kwargs_legend: dict = dict(prop=dict(size=8)),
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Plot SFS comparison.
 
@@ -1003,6 +1004,8 @@ class BaseInference(AbstractInference):
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes object
         """
+        from .visualization import Visualization
+
         if 'modelled' in sfs_types:
             self.run_if_required()
 
@@ -1031,8 +1034,8 @@ class BaseInference(AbstractInference):
             labels: List[str] = None,
             file: str = None,
             show: bool = True,
-            ax: plt.Axes = None
-    ) -> plt.Axes:
+            ax: 'plt.Axes' = None
+    ) -> 'plt.Axes':
         """
         Plot neutral and selected SFS.
 
@@ -1097,10 +1100,10 @@ class BaseInference(AbstractInference):
             show: bool = True,
             title: str = 'parameter estimates',
             scale: Literal['lin', 'log', 'symlog'] = 'log',
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
             **kwargs
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Visualize the inferred parameters and their confidence intervals.
 
@@ -1136,7 +1139,7 @@ class BaseInference(AbstractInference):
             show: bool = True,
             title: str = 'parameter estimates',
             **kwargs
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Visualize the inferred parameters and their confidence intervals.
 
@@ -1161,10 +1164,10 @@ class BaseInference(AbstractInference):
             show: bool = True,
             title: str = 'likelihoods',
             scale: Literal['lin', 'log'] = 'lin',
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             ylabel: str = 'lnl',
             **kwargs
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Visualize the likelihoods of the optimization runs using a scatter plot.
 
@@ -1176,6 +1179,8 @@ class BaseInference(AbstractInference):
         :param ylabel: Label for the y-axis.
         :return: Axes object
         """
+        from .visualization import Visualization
+
         return Visualization.plot_scatter(
             values=self.likelihoods,
             file=file,
@@ -1293,10 +1298,10 @@ class BaseInference(AbstractInference):
             transpose: bool = False,
             cmap: str = None,
             title: str = 'nested model comparison',
-            ax: plt.Axes = None,
+            ax: 'plt.Axes' = None,
             do_bootstrap: bool = True,
 
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Plot the p-values of nested likelihoods.
 
@@ -1310,6 +1315,8 @@ class BaseInference(AbstractInference):
         :param do_bootstrap: Whether to perform bootstrapping. This is recommended to get more accurate p-values.
         :return: Axes object
         """
+        from .visualization import Visualization
+
         # get p-values and names
         P, inferences = self.compare_nested_models(do_bootstrap=do_bootstrap)
 

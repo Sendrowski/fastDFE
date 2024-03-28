@@ -16,7 +16,6 @@ import multiprocess as mp
 import numpy as np
 from numpy.linalg import norm
 from numpy.random import Generator
-from scipy.optimize import minimize, OptimizeResult
 from scipy.stats import loguniform, uniform
 from tqdm import tqdm
 
@@ -895,7 +894,7 @@ class Optimization:
             opts_mle: dict = None,
             pbar: bool = None,
             desc: str = 'Inferring DFE',
-    ) -> (OptimizeResult, dict):
+    ) -> ('scipy.optimize.OptimizeResult', dict):
         """
         Perform the optimization procedure.
 
@@ -913,6 +912,8 @@ class Optimization:
         :param desc: Description for the progress bar
         :return: The optimization result and the likelihoods
         """
+        from scipy.optimize import minimize, OptimizeResult
+
         # number of optimization runs
         self.n_runs = n_runs
 

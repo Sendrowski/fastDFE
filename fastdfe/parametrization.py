@@ -12,7 +12,6 @@ from functools import wraps
 from typing import Callable, List, Union, Dict, Tuple, Literal
 
 import numpy as np
-from matplotlib import pyplot as plt
 from scipy.stats import gamma, expon
 
 # get logger
@@ -167,9 +166,9 @@ class Parametrization(ABC):
             file: str = None,
             show: bool = True,
             title: str = 'discretized DFE',
-            ax: plt.Axes = None
+            ax: 'plt.Axes' = None
 
-    ) -> plt.Axes:
+    ) -> 'plt.Axes':
         """
         Plot the discretized DFE.
 

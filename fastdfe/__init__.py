@@ -13,7 +13,6 @@ import sys
 import warnings
 
 import jsonpickle
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -22,7 +21,7 @@ from .json_handlers import DataframeHandler, SpectrumHandler, SpectraHandler, Nu
 from .spectrum import Spectrum, Spectra
 
 # set the default figure size
-plt.rcParams['figure.figsize'] = np.array([6.4, 4.8]) * 0.8
+# plt.rcParams['figure.figsize'] = np.array([6.4, 4.8]) * 0.8
 
 # register custom handles
 jsonpickle.handlers.registry.register(pd.DataFrame, DataframeHandler)
@@ -32,6 +31,10 @@ jsonpickle.handlers.registry.register(np.ndarray, NumpyArrayHandler)
 
 
 class TqdmLoggingHandler(logging.Handler):
+    """
+    TQDM logging handler
+    """
+
     def __init__(self, level=logging.NOTSET):
         """
         Initialize the handler.
@@ -131,7 +134,6 @@ from .abstract_inference import Inference
 from .base_inference import BaseInference, InferenceResults
 from .joint_inference import JointInference, SharedParams
 from .optimization import Covariate
-from .visualization import Visualization
 from .spectrum import Spectrum, Spectra
 from .parser import Parser, Stratification, BaseTransitionStratification, BaseContextStratification, \
     DegeneracyStratification, TransitionTransversionStratification, AncestralBaseStratification, \
@@ -159,7 +161,6 @@ __all__ = [
     'JointInference',
     'SharedParams',
     'Covariate',
-    'Visualization',
     'Spectrum',
     'Spectra',
     'Parser',
