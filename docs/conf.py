@@ -20,6 +20,7 @@ release = '1.1.5'
 
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
     'sphinx_autodoc_typehints',
     'sphinx_copybutton',
     'myst_nb',
