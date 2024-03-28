@@ -1,14 +1,10 @@
-from testing import prioritize_installed_packages
-
-prioritize_installed_packages()
-
-from testing import TestCase
-
 import dadi
 import numpy as np
 import pandas as pd
 from numpy import testing
+
 from fastdfe import spectrum, Spectra, Spectrum
+from testing import TestCase
 
 
 class SpectraTestCase(TestCase):

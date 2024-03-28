@@ -1,21 +1,16 @@
-import logging
-
-from testing import prioritize_installed_packages
-
-prioritize_installed_packages()
-
 import copy
+import logging
 from unittest import mock
-from testing import TestCase
-from pandas.testing import assert_frame_equal
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from numpy.random._generator import Generator
+from pandas.testing import assert_frame_equal
 from scipy.optimize import OptimizeResult
 
 import fastdfe as fd
+from testing import TestCase
 
 
 class InferenceTestCase(TestCase):

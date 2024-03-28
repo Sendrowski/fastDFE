@@ -1,18 +1,13 @@
 from functools import cached_property
 from typing import List
+from unittest.mock import Mock
 
 import numpy as np
 from cyvcf2 import Variant
 
-from fastdfe.io_handlers import count_sites
-from testing import prioritize_installed_packages
-
-prioritize_installed_packages()
-from unittest.mock import Mock
-
-from testing import TestCase
-
 import fastdfe as fd
+from fastdfe.io_handlers import count_sites
+from testing import TestCase
 
 
 class FiltrationTestCase(TestCase):

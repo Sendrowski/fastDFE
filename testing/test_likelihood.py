@@ -1,13 +1,8 @@
-from testing import prioritize_installed_packages
-
-prioritize_installed_packages()
-
-from testing import TestCase
-
+import numpy as np
 from scipy.special import factorial
 
-import numpy as np
 from fastdfe.likelihood import Likelihood
+from testing import TestCase
 
 
 class LikelihoodTestCase(TestCase):

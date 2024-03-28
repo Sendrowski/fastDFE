@@ -1,13 +1,9 @@
-from testing import prioritize_installed_packages
-
-prioritize_installed_packages()
-
 import os
-from testing import TestCase
 
 import pytest
 
 from fastdfe.polydfe import PolyDFEResult, PolyDFE
+from testing import TestCase
 
 
 class PolyDFEWrapperTestCase(TestCase):

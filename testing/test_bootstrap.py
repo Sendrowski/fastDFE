@@ -1,19 +1,15 @@
-from testing import prioritize_installed_packages
-
-prioritize_installed_packages()
-
-from testing import TestCase
-
 import numpy as np
 from scipy import stats
 
 from fastdfe.bootstrap import Bootstrap
+from testing import TestCase
 
 
 class BootstrapTestCase(TestCase):
     """
     Test the Bootstrap class.
     """
+
     def test_ci_percentile(self):
         x = np.arange(100)
 

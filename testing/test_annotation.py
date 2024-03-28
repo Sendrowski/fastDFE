@@ -7,24 +7,17 @@ from unittest.mock import MagicMock, PropertyMock, patch, Mock
 
 import numpy as np
 import pandas as pd
+import pytest
 from cyvcf2 import Variant, cyvcf2
 from matplotlib import pyplot as plt
 from matplotlib.collections import PathCollection
 from numpy import testing
 from pandas.testing import assert_frame_equal
 
+import fastdfe as fd
 from fastdfe.annotation import _ESTSFSAncestralAnnotation, base_indices, SiteConfig, SiteInfo
 from fastdfe.io_handlers import count_sites, GFFHandler, get_called_bases, DummyVariant
-from testing import prioritize_installed_packages
-
-# logging.getLogger('fastdfe').setLevel(logging.DEBUG)
-
-prioritize_installed_packages()
-
 from testing import TestCase
-import pytest
-
-import fastdfe as fd
 
 
 class AnnotationTestCase(TestCase):
@@ -3070,6 +3063,3 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         diff_ref_params = np.abs(params_mle[0] - params_mle[1]) / params_mle[0]
 
         self.assertLess(diff_ref_params.max(), 0.01)
-
-
-

@@ -1,13 +1,8 @@
-from testing import prioritize_installed_packages
-
-prioritize_installed_packages()
-
-from testing import TestCase
-
 from numpy import testing
 
 from fastdfe import Config, BaseInference, SharedParams
 from fastdfe.optimization import Covariate
+from testing import TestCase
 
 
 class ConfigTestCase(TestCase):

@@ -1,20 +1,14 @@
 import logging
-
-from testing import prioritize_installed_packages
-
-prioritize_installed_packages()
-
 from typing import Literal, List
-from testing import TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy import testing
 
 from fastdfe.optimization import pack_params, unpack_params, flatten_dict, unflatten_dict, filter_dict, Optimization, \
     merge_dicts, correct_values, to_symlog, from_symlog, scale_bound, scale_value, unscale_value, unscale_bound, \
     check_bounds
-
-from numpy import testing
+from testing import TestCase
 
 
 class OptimizationTestCase(TestCase):

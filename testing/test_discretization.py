@@ -1,9 +1,3 @@
-from testing import prioritize_installed_packages
-
-prioritize_installed_packages()
-
-from testing import TestCase
-
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.special import hyp1f1
@@ -12,6 +6,7 @@ from fastdfe import GammaExpParametrization, discretization
 from fastdfe.discretization import Discretization
 from fastdfe.discretization import H, H_regularized
 from fastdfe.discretization import H_fixed, H_fixed_regularized
+from testing import TestCase
 
 
 class DiscretizationTestCase(TestCase):
@@ -240,4 +235,3 @@ class DiscretizationTestCase(TestCase):
 
         plt.legend()
         plt.show()
-

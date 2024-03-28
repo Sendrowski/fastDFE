@@ -1,16 +1,11 @@
+import matplotlib.pyplot as plt
 import numpy as np
-
-from testing import prioritize_installed_packages
-
-prioritize_installed_packages()
-
 import pytest
 
+import fastdfe as fd
 from fastdfe import JointInference, Config, SharedParams, Covariate, Spectra
 from fastdfe.optimization import flatten_dict
 from testing.test_base_inference import InferenceTestCase
-import fastdfe as fd
-import matplotlib.pyplot as plt
 
 
 class JointInferenceTestCase(InferenceTestCase):

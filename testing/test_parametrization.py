@@ -1,9 +1,3 @@
-from testing import prioritize_installed_packages
-
-prioritize_installed_packages()
-
-from testing import TestCase
-
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -11,6 +5,7 @@ from fastdfe import GammaExpParametrization, BaseInference, Config, Visualizatio
 from fastdfe.discretization import Discretization
 from fastdfe.parametrization import DiscreteParametrization, GammaDiscreteParametrization, \
     DisplacedGammaParametrization, DiscreteFractionalParametrization
+from testing import TestCase
 
 
 class ParametrizationTestCase(TestCase):

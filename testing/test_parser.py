@@ -1,19 +1,13 @@
 import logging
 
+import dadi
+import numpy as np
 import pandas as pd
 import pytest
 
-from fastdfe.io_handlers import get_called_bases
-from testing import prioritize_installed_packages
-
-prioritize_installed_packages()
-
-from testing import TestCase
-
-import dadi
-import numpy as np
-
 import fastdfe as fd
+from fastdfe.io_handlers import get_called_bases
+from testing import TestCase
 
 
 class ParserTestCase(TestCase):
