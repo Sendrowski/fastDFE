@@ -23,6 +23,10 @@ types = ['neutral', 'selected']
 inf.plot_sfs_comparison(ax=axs[0], show=False, sfs_types=types)
 inf.plot_sfs_comparison(ax=axs[1], show=False, colors=['C1', 'C5'])
 inf.plot_inferred_parameters(ax=axs[2], show=False)
-inf.plot_discretized(ax=axs[3], show=True)
+inf.plot_discretized(ax=axs[3], show=False)
+
+plt.savefig('../reports/manuscript/figures/base_inference.high_resolution.jpg', dpi=1200)
+
+plt.show()
 
 pass

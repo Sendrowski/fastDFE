@@ -24,5 +24,7 @@ inf.plot_discretized(
     show_marginals=False, show=False
 )
 
-pass
+plt.savefig('../reports/manuscript/figures/joint_inference_covariates.high_resolution.jpg', dpi=1200)
 # plt.savefig("scratch/joint_inference_covariates.png")
+
+pass
