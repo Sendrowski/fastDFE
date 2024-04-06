@@ -1,3 +1,6 @@
+"""
+Initialization for the testing module.
+"""
 import logging
 import os
 import sys
