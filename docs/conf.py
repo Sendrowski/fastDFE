@@ -4,6 +4,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 import sys
+import datetime
 
 sys.path.append('..')
 
@@ -11,7 +12,8 @@ sys.path.append('..')
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'fastDFE'
-copyright = '2023, Janek Sendrowski'
+year = datetime.datetime.now().year
+copyright = f'{year}, Janek Sendrowski'
 author = 'Janek Sendrowski'
 release = '1.1.5'
 
