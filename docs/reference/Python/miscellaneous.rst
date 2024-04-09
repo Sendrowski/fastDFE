@@ -8,13 +8,13 @@ Logging
 
 fastDFE uses the standard Python :mod:`logging` module for logging. By default, fastDFE logs to the console at the ``INFO`` level. You can change the logging level, to for example ``DEBUG`` as follows::
 
-    import fastdfe
+    import fastdfe as fd
 
-    fastdfe.logger.setLevel("DEBUG")
+    fd.logger.setLevel("DEBUG")
 
 You can also disable the progress bar like this::
 
-    fastdfe.Settings.disable_pbar = True
+    fd.Settings.disable_pbar = True
 
 
 Debugging
