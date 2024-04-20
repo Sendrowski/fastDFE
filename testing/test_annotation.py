@@ -1530,7 +1530,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 tol_params=0.1,
                 tol_sites=0.04,
                 outgroups=["ERR2103730"],
-                vcf="resources/genome/betula/all.with_outgroups.vcf.gz"
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz"
             ),
             dict(
                 prior=None,
@@ -1538,7 +1538,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 tol_params=1.3,
                 tol_sites=0.04,
                 outgroups=["ERR2103730", "ERR2103731"],
-                vcf="resources/genome/betula/all.with_outgroups.vcf.gz"
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz"
             ),
             dict(
                 prior=None,
@@ -1546,7 +1546,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 tol_params=0.8,
                 tol_sites=0.04,
                 outgroups=["ERR2103730", "ERR2103731"],
-                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz"
+                vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz"
             ),
             dict(
                 prior=None,
@@ -1554,7 +1554,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 tol_params=0.8,
                 tol_sites=0.04,
                 outgroups=["ERR2103730", "ERR2103731"],
-                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz"
+                vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz"
             ),
             dict(
                 prior=None,
@@ -1562,7 +1562,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 tol_params=0.1,
                 tol_sites=0.04,
                 outgroups=["ERR2103730"],
-                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz"
+                vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz"
             ),
             dict(
                 prior=None,
@@ -1570,14 +1570,13 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 tol_params=0.3,
                 tol_sites=0.04,
                 outgroups=["ERR2103730"],
-                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz"
+                vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz"
             )
         ]
 
         annotators = []
         diffs_params = []
         diffs_sites = []
-        max_sites = 10000
         n_ingroups = 11
 
         # run inference
@@ -1587,15 +1586,13 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 n_ingroups=n_ingroups,
                 prior=case['prior'],
                 model=case['model'],
-                max_sites=max_sites,
                 subsample_mode='random'
             )
 
             ann = fd.Annotator(
                 vcf=case['vcf'],
                 output='scratch/dummy.vcf',
-                annotations=[anc],
-                max_sites=max_sites
+                annotations=[anc]
             )
 
             # set up to infer branch rates
@@ -2242,9 +2239,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         for threshold in [0, 0.5, 0.9]:
             p = fd.Parser(
-                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
                 n=10,
-                max_sites=10000,
                 annotations=[
                     fd.MaximumLikelihoodAncestralAnnotation(
                         outgroups=["ERR2103730"],
@@ -2445,8 +2441,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         anc, anc2 = {}, {}
 
         vcfs = {
-            'biallelic': "resources/genome/betula/biallelic.with_outgroups.vcf.gz",
-            'all': "resources/genome/betula/all.with_outgroups.vcf.gz"
+            'biallelic': "resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
+            'all': "resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz"
         }
 
         for key, vcf in vcfs.items():
@@ -2456,8 +2452,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 exclude=["ERR2103731"],
                 n_ingroups=20,
                 confidence_threshold=0,
-                prior=fd.KingmanPolarizationPrior(),
-                max_sites=10000
+                prior=fd.KingmanPolarizationPrior()
             )
 
             a.infer()
@@ -2587,13 +2582,13 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 aliases=dict(chr1=['CM001491.2'])
             ),
             pendula_one_outgroup=dict(
-                vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
                 outgroups=["ERR2103730"],
                 ingroups=pd.read_csv("resources/genome/betula/sample_sets/pendula.args", header=None)[0].tolist(),
                 prior=fd.KingmanPolarizationPrior()
             ),
             pendula_one_outgroup_biallelic=dict(
-                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
                 fasta="resources/genome/betula/genome.fasta",
                 outgroups=["ERR2103730"],
                 ingroups=pd.read_csv("resources/genome/betula/sample_sets/pendula.args", header=None)[0].tolist(),
@@ -2601,25 +2596,25 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 n_target_sites=max_sites * target_site_multiplier
             ),
             pubescens_one_outgroup=dict(
-                vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
                 outgroups=["ERR2103730"],
                 ingroups=pd.read_csv("resources/genome/betula/sample_sets/pubescens.args", header=None)[0].tolist(),
                 prior=fd.KingmanPolarizationPrior()
             ),
             betula_one_outgroup=dict(
-                vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
                 outgroups=["ERR2103730"],
                 exclude=["ERR2103731"],
                 prior=fd.KingmanPolarizationPrior()
             ),
             betula_two_outgroups=dict(
-                vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
                 outgroups=["ERR2103730", "ERR2103731"],
                 exclude=[],
                 prior=fd.KingmanPolarizationPrior()
             ),
             betula_one_outgroup_no_prior=dict(
-                vcf="resources/genome/betula/all.with_outgroups.vcf.gz",
+                vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
                 outgroups=["ERR2103730"],
                 exclude=["ERR2103731"],
                 prior=None
@@ -2632,7 +2627,6 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 fasta=config['fasta'] if 'fasta' in config else None,
                 aliases=config['aliases'] if 'aliases' in config else {},
                 n=10,
-                max_sites=max_sites,
                 annotations=[
                     fd.MaximumLikelihoodAncestralAnnotation(
                         outgroups=config['outgroups'],
@@ -2720,7 +2714,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         for mode in modes:
             p = fd.Parser(
-                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
                 n=10,
                 max_sites=1000,
                 annotations=[
@@ -2748,7 +2742,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         annotations = [parsers[mode].annotations[0] for mode in modes]
 
-        vcf = cyvcf2.VCF("resources/genome/betula/biallelic.with_outgroups.vcf.gz")
+        vcf = cyvcf2.VCF("resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz")
 
         mismatches = 0
         for i in range(600):
@@ -2778,7 +2772,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         """
 
         a = fd.MaximumLikelihoodAncestralAnnotation._from_vcf(
-            file="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+            file="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
             outgroups=["ERR2103730"],
             exclude=["ERR2103731"],
             max_sites=1000,
@@ -2798,7 +2792,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         spectra = {}
         for mode in ['probabilistic', 'random']:
             a = fd.MaximumLikelihoodAncestralAnnotation._from_vcf(
-                file="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                file="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
                 outgroups=["ERR2103730"],
                 exclude=["ERR2103731"],
                 max_sites=2000,
@@ -2830,7 +2824,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             )
 
             p = fd.Parser(
-                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
                 n=10,
                 max_sites=1000,
                 annotations=[a]
@@ -2931,7 +2925,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         )
 
         p = fd.Parser(
-            vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
             fasta="resources/genome/betula/genome.fasta",
             n=10,
             max_sites=max_sites,
@@ -2967,7 +2961,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         )
 
         p = fd.Parser(
-            vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
             fasta="resources/genome/betula/genome.fasta",
             n=10,
             max_sites=max_sites,
@@ -2992,7 +2986,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         )
 
         p = fd.Parser(
-            vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
             n=10,
             max_sites=max_sites,
             annotations=[anc]
@@ -3010,7 +3004,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         for prior in [fd.AdaptivePolarizationPrior(), fd.KingmanPolarizationPrior()]:
             for mode in ['probabilistic', 'random']:
                 a = fd.MaximumLikelihoodAncestralAnnotation._from_vcf(
-                    file="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                    file="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
                     outgroups=["ERR2103730"],
                     exclude=["ERR2103731"],
                     max_sites=1000,
@@ -3043,7 +3037,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             )
 
             parsers[mode] = fd.Parser(
-                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
                 fasta="resources/genome/betula/genome.fasta",
                 n=20,
                 max_sites=max_sites,
