@@ -46,6 +46,10 @@ if 'PYCHARM_HOSTED' not in os.environ:
 else:
     logger.setLevel(logging.INFO)
 
+# create scratch directory if it doesn't exist
+if not os.path.exists('scratch'):
+    os.makedirs('scratch')
+
 
 class TestCase(BaseTestCase):
     @pytest.fixture(autouse=True)
