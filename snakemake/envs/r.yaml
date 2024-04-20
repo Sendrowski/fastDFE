@@ -1,4 +1,6 @@
 name: r-fastdfe
+channels:
+  - conda-forge
 dependencies:
   - r-base
   - rpy2

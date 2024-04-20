@@ -1,4 +1,6 @@
 name: pip-fastdfe
+channels:
+  - conda-forge
 dependencies:
   - pip
   - pip:

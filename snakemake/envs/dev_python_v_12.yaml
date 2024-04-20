@@ -1,4 +1,6 @@
 name: dev-fastdfe-v-12
+channels:
+  - conda-forge
 dependencies:
   - python=3.12
   - dadi
