@@ -454,7 +454,8 @@ class ParserTestCase(TestCase):
                     fd.DegeneracyAnnotation(),
                     fd.MaximumLikelihoodAncestralAnnotation(
                         n_ingroups=10,
-                        outgroups=outgroups
+                        outgroups=outgroups,
+                        subsample_mode='random'
                     )
                 ],
                 filtrations=[
@@ -473,7 +474,7 @@ class ParserTestCase(TestCase):
             spectra.append(sfs)
 
         # noinspection all
-        # using two outgroups produces horrible results as the two outgroups are too close to each other
+        # using two outgroups produces bad results as the two outgroups are too close to each other
         site_info = dict(
             one_outgroup=pd.DataFrame(parsers[0].annotations[1].get_inferred_site_info()),
             two_outgroups=pd.DataFrame(parsers[1].annotations[1].get_inferred_site_info())
