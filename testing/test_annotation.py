@@ -1,5 +1,6 @@
 import itertools
 import logging
+import os
 import tempfile
 from collections import defaultdict
 from typing import Literal, cast
@@ -18,7 +19,6 @@ import fastdfe as fd
 from fastdfe.annotation import _ESTSFSAncestralAnnotation, base_indices, SiteConfig, SiteInfo
 from fastdfe.io_handlers import count_sites, GFFHandler, get_called_bases, DummyVariant
 from testing import TestCase
-
 
 class AnnotationTestCase(TestCase):
     """
@@ -492,19 +492,34 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
     @staticmethod
     def compare_with_est_sfs(
-            anc: fd.MaximumLikelihoodAncestralAnnotation
+            anc: fd.MaximumLikelihoodAncestralAnnotation,
+            cache: str = None
     ) -> (_ESTSFSAncestralAnnotation, pd.DataFrame):
         """
         Compare the results of the MaximumLikelihoodAncestralAnnotation class with the results of EST-SFS.
+
+        :param anc: An instance of the MaximumLikelihoodAncestralAnnotation class.
+        :param cache: The cache file to use for the EST-SFS results if any.
         """
-        est_sfs = _ESTSFSAncestralAnnotation(anc)
+        if cache is not None and os.path.exists(cache):
+            est_sfs = _ESTSFSAncestralAnnotation.from_file(cache)
 
-        if anc.prior is None:
-            binary = "resources/EST-SFS/cmake-build-debug/EST_SFS_no_prior"
+            fd.logger.info(f"Loading EST-SFS results from cache: {cache}")
         else:
-            binary = "resources/EST-SFS/cmake-build-debug/EST_SFS_with_prior"
 
-        est_sfs.infer(binary=binary)
+            est_sfs = _ESTSFSAncestralAnnotation(anc)
+
+            if anc.prior is None:
+                binary = "resources/EST-SFS/cmake-build-debug/EST_SFS_no_prior"
+            else:
+                binary = "resources/EST-SFS/cmake-build-debug/EST_SFS_with_prior"
+
+            est_sfs.infer(binary=binary)
+
+            if cache is not None:
+                est_sfs.to_file(cache)
+
+                fd.logger.info(f"Caching EST-SFS results to: {cache}")
 
         # get site information
         site_info = pd.DataFrame(anc.get_inferred_site_info())
@@ -513,8 +528,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         site_info.columns = ['native.' + col for col in site_info.columns]
 
         # add EST-SFS results to site information
-        site_info['est_sfs.config'] = est_sfs.probs.config
-        site_info['est_sfs.p_major_ancestral'] = est_sfs.probs.prob
+        site_info['est_sfs.config'] = est_sfs.probs.config.to_list()
+        site_info['est_sfs.p_major_ancestral'] = est_sfs.probs.prob.to_list()
 
         return est_sfs, site_info
 
@@ -1118,7 +1133,10 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         # mismatches mostly occur where we are not very confident in the ancestral allele
         ann.annotate()
 
-        anc2, site_info = self.compare_with_est_sfs(anc)
+        anc2, site_info = self.compare_with_est_sfs(
+            anc=anc,
+            cache="testing/est-sfs/test_papio_thorough_three_outgroups.json"
+        )
 
         diff_params = np.array(list(anc2.params_mle.values())) / np.array(list(anc.params_mle.values()))
 
@@ -1598,7 +1616,10 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             # set up to infer branch rates
             ann._setup()
 
-            anc2, site_info = self.compare_with_est_sfs(anc)
+            anc2, site_info = self.compare_with_est_sfs(
+                anc=anc,
+                cache=f'testing/est-sfs/test_betula_{hash(str(case))}.json'
+            )
 
             params_mle = np.array([[anc.params_mle[k], anc2.params_mle[k]] for k in anc.params_mle])
 
@@ -1639,7 +1660,10 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
             anc.infer()
 
-            est_sfs, site_info = self.compare_with_est_sfs(anc)
+            est_sfs, site_info = self.compare_with_est_sfs(
+                anc=anc,
+                cache=f'testing/est-sfs/test-data-no-poly-allelic-{model.__class__.__name__}.json'
+            )
 
             params_native = anc.params_mle
             params_wrapper = est_sfs.params_mle
