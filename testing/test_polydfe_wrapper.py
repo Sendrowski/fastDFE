@@ -12,7 +12,7 @@ class PolyDFEWrapperTestCase(TestCase):
     """
 
     polydfe_bin = 'resources/polydfe/bin/polyDFE-2.0-macOS-64-bit'
-    postprocessing_source = os.getcwd() + '/' + PolyDFEResult.default_postprocessing_source
+    postprocessing_source = 'resources/polydfe/postprocessing/script.R'
 
     config = "testing/configs/pendula_C_full_anc/config.yaml"
     serialized = "testing/polydfe/pendula_C_full_anc/serialized.json"
@@ -23,8 +23,11 @@ class PolyDFEWrapperTestCase(TestCase):
         """
         # run polyDFE
         polydfe = PolyDFE.from_config_file(self.config)
-        polydfe.run(f"scratch/test_run_polydfe_from_config.txt",
-                    binary=self.polydfe_bin, postprocessing_source=self.postprocessing_source)
+        polydfe.run(
+            output_file=f"scratch/test_run_polydfe_from_config.txt",
+            binary=self.polydfe_bin,
+            postprocessing_source=self.postprocessing_source
+        )
 
         polydfe.to_file("scratch/test_run_polydfe_from_config.json")
 

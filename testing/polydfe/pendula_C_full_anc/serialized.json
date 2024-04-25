@@ -110,7 +110,7 @@
     "summary": {
         "py/object": "fastdfe.polydfe.PolyDFEResult",
         "output_file": "results/polydfe/pendula_C_full_anc/out.txt",
-        "postprocessing_source": "../resources/polydfe/postprocessing/script.R",
+        "postprocessing_source": "resources/polydfe/postprocessing/script.R",
         "data": {
             "output_file": "/var/folders/w6/18ktl5312413jw46btlxrh59fzxvt4/T/tmpfuffedzf",
             "model": "C",

@@ -330,7 +330,7 @@ class ParserTestCase(TestCase):
         """
 
         p = fd.Parser(
-            vcf="resources/genome/betula/biallelic.polarized.vcf.gz",
+            vcf="resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz",
             fasta="resources/genome/betula/genome.subset.20.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             target_site_counter=fd.TargetSiteCounter(
@@ -669,8 +669,8 @@ class ParserTestCase(TestCase):
         Test whether the monomorphic site counter works on the Betula data.
         """
         p = fd.Parser(
-            vcf="resources/genome/betula/biallelic.polarized.vcf.gz",
-            fasta="resources/genome/betula/genome.fasta",
+            vcf="resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
             gff="resources/genome/betula/genome.gff.gz",
             max_sites=10000,
             n=10,
@@ -816,8 +816,8 @@ class ParserTestCase(TestCase):
 
         for i, n in enumerate(n_target_sites):
             p = fd.Parser(
-                vcf="resources/genome/betula/biallelic.polarized.vcf.gz",
-                fasta="resources/genome/betula/genome.fasta",
+                vcf="resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz",
+                fasta="resources/genome/betula/genome.subset.20.fasta",
                 gff="resources/genome/betula/genome.gff.gz",
                 max_sites=10000,
                 n=10,

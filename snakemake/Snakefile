@@ -206,6 +206,20 @@ rule all:
             # "../docs/requirements.txt"
         )
 
+if is_macos:
+    rule fetch_polyDFE_binary:
+        output:
+            "../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit"
+        params:
+            url="https://github.com/paula-tataru/polyDFE/blob/master/polyDFE-2.0-macOS-64-bit?raw=true"
+        conda:
+            "envs/wget.yaml"
+        shell:
+            """
+                wget {params.url} -O {output}
+                chmod +x {output}
+            """
+
 # fetch the postprocessing script from the GitHub repository
 rule fetch_postprocessing_script_polyDFE:
     output:

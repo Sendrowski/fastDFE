@@ -1,4 +1,4 @@
-name: dev-fastdfe
+name: dev-fastdfe-polydfe
 channels:
   - conda-forge
   - genomedk
@@ -9,7 +9,7 @@ dependencies:
   - r-rjsonio
   - r-irkernel
   - jupyterlab
-  - polydfe=2.0
+  - polydfe=2.0 # only available for linux
   - pip
   - pip:
     - pytest

@@ -132,7 +132,7 @@ class AnnotationTestCase(TestCase):
         Test the maximum parsimony annotator with the betula dataset.
         """
         ann = fd.Annotator(
-            vcf='resources/genome/betula/biallelic.polarized.vcf.gz',
+            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
             output='scratch/test_maximum_parsimony_annotation.vcf',
             annotations=[fd.MaximumParsimonyAncestralAnnotation()],
             max_sites=10000
@@ -1374,7 +1374,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         ann = fd.Annotator(
             vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
-            fasta="resources/genome/betula/genome.fasta",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
             output='scratch/test_betula_not_use_prior.vcf',
             annotations=[anc],
             max_sites=1000
@@ -1402,7 +1402,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         p = fd.Parser(
             n=10,
             vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
-            fasta="resources/genome/betula/genome.fasta",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
             annotations=[anc],
             max_sites=10,
             target_site_counter=fd.TargetSiteCounter(
@@ -1435,7 +1435,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             output='scratch/test_betula_not_use_prior.vcf',
             annotations=[anc],
             max_sites=max_sites,
-            fasta="resources/genome/betula/genome.fasta"
+            fasta="resources/genome/betula/genome.subset.20.fasta"
         )
 
         ann.annotate()
@@ -2509,7 +2509,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
             p2 = fd.Parser(
                 n=10,
-                fasta="resources/genome/betula/genome.fasta",
+                fasta="resources/genome/betula/genome.subset.20.fasta",
                 vcf=f.output,
                 annotations=[
                     fd.MaximumLikelihoodAncestralAnnotation(
@@ -2589,7 +2589,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             ),
             pendula_one_outgroup_biallelic=dict(
                 vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
-                fasta="resources/genome/betula/genome.fasta",
+                fasta="resources/genome/betula/genome.subset.20.fasta",
                 outgroups=["ERR2103730"],
                 ingroups=pd.read_csv("resources/genome/betula/sample_sets/pendula.args", header=None)[0].tolist(),
                 prior=fd.KingmanPolarizationPrior(),
@@ -2926,7 +2926,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         p = fd.Parser(
             vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
-            fasta="resources/genome/betula/genome.fasta",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
             n=10,
             max_sites=max_sites,
             annotations=[anc]
@@ -2962,7 +2962,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         p = fd.Parser(
             vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
-            fasta="resources/genome/betula/genome.fasta",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
             n=10,
             max_sites=max_sites,
             annotations=[anc]
@@ -3038,7 +3038,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
             parsers[mode] = fd.Parser(
                 vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
-                fasta="resources/genome/betula/genome.fasta",
+                fasta="resources/genome/betula/genome.subset.20.fasta",
                 n=20,
                 max_sites=max_sites,
                 annotations=[a]
