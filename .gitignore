@@ -19,5 +19,6 @@ slurm/
 .Rproj.user/
 .Rhistory
 .RData
+.coverage
 /resources/polydfe/postprocessing/script.R
 /resources/polydfe/bin/polyDFE-2.0-macOS-64-bit
