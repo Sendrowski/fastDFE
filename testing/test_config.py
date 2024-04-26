@@ -148,3 +148,19 @@ class ConfigTestCase(TestCase):
             config.data['sfs_neut'].data['all'].to_numpy(),
             np.array([173705, 3294, 1115, 534, 326, 239, 225, 214, 231, 176, 73])
         )
+
+    @staticmethod
+    def test_download_config_no_cache():
+        """
+        Test whether the config can be properly downloaded from a URL without caching.
+        """
+        config = Config.from_file(
+            "https://github.com/Sendrowski/fastDFE/blob/master/"
+            "resources/configs/shared/pendula_tutorial/config.yaml?raw=true",
+            cache=False
+        )
+
+        np.testing.assert_equal(
+            config.data['sfs_neut'].data['all'].to_numpy(),
+            np.array([173705, 3294, 1115, 534, 326, 239, 225, 214, 231, 176, 73])
+        )
