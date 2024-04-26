@@ -1062,3 +1062,14 @@ class ParserTestCase(TestCase):
         spectra: fd.Spectra = p.parse()
 
         spectra.plot()
+
+    def test_count_target_sites_remove_overlaps(self):
+        """
+        Test the count_target_sites function with removing overlaps.
+        """
+        sites_overlaps = fd.Annotation.count_target_sites('resources/genome/betula/genome.gff.gz', remove_overlaps=True)
+        sites = fd.Annotation.count_target_sites('resources/genome/betula/genome.gff.gz', remove_overlaps=False)
+
+        for config in sites.keys():
+            self.assertLessEqual(sites_overlaps[config], sites[config])
+

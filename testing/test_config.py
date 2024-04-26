@@ -1,3 +1,4 @@
+import numpy as np
 from numpy import testing
 
 from fastdfe import Config, BaseInference, SharedParams
@@ -132,3 +133,18 @@ class ConfigTestCase(TestCase):
         config2 = Config.from_file(out)
 
         self.assert_config_equal(config, config2)
+
+    @staticmethod
+    def test_download_config():
+        """
+        Test whether the config can be properly downloaded from a URL.
+        """
+        config = Config.from_file(
+            "https://github.com/Sendrowski/fastDFE/blob/master/"
+            "resources/configs/shared/pendula_tutorial/config.yaml?raw=true"
+        )
+
+        np.testing.assert_equal(
+            config.data['sfs_neut'].data['all'].to_numpy(),
+            np.array([173705, 3294, 1115, 534, 326, 239, 225, 214, 231, 176, 73])
+        )

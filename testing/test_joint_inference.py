@@ -69,6 +69,8 @@ class JointInferenceTestCase(InferenceTestCase):
 
         assert inference.perform_lrt_shared() < 1
 
+        np.testing.assert_array_equal(inference.get_shared_param_names(), ['S_b', 'S_d', 'b', 'eps', 'p_b'])
+
     def test_perform_lrt_covariates_no_covariates_raises_error(self):
         """
         Test that the perform_lrt_covariates method works.
@@ -115,6 +117,8 @@ class JointInferenceTestCase(InferenceTestCase):
 
         inf.run()
         inf.plot_discretized()
+
+        self.assertEqual(inf.get_shared_param_names(), [])
 
     def test_perform_lrt_covariates_two_samples(self):
         """

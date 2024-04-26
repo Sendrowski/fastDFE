@@ -121,10 +121,6 @@ def raise_on_warning(message, category, filename, lineno, file=None, line=None):
 
 # warnings.showwarning = raise_on_warning
 
-# configure default colormap
-# plt.rcParams['image.cmap'] = 'Dark2'
-# plt.rcParams['axes.prop_cycle'] = cycler('color', plt.get_cmap('Dark2').colors)
-
 # load class from modules
 from .parametrization import Parametrization, GammaExpParametrization, DiscreteParametrization, \
     GammaDiscreteParametrization, DisplacedGammaParametrization, DiscreteFractionalParametrization

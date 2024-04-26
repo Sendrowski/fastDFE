@@ -1553,7 +1553,7 @@ class AdaptivePolarizationPrior(PolarizationPrior):
         data = np.hstack((data, initial_values.reshape((-1, 1))))
 
         # run the optimization in parallel for each frequency bin over n_runs
-        results: np.ndarray[OptimizeResult] = parallelize_func(
+        results: np.ndarray = parallelize_func(
             func=optimize_polarization,
             data=data,
             parallelize=self.parallelize,
@@ -2743,7 +2743,6 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
             # disable chained assignment warning
             with pd.option_context('mode.chained_assignment', None):
-
                 # retain site index
                 data['sites'] = data.index
 
@@ -3865,7 +3864,7 @@ class _AdHocAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         self.n_annotated += 1
 
 
-class _ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
+class _ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):  # pragma: no cover
     """
     A wrapper around EST-SFS. Used for testing.
     """

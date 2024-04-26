@@ -1352,6 +1352,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         ann.annotate()
 
+        anc.plot_likelihoods()
+
     @staticmethod
     def test_n_target_sites_without_fasta_raises_error():
         """
@@ -3085,3 +3087,13 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         diff_ref_params = np.abs(params_mle[0] - params_mle[1]) / params_mle[0]
 
         self.assertLess(diff_ref_params.max(), 0.01)
+
+    def test_degeneracy_annotation_get_degeneracy_table(self):
+        """
+        Test the get_degeneracy_table method.
+        """
+        t = fd.DegeneracyAnnotation._get_degeneracy_table()
+
+        self.assertEqual(64, len(t))
+        self.assertEqual(t['AAA'], '002')
+        self.assertEqual(t['GCT'], '004')

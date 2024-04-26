@@ -292,7 +292,7 @@ class Config:
         with open(download_if_url(file, cache=cache, desc=f'{cls.__name__}>Downloading file'), 'r') as fh:
             return Config.from_yaml(fh.read())
 
-    def get_polydfe_model(self) -> str:
+    def get_polydfe_model(self) -> str:  # pragma: no cover
         """
         Get the model name in polyDFE that corresponds
         to the configured DFE parametrization.

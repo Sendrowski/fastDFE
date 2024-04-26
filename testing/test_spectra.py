@@ -582,3 +582,89 @@ class SpectraTestCase(TestCase):
 
         # make sure n_sites is the same
         testing.assert_array_equal(spectra.subsample(7).n_sites, spectra.n_sites)
+
+    def test_has_divergence(self):
+        """
+        Test whether the has_divergence method works as expected.
+        """
+        s1 = Spectrum([1, 2, 3, 0])
+        s2 = Spectrum([1, 2, 3, 4])
+
+        self.assertFalse(s1.has_div)
+        self.assertTrue(s2.has_div)
+
+        self.assertTrue(Spectra.from_spectra({
+            "type1": s1,
+            "type2": s2
+        }).has_div.any())
+
+        self.assertFalse(Spectra.from_spectra({
+            "type1": s1,
+            "type2": s1
+        }).has_div.all())
+
+    @staticmethod
+    def test_copy_spectrum():
+        """
+        Test whether the copy method works as expected.
+        """
+        s = Spectrum([1, 2, 3, 4, 5])
+
+        s2 = s.copy()
+
+        testing.assert_array_equal(s.data, s2.data)
+
+    @staticmethod
+    def test_spectrum_power():
+        """
+        Test whether the power method works as expected.
+        """
+        s = Spectrum([1, 2, 3, 4, 5])
+
+        testing.assert_array_equal((s ** 2).data, [1, 4, 9, 16, 25])
+
+    @staticmethod
+    def test_spectrum_divide():
+        """
+        Test whether the divide method works as expected.
+        """
+        s = Spectrum([1, 2, 3, 4, 5])
+
+        testing.assert_array_equal((s / 2).data, [0.5, 1, 1.5, 2, 2.5])
+
+    @staticmethod
+    def test_spectrum_floor_divide():
+        """
+        Test whether the floor divide method works as expected.
+        """
+        s = Spectrum([1, 2, 3, 4, 5])
+
+        testing.assert_array_equal((s // 2).data, [0, 1, 1, 2, 2])
+
+    @staticmethod
+    def test_spectra_to_dataframe():
+        """
+        Test whether the to_dataframe method works as expected.
+        """
+        s = Spectra.from_spectra(dict(
+            all=spectrum.standard_kingman(10),
+            sub=spectrum.standard_kingman(10) * 2
+        ))
+
+        df = s.to_dataframe()
+
+        pd.testing.assert_frame_equal(df, s.data)
+
+    def test_spectra_floor_divide(self):
+        """
+        Test whether the floor divide method works as expected.
+        """
+        s = Spectra.from_spectra(dict(
+            all=spectrum.standard_kingman(10),
+            sub=spectrum.standard_kingman(10) * 2
+        ))
+
+        s2 = s // 2
+
+        testing.assert_array_equal(s2['all'].data, s['all'].data // 2)
+        testing.assert_array_equal(s2['sub'].data, s['sub'].data // 2)
