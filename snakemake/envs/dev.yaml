@@ -12,6 +12,7 @@ dependencies:
   - r-devtools
   - jupyterlab
   - jupyter
+  - codecov
   - pip
   - pip:
     - pytest
