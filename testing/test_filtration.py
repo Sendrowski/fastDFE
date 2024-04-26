@@ -372,7 +372,7 @@ class FiltrationTestCase(TestCase):
 
         class VariantMock:
             """
-
+            Mock the variant class.
             """
             def __init__(self, REF: str, ALT: List[str]):
                 self.REF = REF

@@ -21,6 +21,7 @@ from fastdfe.annotation import _ESTSFSAncestralAnnotation, base_indices, SiteCon
 from fastdfe.io_handlers import count_sites, GFFHandler, get_called_bases, DummyVariant
 from testing import TestCase
 
+
 class AnnotationTestCase(TestCase):
     """
     Test the annotators.
