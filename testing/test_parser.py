@@ -183,7 +183,7 @@ class ParserTestCase(TestCase):
     @pytest.mark.slow
     def test_vep_stratification(self):
         """
-        Test the synonymy stratification.
+        Test the synonymy stratification against VEP for human chr21.
         """
         p = fd.Parser(
             vcf='snakemake/results/vcf/sapiens/chr21.vep.vcf.gz',
@@ -201,7 +201,7 @@ class ParserTestCase(TestCase):
     @pytest.mark.slow
     def test_snpeff_stratification(self):
         """
-        Test the synonymy stratification.
+        Test the synonymy stratification against SNPEFF for human chr21.
         """
         p = fd.Parser(
             vcf='snakemake/results/vcf/sapiens/chr21.snpeff.vcf.gz',
@@ -627,7 +627,7 @@ class ParserTestCase(TestCase):
     @pytest.mark.slow
     def test_parse_human_chr21_from_online_resources():
         """
-        Parse the VCF file using remote files.
+        Parse the VCF for human chr21 file using remote files.
         """
         # parse selected and neutral SFS from human chromosome 1
         p = fd.Parser(
