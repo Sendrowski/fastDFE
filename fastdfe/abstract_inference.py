@@ -504,7 +504,7 @@ class AbstractInference(ABC):
         :param ci_level: Confidence interval level
         :param confidence_intervals: Whether to return confidence intervals
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
-        :return: Array of values and array of errors
+        :return: Array of values and array of deviations
         """
         values, errors = Inference.get_discretized(
             inferences=[self],
