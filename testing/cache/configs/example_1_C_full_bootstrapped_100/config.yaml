@@ -1,0 +1,82 @@
+model: GammaExpParametrization
+intervals_del:
+- -100000000.0
+- -1.0e-05
+- 1000
+intervals_ben:
+- 1.0e-05
+- 10000.0
+- 1000
+integration_mode: midpoint
+linearized: true
+seed: 0
+opts_mle: {}
+n_runs: 10
+x0:
+  all:
+    eps: 0.0
+    lambda: 0.005
+    theta_bar: 0.001
+    a: 2.0
+    S_d: -20000.0
+    b: 0.2
+    p_b: 0.05
+    S_b: 2.0
+bounds: {}
+scales: {}
+fixed_params:
+  all:
+    eps: 0.0
+shared_params: []
+covariates: []
+sfs_neut:
+  all:
+  - 913967.0
+  - 10228.0
+  - 4673.0
+  - 3339.0
+  - 2630.0
+  - 2087.0
+  - 1715.0
+  - 1373.0
+  - 1246.0
+  - 1037.0
+  - 973.0
+  - 904.0
+  - 839.0
+  - 784.0
+  - 750.0
+  - 700.0
+  - 597.0
+  - 599.0
+  - 549.0
+  - 508.0
+  - 50502.0
+sfs_sel:
+  all:
+  - 2591082.0
+  - 18664.0
+  - 7956.0
+  - 5274.0
+  - 3605.0
+  - 3329.0
+  - 2720.0
+  - 2306.0
+  - 2075.0
+  - 2065.0
+  - 2019.0
+  - 2049.0
+  - 1912.0
+  - 2105.0
+  - 2038.0
+  - 2107.0
+  - 2104.0
+  - 2333.0
+  - 2514.0
+  - 2908.0
+  - 338835.0
+do_bootstrap: true
+n_bootstraps: 100
+n_bootstrap_retries: 2
+parallelize: true
+loss_type: likelihood
