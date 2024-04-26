@@ -3,6 +3,7 @@ import logging
 import os
 import tempfile
 from collections import defaultdict
+from hashlib import md5
 from typing import Literal, cast
 from unittest.mock import MagicMock, PropertyMock, patch, Mock
 
@@ -1135,7 +1136,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         anc2, site_info = self.compare_with_est_sfs(
             anc=anc,
-            cache="testing/est-sfs/test_papio_thorough_three_outgroups.json"
+            cache="testing/cache/est-sfs/test_papio_thorough_three_outgroups.json"
         )
 
         diff_params = np.array(list(anc2.params_mle.values())) / np.array(list(anc.params_mle.values()))
@@ -1616,9 +1617,11 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             # set up to infer branch rates
             ann._setup()
 
+            hash_str = md5(str(case | {'model': case['model'].__class__.__name__}).encode()).hexdigest()[:8]
+
             anc2, site_info = self.compare_with_est_sfs(
                 anc=anc,
-                cache=f'testing/est-sfs/test_betula_{hash(str(case))}.json'
+                cache=f'testing/cache/est-sfs/test_betula_{hash_str}.json'
             )
 
             params_mle = np.array([[anc.params_mle[k], anc2.params_mle[k]] for k in anc.params_mle])
@@ -1662,7 +1665,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
             est_sfs, site_info = self.compare_with_est_sfs(
                 anc=anc,
-                cache=f'testing/est-sfs/test-data-no-poly-allelic-{model.__class__.__name__}.json'
+                cache=f'testing/cache/est-sfs/test-data-no-poly-allelic-{model.__class__.__name__}.json'
             )
 
             params_native = anc.params_mle

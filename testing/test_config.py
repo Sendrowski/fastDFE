@@ -11,7 +11,7 @@ class ConfigTestCase(TestCase):
     """
     maxDiff = None
 
-    config_file = "testing/configs/pendula_C_full_anc/config.yaml"
+    config_file = "testing/cache/configs/pendula_C_full_anc/config.yaml"
     init_file = "resources/polydfe/init/C.full_anc_init"
     spectra_file = "resources/polydfe/pendula/spectra/sfs.txt"
 

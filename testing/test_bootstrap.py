@@ -26,6 +26,12 @@ class BootstrapTestCase(TestCase):
 
     @staticmethod
     def get_cis(ci_level, values):
+        """
+
+        :param ci_level:
+        :param values:
+        :return:
+        """
         # calculate the sample mean and standard error
         sample_mean = np.mean(values)
         standard_error = np.std(values)
@@ -43,6 +49,10 @@ class BootstrapTestCase(TestCase):
         return lower_bound, upper_bound
 
     def compare_cis(self, values):
+        """
+
+        :param values:
+        """
         # set the confidence level
         ci_level = 0.05
 

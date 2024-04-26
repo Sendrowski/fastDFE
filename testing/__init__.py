@@ -54,5 +54,8 @@ if not os.path.exists('scratch'):
 class TestCase(BaseTestCase):
     @pytest.fixture(autouse=True)
     def cleanup(self):
+        """
+
+        """
         yield
         plt.close('all')

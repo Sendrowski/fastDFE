@@ -155,7 +155,7 @@ class FiltrationTestCase(TestCase):
         """
         mock_variant = Mock(spec=Variant)
 
-        # test case 1: variant is not a SNP
+        # test case 1: variant is not an SNP
         mock_variant.is_snp = False
         filter_obj = fd.DeviantOutgroupFiltration(outgroups=['outgroup1'], ingroups=['ingroup1'])
         filter_obj.samples = np.array(['ingroup1', 'outgroup1'])
@@ -371,12 +371,19 @@ class FiltrationTestCase(TestCase):
         f = fd.BiasedGCConversionFiltration()
 
         class VariantMock:
+            """
+
+            """
             def __init__(self, REF: str, ALT: List[str]):
                 self.REF = REF
                 self.ALT = ALT
 
             @cached_property
             def is_snp(self):
+                """
+
+                :return:
+                """
                 return len(self.ALT) == 0 or self.REF != self.ALT[0]
 
         assert f.filter_site(variant=VariantMock(REF='A', ALT=['A']))

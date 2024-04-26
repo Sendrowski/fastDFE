@@ -14,8 +14,8 @@ class PolyDFEWrapperTestCase(TestCase):
     polydfe_bin = 'resources/polydfe/bin/polyDFE-2.0-macOS-64-bit'
     postprocessing_source = 'resources/polydfe/postprocessing/script.R'
 
-    config = "testing/configs/pendula_C_full_anc/config.yaml"
-    serialized = "testing/polydfe/pendula_C_full_anc/serialized.json"
+    config = "testing/cache/configs/pendula_C_full_anc/config.yaml"
+    serialized = "testing/cache/polydfe/pendula_C_full_anc/serialized.json"
 
     def test_run_polydfe_from_config(self):
         """

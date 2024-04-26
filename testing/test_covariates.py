@@ -10,6 +10,13 @@ class CovariateTestCase(TestCase):
     """
 
     def custom_apply_callback(self, covariate: float, type: str, params: Dict[str, float]) -> Dict[str, float]:
+        """
+
+        :param covariate:
+        :param type:
+        :param params:
+        :return:
+        """
         modified = params.copy()
         if "a" in params:
             modified["a"] *= covariate * 2

@@ -15,7 +15,7 @@ class ParametrizationTestCase(TestCase):
     """
     n = 20
 
-    config_file = "testing/configs/pendula_C_full_anc/config.yaml"
+    config_file = "testing/cache/configs/pendula_C_full_anc/config.yaml"
 
     def test_compare_exact_vs_empirical_cdf_gamma_exp(self):
         """

@@ -12,7 +12,7 @@ class JointInferenceTestCase(InferenceTestCase):
     """
     Test the JointInference class.
     """
-    config_file = "testing/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
+    config_file = "testing/cache/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
 
     maxDiff = None
 
@@ -49,7 +49,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test that the bootstrap method works.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
         inference.bootstrap(2)
@@ -59,7 +59,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test that the perform_lrt_shared method works.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
         # inference.evaluate_likelihood(inference.params_mle)
@@ -74,7 +74,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test that the perform_lrt_covariates method works.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
         with pytest.raises(ValueError):
@@ -86,7 +86,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test that the perform_lrt_covariates method works.
         """
         inf = JointInference.from_file(
-            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
         )
 
         inf.n_bootstraps = 2
@@ -144,7 +144,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test that the plot_inferred_parameters_boxplot method works.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/shared_example_2/serialized.json"
+            "testing/cache/fastdfe/templates/shared/shared_example_2/serialized.json"
         )
 
         inference.bootstrap(6)
@@ -156,7 +156,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test that the plot_inferred_parameters_boxplot method works.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/shared_example_2/serialized.json"
+            "testing/cache/fastdfe/templates/shared/shared_example_2/serialized.json"
         )
 
         inference.bootstrap(2)
@@ -168,7 +168,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test that the plot_all method works.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
         )
 
         inference.plot_all()
@@ -178,7 +178,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test that the plot_all method works.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
         )
 
         inference.bootstrap(2)
@@ -191,7 +191,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test the plot_covariate method.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
         )
 
         inference.plot_covariate()
@@ -204,7 +204,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test the plot_covariate method.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
         )
 
         inference.plot_covariate(show_types=False)
@@ -217,7 +217,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test the plot_covariate method.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
         )
 
         inference.bootstrap(2)
@@ -232,7 +232,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test the plot_discretized method
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/covariates_Sd_example_1/serialized.json"
         )
 
         inference.plot_discretized(show_marginals=False)
@@ -246,7 +246,7 @@ class JointInferenceTestCase(InferenceTestCase):
         """
         # rerun inference to make sure we don't have platform-specific differences
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
         # make sure joint likelihood is almost the same
@@ -269,7 +269,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test whether fixed parameters are correctly set.
         """
         config = Config.from_file(
-            "testing/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
+            "testing/cache/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
         )
 
         # define fixed parameters
@@ -326,7 +326,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test sharing a parameter twice among different types.
         """
         config = Config.from_file(
-            "testing/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
+            "testing/cache/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
         )
 
         config.update(
@@ -358,7 +358,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test that trying to shared fixed parameters raises an error.
         """
         config = Config.from_file(
-            "testing/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
+            "testing/cache/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
         )
 
         # define fixed parameters
@@ -424,7 +424,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test that trying to share a non-existing parameter raises an error.
         """
         config = Config.from_file(
-            "testing/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
+            "testing/cache/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
         )
 
         # define shared parameters
@@ -440,7 +440,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Test that trying to share a non-existing parameter raises an error.
         """
         config = Config.from_file(
-            "testing/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
+            "testing/cache/configs/pendula.pubescens.example_1.example_2.example_3_C_full_anc/config.yaml"
         )
 
         types = ['pendula', 'pubescens', 'example_1', 'example_2', 'example_3']
@@ -544,7 +544,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Get the MLE parameters from the cis inference.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
         inference.bootstrap(2)
@@ -556,7 +556,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Get the MLE parameters from the cis inference.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
         cis = inference.get_cis_params_mle()
@@ -570,7 +570,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Get the discretized DFE errors.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
         inference.bootstrap(2)
@@ -582,7 +582,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Get the discretized DFE errors.
         """
         inference = JointInference.from_file(
-            "testing/fastdfe/templates/shared/shared_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
         )
 
         values, errors = inference.get_discretized()

@@ -21,6 +21,7 @@ from itertools import product
 from typing import List, Optional, Dict, Tuple, Callable, Literal, Iterable, cast, Any, Generator
 
 import Bio.Data.CodonTable
+import jsonpickle
 import numpy as np
 import pandas as pd
 from Bio import Phylo
@@ -4024,6 +4025,46 @@ class _ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):
         :raises: NotImplementedError
         """
         raise NotImplementedError
+
+    def to_file(self, file: str):
+        """
+        Save object to file (without reference to AncestralAlleleAnnotation object).
+
+        :param file: File path.
+        """
+        self.anc = None
+
+        with open(file, 'w') as fh:
+            fh.write(self.to_json())
+
+    def to_json(self) -> str:
+        """
+        Serialize object.
+
+        :return: JSON string
+        """
+        return jsonpickle.encode(self, indent=4, warn=True)
+
+    @classmethod
+    def from_json(cls, json: str, classes=None) -> 'Self':
+        """
+        Unserialize object.
+
+        :param classes: Classes to be used for unserialization
+        :param json: JSON string
+        """
+        return jsonpickle.decode(json, classes=classes)
+
+    @classmethod
+    def from_file(cls, file: str, classes=None) -> 'Self':
+        """
+        Load object from file.
+
+        :param classes: Classes to be used for unserialization
+        :param file: File to load from
+        """
+        with open(file, 'r') as fh:
+            return cls.from_json(fh.read(), classes)
 
 
 class Annotator(MultiHandler):

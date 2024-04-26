@@ -73,8 +73,8 @@ class BaseInferenceTestCase(InferenceTestCase):
     """
     Test BaseInference.
     """
-    config_file = "testing/configs/pendula_C_full_anc/config.yaml"
-    serialized = "testing/fastdfe/pendula_C_full_anc/serialized.json"
+    config_file = "testing/cache/configs/pendula_C_full_anc/config.yaml"
+    serialized = "testing/cache/fastdfe/pendula_C_full_anc/serialized.json"
 
     maxDiff = None
 
@@ -501,6 +501,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         # inference.get_summary().to_file("scratch/test_cached_result_summary_actual.json")
 
         def get_dict(inf: fd.BaseInference) -> dict:
+            """
+
+            :param inf:
+            :return:
+            """
             exclude = ['execution_time', 'result']
 
             return dict((k, v) for k, v in inference.get_summary().__dict__.items() if k not in exclude)
