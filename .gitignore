@@ -20,5 +20,6 @@ slurm/
 .Rhistory
 .RData
 .coverage
+codecov.yaml
 /resources/polydfe/postprocessing/script.R
 /resources/polydfe/bin/polyDFE-2.0-macOS-64-bit
