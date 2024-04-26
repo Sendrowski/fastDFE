@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   setup:
-    name: run tests on ${{ matrix.os }} with Python ${{ matrix.python-version }}
+    name: run tests on ${{ matrix.os }} with Python ${{ matrix.python-version }} for local package
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
-        python-version: [ "3.10", "3.11" ]  # Add this line
+        python-version: [ "3.10", "3.11", "3.12" ]  # Add this line
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v2  # Use this action to set up Python
@@ -31,4 +31,3 @@ jobs:
           activate-environment: testing-fastdfe
       - run: |
           pytest testing/
-      - uses: codecov/codecov-action@v3
