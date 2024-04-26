@@ -16,9 +16,7 @@ from typing import Callable, List, Optional, Literal, Dict
 
 import numpy as np
 import pandas as pd
-import rpy2.robjects as ro
-from rpy2.robjects.packages import importr
-from rpy2.robjects.vectors import ListVector
+
 from typing_extensions import Self
 
 from .abstract_inference import AbstractInference, Inference
@@ -79,6 +77,8 @@ class PolyDFEResult:
 
         :return: Dictionary of parsed data
         """
+        from rpy2.robjects.packages import importr
+
         # use the polyDFE R postprocessing script to parse the output file
         output = self.get_postprocessing_wrapper().parseOutput(self.output_file)[0]
 
@@ -107,7 +107,7 @@ class PolyDFEResult:
             alpha=self.get_alpha(output)
         )
 
-    def get_alpha(self, parsed_output: ListVector) -> float:
+    def get_alpha(self, parsed_output: 'rpy2.robjects.vectors.ListVector') -> float:
         """
         Get alpha, the proportion of beneficial non-synonymous substitutions.
 
@@ -115,12 +115,14 @@ class PolyDFEResult:
         """
         return self.get_postprocessing_wrapper().estimateAlpha(parsed_output)[0]
 
-    def get_postprocessing_wrapper(self) -> ro.R:
+    def get_postprocessing_wrapper(self) -> 'ro.R':
         """
         Get the wrapped polyDFE postprocessing source.
 
         :return: R object
         """
+        import rpy2.robjects as ro
+
         ps = ro.r
         ps.source(self.postprocessing_source)
 
