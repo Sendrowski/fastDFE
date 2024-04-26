@@ -10,6 +10,7 @@ from pandas.testing import assert_frame_equal
 from scipy.optimize import OptimizeResult
 
 import fastdfe as fd
+from fastdfe.polydfe import PolyDFE
 from testing import TestCase
 
 
@@ -76,7 +77,75 @@ class BaseInferenceTestCase(InferenceTestCase):
     config_file = "testing/cache/configs/pendula_C_full_anc/config.yaml"
     serialized = "testing/cache/fastdfe/pendula_C_full_anc/serialized.json"
 
-    maxDiff = None
+    # configs for testing against cached polydfe results
+    configs = [
+        'pendula_C_full_bootstrapped_100',
+        'pendula_C_full_anc_bootstrapped_100',
+        'pendula_C_deleterious_bootstrapped_100',
+        'pendula_C_deleterious_anc_bootstrapped_100',
+        'pubescens_C_full_bootstrapped_100',
+        'pubescens_C_full_anc_bootstrapped_100',
+        'pubescens_C_deleterious_bootstrapped_100',
+        'pubescens_C_deleterious_anc_bootstrapped_100',
+        'example_1_C_full_bootstrapped_100',
+        'example_1_C_full_anc_bootstrapped_100',
+        # 'example_1_C_deleterious_bootstrapped_100' # polydfe does not finish in this case
+        'example_1_C_deleterious_anc_bootstrapped_100',
+        'example_2_C_full_bootstrapped_100',
+        'example_2_C_full_anc_bootstrapped_100',
+        'example_2_C_deleterious_bootstrapped_100',
+        'example_2_C_deleterious_anc_bootstrapped_100',
+        'example_3_C_full_bootstrapped_100',
+        'example_3_C_full_anc_bootstrapped_100',
+        'example_3_C_deleterious_bootstrapped_100',
+        'example_3_C_deleterious_anc_bootstrapped_100'
+    ]
+
+    def compare_with_polydfe(self, config: str):
+        """
+        Test whether the results are similar to those of PolyDFE.
+        """
+        conf = fd.Config.from_file(f"testing/cache/configs/{config}/config.yaml")
+        inf_polydfe = PolyDFE.from_file(f"testing/cache/polydfe/{config}/serialized.json")
+
+        inf_fastdfe = fd.BaseInference.from_config(conf)
+        inf_fastdfe.run()
+
+        # compare discretized DFE
+        dfe_fastdfe = inf_fastdfe.get_discretized()
+        dfe_polydfe = inf_polydfe.get_discretized()
+
+        ci_fastdfe = np.array([dfe_fastdfe[0] - dfe_fastdfe[1][0], dfe_fastdfe[0] + dfe_fastdfe[1][1]])
+        ci_polydfe = np.array([dfe_polydfe[0] - dfe_polydfe[1][0], dfe_polydfe[0] + dfe_polydfe[1][1]])
+
+        plt.clf()
+        _, axs = plt.subplots(1, 2, figsize=(10, 4))
+        inf_fastdfe.plot_discretized(ax=axs[0], show=False, title='fastdfe')
+        inf_polydfe.plot_discretized(ax=axs[1], show=True, title='polydfe')
+
+        # assert that the confidence intervals overlap
+        assert np.all(ci_fastdfe[0] <= ci_polydfe[1] + 0.05)
+        assert np.all(ci_polydfe[0] <= ci_fastdfe[1] + 0.05)
+
+    @staticmethod
+    def generate_compare_with_polydfe(config: str) -> callable:
+        """
+        Generate test for comparing with PolyDFE.
+        """
+
+        def compare_with_polydfe(self):
+            """
+            Compare with PolyDFE.
+
+            :param self: Self
+            """
+            self.compare_with_polydfe(config)
+
+        return compare_with_polydfe
+
+    # dynamically generate tests
+    for config in configs:
+        locals()[f'test_compare_with_polydfe_{config}'] = generate_compare_with_polydfe(config)
 
     def test_run_inference_from_config_parallelized(self):
         """
