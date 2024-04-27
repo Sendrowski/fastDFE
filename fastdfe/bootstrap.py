@@ -62,7 +62,7 @@ class Bootstrap:
         :param a: Confidence level
         :return: lower bound and upper bound
         """
-        if sum(bootstraps) == 0:
+        if len(bootstraps) == 0:
             return [0, 0]
 
         n = len(bootstraps)

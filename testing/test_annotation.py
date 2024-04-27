@@ -1355,6 +1355,46 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         anc.plot_likelihoods()
 
     @staticmethod
+    def test_adhoc_ancestral_annotation_random_subsampling_betula():
+        """
+        Test the AdhocAncestralAnnotation class on the betula vcf file.
+        """
+        anc = fd.annotation._AdHocAncestralAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_ingroups=5,
+            subsample_mode='random'
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_betula_not_use_prior.vcf',
+            annotations=[anc],
+            max_sites=1000
+        )
+
+        ann.annotate()
+
+    @staticmethod
+    def test_adhoc_ancestral_annotation_probabilistic_subsampling_betula():
+        """
+        Test the AdhocAncestralAnnotation class on the betula vcf file.
+        """
+        anc = fd.annotation._AdHocAncestralAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_ingroups=5,
+            subsample_mode='probabilistic'
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz",
+            output='scratch/test_betula_not_use_prior.vcf',
+            annotations=[anc],
+            max_sites=1000
+        )
+
+        ann.annotate()
+
+    @staticmethod
     def test_n_target_sites_without_fasta_raises_error():
         """
         Test that an error is raised when the number of target sites is specified without a fasta file specified.
@@ -2756,6 +2796,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                     )
                 ]
             )
+
+            self.assertEqual(p.annotations[0].subsample_mode, mode)
 
             sfs = p.parse()
 

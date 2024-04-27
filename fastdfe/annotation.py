@@ -1647,8 +1647,6 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
     """
     Abstract class for annotation of ancestral alleles using outgroup information.
     """
-    #: Subsample mode.
-    subsample_mode: Literal['random', 'probabilistic'] = 'random'
 
     def __init__(
             self,
@@ -1657,6 +1655,7 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
             ingroups: List[str] | None = None,
             exclude: List[str] = [],
             seed: int | None = 0,
+            subsample_mode: Literal['random', 'probabilistic'] = 'random'
     ):
         """
         Create a new ancestral allele annotation instance.
@@ -1670,10 +1669,15 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
             considered.
         :param exclude: Samples to exclude from the ingroup. A list of sample names as they appear in the VCF file.
         :param seed: The seed for the random number generator.
+        :param subsample_mode: The subsampling mode. Either 'random' or 'probabilistic'.
         """
         # make sure the number of ingroups is at least 2
         if n_ingroups < 2:
             raise ValueError("The number of ingroups must be at least 2.")
+
+        # check subsample mode
+        if subsample_mode not in ['random', 'probabilistic']:
+            raise ValueError(f"Invalid subsample mode: {subsample_mode}")
 
         super().__init__()
 
@@ -1694,6 +1698,9 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 
         #: The seed for the random number generator.
         self.seed: int | None = seed
+
+        #: The subsampling mode.
+        self.subsample_mode: Literal['random', 'probabilistic'] = subsample_mode
 
         #: The random number generator.
         self.rng: np.random.Generator = np.random.default_rng(seed=self.seed)
@@ -1873,7 +1880,7 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         Parse a VCF variant. We only consider sites that are at most bi-allelic in the in- and outgroups.
 
         :param variant: The variant.
-        :return: list of site configurations containing a single element if subsample_mode is `random` or
+        :return: List of site configurations containing a single element if subsample_mode is `random` or
             multiple elements if subsample_mode is `probabilistic` or ``None`` if the site is not valid.
         """
         # get the called ingroup bases
@@ -2152,7 +2159,8 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             exclude=exclude,
             outgroups=outgroups,
             n_ingroups=n_ingroups,
-            seed=seed
+            seed=seed,
+            subsample_mode=subsample_mode
         )
 
         # check that we have at least one outgroup
@@ -2170,10 +2178,6 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         if confidence_threshold > 0:
             self._logger.warning("Please be aware that a confidence threshold of greater than 0 biases the SFS "
                                  "towards fewer high-frequency derived alleles.")
-
-        # check subsample mode
-        if subsample_mode not in ['random', 'probabilistic']:
-            raise ValueError(f"Invalid subsample mode: {subsample_mode}")
 
         #: Whether to parallelize the computation.
         self.parallelize: bool = parallelize
@@ -2227,9 +2231,6 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
         #: The total number of target sites.
         self.n_target_sites: int | None = n_target_sites
-
-        #: The subsampling mode.
-        self.subsample_mode: Literal['random', 'probabilistic'] = subsample_mode
 
     def _setup(self, handler: MultiHandler):
         """
@@ -3820,7 +3821,7 @@ class _AdHocAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
     def annotate_site(self, variant: Variant | DummyVariant):
         """
-        Annotate a single sites. Mono-allelic sites are assigned the major allele as ancestral. Sites with
+        Annotate a single site. Mono-allelic sites are assigned the major allele as ancestral. Sites with
         more than two alleles are ignored.
 
         :param variant: The variant to annotate.
@@ -3839,7 +3840,7 @@ class _AdHocAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
         if configs is not None:
 
-            # use most likely configuration as reference
+            # use config with the highest multiplicity
             ref = configs[np.argmax([c.multiplicity for c in configs])]
 
             # get site information dictionary
@@ -3847,10 +3848,6 @@ class _AdHocAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
             # only proceed if the ancestral allele is known
             if site['ancestral_base'] in bases:
-
-                if site['major_base'] != site['ancestral_base']:
-                    self._logger.debug(dict(site=f"{variant.CHROM}:{variant.POS}") | site)
-
                 ancestral_base = site['ancestral_base']
                 ancestral_info = str(site)
 

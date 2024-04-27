@@ -4,3 +4,4 @@ source = fastdfe
 [report]
 omit =
     fastdfe/polydfe.py
+    fastdfe/polydfe_utils.py

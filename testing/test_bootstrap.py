@@ -91,3 +91,36 @@ class BootstrapTestCase(TestCase):
         """
         np.random.seed(42)
         self.compare_cis(np.random.normal(0, 2, size=100000))
+
+    def test_get_bounds_from_quantile_is_nan_return_nones(self):
+        """
+        Test get_bounds_from_quantile when data is nan.
+        """
+        bounds = Bootstrap.get_bounds_from_quantile([2, 2, 2], np.nan, np.nan, 3)
+
+        self.assertEqual(tuple(bounds), (None, None))
+
+    def test_get_ci_percentile_invalid_a_raises_value_error(self):
+        """
+        Test get_ci_percentile when a is invalid.
+        """
+        with self.assertRaises(ValueError):
+            Bootstrap.get_ci_percentile([1, 2, 3], 1.1)
+
+        with self.assertRaises(ValueError):
+            Bootstrap.get_ci_percentile([1, 2, 3], -0.1)
+
+    def test_get_errors_invalid_bootstrap_type_raises_not_implemented_error(self):
+        """
+        Test get_errors when bootstrap_type is invalid.
+        """
+        with self.assertRaises(NotImplementedError):
+            Bootstrap.get_errors([1, 2, 3], np.array([[1, 2, 3]]), bootstrap_type='invalid')
+
+    def test_get_ci_bca_no_data_return_zeros(self):
+        """
+        Test get_ci_bca when bootstraps is empty.
+        """
+        bounds = Bootstrap.get_ci_bca([], 1, 0.05)
+
+        self.assertEqual(bounds, [0, 0])

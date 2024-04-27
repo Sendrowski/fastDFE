@@ -10,7 +10,6 @@ __version__ = '1.1.6'
 
 import logging
 import sys
-import warnings
 
 import jsonpickle
 import numpy as np
@@ -111,13 +110,11 @@ formatter = ColoredFormatter('%(levelname)s:%(name)s: %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-
-def raise_on_warning(message, category, filename, lineno, file=None, line=None):
-    """
-    Raise exception on warning.
-    """
-    raise Exception(warnings.formatwarning(message, category, filename, lineno, line))
-
+# def raise_on_warning(message, category, filename, lineno, file=None, line=None):
+#    """
+#    Raise exception on warning.
+#    """
+#    raise Exception(warnings.formatwarning(message, category, filename, lineno, line))
 
 # warnings.showwarning = raise_on_warning
 

@@ -12,12 +12,12 @@ import itertools
 import logging
 from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
-from scipy.stats import hypergeom
 from typing import List, Callable, Literal, Optional, Dict, Tuple
 
 import numpy as np
 from Bio.SeqRecord import SeqRecord
 from cyvcf2 import Variant
+from scipy.stats import hypergeom
 from tqdm import tqdm
 
 from .annotation import Annotation, SynonymyAnnotation, DegeneracyAnnotation, AncestralAlleleAnnotation
@@ -1022,24 +1022,6 @@ class Parser(MultiHandler):
 
         # if the reference allele is not a valid base, we raise an error
         raise NoTypeException("Reference allele is not a valid base")
-
-    def _create_sfs_dictionary(self) -> Dict[str, np.ndarray]:
-        """
-        Create an SFS dictionary initialized with all possible base contexts.
-
-        :return: SFS dictionary
-        """
-        types = [s.get_types() for s in self.stratifications]
-
-        # define the DNA bases
-        contexts = ['.'.join(t) for t in itertools.product(*types)]
-
-        # create dict
-        sfs = {}
-        for context in contexts:
-            sfs[context] = np.zeros(self.n + 1)
-
-        return sfs
 
     def _parse_site(self, variant: Variant | DummyVariant) -> bool:
         """

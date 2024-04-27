@@ -183,7 +183,7 @@ class ParserTestCase(TestCase):
     @pytest.mark.slow
     def test_vep_stratification(self):
         """
-        Test the synonymy stratification against VEP for human chr21.
+        Test the VEP for human chr21.
         """
         p = fd.Parser(
             vcf='snakemake/results/vcf/sapiens/chr21.vep.vcf.gz',
@@ -197,6 +197,24 @@ class ParserTestCase(TestCase):
 
         # assert that all types are a subset of the stratification
         assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
+
+    def test_vep_stratification_subset(self):
+        """
+        Test the synonymy stratification for a small subset of Betula spp.
+        """
+        p = fd.Parser(
+            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
+            n=20,
+            max_sites=1000,
+            stratifications=[fd.VEPStratification()]
+        )
+
+        sfs = p.parse()
+
+        sfs.plot()
+
+        # assert that we have all types
+        self.assertEqual(set(sfs.types), set(p.stratifications[0].get_types()))
 
     @pytest.mark.slow
     def test_snpeff_stratification(self):
@@ -408,6 +426,33 @@ class ParserTestCase(TestCase):
         sfs = p.parse()
 
         pass
+
+    def test_parse_betula_vcf_degeneracy_vs_synonymy(self):
+        """
+        Parse the VCF file of Betula spp.
+        """
+        p = fd.Parser(
+            vcf="resources/genome/betula/all.polarized.subset.10000.vcf.gz",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
+            gff="resources/genome/betula/genome.gff.gz",
+            n=20,
+            annotations=[
+                fd.DegeneracyAnnotation(),
+                fd.SynonymyAnnotation()
+            ],
+            filtrations=[
+                fd.CodingSequenceFiltration()
+            ],
+            stratifications=[
+                fd.DegeneracyStratification(),
+                fd.SynonymyStratification()
+            ]
+        )
+
+        sfs = p.parse()
+
+        # make sure we only have equivalent types
+        self.assertEqual(set(sfs.data.columns), {'neutral.neutral', 'selected.selected'})
 
     @pytest.mark.slow
     def test_parse_betula_complete_vcf_biallelic_synonymy(self):
@@ -1073,3 +1118,13 @@ class ParserTestCase(TestCase):
         for config in sites.keys():
             self.assertLessEqual(sites_overlaps[config], sites[config])
 
+    def test_invalid_subsample_model_raises_value_error(self):
+        """
+        Test that an invalid subsample model raises a ValueError.
+        """
+        with self.assertRaises(ValueError):
+            fd.Parser(
+                vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+                n=20,
+                subsample_mode='invalid'
+            )
