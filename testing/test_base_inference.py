@@ -123,7 +123,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf_fastdfe.plot_discretized(ax=axs[0], show=False, title='fastdfe')
         inf_polydfe.plot_discretized(ax=axs[1], show=True, title='polydfe')
 
-        # assert that the confidence intervals overlap
+        # assert that the confidence intervals almost overlap
         assert np.all(ci_fastdfe[0] <= ci_polydfe[1] + 0.05)
         assert np.all(ci_polydfe[0] <= ci_fastdfe[1] + 0.05)
 
