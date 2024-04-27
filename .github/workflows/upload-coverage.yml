@@ -1,0 +1,19 @@
+name: Upload Coverage to Codecov
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  upload-coverage:
+    name: Upload Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
