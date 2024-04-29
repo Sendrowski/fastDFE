@@ -538,7 +538,10 @@ class GFFHandler(FileHandler):
         :param df: The coding sequences.
         :return: The coding sequences without overlaps.
         """
-        df['overlap'] = df['start'].shift(-1) <= df['end']
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=SettingWithCopyWarning)
+
+            df['overlap'] = df['start'].shift(-1) <= df['end']
 
         df = df[~df['overlap']]
 
