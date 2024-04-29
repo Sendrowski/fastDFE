@@ -911,7 +911,7 @@ class SubstitutionModel(ABC):
     """
 
     #: The possible transitions
-    _transitions: np.ndarray[int, (..., ...)] = np.array([
+    _transitions: np.ndarray = np.array([
         (base_indices['A'], base_indices['G']),
         (base_indices['G'], base_indices['A']),
         (base_indices['C'], base_indices['T']),
@@ -1198,13 +1198,13 @@ class SiteConfig:
     minor_base: int
 
     #: The outgroup base indices.
-    outgroup_bases: np.ndarray[int]
+    outgroup_bases: np.ndarray
 
     #: The multiplicity of the site.
     multiplicity: float = 1.0
 
     #: The site indices.
-    sites: np.ndarray[int] = field(default_factory=lambda: np.array([]))
+    sites: np.ndarray = field(default_factory=lambda: np.array([]))
 
     # The probability of the minor allele.
     p_minor: np.float64 = np.nan
@@ -1376,7 +1376,7 @@ class PolarizationPrior(ABC):
         self.allow_divergence: bool = allow_divergence
 
         #: The polarization probabilities.
-        self.probabilities: np.ndarray[float, (...,)] | None = None
+        self.probabilities: np.ndarray | None = None
 
     def _add_divergence(self):
         """
@@ -1508,7 +1508,7 @@ class AdaptivePolarizationPrior(PolarizationPrior):
             self,
             configs: pd.DataFrame,
             n_ingroups: int
-    ) -> np.ndarray[float, (...,)]:
+    ) -> np.ndarray:
         """
         Get the polarization probabilities.
 
@@ -1706,13 +1706,13 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         self.rng: np.random.Generator = np.random.default_rng(seed=self.seed)
 
         #: The outgroup mask.
-        self._outgroup_mask: np.ndarray[bool] | None = None
+        self._outgroup_mask: np.ndarray | None = None
 
         #: The outgroup indices.
-        self._outgroup_indices: np.ndarray[int] | None = None
+        self._outgroup_indices: np.ndarray | None = None
 
         #: The ingroup mask.
-        self._ingroup_mask: np.ndarray[bool] | None = None
+        self._ingroup_mask: np.ndarray | None = None
 
         #: 1-based positions of lowest and highest site position per contig (only when target_site_counter is used)
         # noinspection PyTypeChecker
@@ -1776,10 +1776,10 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 
     @staticmethod
     def _subsample(
-            genotypes: np.ndarray[Any],
+            genotypes: np.ndarray,
             size: int,
             rng: np.random.Generator
-    ) -> np.ndarray[str]:
+    ) -> np.ndarray:
         """
         Subsample a set of bases.
 
@@ -1800,9 +1800,9 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 
     @staticmethod
     def _get_outgroup_bases(
-            genotypes: np.ndarray[str],
+            genotypes: np.ndarray,
             n_outgroups: int
-    ) -> np.ndarray[str]:
+    ) -> np.ndarray:
         """
         Get the outgroup bases for a variant.
 
@@ -1825,9 +1825,9 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
             cls,
             mode: Literal['random', 'probabilistic'],
             n: int,
-            samples: np.ndarray[str],
+            samples: np.ndarray,
             rng: np.random.Generator
-    ) -> Tuple[np.ndarray[str], np.ndarray[int], np.ndarray[float]]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Subsample a site, either randomly or probabilistically.
 
@@ -1946,7 +1946,7 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
                 return sites
 
     @staticmethod
-    def get_base_string(indices: int | np.ndarray[int]) -> str | np.ndarray[str]:
+    def get_base_string(indices: int | np.ndarray) -> str | np.ndarray:
         """
         Get base string(s) from base index/indices.
 
@@ -1972,7 +1972,7 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         return '.'
 
     @classmethod
-    def get_base_index(cls, base_string: str | np.ndarray[str]) -> int | np.ndarray[int]:
+    def get_base_index(cls, base_string: str | np.ndarray) -> int | np.ndarray:
         """
         Get base index/indices from base string(s).
 
@@ -2204,7 +2204,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         self.configs: pd.DataFrame | None = None
 
         #: The probability of all sites per frequency bin.
-        self.p_bins: Dict[str, np.ndarray[float, (n_ingroups - 1,)]] | None = None
+        self.p_bins: Dict[str, np.ndarray | None] = None
 
         #: The total number of valid sites parsed (including sites not considered for ancestral allele inference).
         self.n_sites: int | None = None
@@ -2213,7 +2213,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         self.param_names: List[str] = list(self.model.get_bounds(self.n_outgroups).keys())
 
         #: The log likelihoods for the different runs when optimizing the rate parameters.
-        self.likelihoods: np.ndarray[float, (...,)] | None = None
+        self.likelihoods: np.ndarray | None = None
 
         #: The best log likelihood when optimizing the rate parameters.
         self.likelihood: float | None = None
@@ -3027,7 +3027,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         return all(div[i] <= div[i + 1] for i in range(len(div) - 1))
 
     @cached_property
-    def p_polarization(self) -> np.ndarray[float, (...,)] | None:
+    def p_polarization(self) -> np.ndarray | None:
         """
         Get the polarization probabilities or ``None`` if ``prior`` is ``no``.
         """
@@ -3041,8 +3041,8 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
     def get_p_tree(
             base: int,
             n_outgroups: int,
-            internal_nodes: List[int] | np.ndarray[int],
-            outgroup_bases: List[int] | np.ndarray[int],
+            internal_nodes: List[int] | np.ndarray,
+            outgroup_bases: List[int] | np.ndarray,
             params: Dict[str, float],
             model: SubstitutionModel
     ) -> float:
@@ -3105,7 +3105,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             base_type: BaseType,
             params: Dict[str, float],
             model: SubstitutionModel = K2SubstitutionModel(),
-            internal: np.ndarray[int] | None = None
+            internal: np.ndarray | None = None
     ) -> float:
         """
         Get the probability for a site configuration.
@@ -3173,7 +3173,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             model: SubstitutionModel,
             base_type: BaseType,
             params: Dict[str, float]
-    ) -> np.ndarray[float, (...,)]:
+    ) -> np.ndarray:
         """
         Get the probabilities for each site configuration.
 
@@ -3312,10 +3312,10 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
     def _get_ancestral_from_prob(
             self,
-            p_major_ancestral: np.ndarray[float] | float,
-            major_base: np.ndarray[str] | str,
-            minor_base: np.ndarray[str] | str
-    ) -> np.ndarray[float] | float:
+            p_major_ancestral: np.ndarray | float,
+            major_base: np.ndarray | str,
+            minor_base: np.ndarray | str
+    ) -> np.ndarray | float:
         """
         Get the ancestral allele from the probability of the major allele being ancestral.
 
@@ -3343,7 +3343,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
     def _get_internal_prob(
             self,
             site: SiteConfig,
-            internal: np.ndarray[int] | None = None
+            internal: np.ndarray | None = None
     ) -> float:
         """
         Get the ancestral allele for each site.
@@ -3378,7 +3378,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             self,
             site: SiteConfig,
             i_internal: int,
-    ) -> np.ndarray[float, (...,)]:
+    ) -> np.ndarray:
         """
         Get the internal probabilities for the sites used to estimate the parameters.
 
@@ -3520,7 +3520,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             n_major: int,
             major_base: int | str,
             minor_base: int | str,
-            outgroup_bases: List[int | str] | np.ndarray[int | str],
+            outgroup_bases: List[int | str] | np.ndarray,
             pass_indices: bool = False
     ) -> SiteInfo:
         """
@@ -3550,10 +3550,10 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
     def _calculate_p_major_ancestral(
             self,
-            p_minor: float | np.ndarray[float],
-            p_major: float | np.ndarray[float],
-            n_major: int | np.ndarray[int]
-    ) -> float | np.ndarray[float]:
+            p_minor: float | np.ndarray,
+            p_major: float | np.ndarray,
+            n_major: int | np.ndarray
+    ) -> float | np.ndarray:
         """
         Calculate the probability that the ancestral allele is the major allele.
 
@@ -3747,7 +3747,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         """
         return params['K'] if 'K' in params else params[f'K{i}']
 
-    def get_outgroup_divergence(self) -> np.ndarray[float]:
+    def get_outgroup_divergence(self) -> np.ndarray:
         """
         Get the inferred branch rates between the ingroup and outgroups by combining the inferred branch rates.
 
@@ -3881,7 +3881,7 @@ class _ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):  # pragma: no cover
         self.anc = anc
 
         #: The likelihoods for each run.
-        self.likelihoods: np.ndarray[float] | None = None
+        self.likelihoods: np.ndarray | None = None
 
         #: The minimum likelihood.
         self.likelihood: float | None = None
