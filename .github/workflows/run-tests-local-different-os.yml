@@ -1,4 +1,4 @@
-name: Run tests on different OS
+name: Run tests on different OS for local package
 
 on:
   workflow_dispatch:
