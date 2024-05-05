@@ -18,7 +18,7 @@ try:
     outgroups = snakemake.params.outgroups
     exclude = snakemake.params.exclude
     max_sites = snakemake.params.get("max_sites", None)
-    confidence_threshold = snakemake.params.get("confidence_threshold", 0.5)
+    confidence_threshold = snakemake.params.get("confidence_threshold", 0)
     out = snakemake.output[0]
 except ModuleNotFoundError:
     # testing
