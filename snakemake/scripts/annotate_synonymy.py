@@ -1,5 +1,5 @@
 """
-Run the annotator on a VCF file.
+Annotate synonymy of variants in a VCF file.
 """
 
 __author__ = "Janek Sendrowski"

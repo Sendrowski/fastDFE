@@ -1,5 +1,5 @@
 """
-Annotate degeneracy of variants in a VCF file.
+Annotate polarization of variants in a VCF file.
 """
 
 __author__ = "Janek Sendrowski"
