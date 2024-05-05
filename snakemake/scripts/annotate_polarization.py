@@ -7,8 +7,6 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-09-26"
 
 try:
-    from snakemake.shell import shell
-
     import sys
 
     # necessary to import fastdfe locally
