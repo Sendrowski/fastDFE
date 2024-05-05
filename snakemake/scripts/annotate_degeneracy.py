@@ -7,8 +7,6 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-05-12"
 
 try:
-    from snakemake.shell import shell
-
     import sys
 
     # necessary to import fastdfe locally
@@ -27,18 +25,17 @@ except ModuleNotFoundError:
     gff = "resources/genome/betula/genome.gff.gz"
     out = 'resources/genome/betula/all.polarized.deg.subset.200000.vcf.gz'
 
-from fastdfe import Annotator, DegeneracyAnnotation
-import logging
+import fastdfe as fd
 
-logging.getLogger('fastdfe').setLevel(logging.DEBUG)
+fd.logger.setLevel('DEBUG')
 
 # initialize annotator
-ann = Annotator(
+ann = fd.Annotator(
     vcf=vcf_file,
     output=out,
     fasta=fasta,
     gff=gff,
-    annotations=[DegeneracyAnnotation()],
+    annotations=[fd.DegeneracyAnnotation()],
 )
 
 # run annotator
