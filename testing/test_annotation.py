@@ -2015,6 +2015,54 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         self.assertEqual(site.major_base, base_indices['T'])
         self.assertEqual(site.minor_base, base_indices['A'])
 
+    def test_parse_variant_too_few_ingroups_error(self):
+        """
+        Test that an error is raised when the number of ingroups is less than the number of samples.
+        """
+        # create a mocked annotation
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            ingroups=["ASP04", "ASP05", "ASP06"],
+            n_ingroups=8,
+            prior=None,
+            subsample_mode='random'
+        )
+
+        # create a mocked variant
+        variant = Mock(spec=Variant)
+        variant.REF = "A"
+        variant.ALT = ["T"]
+        variant.is_snp = True
+        anc._prepare_masks(["ASP04", "ASP05", "ASP06", "ERR2103730"])
+        variant.gt_bases = np.array(["T|T", "T|A", "T|T", "T|A"])
+
+        with self.assertRaises(fd.annotation._TooFewIngroupsSiteError):
+            anc._parse_variant(variant)
+
+    def test_parse_variant_poly_allelic_error(self):
+        """
+        Test that an error is raised when the variant is poly-allelic.
+        """
+        # create a mocked annotation
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            ingroups=["ASP04", "ASP05", "ASP06", "ASP07"],
+            n_ingroups=8,
+            prior=None,
+            subsample_mode='random'
+        )
+
+        # create a mocked variant
+        variant = Mock(spec=Variant)
+        variant.REF = "A"
+        variant.ALT = ["T", "C"]
+        variant.is_snp = True
+        anc._prepare_masks(["ASP04", "ASP05", "ASP06", "ASP07", "ERR2103730"])
+        variant.gt_bases = np.array(["T|T", "T|A", "T|T", "T|A", "T|C"])
+
+        with self.assertRaises(fd.annotation._PolyAllelicSiteError):
+            anc._parse_variant(variant)
+
     @staticmethod
     def test_plot_tree_no_outgroup():
         """

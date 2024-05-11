@@ -1337,6 +1337,20 @@ class SiteInfo:
             plt.show()
 
 
+class _TooFewIngroupsSiteError(ValueError):
+    """
+    Raised when there are too few ingroups to consider a site for ancestral allele annotation.
+    """
+    pass
+
+
+class _PolyAllelicSiteError(ValueError):
+    """
+    Raised when a site has more than two alleles.
+    """
+    pass
+
+
 class BaseType(Enum):
     """
     The base type, either major or minor.
@@ -1875,13 +1889,15 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 
         return major_alleles, n_majors, m
 
-    def _parse_variant(self, variant: Variant | DummyVariant) -> List[SiteConfig] | None:
+    def _parse_variant(self, variant: Variant | DummyVariant) -> List[SiteConfig]:
         """
         Parse a VCF variant. We only consider sites that are at most bi-allelic in the in- and outgroups.
 
         :param variant: The variant.
         :return: List of site configurations containing a single element if subsample_mode is `random` or
             multiple elements if subsample_mode is `probabilistic` or ``None`` if the site is not valid.
+        :raises _TooFewIngroupsSiteError: If there are too few ingroups to consider a site for ancestral allele
+            annotation. _PolyAllelicSiteError: If a site has more than two alleles.
         """
         # get the called ingroup bases
         ingroups = get_called_bases(variant.gt_bases[self._ingroup_mask])
@@ -1889,61 +1905,63 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         # get the numer of called ingroup and outgroup bases
         n_ingroups = len(ingroups)
 
-        # only consider sites with enough ingroups
-        if n_ingroups >= self.n_ingroups:
+        # make sure we have enough ingroups
+        if n_ingroups < self.n_ingroups:
+            raise _TooFewIngroupsSiteError()
 
-            # get the called outgroup bases
-            # the order does not matter here
-            outgroups = get_called_bases(variant.gt_bases[self._outgroup_mask])
+        # get the called outgroup bases
+        # the order does not matter here
+        outgroups = get_called_bases(variant.gt_bases[self._outgroup_mask])
 
-            # get total base counts
-            counts = Counter(np.concatenate((ingroups, outgroups)))
+        # get total base counts
+        counts = Counter(np.concatenate((ingroups, outgroups)))
 
-            # only consider sites where the in- and outgroups are at most bi-allelic
-            if len(counts) <= 2:
+        # make sure we have at most two alleles
+        if len(counts) > 2:
+            raise _PolyAllelicSiteError()
 
-                # get the bases
-                b: List[str] = list(counts.keys())
+        # get the bases
+        b: List[str] = list(counts.keys())
 
-                # subsample ingroups either randomly or probabilistically
-                major_alleles, n_majors, multiplicities = self._subsample_site(
-                    mode=self.subsample_mode,
-                    n=self.n_ingroups,
-                    samples=ingroups,
-                    rng=self.rng
+        # subsample ingroups either randomly or probabilistically
+        major_alleles, n_majors, multiplicities = self._subsample_site(
+            mode=self.subsample_mode,
+            n=self.n_ingroups,
+            samples=ingroups,
+            rng=self.rng
+        )
+
+        # Get the outgroup bases.
+        # The outgroup order is important, so we can't use the mask here.
+        outgroup_bases = self.get_base_index(self._get_outgroup_bases(
+            genotypes=np.array([variant.gt_bases[i] for i in self._outgroup_indices]),
+            n_outgroups=self.n_outgroups
+        ))
+
+        # create site configurations
+        sites = []
+        for i, (major_allele, n_major, multiplicity) in enumerate(zip(major_alleles, n_majors, multiplicities)):
+
+            if multiplicity > 0:
+                if len(counts) == 2:
+                    # Take the other allele as the minor allele. We keep track of the minor allele
+                    # even if it wasn't contained in the ingroup subsample.
+                    minor_base: str = b[0] if b[0] != major_allele else b[1]
+                else:
+                    minor_base: str = '.'
+
+                # create site configuration
+                site = SiteConfig(
+                    major_base=base_indices[major_allele],
+                    n_major=n_major,
+                    minor_base=self.get_base_index(minor_base),
+                    outgroup_bases=outgroup_bases,
+                    multiplicity=multiplicity
                 )
 
-                # Get the outgroup bases.
-                # The outgroup order is important, so we can't use the mask here.
-                outgroup_bases = self.get_base_index(self._get_outgroup_bases(
-                    genotypes=np.array([variant.gt_bases[i] for i in self._outgroup_indices]),
-                    n_outgroups=self.n_outgroups
-                ))
+                sites.append(site)
 
-                # create site configurations
-                sites = []
-                for i, (major_allele, n_major, multiplicity) in enumerate(zip(major_alleles, n_majors, multiplicities)):
-
-                    if multiplicity > 0:
-                        if len(counts) == 2:
-                            # Take the other allele as the minor allele. We keep track of the minor allele
-                            # even if it wasn't contained in the ingroup subsample.
-                            minor_base: str = b[0] if b[0] != major_allele else b[1]
-                        else:
-                            minor_base: str = '.'
-
-                        # create site configuration
-                        site = SiteConfig(
-                            major_base=base_indices[major_allele],
-                            n_major=n_major,
-                            minor_base=self.get_base_index(minor_base),
-                            outgroup_bases=outgroup_bases,
-                            multiplicity=multiplicity
-                        )
-
-                        sites.append(site)
-
-                return sites
+        return sites
 
     @staticmethod
     def get_base_string(indices: int | np.ndarray) -> str | np.ndarray:
@@ -2824,10 +2842,13 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             for i, variant in enumerate(self._reader):
 
                 # parse the site
-                configs = self._parse_variant(variant)
+                try:
+                    configs = self._parse_variant(variant)
 
-                # check if site is not None
-                if configs is not None:
+                except (_PolyAllelicSiteError, _TooFewIngroupsSiteError):
+                    pass
+
+                else:
 
                     if self.n_target_sites is not None:
                         # update bounds
@@ -3601,7 +3622,6 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         """
         # set default values
         ancestral_base = '.'
-        ancestral_info = '.'
 
         # use maximum parsimony if we don't have an SNP
         if isinstance(variant, DummyVariant) or not variant.is_snp:
@@ -3613,9 +3633,16 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
         else:
 
-            configs = self._parse_variant(variant)
+            try:
+                configs = self._parse_variant(variant)
 
-            if configs is not None:
+            except _PolyAllelicSiteError:
+                ancestral_info = 'polyallelic'
+
+            except _TooFewIngroupsSiteError:
+                ancestral_info = 'too few ingroups'
+
+            else:
                 site = self._get_site_info(configs)
 
                 # only proceed if the ancestral allele is known
@@ -3654,6 +3681,12 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
                         # increase the number of annotated sites
                         self.n_annotated += 1
+
+                    else:
+                        ancestral_info = 'below confidence threshold'
+
+                else:
+                    ancestral_info = 'invalid or unknown ancestral allele'
 
         # set the ancestral allele
         variant.INFO[self._handler.info_ancestral] = ancestral_base
@@ -3828,37 +3861,45 @@ class _AdHocAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         :return: The annotated variant.
         """
         ancestral_base = '.'
-        ancestral_info = '.'
 
         # use maximum parsimony if we have a mono-allelic site
         if isinstance(variant, DummyVariant) or not variant.is_snp:
             ancestral_base = MaximumParsimonyAncestralAnnotation._get_ancestral(variant, self._ingroup_mask)
             ancestral_info = 'monomorphic'
+            self.n_annotated += 1
+        else:
 
-        # parse the site
-        configs = self._parse_variant(variant)
+            try:
+                # parse the site
+                configs = self._parse_variant(variant)
 
-        if configs is not None:
+            except _PolyAllelicSiteError:
+                ancestral_info = 'polyallelic'
 
-            # use config with the highest multiplicity
-            ref = configs[np.argmax([c.multiplicity for c in configs])]
+            except _TooFewIngroupsSiteError:
+                ancestral_info = 'too few ingroups'
 
-            # get site information dictionary
-            site = self._get_site_info(ref)
+            else:
 
-            # only proceed if the ancestral allele is known
-            if site['ancestral_base'] in bases:
-                ancestral_base = site['ancestral_base']
-                ancestral_info = str(site)
+                # use config with the highest multiplicity
+                ref = configs[np.argmax([c.multiplicity for c in configs])]
+
+                # get site information dictionary
+                site = self._get_site_info(ref)
+
+                # only proceed if the ancestral allele is known
+                if site['ancestral_base'] in bases:
+                    ancestral_base = site['ancestral_base']
+                    ancestral_info = str(site)
+                    self.n_annotated += 1
+                else:
+                    ancestral_info = 'invalid or unknown ancestral allele'
 
         # set the ancestral allele
         variant.INFO[self._handler.info_ancestral] = ancestral_base
 
         # set info field
         variant.INFO[self._handler.info_ancestral + "_info"] = ancestral_info
-
-        # increase the number of annotated sites
-        self.n_annotated += 1
 
 
 class _ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):  # pragma: no cover
