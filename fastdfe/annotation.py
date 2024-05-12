@@ -2582,6 +2582,67 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
                 if i + 1 >= self.max_sites:
                     break
 
+    def to_file(self, file: str):
+        """
+        Save object to file.
+
+        .. note::
+            References to the handler and the reader are discarded.
+
+        :param file: File path.
+        """
+        with open(file, 'w') as fh:
+            fh.write(self.to_json())
+
+    @classmethod
+    def from_file(cls, file: str) -> 'MaximumLikelihoodAncestralAnnotation':
+        """
+        Load object from file.
+
+        .. note::
+            The handler and the reader are not restored, so serialization is mostly useful
+            for analyzing the results in detail, not for further processing.
+
+        :param file: File path.
+        :return: The object.
+        """
+        with open(file, 'r') as fh:
+            return cls.from_json(fh.read())
+
+    def to_json(self) -> str:
+        """
+        Serialize object.
+
+        .. note::
+            References to the handler and the reader are discarded.
+
+        :return: JSON string
+        """
+        self._reader = None
+        self._handler = None
+
+        return jsonpickle.encode(self, indent=4, warn=True)
+
+    @classmethod
+    def from_json(cls, json: str) -> 'MaximumLikelihoodAncestralAnnotation':
+        """
+        Load object from file.
+
+        .. note::
+            The handler and the reader are not restored, so serialization is mostly useful
+            for analyzing the results in detail, not for further processing.
+
+        :param json: JSON string.
+        :return: The object.
+        """
+        anc = jsonpickle.decode(json)
+
+        # convert index to int if necessary
+        if 'index' in anc.configs:
+            anc.configs.index = anc.configs.index.astype(int)
+
+        return anc
+
     @classmethod
     def from_data(
             cls,
@@ -2804,6 +2865,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         # assign data frame
         anc.configs = data
 
+        # convert outgroup bases to tuples of native integers
+        anc._convert_outgroup_bases_to_native_types()
+
         # set the number of sites (which coincides with number of sites parsed)
         anc.n_sites = anc._get_n_sites()
 
@@ -2811,6 +2875,13 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         anc._logger.info(f"Included {int(anc._get_mle_configs().multiplicity.sum())} sites for the inference.")
 
         return anc
+
+    def _convert_outgroup_bases_to_native_types(self):
+        """
+        Convert outgroup bases to tuples of native integers
+        numpy types cause problems when serializing
+        """
+        self.configs.outgroup_bases = self.configs.outgroup_bases.apply(lambda x: tuple(int(i) for i in x))
 
     def _parse_vcf(self):
         """
@@ -2894,6 +2965,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         if len(self.configs) > 0:
             # determine number of outgroups
             self.configs['n_outgroups'] = np.sum(np.array(self.configs.outgroup_bases.to_list()) != -1, axis=1)
+
+        # convert outgroup bases to tuples of native integers
+        self._convert_outgroup_bases_to_native_types()
 
         # total number of sites considered
         self.n_sites = i + 1

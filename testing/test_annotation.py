@@ -486,6 +486,16 @@ class AnnotationTestCase(TestCase):
         self.assertEqual(mappings, expected_mappings)
         self.assertEqual(aliases_expanded, expected_aliases_expanded)
 
+    def test_degeneracy_annotation_get_degeneracy_table(self):
+        """
+        Test the get_degeneracy_table method.
+        """
+        t = fd.DegeneracyAnnotation._get_degeneracy_table()
+
+        self.assertEqual(64, len(t))
+        self.assertEqual(t['AAA'], '002')
+        self.assertEqual(t['GCT'], '004')
+
 
 class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
     """
@@ -3178,12 +3188,45 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         self.assertLess(diff_ref_params.max(), 0.01)
 
-    def test_degeneracy_annotation_get_degeneracy_table(self):
+    def test_serialization_from_est_sfs(self):
         """
-        Test the get_degeneracy_table method.
+        Test serializing and deserializing an annotation using from_est_sfs.
         """
-        t = fd.DegeneracyAnnotation._get_degeneracy_table()
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+            file="resources/EST-SFS/test-betula-biallelic-10000.txt",
+            n_runs=1
+        )
 
-        self.assertEqual(64, len(t))
-        self.assertEqual(t['AAA'], '002')
-        self.assertEqual(t['GCT'], '004')
+        anc.infer()
+
+        anc.to_file("scratch/test_serialization_from_est_sfs.json")
+
+        anc2 = fd.MaximumLikelihoodAncestralAnnotation.from_file("scratch/test_serialization_from_est_sfs.json")
+
+        self.assertEqual(anc.params_mle, anc2.params_mle)
+
+    def test_serialization_with_annotator(self):
+        """
+        Test serializing and deserializing an annotation using the Annotator.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            exclude=["ERR2103731"],
+            n_ingroups=20,
+            prior=fd.KingmanPolarizationPrior(),
+            n_runs=1
+        )
+
+        a = fd.Annotator(
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
+            output="scratch/test_serialization_with_annotator.vcf",
+            annotations=[anc],
+            max_sites=100
+        )
+
+        a.annotate()
+
+        anc.to_file("scratch/test_serialization_with_annotator.json")
+        anc2 = fd.MaximumLikelihoodAncestralAnnotation.from_file("scratch/test_serialization_with_annotator.json")
+
+        self.assertEqual(anc.params_mle, anc2.params_mle)
