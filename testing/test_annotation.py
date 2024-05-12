@@ -1939,7 +1939,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
             anc.infer()
 
-    def test_annotation_parse_variant(self):
+    def test_parse_variant(self):
         """
         Test that the annotation parses a mocked variant correctly.
         """
@@ -1967,7 +1967,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         self.assertEqual(site.major_base, base_indices['T'])
         self.assertEqual(site.minor_base, base_indices['A'])
 
-    def test_annotation_parse_variant_minor_allele_zero_frequency_but_contained_in_ingroup(self):
+    def test_parse_variant_minor_allele_zero_frequency_but_contained_in_ingroup(self):
         """
         Test that the annotation parses a mocked variant correctly when the minor allele has zero frequency but is
         contained in the ingroup.
@@ -1996,7 +1996,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         self.assertEqual(site.major_base, base_indices['T'])
         self.assertEqual(site.minor_base, base_indices['A'])
 
-    def test_annotation_parse_variant_minor_allele_zero_frequency_but_contained_in_outgroup(self):
+    def test_parse_variant_minor_allele_zero_frequency_but_contained_in_outgroup(self):
         """
         Test that the annotation parses a mocked variant correctly when the minor allele has zero frequency but is
         contained in the outgroup only.
@@ -2072,6 +2072,34 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         with self.assertRaises(fd.annotation._PolyAllelicSiteError):
             anc._parse_variant(variant)
+
+    def test_parse_variance_probabilistic_subsampling(self):
+        """
+        Test the parse_variance function with probabilistic subsampling.
+        """
+        # create a mocked annotation
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            ingroups=["ASP04", "ASP05", "ASP06", "ASP07"],
+            n_ingroups=5,
+            prior=None,
+            subsample_mode='probabilistic'
+        )
+
+        # create a mocked variant
+        variant = Mock(spec=Variant)
+        variant.REF = "A"
+        variant.ALT = ["T"]
+        variant.is_snp = True
+        anc._prepare_masks(["ASP04", "ASP05", "ASP06", "ASP07", "ERR2103730"])
+        variant.gt_bases = np.array(["T|T", "T|A", "T|T", "T|A", "T|T"])
+
+        # parse the mocked variant
+        sites = anc._parse_variant(variant)
+
+        self.assertAlmostEqual(1, sum([site.multiplicity for site in sites]))
+        self.assertEqual({s.n_major for s in sites}, {3, 4, 5})
+
 
     @staticmethod
     def test_plot_tree_no_outgroup():
@@ -3038,7 +3066,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         np.testing.assert_array_equal(results[0], results[1])
 
     @staticmethod
-    def test_annotation_fixed_result():
+    def test_fixed_result():
         """
         Test the maximum likelihood ancestral annotation for a fixed result.
         """
@@ -3074,7 +3102,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
     @staticmethod
     @pytest.mark.skip('For profiling only')
-    def test_annotation_profiling():
+    def test_profiling():
         """
         Profile the maximum likelihood ancestral annotation.
         """
