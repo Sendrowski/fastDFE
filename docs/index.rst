@@ -13,6 +13,8 @@ Welcome to fastDFE's documentation
     :target: https://badge.fury.io/py/fastdfe
 .. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
    :target: https://www.gnu.org/licenses/gpl-3.0
+.. image:: https://static.pepy.tech/badge/fastdfe
+   :target: https://pepy.tech/project/fastdfe
 .. image:: https://img.shields.io/badge/DOI-10.1093/molbev/msae070-blue
     :target: https://doi.org/10.1093/molbev/msae070
 
