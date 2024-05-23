@@ -19,39 +19,39 @@ However, to avoid potential conflicts with other packages, it is recommended to 
 
 To do this, you can run
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        mamba create -n fastdfe 'python>=3.10,<3.13' pip
-        mamba activate fastdfe
-        pip install fastdfe
+    mamba create -n fastdfe 'python>=3.10,<3.13' pip
+    mamba activate fastdfe
+    pip install fastdfe
 
 Alternative, create a new file called ``environment.yml`` with the following content:
 
-   .. code-block:: yaml
+.. code-block:: yaml
 
-      name: fastdfe
-      channels:
-        - defaults
-      dependencies:
-        - python>=3.10,<3.13
-        - pip
-        - pip:
-            - fastdfe
+  name: fastdfe
+  channels:
+    - defaults
+  dependencies:
+    - python>=3.10,<3.13
+    - pip
+    - pip:
+        - fastdfe
 
 Run the following command to create a new `conda` environment using the ``environment.yml`` file:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      mamba env create -f environment.yml
+  mamba env create -f environment.yml
 
 Activate the newly created conda environment:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      mamba activate fastdfe
+  mamba activate fastdfe
 
 You are now ready to use the ``fastdfe`` package within the isolated conda environment.
 
-   .. code-block:: python
+.. code-block:: python
 
-        import fastdfe as fd
+    import fastdfe as fd

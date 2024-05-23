@@ -3,8 +3,8 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import sys
 import datetime
+import sys
 
 sys.path.append('..')
 
@@ -26,7 +26,8 @@ extensions = [
     'sphinx_autodoc_typehints',
     'sphinx_copybutton',
     'myst_nb',
-    'sphinxcontrib.bibtex'
+    'sphinxcontrib.bibtex',
+    'sphinx_book_theme'
 ]
 
 bibtex_bibfiles = ['refs.bib']
@@ -54,10 +55,16 @@ add_module_names = False
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'sphinx_book_theme'
+html_theme_options = {
+    'search_bar_text': 'Search...',
+    'repository_url': 'https://github.com/Sendrowski/fastdfe',
+    'repository_branch': 'master',
+    'use_repository_button': True,
+    'use_edit_page_button': False,
+    'use_issues_button': False
+}
 html_static_path = ['_static']
 html_css_files = ["custom.css"]
 html_logo = "logo.png"
 html_favicon = "favicon.ico"
-
-github_url = 'https://github.com/Sendrowski/fastDFE'
