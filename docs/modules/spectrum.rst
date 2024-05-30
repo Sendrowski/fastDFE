@@ -1,7 +1,7 @@
 .. _modules.spectrum:
 
 Spectrum class
-==============
+--------------
 
 .. autoclass:: fastdfe.spectrum.Spectrum
    :members:

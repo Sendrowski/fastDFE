@@ -1,7 +1,7 @@
 .. _modules.annotation:
 
 VCF Annotation
-==============
+--------------
 
 .. automodule:: fastdfe.annotation
    :members:

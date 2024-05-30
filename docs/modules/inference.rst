@@ -1,7 +1,7 @@
 .. _modules.base_inference:
 
 Inference
-=================
+---------
 
 .. autoclass:: fastdfe.base_inference.BaseInference
    :inherited-members:
