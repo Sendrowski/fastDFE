@@ -83,6 +83,13 @@ Contents
    modules/annotation
    modules/filtration
 
+.. toctree::
+   :caption: Miscellaneous
+   :maxdepth: 1
+
+   modules/citing
+   modules/changelog
+
 References
 ----------
 .. bibliography::
