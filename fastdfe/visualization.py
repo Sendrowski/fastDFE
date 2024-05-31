@@ -8,7 +8,7 @@ __date__ = "2023-02-26"
 
 import functools
 import logging
-from typing import Callable, List, Literal, Dict
+from typing import Callable, List, Literal, Dict, Sequence
 
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
@@ -136,9 +136,9 @@ class Visualization:
     @clear_show_save
     def plot_discretized(
             ax: plt.Axes,
-            values: list | np.ndarray,
-            errors: list | np.ndarray = None,
-            labels: list | np.ndarray = None,
+            values: Sequence,
+            errors: Sequence = None,
+            labels: Sequence = None,
             file: str = None,
             show: bool = True,
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
@@ -220,9 +220,9 @@ class Visualization:
     def plot_continuous(
             ax: plt.Axes,
             bins: np.ndarray,
-            values: list | np.ndarray,
-            errors: list | np.ndarray = None,
-            labels: list | np.ndarray = None,
+            values: Sequence,
+            errors: Sequence = None,
+            labels: Sequence = None,
             file: str = None,
             show: bool = True,
             title: str = 'continuous DFE',
@@ -319,8 +319,8 @@ class Visualization:
     @staticmethod
     def name_to_label(
             key: str,
-            param_names: list | np.ndarray = None,
-            vals: list | np.ndarray = None
+            param_names: Sequence = None,
+            vals: Sequence = None
     ) -> str:
         """
         Map parameter name to label.
@@ -357,8 +357,8 @@ class Visualization:
     def plot_inferred_parameters(
             ax: plt.Axes,
             values: Dict[str, np.ndarray],
-            labels: list | np.ndarray,
-            param_names: list | np.ndarray,
+            labels: Sequence,
+            param_names: Sequence,
             errors: Dict[str, np.ndarray | None],
             file: str = None,
             show: bool = True,
@@ -449,7 +449,7 @@ class Visualization:
     @staticmethod
     def plot_inferred_parameters_boxplot(
             values: Dict[str, pd.DataFrame],
-            param_names: list | np.ndarray,
+            param_names: Sequence,
             file: str = None,
             show: bool = True,
             title: str = 'parameter estimates'
@@ -772,7 +772,7 @@ class Visualization:
     @staticmethod
     @clear_show_save
     def plot_scatter(
-            values: list | np.ndarray,
+            values: Sequence,
             file: str,
             show: bool,
             ax: plt.Axes,
@@ -809,8 +809,8 @@ class Visualization:
     @clear_show_save
     def plot_buckets_sizes(
             n_intervals: int,
-            bins: list | np.ndarray,
-            sizes: list | np.ndarray,
+            bins: Sequence,
+            sizes: Sequence,
             title: str,
             file: str,
             show: bool,
@@ -847,8 +847,8 @@ class Visualization:
     @clear_show_save
     def plot_nested_models(
             P: np.ndarray,
-            labels_x: list | np.ndarray,
-            labels_y: list | np.ndarray,
+            labels_x: Sequence,
+            labels_y: Sequence,
             ax: plt.Axes,
             file: str = None,
             show: bool = True,
@@ -941,7 +941,7 @@ class Visualization:
     def plot_interval_density(
             ax: plt.Axes,
             density: np.ndarray,
-            intervals: list | np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            intervals: Sequence = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             interval_labels: List[str] = None,
             file: str = None,
             show: bool = True,
@@ -992,12 +992,12 @@ class Visualization:
     @staticmethod
     @clear_show_save
     def plot_covariate(
-            covariates: list | np.ndarray,
-            values: list | np.ndarray,
+            covariates: Sequence,
+            values: Sequence,
             xlabel: str,
             ylabel: str,
-            labels: list | np.ndarray = None,
-            errors: list | np.ndarray = None,
+            labels: Sequence = None,
+            errors: Sequence = None,
             file: str = None,
             show: bool = True,
             title: str = 'likelihoods',

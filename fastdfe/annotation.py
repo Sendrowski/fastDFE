@@ -13,7 +13,6 @@ import subprocess
 import tempfile
 from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
-from dataclasses import dataclass, field
 from enum import Enum
 from functools import cached_property
 from io import StringIO
@@ -1182,79 +1181,106 @@ class K2SubstitutionModel(JCSubstitutionModel):
         return K * np.exp(-K) * (1 / (k + 2) + K * k / (k ** 2 + 4 * k + 4))
 
 
-@dataclass
 class SiteConfig:
     """
     Ancestral allele site configuration for a single subsample.
     """
 
-    #: The number of major alleles.
-    n_major: int
+    def __init__(
+            self,
+            n_major: int,
+            major_base: int,
+            minor_base: int,
+            outgroup_bases: np.ndarray,
+            multiplicity: float = 1.0,
+            sites: np.ndarray = None,
+            p_minor: float = np.nan,
+            p_major: float = np.nan
+    ):
+        """
+        Create a new site configuration instance.
+        """
+        #: The number of major alleles.
+        self.n_major: int = n_major
 
-    #: The major allele base index.
-    major_base: int
+        #: The major allele base index.
+        self.major_base: int = major_base
 
-    #: The minor base index.
-    minor_base: int
+        #: The minor base index.
+        self.minor_base: int = minor_base
 
-    #: The outgroup base indices.
-    outgroup_bases: np.ndarray
+        #: The outgroup base indices.
+        self.outgroup_bases: np.ndarray = outgroup_bases
 
-    #: The multiplicity of the site.
-    multiplicity: float = 1.0
+        #: The multiplicity of the site.
+        self.multiplicity: float = multiplicity
 
-    #: The site indices.
-    sites: np.ndarray = field(default_factory=lambda: np.array([]))
+        #: The site indices.
+        self.sites: np.ndarray = np.array([]) if sites is None else sites
 
-    # The probability of the minor allele.
-    p_minor: np.float64 = np.nan
+        #: The probability of the minor allele.
+        self.p_minor: float = p_minor
 
-    # The probability of the major allele.
-    p_major: np.float64 = np.nan
+        #: The probability of the major allele.
+        self.p_major: float = p_major
 
 
-@dataclass
 class SiteInfo:
     """
     Ancestral allele information on a single site.
     """
 
-    #: Dictionary mapping number of major alleles to its probability of observation.
-    n_major: Dict[int, float]
+    def __init__(
+            self,
+            n_major: Dict[int, float],
+            major_base: str,
+            minor_base: str,
+            outgroup_bases: List[str],
+            p_minor: float = np.nan,
+            p_major: float = np.nan,
+            p_major_ancestral: float = np.nan,
+            major_ancestral: str = '.',
+            p_bases_first_node: Dict[str, float] = None,
+            p_first_node_ancestral: float = np.nan,
+            first_node_ancestral: str = '.',
+            rate_params: Dict[str, float] = None
+    ):
+        #: Dictionary mapping number of major alleles to its probability of observation.
+        self.n_major: Dict[int, float] = n_major
 
-    #: The major allele base.
-    major_base: str
+        #: The major allele base.
+        self.major_base: str = major_base
 
-    #: The minor base index.
-    minor_base: str
+        #: The minor base index.
+        self.minor_base: str = minor_base
 
-    #: The outgroup base indices.
-    outgroup_bases: List[str]
+        #: The outgroup base indices.
+        self.outgroup_bases: List[str] = outgroup_bases
 
-    #: The probability of the minor allele being the ancestral allele (without prior).
-    p_minor: float = np.nan
+        #: The probability of the minor allele being the ancestral allele (without prior).
+        self.p_minor: float = p_minor
 
-    #: The probability of the major allele being the ancestral allele (without prior).
-    p_major: float = np.nan
+        #: The probability of the major allele being the ancestral allele (without prior).
+        self.p_major: float = p_major
 
-    #: The probability of the major allele being the ancestral allele rather than the minor allele
-    #: (possibly with prior if specified).
-    p_major_ancestral: float = np.nan
+        #: The probability of the major allele being the ancestral allele rather than the minor allele
+        #: (possibly with prior if specified).
+        self.p_major_ancestral: float = p_major_ancestral
 
-    #: The ancestral base based on comparing major and minor allele.
-    major_ancestral: str = '.'
+        #: The ancestral base based on comparing major and minor allele.
+        self.major_ancestral: str = major_ancestral
 
-    #: The probability of each base being the ancestral base for the first internal node.
-    p_bases_first_node: Dict[str, float] = field(default_factory=dict)
+        #: The probability of each base being the ancestral base for the first internal node.
+        self.p_bases_first_node: Dict[str, float] = {} if p_bases_first_node is None else p_bases_first_node
 
-    #: The probability that the mostly likely base for the first internal node is the ancestral base.
-    p_first_node_ancestral: float = np.nan
+        #: The probability that the mostly likely base for the first internal node is the ancestral base.
+        self.p_first_node_ancestral: float = p_first_node_ancestral
 
-    #: The ancestral base index for the first internal node.
-    first_node_ancestral: str = '.'
+        #: The ancestral base index for the first internal node.
+        self.first_node_ancestral: str = first_node_ancestral
 
-    #: The branch rates.
-    rate_params: Dict[str, float] = field(default_factory=dict)
+        #: The branch rates.
+        self.rate_params: Dict[str, float] = {} if rate_params is None else rate_params
 
     def plot_tree(
             self,
@@ -2094,9 +2120,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             ingroups: List[str] | None = None,
             exclude: List[str] | None = None,
             n_runs: int = 10,
-            model: SubstitutionModel = K2SubstitutionModel(),
+            model: SubstitutionModel = None,
             parallelize: bool = True,
-            prior: PolarizationPrior | None = KingmanPolarizationPrior(),
+            prior: PolarizationPrior | None = '',
             max_sites: int = 10000,
             seed: int | None = 0,
             confidence_threshold: float = 0,
@@ -2136,14 +2162,17 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         :param exclude: Samples to exclude from the ingroup. A list of sample names as they appear in the VCF file.
         :param n_runs: The number of optimization runs to perform when determining the branch rates. You can
             check that the likelihoods of the different runs are similar by calling :meth:`plot_likelihoods`.
+        :param model: The substitution model to use. By default, :class:`K2SubstitutionModel` is used.
         :param parallelize: Whether to parallelize the computation across multiple cores.
-        :param prior: The prior to use for the polarization probabilities. See :class:`PolarizationPrior`, 
-            :class:`KingmanPolarizationPrior` and :class:`AdaptivePolarizationPrior` for more information.
+        :param prior: The prior to use for the polarization probabilities. See
+            :class:`KingmanPolarizationPrior` and :class:`AdaptivePolarizationPrior` for more information. By default,
+            :class:`KingmanPolarizationPrior` is used. Use ``None`` for no prior.
         :param max_sites: The maximum number of sites to consider. This is useful if the number of sites is very large.
             Choosing a reasonably large subset of sites (on the order of a few thousand bi-allelic sites) can speed up
             the computation considerably as parsing can be slow. This subset is then used to calibrate the rate
             parameters, and possibly the polarization priors.
-        :param seed: The seed for the random number generator. If ``None``, a random seed is chosen.
+        :param seed: The seed for the random number generator. If ``None``, a random seed is chosen. By default, the
+            seed is set to 0.
         :param confidence_threshold: The confidence threshold for the ancestral allele annotation.
             Only if the probability of the major allele being ancestral as opposed to
             the minor allele is not within ``((1 - confidence_threshold) / 2, 1 - (1 - confidence_threshold) / 2)``,
@@ -2207,13 +2236,13 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         self.confidence_threshold: float = confidence_threshold
 
         #: The prior to use for the polarization probabilities.
-        self.prior: PolarizationPrior | None = prior
+        self.prior: PolarizationPrior | None = KingmanPolarizationPrior() if prior == '' else prior
 
         #: Number of random ML starts when determining the rate parameters
         self.n_runs: int = int(n_runs)
 
         #: The substitution model.
-        self.model: SubstitutionModel = model
+        self.model: SubstitutionModel = K2SubstitutionModel() if model is None else model
 
         #: The VCF reader.
         self._reader: VCF | None = None
@@ -2472,9 +2501,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
     def from_est_sfs(
             cls,
             file: str,
-            prior: PolarizationPrior | None = KingmanPolarizationPrior(),
+            prior: PolarizationPrior | None = '',
             n_runs: int = 10,
-            model: SubstitutionModel = K2SubstitutionModel(),
+            model: SubstitutionModel = None,
             parallelize: bool = True,
             seed: int = 0,
             chunk_size: int = 100000
@@ -2652,9 +2681,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             outgroup_bases: Iterable[Iterable[str | int]],
             n_ingroups: int,
             n_runs: int = 10,
-            model: SubstitutionModel = K2SubstitutionModel(),
+            model: SubstitutionModel = None,
             parallelize: bool = True,
-            prior: PolarizationPrior | None = KingmanPolarizationPrior(),
+            prior: PolarizationPrior | None = '',
             seed: int = 0,
             pass_indices: bool = False,
             confidence_threshold: float = 0
@@ -2789,9 +2818,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             data: pd.DataFrame,
             n_ingroups: int,
             n_runs: int = 10,
-            model: SubstitutionModel = K2SubstitutionModel(),
+            model: SubstitutionModel = None,
             parallelize: bool = True,
-            prior: PolarizationPrior | None = KingmanPolarizationPrior(),
+            prior: PolarizationPrior | None = '',
             seed: int = 0,
             grouped: bool = False,
             confidence_threshold: float = 0

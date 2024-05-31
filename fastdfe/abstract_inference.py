@@ -8,7 +8,7 @@ __date__ = "2023-03-12"
 
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Optional, Literal, Tuple, Dict
+from typing import List, Optional, Literal, Tuple, Dict, Sequence
 
 import jsonpickle
 import numpy as np
@@ -29,14 +29,14 @@ class Inference:
     @staticmethod
     def plot_discretized(
             inferences: List['AbstractInference'],
-            intervals: list | np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            intervals: Sequence = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
             file: str = None,
             show: bool = True,
             title: str = 'discretized DFEs',
-            labels: list | np.ndarray = None,
+            labels: Sequence = None,
             ax: 'plt.Axes' = None,
             kwargs_legend: dict = dict(prop=dict(size=8)),
             **kwargs
@@ -98,7 +98,7 @@ class Inference:
             file: str = None,
             show: bool = True,
             title: str = 'continuous DFEs',
-            labels: list | np.ndarray = None,
+            labels: Sequence = None,
             scale: Literal['lin', 'log', 'symlog'] = 'lin',
             scale_density: bool = False,
             ax: 'plt.Axes' = None,
@@ -156,7 +156,7 @@ class Inference:
     @staticmethod
     def plot_inferred_parameters(
             inferences: List['AbstractInference'],
-            labels: list | np.ndarray,
+            labels: Sequence,
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
@@ -223,7 +223,7 @@ class Inference:
     @staticmethod
     def plot_inferred_parameters_boxplot(
             inferences: List['AbstractInference'],
-            labels: list | np.ndarray,
+            labels: Sequence,
             file: str = None,
             show: bool = True,
             title: str = 'parameter estimates',
@@ -269,8 +269,8 @@ class Inference:
             bootstrap_type: Literal['percentile', 'bca'],
             ci_level: float,
             inferences: List['AbstractInference'],
-            labels: list | np.ndarray,
-            param_names: list | np.ndarray
+            labels: Sequence,
+            param_names: Sequence
     ) -> dict[str, Optional[Dict[str, Tuple[float, float]]]]:
         """
         Get confidence intervals for the MLE parameters.
@@ -308,8 +308,8 @@ class Inference:
             ci_level: float,
             confidence_intervals: bool,
             inferences: List['AbstractInference'],
-            labels: list | np.ndarray,
-            param_names: list | np.ndarray
+            labels: Sequence,
+            param_names: Sequence
     ) -> (Dict[str, Tuple[np.ndarray, np.ndarray] | None], Dict[str, np.ndarray]):
         """
         Get errors and values for MLE params of inferences.
@@ -350,7 +350,7 @@ class Inference:
     @staticmethod
     def get_discretized(
             inferences: List['AbstractInference'],
-            labels: list | np.ndarray,
+            labels: Sequence,
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             confidence_intervals: bool = True,
             ci_level: float = 0.05,

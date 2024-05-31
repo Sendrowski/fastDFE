@@ -15,7 +15,7 @@ import tempfile
 import warnings
 from collections import Counter
 from functools import cached_property
-from typing import List, Iterable, TextIO, Dict, Optional, Tuple, Union
+from typing import List, Iterable, TextIO, Dict, Optional, Tuple, Union, Sequence
 from urllib.parse import urlparse
 
 import numpy as np
@@ -37,7 +37,7 @@ bases = ["A", "C", "G", "T"]
 logger = logging.getLogger('fastdfe')
 
 
-def get_called_bases(genotypes: np.ndarray | List[str]) -> np.ndarray:
+def get_called_bases(genotypes: Sequence[str]) -> np.ndarray:
     """
     Get the called bases from a list of calls.
 
@@ -54,7 +54,7 @@ def get_called_bases(genotypes: np.ndarray | List[str]) -> np.ndarray:
     return char_array[np.isin(char_array, bases)]
 
 
-def get_major_base(genotypes: np.ndarray | List[str]) -> str | None:
+def get_major_base(genotypes: Sequence[str]) -> str | None:
     """
     Get the major base from a list of calls.
 

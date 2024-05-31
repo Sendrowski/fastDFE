@@ -887,7 +887,7 @@ class Parser(MultiHandler):
             skip_non_polarized: bool = True,
             stratifications: List[Stratification] = [],
             annotations: List[Annotation] = [],
-            filtrations: List[Filtration] = [PolyAllelicFiltration()],
+            filtrations: List[Filtration] = None,
             include_samples: List[str] = None,
             exclude_samples: List[str] = None,
             max_sites: int = np.inf,
@@ -914,7 +914,8 @@ class Parser(MultiHandler):
             only recommended if working with folded spectra).
         :param stratifications: List of stratifications to use.
         :param annotations: List of annotations to use.
-        :param filtrations: List of filtrations to use.
+        :param filtrations: List of filtrations to use. By default, we use
+            :class:`~fastdfe.filtration.PolyAllelicFiltration`.
         :param include_samples: List of sample names to consider when determining the SFS. If ``None``, all samples
             are used. Note that this restriction does not apply to the annotations and filtrations.
         :param exclude_samples: List of sample names to exclude when determining the SFS. If ``None``, no samples
@@ -972,7 +973,7 @@ class Parser(MultiHandler):
         self.annotations: List[Annotation] = annotations
 
         #: List of filtrations to use
-        self.filtrations: List[Filtration] = filtrations
+        self.filtrations: List[Filtration] = [PolyAllelicFiltration()] if filtrations is None else filtrations
 
         #: The number of sites that were skipped for various reasons
         self.n_skipped: int = 0

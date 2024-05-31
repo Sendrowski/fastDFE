@@ -12,7 +12,7 @@ import itertools
 import json
 import logging
 import time
-from typing import List, Optional, Dict, Literal, cast, Tuple
+from typing import List, Optional, Dict, Literal, cast, Tuple, Sequence
 
 import jsonpickle
 import multiprocess as mp
@@ -96,8 +96,8 @@ class BaseInference(AbstractInference):
             self,
             sfs_neut: Spectra | Spectrum,
             sfs_sel: Spectra | Spectrum,
-            intervals_del: (float, float, int) = (-1.0e+8, -1.0e-5, 1000),
-            intervals_ben: (float, float, int) = (1.0e-5, 1.0e4, 1000),
+            intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
+            intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -943,7 +943,7 @@ class BaseInference(AbstractInference):
             self,
             file: str = None,
             show: bool = True,
-            intervals: list | np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            intervals: Sequence = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             interval_labels: List[str] = None,
             color: str = 'C0',
             ax: 'plt.Axes' = None

@@ -10,7 +10,7 @@ import copy
 import logging
 import math
 from dataclasses import dataclass
-from typing import Callable, List, Dict, Literal, Tuple, Optional
+from typing import Callable, List, Dict, Literal, Tuple, Optional, Sequence
 
 import multiprocess as mp
 import numpy as np
@@ -28,7 +28,7 @@ logger = logging.getLogger('fastdfe').getChild('Optimization')
 
 def parallelize(
         func: Callable,
-        data: list | np.ndarray,
+        data: Sequence,
         parallelize: bool = True,
         pbar: bool = None,
         desc: str = None,

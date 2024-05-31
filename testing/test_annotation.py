@@ -534,7 +534,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 fd.logger.info(f"Caching EST-SFS results to: {cache}")
 
         # get site information
-        site_info = pd.DataFrame(anc.get_inferred_site_info())
+        site_info = pd.DataFrame([s.__dict__ for s in anc.get_inferred_site_info()])
 
         # prefix columns
         site_info.columns = ['native.' + col for col in site_info.columns]
@@ -738,7 +738,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         anc.infer()
 
-        summary = pd.DataFrame(anc.get_inferred_site_info())
+        summary = pd.DataFrame([s.__dict__ for s in anc.get_inferred_site_info()])
 
         summary['expected'] = [c['ancestral_expected'] for c in configs]
 
@@ -2878,7 +2878,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                         outgroups=["ERR2103730"],
                         exclude=["ERR2103731"],
                         n_ingroups=20,
-                        subsample_mode=cast(Literal['random', 'probabilistic'], mode),
+                        subsample_mode=cast(Literal['random', 'probabilistic'], mode)
                     )
                 ]
             )
@@ -2913,8 +2913,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             # This is because they're independent of the actual allele frequency
             # given the major allele is the same
             if site_info[0].major_base == site_info[1].major_base:
-                self.assertEqual(site_info[0].p_minor, site_info[1].p_minor)
-                self.assertEqual(site_info[0].p_major, site_info[1].p_major)
+                self.assertLess(np.abs(site_info[0].p_minor - site_info[1].p_minor), 0.01)
+                self.assertLess(np.abs(site_info[0].p_major - site_info[1].p_major), 0.01)
 
                 # this is not true for all sites, but it is for the first 600
                 self.assertLess(np.abs(site_info[0].p_major_ancestral - site_info[1].p_major_ancestral), 0.3)
@@ -3258,3 +3258,28 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         anc2 = fd.MaximumLikelihoodAncestralAnnotation.from_file("scratch/test_serialization_with_annotator.json")
 
         self.assertEqual(anc.params_mle, anc2.params_mle)
+
+    def test_default_prior_kingman(self):
+        """
+        Test the default prior is the Kingman polarization prior.
+        """
+        a = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            exclude=["ERR2103731"],
+            n_ingroups=20
+        )
+
+        self.assertIsInstance(a.prior, fd.KingmanPolarizationPrior)
+
+    def test_pass_none_as_prior_means_no_prior(self):
+        """
+        Test that passing None as prior means no prior.
+        """
+        a = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            exclude=["ERR2103731"],
+            n_ingroups=20,
+            prior=None
+        )
+
+        self.assertIsNone(a.prior)

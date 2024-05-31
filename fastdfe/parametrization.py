@@ -9,7 +9,7 @@ __date__ = "2023-02-26"
 import logging
 from abc import abstractmethod, ABC
 from functools import wraps
-from typing import Callable, List, Union, Dict, Tuple, Literal
+from typing import Callable, List, Union, Dict, Tuple, Literal, Sequence
 
 import numpy as np
 from scipy.stats import gamma, expon
@@ -162,7 +162,7 @@ class Parametrization(ABC):
     def plot(
             self,
             params: dict,
-            intervals: list | np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            intervals: Sequence = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             file: str = None,
             show: bool = True,
             title: str = 'discretized DFE',
@@ -596,7 +596,7 @@ class DiscreteParametrization(Parametrization):
 
     def __init__(
             self,
-            intervals: np.ndarray | list = np.array([-100000, -100, -10, -1, 0, 1, 1000])
+            intervals: Sequence = np.array([-100000, -100, -10, -1, 0, 1, 1000])
     ):
         """
         Constructor.
@@ -751,7 +751,7 @@ class DiscreteFractionalParametrization(Parametrization):
 
     def __init__(
             self,
-            intervals: np.ndarray | list = np.array([-100000, -100, -10, -1, 0, 1, 1000])
+            intervals: Sequence = np.array([-100000, -100, -10, -1, 0, 1, 1000])
     ):
         """
         Constructor.

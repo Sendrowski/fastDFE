@@ -8,7 +8,7 @@ __date__ = "2023-02-26"
 
 import logging
 from functools import cached_property, wraps
-from typing import Literal
+from typing import Literal, Sequence, Tuple
 
 import mpmath as mp
 import numpy as np
@@ -204,8 +204,8 @@ class Discretization:
     def __init__(
             self,
             n: int,
-            intervals_del: (float, float, int) = (-1.0e+8, -1.0e-5, 1000),
-            intervals_ben: (float, float, int) = (1.0e-5, 1.0e4, 1000),
+            intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
+            intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             parallelize: bool = True,
@@ -469,7 +469,7 @@ class Discretization:
 
     def get_interval_density(
             self,
-            inter: list | np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf])
+            inter: Sequence = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf])
     ) -> np.ndarray:
         """
         Get interval density.

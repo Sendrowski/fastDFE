@@ -8,7 +8,7 @@ __date__ = "2022-07-24"
 
 import logging
 from functools import cached_property
-from typing import Dict, List, Union, Iterable, Any, Literal
+from typing import Dict, List, Union, Iterable, Any, Literal, Sequence
 
 import numpy as np
 import pandas as pd
@@ -30,7 +30,7 @@ def standard_kingman(n: int) -> 'Spectrum':
     return Spectrum(pad(1 / np.arange(1, int(n))))
 
 
-def pad(counts: list | np.ndarray) -> np.ndarray:
+def pad(counts: Sequence) -> np.ndarray:
     """
     Pad array with monomorphic counts.
 
@@ -45,7 +45,7 @@ class Spectrum(Iterable):
     Class for holding and manipulating a site-frequency spectrum.
     """
 
-    def __init__(self, data: list | np.ndarray):
+    def __init__(self, data: Sequence[float]):
         """
         Initialize spectrum.
 
@@ -276,7 +276,7 @@ class Spectrum(Iterable):
         return Spectrum(self.data.copy())
 
     @staticmethod
-    def from_polymorphic(data: list | np.ndarray) -> 'Spectrum':
+    def from_polymorphic(data: Sequence) -> 'Spectrum':
         """
         Create Spectrum from polymorphic counts only.
 
@@ -286,7 +286,7 @@ class Spectrum(Iterable):
         return Spectrum([0] + list(data) + [0])
 
     @staticmethod
-    def from_list(data: list | np.ndarray) -> 'Spectrum':
+    def from_list(data: Sequence) -> 'Spectrum':
         """
         Create Spectrum from list.
 
@@ -297,7 +297,7 @@ class Spectrum(Iterable):
 
     @staticmethod
     def from_polydfe(
-            polymorphic: list | np.ndarray,
+            polymorphic: Sequence,
             n_sites: float,
             n_div: float
     ) -> 'Spectrum':
@@ -445,7 +445,7 @@ class Spectra:
     Class for holding and manipulating site-frequency spectra of multiple types.
     """
 
-    def __init__(self, data: Dict[str, list | np.ndarray]):
+    def __init__(self, data: Dict[str, Sequence]):
         """
         Initialize spectra.
 
@@ -499,7 +499,7 @@ class Spectra:
         return self.polymorphic.sum()
 
     @staticmethod
-    def from_list(data: list | np.ndarray, types: List) -> 'Spectra':
+    def from_list(data: Sequence, types: List) -> 'Spectra':
         """
         Create from array of spectra.
         Note that data.ndim needs to be 2.
