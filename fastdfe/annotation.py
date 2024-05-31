@@ -191,7 +191,7 @@ class DegeneracyAnnotation(Annotation):
         self.mismatches: List[Variant] = []
 
         #: The variant that were skipped because they were not in coding regions.
-        self.n_skipped = 0
+        self.n_skipped: int = 0
 
         #: The variants for which the codon could not be determined.
         self.errors: List[Variant] = []
@@ -1381,8 +1381,8 @@ class BaseType(Enum):
     """
     The base type, either major or minor.
     """
-    MINOR = 0
-    MAJOR = 1
+    MINOR: int = 0
+    MAJOR: int = 1
 
 
 class PolarizationPrior(ABC):

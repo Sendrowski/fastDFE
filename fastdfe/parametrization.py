@@ -606,22 +606,22 @@ class DiscreteParametrization(Parametrization):
         super().__init__()
 
         #: Intervals
-        self.intervals = np.concatenate(([-np.inf], intervals, [np.inf]))
+        self.intervals: np.ndarray = np.concatenate(([-np.inf], intervals, [np.inf]))
 
         #: Interval sizes
-        self.interval_sizes = self.intervals[1:] - self.intervals[:-1]
+        self.interval_sizes: np.ndarray = self.intervals[1:] - self.intervals[:-1]
 
         #: Number of intervals, including the two infinite ones
-        self.k = self.intervals.shape[0] - 1
+        self.k: int = self.intervals.shape[0] - 1
 
         #: All parameter names, including the fixed ones
-        self.params = np.array([f"S{i}" for i in range(self.k)])
+        self.params: np.ndarray = np.array([f"S{i}" for i in range(self.k)])
 
         #: Parameter names that are not fixed
         self.param_names: List[str] = self.params[1:-1].tolist()
 
         #: Fixed parameters
-        self.fixed_params = {self.params[0]: 0, self.params[-1]: 0}
+        self.fixed_params: Dict[str, int] = {self.params[0]: 0, self.params[-1]: 0}
 
         #: Default initial parameters
         self.x0: Dict[str, float] = dict((p, 1 / (self.k - 2)) for p in self.param_names)
@@ -761,19 +761,19 @@ class DiscreteFractionalParametrization(Parametrization):
         super().__init__()
 
         #: Intervals
-        self.intervals = np.concatenate(([-np.inf], intervals, [np.inf]))
+        self.intervals: np.ndarray = np.concatenate(([-np.inf], intervals, [np.inf]))
 
         #: Interval sizes
-        self.interval_sizes = self.intervals[1:] - self.intervals[:-1]
+        self.interval_sizes: np.ndarray = self.intervals[1:] - self.intervals[:-1]
 
         #: Number of intervals, including the two infinite ones
-        self.k = self.intervals.shape[0] - 1
+        self.k: int = self.intervals.shape[0] - 1
 
         #: All parameter names, including fixed parameters
-        self.params = np.array([f"S{i}" for i in range(self.k)])
+        self.params: np.ndarray = np.array([f"S{i}" for i in range(self.k)])
 
         #: Parameter names that are not fixed
-        self.param_names = self.params[1:-2].tolist()
+        self.param_names: List[str] = self.params[1:-2].tolist()
 
         #: Fixed parameters
         self.fixed_params = {self.params[0]: 0, self.params[-2]: 1, self.params[-1]: 0}

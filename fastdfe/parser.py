@@ -910,8 +910,8 @@ class Parser(MultiHandler):
         :param info_ancestral: The tag in the INFO field that contains ancestral allele information. Consider using
             an ancestral allele annotation if this information is not available yet.
         :param skip_non_polarized: Whether to skip poly-morphic sites that are not polarized, i.e., without a valid
-            info tag providing the ancestral allele. If ``False``, we use the reference allele as ancestral allele (
-            only recommended if working with folded spectra).
+            info tag providing the ancestral allele. If ``False``, we use the reference allele as ancestral allele
+            (only recommended if working with folded spectra).
         :param stratifications: List of stratifications to use.
         :param annotations: List of annotations to use.
         :param filtrations: List of filtrations to use. By default, we use

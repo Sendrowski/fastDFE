@@ -293,7 +293,9 @@ class BaseInference(AbstractInference):
                                      "on beneficial mutations.")
 
         #: Initial values
-        self.x0 = dict(all=self.model.x0 | self._default_x0 | (x0['all'] if 'all' in x0 else {}))
+        self.x0: Dict[str, Dict[str, float]] = dict(
+            all=self.model.x0 | self._default_x0 | (x0['all'] if 'all' in x0 else {})
+        )
 
         #: Bootstrapped MLE parameter estimates
         self.bootstraps: Optional[pd.DataFrame] = None
@@ -308,7 +310,7 @@ class BaseInference(AbstractInference):
         self.seed: int | None = int(seed) if seed is not None else None
 
         #: Random generator instance
-        self.rng = np.random.default_rng(seed=seed)
+        self.rng: np.random.Generator = np.random.default_rng(seed=seed)
 
         #: Total execution time in seconds
         self.execution_time: float = 0
@@ -571,8 +573,9 @@ class BaseInference(AbstractInference):
     def update_properties(self, **kwargs) -> Self:
         """
         Update the properties of this class with the given dictionary
-        given that its entries are not None.
+        given that its entries are not ``None``.
 
+        :meta private:
         :param kwargs: Dictionary of properties to update.
         :return: Self.
         """
