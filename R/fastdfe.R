@@ -51,7 +51,7 @@ fastdfe_is_installed <- function() {
 #' @examples
 #' \dontrun{
 #' install_fastdfe()  # Installs the latest version of fastdfe
-#' install_fastdfe("1.1.6")  # Installs version 1.1.6 of fastdfe
+#' install_fastdfe("1.1.7")  # Installs version 1.1.7 of fastdfe
 #' install_fastdfe(force = TRUE)  # Reinstalls the fastdfe module
 #' }
 #' 
