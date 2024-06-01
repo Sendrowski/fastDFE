@@ -430,14 +430,18 @@ class Spectrum(Iterable):
         )
 
     @staticmethod
-    def standard_kingman(n: int) -> 'Spectrum':
+    def standard_kingman(n: int, n_monomorphic: int = 0) -> 'Spectrum':
         """
         Get standard Kingman SFS.
 
         :param n: sample size
+        :param n_monomorphic: Number of monomorphic sites.
         :return: Standard Kingman SFS
         """
-        return standard_kingman(n)
+        sfs = standard_kingman(n)
+        sfs.data[0] = n_monomorphic
+
+        return sfs
 
 
 class Spectra:

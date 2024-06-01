@@ -53,6 +53,15 @@ class SpectraTestCase(TestCase):
         testing.assert_array_equal(np.arange(20) * 2, s[['all']].to_list()[0])
         testing.assert_array_equal(np.arange(3, 23) * 4, s[['sub']].to_list()[0])
 
+    def test_kingman_sfs(self):
+        """
+        Test that the kingman sfs is as expected.
+        """
+        np.testing.assert_array_equal(
+            Spectrum.standard_kingman(10, n_monomorphic=100).data,
+            [100, 1, 0.5, 1 / 3, 1 / 4, 1 / 5, 1 / 6, 1 / 7, 1 / 8, 1 / 9, 0]
+        )
+
     def test_create_from_spectrum_dict(self):
         """
         Test that creating a spectra from a dict of spectra works as expected.

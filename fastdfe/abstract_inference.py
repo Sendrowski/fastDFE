@@ -46,7 +46,7 @@ class Inference:
         Visualize several discretized DFEs given by the list of inference objects.
 
         :param inferences: List of inference objects.
-        :param intervals: Intervals to use for discretization.
+        :param intervals: Intervals over ``(-inf, inf)`` to use for discretization.
         :param confidence_intervals: Whether to plot confidence intervals.
         :param ci_level: Confidence level for confidence intervals.
         :param bootstrap_type: Type of bootstrap to use for confidence intervals.
@@ -365,7 +365,7 @@ class Inference:
         :param bootstrap_type: Type of bootstrap to use
         :param ci_level: Confidence interval level
         :param confidence_intervals: Whether to compute confidence intervals
-        :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bars.
+        :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
         :return: Array of values and array of errors
         """
         values = {}
@@ -503,7 +503,7 @@ class AbstractInference(ABC):
         :param bootstrap_type: Type of bootstrap
         :param ci_level: Confidence interval level
         :param confidence_intervals: Whether to return confidence intervals
-        :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
+        :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bins.
         :return: Array of values and array of deviations
         """
         values, errors = Inference.get_discretized(
@@ -538,7 +538,7 @@ class AbstractInference(ABC):
         :param confidence_intervals: Whether to plot confidence intervals
         :param file: File to save the plot to
         :param show: Whether to show the plot
-        :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bars.
+        :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
         :param ax: Axes to plot on. Only for Python visualization backend.
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes

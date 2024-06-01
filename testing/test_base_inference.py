@@ -10,6 +10,7 @@ from pandas.testing import assert_frame_equal
 from scipy.optimize import OptimizeResult
 
 import fastdfe as fd
+from fastdfe.discretization import Discretization
 from fastdfe.polydfe import PolyDFE
 from testing import TestCase
 
@@ -932,6 +933,18 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         print(context.exception)
 
+    def test_different_sfs_sample_sizes_raises_error(self):
+        """
+        Test whether a spectrum with zero monomorphic counts throws an error.
+        """
+        with self.assertRaises(ValueError) as context:
+            fd.BaseInference(
+                sfs_neut=fd.Spectrum([1000, 4, 2, 1]),
+                sfs_sel=fd.Spectrum([1000, 4, 2, 1, 0])
+            )
+
+        print(context.exception)
+
     @staticmethod
     def test_spectra_with_fractional_counts():
         """
@@ -983,3 +996,82 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf.plot_sfs_comparison(ax=axs[1], show=False, colors=['C1', 'C5'])
         inf.plot_inferred_parameters(ax=axs[2], show=False)
         inf.plot_discretized(ax=axs[3], show=True)
+
+    def test_infer_no_selection(self):
+        """
+        Test whether we infer a mostly neutral DFE when there is no selection.
+        """
+        sfs = fd.Spectrum.standard_kingman(10, n_monomorphic=100)
+
+        # use different scalings which should not affect the result
+        for m in [1, 10, 0.1, sfs]:
+            inf = fd.BaseInference(
+                sfs_neut=sfs * m,
+                sfs_sel=sfs * m,
+                seed=42,
+                model=fd.DiscreteFractionalParametrization(
+                    intervals=np.array([-100000, -0.1, 0.1, 10000])
+                )
+            )
+
+            inf.run()
+
+            # check that DFE is very neutral
+            self.assertAlmostEqual(1, inf.get_discretized(intervals=np.array([-100000, -0.1, 0.1, 10000]))[0][1])
+
+    def test_infer_strongly_deleterious_selection_target_sites(self):
+        """
+        Test whether we infer a strongly deleterious DFE when there is strong selection.
+        """
+        # use different mutational target sizes
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum.standard_kingman(10, n_monomorphic=100),
+            sfs_sel=fd.Spectrum.standard_kingman(10, n_monomorphic=1000),
+            seed=42
+        )
+
+        inf.run()
+
+        # check that DFE is very strongly deleterious
+        self.assertGreaterEqual(inf.get_discretized()[0][0], 0.8)
+
+    def test_infer_deleterious_selection_sfs_shape(self):
+        """
+        Test whether we infer a deleterious DFE when there is selection.
+        """
+        n = 10
+
+        sfs_neut = fd.Spectrum.standard_kingman(n, n_monomorphic=100)
+        sfs_sel = fd.Spectrum.from_polymorphic(
+            Discretization(n=n).get_allele_count_regularized(-10 * np.ones(n - 1), np.arange(1, n))
+        )
+        sfs_sel.data[0] = 100
+
+        # use different mutational target sizes
+        inf = fd.BaseInference(
+            sfs_neut=sfs_neut,
+            sfs_sel=sfs_sel,
+            seed=42
+        )
+
+        inf.run()
+
+        # check that DFE is very deleterious
+        self.assertAlmostEqual(1, inf.get_discretized(np.array([-np.inf, -1, np.inf]))[0][0])
+
+    def test_infer_beneficial_selection_target_sites(self):
+        """
+        Test whether we infer a weakly beneficial DFE when there is weak selection.
+        """
+        # use different mutational target sizes
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum.standard_kingman(10, n_monomorphic=100),
+            sfs_sel=fd.Spectrum.standard_kingman(10, n_monomorphic=10),
+            seed=42
+        )
+
+        inf.run()
+
+        # check that DFE is very weakly beneficial
+        self.assertGreaterEqual(inf.get_discretized()[0][-1], 0.4)
+

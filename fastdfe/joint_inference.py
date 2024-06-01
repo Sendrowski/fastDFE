@@ -967,7 +967,7 @@ class JointInference(BaseInference):
 
         :param labels: Labels for types
         :param title: Title of plot
-        :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bars.
+        :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
         :param show_marginals: Whether to also show marginal inferences
         :param bootstrap_type: Type of bootstrap
         :param ci_level: Confidence level
@@ -1271,7 +1271,7 @@ class JointInference(BaseInference):
         :param bootstrap_type: Type of bootstrap
         :param ci_level: Confidence interval level
         :param confidence_intervals: Whether to return confidence intervals
-        :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
+        :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bins.
         :return: Dictionary of array of values and array of errors indexed by inference type
         """
         return Inference.get_discretized(

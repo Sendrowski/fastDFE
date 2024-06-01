@@ -183,6 +183,9 @@ class BaseInference(AbstractInference):
             raise ValueError('Some of the provided SFS have zero polymorphic counts. '
                              'Note that we require polymorphic counts in order to infer the DFE.')
 
+        if self.sfs_neut.n != self.sfs_sel.n:
+            raise ValueError('The sample sizes of the neutral and selected SFS must be equal.')
+
         #: The DFE parametrization
         self.model: Parametrization = parametrization._from_string(model)
 

@@ -157,7 +157,7 @@ class Visualization:
         :param errors: Array of errors of size ``intervals.shape[0] - 1``, containing the discretized DFE for each type
         :param file: File path to save plot to
         :param show: Whether to show plot
-        :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bars.
+        :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
         :param ax: Axes to plot on.
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`.
         :return: Axes
