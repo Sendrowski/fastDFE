@@ -1046,7 +1046,7 @@ def parse_polydfe_sfs_config(file: str) -> Spectra:
                     'as this did not turn out to change the inference result. '
                     'The parsed spectra are thus merged together.')
 
-    def to_spectrum(data: np.array) -> Spectrum:
+    def to_spectrum(data: np.ndarray) -> Spectrum:
         """
         Parse spectrum and number of mutational target sites.
         We ignore the number of mutational target sites for divergence counts

@@ -713,7 +713,7 @@ class Visualization:
             model: Parametrization,
             params: dict,
             ax: plt.Axes,
-            s: np.array = np.linspace(-100, 100, 1000),
+            s: np.ndarray = np.linspace(-100, 100, 1000),
             file: str = None,
             show: bool = True
     ) -> plt.Axes:
@@ -744,7 +744,7 @@ class Visualization:
             model: Parametrization,
             params: dict,
             ax: plt.Axes,
-            s: np.array = np.linspace(-100, 100, 1000),
+            s: np.ndarray = np.linspace(-100, 100, 1000),
             file: str = None,
             show: bool = True
     ) -> plt.Axes:
