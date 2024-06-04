@@ -236,6 +236,8 @@ class Spectrum(Iterable):
         :param seed: Seed for random number generator.
         :return: Resampled spectrum.
         """
+        seed = None if seed is None else int(seed)
+
         return Spectrum.from_polydfe(
             # resample polymorphic sites only
             polymorphic=np.random.default_rng(seed=seed).poisson(lam=self.polymorphic),
