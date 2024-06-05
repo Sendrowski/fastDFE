@@ -64,7 +64,7 @@ class Visualization:
             # add axes if not given
             if 'ax' not in kwargs or ('ax' in kwargs and kwargs['ax'] is None):
                 # clear current figure
-                plt.clf()
+                plt.close()
 
                 kwargs['ax'] = plt.gca()
 
@@ -464,7 +464,7 @@ class Visualization:
         :param show: Whether to show plot
         :return: Axes
         """
-        plt.clf()
+        plt.close()
 
         # create a subplot with number of parameters axes
         fig, axs = plt.subplots(len(param_names), 1, figsize=(6, 1.4 * len(param_names)))
@@ -595,7 +595,7 @@ class Visualization:
         if use_subplots:
 
             # clear current figure
-            plt.clf()
+            plt.close()
 
             n_plots = len(spectra)
             n_rows = int(np.ceil(np.sqrt(n_plots)))
@@ -630,7 +630,7 @@ class Visualization:
             return Visualization.show_and_save(file, show)
 
         if ax is None:
-            plt.clf()
+            plt.close()
             _, ax = plt.subplots()
 
         # determine sample size and width
