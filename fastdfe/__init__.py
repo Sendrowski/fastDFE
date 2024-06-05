@@ -19,9 +19,6 @@ from tqdm import tqdm
 from .json_handlers import DataframeHandler, SpectrumHandler, SpectraHandler, NumpyArrayHandler
 from .spectrum import Spectrum, Spectra
 
-# set the default figure size
-# plt.rcParams['figure.figsize'] = np.array([6.4, 4.8]) * 0.8
-
 # register custom handles
 jsonpickle.handlers.registry.register(pd.DataFrame, DataframeHandler)
 jsonpickle.handlers.registry.register(Spectrum, SpectrumHandler)
