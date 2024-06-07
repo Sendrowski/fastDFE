@@ -115,10 +115,7 @@ load_fastdfe <- function(install = FALSE) {
   # configure plot
   options(repr.plot.width = 4.6, repr.plot.height = 3.2)
   
-  # use super assignment to update global reference to fastdfe
   fd <- reticulate::import("fastdfe")
-  
-  # print(fastdfe$`__version__`)
   
   # override python visualization functions
   viz <- fd$visualization$Visualization
