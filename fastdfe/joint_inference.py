@@ -681,6 +681,14 @@ class JointInference(BaseInference):
             # retry up to `n_retries` times
             for i in range(max(n_retries, 0) + 1):
 
+                # resample spectra
+                spectra = {}
+                for t in types:
+                    spectra[t] = dict(
+                        neut=sfs_neut[t].resample(seed=seed + i),
+                        sel=sfs_sel[t].resample(seed=seed + i)
+                    )
+
                 # perform joint optimization
                 # Note that it's important we bind t into the lambda function
                 # at the time of creation.
@@ -696,8 +704,8 @@ class JointInference(BaseInference):
                         discretization=discretization,
                         model=model,
                         params=correct_values(Covariate._apply(covariates, params, t), bounds, scales),
-                        sfs_neut=sfs_neut[t].resample(seed=seed + i),
-                        sfs_sel=sfs_sel[t].resample(seed=seed + i),
+                        sfs_neut=spectra[t]['neut'],
+                        sfs_sel=spectra[t]['sel'],
                         folded=folded
                     )) for t in types)
                 )
