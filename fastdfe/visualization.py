@@ -84,15 +84,18 @@ class Visualization:
         return wrapper
 
     @staticmethod
-    def show_and_save(file: str = None, show: bool = True) -> plt.Axes:
+    def show_and_save(file: str = None, show: bool = True, pad: float = 1.08) -> plt.Axes:
         """
         Show and save plot.
 
         :param file: File path to save plot to
         :param show: Whether to show plot
+        :param pad: Padding for tight layout
         :return: Axes
 
         """
+        plt.tight_layout(pad=pad)
+
         # save figure if file path given
         if file is not None:
             plt.savefig(file, dpi=200, bbox_inches='tight', pad_inches=0.1)
@@ -500,10 +503,8 @@ class Visualization:
             else:
                 [l.set_rotation(90) for l in ax.get_xticklabels()]
 
-        plt.tight_layout(pad=.3)
-
         # show and save plot
-        return Visualization.show_and_save(file, show)
+        return Visualization.show_and_save(file, show, pad=0.3)
 
     @staticmethod
     def get_color(
@@ -622,9 +623,6 @@ class Visualization:
 
             # make empty plots invisible
             [ax.set_visible(False) for ax in axes[n_plots:]]
-
-            # make layout tight
-            plt.tight_layout()
 
             # show and save plot
             return Visualization.show_and_save(file, show)
