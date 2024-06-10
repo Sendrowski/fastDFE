@@ -3,6 +3,7 @@
 /snakemake/results/
 /snakemake/scratch/
 /reports/
+/presentations/
 /docs/_build/
 .snakemake/
 .snakemake_timestamp
