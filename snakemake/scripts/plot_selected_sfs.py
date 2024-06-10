@@ -25,7 +25,7 @@ except ModuleNotFoundError:
     # testing
     testing = True
     n = 7
-    S = 7
+    S = -10
     out = "scratch/sfs_selected.png"
 
 from fastdfe.discretization import Discretization
@@ -40,6 +40,9 @@ d = Discretization(
 k = np.arange(1, n)
 s = Spectrum.from_polymorphic(d.get_allele_count_regularized(S * np.ones_like(k), k))
 
-s.plot(file=out, show=testing)
+plt.figure(figsize=(2, 2))
+s.plot(file=out, show=False, title=f"S = {S}", ax=plt.gca())
+plt.gca().set_ylim(bottom=0, top=1.25)
+plt.show()
 
 pass
