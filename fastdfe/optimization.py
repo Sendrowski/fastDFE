@@ -691,7 +691,7 @@ def check_bounds(
 class SharedParams:
     """
     Class specifying the sharing of params among types.
-    'all' means all available types or params.
+    ``all`` means all available types or params.
 
     Example usage:
 
@@ -737,6 +737,21 @@ class Covariate:
     with one or many parameters. The relationship is defined
     by a callback function which modifies the parameters. The
     default callback introduces a linear relationship.
+
+    Below an example of introducing linear covariates for ``S_d``, the for mean strength of deleterious
+    mutations (cf. :class:`~fastdfe.parametrization.GammaExpParametrization`). Each
+    of the three types is associated with one covariate. This we pass to
+    :class:`~fastdfe.joint_inference.JointInference` together with the stratified spectra:
+
+    ::
+
+        import fastdfe as fd
+
+        cov = fd.Covariate(
+            param='S_d',
+            values=dict(type1=5, type2=3, type3=1)
+        )
+
     """
 
     #: The parameter to modify
