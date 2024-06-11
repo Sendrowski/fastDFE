@@ -387,6 +387,7 @@ class Visualization:
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`.
         :return: Axes
         """
+        labels = list(labels)
         n_types = len(values)
 
         width_total = 0.9
