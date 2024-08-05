@@ -1,8 +1,8 @@
-name: dev-fastdfe-v-11
+name: dev-fastdfe-v12
 channels:
   - conda-forge
 dependencies:
-  - python=3.11
+  - python=3.12
   - dadi
   - r-base
   - rpy2
