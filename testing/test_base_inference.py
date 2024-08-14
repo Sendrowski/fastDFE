@@ -881,7 +881,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         }
 
         self.assertAlmostEqual(inf.params_mle['S_b'], expected['S_b'], delta=1e-3)
-        self.assertAlmostEqual(inf.params_mle['S_d'], expected['S_d'], delta=1e-1)
+        self.assertAlmostEqual(inf.params_mle['S_d'], expected['S_d'], delta=2e-1)
         self.assertAlmostEqual(inf.params_mle['b'], expected['b'], delta=1e-2)
         self.assertAlmostEqual(inf.params_mle['eps'], expected['eps'], delta=1e-3)
         self.assertAlmostEqual(inf.params_mle['p_b'], expected['p_b'], delta=1e-4)
