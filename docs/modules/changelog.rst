@@ -3,6 +3,11 @@
 Changelog
 =========
 
+[1.1.8] - 2024-08-14
+^^^^^^^^^^^^^^^^^^^^
+- Update cyvcf2 dependency to fix broken wheel for Mac ARM (see `issue <https://github.com/brentp/cyvcf2/issues/305>`_)
+- Fix problem with remote files when disabling file caching
+
 [1.1.7] - 2024-05-31
 ^^^^^^^^^^^^^^^^^^^^
 - Implement serialization of maximum likelihood ancestral annotation to allow for later inspection of results.
