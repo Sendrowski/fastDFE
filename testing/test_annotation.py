@@ -174,6 +174,33 @@ class AnnotationTestCase(TestCase):
         assert ann.n_sites == 1517
 
     @staticmethod
+    def test_degeneracy_annotation_human_test_genome_uncached():
+        """
+        Test the degeneracy annotator on a small human genome.
+        """
+        deg = fd.DegeneracyAnnotation()
+
+        vcf = "resources/genome/sapiens/chr21_test.vcf.gz"
+
+        ann = fd.Annotator(
+            vcf=vcf,
+            output='scratch/test_degeneracy_annotation_human_test_genome.vcf',
+            fasta="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr21.fa.gz",
+            gff="resources/genome/sapiens/hg38.sorted.gtf.gz",
+            annotations=[deg],
+            cache=False
+        )
+
+        ann.annotate()
+
+        # assert number of sites is the same
+        assert count_sites(vcf) == count_sites(ann.output)
+
+        # assert number of annotated sites and total number of sites
+        assert deg.n_annotated == 7
+        assert ann.n_sites == 1517
+
+    @staticmethod
     def test_degeneracy_annotation_human_test_genome_remote_fasta_gzipped():
         """
         Test the degeneracy annotator on a small human genome with a remote gzipped fasta file.

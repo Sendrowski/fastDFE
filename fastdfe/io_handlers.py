@@ -297,14 +297,12 @@ class FileHandler:
                         pbar.update(len(chunk))
 
         # rename the file to the original file extension
-        if cache:
-            os.rename(tmp.name, path)
+        os.rename(tmp.name, path)
 
+        if cache:
             cls._logger.info(f'Cached file at {path}')
 
-            return path
-
-        return tmp.name
+        return path
 
     def get_aliases(self, contig: str) -> List[str]:
         """
