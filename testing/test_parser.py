@@ -59,8 +59,7 @@ class ParserTestCase(TestCase):
             vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
             n=20,
             stratifications=[],
-            subsample_mode='probabilistic',
-            max_sites=10000
+            subsample_mode='probabilistic'
         )
 
         sfs = p1.parse().all
@@ -72,9 +71,12 @@ class ParserTestCase(TestCase):
 
         sfs2 = dadi.Spectrum.from_data_dict(data_dict, ['pop0'], [20], polarized=True)
 
+        assert np.abs(sfs.data.sum() - sfs2.data.sum()) < 1e-08
+
         diff_rel = np.abs(sfs.data - sfs2.data) / sfs2.data
 
-        assert diff_rel.max() < 1e-12
+        # used to be 1e-12 but dadi was updated
+        assert diff_rel.max() < 1e-4
 
     @staticmethod
     @pytest.mark.slow
