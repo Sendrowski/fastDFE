@@ -6,7 +6,7 @@ dependencies:
   - r-base
   - rpy2
   - r-rjsonio
-  - pip
+  - pip=24.1 # problems with version 24.2
   - pip:
       - pytest
       - pytest-xdist
