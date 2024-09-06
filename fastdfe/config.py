@@ -67,8 +67,9 @@ class Config:
             the mutation rate.
         :param sfs_sel: Selected SFS. Note that we require monomorphic counts to be specified in order to infer
             the mutation rate.
-        :param intervals_del: Integration intervals for deleterious mutations in log space.
-        :param intervals_ben: Integration intervals for beneficial mutations in log space.
+        :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
+            selection coefficients. The intervals will be log10-spaced.
+        :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
         :param integration_mode: Integration mode, ``quad`` not recommended
         :param linearized: Whether to use the linearized version of the DFE, ``False`` not recommended.
         :param model: Parametrization of the DFE.

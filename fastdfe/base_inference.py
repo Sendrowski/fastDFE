@@ -130,9 +130,9 @@ class BaseInference(AbstractInference):
             used.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
+        :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
         :param integration_mode: Integration mode for the DFE, ``quad`` not recommended
         :param linearized: Whether to use the linearized DFE, ``False`` not recommended
-        :param intervals_ben: Same as for intervals_del but for beneficial selection coefficients.
         :param model: Instance of DFEParametrization which parametrized the DFE
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{'all': {param: value}}``

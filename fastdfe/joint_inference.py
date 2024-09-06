@@ -106,7 +106,7 @@ class JointInference(BaseInference):
         :param include_divergence: Whether to include divergence in the likelihood
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
-        :param intervals_ben: Same as intervals_del but for beneficial selection coefficients
+        :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
         :param integration_mode: Integration mode, ``quad`` not recommended
         :param linearized: Whether to use the linearized model, ``False`` not recommended
         :param model: DFE parametrization
