@@ -510,7 +510,7 @@ class GammaDiscreteParametrization(Parametrization):
         """
         Get PDF.
 
-        :param S_d: Mean of the DFE for S >= 0
+        :param S_d: Mean of the DFE for S < 0
         :param b: Shape of the gamma distribution
         :param p_b: Probability that S > 0
         :param S_b: Shared selection coefficient of all positively selected mutations up to S_b
@@ -544,7 +544,7 @@ class GammaDiscreteParametrization(Parametrization):
         """
         Get CDF.
 
-        :param S_d: Mean of the DFE for S >= 0
+        :param S_d: Mean of the DFE for S < 0
         :param b: Shape of the gamma distribution
         :param p_b: Probability that S > 0
         :param S_b: Shared selection coefficient of all positively selected mutations up to S_b
