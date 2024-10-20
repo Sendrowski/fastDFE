@@ -123,10 +123,10 @@ class BaseInference(AbstractInference):
         Create BaseInference instance.
 
         :param sfs_neut: The neutral SFS. Note that we require monomorphic counts to be specified in order to infer
-            the mutation rate. If a ``Spectra`` object with more than one SFS is provided, the ``all`` attribute will be
+            the mutation rate. If a :class:`~fastdfe.spectrum.Spectra` object with more than one SFS is provided, the ``all`` attribute will be
             used.
         :param sfs_sel: The selected SFS. Note that we require monomorphic counts to be specified in order to infer
-            the mutation rate. If a ``Spectra`` object with more than one SFS is provided, the ``all`` attribute will be
+            the mutation rate. If a :class:`~fastdfe.spectrum.Spectra` object with more than one SFS is provided, the ``all`` attribute will be
             used.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
@@ -143,11 +143,11 @@ class BaseInference(AbstractInference):
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
-        :param fixed_params: Parameters held fixed when optimization, i.e., ``{'all': {param: value}}``
+        :param fixed_params: Parameters held fixed during optimization, i.e., ``{'all': {param: value}}``
         :param do_bootstrap: Whether to do bootstrapping.
         :param n_bootstraps: Number of bootstraps.
         :param n_bootstrap_retries: Number of retries for bootstraps that did not terminate normally.
-        :param parallelize: Whether to parallelize the bootstrapping.
+        :param parallelize: Whether to parallelize computations.
         :param folded: Whether the SFS are folded. If not specified, the SFS will be folded if both of the given
             SFS appear to be folded.
         :param discretization: Discretization instance. Mainly intended for internal use.
@@ -1200,6 +1200,9 @@ class BaseInference(AbstractInference):
     def lrt(self, ll_simple: float, ll_complex: float, df: int = 1) -> float:
         """
         Perform the likelihood ratio test (LRT).
+
+        .. note::
+            We do not adjust the test for parameters that are on the boundary of the parameter space.
 
         :param ll_simple: Log-likelihood of the simple model.
         :param ll_complex: Log-likelihood of the complex model.

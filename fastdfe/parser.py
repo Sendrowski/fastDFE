@@ -770,21 +770,19 @@ class TargetSiteCounter:
         # we only want to consider the monomorphic sites sampled from the FASTA file
         spectra.data.iloc[[0, -1], :] -= self._sfs_polymorphic.data.iloc[[0, -1], :]
 
-        # get number of monomorphic and polymorphic sites sampled from the FASTA and VCF file, respectively
+        # get number of monomorphic and polymorphic sites sampled from the FASTA and VCF file
         n_monomorphic = spectra.data.iloc[0, :].sum()
         n_polymorphic = spectra.data.iloc[1:, :].sum().sum()
 
         # check if we have enough target sites
         if self.n_target_sites < n_polymorphic:
-            self._logger.warning(f"Number of polymorphic sites ({n_polymorphic}) exceeds the "
+            self._logger.warning(f"Number of polymorphic sites ({n_polymorphic}) exceeds the total "
                                  f"number of target sites ({self.n_target_sites}) which does not make sense. "
-                                 f"We leave the number of target sites unchanged. "
-                                 f"Please remember to modify the number of target sites accordingly "
-                                 f"if your VCF file contains only contains polymorphic sites.")
+                                 f"The number of target sites unchanged is left unchanged.")
         elif n_monomorphic == 0:
             self._logger.warning(f"Number of monomorphic sites is zero which should only happen "
-                                 f"if there are very few sites considered. Failed to update "
-                                 f"the number of target sites.")
+                                 f"if there are very few sites considered. Failed to adjust "
+                                 f"the number of monomorphic sites.")
         else:
 
             # compute multiplicative factor to scale the total number of sites

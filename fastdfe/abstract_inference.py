@@ -561,9 +561,9 @@ class AbstractInference(ABC):
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
             ci_level: float = 0.05,
             param_names: Optional[list[str]] = None
-    ):
+    ) -> Dict[str, Tuple[float, float]]:
         """
-        Get confidence intervals for the parameters.
+        Get confidence intervals for the MLE parameters.
 
         :param bootstrap_type: Type of bootstrap
         :param ci_level: Confidence interval level

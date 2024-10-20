@@ -124,7 +124,7 @@ class JointInference(BaseInference):
         :param do_bootstrap: Whether to perform bootstrapping
         :param n_bootstraps: Number of bootstraps
         :param n_bootstrap_retries: Number of retries for bootstraps that did not terminate normally.
-        :param parallelize: Whether to parallelize the optimization
+        :param parallelize: Whether to parallelize computations
         :param folded: Whether the SFS are folded. If not specified, the SFS will be folded if all of the given
             SFS appear to be folded.
         :param kwargs: Additional keyword arguments which are ignored.

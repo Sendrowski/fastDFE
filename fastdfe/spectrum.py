@@ -161,9 +161,8 @@ class Spectrum(Iterable):
     @cached_property
     def theta(self) -> float:
         """
-        Calculate site-wise theta using Watterson's estimator.
-
-        :return: Site-wise theta
+        Calculate population mutation rate using Watterson's estimator **divided
+        by** the total number of sites  (:attr:`n_sites`).
         """
         return self.n_polymorphic / np.sum(1 / np.arange(1, self.n)) / self.n_sites
 
