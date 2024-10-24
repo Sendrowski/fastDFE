@@ -4,6 +4,6 @@ VCF Annotation
 --------------
 
 .. automodule:: fastdfe.annotation
-   :members:
+   :inherited-members:
    :undoc-members:
    :show-inheritance:
