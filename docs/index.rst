@@ -82,6 +82,7 @@ Contents
    modules/parser
    modules/annotation
    modules/filtration
+   modules/simulation
 
 .. toctree::
    :caption: Miscellaneous

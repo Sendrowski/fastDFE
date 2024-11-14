@@ -124,6 +124,7 @@ from .abstract_inference import Inference
 from .base_inference import BaseInference, InferenceResults
 from .joint_inference import JointInference, SharedParams
 from .optimization import Covariate
+from .simulation import Simulation
 from .spectrum import Spectrum, Spectra
 from .parser import Parser, Stratification, BaseTransitionStratification, BaseContextStratification, \
     DegeneracyStratification, TransitionTransversionStratification, AncestralBaseStratification, \
@@ -149,6 +150,7 @@ __all__ = [
     'Inference',
     'BaseInference',
     'JointInference',
+    'Simulation',
     'SharedParams',
     'Covariate',
     'Spectrum',
