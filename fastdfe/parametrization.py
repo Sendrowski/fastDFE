@@ -220,7 +220,8 @@ class GammaExpParametrization(Parametrization):
     * :math:`\mathbf{1}_{\{A\}}` denotes the indicator function, which is 1 if :math:`A` is true, and 0 otherwise.
 
     The DFE has often been observed to be multi-modal for negative selection coefficients. A gamma distribution
-    provides a good amount of flexibility to accommodate this.
+    provides a good amount of flexibility to accommodate this. Note that all :math:`S` parameters are population-scaled
+    selection coefficients, i.e. :math:`S = 4N_es`.
 
     """
 
@@ -359,7 +360,8 @@ class DisplacedGammaParametrization(Parametrization):
 
     This parametrization uses a single gamma distribution for both positive and negative selection coefficients.
     This is a less flexible parametrization, which may produce results similar to the other models while requiring
-    fewer parameters.
+    fewer parameters. Note that all :math:`S` parameters are population-scaled selection coefficients, i.e.
+    :math:`S = 4N_es`.
 
     .. warning::
         This model does not allow for a purely deleterious sub-parametrization, so
@@ -469,7 +471,8 @@ class GammaDiscreteParametrization(Parametrization):
     * :math:`f_\Gamma(x; m, b)` is the density of the gamma distribution with mean :math:`m` and shape :math:`b`
 
     This parametrization is similar to :class:`GammaExpParametrization`, but uses a constant mass for positive
-    selection coefficients. The results should be rather similar in most cases.
+    selection coefficients. The results should be rather similar in most cases. Note that all :math:`S` parameters
+    are population-scaled selection coefficients, i.e. :math:`S = 4N_es`.
     """
 
     #: Default initial parameters
@@ -591,7 +594,8 @@ class DiscreteParametrization(Parametrization):
     This parametrization has the advantage of not imposing a shape on the DFE. For a reasonably fine parametrization,
     the number of parameters is larger than those of the other models, however. We generally also observe larger
     confidence intervals for this parametrization, and the optimization procedure may well be less efficient as
-    we have to re-normalize the parameters to make sure they sum up to 1.
+    we have to re-normalize the parameters to make sure they sum up to 1. Note that all :math:`S` parameters are
+    population-scaled selection coefficients, i.e. :math:`S = 4N_es`.
     """
 
     def __init__(
@@ -746,7 +750,8 @@ class DiscreteFractionalParametrization(Parametrization):
     This parametrization has the advantage of not imposing a shape on the DFE. For a reasonably fine parametrization,
     the number of parameters is larger than those of the other models, however. It is more easily optimized than
     :class:`DiscreteParametrization` as it has one parameter less but its parameters are more difficult to interpret.
-    One disadvantage with discrete parametrizations is that there may be `gaps` in the estimated DFE.
+    One disadvantage with discrete parametrizations is that there may be `gaps` in the estimated DFE. Note that all
+    :math:`S` parameters are population-scaled selection coefficients, i.e. :math:`S = 4N_es`.
     """
 
     def __init__(
