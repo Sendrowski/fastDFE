@@ -226,7 +226,13 @@ class Spectrum(Iterable):
                 # add subsampled counts
                 subsample += m * probs
 
-        return Spectrum(subsample)
+        sfs = Spectrum(subsample)
+
+        # fold if original spectrum was folded
+        if self.is_folded():
+            sfs = sfs.fold()
+
+        return sfs
 
     def resample(self, seed: int = None) -> 'Spectrum':
         """

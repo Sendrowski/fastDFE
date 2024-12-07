@@ -549,7 +549,40 @@ class SpectraTestCase(TestCase):
 
         self.assertTrue(np.all(diff_rel < 0.1))
 
-    def test_subsample_spectrum_probabilistic_vs_random(self):
+    def test_subsample_folded_spectrum(self):
+        """
+        Test whether the subsample method works as expected.
+        """
+        kingman = (Spectrum.standard_kingman(30) * 10000).fold()
+
+        sub = kingman.subsample(10, mode='probabilistic')
+
+        truth = (Spectrum.standard_kingman(10) * 10000).fold()
+
+        self.assertTrue(np.all(np.abs(truth.data[1:] - sub.data[1:]) < 1e-12))
+
+    def test_subsample_spectrum_probabilistic_vs_random_folded(self):
+        """
+        Test random vs probabilistic subsampling.
+        """
+        kingman = (Spectrum.standard_kingman(30) * 10000).fold()
+
+        sub_random = kingman.subsample(10, mode='random')
+        sub_probabilistic = kingman.subsample(10, mode='probabilistic')
+
+        s = Spectra.from_spectra(dict(
+            actual=(Spectrum.standard_kingman(10) * 10000).fold(),
+            random=sub_random,
+            probabilistic=sub_probabilistic
+        ))
+
+        s.plot()
+
+        diff_rel = np.abs(s['actual'].polymorphic - s['probabilistic'].polymorphic) / s['probabilistic'].polymorphic
+
+        self.assertTrue(np.all(diff_rel[:5] < 1e-15))
+
+    def test_subsample_spectrum_probabilistic_vs_random_unfolded(self):
         """
         Test random vs probabilistic subsampling.
         """
