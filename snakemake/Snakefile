@@ -113,7 +113,9 @@ wildcard_constraints:
     pop="[a-zA-Z]+",
     param="[a-zA-Z0-9_]+",
     config='\w+',
-    population='\w+'
+    population='\w+',
+    chunk='\d+',
+    n='\d+',
 
 hominidae = [
     'bonobo',
@@ -132,21 +134,21 @@ rule all:
         (
             #"../docs/_build"
             #"results/slim/L=100000.trees",
-            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png", n_replicate=[1], g=[10], n=[20], L=[int(1e10)], mu=[1e-8], N=[1000], s_b=[0, 0.01, 0.1], b=[1], s_d=[0, 0.01, 0.1], p_b=[0.05, 0.2]),
-            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png", n_replicate=[1], g=[1000, 10000], n=[20], L=[int(1e9)], mu=[1e-9], r=[1e-9], N=[1000], s_b=[0], b=[1], s_d=[0], p_b=[0.05]),
-            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png", n_replicate=[1], g=[10], n=[20], L=[int(1e10)], mu=[1e-8], N=[1000], s_b=[0, 0.01, 0.1], b=[1], s_d=[0, 0.01, 0.1], p_b=[0.05, 0.2]),
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png", n_replicate=[1], g=[1000, 10000], n=[20], L=[int(1e9)], mu=[1e-9], r=[1e-9], N=[1000], s_b=[0], b=[1], s_d=[0], p_b=[0.05]),
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
             #    n_replicate=[1, 2],g=[10000],n=[10, 20],L=[int(1e9)],mu=[1e-9],
             #    r=[1e-9],N=[10000],s_b=[0, 0.05],b=[1],s_d=[0, 0.1],p_b=[0.2]),
-            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
             #    n_replicate=[1],g=["1e4", "2e4", "4e4", "8e4", "16e4"],n=[10],L=["1e8"],mu=["1e-9"],
             #    r=["1e-9"],N=["1e4"],s_b=["5e-3"],b=[1],s_d=["1e-4"],p_b=[0.2]),
-            #expand("results/graphs/spectra/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png",
+            #expand("results/graphs/spectra/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png",
             #    n_replicate=[1],g=["1e4", "2e4", "4e4", "8e4", "16e4"],n=[10],L=["1e8"],mu=["1e-9"],
             #    r=["1e-9"],N=["1e4"],s_b=["1e-9"],b=[1],s_d=["1e-4"],p_b=[0.2]),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png",
-                n_replicate=[1, 2],g=["1e4"],n=[5, 10, 30, 100],L=["1e9"],mu=["1e-8"],
-                r=["1e-7"],N=["1e3"],s_b=["1e-9"],b=[1],s_d=["1e-4"],p_b=[0.2]),
-            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
+            expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png",
+                n_replicate=[1],n_chunks=[10],g=["1e4"],n=[5, 10, 30, 100],L=["1e8"],mu=["1e-8"],
+                r=["1e-7"],N=["1e3"],s_b=["1e-9"],b=[1],s_d=["1e-1"],p_b=[0.2]),
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
             #    n_replicate=[1, 2],g=[10000],n=[20],L=[int(1e10)],mu=[1e-9],
             #    r=[1e-9],N=[1000],s_b=[0.01],b=[1, 10],s_d=[0.1],p_b=[0.1]),
             #expand("results/graphs/fastdfe/arabidopsis/cov/{param}/{col}/{n_bins}.{subsample_size}.params.png", param=['S_d', 'b'], col=['mean.rsa', 'mean.DGrantham', 'mean.dis'], n_bins=[5, 10, 15], subsample_size=[10, 20, 30]),
@@ -1359,7 +1361,7 @@ use rule * from subset_vcf
 # simulate trees using SLiM
 rule simulate_trees_slim:
     output:
-        "results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/sequence.trees"
+        "results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/chunk={chunk}/sequence.trees"
     params:
         g=lambda w: int(float(w.g)),
         L=lambda w: int(float(w.L)),
@@ -1391,11 +1393,11 @@ rule simulate_trees_slim:
 # parse SLiM trees
 rule compute_sfs_slim:
     input:
-        "results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/sequence.trees"
+        "results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/chunk={chunk}/sequence.trees"
     output:
-        sfs="results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv",
-        ds_continuous="results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/s.simulated.continuous.png",
-        ds_discretized="results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/s.simulated.discretized.png"
+        sfs="results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/chunk={chunk}/sfs.csv",
+        ds_continuous="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/chunk={chunk}/s.simulated.continuous.png",
+        ds_discretized="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/chunk={chunk}/s.simulated.discretized.png"
     params:
         n=lambda w: int(w.n),
         L=lambda w: int(float(w.L)),
@@ -1410,12 +1412,23 @@ rule compute_sfs_slim:
     script:
         "scripts/compute_sfs_slim.py"
 
+# merge chunks
+rule merge_chunks_sfs_slim:
+    input:
+        lambda w: expand("results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/chunk={chunk}/sfs.csv",chunk=range(int(w.n_chunks)), allow_missing=True)
+    output:
+        "results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/sum_spectra.py"
+
 # plot DFE simulated using SLiM
 rule plot_dfe_slim:
     input:
-        "results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv"
+        "results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv"
     output:
-        "results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.simulated.png"
+        "results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.simulated.png"
     params:
         mu=lambda w: float(w.mu),
         s_b=lambda w: float(w.s_b),
@@ -1430,14 +1443,14 @@ rule plot_dfe_slim:
 # infer DFE using fastdfe from SLiM trees
 rule infer_dfe_slim:
     input:
-        "results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv"
+        "results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv"
     output:
-        serialized="results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/serialized.json",
-        summary="results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/summary.json",
-        dfe="results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.inferred.png",
-        model_fit="results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/model_fit.png",
-        spectra="results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/spectra.png",
-        params="results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/params.png"
+        serialized="results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/serialized.json",
+        summary="results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/summary.json",
+        dfe="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.inferred.png",
+        model_fit="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/model_fit.png",
+        spectra="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/spectra.png",
+        params="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/params.png"
     conda:
         "envs/base.yaml"
     script:
@@ -1446,10 +1459,10 @@ rule infer_dfe_slim:
 # simulate SFS using fastDFE
 rule simulate_sfs:
     input:
-        "results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv"
+        "results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv"
     output:
-        sfs="results/sfs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv",
-        comp="results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png"
+        sfs="results/sfs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv",
+        comp="results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png"
     params:
         mu=lambda w: float(w.mu),
         s_b=lambda w: float(w.s_b),
@@ -1465,10 +1478,10 @@ rule simulate_sfs:
 # combine DFE plots
 rule combine_dfe_plots_slim:
     input:
-        "results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.simulated.png",
-        "results/graphs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.inferred.png"
+        "results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.simulated.png",
+        "results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.inferred.png"
     output:
-        "results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png"
+        "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png"
     conda:
         "envs/base.yaml"
     script:

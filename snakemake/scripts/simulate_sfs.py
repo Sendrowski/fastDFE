@@ -25,7 +25,7 @@ try:
 except NameError:
     # testing
     testing = True
-    sfs_file = 'results/slim/n_replicate=1/g=2e4/L=1e8/mu=1e-8/r=1e-9/N=1e3/s_b=1e-9/b=1/s_d=1e-3/p_b=0.2/n=10/sfs.csv'
+    sfs_file = 'results/slim/n_replicate=1/n_chunks=10/g=1e4/L=1e8/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=1/s_d=1e-1/p_b=0.2/n=30/sfs.csv'
     s_b = 1e-9
     b = 1
     s_d = 1e-3
