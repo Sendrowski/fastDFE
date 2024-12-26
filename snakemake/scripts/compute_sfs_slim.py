@@ -1,5 +1,5 @@
 """
-Parse SLiM trees file and return a list of trees.
+Compute the site frequency spectrum (SFS) for selected and neutral sites in a tree sequence.
 """
 
 __author__ = "Janek Sendrowski"
@@ -63,7 +63,7 @@ n_repeat_sel = 0
 # selection coefficients
 s = np.zeros(ts.num_mutations)
 
-for i, var in tqdm(enumerate(ts.variants())):
+for i, var in tqdm(enumerate(ts.variants()), desc='Computing selected SFS'):
     for mut in var.site.mutations:
         s[j] = mut.metadata['mutation_list'][0]['selection_coeff']
         j += 1
@@ -73,6 +73,8 @@ for i, var in tqdm(enumerate(ts.variants())):
     # add hypergeometric counts
     sfs_sel += hypergeom.pmf(k=range(n + 1), M=ts.sample_size, n=np.sum(var.genotypes > 0), N=n)
 
+print(f"Repeat mutations (selected): {n_repeat_sel}")
+
 # add monomorphic sites
 sfs_sel[0] = L - sfs_sel.sum()
 
@@ -81,16 +83,14 @@ ts = ms.sim_mutations(ts, rate=mu, keep=False)
 sfs_neut = np.zeros(n + 1)
 n_repeat_neut = 0
 
-for var in tqdm(ts.variants()):
+for var in tqdm(ts.variants(), desc='Computing neutral SFS'):
     n_repeat_neut += int(len(var.site.mutations) > 1)
     sfs_neut += hypergeom.pmf(k=range(n + 1), M=ts.sample_size, n=np.sum(var.genotypes > 0), N=n)
 
+print(f"Repeat mutations (neutral): {n_repeat_neut}")
+
 # add monomorphic sites
 sfs_neut[0] = L - sfs_neut.sum()
-
-# print the number of repeated sites
-print(f"Repeat mutations (selected): {n_repeat_sel}")
-print(f"Repeated mutations (neutral): {n_repeat_neut}")
 
 # save as csv using pandas
 spectra = pd.DataFrame(dict(neutral=sfs_neut, selected=sfs_sel))

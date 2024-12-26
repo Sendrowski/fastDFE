@@ -138,8 +138,14 @@ rule all:
             #    n_replicate=[1, 2],g=[10000],n=[10, 20],L=[int(1e9)],mu=[1e-9],
             #    r=[1e-9],N=[10000],s_b=[0, 0.05],b=[1],s_d=[0, 0.1],p_b=[0.2]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
-            #    n_replicate=[1],g=[10000],n=[10],L=[int(1e9)],mu=[1e-9],
-            #    r=[1e-9],N=[10000],s_b=[0.005],b=[1],s_d=[0.001],p_b=[0.2]),
+            #    n_replicate=[1],g=["1e4", "2e4", "4e4", "8e4", "16e4"],n=[10],L=["1e8"],mu=["1e-9"],
+            #    r=["1e-9"],N=["1e4"],s_b=["5e-3"],b=[1],s_d=["1e-4"],p_b=[0.2]),
+            #expand("results/graphs/spectra/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png",
+            #    n_replicate=[1],g=["1e4", "2e4", "4e4", "8e4", "16e4"],n=[10],L=["1e8"],mu=["1e-9"],
+            #    r=["1e-9"],N=["1e4"],s_b=["1e-9"],b=[1],s_d=["1e-4"],p_b=[0.2]),
+            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png",
+                n_replicate=[1, 2],g=["1e4"],n=[5, 10, 30, 100],L=["1e9"],mu=["1e-8"],
+                r=["1e-7"],N=["1e3"],s_b=["1e-9"],b=[1],s_d=["1e-4"],p_b=[0.2]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dfe.png",
             #    n_replicate=[1, 2],g=[10000],n=[20],L=[int(1e10)],mu=[1e-9],
             #    r=[1e-9],N=[1000],s_b=[0.01],b=[1, 10],s_d=[0.1],p_b=[0.1]),
@@ -1355,11 +1361,11 @@ rule simulate_trees_slim:
     output:
         "results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/sequence.trees"
     params:
-        g=lambda w: int(w.g),
+        g=lambda w: int(float(w.g)),
         L=lambda w: int(float(w.L)),
         mu=lambda w: float(w.mu),
         r=lambda w: float(w.r),
-        N=lambda w: int(w.N),
+        N=lambda w: int(float(w.N)),
         s_b=lambda w: float(w.s_b),
         b=lambda w: float(w.b),
         s_d=lambda w: float(w.s_d),
@@ -1394,7 +1400,7 @@ rule compute_sfs_slim:
         n=lambda w: int(w.n),
         L=lambda w: int(float(w.L)),
         mu=lambda w: float(w.mu),
-        N=lambda w: int(w.N),
+        N=lambda w: int(float(w.N)),
         s_b=lambda w: float(w.s_b),
         b=lambda w: float(w.b),
         s_d=lambda w: float(w.s_d),
@@ -1437,6 +1443,25 @@ rule infer_dfe_slim:
     script:
         "scripts/infer_dfe_slim.py"
 
+# simulate SFS using fastDFE
+rule simulate_sfs:
+    input:
+        "results/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv"
+    output:
+        sfs="results/sfs/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.csv",
+        comp="results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png"
+    params:
+        mu=lambda w: float(w.mu),
+        s_b=lambda w: float(w.s_b),
+        b=lambda w: float(w.b),
+        s_d=lambda w: float(w.s_d),
+        p_b=lambda w: float(w.p_b),
+        n=lambda w: int(w.n)
+    conda:
+        "envs/dev.yaml"
+    script:
+        "scripts/simulate_sfs.py"
+
 # combine DFE plots
 rule combine_dfe_plots_slim:
     input:
@@ -1457,3 +1482,14 @@ rule update_docs:
         "envs/dev.yaml"
     shell:
         "make html -C ../docs"
+
+# plot SFS for hgdp
+rule plot_spectra:
+    input:
+        "results/{path}/sfs.csv"
+    output:
+        "results/graphs/spectra/{path}/sfs.png"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/plot_spectra.py"

@@ -1,3 +1,14 @@
+// Parameters
+// mu: mutation rate
+// s_d: selection coefficient for deleterious mutations
+// s_b: selection coefficient for beneficial mutations
+// b: shape parameter for gamma distribution
+// p_b: proportion of beneficial mutations
+// r: recombination rate
+// N: population size
+// g: generation to stop simulation
+// length: sequence length
+
 initialize()
 {
     //setSeed(23); // For reproducibility
@@ -6,10 +17,10 @@ initialize()
     initializeMutationRate(mu); // mutation rate
 
     // gamma distribution for deleterious mutations
-    initializeMutationType("m1", 0.5, "g", -s_d, b);
+    initializeMutationType("m1", 0.5, "g", - 2 * s_d, b);
 
     // exponential distribution for beneficial mutations
-    initializeMutationType("m2", 0.5, "e", s_b);
+    initializeMutationType("m2", 0.5, "e", 2 * s_b);
 
     // adjusting the proportion of deleterious and beneficial mutations
     initializeGenomicElementType("g1", c(m1, m2), c(1 - p_b, p_b));
@@ -39,6 +50,9 @@ early()
 1:100000000
 late()
 {
+    // print status
+    cat("\r" + paste("Progress:", (community.tick / g) * 100, "% (Generation ", community.tick, " of ", g, ")"));
+
     // noinspection all
     if (community.tick == g) {
         sim.treeSeqOutput(out);
