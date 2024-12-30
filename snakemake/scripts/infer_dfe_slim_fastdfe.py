@@ -25,7 +25,7 @@ try:
 except NameError:
     # testing
     testing = True
-    sfs_file = 'results/slim/n_replicate=1/g=10000/L=10000000/mu=1e-07/r=1e-08/N=5000/s_b=0.1/b=0.2/s_d=0.03/p_b=0.1/n=10/sfs.csv'
+    sfs_file = 'snakemake/results/slim/n_replicate=1/n_chunks=40/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=2/s_d=1e0/p_b=0/n=20/unfolded/sfs.csv'
     out_summary = "scratch/summary.json"
     out_serialized = "scratch/serialized.json"
     out_dfe = "scratch/dfe.png"

@@ -240,6 +240,25 @@ class SimulationTestCase(TestCase):
 
         self.assertAlmostEqual(samples.mean(), -300 * 0.9 + 50 * 0.1, delta=10)
 
+    def test_simulation_wright_fisher_usage_example(self):
+        """
+        Test the usage example of the WrightFisherSimulation class.
+        """
+        # create simulation object by specifying neutral SFS and DFE
+        sim = fd.simulation.WrightFisherSimulation(
+            sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=int(1e7), theta=1e-4),
+            params=dict(S_d=-300, b=0.3, p_b=0.1, S_b=0.1),
+            model=fd.GammaExpParametrization(),
+            pop_size=100,
+            n_generations=500
+        )
+
+        # perform the simulation
+        sfs_sel = sim.run()
+
+        # plot SFS
+        sfs_sel.plot()
+
     @pytest.mark.skip(reason="takes too long for reasonable values")
     def test_simulation_against_wright_fisher_neutral(self):
         """

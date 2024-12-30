@@ -456,7 +456,7 @@ class Spectra:
     Class for holding and manipulating site-frequency spectra of multiple types.
     """
 
-    def __init__(self, data: Dict[str, Sequence]):
+    def __init__(self, data: Dict[str, Iterable]):
         """
         Initialize spectra.
 

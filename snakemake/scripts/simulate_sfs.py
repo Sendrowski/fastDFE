@@ -6,6 +6,8 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2024-12-25"
 
+from matplotlib import pyplot as plt
+
 try:
     import sys
 
@@ -20,18 +22,20 @@ try:
     p_b = snakemake.params.p_b
     n = snakemake.params.n
     mu = snakemake.params.mu
+    title = snakemake.params.title
     out_sfs = snakemake.output.sfs
     out_comparison = snakemake.output.comp
 except NameError:
     # testing
     testing = True
-    sfs_file = 'results/slim/n_replicate=1/n_chunks=10/g=1e4/L=1e8/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=1/s_d=1e-1/p_b=0.2/n=30/sfs.csv'
+    sfs_file = 'snakemake/results/slim/n_replicate=2/n_chunks=20/g=2e4/L=1e8/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=10/s_d=1e1/p_b=0/n=20/sfs.csv'
     s_b = 1e-9
     b = 1
     s_d = 1e-3
     p_b = 0.2
     n = 10
     mu = 1e-8
+    title = "g=1e4/L=1e8/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=1/s_d=1e-1/p_b=0.2"
     out_sfs = "scratch/sfs.csv"
     out_comparison = "scratch/comp.png"
 
@@ -65,6 +69,7 @@ comp = fd.Spectra(dict(
     fastdfe=sfs_sel
 ))
 
-comp.plot(file=out_comparison, show=testing)
+plt.rcParams['axes.titlesize'] = 11
+comp.plot(file=out_comparison, show=testing, title=title)
 
 pass

@@ -95,7 +95,7 @@ class Simulation:
         self.theta: float = self.sfs_neut.theta
 
         #: Number of sites
-        self.n_sites: int = self.sfs_neut.n_sites
+        self.n_sites: float = self.sfs_neut.n_sites
 
         #: Ancestral misidentification error
         self.eps: float = eps
@@ -150,7 +150,7 @@ class Simulation:
     @staticmethod
     def get_neutral_sfs(
             theta: float,
-            n_sites: int,
+            n_sites: float,
             n: int,
             r: Sequence[float] = None
     ) -> Spectrum:
@@ -208,7 +208,7 @@ class Simulation:
         )
 
 
-class WrightFisherSimulation:
+class WrightFisherSimulation: # pragma: no cover
     """
     Simulate an SFS under selection given a DFE under the Wright-Fisher model.
 
@@ -219,12 +219,12 @@ class WrightFisherSimulation:
         import fastdfe as fd
 
         # create simulation object by specifying neutral SFS and DFE
-        sim = fd.WrightFisherSimulation(
-            sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=1e8, theta=1e-4),
+        sim = fd.simulation.WrightFisherSimulation(
+            sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=1e7, theta=1e-4),
             params=dict(S_d=-300, b=0.3, p_b=0.1, S_b=0.1),
             model=fd.GammaExpParametrization(),
-            pop_size=1000,
-            generations=100
+            pop_size=100,
+            n_generations=500
         )
 
         # perform the simulation
@@ -293,7 +293,7 @@ class WrightFisherSimulation:
         self.n_generations: int = n_generations
 
         #: CDF of the DFE
-        self.cdf: Callable[[float], float] = self.model.get_cdf(**self.params)
+        self.cdf: Callable[[np.ndarray], np.ndarray] = self.model.get_cdf(**self.params)
 
         #: Logger
         self._logger = logger.getChild('WrightFisherSimulation')
@@ -348,10 +348,12 @@ class WrightFisherSimulation:
         # fixed total of mutations
         n_mut = int(self.n_generations * theta)
 
+        self._logger.info(f'Pre-sampling selection coefficients for {n_mut} mutations.')
+
         # pre-sample selection coefficients for mutations
         selection_coefficients = self._sample_cdf(
             n=n_mut,
-            desc="Sampling selection coefficients"
+            desc="Number of bisections"
         ) / self.pop_size
 
         # log number of selection coefficients lower than -1
