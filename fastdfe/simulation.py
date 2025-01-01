@@ -160,9 +160,9 @@ class Simulation:
         :param theta: Population mutation rate
         :param n_sites: Number of sites in the simulated SFS
         :param n: Number of frequency classes in the simulated SFS
-        :param r: Nuisance parameters that account for demography. An array of length `n-1` whose elements are
+        :param r: Nuisance parameters that account for demography. An array of length ``n-1`` whose elements are
             multiplied element-wise with the polymorphic counts of the Kingman SFS. By default, no demography effects
-            are considered which is equivalent to `r = [1] * (n-1)`. Note that non-default values of `r` will also
+            are considered which is equivalent to ``r = [1] * (n-1)``. Note that non-default values of ``r`` will also
             affect estimates of the population mutation rate.
         :return: Neutral SFS
         """
@@ -208,7 +208,7 @@ class Simulation:
         )
 
 
-class WrightFisherSimulation: # pragma: no cover
+class WrightFisherSimulation:  # pragma: no cover
     """
     Simulate an SFS under selection given a DFE under the Wright-Fisher model.
 
