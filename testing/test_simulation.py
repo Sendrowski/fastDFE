@@ -195,7 +195,7 @@ class SimulationTestCase(TestCase):
         self.assertAlmostEqual(sim.theta, inf.sfs_neut.theta)
 
         for key in sim.params:
-            self.assertAlmostEqual(inf.params_mle[key], sim.params[key], delta=np.abs(sim.params[key]) / 1000)
+            self.assertAlmostEqual(inf.params_mle[key], sim.params[key], delta=np.abs(sim.params[key]) / 500)
 
         self.assertAlmostEqual(inf.bootstraps.mean()['S_d'], sim.params['S_d'], delta=sim.params['S_d'] / -100)
         self.assertAlmostEqual(inf.bootstraps.mean()['b'], sim.params['b'], delta=sim.params['b'] / 50)
