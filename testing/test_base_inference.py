@@ -1,5 +1,6 @@
 import copy
 import logging
+from abc import ABC
 from unittest import mock
 
 import matplotlib.pyplot as plt
@@ -15,7 +16,7 @@ from fastdfe.polydfe import PolyDFE
 from testing import TestCase
 
 
-class InferenceTestCase(TestCase):
+class InferenceTestCase(TestCase, ABC):
     """
     Test inference.
     """
@@ -71,15 +72,13 @@ class InferenceTestCase(TestCase):
                     raise AssertionError('Some objects were not compared.')
 
 
-class BaseInferenceTestCase(InferenceTestCase):
+class PolyDFETestCase(InferenceTestCase):
     """
-    Test BaseInference.
+    Test results against cached PolyDFE results.
     """
-    config_file = "testing/cache/configs/pendula_C_full_anc/config.yaml"
-    serialized = "testing/cache/fastdfe/pendula_C_full_anc/serialized.json"
 
     # configs for testing against cached polydfe results
-    configs = [
+    configs_polydfe = [
         'pendula_C_full_bootstrapped_100',
         'pendula_C_full_anc_bootstrapped_100',
         'pendula_C_deleterious_bootstrapped_100',
@@ -145,8 +144,16 @@ class BaseInferenceTestCase(InferenceTestCase):
         return compare_with_polydfe
 
     # dynamically generate tests
-    for config in configs:
+    for config in configs_polydfe:
         locals()[f'test_compare_with_polydfe_{config}'] = generate_compare_with_polydfe(config)
+
+
+class BaseInferenceTestCase(InferenceTestCase):
+    """
+    Test BaseInference.
+    """
+    config_file = "testing/cache/configs/pendula_C_full_anc/config.yaml"
+    serialized = "testing/cache/fastdfe/pendula_C_full_anc/serialized.json"
 
     def test_run_inference_from_config_parallelized(self):
         """
@@ -1074,4 +1081,3 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         # check that DFE is very weakly beneficial
         self.assertGreaterEqual(inf.get_discretized()[0][-1], 0.4)
-

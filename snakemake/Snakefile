@@ -137,7 +137,7 @@ collages = dict(
     strong_del=dict(n_chunks=[40],L=["1e7"],mu=["1e-8"],s_b=["1e-9"],b=[0.1, 1, 10],s_d=["1e-2", "1e-1", "1e0", "1e1"],p_b=[0]),
     strong_bene=dict(n_chunks=[40],L=["1e7"],mu=["1e-8"],s_b=["1e-4", "1e-2", "1e0"],b=[0.4],s_d=["1e0"],p_b=[0, 0.2, 0.4]),
     realistic_full_dfe=dict(n_chunks=[40],L=["1e7"],mu=["1e-8"],s_b=["1e-4", "1e-3"],b=[0.4],s_d=["1e-1", "1e0"],p_b=[0.01, 0.05]),
-    realistic_del_dfe=dict(n_chunks=[100],L=["1e7"],mu=["1e-8"],s_b=["1e-9"],b=[5, 1, 0.2],s_d=["3e-3", "3e-2", "3e-1"],p_b=[0]),
+    realistic_del_dfe=dict(n_chunks=[100],L=["1e7"],mu=["1e-8"],s_b=["1e-9"],b=[3, 1, 0.3],s_d=["3e-3", "3e-2", "3e-1"],p_b=[0]),
 )
 
 rule all:
@@ -164,7 +164,7 @@ rule all:
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/collage2.{type}.png", n_replicate=[1], type=['dfe', 'sfs'], g=["1e4"], N=["1e3"]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/collage2.{type}.png", n_replicate=[1], type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20, 100], folded=['folded', 'unfolded'], collage_type=['realistic_full_dfe', 'realistic_del_dfe']),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1, 2], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20, 100], folded=['unfolded', 'folded'], collage_type=['realistic_del_dfe']),
+            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20, 100], folded=['unfolded', 'folded'], collage_type=['realistic_del_dfe', 'realistic_full_dfe']),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png",
             #        n_replicate=[1],n_chunks=[100],n=[20],L=["1e7"],mu=["1e-8"],s_b=["1e0"],b=[0.4],s_d=["1e0"],p_b=[0.4],g=["1e4", "2e4", "4e4"],r=["1e-6"],N=["1e3"]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png",
@@ -1483,6 +1483,8 @@ rule infer_dfe_slim_fastdfe:
         model_fit="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{folded}/model_fit.png",
         spectra="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{folded}/spectra.png",
         params="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{folded}/params.png"
+    params:
+        full_dfe=lambda w: w.p_b != 0
     conda:
         "envs/base.yaml"
     script:

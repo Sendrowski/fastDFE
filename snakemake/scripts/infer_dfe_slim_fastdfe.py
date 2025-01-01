@@ -16,6 +16,7 @@ try:
 
     testing = False
     sfs_file = snakemake.input[0]
+    full_dfe = snakemake.params.get('full_dfe')
     out_summary = snakemake.output.summary
     out_serialized = snakemake.output.serialized
     out_dfe = snakemake.output.get('dfe', None)
@@ -25,7 +26,8 @@ try:
 except NameError:
     # testing
     testing = True
-    sfs_file = 'snakemake/results/slim/n_replicate=1/n_chunks=40/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=2/s_d=1e0/p_b=0/n=20/unfolded/sfs.csv'
+    sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=5/s_d=3e-1/p_b=0/n=100/folded/sfs.csv'
+    full_dfe = True
     out_summary = "scratch/summary.json"
     out_serialized = "scratch/serialized.json"
     out_dfe = "scratch/dfe.png"
@@ -43,7 +45,7 @@ inf = fd.BaseInference(
     sfs_sel=s['selected'],
     do_bootstrap=True,
     parallelize=True,
-    fixed_params=dict(all=dict(eps=0))
+    fixed_params=dict(all=dict(eps=0) | dict(p_b=0, S_b=1) if not full_dfe else {})
 )
 
 # perform inference
@@ -55,7 +57,7 @@ inf.to_file(out_serialized)
 # save summary
 inf.get_summary().to_file(out_summary)
 
-params = {k: v for k, v in inf.bootstraps.median().to_dict().items() if k not in ['alpha']}
+params = {k: v for k, v in inf.bootstraps.mean().to_dict().items() if k not in ['alpha']}
 
 # plot results
 inf.plot_inferred_parameters(file=out_params, show=testing)

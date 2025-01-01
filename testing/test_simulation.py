@@ -1,11 +1,110 @@
 """
 Test the Simulation class.
 """
+import re
+from itertools import product
+
 import numpy as np
-from matplotlib import pyplot as plt
 import pytest
+from matplotlib import pyplot as plt
+
 import fastdfe as fd
 from testing import TestCase
+
+
+def expand(template, **wildcards):
+    """
+    Generate combinations of strings with placeholders.
+    """
+    keys, values = zip(*wildcards.items())
+    combinations = product(*values)
+
+    return [template.format(**dict(zip(keys, combo))) for combo in combinations]
+
+
+class SLiMTestCase(TestCase):
+    """
+    Test results against cached SLiM results.
+    """
+
+    # configs for testing against cached slim results
+    configs_slim = expand(  # deleterious DFE
+        "testing/cache/slim/n_replicate=1/n_chunks={n_chunks}/g=1e4/L={L}/mu={mu}/r=1e-7/N=1e3/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{folded}/sfs.csv",
+        n_chunks=[100],
+        L=["1e7"],
+        mu=["1e-8"],
+        s_b=["1e-9"],
+        b=[3, 1, 0.3],
+        s_d=["3e-3", "3e-2", "3e-1"],
+        p_b=[0],
+        folded=["folded", "unfolded"],
+        n=[20, 100]
+    ) + expand(  # full DFE
+        "testing/cache/slim/n_replicate=1/n_chunks={n_chunks}/g=1e4/L={L}/mu={mu}/r=1e-7/N=1e3/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{folded}/sfs.csv",
+        n_chunks=[40],
+        L=["1e7"],
+        mu=["1e-8"],
+        s_b=["1e-4", "1e-3"],
+        b=[0.4],
+        s_d=["1e-1", "1e0"],
+        p_b=[0.01, 0.05],
+        folded=["folded", "unfolded"],
+        n=[20, 100]
+    )
+
+    def test_compare_against_slim(self):
+        """
+        Test parameters of inferred DFE against ground-truth from SLiM simulations.
+        """
+        cached = {}
+
+        for file_path in self.configs_slim:
+            spectra = fd.Spectra.from_file(file_path)
+
+            params = {}
+            for p in ['s_b', 's_d', 'b', 'p_b', 'mu', 'n']:
+                # match parameter values
+                match = re.search(rf"\b{p}=([\d.e+-]+)", file_path)
+                if match:
+                    params[p] = float(match.group(1))
+
+            Ne = spectra['neutral'].theta / (4 * params['mu'])
+            params['S_b'] = 4 * Ne * params['s_b']
+            params['S_d'] = -4 * Ne * params['s_d']
+
+            model = fd.GammaExpParametrization()
+            model.bounds['S_b'] = (1e-10, 100)
+
+            sim = fd.Simulation(
+                params=params,
+                sfs_neut=spectra['neutral'],
+                model=model
+            )
+
+            # cache discretization
+            if params['n'] in cached:
+                sim.discretization = cached[params['n']]
+            else:
+                cached[params['n']] = sim.discretization
+
+            sfs_sel = sim.run()
+            comp = fd.Spectra(dict(slim=spectra['selected'], fastdfe=sfs_sel))
+
+            diff_rel = (comp['slim'].data[:-1] - comp['fastdfe'].data[:-1]) / comp['slim'].data[:-1]
+
+            # exclude bins with few counts due to large variance
+            diff_rel[comp['slim'].data[:-1] < 20] = 0
+
+            # compute root mean squared error
+            diff = np.sqrt((diff_rel ** 2).mean())
+            tol = 0.125
+
+            if diff < tol:
+                fd.logger.info(f"{diff:.3f} < {tol} for {params}")
+            else:
+                fd.logger.fatal(f"{diff:.3f} >= {tol} for {params}")
+
+            self.assertLess(diff, tol)
 
 
 class SimulationTestCase(TestCase):
@@ -302,4 +401,3 @@ class SimulationTestCase(TestCase):
         sfs_sel = sim.run()
 
         sfs_sel.plot()
-

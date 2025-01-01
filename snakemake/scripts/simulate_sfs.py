@@ -28,7 +28,7 @@ try:
 except NameError:
     # testing
     testing = True
-    sfs_file = 'snakemake/results/slim/n_replicate=2/n_chunks=20/g=2e4/L=1e8/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=10/s_d=1e1/p_b=0/n=20/sfs.csv'
+    sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=5/s_d=3e-1/p_b=0/n=20/unfolded/sfs.csv'
     s_b = 1e-9
     b = 1
     s_d = 1e-3
@@ -47,7 +47,7 @@ theta = spectra['neutral'].theta
 Ne = theta / (4 * mu)
 
 model = fd.GammaExpParametrization()
-model.bounds['S_b'] = (0, 100000)
+model.bounds['S_b'] = (1e-10, 100)
 
 sim = fd.Simulation(
     params=dict(
