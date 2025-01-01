@@ -161,9 +161,9 @@ class Simulation:
         :param n_sites: Number of sites in the simulated SFS
         :param n: Number of frequency classes in the simulated SFS
         :param r: Nuisance parameters that account for demography. An array of length `n-1` whose elements are
-            multiplied element-wise with the polymorphic counts of the neutral SFS. By default, no demography effects
-            are considered which is equivalent to `r = [1] * (n-1)`. Note that non-default values of `r` will affect
-            the estimated population mutation rate of the resulting SFS.
+            multiplied element-wise with the polymorphic counts of the Kingman SFS. By default, no demography effects
+            are considered which is equivalent to `r = [1] * (n-1)`. Note that non-default values of `r` will also
+            affect estimates of the population mutation rate.
         :return: Neutral SFS
         """
         if r is None:

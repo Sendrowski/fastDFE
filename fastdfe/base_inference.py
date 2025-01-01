@@ -845,7 +845,7 @@ class BaseInference(AbstractInference):
         # neutral SFS when multiplied and thus account for demography as we assume
         # the distortion in sfs_neut to be due to demography alone.
         # Note that the nuisance parameters naturally are sensitive to a large
-        # sampling variance in the neutral SFS, which may be undesirable.
+        # sampling variance in the neutral SFS.
         # However, DFE inference on `wiggly` spectra is not advisable anyway.
         r = neutral_observed / neutral_modelled
 
