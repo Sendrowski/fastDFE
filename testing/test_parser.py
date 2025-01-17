@@ -711,6 +711,24 @@ class ParserTestCase(TestCase):
 
         pass
 
+    def test_target_site_counter_no_fasta(self):
+        """
+        Make sure an error is raised when not FASTA file is specified
+        """
+        p = fd.Parser(
+            n=10,
+            vcf="resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz",
+            target_site_counter=fd.TargetSiteCounter(
+                n_target_sites=40000
+            ),
+            max_sites=10
+        )
+
+        with self.assertRaises(ValueError):
+            p.parse()
+
+        pass
+
     def test_target_site_counter_betula(self):
         """
         Test whether the monomorphic site counter works on the Betula data.

@@ -627,6 +627,9 @@ class TargetSiteCounter:
         """
         self.parser = parser
 
+        # require fasta file
+        self.parser._require_fasta(self.__class__.__name__)
+
         # check if we have a SNPFiltration
         if not any([isinstance(f, SNPFiltration) for f in self.parser.filtrations]):
             self._logger.warning("Recommended to use a SNPFiltration when using target site "
