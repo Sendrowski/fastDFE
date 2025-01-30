@@ -917,6 +917,18 @@ class SubstitutionModel(ABC):
         (base_indices['T'], base_indices['C'])
     ])
 
+    #: The possible transversions
+    _transversions: np.ndarray = np.array([
+        (base_indices['A'], base_indices['C']),
+        (base_indices['C'], base_indices['A']),
+        (base_indices['G'], base_indices['T']),
+        (base_indices['T'], base_indices['G']),
+        (base_indices['A'], base_indices['T']),
+        (base_indices['T'], base_indices['A']),
+        (base_indices['C'], base_indices['G']),
+        (base_indices['G'], base_indices['C'])
+    ])
+
     def __init__(
             self,
             bounds: Dict[str, Tuple[float, float]] = {},
@@ -1267,7 +1279,7 @@ class SiteInfo:
         #: (possibly with prior if specified).
         self.p_major_ancestral: float = p_major_ancestral
 
-        #: The ancestral base based on comparing major and minor allele.
+        #: The predicted ancestral base based on comparing major and minor allele.
         self.major_ancestral: str = major_ancestral
 
         #: The probability of each base being the ancestral base for the first internal node.
@@ -1509,7 +1521,7 @@ class AdaptivePolarizationPrior(PolarizationPrior):
     same prior as used in the EST-SFS paper. This prior is adaptive in the sense that the most likely polarization
     probabilities given the site configurations are found. This is the most accurate prior, but requires a lot of
     sites in order to work properly. You can check that the polarization probabilities are smooth enough across
-    frequency counts by calling :meth:`~fastdfe.annotation.PolarizationPrior.plot_polarization`. If they are not
+    frequency counts by calling :meth:`~fastdfe.annotation.PolarizationPrior.plot`. If they are not
     smooth enough, you can increase the number of sites, decrease the number of ingroups, or
     use :class:`~fastdfe.annotation.KingmanPolarizationPrior` instead.
     """
@@ -1800,12 +1812,20 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         """
         super()._setup(handler)
 
-        # add info field
+        # add AA info field
         handler._reader.add_info_to_header({
             'ID': self._handler.info_ancestral + '_info',
             'Number': '.',
             'Type': 'String',
             'Description': 'Additional information about the ancestral allele.'
+        })
+
+        # add AA probability field
+        handler._reader.add_info_to_header({
+            'ID': self._handler.info_ancestral + '_prob',
+            'Number': '.',
+            'Type': 'Float',
+            'Description': 'Probability that the predicted ancestral allele is correct, as opposed to the other allele.'
         })
 
         # set reader
@@ -2036,10 +2056,16 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
     """
     Annotation of ancestral alleles following the probabilistic model of EST-SFS
-    (https://doi.org/10.1534/genetics.118.301120). By default, the info field ``AA``
-    (see :attr:`Annotator.info_ancestral`) is added to the VCF file, which holds the ancestral allele. To be used with
-    :class:`Annotator` or :class:`~fastdfe.parser.Parser`. This class can also be used
-    independently, see the :meth:`from_dataframe`, :meth:`from_data` and :meth:`from_est_sfs` methods.
+    (https://doi.org/10.1534/genetics.118.301120). Note that only bi-allelic SNPs are supported by this model.
+    By default, the info field ``AA`` (see :attr:`Annotator.info_ancestral`) is added to the VCF file, which holds the
+    ancestral allele. To be used with :class:`Annotator` or :class:`~fastdfe.parser.Parser`.
+    The info field ``AA_prob`` holds the probability that the
+    predicted ancestral allele (``AA`` tag) is correct, as opposed to the other allele. This probability can be also
+    be used by :class:`~fastdfe.parser.Parser` to polarize the SFS according to the ancestral allele probability.
+    In addition to the ancestral allele, the info field ``AA_info`` is added, which contains additional information
+    about the ancestral allele (see :class:`SiteInfo` for an overview of the available information).
+    This class can also be used independently, see the :meth:`from_dataframe`, :meth:`from_data` and
+    :meth:`from_est_sfs` methods.
 
     Initially, the branch rates are determined using MLE. Similar to :class:`Parser`, we can also specify the number of
     mutational target sites (see the `n_target_sites` argument) in case our VCF file does not contain the full set of
@@ -2271,6 +2297,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         #: The MLE parameters.
         self.params_mle: Dict[str, float] | None = None
 
+        #: The MLE parameters for all runs.
+        self.params_mle_runs: pd.DataFrame | None = None
+
         #: Mismatches between the most likely ancestral allele and the ad-hoc ancestral allele.
         # This is only computed when annotating a VCF file, and only contains the mismatches
         # for sites that were actually annotated.
@@ -2308,11 +2337,24 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         if self.n_target_sites is not None:
             self._sample_mono_allelic_sites()
 
-        # notify about the number of sites
-        self._logger.info(f"Included {int(self._get_mle_configs().multiplicity.sum())} sites for the inference.")
+        # notify on statistics
+        self._log_stats()
 
         # infer ancestral alleles
         self.infer()
+
+    def _log_stats(self):
+        """
+        Log statistics about the ancestral allele annotation.
+        """
+        configs = self._get_mle_configs()
+        n_sites = int(np.round(configs.multiplicity.sum()))
+        n_monomorphic = int(np.round(configs[configs.minor_base == -1].multiplicity.sum()))
+        n_polymorphic = n_sites - n_monomorphic
+
+        self._logger.info(
+            f"Included {n_sites} sites for the inference ({n_polymorphic} polymorphic, {n_monomorphic} monomorphic)."
+        )
 
     def _get_n_samples_fasta(self) -> int:
         """
@@ -2900,8 +2942,8 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         # set the number of sites (which coincides with number of sites parsed)
         anc.n_sites = anc._get_n_sites()
 
-        # notify about the number of sites
-        anc._logger.info(f"Included {int(anc._get_mle_configs().multiplicity.sum())} sites for the inference.")
+        # notify on statistics
+        anc._log_stats()
 
         return anc
 
@@ -2926,11 +2968,8 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         # set index to initial site configuration
         self.configs.set_index(keys=index_cols, inplace=True)
 
-        # trigger the site counter as we use it soon anyway
-        _ = self._handler.n_sites
-
         # determine the total number of sites to be parsed
-        total = self._handler.n_sites if self.max_sites == np.inf else self.max_sites
+        total = min(self._handler.n_sites, self.max_sites)
 
         # initialize counter in case we do not parse any sites
         i = -1
@@ -3056,6 +3095,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
         # get the best likelihood
         self.likelihood = np.max(self.likelihoods)
+
+        # get the MLE parameters for each run
+        self.params_mle_runs = pd.DataFrame([result.x for result in results], columns=self.param_names)
 
         # get the best result
         self.result: OptimizeResult = cast(OptimizeResult, results[np.argmax(self.likelihoods)])
@@ -3725,6 +3767,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         """
         # set default values
         ancestral_base = '.'
+        ancestral_prob = '.'
 
         # use maximum parsimony if we don't have an SNP
         if isinstance(variant, DummyVariant) or not variant.is_snp:
@@ -3782,6 +3825,12 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
                         # update ancestral base
                         ancestral_base = site.major_ancestral
 
+                        # update ancestral probability
+                        if site.major_base == site.major_ancestral:
+                            ancestral_prob = site.p_major_ancestral
+                        else:
+                            ancestral_prob = 1 - site.p_major_ancestral
+
                         # increase the number of annotated sites
                         self.n_annotated += 1
 
@@ -3793,6 +3842,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
         # set the ancestral allele
         variant.INFO[self._handler.info_ancestral] = ancestral_base
+
+        # set the ancestral allele probability
+        variant.INFO[self._handler.info_ancestral + '_prob'] = ancestral_prob
 
         # set info field
         variant.INFO[self._handler.info_ancestral + "_info"] = ancestral_info
@@ -3907,6 +3959,25 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             rates[i] = np.sum(ingroup + [outgroup])
 
         return rates
+
+    def get_observed_transition_transversion_ratio(self) -> float:
+        """
+        Get the observed transition/transversion ratio. Note that this may differ from the estimated ratio for
+        :class:`K2SubstitutionModel`.
+
+        :return: The observed transition/transversion ratio.
+        """
+        configs = self._get_mle_configs()
+
+        tuples = configs[["minor_base", "major_base"]].apply(tuple, axis=1)
+
+        transitions = tuples.isin([tuple(e) for e in SubstitutionModel._transitions])
+        transversions = tuples.isin([tuple(e) for e in SubstitutionModel._transversions])
+
+        n_transitions = configs[transitions].multiplicity.sum()
+        n_transversions = configs[transversions].multiplicity.sum()
+
+        return n_transitions / n_transversions
 
 
 class _AdHocAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):

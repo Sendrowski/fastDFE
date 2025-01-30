@@ -1062,6 +1062,20 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         self.assertFalse(np.all(anc.likelihoods[0] == anc.likelihoods))
 
+    def test_get_observed_transition_transversion_ratio(self):
+        """
+        Test that the get_observed_transition_transversion_ratio function works as expected.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+            file="resources/EST-SFS/test-data.txt",
+            n_runs=10,
+            parallelize=True
+        )
+
+        r = anc.get_observed_transition_transversion_ratio()
+
+        self.assertEqual(r, 8 / 3)
+
     def test_from_data_chunked(self):
         """
         Test that the from_data function produces the expected results.
