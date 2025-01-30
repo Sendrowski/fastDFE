@@ -1139,7 +1139,8 @@ class K2SubstitutionModel(JCSubstitutionModel):
         """
         Create a new substitution model instance.
 
-        :param bounds: The bounds for the parameters. K is the branch rate. k is the transition/transversion ratio.
+        :param bounds: The bounds for the parameters. ``K{i}`` are the branch rates.
+            ``k`` is the transition/transversion ratio.
         :param pool_branch_rates: Whether to pool the branch rates. By default, each branch has its own rate which
             is optimized using MLE. If ``True``, the branch rates are pooled and a single rate is optimized. This is
             useful if the number of sites used is small.
@@ -1399,12 +1400,12 @@ class BaseType(Enum):
 
 class PolarizationPrior(ABC):
     """
-    Base class for priors to be used with the :class:`MaximumLikelihoodAncestralAnnotation`.
-    Using a prior, we incorporate information about the general probability of the major allele being the ancestral 
-    allele across all sites with the same minor allele count, is useful in general as it provides more information 
-    about the ancestral allele probabilities For example, when we have no outgroup information for a particular site, 
-    it is good to know how likely it is that the major allele is ancestral in general and incorporate this information 
-    into the estimates. 
+    Base class for priors used with :class:MaximumLikelihoodAncestralAnnotation.
+    These priors incorporate information about the general probability of the major allele being ancestral
+    across all sites with the same minor allele count. Prior thus take ingroup allele frequencies into account,
+    when making predictions about the ancestral state of a site. This is useful because it enhances ancestral
+    allele probability estimates, especially when outgroup information is unavailable for a particular site.
+    Knowing the likelihood of the major allele being ancestral in general allows for more informed estimations.
     """
 
     def __init__(self, allow_divergence: bool = False):
@@ -1524,6 +1525,8 @@ class AdaptivePolarizationPrior(PolarizationPrior):
     frequency counts by calling :meth:`~fastdfe.annotation.PolarizationPrior.plot`. If they are not
     smooth enough, you can increase the number of sites, decrease the number of ingroups, or
     use :class:`~fastdfe.annotation.KingmanPolarizationPrior` instead.
+
+    .. note:: In practice, this prior provides very similar results to :class:`KingmanPolarizationPrior` in most cases.
     """
 
     def __init__(
