@@ -1420,7 +1420,8 @@ class PolarizationPrior(ABC):
 
             .. warning:: Setting this to ``True`` greatly increases the probability of high-frequency derived alleles
                 which introduces a strong bias in the distribution of frequency counts, e.g., the SFS. Only use this
-                if you're interested in the most accurate ancestral state per site.
+                if you're interested in handling divergence counts, i.e., sites where the ingroup is mono-allelic.
+
         """
         #: The logger.
         self._logger = logger.getChild(self.__class__.__name__)
