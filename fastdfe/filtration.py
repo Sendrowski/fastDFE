@@ -126,11 +126,9 @@ class MaskedFiltration(Filtration, ABC):
         #: The samples mask.
         self._samples_mask: np.ndarray | None = None
 
-    def _prepare_samples_mask(self) -> np.ndarray | None:
+    def _prepare_samples_mask(self):
         """
         Prepare the samples mask.
-
-        :return: The samples mask.
         """
         from .parser import Parser
 
@@ -138,6 +136,11 @@ class MaskedFiltration(Filtration, ABC):
 
             # use samples mask from parser
             self._samples_mask = self._handler._samples_mask
+
+        elif self.include_samples is None and self.exclude_samples is None:
+
+            # no samples mask
+            self._samples_mask = None
 
         else:
 
@@ -152,9 +155,7 @@ class MaskedFiltration(Filtration, ABC):
             if self.exclude_samples is not None:
                 mask &= ~np.isin(self._handler._reader.samples, self.exclude_samples)
 
-            # set samples mask only if not all samples are included
-            if not np.all(mask):
-                self._samples_mask = mask
+            self._samples_mask = mask
 
     def _setup(self, handler: MultiHandler):
         """
