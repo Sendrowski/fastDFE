@@ -954,13 +954,21 @@ class SubstitutionModel(ABC):
         self.pool_branch_rates: bool = pool_branch_rates
 
         #: The fixed parameters.
-        self.fixed_params: Dict[str, float] = fixed_params
+        self.fixed_params: Dict[str, float] = fixed_params.copy()
 
         #: Parameter bounds.
-        self.bounds: Dict[str, Tuple[float, float]] = bounds
+        self.bounds: Dict[str, Tuple[float, float]] = bounds.copy()
 
         #: Cache for the probabilities.
         self._cache: Dict[Tuple[int, int, int], float] | None = None
+
+    def _setup(self, ann: 'MaximumLikelihoodAncestralAnnotation'):
+        """
+        Set up the substitution model.
+
+        :param ann: The ancestral allele annotation.
+        """
+        pass
 
     def cache(self, params: Dict[str, float], n_branches: int):
         """
@@ -1134,7 +1142,8 @@ class K2SubstitutionModel(JCSubstitutionModel):
             self,
             bounds: Dict[str, Tuple[float, float]] = {'K': (1e-5, 10), 'k': (0.1, 10)},
             pool_branch_rates: bool = False,
-            fixed_params: Dict[str, float] = {}
+            fixed_params: Dict[str, float] = {},
+            fix_transition_transversion_ratio: bool = False
     ):
         """
         Create a new substitution model instance.
@@ -1145,12 +1154,27 @@ class K2SubstitutionModel(JCSubstitutionModel):
             is optimized using MLE. If ``True``, the branch rates are pooled and a single rate is optimized. This is
             useful if the number of sites used is small.
         :param fixed_params: The fixed parameters. Parameters that are not fixed are optimized using MLE.
+        :param fix_transition_transversion_ratio: Whether to fix the transition/transversion ratio to the ratio
+            observed in the data.
         """
         super().__init__(
             bounds=bounds,
             pool_branch_rates=pool_branch_rates,
             fixed_params=fixed_params
         )
+
+        #: Whether to fix the transition/transversion ratio to the ratio observed in the data.
+        self.fix_transition_transversion_ratio: bool = fix_transition_transversion_ratio
+
+    def _setup(self, ann: 'MaximumLikelihoodAncestralAnnotation'):
+        """
+        Set up the substitution model.
+
+        :param ann: The ancestral allele annotation.
+        """
+        if self.fix_transition_transversion_ratio:
+            # fix the transition/transversion ratio to the ratio observed in the data
+            self.fixed_params['k'] = ann.get_observed_transition_transversion_ratio()
 
     def get_bounds(self, n_outgroups: int) -> Dict[str, Tuple[float, float]]:
         """
@@ -2344,6 +2368,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         # notify on statistics
         self._log_stats()
 
+        # set up substitution model
+        self.model._setup(self)
+
         # infer ancestral alleles
         self.infer()
 
@@ -2948,6 +2975,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
 
         # notify on statistics
         anc._log_stats()
+
+        # set up substitution model
+        anc.model._setup(anc)
 
         return anc
 

@@ -1076,6 +1076,32 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         self.assertEqual(r, 8 / 3)
 
+    def test_K2_model_not_fix_transition_transversion_ratio(self):
+        """
+        Test that not fixing the transition transversion ratio in the K2 model works as expected.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+            file="resources/EST-SFS/test-data.txt",
+            n_runs=10,
+            parallelize=True,
+            model=fd.K2SubstitutionModel(fix_transition_transversion_ratio=False)
+        )
+
+        self.assertTrue('k' not in anc.model.fixed_params)
+
+    def test_K2_model_fix_transition_transversion_ratio(self):
+        """
+        Test that fixing the transition transversion ratio in the K2 model works as expected.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+            file="resources/EST-SFS/test-data.txt",
+            n_runs=10,
+            parallelize=True,
+            model=fd.K2SubstitutionModel(fix_transition_transversion_ratio=True)
+        )
+
+        self.assertEqual(anc.model.fixed_params['k'], anc.get_observed_transition_transversion_ratio())
+
     def test_from_data_chunked(self):
         """
         Test that the from_data function produces the expected results.
