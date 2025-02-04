@@ -20,35 +20,38 @@ class ParserTestCase(TestCase):
         """
         Compare the sfs from dadi with the one from the data.
         """
-        p1 = fd.Parser(
-            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
-            n=20,
-            stratifications=[],
-            subsample_mode='probabilistic',
-            max_sites=10000
-        )
+        for n in [19, 20]:
+            p1 = fd.Parser(
+                vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
+                n=n,
+                stratifications=[],
+                subsample_mode='probabilistic',
+                max_sites=10000
+            )
 
-        sfs = p1.parse().all
+            sfs = p1.parse().all
 
-        p2 = fd.Parser(
-            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
-            n=20,
-            stratifications=[],
-            subsample_mode='random',
-            max_sites=10000,
-            seed=2
-        )
+            p2 = fd.Parser(
+                vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
+                n=n,
+                stratifications=[],
+                subsample_mode='random',
+                max_sites=10000,
+                seed=2
+            )
 
-        sfs2 = p2.parse().all
+            sfs2 = p2.parse().all
 
-        fd.Spectra.from_spectra(dict(
-            probabilistic=sfs,
-            random=sfs2
-        )).plot()
+            fd.Spectra.from_spectra(dict(
+                probabilistic=sfs,
+                random=sfs2
+            )).plot()
 
-        diff_rel = np.abs(sfs.data - sfs2.data) / sfs2.data
+            diff_rel = np.abs(sfs.data - sfs2.data) / sfs2.data
 
-        assert diff_rel[sfs2.data != 0].max() < 0.5
+            assert sfs.data.min() > 0
+            assert sfs2.data.min() > 0
+            assert diff_rel.mean() < 0.2
 
     @staticmethod
     def test_parse_sfs_compare_probabilistic_with_dadi():
@@ -1148,3 +1151,147 @@ class ParserTestCase(TestCase):
                 n=20,
                 subsample_mode='invalid'
             )
+
+    def test_probabilistic_polarization_no_aa_prob_tags_same_result_random_subsampling(self):
+        """
+        Make sure that probabilistic polarization without AA probability tags yields the same result as without.
+        The used VCF files don't contain AA probability tags.
+        """
+        for n in [9, 10]:
+
+            p1 = fd.Parser(
+                vcf="resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz",
+                polarize_probabilistically=True,
+                subsample_mode='random',
+                max_sites=1000,
+                n=n
+            )
+
+            sfs_prob = p1.parse()
+
+            p2 = fd.Parser(
+                vcf="resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz",
+                polarize_probabilistically=False,
+                subsample_mode='random',
+                max_sites=1000,
+                n=n
+            )
+
+            sfs_fixed = p2.parse()
+
+            spectra = fd.Spectra(dict(
+                prob=sfs_prob.all,
+                fixed=sfs_fixed.all
+            ))
+
+            spectra.plot()
+
+            self.assertGreater(sfs_prob.all.data.sum(), 0)
+
+            np.testing.assert_array_equal(sfs_prob.all.data, sfs_fixed.all.data)
+
+    def test_probabilistic_polarization_no_aa_prob_tags_same_result_probabilistic_subsampling(self):
+        """
+        Make sure that probabilistic polarization without AA probability tags yields the same result as without.
+        The used VCF files don't contain AA probability tags.
+        """
+        for n in [9, 10]:
+            p1 = fd.Parser(
+                vcf="resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz",
+                polarize_probabilistically=True,
+                subsample_mode='probabilistic',
+                max_sites=100,
+                n=n
+            )
+
+            sfs_prob = p1.parse()
+
+            p2 = fd.Parser(
+                vcf="resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz",
+                polarize_probabilistically=False,
+                subsample_mode='probabilistic',
+                max_sites=100,
+                n=n
+            )
+
+            sfs_fixed = p2.parse()
+
+            spectra = fd.Spectra(dict(
+                prob=sfs_prob.all,
+                fixed=sfs_fixed.all
+            ))
+
+            spectra.plot()
+
+            self.assertGreater(sfs_prob.all.data.sum(), 0)
+
+            np.testing.assert_array_equal(sfs_prob.all.data, sfs_fixed.all.data)
+
+    def test_compare_probabilistic_polarization_vs_fixed_random_subsampling(self):
+        """
+        Compare probabilistic polarization with fixed polarization.
+        """
+        for n in [19, 20]:
+            p1 = fd.Parser(
+                vcf="resources/genome/sapiens/hgdp.anc.deg.vcf.gz",
+                polarize_probabilistically=True,
+                subsample_mode='random',
+                max_sites=10000,
+                n=n
+            )
+
+            sfs_prob = p1.parse()
+
+            p2 = fd.Parser(
+                vcf="resources/genome/sapiens/hgdp.anc.deg.vcf.gz",
+                polarize_probabilistically=False,
+                subsample_mode='random',
+                max_sites=10000,
+                n=n
+            )
+
+            sfs_fixed = p2.parse()
+
+            spectra = fd.Spectra(dict(
+                prob=sfs_prob.all,
+                fixed=sfs_fixed.all
+            ))
+
+            spectra.plot()
+
+            # mean relative difference much lower than threshold for most bins
+            self.assertLess(np.abs((sfs_prob.all.data - sfs_fixed.all.data) / sfs_fixed.all.data).mean(), 0.3)
+
+    def test_compare_probabilistic_polarization_vs_fixed_probabilistic_subsampling(self):
+        """
+        Compare probabilistic polarization with fixed polarization.
+        """
+        for n in [19, 20]:
+            p1 = fd.Parser(
+                vcf="resources/genome/sapiens/hgdp.anc.deg.vcf.gz",
+                polarize_probabilistically=True,
+                max_sites=10000,
+                n=n
+            )
+
+            sfs_prob = p1.parse()
+
+            p2 = fd.Parser(
+                vcf="resources/genome/sapiens/hgdp.anc.deg.vcf.gz",
+                polarize_probabilistically=False,
+                max_sites=10000,
+                n=n
+            )
+
+            sfs_fixed = p2.parse()
+
+            spectra = fd.Spectra(dict(
+                prob=sfs_prob.all,
+                fixed=sfs_fixed.all
+            ))
+
+            spectra.plot()
+
+            # mean relative difference much lower than threshold for most bins
+            self.assertLess(np.abs((sfs_prob.all.data - sfs_fixed.all.data) / sfs_fixed.all.data).mean(), 0.12)
+

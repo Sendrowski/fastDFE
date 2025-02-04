@@ -632,7 +632,7 @@ class TargetSiteCounter:
 
         # check if we have a SNPFiltration
         if not any([isinstance(f, SNPFiltration) for f in self.parser.filtrations]):
-            self._logger.warning("Recommended to use a SNPFiltration when using target site "
+            self._logger.warning("It is recommended to use SNPFiltration when using target site "
                                  "counter to avoid biasing the result by monomorphic sites.")
 
         # check if have degeneracy stratification but no degeneracy annotation
@@ -885,6 +885,7 @@ class Parser(MultiHandler):
             gff: str | None = None,
             fasta: str | None = None,
             info_ancestral: str = 'AA',
+            info_ancestral_prob: str = 'AA_prob',
             skip_non_polarized: bool = True,
             stratifications: List[Stratification] = [],
             annotations: List[Annotation] = [],
@@ -897,6 +898,7 @@ class Parser(MultiHandler):
             aliases: Dict[str, List[str]] = {},
             target_site_counter: TargetSiteCounter = None,
             subsample_mode: Literal['random', 'probabilistic'] = 'probabilistic',
+            polarize_probabilistically: bool = False
     ):
         """
         Initialize the parser.
@@ -930,6 +932,12 @@ class Parser(MultiHandler):
         :param subsample_mode: The subsampling mode. For ``random``, we draw once without replacement from the set of
             all available genotypes per site. For ``probabilistic``, we add up the hypergeometric distribution for all
             sites. This will produce a smoother SFS, especially when a small number of sites is considered.
+        :param polarize_probabilistically: Whether to probabilistically polarize sites. In addition to the ``AA`` tag
+            (see ``info_ancestral``), we use the ``AA_prob`` tag (see ``info_ancestral_prob``) to polarize sites
+            probabilistically. For example, if the ancestral allele is ``A`` with a probability of 0.8 and
+            the derived allele is ``G``, we assign 0.8 probability mass to the ancestral allele and 0.2 to the
+            derived allele. This should enhance accuracy, especially for small datasets. Whenever the ancestral
+            probability tag is not present, we assume a probability of 1 for the ancestral allele.
         """
         MultiHandler.__init__(
             self,
@@ -979,6 +987,9 @@ class Parser(MultiHandler):
         #: The number of sites that were skipped for various reasons
         self.n_skipped: int = 0
 
+        # The number of sites with a valid ancestral allele probability
+        self.n_aa_prob: int = 0
+
         #: The number of sites that were skipped because they had no valid ancestral allele
         self.n_no_ancestral: int = 0
 
@@ -995,6 +1006,12 @@ class Parser(MultiHandler):
 
         #: The subsampling mode
         self.subsample_mode: Literal['random', 'probabilistic'] = subsample_mode
+
+        #: The tag in the INFO field that contains the ancestral allele probability
+        self.info_ancestral_prob: str = info_ancestral_prob
+
+        #: Whether to probabilistically polarize sites
+        self.polarize_probabilistically: bool = polarize_probabilistically
 
     def _get_ancestral(self, variant: Variant | DummyVariant) -> str:
         """
@@ -1025,6 +1042,20 @@ class Parser(MultiHandler):
         # if the reference allele is not a valid base, we raise an error
         raise NoTypeException("Reference allele is not a valid base")
 
+    def _get_ancestral_prob(self, variant: Variant | DummyVariant) -> float:
+        """
+        Determine the ancestral allele probabilistically.
+
+        :param variant: The vcf site
+        :return: The probability of the ancestral allele being the true ancestral allele
+        """
+        if variant.is_snp and self.polarize_probabilistically and variant.INFO.get(
+                self.info_ancestral_prob) is not None:
+            self.n_aa_prob += 1
+            return variant.INFO[self.info_ancestral_prob]
+
+        return 1.0
+
     def _parse_site(self, variant: Variant | DummyVariant) -> bool:
         """
         Parse a single site.
@@ -1032,6 +1063,7 @@ class Parser(MultiHandler):
         :param variant: The variant.
         :return: Whether the site was included in the SFS.
         """
+        # check `is_snp` property for performance reasons but site may still be monomorphic
         if variant.is_snp:
 
             # obtain called bases
@@ -1052,20 +1084,33 @@ class Parser(MultiHandler):
                 self.n_no_ancestral += 1
                 return False
 
+            # determine ancestral allele probability
+            aa_prob = self._get_ancestral_prob(variant)
+
             # count called bases
             counter = Counter(genotypes)
 
             # determine ancestral allele count
             n_aa = counter[aa]
 
-            # Determine down-projected allele count.
-            # Here we implicitly assume that the site is bi-allelic.
+            if len(counter) > 2:
+                self._logger.debug(f'Site has more than two alleles at {variant.CHROM}:{variant.POS} ({dict(counter)})')
+                return False
+
+            # determine down-projected allele count.
             if self.subsample_mode == 'random':
                 m = np.zeros(self.n + 1)
                 k = hypergeom.rvs(M=n_samples, n=n_samples - n_aa, N=self.n, random_state=self.rng)
-                m[k] = 1
+
+                m[k] += aa_prob
+                m[self.n - k] += 1 - aa_prob
             else:
+                # subsample probabilistically drawing from the hypergeometric distribution (without replacement)
                 m = hypergeom.pmf(k=range(self.n + 1), M=n_samples, n=n_samples - n_aa, N=self.n)
+
+                # polarize probabilistically if site is bi-allelic
+                if len(counter) == 2:
+                    m = aa_prob * m + (1 - aa_prob) * m[::-1]
 
         # if we have a mono-allelic SNPs
         elif is_monomorphic_snp(variant):
@@ -1239,12 +1284,15 @@ class Parser(MultiHandler):
             # warn that sites might not be polarized
             if self.skip_non_polarized and not any(isinstance(a, AncestralAlleleAnnotation) for a in self.annotations):
                 self._logger.warning("Your variants might not be polarized and are thus not included in the spectra. "
-                                     "If this is the case, consider using an ancestral allele annotation or setting "
-                                     "'skip_non_polarized' to False.")
+                                     "If this is the case, consider annotating the ancestral states or setting "
+                                     "'Parser.skip_non_polarized' to False.")
         else:
             n_included = self.n_sites - self.n_skipped
 
             self._logger.info(f'Included {n_included} out of {self.n_sites} sites in total from the VCF file.')
+
+            if self.polarize_probabilistically:
+                self._logger.info(f'Considered {self.n_aa_prob} sites with valid ancestral allele probability.')
 
         # close VCF reader
         VCFHandler._rewind(self)

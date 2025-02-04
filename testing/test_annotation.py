@@ -3350,3 +3350,38 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         )
 
         self.assertIsNone(a.prior)
+
+    def test_betula_validate_prob_aa_field(self):
+        """
+        Test the MLEAncestralAlleleAnnotation class on the betula vcf file.
+        """
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            n_runs=1,
+            n_ingroups=5,
+            max_sites=100,
+            n_target_sites=100000,
+            model=fd.JCSubstitutionModel()
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+            fasta="resources/genome/betula/genome.fasta",
+            output='scratch/test_betula_validate_prob_aa_field.vcf',
+            annotations=[anc],
+            max_sites=100
+        )
+
+        _annotate_site = anc.annotate_site
+        probs = []
+        def annotate_site(variant):
+            _annotate_site(variant)
+            probs.append(variant.INFO['AA_prob'])
+            return variant
+
+        anc.annotate_site = annotate_site
+
+        ann.annotate()
+
+        # make sure all probabilities are greater than 0.5
+        self.assertGreater(min(probs), 0.5)
