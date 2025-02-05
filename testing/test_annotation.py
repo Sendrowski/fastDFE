@@ -1436,7 +1436,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         """
         Test the AdhocAncestralAnnotation class on the betula vcf file.
         """
-        anc = fd.annotation._AdHocAncestralAnnotation(
+        anc = fd.annotation.AdHocAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_ingroups=5,
             subsample_mode='random'
@@ -1456,7 +1456,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         """
         Test the AdhocAncestralAnnotation class on the betula vcf file.
         """
-        anc = fd.annotation._AdHocAncestralAnnotation(
+        anc = fd.annotation.AdHocAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
             n_ingroups=5,
             subsample_mode='probabilistic'
@@ -1882,7 +1882,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
                 )
             )
 
-            site_info = fd.annotation._AdHocAncestralAnnotation._get_site_info(site_config)
+            site_info = fd.annotation.AdHocAncestralAnnotation._get_site_info(site_config)
 
             self.assertEqual(site_info['ancestral_base'], config['ancestral_expected'])
 

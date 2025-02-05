@@ -3840,7 +3840,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
                         ref = configs[np.argmax([c.multiplicity for c in configs])]
 
                         # obtain ad hoc annotation for sanity checking
-                        site_info_ad_hoc = _AdHocAncestralAnnotation._get_site_info(ref)
+                        site_info_ad_hoc = AdHocAncestralAnnotation._get_site_info(ref)
 
                         # log warning if ad hoc and maximum likelihood annotation disagree
                         if site_info_ad_hoc['ancestral_base'] != site.major_ancestral:
@@ -4013,7 +4013,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         return n_transitions / n_transversions
 
 
-class _AdHocAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
+class AdHocAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
     """
     Ad-hoc ancestral allele annotation using simple rules. Used for testing and sanity checking.
     """
