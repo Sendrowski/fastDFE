@@ -12,11 +12,10 @@ import itertools
 import logging
 from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
-from typing import List, Callable, Literal, Optional, Dict, Tuple
+from typing import List, Callable, Literal, Optional, Dict, Tuple, Union
 
 import numpy as np
 from Bio.SeqRecord import SeqRecord
-from cyvcf2 import Variant
 from scipy.stats import hypergeom
 from tqdm import tqdm
 
@@ -37,7 +36,7 @@ def _count_valid_type(func: Callable) -> Callable:
     """
 
     @functools.wraps(func)
-    def wrapper(self, variant: Variant | DummyVariant):
+    def wrapper(self, variant: Union['cyvcf2.Variant', DummyVariant]):
         """
         Wrapper function.
 
@@ -91,7 +90,7 @@ class Stratification(ABC):
         self._logger.info(f"Number of sites with valid type: {self.n_valid}")
 
     @abstractmethod
-    def get_type(self, variant: Variant | DummyVariant) -> Optional[str]:
+    def get_type(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> Optional[str]:
         """
         Get type of given Variant. Only the types
         given by :meth:`get_types()` are valid, or ``None`` if
@@ -175,7 +174,7 @@ class BaseContextStratification(Stratification, FASTAHandler):
         self.contig = None
 
     @_count_valid_type
-    def get_type(self, variant: Variant | DummyVariant) -> str:
+    def get_type(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> str:
         """
         Get the base context for a given mutation
 
@@ -229,7 +228,7 @@ class BaseTransitionStratification(SNPStratification):
     """
 
     @_count_valid_type
-    def get_type(self, variant: Variant | DummyVariant) -> str:
+    def get_type(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> str:
         """
         Get the base transition for the given variant.
 
@@ -267,7 +266,7 @@ class TransitionTransversionStratification(BaseTransitionStratification):
     """
 
     @_count_valid_type
-    def get_type(self, variant: Variant | DummyVariant) -> str:
+    def get_type(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> str:
         """
         Get the mutation type (transition or transversion) for a given mutation.
 
@@ -305,7 +304,7 @@ class AncestralBaseStratification(Stratification):
     """
 
     @_count_valid_type
-    def get_type(self, variant: Variant | DummyVariant) -> str:
+    def get_type(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> str:
         """
         Get the type which is the reference allele.
 
@@ -333,7 +332,7 @@ class DegeneracyStratification(Stratification):
 
     def __init__(
             self,
-            custom_callback: Callable[[Variant], str] = None,
+            custom_callback: Callable[['cyvcf2.Variant'], str] = None,
     ):
         """
         Initialize the stratification.
@@ -346,7 +345,7 @@ class DegeneracyStratification(Stratification):
         self.get_degeneracy = custom_callback if custom_callback is not None else self._get_degeneracy_default
 
     @staticmethod
-    def _get_degeneracy_default(variant: Variant | DummyVariant) -> Optional[Literal['neutral', 'selected']]:
+    def _get_degeneracy_default(variant: Union['cyvcf2.Variant', DummyVariant]) -> Optional[Literal['neutral', 'selected']]:
         """
         Get degeneracy based on 'Degeneracy' tag.
 
@@ -367,7 +366,7 @@ class DegeneracyStratification(Stratification):
             raise NoTypeException(f"Degeneracy tag has invalid value: '{degeneracy}' at {variant.CHROM}:{variant.POS}")
 
     @_count_valid_type
-    def get_type(self, variant: Variant | DummyVariant) -> Literal['neutral', 'selected']:
+    def get_type(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> Literal['neutral', 'selected']:
         """
         Get the degeneracy.
 
@@ -405,7 +404,7 @@ class SynonymyStratification(SNPStratification):
         return ['neutral', 'selected']
 
     @_count_valid_type
-    def get_type(self, variant: Variant | DummyVariant) -> Literal['neutral', 'selected']:
+    def get_type(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> Literal['neutral', 'selected']:
         """
         Get the synonymy using the custom synonymy annotation.
 
@@ -446,7 +445,7 @@ class VEPStratification(SynonymyStratification):
         return ['neutral', 'selected']
 
     @_count_valid_type
-    def get_type(self, variant: Variant | DummyVariant) -> Literal['neutral', 'selected']:
+    def get_type(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> Literal['neutral', 'selected']:
         """
         Get the synonymy of a site.
 
@@ -486,7 +485,7 @@ class ContigStratification(GenomePositionDependentStratification):
     """
 
     @_count_valid_type
-    def get_type(self, variant: Variant | DummyVariant) -> str:
+    def get_type(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> str:
         """
         Get the contig.
 
@@ -553,7 +552,7 @@ class ChunkedStratification(GenomePositionDependentStratification):
         return [f'chunk{i}' for i in range(self.n_chunks)]
 
     @_count_valid_type
-    def get_type(self, variant: Variant | DummyVariant) -> str:
+    def get_type(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> str:
         """
         Get the type.
 
@@ -1013,7 +1012,7 @@ class Parser(MultiHandler):
         #: Whether to probabilistically polarize sites
         self.polarize_probabilistically: bool = polarize_probabilistically
 
-    def _get_ancestral(self, variant: Variant | DummyVariant) -> str:
+    def _get_ancestral(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> str:
         """
         Determine the ancestral allele.
 
@@ -1042,7 +1041,7 @@ class Parser(MultiHandler):
         # if the reference allele is not a valid base, we raise an error
         raise NoTypeException("Reference allele is not a valid base")
 
-    def _get_ancestral_prob(self, variant: Variant | DummyVariant) -> float:
+    def _get_ancestral_prob(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> float:
         """
         Determine the ancestral allele probabilistically.
 
@@ -1056,7 +1055,7 @@ class Parser(MultiHandler):
 
         return 1.0
 
-    def _parse_site(self, variant: Variant | DummyVariant) -> bool:
+    def _parse_site(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> bool:
         """
         Parse a single site.
 
@@ -1138,7 +1137,7 @@ class Parser(MultiHandler):
 
         return True
 
-    def _process_site(self, variant: Variant | DummyVariant) -> bool:
+    def _process_site(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> bool:
         """
         Handle a single variant.
 

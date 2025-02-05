@@ -24,7 +24,6 @@ import requests
 from Bio import SeqIO
 from Bio.SeqIO.FastaIO import FastaIterator
 from Bio.SeqRecord import SeqRecord
-from cyvcf2 import Variant, VCF
 from pandas.errors import SettingWithCopyWarning
 from tqdm import tqdm
 
@@ -68,7 +67,7 @@ def get_major_base(genotypes: Sequence[str]) -> str | None:
         return Counter(bases).most_common()[0][0]
 
 
-def is_monomorphic_snp(variant: Union[Variant, 'DummyVariant']) -> bool:
+def is_monomorphic_snp(variant: Union['cyvcf2.Variant', 'DummyVariant']) -> bool:
     """
     Whether the given variant is a monomorphic SNP.
 
@@ -80,7 +79,7 @@ def is_monomorphic_snp(variant: Union[Variant, 'DummyVariant']) -> bool:
 
 
 def count_sites(
-        vcf: str | Iterable[Variant],
+        vcf: str | Iterable['cyvcf2.Variant'],
         max_sites: int = np.inf,
         desc: str = 'Counting sites'
 ) -> int:
@@ -583,7 +582,7 @@ class VCFHandler(FileHandler):
 
     def __init__(
             self,
-            vcf: str | Iterable[Variant],
+            vcf: str | Iterable['cyvcf2.Variant'],
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
             seed: int | None = 0,
@@ -618,7 +617,7 @@ class VCFHandler(FileHandler):
         self.rng = np.random.default_rng(seed=seed)
 
     @cached_property
-    def _reader(self) -> VCF:
+    def _reader(self) -> 'cyvcf2.VCF':
         """
         Get the VCF reader.
 
@@ -634,12 +633,14 @@ class VCFHandler(FileHandler):
             # noinspection all
             del self._reader
 
-    def load_vcf(self) -> VCF:
+    def load_vcf(self) -> 'cyvcf2.VCF':
         """
         Load a VCF file into a dictionary.
 
         :return: The VCF reader.
         """
+        from cyvcf2 import VCF
+
         self._logger.info("Loading VCF file")
 
         return VCF(self.download_if_url(self.vcf))
@@ -687,7 +688,7 @@ class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
 
     def __init__(
             self,
-            vcf: str | Iterable[Variant],
+            vcf: str | Iterable['cyvcf2.Variant'],
             fasta: str | None = None,
             gff: str | None = None,
             info_ancestral: str = 'AA',
