@@ -345,7 +345,9 @@ class DegeneracyStratification(Stratification):
         self.get_degeneracy = custom_callback if custom_callback is not None else self._get_degeneracy_default
 
     @staticmethod
-    def _get_degeneracy_default(variant: Union['cyvcf2.Variant', DummyVariant]) -> Optional[Literal['neutral', 'selected']]:
+    def _get_degeneracy_default(
+            variant: Union['cyvcf2.Variant', DummyVariant]
+    ) -> Optional[Literal['neutral', 'selected']]:
         """
         Get degeneracy based on 'Degeneracy' tag.
 
@@ -484,6 +486,17 @@ class ContigStratification(GenomePositionDependentStratification):
     Stratify SFS by contig.
     """
 
+    def __init__(self, contigs: List[str] = None):
+        """
+        Initialize the stratification.
+
+        :param contigs: List of contigs to stratify by. Defaults to all contigs in the VCF file.
+        """
+        super().__init__()
+
+        #: List of contigs
+        self.contigs: List[str] = contigs
+
     @_count_valid_type
     def get_type(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> str:
         """
@@ -492,6 +505,9 @@ class ContigStratification(GenomePositionDependentStratification):
         :param variant: The vcf site
         :return: The contig name
         """
+        if variant.CHROM not in self.contigs:
+            raise NoTypeException(f"Contig '{variant.CHROM}' not in list of contigs.")
+
         return variant.CHROM
 
     def get_types(self) -> List[str]:
@@ -500,7 +516,7 @@ class ContigStratification(GenomePositionDependentStratification):
 
         :return: List of contexts
         """
-        return list(self.parser._reader.seqnames)
+        return self.contigs or list(self.parser._reader.seqnames)
 
 
 class ChunkedStratification(GenomePositionDependentStratification):
