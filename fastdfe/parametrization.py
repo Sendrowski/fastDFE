@@ -7,6 +7,7 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-02-26"
 
 import logging
+import warnings
 from abc import abstractmethod, ABC
 from functools import wraps
 from typing import Callable, List, Union, Dict, Tuple, Literal, Sequence
@@ -727,8 +728,12 @@ class DiscreteParametrization(Parametrization):
             # cumulative probability up to previous bin
             cum_prev = cum[np.maximum(i - 1, np.zeros_like(S, dtype=int))]
 
-            # probability in current bin
-            cum_within = np.abs(intervals[i] - S) / interval_sizes[i] * vals[i]
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+
+                # probability in current bin
+                cum_within = np.abs(intervals[i] - S) / interval_sizes[i] * vals[i]
+
             cum_within[np.isnan(cum_within)] = 0
 
             # return cumulative probability
@@ -917,8 +922,12 @@ class DiscreteFractionalParametrization(Parametrization):
             # cumulative probability up into previous bin
             cum_prev = cum[np.maximum(i - 1, np.zeros_like(S, dtype=int))]
 
-            # probability in current bin
-            cum_within = np.abs(intervals[i] - S) / interval_sizes[i] * vals[i]
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+
+                # probability in current bin
+                cum_within = np.abs(intervals[i] - S) / interval_sizes[i] * vals[i]
+
             cum_within[np.isnan(cum_within)] = 0
 
             # return cumulative probability
