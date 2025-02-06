@@ -505,7 +505,7 @@ class ContigStratification(GenomePositionDependentStratification):
         :param variant: The vcf site
         :return: The contig name
         """
-        if variant.CHROM not in self.contigs:
+        if self.contigs is not None and variant.CHROM not in self.contigs:
             raise NoTypeException(f"Contig '{variant.CHROM}' not in list of contigs.")
 
         return variant.CHROM
