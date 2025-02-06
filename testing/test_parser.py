@@ -1,12 +1,12 @@
 import logging
 
 import dadi
+import fastdfe as fd
 import numpy as np
 import pandas as pd
 import pytest
-
-import fastdfe as fd
 from fastdfe.io_handlers import get_called_bases
+from unittest.mock import Mock
 from testing import TestCase
 
 
@@ -137,7 +137,7 @@ class ParserTestCase(TestCase):
         assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
 
     @staticmethod
-    def test_contig_stratification():
+    def test_contig_stratification_dataset():
         """
         Test the degeneracy stratification.
         """
@@ -156,6 +156,17 @@ class ParserTestCase(TestCase):
 
         # assert that all types are a subset of the stratification
         assert set(sfs.types).issubset(set(p.stratifications[0].get_types()))
+
+    def test_contig_stratification(self):
+        """
+        Test the contig stratification.
+        """
+        s = fd.ContigStratification(['contig1', 'contig2'])
+
+        self.assertEqual(s.get_types(), ['contig1', 'contig2'])
+        self.assertNotEqual(s.get_types(), ['contig1', 'contig3'])
+        self.assertEqual(s.get_type(Mock(CHROM='contig1')), 'contig1')
+        self.assertNotEqual(s.get_type(Mock(CHROM='contig1')), 'contig2')
 
     @staticmethod
     def test_chunked_stratification():
@@ -1158,7 +1169,6 @@ class ParserTestCase(TestCase):
         The used VCF files don't contain AA probability tags.
         """
         for n in [9, 10]:
-
             p1 = fd.Parser(
                 vcf="resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz",
                 polarize_probabilistically=True,
@@ -1294,4 +1304,3 @@ class ParserTestCase(TestCase):
 
             # mean relative difference much lower than threshold for most bins
             self.assertLess(np.abs((sfs_prob.all.data - sfs_fixed.all.data) / sfs_fixed.all.data).mean(), 0.12)
-
