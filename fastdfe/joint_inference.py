@@ -887,7 +887,7 @@ class JointInference(BaseInference):
         Compare likelihood of joint inference with product of marginal likelihoods.
         This provides information about the goodness of fit achieved by the parameter sharing.
         Low p-values indicate that parameter sharing is not justified, i.e., that the marginal
-        inferences provide a better fit to the data. Note that it is more difficult to properly
+        inferences provide a significantly better fit to the data. Note that it is more difficult to properly
         optimize the joint likelihood, which makes this test conservative, i.e., the reported p-value
         might be larger than what it really is.
 
