@@ -549,6 +549,32 @@ class BiasedGCConversionFiltration(Filtration):
 
         return True
 
+class ContigFiltration(Filtration):
+    """
+    Filter out sites that are not on the specified contigs.
+    """
+
+    def __init__(self, contigs: List[str]):
+        """
+        Construct ContigFiltration.
+
+        :param contigs: The contigs to retain.
+        """
+        super().__init__()
+
+        #: The contigs to retain.
+        self.contigs: List[str] = contigs
+
+    @_count_filtered
+    def filter_site(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> bool:
+        """
+        Filter site.
+
+        :param variant: The variant to filter.
+        :return: ``True`` if the variant is on one of the specified contigs, ``False`` otherwise.
+        """
+        return variant.CHROM in self.contigs
+
 
 class Filterer(MultiHandler):
     """

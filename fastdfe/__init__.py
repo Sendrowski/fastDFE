@@ -136,7 +136,7 @@ from .annotation import Annotator, Annotation, MaximumParsimonyAncestralAnnotati
     K2SubstitutionModel, JCSubstitutionModel, PolarizationPrior, KingmanPolarizationPrior, AdaptivePolarizationPrior
 from .filtration import Filterer, Filtration, SNPFiltration, PolyAllelicFiltration, CodingSequenceFiltration, \
     SNVFiltration, DeviantOutgroupFiltration, AllFiltration, NoFiltration, BiasedGCConversionFiltration, \
-    ExistingOutgroupFiltration
+    ExistingOutgroupFiltration, ContigFiltration
 
 __all__ = [
     'Parametrization',
@@ -196,5 +196,6 @@ __all__ = [
     'PolyAllelicFiltration',
     'BiasedGCConversionFiltration',
     'ExistingOutgroupFiltration',
+    'ContigFiltration',
     'Filterer',
 ]

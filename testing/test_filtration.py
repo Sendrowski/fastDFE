@@ -399,3 +399,12 @@ class FiltrationTestCase(TestCase):
         assert f.filter_site(variant=VariantMock(REF='G', ALT=['C']))
         assert f.filter_site(variant=VariantMock(REF='A', ALT=['T']))
         assert f.filter_site(variant=VariantMock(REF='T', ALT=['A']))
+
+    def test_contig_filtration(self):
+        """
+        Test the contig filtration.
+        """
+        f = fd.ContigFiltration(contigs=['chr1'])
+
+        self.assertTrue(f.filter_site(variant=Mock(CHROM='chr1')))
+        self.assertFalse(f.filter_site(variant=Mock(CHROM='chr2')))
