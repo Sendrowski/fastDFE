@@ -518,6 +518,51 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inference.plot_nested_models(do_bootstrap=False)
 
+    def test_compare_nested_different_parametrizations_raises_error(self):
+        """
+        Make sure that comparing nested likelihoods with different parametrizations raises an error.
+        """
+        config1 = fd.Config.from_file(self.config_file)
+        config1.update(model=fd.GammaExpParametrization())
+        inf1 = fd.BaseInference.from_config(config1)
+
+        config2 = fd.Config.from_file(self.config_file)
+        config2.update(model=fd.DiscreteParametrization())
+        inf2 = fd.BaseInference.from_config(config2)
+
+        with self.assertRaises(ValueError):
+            inf1.compare_nested(inf2)
+
+    def test_compare_nested_different_fixed_params_return_none(self):
+        """
+        Make sure that comparing nested likelihoods with different fixed parameters returns None.
+        """
+        config1 = fd.Config.from_file(self.config_file)
+        config1.update(fixed_params=dict(all=dict(S_b=1, p_b=0)))
+        inf1 = fd.BaseInference.from_config(config1)
+
+        config2 = fd.Config.from_file(self.config_file)
+        config2.update(fixed_params=dict(all=dict(S_b=1, eps=0)))
+        inf2 = fd.BaseInference.from_config(config2)
+
+        self.assertIsNone(inf1.compare_nested(inf2))
+
+    def test_compare_nested_valid_comparison_1df(self):
+        """
+        Make sure that comparing nested models with the same parametrization works as expected.
+        """
+        config1 = fd.Config.from_file(self.config_file)
+        config1.update(fixed_params=dict(all=dict(S_b=1, p_b=0)), do_bootstrap=False)
+        inf1 = fd.BaseInference.from_config(config1)
+        inf1.run()
+
+        config2 = fd.Config.from_file(self.config_file)
+        config2.update(fixed_params=dict(all=dict(S_b=1)), do_bootstrap=False)
+        inf2 = fd.BaseInference.from_config(config2)
+        inf2.run()
+
+        inf1.compare_nested(inf2)
+
     def test_plot_nested_model_comparison_without_running(self):
         """
         Perform nested model comparison before having run the main inference.

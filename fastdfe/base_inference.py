@@ -1199,7 +1199,7 @@ class BaseInference(AbstractInference):
 
     def lrt(self, ll_simple: float, ll_complex: float, df: int = 1) -> float:
         """
-        Perform the likelihood ratio test (LRT).
+        Perform a likelihood ratio test (LRT).
 
         .. note::
             We do not adjust the test for parameters that are on the boundary of the parameter space.
@@ -1225,8 +1225,12 @@ class BaseInference(AbstractInference):
         subset of this model's fixed parameters.
 
         :param complex: More complex model.
-        :return: p-value
+        :return: p-value or None if the models are not nested.
+        :raises ValueError: If the inference objects use different DFE parametrizations.
         """
+        if type(self.model) != type(complex.model):
+            raise ValueError(f'DFE parametrizations are not the same: {type(self.model)} vs. {type(complex.model)}.')
+
         # optimization holds the flattened dictionary
         fixed_complex = set(complex.optimization.fixed_params.keys())
         fixed_simple = set(self.optimization.fixed_params.keys())
