@@ -1231,6 +1231,10 @@ class BaseInference(AbstractInference):
         if type(self.model) != type(complex.model):
             raise ValueError(f'DFE parametrizations are not the same: {type(self.model)} vs. {type(complex.model)}.')
 
+        # run inference if not done yet
+        self.run_if_required()
+        complex.run_if_required()
+
         # optimization holds the flattened dictionary
         fixed_complex = set(complex.optimization.fixed_params.keys())
         fixed_simple = set(self.optimization.fixed_params.keys())

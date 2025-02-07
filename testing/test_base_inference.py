@@ -561,7 +561,21 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf2 = fd.BaseInference.from_config(config2)
         inf2.run()
 
-        inf1.compare_nested(inf2)
+        assert 0 < inf1.compare_nested(inf2) < 1
+
+    def test_compare_nested_valid_automatic_run(self):
+        """
+        Make sure that comparing nested models with the same parametrization works as expected.
+        """
+        config1 = fd.Config.from_file(self.config_file)
+        config1.update(fixed_params=dict(all=dict(S_b=1, p_b=0)), do_bootstrap=False)
+        inf1 = fd.BaseInference.from_config(config1)
+
+        config2 = fd.Config.from_file(self.config_file)
+        config2.update(fixed_params=dict(all=dict(S_b=1)), do_bootstrap=False)
+        inf2 = fd.BaseInference.from_config(config2)
+
+        assert 0 < inf1.compare_nested(inf2) < 1
 
     def test_plot_nested_model_comparison_without_running(self):
         """
