@@ -1223,6 +1223,7 @@ class BaseInference(AbstractInference):
         Perform likelihood ratio test with given more complex model.
         The given model's fixed parameters need to be a proper
         subset of this model's fixed parameters.
+        Low p-values indicate that the more complex model provides a significantly better fit.
 
         :param complex: More complex model.
         :return: p-value or None if the models are not nested.
