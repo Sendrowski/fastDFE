@@ -566,7 +566,7 @@ class BaseInference(AbstractInference):
             self._logger.warning("Numerical optimization did not terminate normally, so "
                                  "the result might be unreliable. Consider adjusting "
                                  "the optimization parameters (increasing `gtol` or `n_runs`) "
-                                 "or decrease the number of optimized parameters.")
+                                 "or decreasing the number of optimized parameters.")
 
         # param string for MLE params
         param_string = str(flatten_dict(params)).replace('\'', '')
