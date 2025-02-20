@@ -12,6 +12,7 @@ import itertools
 import json
 import logging
 import time
+from math import comb
 from typing import List, Optional, Dict, Literal, cast, Tuple, Sequence
 
 import jsonpickle
@@ -577,6 +578,9 @@ class BaseInference(AbstractInference):
         """
         Update the properties of this class with the given dictionary
         given that its entries are not ``None``.
+
+        .. warning::
+            This will fail to update the optimization instance among other things. Avoid using this method.
 
         :meta private:
         :param kwargs: Dictionary of properties to update.
@@ -1197,26 +1201,113 @@ class BaseInference(AbstractInference):
             ylabel=ylabel,
         )
 
-    def lrt(self, ll_simple: float, ll_complex: float, df: int = 1) -> float:
+    def _lrt_components(
+            self,
+            ll_simple: float,
+            ll_complex: float,
+            df: int,
+            m: int = 0
+    ) -> (np.ndarray, np.ndarray, np.ndarray):
         """
-        Perform a likelihood ratio test (LRT).
-
-        .. note::
-            We do not adjust the test for parameters that are on the boundary of the parameter space.
+        Perform a likelihood ratio test (LRT) with correction for boundary constraints as described in
+        Molenberghs et Verbeke (2007) (https://doi.org/10.2307/1403361).
 
         :param ll_simple: Log-likelihood of the simple model.
         :param ll_complex: Log-likelihood of the complex model.
-        :param df: Degrees of freedom.
-        :return: p-value
+        :param df: Total number of parameters being tested.
+        :param m: Number of parameters at the boundary.
+        :return: Weights and components (p-values), and degrees of freedom.
+        :raises ValueError: If the number of parameters at the boundary exceeds the total number of parameters.
         """
+        if m > df:
+            raise ValueError('Number of parameters at the boundary exceeds total number of parameters.')
+
         lr = -2 * (ll_simple - ll_complex)
 
-        # issue info message
+        # Issue info message
         self._logger.info(f"Simple model likelihood: {ll_simple}, "
-                          f"complex model likelihood: {ll_complex}, "
-                          f"degrees of freedom: {df}.")
+                          f"Complex model likelihood: {ll_complex}, "
+                          f"Total degrees of freedom: {df}, "
+                          f"Parameters at boundary: {m}.")
 
-        return chi2.sf(lr, int(df))
+        # compute mixture weights
+        weights = np.array([comb(m, j - (df - m)) / (2 ** m) for j in range(df - m, df + 1)])
+
+        # zero degrees of freedom is point mass at 0
+        components = np.array([(0 if j == 0 else chi2.sf(lr, j)) for j in range(df - m, df + 1)])
+        df = np.array([j for j in range(df - m, df + 1)])
+
+        self._logger.debug(
+            " + ".join([f"{weight} * {component:.3f}" for weight, component in zip(weights, components)])
+        )
+
+        return weights, components, df
+
+    def lrt(self, ll_simple: float, ll_complex: float, df: int, m: int = 0) -> float:
+        """
+        Perform a likelihood ratio test (LRT) with correction for boundary constraints as described in
+        Molenberghs et Verbeke (2007) (https://doi.org/10.2307/1403361).
+
+        :param ll_simple: Log-likelihood of the simple model.
+        :param ll_complex: Log-likelihood of the complex model.
+        :param df: Total number of parameters being tested.
+        :param m: Number of parameters at the boundary.
+        :return: p-value
+        """
+        weights, components, _ = self._lrt_components(ll_simple, ll_complex, df, m)
+
+        return np.sum(weights * components)
+
+    def _is_nested(self, complex: 'BaseInference') -> bool:
+        """
+        Check if the given model is nested within the current model.
+        The given model's fixed parameters need to be a proper subset of this model's fixed parameters.
+
+        :param complex: More complex model.
+        :return: Whether the models are nested.
+        """
+        if type(self.model) != type(complex.model):
+            return False
+
+        # optimization holds the flattened dictionary
+        fixed_complex = set(complex.optimization.fixed_params.keys())
+        fixed_simple = set(self.optimization.fixed_params.keys())
+
+        return fixed_complex < fixed_simple
+
+    def _get_df_nested(self, complex: 'BaseInference') -> (int, int):
+        """
+        Get the degrees of freedom for the likelihood ratio test.
+
+        :param complex: More complex model.
+        :return: Degrees of freedom and number of parameters at bounds.
+        :raises ValueError: If the models are not nested.
+        """
+        if type(self.model) != type(complex.model):
+            raise ValueError(f'DFE parametrizations are not the same: {type(self.model)} vs. {type(complex.model)}.')
+
+        if not self._is_nested(complex):
+            raise ValueError('Models are not nested.')
+
+        # optimization holds the flattened dictionary
+        fixed_complex = set(complex.optimization.fixed_params.keys())
+        fixed_simple = set(self.optimization.fixed_params.keys())
+
+        # fixed parameters
+        fixed = fixed_simple - fixed_complex
+        fixed_params = self.optimization.fixed_params
+
+        # parameter bounds
+        bounds = self.optimization.bounds
+
+        # number of parameters at bounds
+        m = sum([fixed_params[p] == bounds[p.split('.')[1]][0] or
+                 fixed_params[p] == bounds[p.split('.')[1]][1] for p in fixed])
+
+        # degrees of freedom
+        df = len(fixed)
+
+        return df, m
 
     def compare_nested(self, complex: 'BaseInference') -> float | None:
         """
@@ -1227,27 +1318,15 @@ class BaseInference(AbstractInference):
 
         :param complex: More complex model.
         :return: p-value or None if the models are not nested.
-        :raises ValueError: If the inference objects use different DFE parametrizations.
+        :raises ValueError: If the inference objects are not nested.
         """
-        if type(self.model) != type(complex.model):
-            raise ValueError(f'DFE parametrizations are not the same: {type(self.model)} vs. {type(complex.model)}.')
+        df, m = self._get_df_nested(complex)
 
         # run inference if not done yet
         self.run_if_required()
         complex.run_if_required()
 
-        # optimization holds the flattened dictionary
-        fixed_complex = set(complex.optimization.fixed_params.keys())
-        fixed_simple = set(self.optimization.fixed_params.keys())
-
-        # check that the models are nested
-        if fixed_complex < fixed_simple:
-            # determine degree of freedom
-            d = len(fixed_simple - fixed_complex)
-        else:
-            return
-
-        return self.lrt(self.likelihood, complex.likelihood, d)
+        return self.lrt(self.likelihood, complex.likelihood, df, m)
 
     @_run_if_required_wrapper
     @functools.lru_cache
@@ -1301,10 +1380,14 @@ class BaseInference(AbstractInference):
         inputs = list(itertools.product(inferences.items(), inferences.items()))
 
         # create likelihood ratio matrix
-        P = np.reshape(
-            [cast(BaseInference, i[0][1]).compare_nested(cast(BaseInference, i[1][1])) for i in inputs],
-            (n, n)
-        )
+        P = []
+        for i in inputs:
+            try:
+                P.append(i[0][1].compare_nested(i[1][1]))
+            except ValueError:
+                P.append(None)
+
+        P = np.reshape(P, (n, n))
 
         return P, inferences
 

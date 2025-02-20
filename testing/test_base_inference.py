@@ -533,9 +533,9 @@ class BaseInferenceTestCase(InferenceTestCase):
         with self.assertRaises(ValueError):
             inf1.compare_nested(inf2)
 
-    def test_compare_nested_different_fixed_params_return_none(self):
+    def test_compare_nested_different_fixed_params_raises_error(self):
         """
-        Make sure that comparing nested likelihoods with different fixed parameters returns None.
+        Make sure that comparing nested likelihoods with different fixed parameters raises an error.
         """
         config1 = fd.Config.from_file(self.config_file)
         config1.update(fixed_params=dict(all=dict(S_b=1, p_b=0)))
@@ -545,7 +545,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         config2.update(fixed_params=dict(all=dict(S_b=1, eps=0)))
         inf2 = fd.BaseInference.from_config(config2)
 
-        self.assertIsNone(inf1.compare_nested(inf2))
+        with self.assertRaises(ValueError):
+            inf1.compare_nested(inf2)
 
     def test_compare_nested_valid_comparison_1df(self):
         """
@@ -576,6 +577,59 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf2 = fd.BaseInference.from_config(config2)
 
         assert 0 < inf1.compare_nested(inf2) < 1
+
+    def test_lrt_components(self):
+        """
+        Check whether the weights and degrees of freedom of the components are computed correctly.
+        """
+        inf = fd.BaseInference.from_config_file(self.config_file)
+
+        # test weights
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=1, m=0)[0], [1])
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=1, m=1)[0], [0.5, 0.5])
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=2, m=1)[0], [0.5, 0.5])
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=2, m=2)[0], [0.25, 0.5, 0.25])
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=2, m=0)[0], [1])
+        np.testing.assert_array_equal(
+            inf._lrt_components(ll_simple=50, ll_complex=51, df=3, m=3)[0], [0.125, 0.375, 0.375, 0.125]
+        )
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=3, m=2)[0], [0.25, 0.5, 0.25])
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=3, m=0)[0], [1])
+
+        # test degrees of freedom of components
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=1, m=0)[2], [1])
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=1, m=1)[2], [0, 1])
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=2, m=1)[2], [1, 2])
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=2, m=2)[2], [0, 1, 2])
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=2, m=0)[2], [2])
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=3, m=3)[2], [0, 1, 2, 3])
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=3, m=2)[2], [1, 2, 3])
+        np.testing.assert_array_equal(inf._lrt_components(ll_simple=50, ll_complex=51, df=3, m=0)[2], [3])
+
+    def test_is_nested(self):
+        """
+        Check whether the is_nested method works as expected.
+        """
+        config1 = fd.Config.from_file(self.config_file)
+        config2 = copy.deepcopy(config1).update(model=fd.DiscreteParametrization())
+        config3 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0)))
+        config4 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0, S_b=1)))
+        config5 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0)),
+                                               model=fd.DiscreteParametrization())
+
+        def is_nested(simple: fd.Config, complex: fd.Config) -> bool:
+            return fd.BaseInference.from_config(simple)._is_nested(fd.BaseInference.from_config(complex))
+
+        self.assertFalse(is_nested(simple=config1, complex=config2))
+        self.assertFalse(is_nested(simple=config2, complex=config1))
+        self.assertFalse(is_nested(simple=config1, complex=config1))
+        self.assertFalse(is_nested(simple=config1, complex=config3))
+        self.assertTrue(is_nested(simple=config3, complex=config1))
+        self.assertTrue(is_nested(simple=config4, complex=config1))
+        self.assertTrue(is_nested(simple=config4, complex=config3))
+        self.assertFalse(is_nested(simple=config3, complex=config4))
+        self.assertFalse(is_nested(simple=config3, complex=config5))
+        self.assertFalse(is_nested(simple=config5, complex=config1))
 
     def test_plot_nested_model_comparison_without_running(self):
         """
