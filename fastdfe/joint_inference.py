@@ -624,7 +624,7 @@ class JointInference(BaseInference):
         """
         Perform likelihood ratio test against joint inference without covariates.
         In the simple model we share parameters across types. Low p-values indicate that
-        the covariates provide a significant improvement in the fit.
+        including covariates significantly improves the model fit.
 
         To access the JointInference object without covariates, you can call :meth:`run_joint_without_covariates`,
         which is cached.
@@ -889,7 +889,7 @@ class JointInference(BaseInference):
         Low p-values indicate that parameter sharing is not justified, i.e., that the marginal
         inferences provide a significantly better fit to the data. Note that it is more difficult to properly
         optimize the joint likelihood, which makes this test conservative, i.e., the reported p-value
-        might be larger than what it really is.
+        may be larger than what it should be.
 
         :param do_bootstrap: Whether to perform bootstrapping. This improves the accuracy of the p-value. Note
             that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
