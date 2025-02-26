@@ -232,7 +232,7 @@ class FiltrationTestCase(TestCase):
         assert not filter_obj.filter_site(mock_variant)  # expect False as major base 'A' in ingroup and 'T' in outgroup
 
     @staticmethod
-    def test_existing_outgroup_filtration_single_site():
+    def test_existing_outgroup_filtration_single_site_1_missing():
         """
         Test the existing outgroup filtration.
         """
@@ -274,6 +274,51 @@ class FiltrationTestCase(TestCase):
         filter_obj.samples = np.array(['ingroup1', 'outgroup1', 'outgroup2', 'outgroup3'])
         filter_obj._create_mask()
         mock_variant.gt_bases = np.array(['A/A', 'T/.', 'T/.', 'T/.'])
+        assert filter_obj.filter_site(mock_variant)
+
+    @staticmethod
+    def test_existing_outgroup_filtration_with_varied_n_missing():
+        """
+        Test the existing outgroup filtration with shuffled masks, extra unused samples, and ingroups.
+        """
+        # test case 6: n=2, one missing outgroup, extra unused sample -> should pass
+        mock_variant = Mock(spec=Variant)
+        filter_obj = fd.ExistingOutgroupFiltration(outgroups=['outgroup2', 'outgroup3'], n_missing=2)
+        filter_obj.samples = np.array(['unused1', 'ingroup1', 'outgroup2', 'outgroup3', 'unused2'])
+        filter_obj._create_mask()
+        mock_variant.gt_bases = np.array(['A/A', 'C/C', './.', 'T/T', 'G/G'])
+        assert filter_obj.filter_site(mock_variant)
+
+        # test case 7: n=2, exactly two outgroups missing, shuffled sample order -> should fail
+        mock_variant = Mock(spec=Variant)
+        filter_obj = fd.ExistingOutgroupFiltration(outgroups=['outgroup3', 'outgroup1'], n_missing=2)
+        filter_obj.samples = np.array(['ingroup1', 'outgroup3', 'unused1', 'outgroup1', 'unused2'])
+        filter_obj._create_mask()
+        mock_variant.gt_bases = np.array(['A/A', './.', 'G/G', './.', 'T/T'])
+        assert not filter_obj.filter_site(mock_variant)
+
+        # test case 8: n=3, two missing outgroups, extra ingroup sample -> should pass
+        mock_variant = Mock(spec=Variant)
+        filter_obj = fd.ExistingOutgroupFiltration(outgroups=['outgroup1', 'outgroup2', 'outgroup3'], n_missing=3)
+        filter_obj.samples = np.array(['ingroup1', 'outgroup1', 'ingroup2', 'outgroup2', 'outgroup3'])
+        filter_obj._create_mask()
+        mock_variant.gt_bases = np.array(['A/A', './.', 'C/C', './.', 'T/T'])
+        assert filter_obj.filter_site(mock_variant)
+
+        # test case 9: n=3, exactly three outgroups missing -> should fail
+        mock_variant = Mock(spec=Variant)
+        filter_obj = fd.ExistingOutgroupFiltration(outgroups=['outgroup1', 'outgroup2', 'outgroup3'], n_missing=3)
+        filter_obj.samples = np.array(['outgroup1', 'ingroup1', 'outgroup2', 'outgroup3', 'unused1'])
+        filter_obj._create_mask()
+        mock_variant.gt_bases = np.array(['./.', 'A/A', './.', './.', 'G/G'])
+        assert not filter_obj.filter_site(mock_variant)
+
+        # test case 10: n=3, mixed missing and defined outgroups, with unused samples -> should pass
+        mock_variant = Mock(spec=Variant)
+        filter_obj = fd.ExistingOutgroupFiltration(outgroups=['outgroup1', 'outgroup2', 'outgroup3'], n_missing=3)
+        filter_obj.samples = np.array(['unused1', 'outgroup1', 'ingroup1', 'outgroup2', 'unused2', 'outgroup3'])
+        filter_obj._create_mask()
+        mock_variant.gt_bases = np.array(['G/G', './.', 'A/A', 'T/T', 'C/C', './.'])
         assert filter_obj.filter_site(mock_variant)
 
     @staticmethod
@@ -374,6 +419,7 @@ class FiltrationTestCase(TestCase):
             """
             Mock the variant class.
             """
+
             def __init__(self, REF: str, ALT: List[str]):
                 self.REF = REF
                 self.ALT = ALT

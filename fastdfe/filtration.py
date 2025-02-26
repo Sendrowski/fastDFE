@@ -460,19 +460,23 @@ class DeviantOutgroupFiltration(Filtration):
 
 class ExistingOutgroupFiltration(Filtration):
     """
-    Filter out sites for which at least one of the specified outgroup samples has no called base.
+    Filter out sites for which at least ``n_missing`` of the specified outgroup samples have no called base.
     """
 
-    def __init__(self, outgroups: List[str]):
+    def __init__(self, outgroups: List[str], n_missing: int = 1):
         """
         Construct ExistingOutgroupFiltration.
 
         :param outgroups: The name of the outgroup samples that need to be present to pass the filter.
+        :param n_missing: The number of outgroup samples that need to be missing to fail the filter.
         """
         super().__init__()
 
         #: The outgroup samples.
         self.outgroups: List[str] = outgroups
+
+        #: Minimum number of missing outgroups required to filter out a site.
+        self.n_missing: int = n_missing
 
         #: The samples found in the VCF file.
         self.samples: Optional[np.ndarray] = None
@@ -515,12 +519,11 @@ class ExistingOutgroupFiltration(Filtration):
         # get outgroup genotypes
         outgroups = variant.gt_bases[self.outgroup_mask]
 
-        # filter out if at least one outgroup has no called base
-        for outgroup in outgroups:
-            if len(get_called_bases(outgroup)) == 0:
-                return False
+        # count how many outgroups have no called base
+        missing_count = sum(len(get_called_bases(outgroup)) == 0 for outgroup in outgroups)
 
-        return True
+        # filter out if at least n outgroups are missing
+        return missing_count < self.n_missing
 
 
 class BiasedGCConversionFiltration(Filtration):
