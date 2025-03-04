@@ -168,6 +168,33 @@ class ParserTestCase(TestCase):
         self.assertEqual(s.get_type(Mock(CHROM='contig1')), 'contig1')
         self.assertNotEqual(s.get_type(Mock(CHROM='contig1')), 'contig2')
 
+    def test_random_stratification(self):
+        """
+        Test the RandomStratification class.
+        """
+        # Test with 3 bins and fixed seed
+        s = fd.RandomStratification(n_bins=3, seed=42)
+
+        # Ensure all bin types are generated correctly
+        self.assertEqual(s.get_types(), ['bin0', 'bin1', 'bin2'])
+
+        # Ensure random assignment produces valid bins
+        mock_variant = Mock()
+        bin = s.get_type(mock_variant)
+        self.assertIn(bin, ['bin0', 'bin1', 'bin2'])
+
+        # Test reproducibility: two instances with the same seed should match
+        s2 = fd.RandomStratification(n_bins=3, seed=42)
+        self.assertEqual(bin, s2.get_type(mock_variant))
+
+        # Test with only 1 bin (should always return "bin1")
+        s_single_bin = fd.RandomStratification(n_bins=1, seed=42)
+        self.assertEqual(s_single_bin.get_type(mock_variant), 'bin0')
+
+        # Test invalid num_bins (should raise ValueError)
+        with self.assertRaises(ValueError):
+            fd.RandomStratification(n_bins=0)
+
     @staticmethod
     def test_chunked_stratification():
         """

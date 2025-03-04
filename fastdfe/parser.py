@@ -10,6 +10,7 @@ __date__ = "2023-03-26"
 import functools
 import itertools
 import logging
+import random
 from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
 from typing import List, Callable, Literal, Optional, Dict, Tuple, Union
@@ -585,6 +586,51 @@ class ChunkedStratification(GenomePositionDependentStratification):
         self.counter += 1
 
         return t
+
+
+class RandomStratification(Stratification):
+    """
+    Stratify the SFS randomly into a fixed number of bins.
+    Can be used to analyze expected sampling variance between different stratifications.
+    """
+
+    def __init__(self, n_bins: int, seed: Optional[int] = 0):
+        """
+        Initialize random stratification.
+
+        :param n_bins: Number of bins to randomly assign sites to.
+        """
+        super().__init__()
+
+        if n_bins < 1:
+            raise ValueError("n_bins must be at least 1.")
+
+        #: Number of bins
+        self.num_bins: int = n_bins
+
+        #: Random seed for reproducibility
+        self.seed: Optional[int] = seed
+
+        #: Random generator instance
+        self.rng = random.Random(seed)
+
+    @_count_valid_type
+    def get_type(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> str:
+        """
+        Assign the variant to a random bin.
+
+        :param variant: The VCF site
+        :return: Randomly chosen bin label
+        """
+        return f"bin{self.rng.randint(0, self.num_bins - 1)}"
+
+    def get_types(self) -> List[str]:
+        """
+        Get all possible bin labels.
+
+        :return: List of bin labels
+        """
+        return [f"bin{i}" for i in range(self.num_bins)]
 
 
 class TargetSiteCounter:

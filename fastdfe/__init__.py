@@ -129,7 +129,7 @@ from .spectrum import Spectrum, Spectra
 from .parser import Parser, Stratification, BaseTransitionStratification, BaseContextStratification, \
     DegeneracyStratification, TransitionTransversionStratification, AncestralBaseStratification, \
     SynonymyStratification, VEPStratification, SnpEffStratification, ContigStratification, ChunkedStratification, \
-    TargetSiteCounter
+    RandomStratification, TargetSiteCounter
 from .io_handlers import VCFHandler, FASTAHandler, GFFHandler, FileHandler
 from .annotation import Annotator, Annotation, MaximumParsimonyAncestralAnnotation, SiteInfo, \
     MaximumLikelihoodAncestralAnnotation, DegeneracyAnnotation, SynonymyAnnotation, SubstitutionModel, \
@@ -172,6 +172,7 @@ __all__ = [
     'SnpEffStratification',
     'ContigStratification',
     'ChunkedStratification',
+    'RandomStratification',
     'Annotator',
     'Annotation',
     'SiteInfo',
