@@ -15,7 +15,7 @@ project = 'fastDFE'
 year = datetime.datetime.now().year
 copyright = f'{year}, Janek Sendrowski'
 author = 'Janek Sendrowski'
-release = '1.1.9'
+release = '1.1.10'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -11,7 +11,7 @@ To install the ``fastdfe``, you can use pip:
 
    pip install fastdfe
 
-fastdfe is compatible with Python 3.10, 3.11 and 3.12.
+``fastdfe`` is compatible with Python 3.10 through 3.12.
 
 Conda
 ^^^^^

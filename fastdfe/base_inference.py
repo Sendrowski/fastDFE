@@ -138,7 +138,7 @@ class BaseInference(AbstractInference):
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{'all': {param: value}}``
         :param bounds: Bounds for the optimization in the form ``{param: (lower, upper)}``
-        :param scales: Scales for the optimization in the form ``{param: scale}`
+        :param scales: Scales for the optimization in the form ``{param: scale}``
         :param loss_type: Type of loss function to use for optimization.
         :param opts_mle: Options for the optimization.
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run

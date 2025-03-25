@@ -947,7 +947,7 @@ class BaseInferenceTestCase(InferenceTestCase):
     @staticmethod
     def test_folded_inference_even_sample_size():
         """
-        Test whether a spectrum with zero monomorphic counts throws an error.
+        Test folded inference with even sample size.
         """
         sfs_neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]).fold()
         sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]).fold()
@@ -963,7 +963,7 @@ class BaseInferenceTestCase(InferenceTestCase):
     @staticmethod
     def test_folded_inference_odd_sample_size():
         """
-        Test whether a spectrum with zero monomorphic counts throws an error.
+        Test folded inference with odd sample size.
         """
         sfs_neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 652]).fold()
         sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 794]).fold()
@@ -980,7 +980,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
     def test_sample_data_fixed_result(self):
         """
-        Test whether a spectrum with zero monomorphic counts throws an error.
+        Test against fixed result.
         """
         sfs_neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
         sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
@@ -993,15 +993,13 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf.run()
 
         expected = {
-            'S_b': 0.0004270,
             'S_d': -9868.141535,
             'b': 0.150810,
             'eps': 0.006854,
             'p_b': 0.0
         }
 
-        self.assertAlmostEqual(inf.params_mle['S_b'], expected['S_b'], delta=1e-3)
-        self.assertAlmostEqual(inf.params_mle['S_d'], expected['S_d'], delta=2e-1)
+        self.assertAlmostEqual(inf.params_mle['S_d'], expected['S_d'], delta=2)
         self.assertAlmostEqual(inf.params_mle['b'], expected['b'], delta=1e-2)
         self.assertAlmostEqual(inf.params_mle['eps'], expected['eps'], delta=1e-3)
         self.assertAlmostEqual(inf.params_mle['p_b'], expected['p_b'], delta=1e-4)

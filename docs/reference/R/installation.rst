@@ -21,7 +21,7 @@ The ``fastdfe`` R package serves as a wrapper around the Python library but re-i
 
    install_fastdfe()
 
-``fastdfe`` is compatible with Python 3.10, 3.11 and 3.12.
+``fastdfe`` is compatible with Python 3.10 through 3.12.
 
 Alternatively, you can also follow the instructions in the `Python installation guide <../python/installation.html>`_ to install the Python package.
 

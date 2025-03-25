@@ -3,6 +3,14 @@
 Changelog
 =========
 
+[1.1.10] - 2025-03-25
+^^^^^^^^^^^^^^^^^^^^^
+- Allow for probabilistic polarization when parsing SFS by looking at ancestral allele probability VCF info tag
+- Allow the transition/transversion ratio in the ``K2SubstitutionModel`` to be fixed to the value observed in the data
+- Adjust LRTs to account for parameters near boundaries. The resulting p-values are similar but tend to be somewhat lower
+- Extend ``ExistingOutgroupFiltration`` so that number of missing outgroups can be specified
+- Add ``RandomStratification`` and ``ContigFiltration`` classes
+
 [1.1.9] - 2025-01-01
 ^^^^^^^^^^^^^^^^^^^^
 - Add simulation class for simulating SFS data with known DFE
@@ -37,7 +45,7 @@ Changelog
 [1.1.2] - 2023-11-27
 ^^^^^^^^^^^^^^^^^^^^
 - Improved bootstrapping
-- Set ``allow_divergence` flag to false by default which as it has the potential to bias the SFS
+- Set ``allow_divergence`` flag to false by default which as it has the potential to bias the SFS
 
 [1.1.1] - 2023-11-21
 ^^^^^^^^^^^^^^^^^^^^

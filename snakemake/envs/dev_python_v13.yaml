@@ -1,0 +1,22 @@
+name: dev-fastdfe-v13
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13
+  - dadi
+  - r-base
+  - rpy2
+  - r-rjsonio
+  - r-irkernel
+  - r-usethis
+  - r-devtools
+  - jupyterlab
+  - jupyter
+  - pip
+  - pip:
+    - pytest
+    - pytest-xdist
+    - pytest-cov
+    - pytest-sugar
+    - pytest-pycharm
+    - -r requirements_testing.txt
