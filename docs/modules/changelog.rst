@@ -3,6 +3,10 @@
 Changelog
 =========
 
+[1.1.11] - 2025-03-30
+^^^^^^^^^^^^^^^^^^^^^
+- Support for passing alternative optimizer to ``BaseInference`` and ``JointInference``.
+
 [1.1.10] - 2025-03-25
 ^^^^^^^^^^^^^^^^^^^^^
 - Allow for probabilistic polarization when parsing SFS by looking at ancestral allele probability VCF info tag
