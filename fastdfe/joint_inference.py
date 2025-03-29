@@ -85,6 +85,7 @@ class JointInference(BaseInference):
             scales: Dict[str, Literal['lin', 'log', 'symlog']] = {},
             loss_type: Literal['likelihood', 'L2'] = 'likelihood',
             opts_mle: dict = {},
+            method_mle: str = 'L-BFGS-B',
             n_runs: int = 10,
             fixed_params: Dict[str, Dict[str, float]] = {},
             shared_params: List[SharedParams] = [],
@@ -116,6 +117,7 @@ class JointInference(BaseInference):
         :param scales: Scales for the optimization in the form {param: scale}
         :param loss_type: Loss type
         :param opts_mle: Options for the optimization
+        :param method_mle: Method to use for optimization. See `scipy.optimize.minimize` for available methods.
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
@@ -208,6 +210,7 @@ class JointInference(BaseInference):
                 scales=scales,
                 loss_type=loss_type,
                 opts_mle=opts_mle,
+                method_mle=method_mle,
                 fixed_params=dict(all=fixed_collapsed['all']) if 'all' in fixed_collapsed else {},
                 do_bootstrap=do_bootstrap,
                 n_bootstraps=n_bootstraps,
@@ -238,6 +241,7 @@ class JointInference(BaseInference):
             bounds=self.bounds,
             scales=self.scales,
             opts_mle=self.optimization.opts_mle,
+            method_mle=method_mle,
             loss_type=self.optimization.loss_type,
             param_names=self.model.param_names + ['eps'] + args_cov,
             parallelize=self.parallelize,
@@ -263,6 +267,7 @@ class JointInference(BaseInference):
                 scales=scales,
                 loss_type=loss_type,
                 opts_mle=opts_mle,
+                method_mle=method_mle,
                 fixed_params=dict(all=self.fixed_params[t]) if t in self.fixed_params else {},
                 do_bootstrap=do_bootstrap,
                 n_bootstraps=n_bootstraps,
@@ -290,6 +295,7 @@ class JointInference(BaseInference):
                 scales=scales,
                 loss_type=loss_type,
                 opts_mle=opts_mle,
+                method_mle=method_mle,
                 fixed_params=dict(all=self.fixed_params[t]) if t in self.fixed_params else {},
                 do_bootstrap=do_bootstrap,
                 n_bootstraps=n_bootstraps,
@@ -606,6 +612,7 @@ class JointInference(BaseInference):
             model=self.model,
             seed=self.seed,
             opts_mle=self.optimization.opts_mle,
+            method_mle=self.optimization.method_mle,
             x0=self.x0,
             bounds=self.bounds,
             scales=self.scales,

@@ -837,12 +837,16 @@ class Optimization:
     Class for optimizing the DFE.
     """
 
+    #: Optimization method to use. Use class property for downward compatibility
+    method_mle = 'L-BFGS-B'
+
     def __init__(
             self,
             bounds: Dict[str, Tuple[float, float]],
             param_names: List[str],
             loss_type: Literal['likelihood', 'L2'] = 'likelihood',
             opts_mle: dict = {},
+            method_mle: str = 'L-BFGS-B',
             parallelize: bool = True,
             fixed_params: Dict[str, Dict[str, float]] = {},
             scales: Dict[str, Literal['lin', 'log', 'symlog']] = {},
@@ -854,6 +858,7 @@ class Optimization:
         :param parallelize: Whether to parallelize the optimization
         :param bounds: Dictionary of bounds
         :param opts_mle: Dictionary of options for the optimizer
+        :param method_mle: Optimization method to use
         :param loss_type: Type of loss function to use
         :param fixed_params: Dictionary of fixed parameters
         :param scales: Dictionary of scales
@@ -867,6 +872,9 @@ class Optimization:
 
         #: additional options for the optimizer
         self.opts_mle = opts_mle
+
+        #: Optimization method to use
+        self.method_mle = method_mle
 
         #: Type of loss function to use
         self.loss_type = loss_type
@@ -985,7 +993,7 @@ class Optimization:
                     print_debug=debug_iterations
                 ),
                 x0=pack_params(self.scale_values(x0)),
-                method="L-BFGS-B",
+                method=self.method_mle,
                 bounds=pack_params(scale_bounds(bounds, self.scales)),
                 options=self.opts_mle
             )

@@ -47,6 +47,7 @@ class Config:
             scales: Dict[str, Literal['lin', 'log', 'symlog']] = {},
             loss_type: Literal['likelihood', 'L2'] = 'likelihood',
             opts_mle: dict = {},
+            method_mle: str = 'L-BFGS-B',
             n_runs: int = 10,
             fixed_params: Dict[str, Dict[str, float]] = {},
             shared_params: List[SharedParams] = [],
@@ -79,6 +80,7 @@ class Config:
         :param scales: Scales for the optimization in the form {param: scale}
         :param loss_type: Loss function to use.
         :param opts_mle: Options for the optimization.
+        :param method_mle: Method to use for optimization. See `scipy.optimize.minimize` for available methods.
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
@@ -101,6 +103,7 @@ class Config:
             linearized=linearized,
             seed=seed,
             opts_mle=opts_mle,
+            method_mle=method_mle,
             n_runs=n_runs,
             x0=x0,
             bounds=bounds,

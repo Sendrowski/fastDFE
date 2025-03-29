@@ -1192,3 +1192,17 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         # check that DFE is very weakly beneficial
         self.assertGreaterEqual(inf.get_discretized()[0][-1], 0.4)
+
+    def test_alternative_optimizer(self):
+        """
+        Test whether using an alternative optimizer works as expected.
+        """
+        config = fd.Config.from_file(self.config_file)
+
+        inf_default = fd.BaseInference.from_config(config)
+        inf_default.run()
+        self.assertFalse(hasattr(inf_default.result, 'direc'))
+
+        inf_alt = fd.BaseInference.from_config(config.update(method_mle='Powell'))
+        inf_alt.run()
+        self.assertTrue(hasattr(inf_alt.result, 'direc'))

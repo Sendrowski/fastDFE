@@ -711,3 +711,24 @@ class JointInferenceTestCase(InferenceTestCase):
         )
 
         pass
+
+    def test_alternative_optimizer(self):
+        """
+        Test for alternative optimizer.
+        """
+        config = fd.Config.from_file(
+            "resources/configs/shared/covariates_Sd_fixed_params/config.yaml"
+        ).update(
+            do_bootstrap=True,
+            n_bootstraps=1,
+            method_mle='Powell'
+        )
+
+        inf = fd.JointInference.from_config(config)
+        inf.run()
+
+        self.assertTrue(hasattr(inf.result, 'direc'))
+        self.assertTrue(hasattr(inf.bootstrap_results[0], 'direc'))
+
+        self.assertTrue(hasattr(inf.marginal_inferences['all'].result, 'direc'))
+        self.assertTrue(hasattr(inf.marginal_inferences['example_1'].bootstrap_results[0], 'direc'))
