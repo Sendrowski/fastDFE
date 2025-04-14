@@ -7,7 +7,6 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2022-07-24"
 
 import logging
-from functools import cached_property
 from typing import Dict, List, Union, Iterable, Any, Literal, Sequence
 
 import numpy as np
@@ -158,7 +157,7 @@ class Spectrum(Iterable):
         """
         return self.data
 
-    @cached_property
+    @property
     def theta(self) -> float:
         """
         Calculate population mutation rate using Watterson's estimator.
