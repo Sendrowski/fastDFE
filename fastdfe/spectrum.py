@@ -189,6 +189,26 @@ class Spectrum(Iterable):
 
         return Spectrum(data)
 
+    def misidentify(self, epsilon: float) -> 'Spectrum':
+        """
+        Introduce ancestral misidentification at rate epsilon. Note that monomorphic counts won't be affected.
+
+        :param epsilon: Misidentification rate (0 <= epsilon <= 1)
+        :return: Spectrum with misidentification applied
+        :raise ValueError: If epsilon is not between 0 and 1
+        """
+        if not 0 <= epsilon <= 1:
+            raise ValueError("epsilon must be between 0 and 1")
+
+        data = self.data.copy()
+        n = self.n
+
+        flipped = epsilon * data[1:n][::-1]
+        retained = (1 - epsilon) * data[1:n]
+        data[1:n] = retained + flipped
+
+        return Spectrum(data)
+
     def subsample(
             self,
             n: int,

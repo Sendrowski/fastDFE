@@ -710,3 +710,61 @@ class SpectraTestCase(TestCase):
 
         testing.assert_array_equal(s2['all'].data, s['all'].data // 2)
         testing.assert_array_equal(s2['sub'].data, s['sub'].data // 2)
+
+    def test_misidentify_value_error(self):
+        """
+        Test whether the misidentify method raises a ValueError when the rate is not between 0 and 1.
+        """
+        sfs = Spectrum([0, 1, 2])
+
+        with self.assertRaises(ValueError):
+            sfs.misidentify(-0.1)
+
+        with self.assertRaises(ValueError):
+            sfs.misidentify(1.5)
+
+    def test_misidentify_expected_sfs_even_n(self):
+        """
+        Test whether the misidentify method works as expected for even n.
+        """
+        sfs = Spectrum([177595, 922, 363, 210, 164, 162, 712])
+
+        np.testing.assert_array_equal(
+            sfs.misidentify(0.1).data,
+            [177595, 922 * 0.9 + 162 * 0.1, 363 * 0.9 + 164 * 0.1, 210,
+             164 * 0.9 + 363 * 0.1, 162 * 0.9 + 922 * 0.1, 712]
+        )
+
+    def test_misidentify_expected_sfs_odd_n(self):
+        """
+        Test whether the misidentify method works as expected for odd n.
+        """
+        sfs = Spectrum([177749, 889, 347, 214, 189, 739])
+
+        np.testing.assert_array_equal(
+            sfs.misidentify(0.1).data,
+            [177749, 889 * 0.9 + 189 * 0.1, 347 * 0.9 + 214 * 0.1,
+             214 * 0.9 + 347 * 0.1, 189 * 0.9 + 889 * 0.1, 739]
+        )
+
+    def test_misidentify_epislon_0(self):
+        """
+        Test whether the misidentify method works as expected for epsilon = 0.
+        """
+        sfs = Spectrum([177595, 922, 363, 210, 164, 162, 712])
+
+        np.testing.assert_array_equal(
+            sfs.misidentify(0).data,
+            sfs.data
+        )
+
+    def test_misidentify_epislon_1(self):
+        """
+        Test whether the misidentify method works as expected for epsilon = 1.
+        """
+        sfs = Spectrum([177595, 922, 363, 210, 164, 162, 712])
+
+        np.testing.assert_array_equal(
+            sfs.misidentify(1).data,
+            [sfs.data[0]] + sfs.data[1:sfs.n][::-1].tolist() + [sfs.data[-1]]
+        )
