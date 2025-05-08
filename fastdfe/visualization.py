@@ -128,10 +128,13 @@ class Visualization:
             :param n: Number to format
             :return: Formatted number
             """
-            if np.abs(n) != np.inf:
-                return '{:0.0f}'.format(n)
+            if n == -np.inf:
+                return '-inf'
 
-            return str(np.inf)
+            if n == np.inf:
+                return 'inf'
+
+            return '{:0.0f}'.format(n)
 
         return bracket_left + format_number(left) + ', ' + format_number(right) + bracket_right
 
