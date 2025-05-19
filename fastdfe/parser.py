@@ -693,15 +693,15 @@ class TargetSiteCounter:
 
         # check if we have a SNPFiltration
         if not any([isinstance(f, SNPFiltration) for f in self.parser.filtrations]):
-            self._logger.warning("It is recommended to use SNPFiltration when using target site "
-                                 "counter to avoid biasing the result by monomorphic sites.")
+            self._logger.warning("It is recommended to use SNPFiltration together with "
+                                 "TargetSiteCounter to avoid biasing the result by monomorphic sites.")
 
         # check if have degeneracy stratification but no degeneracy annotation
         if any([isinstance(s, DegeneracyStratification) for s in self.parser.stratifications]) \
                 and not any([isinstance(a, DegeneracyAnnotation) for a in self.parser.annotations]):
             self._logger.warning("When using TargetSiteCounter with DegeneracyStratification, "
                                  "make sure to provide DegeneracyAnnotation to make sure the "
-                                 "sites sampled from the FASTA file also have a degeneracy tag.")
+                                 "sites sampled from the FASTA file have a degeneracy tag.")
 
     def _teardown(self):
         """
