@@ -467,7 +467,7 @@ class ExistingOutgroupFiltration(Filtration):
         """
         Construct ExistingOutgroupFiltration.
 
-        :param outgroups: The name of the outgroup samples that need to be present to pass the filter.
+        :param outgroups: The names of the outgroup samples considered.
         :param n_missing: The number of outgroup samples that need to be missing to fail the filter.
         """
         super().__init__()
