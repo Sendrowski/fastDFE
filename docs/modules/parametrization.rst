@@ -1,6 +1,6 @@
 .. _modules.parametrization:
 
-DFE Parametrizations
+DFE parametrizations
 --------------------
 
 .. automodule:: fastdfe.parametrization

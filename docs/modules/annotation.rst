@@ -1,6 +1,6 @@
 .. _modules.annotation:
 
-VCF Annotation
+VCF annotation
 --------------
 
 .. automodule:: fastdfe.annotation

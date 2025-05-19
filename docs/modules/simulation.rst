@@ -1,6 +1,6 @@
 .. _modules.simulation:
 
-SFS Simulation
+SFS simulation
 --------------
 
 .. autoclass:: fastdfe.simulation.Simulation

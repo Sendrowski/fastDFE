@@ -1,6 +1,6 @@
 .. _modules.parser:
 
-VCF Parsing
+VCF parsing
 -----------
 
 .. automodule:: fastdfe.parser

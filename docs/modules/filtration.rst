@@ -1,6 +1,6 @@
 .. _modules.filtration:
 
-VCF Filtration
+VCF filtration
 --------------
 
 .. automodule:: fastdfe.filtration
