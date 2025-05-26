@@ -2,7 +2,7 @@ name: dev-fastdfe-v13
 channels:
   - conda-forge
 dependencies:
-  - python=3.13
+  - python=3.13 # problems with dadi, rpy2, cyvcf2 and biopython as of May 2025
   - dadi
   - r-base
   - rpy2
