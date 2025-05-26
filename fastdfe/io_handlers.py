@@ -639,7 +639,13 @@ class VCFHandler(FileHandler):
 
         :return: The VCF reader.
         """
-        from cyvcf2 import VCF
+        try:
+            from cyvcf2 import VCF
+        except ImportError:
+            raise ImportError(
+                "VCF support in fastdfe requires the optional 'cyvcf2' package. "
+                "Please install fastdfe with the 'vcf' extra: pip install fastdfe[vcf]"
+            )
 
         self._logger.info("Loading VCF file")
 

@@ -23,6 +23,17 @@ The ``fastdfe`` R package serves as a wrapper around the Python library but re-i
 
 ``fastdfe`` is compatible with Python 3.10 through 3.12.
 
+.. note::
+
+   VCF support in the underlying Python package (e.g., reading ``.vcf.gz`` files) requires the optional ``cyvcf2`` dependency.
+   To enable this, run the following command in R **before** calling ``install_fastdfe()``:
+
+   .. code-block:: r
+
+      reticulate::py_install("fastdfe[vcf]", pip = TRUE)
+
+   If you omit this, any call to VCF-parsing functions will fail with an ImportError suggesting how to install the extra.
+
 Alternatively, you can also follow the instructions in the `Python installation guide <../python/installation.html>`_ to install the Python package.
 
 After installing the Python package, the ``fastdfe`` wrapper module can be loaded into your R environment using the following command:

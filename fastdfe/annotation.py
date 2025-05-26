@@ -4393,7 +4393,13 @@ class Annotator(MultiHandler):
         """
         Set up the annotator.
         """
-        from cyvcf2 import Writer
+        try:
+            from cyvcf2 import Writer
+        except ImportError:
+            raise ImportError(
+                "VCF support in fastdfe requires the optional 'cyvcf2' package. "
+                "Please install fastdfe with the 'vcf' extra: pip install fastdfe[vcf]"
+            )
 
         for annotation in self.annotations:
             annotation._setup(self)

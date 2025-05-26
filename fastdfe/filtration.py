@@ -671,7 +671,13 @@ class Filterer(MultiHandler):
         """
         Set up the filtrations.
         """
-        from cyvcf2 import Writer
+        try:
+            from cyvcf2 import Writer
+        except ImportError:
+            raise ImportError(
+                "VCF support in fastdfe requires the optional 'cyvcf2' package. "
+                "Please install fastdfe with the 'vcf' extra: pip install fastdfe[vcf]"
+            )
 
         # setup filtrations
         for f in self.filtrations:

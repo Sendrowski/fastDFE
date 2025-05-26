@@ -5,7 +5,7 @@ Installation
 
 PyPi
 ^^^^
-To install the ``fastdfe``, you can use pip:
+To install the ``fastdfe`` package, you can use pip:
 
 .. code-block:: bash
 
@@ -13,11 +13,20 @@ To install the ``fastdfe``, you can use pip:
 
 ``fastdfe`` is compatible with Python 3.10 through 3.12.
 
+.. note::
+
+   Support for VCF input (e.g., reading ``.vcf.gz`` files) in ``fastdfe`` requires the optional ``cyvcf2`` dependency.
+   To enable this functionality, install with the ``vcf`` extra:
+
+   .. code-block:: bash
+
+      pip install fastdfe[vcf]
+
 Conda
 ^^^^^
-However, to avoid potential conflicts with other packages, it is recommended to install ``fastdfe`` in an isolated environment. The easiest way to do this is to use `conda` (or `mamba`):
+To avoid potential conflicts with other packages, it is recommended to install ``fastdfe`` in an isolated environment. The easiest way to do this is to use `conda` (or `mamba`):
 
-To do this, you can run
+To do this, run:
 
 .. code-block:: bash
 
@@ -25,7 +34,7 @@ To do this, you can run
     mamba activate fastdfe
     pip install fastdfe
 
-Alternative, create a new file called ``environment.yml`` with the following content:
+Alternatively, create a new file called ``environment.yml`` with the following content:
 
 .. code-block:: yaml
 
@@ -38,13 +47,13 @@ Alternative, create a new file called ``environment.yml`` with the following con
     - pip:
         - fastdfe
 
-Run the following command to create a new `conda` environment using the ``environment.yml`` file:
+Then run the following command to create the environment:
 
 .. code-block:: bash
 
   mamba env create -f environment.yml
 
-Activate the newly created conda environment:
+Activate the newly created environment:
 
 .. code-block:: bash
 
