@@ -3,7 +3,6 @@ from typing import List
 from unittest.mock import Mock
 
 import numpy as np
-from cyvcf2 import Variant
 
 import fastdfe as fd
 from fastdfe.io_handlers import count_sites
@@ -153,6 +152,8 @@ class FiltrationTestCase(TestCase):
         """
         Test the annotator loading a VCF from a URL.
         """
+        from cyvcf2 import Variant
+
         mock_variant = Mock(spec=Variant)
 
         # test case 1: variant is not an SNP
@@ -236,6 +237,8 @@ class FiltrationTestCase(TestCase):
         """
         Test the existing outgroup filtration.
         """
+        from cyvcf2 import Variant
+
         # test case 1: variants has one fully defined outgroup sample
         mock_variant = Mock(spec=Variant)
         filter_obj = fd.ExistingOutgroupFiltration(outgroups=['outgroup1'])
@@ -281,6 +284,8 @@ class FiltrationTestCase(TestCase):
         """
         Test the existing outgroup filtration with shuffled masks, extra unused samples, and ingroups.
         """
+        from cyvcf2 import Variant
+
         # test case 6: n=2, one missing outgroup, extra unused sample -> should pass
         mock_variant = Mock(spec=Variant)
         filter_obj = fd.ExistingOutgroupFiltration(outgroups=['outgroup2', 'outgroup3'], n_missing=2)

@@ -10,7 +10,6 @@ from unittest.mock import MagicMock, PropertyMock, patch, Mock
 import numpy as np
 import pandas as pd
 import pytest
-from cyvcf2 import Variant, cyvcf2
 from matplotlib import pyplot as plt
 from matplotlib.collections import PathCollection
 from numpy import testing
@@ -91,6 +90,8 @@ class AnnotationTestCase(TestCase):
         """
         Test the _get_ancestral method.
         """
+        from cyvcf2 import Variant
+
         ann = fd.MaximumParsimonyAncestralAnnotation
 
         # check that reference is used for dummy variants
@@ -2010,6 +2011,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         """
         Test that the annotation parses a mocked variant correctly.
         """
+        from cyvcf2 import Variant
+
         # create a mocked annotation
         anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730", "ERR2103731"],
@@ -2039,6 +2042,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         Test that the annotation parses a mocked variant correctly when the minor allele has zero frequency but is
         contained in the ingroup.
         """
+        from cyvcf2 import Variant
+
         # create a mocked annotation
         anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730"],
@@ -2068,6 +2073,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         Test that the annotation parses a mocked variant correctly when the minor allele has zero frequency but is
         contained in the outgroup only.
         """
+        from cyvcf2 import Variant
+
         # create a mocked annotation
         anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730"],
@@ -2096,6 +2103,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         """
         Test that an error is raised when the number of ingroups is less than the number of samples.
         """
+        from cyvcf2 import Variant
+
         # create a mocked annotation
         anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730"],
@@ -2120,6 +2129,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         """
         Test that an error is raised when the variant is poly-allelic.
         """
+        from cyvcf2 import Variant
+
         # create a mocked annotation
         anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730"],
@@ -2144,6 +2155,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         """
         Test the parse_variance function with probabilistic subsampling.
         """
+        from cyvcf2 import Variant
+
         # create a mocked annotation
         anc = fd.MaximumLikelihoodAncestralAnnotation(
             outgroups=["ERR2103730"],
@@ -2932,6 +2945,8 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         """
         Compare MLE params and ancestral allele probabilities with random vs. probabilistic subsampling.
         """
+        from cyvcf2 import VCF
+
         parsers, spectra = {}, {}
         modes = ['probabilistic', 'random']
 
@@ -2967,7 +2982,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         annotations = [parsers[mode].annotations[0] for mode in modes]
 
-        vcf = cyvcf2.VCF("resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz")
+        vcf = VCF("resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz")
 
         mismatches = 0
         for i in range(600):
