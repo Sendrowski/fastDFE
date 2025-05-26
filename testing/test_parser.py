@@ -18,7 +18,7 @@ class ParserTestCase(TestCase):
     @staticmethod
     def test_parse_sfs_compare_subsample_modes():
         """
-        Compare the sfs from dadi with the one from the data.
+        Compare the sfs for probabilistic vs random subsampling.
         """
         for n in [19, 20]:
             p1 = fd.Parser(
@@ -56,7 +56,7 @@ class ParserTestCase(TestCase):
     @staticmethod
     def test_parse_sfs_compare_probabilistic_with_dadi():
         """
-        Compare the sfs from dadi with the one from the data.
+        Compare the parsed sfs with results from dadi.
         """
         p1 = fd.Parser(
             vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
