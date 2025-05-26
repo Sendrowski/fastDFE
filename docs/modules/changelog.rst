@@ -3,6 +3,13 @@
 Changelog
 =========
 
+[1.1.12] - 2025-05-26
+^^^^^^^^^^^^^^^^^^^^^
+- Made ``cyvcf2`` an optional dependency via ``fastdfe[vcf]``
+- Improved x-axis labels for discretized DFE plots
+- Added support for introducing ancestral misidentification in ``Spectrum``
+- Added unnormalized Watterson’s theta property
+
 [1.1.11] - 2025-03-30
 ^^^^^^^^^^^^^^^^^^^^^
 - Support for passing alternative optimizer to ``BaseInference`` and ``JointInference``.
