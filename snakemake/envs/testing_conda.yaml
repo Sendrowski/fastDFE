@@ -1,0 +1,18 @@
+name: testing-conda-fastdfe
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - dadi
+  - r-base
+  - rpy2
+  - r-rjsonio
+  - fastdfe
+  - cyvcf2
+  - pip=24.1 # problems with version 24.2
+  - pip:
+      - pytest
+      - pytest-xdist
+      - pytest-cov
+      - pytest-sugar
+      - pytest-pycharm

@@ -1,9 +1,8 @@
 # fastdfe env as in docs
 name: fastdfe
 channels:
-  - defaults
+  - conda-forge
+  - bioconda
 dependencies:
-  - python>=3.10,<3.13
-  - pip
-  - pip:
-      - fastdfe
+  - fastdfe
+  - cyvcf2
