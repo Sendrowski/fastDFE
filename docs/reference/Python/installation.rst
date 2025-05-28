@@ -3,9 +3,9 @@
 Installation
 ============
 
-PyPi
+PyPI
 ^^^^
-To install the ``fastdfe`` package, you can use pip:
+To install the ``fastdfe`` package via pip:
 
 .. code-block:: bash
 
@@ -15,8 +15,8 @@ To install the ``fastdfe`` package, you can use pip:
 
 .. note::
 
-   Support for VCF input (e.g., reading ``.vcf.gz`` files) in ``fastdfe`` requires the optional ``cyvcf2`` dependency.
-   To enable this functionality, install with the ``vcf`` extra:
+   As of ``fastdfe`` version 1.1.12, the ``cyvcf2`` dependency, which is required for VCF handling, is optional.
+   To enable VCF support, install with the ``vcf`` extra:
 
    .. code-block:: bash
 
@@ -24,42 +24,42 @@ To install the ``fastdfe`` package, you can use pip:
 
 Conda
 ^^^^^
-To avoid potential conflicts with other packages, it is recommended to install ``fastdfe`` in an isolated environment. The easiest way to do this is to use `conda` (or `mamba`):
-
-To do this, run:
+As of version 1.1.12, ``fastdfe`` is also available on **conda-forge**. To install it:
 
 .. code-block:: bash
 
-    mamba create -n fastdfe 'python>=3.10,<3.13' pip
-    mamba activate fastdfe
-    pip install fastdfe
+   mamba create -n fastdfe -c conda-forge fastdfe
+   mamba activate fastdfe
 
-Alternatively, create a new file called ``environment.yml`` with the following content:
+.. note::
+
+   If you want to use the VCF utilities in ``fastdfe`` via **conda**, you also need to install ``cyvcf2``, which is hosted on **bioconda**.
+   Be sure to add the required channels:
+
+   .. code-block:: bash
+
+      mamba create -n fastdfe -c conda-forge -c bioconda fastdfe cyvcf2
+
+Alternatively, to ensure reproducibility, you can create a file ``environment.yml``:
 
 .. code-block:: yaml
 
   name: fastdfe
   channels:
-    - defaults
+    - conda-forge
+    - bioconda
   dependencies:
-    - python>=3.10,<3.13
-    - pip
-    - pip:
-        - fastdfe
+    - fastdfe
+    - cyvcf2
 
-Then run the following command to create the environment:
+Then run the following commands to create and activate the environment:
 
 .. code-block:: bash
 
   mamba env create -f environment.yml
-
-Activate the newly created environment:
-
-.. code-block:: bash
-
   mamba activate fastdfe
 
-You are now ready to use the ``fastdfe`` package within the isolated conda environment.
+You are now ready to use ``fastdfe``:
 
 .. code-block:: python
 

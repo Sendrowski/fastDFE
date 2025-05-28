@@ -25,8 +25,8 @@ The ``fastdfe`` R package serves as a wrapper around the Python library but re-i
 
 .. note::
 
-   VCF support in the underlying Python package (e.g., reading ``.vcf.gz`` files) requires the optional ``cyvcf2`` dependency.
-   To enable this, run the following command in R **before** calling ``install_fastdfe()``:
+   As of ``fastdfe`` version 1.1.12, the ``cyvcf2`` dependency, which is required for VCF handling, is optional.
+   To enable VCF support, run the following command in R **before** calling ``install_fastdfe()``:
 
    .. code-block:: r
 
