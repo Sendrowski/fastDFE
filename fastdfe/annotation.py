@@ -515,7 +515,9 @@ class DegeneracyAnnotation(Annotation):
 
             # make sure the reference allele matches with the position on the reference genome
             if str(self._contig[v.POS - 1]).upper() != v.REF.upper():
-                self._logger.warning(f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}.")
+                self._logger.warning(
+                    f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}, skipping site."
+                )
                 self.mismatches.append(v)
                 return
 
@@ -731,7 +733,9 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
                 # make sure the reference allele matches with the position in the reference genome
                 if str(self._contig[v.POS - 1]).upper() != v.REF.upper():
-                    self._logger.warning(f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}.")
+                    self._logger.warning(
+                        f"Reference allele does not match with reference genome at {v.CHROM}:{v.POS}, skipping site."
+                    )
                     self.mismatches.append(v)
                     return
 
