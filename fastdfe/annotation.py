@@ -2416,6 +2416,11 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         # number of mono-allelic sites to sample
         n_samples = self._get_n_samples_fasta()
 
+        # check that we have enough sites to sample
+        if n_samples == 0:
+            self._logger.info("No mono-allelic sites to sample, skipping.")
+            return
+
         # initialize progress bar
         pbar = tqdm(
             total=n_samples,
