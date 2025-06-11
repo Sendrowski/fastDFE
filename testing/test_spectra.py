@@ -193,12 +193,52 @@ class SpectraTestCase(TestCase):
         testing.assert_equal(s.n_sites, n_sites)
 
     @staticmethod
-    def test_wattersons_estimator():
+    def test_site_wise_wattersons_estimator_spectrum():
         """
         Test that the wattersons_estimator method works as expected.
         """
         data = [3434, 6346, 234, 4342, 55, 525, 24, 56, 2, 42, 4]
         testing.assert_equal(Spectrum(data).theta, dadi.Spectrum(data).Watterson_theta() / sum(data))
+
+    @staticmethod
+    def test_wattersons_estimator_spectrum():
+        """
+        Test that the wattersons_estimator method works as expected.
+        """
+        data = [3434, 6346, 234, 4342, 55, 525, 24, 56, 2, 42, 4]
+        testing.assert_equal(Spectrum(data).Theta, dadi.Spectrum(data).Watterson_theta())
+
+    @staticmethod
+    def test_site_wise_wattersons_estimator_spectra():
+        """
+        Test that the wattersons_estimator method works as expected.
+        """
+        data = {
+            'all': [3434, 6346, 234, 4342, 55, 525, 24, 56, 2, 42, 4],
+            'sub': [1234, 2345, 234, 1234, 55, 525, 24, 56, 2, 42, 4]
+        }
+        s = Spectra.from_dict(data)
+
+        testing.assert_equal(s.theta.to_list(), [
+            dadi.Spectrum(data['all']).Watterson_theta() / sum(data['all']),
+            dadi.Spectrum(data['sub']).Watterson_theta() / sum(data['sub'])
+        ])
+
+    @staticmethod
+    def test_wattersons_estimator_spectra():
+        """
+        Test that the wattersons_estimator method works as expected.
+        """
+        data = {
+            'all': [3434, 6346, 234, 4342, 55, 525, 24, 56, 2, 42, 4],
+            'sub': [1234, 2345, 234, 1234, 55, 525, 24, 56, 2, 42, 4]
+        }
+        s = Spectra.from_dict(data)
+
+        testing.assert_equal(s.Theta.to_list(), [
+            dadi.Spectrum(data['all']).Watterson_theta(),
+            dadi.Spectrum(data['sub']).Watterson_theta()
+        ])
 
     def test_plot_spectrum(self):
         """

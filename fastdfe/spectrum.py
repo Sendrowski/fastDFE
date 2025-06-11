@@ -590,11 +590,20 @@ class Spectra:
     @property
     def theta(self) -> pd.Series:
         """
-        Calculate population mutation rate using Watterson's estimator.
+        Calculate site-wise population mutation rate using Watterson's estimator.
         Note that theta is given per site, i.e. Watterson's estimator is divided by the
         total number of sites (:attr:`n_sites`).
         """
-        return self.n_polymorphic / np.sum(1 / np.arange(1, self.n)) / self.n_sites
+        return self.Theta / self.n_sites
+
+    @property
+    def Theta(self) -> pd.Series:
+        """
+        Calculate population mutation rate using Watterson's estimator.
+
+        .. note:: Property :attr:`Theta` is not normalized by the total number of sites, unlike :attr:`theta`.
+        """
+        return self.n_polymorphic / np.sum(1 / np.arange(1, self.n))
 
     def normalize(self) -> 'Spectra':
         """
