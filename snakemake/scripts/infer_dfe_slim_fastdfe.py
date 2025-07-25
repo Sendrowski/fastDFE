@@ -66,7 +66,7 @@ inf.plot_discretized(
     file=out_dfe,
     show=testing,
     title="Inferred DFE\n" + ", ".join([f"${k}$={round(v, 2)}" for k, v in params.items()]),
-    intervals=[-np.inf, -100, -10, -1, 0, 1, np.inf]
+    intervals=[-np.inf, -100, -10, -1, 1, np.inf]
 )
 s.plot(file=out_spectra, show=testing)
 

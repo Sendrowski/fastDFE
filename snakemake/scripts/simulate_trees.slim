@@ -36,19 +36,19 @@ initialize()
 
 early() {
     if (demography == "expansion") {
-        if (community.tick == g - 100) {
+        if (community.tick == g - 500) {
             // population doubles 100 generations before stopping
             p1.setSubpopulationSize(2 * N);
         }
     }
 
     if (demography == "bottleneck") {
-        if (community.tick == g - 200) {
+        if (community.tick == g - 600) {
             // bottleneck to 10% of original size 200 generations before stopping
             p1.setSubpopulationSize(asInteger(N / 10));
         }
 
-        if (community.tick == g - 100) {
+        if (community.tick == g - 500) {
             // recover to original size 100 generations before stopping
             p1.setSubpopulationSize(N);
         }

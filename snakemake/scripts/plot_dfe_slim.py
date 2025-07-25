@@ -48,7 +48,7 @@ params = dict(
 
 fd.GammaExpParametrization().plot(
     params=dict(S_d=min(params['S_d'], -1e-16), S_b=max(params['S_b'], 1e-16), b=b, p_b=p_b),
-    intervals=[-np.inf, -100, -10, -1, 0, 1, np.inf],
+    intervals=[-np.inf, -100, -10, -1, 1, np.inf],
     title='Simulated DFE\n' + ", ".join([f"${k}$={round(v, 2)}" for k, v in params.items()]),
     show=testing,
     file=out
