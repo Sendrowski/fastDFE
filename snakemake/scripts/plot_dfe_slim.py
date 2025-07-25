@@ -7,6 +7,7 @@ __contact__ = "j.sendrowski18@gmail.com"
 __date__ = "2024-03-03"
 
 import numpy as np
+from matplotlib import pyplot as plt
 
 try:
     import sys
@@ -25,7 +26,7 @@ try:
 except NameError:
     # testing
     testing = True
-    spectra_file = "results/slim/n_replicate=1/g=10000/L=10000000/mu=1e-07/r=1e-08/N=5000/s_b=0.1/b=0.2/s_d=0.03/p_b=0.1/n=10/sfs.csv"
+    spectra_file = "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=5/s_d=3e-1/p_b=0/n=20/unfolded/sfs.csv"
     p_b = 0.4
     s_b = 18
     s_d = 67
@@ -43,15 +44,19 @@ params = dict(
     S_d=-4 * Ne * s_d,
     S_b=4 * Ne * s_b,
     b=b,
-    p_b=p_b,Ne=Ne
+    p_b=p_b,
+    N_e=Ne
 )
+
+fig, ax = plt.subplots(figsize=(4.5, 3.2))
 
 fd.GammaExpParametrization().plot(
     params=dict(S_d=min(params['S_d'], -1e-16), S_b=max(params['S_b'], 1e-16), b=b, p_b=p_b),
     intervals=[-np.inf, -100, -10, -1, 1, np.inf],
     title='Simulated DFE\n' + ", ".join([f"${k}$={round(v, 2)}" for k, v in params.items()]),
     show=testing,
-    file=out
+    file=out,
+    ax=ax
 )
 
 pass

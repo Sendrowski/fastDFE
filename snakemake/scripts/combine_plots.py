@@ -27,8 +27,10 @@ except NameError:
     # testing
     testing = True
     files = [
-        "results/graphs/slim/n_replicate=1/g=1000/L=10000000000/mu=1e-09/N=1000/s_b=0.01/b=1/s_d=0.1/p_b=0.2/n=20/dfe.inferred.png",
-        "results/graphs/slim/n_replicate=1/g=1000/L=10000000000/mu=1e-09/N=1000/s_b=0.01/b=1/s_d=0.1/p_b=0.2/n=20/dfe.modelled.png",
+        "results/graphs/slim/n_replicate=1/n_chunks=2/g=1e2/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/constant/unfolded/dfe.inferred.png",
+        "results/graphs/slim/n_replicate=1/n_chunks=2/g=1e2/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/constant/unfolded/dfe.inferred.png",
+        "results/graphs/slim/n_replicate=1/n_chunks=2/g=1e2/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/constant/unfolded/dfe.inferred.png",
+        "results/graphs/slim/n_replicate=1/n_chunks=2/g=1e2/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/constant/unfolded/dfe.inferred.png",
     ]
     n_cols = None
     n_rows = None

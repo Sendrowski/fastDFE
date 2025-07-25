@@ -7,6 +7,7 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2024-02-26"
 
 import numpy as np
+from matplotlib import pyplot as plt
 
 try:
     import sys
@@ -45,6 +46,7 @@ inf = fd.BaseInference(
     sfs_sel=s['selected'],
     do_bootstrap=True,
     parallelize=True,
+    n_runs=100,
     fixed_params=dict(all=dict(eps=0) | dict(p_b=0, S_b=1) if not full_dfe else {})
 )
 
@@ -62,11 +64,15 @@ params = {k: v for k, v in inf.bootstraps.mean().to_dict().items() if k not in [
 # plot results
 inf.plot_inferred_parameters(file=out_params, show=testing)
 inf.plot_sfs_comparison(file=out_model_fit, show=testing)
+
+fig, ax = plt.subplots(figsize=(4.5, 3.2))
+
 inf.plot_discretized(
     file=out_dfe,
     show=testing,
     title="Inferred DFE\n" + ", ".join([f"${k}$={round(v, 2)}" for k, v in params.items()]),
-    intervals=[-np.inf, -100, -10, -1, 1, np.inf]
+    intervals=[-np.inf, -100, -10, -1, 1, np.inf],
+    ax=ax
 )
 s.plot(file=out_spectra, show=testing)
 
