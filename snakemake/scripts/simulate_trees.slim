@@ -30,19 +30,28 @@ initialize()
     initializeRecombinationRate(r); // recombination rate
 }
 
-1
-early()
-{
+1 early() {
     sim.addSubpop("p1", N);
+}
 
+early() {
     if (demography == "expansion") {
-        // population doubles 100 generation before stopping
-        sim.schedule(g - 100, "early() { p1.setSubpopulationSize(2 * N); }");
-    } else if (demography == "bottleneck") {
-        // bottleneck to 10% of original size 200 generations before stopping
-        sim.schedule(g - 200, "early() { p1.setSubpopulationSize(asInteger(N / 10)); }");
-        // recover to original size 100 generations before stopping
-        sim.schedule(g - 100, "early() { p1.setSubpopulationSize(N); }");
+        if (community.tick == g - 100) {
+            // population doubles 100 generations before stopping
+            p1.setSubpopulationSize(2 * N);
+        }
+    }
+
+    if (demography == "bottleneck") {
+        if (community.tick == g - 200) {
+            // bottleneck to 10% of original size 200 generations before stopping
+            p1.setSubpopulationSize(asInteger(N / 10));
+        }
+
+        if (community.tick == g - 100) {
+            // recover to original size 100 generations before stopping
+            p1.setSubpopulationSize(N);
+        }
     }
 }
 
