@@ -14,7 +14,7 @@ rule decompress_bgzip:
     input:
         "{path}.gz"
     output:
-        "{path,.*(?<!(\.gz))$}"
+        r"{path,.*(?<!(\.gz))$}"
     conda:
         "../envs/tabix.yaml"
     shell:

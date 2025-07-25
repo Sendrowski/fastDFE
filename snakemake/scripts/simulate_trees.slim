@@ -8,6 +8,7 @@
 // N: population size
 // g: generation to stop simulation
 // length: sequence length
+// demography: demographic events ('constant', 'expansion', 'bottleneck')
 
 initialize()
 {
@@ -33,20 +34,18 @@ initialize()
 early()
 {
     sim.addSubpop("p1", N);
-}
-/*
-100
-early()
-{
-    p1.setSubpopulationSize(500); // Population size reduced to simulate a bottleneck
+
+    if (demography == "expansion") {
+        // population doubles 100 generation before stopping
+        sim.schedule(g - 100, "early() { p1.setSubpopulationSize(2 * N); }");
+    } else if (demography == "bottleneck") {
+        // bottleneck to 10% of original size 200 generations before stopping
+        sim.schedule(g - 200, "early() { p1.setSubpopulationSize(asInteger(N / 10)); }");
+        // recover to original size 100 generations before stopping
+        sim.schedule(g - 100, "early() { p1.setSubpopulationSize(N); }");
+    }
 }
 
-200
-early()
-{
-    p1.setSubpopulationSize(1000); // Population size restored or further changed
-}
-*/
 1:100000000
 late()
 {

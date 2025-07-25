@@ -154,7 +154,7 @@ rule strip_comment_lines:
     input:
         basepath + ".probs.comments.{i}.{n_chunks}.txt"
     output:
-        basepath + ".probs.{i,\d+}.{n_chunks,\d+}.txt"
+        basepath + r".probs.{i,\d+}.{n_chunks,\d+}.txt"
     shell:
         "grep -v '^0' {input} > {output}"
 
