@@ -27,10 +27,10 @@ except NameError:
     # testing
     testing = True
     files = [
-        "results/graphs/slim/n_replicate=1/n_chunks=2/g=1e2/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/constant/unfolded/dfe.inferred.png",
-        "results/graphs/slim/n_replicate=1/n_chunks=2/g=1e2/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/constant/unfolded/dfe.inferred.png",
-        "results/graphs/slim/n_replicate=1/n_chunks=2/g=1e2/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/constant/unfolded/dfe.inferred.png",
-        "results/graphs/slim/n_replicate=1/n_chunks=2/g=1e2/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/constant/unfolded/dfe.inferred.png",
+        "scratch/combined.png",
+        "scratch/combined.png",
+        "scratch/combined.png",
+        "scratch/combined.png",
     ]
     n_cols = None
     n_rows = None
@@ -38,7 +38,7 @@ except NameError:
     title_size_rel = 20
     figsize = None
     dpi = 1000
-    out = "scratch/combined.png"
+    out = "scratch/combined2.png"
 
 
 def get_index_common_start(strs: List[str]):
@@ -105,6 +105,13 @@ if n_cols is None and n_rows is None:
     else:
         n = int(np.ceil(np.sqrt(n_files)))
         n_rows, n_cols = n, n
+
+# infer figsize if not set
+if figsize is None:
+    img = mpimg.imread(files[0])
+    img_aspect = img.shape[1] / img.shape[0]
+    scale = 3  # adjust as needed
+    figsize = (scale * n_cols * img_aspect, scale * n_rows)
 
 fig, axs = plt.subplots(nrows=n_rows, ncols=n_cols, squeeze=False, figsize=figsize)
 axs = axs.flatten()

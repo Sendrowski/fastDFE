@@ -6,6 +6,7 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2024-12-25"
 
+import numpy as np
 from matplotlib import pyplot as plt
 
 try:
@@ -64,12 +65,17 @@ sfs_sel = sim.run()
 
 sfs_sel.to_file(out_sfs)
 
+fig, ax = plt.subplots(figsize=np.array([4, 3]) * 0.9)
+
 comp = fd.Spectra(dict(
     slim=spectra['selected'],
     fastdfe=sfs_sel
 ))
 
-plt.rcParams['axes.titlesize'] = 11
-comp.plot(file=out_comparison, show=testing, title=title)
+title = title.split('/')
+title = ', '.join(title[:len(title) // 2]) + '\n' + ', '.join(title[len(title) // 2:])
+
+plt.rcParams['axes.titlesize'] = 10
+comp.plot(file=out_comparison, show=testing, title=title, ax=ax)
 
 pass
