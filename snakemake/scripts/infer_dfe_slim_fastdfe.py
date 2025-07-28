@@ -65,7 +65,7 @@ params = {k: v for k, v in inf.bootstraps.mean().to_dict().items() if k not in [
 inf.plot_inferred_parameters(file=out_params, show=testing)
 inf.plot_sfs_comparison(file=out_model_fit, show=testing)
 
-fig, ax = plt.subplots(figsize=(4.5, 3.2))
+fig, ax = plt.subplots(figsize=(4.5, 2.2))
 
 inf.plot_discretized(
     file=out_dfe,

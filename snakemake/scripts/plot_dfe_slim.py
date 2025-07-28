@@ -48,7 +48,7 @@ params = dict(
     N_e=Ne
 )
 
-fig, ax = plt.subplots(figsize=(4.5, 3.2))
+fig, ax = plt.subplots(figsize=(4.5, 2.2))
 
 fd.GammaExpParametrization().plot(
     params=dict(S_d=min(params['S_d'], -1e-16), S_b=max(params['S_b'], 1e-16), b=b, p_b=p_b),
