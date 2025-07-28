@@ -95,6 +95,15 @@ if titles is None:
 
 # determine number of rows and columns if not specified
 n_files = len(files)
+
+if n_cols is None and n_rows is not None:
+    # infer number of columns from number of rows
+    n_cols = int(np.ceil(n_files / n_rows))
+
+if n_rows is None and n_cols is not None:
+    # infer number of rows from number of columns
+    n_rows = int(np.ceil(n_files / n_cols))
+
 if n_cols is None and n_rows is None:
     # display up to three files in one row only
     if n_files < 4:
