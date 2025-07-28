@@ -1526,7 +1526,7 @@ rule simulate_sfs:
         p_b=lambda w: float(w.p_b),
         n=lambda w: int(w.n),
         #title=lambda w: f"g={w.g}/L={int(float(w.L) * int(w.n_chunks)):.1e}/mu={w.mu}/r={w.r}/N={w.N}/s_b={w.s_b}/b={w.b}/s_d={w.s_d}/p_b={w.p_b}"
-        title=lambda w: f"s_b={w.s_b}, b={w.b}, s_d={w.s_d}, p_b={w.p_b}"
+        title=lambda w: f"$s_b=${w.s_b}, $b=${w.b}, $s_d=${w.s_d}, $p_b=${w.p_b}"
     conda:
         "envs/dev.yaml"
     script:

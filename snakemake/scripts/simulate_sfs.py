@@ -36,7 +36,7 @@ except NameError:
     p_b = 0
     n = 20
     mu = 1e-8
-    title = "s_b=1e-9, b=1, s_d=1e-1, p_b=0.2"
+    title = "$s_b$=1e-9, $b=1$, $s_d=1e-1$, $p_b=0.2$"
     out_sfs = "scratch/sfs.csv"
     out_comparison = "scratch/comp.png"
 
@@ -72,7 +72,7 @@ comp = fd.Spectra(dict(
     fastdfe=sfs_sel
 ))
 
-#plt.rcParams['axes.titlesize'] = 10
+plt.rcParams['axes.titlesize'] = 11
 comp.plot(file=out_comparison, show=testing, title=title, ax=ax)
 
 pass
