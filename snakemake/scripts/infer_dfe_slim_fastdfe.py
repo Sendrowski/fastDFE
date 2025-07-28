@@ -61,16 +61,25 @@ inf.get_summary().to_file(out_summary)
 
 params = {k: v for k, v in inf.bootstraps.mean().to_dict().items() if k not in ['alpha']}
 
+params_str = dict(
+    S_d=f"{params['S_d']:.0f}",
+    b=f"{params['b']:.2f}",
+    p_b=f"{params['p_b']:.2f}",
+    S_b=f"{params['S_b']:.1f}",
+    eps=f"{params['eps']:.2f}"
+)
+
 # plot results
 inf.plot_inferred_parameters(file=out_params, show=testing)
 inf.plot_sfs_comparison(file=out_model_fit, show=testing)
 
 fig, ax = plt.subplots(figsize=(4.5, 2.2))
+plt.rcParams['axes.titlesize'] = 11
 
 inf.plot_discretized(
     file=out_dfe,
     show=testing,
-    title="Inferred DFE\n" + ", ".join([f"${k}$={round(v, 2)}" for k, v in params.items()]),
+    title="Inferred DFE\n" + ", ".join([f"${k}$={v}" for k, v in params_str.items()]),
     intervals=[-np.inf, -100, -10, -1, 1, np.inf],
     ax=ax
 )

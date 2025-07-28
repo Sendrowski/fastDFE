@@ -48,12 +48,21 @@ params = dict(
     N_e=Ne
 )
 
+params_str = dict(
+    S_d=f"{params['S_d']:.0f}",
+    b=f"{params['b']:.2f}",
+    p_b=f"{params['p_b']:.2f}",
+    S_b=f"{params['S_b']:.1f}",
+    N_e=f"{params['N_e']:.0f}"
+)
+
 fig, ax = plt.subplots(figsize=(4.5, 2.2))
+plt.rcParams['axes.titlesize'] = 11
 
 fd.GammaExpParametrization().plot(
     params=dict(S_d=min(params['S_d'], -1e-16), S_b=max(params['S_b'], 1e-16), b=b, p_b=p_b),
     intervals=[-np.inf, -100, -10, -1, 1, np.inf],
-    title='Simulated DFE\n' + ", ".join([f"${k}$={round(v, 2)}" for k, v in params.items()]),
+    title='Simulated DFE\n' + ", ".join([f"${k}$={v}" for k, v in params_str.items()]),
     show=testing,
     file=out,
     ax=ax

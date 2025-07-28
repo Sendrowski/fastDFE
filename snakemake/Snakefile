@@ -106,6 +106,7 @@ polydfe_models = {
 ruleorder:
     merge_bootstraps_polyDFE > infer_dfe_polyDFE >
     create_config > create_config_from_spectra >
+    combine_plots_collage_slim_dfe > combine_plots_collage_slim
 
 wildcard_constraints:
     opts=r'[^/]*',# match several optional options not separated by /
@@ -1527,7 +1528,7 @@ rule simulate_sfs:
         p_b=lambda w: float(w.p_b),
         n=lambda w: int(w.n),
         #title=lambda w: f"g={w.g}/L={int(float(w.L) * int(w.n_chunks)):.1e}/mu={w.mu}/r={w.r}/N={w.N}/s_b={w.s_b}/b={w.b}/s_d={w.s_d}/p_b={w.p_b}"
-        title=lambda w: f"$s_d=${w.s_d}, $b=${w.b}, $p_b=${w.p_b}, $s_b=${w.s_b}"
+        title=lambda w: f"$s_d$={w.s_d}, $b$={w.b}, $p_b$={w.p_b}, $s_b$={w.s_b}"
     conda:
         "envs/dev.yaml"
     script:
