@@ -153,8 +153,8 @@ collages = {
 collages["mixed"] = [
     "results/graphs/comp/slim/n_replicate={{n_replicate}}/n_chunks=100/g={{g}}/L=1e7/mu=1e-8/r={{r}}/N={{N}}/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n={{n}}/{{demography}}/{{folded}}/{{plot_type}}.png",
     "results/graphs/comp/slim/n_replicate={{n_replicate}}/n_chunks=100/g={{g}}/L=1e7/mu=1e-8/r={{r}}/N={{N}}/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n={{n}}/{{demography}}/{{folded}}/{{plot_type}}.png",
-    "results/graphs/comp/slim/n_replicate={{n_replicate}}/n_chunks=100/g={{g}}/L=1e7/mu=1e-8/r={{r}}/N={{N}}/s_b=1e-3/b=0.1/s_d=3e-1/p_b=0.01/n={{n}}/{{demography}}/{{folded}}/{{plot_type}}.png",
-    "results/graphs/comp/slim/n_replicate={{n_replicate}}/n_chunks=100/g={{g}}/L=1e7/mu=1e-8/r={{r}}/N={{N}}/s_b=1e-4/b=0.3/s_d=3e-2/p_b=0.05/n={{n}}/{{demography}}/{{folded}}/{{plot_type}}.png",
+    "results/graphs/comp/slim/n_replicate={{n_replicate}}/n_chunks=100/g={{g}}/L=1e7/mu=1e-8/r={{r}}/N={{N}}/s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01/n={{n}}/{{demography}}/{{folded}}/{{plot_type}}.png",
+    "results/graphs/comp/slim/n_replicate={{n_replicate}}/n_chunks=100/g={{g}}/L=1e7/mu=1e-8/r={{r}}/N={{N}}/s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05/n={{n}}/{{demography}}/{{folded}}/{{plot_type}}.png",
 ]
 
 rule all:
@@ -182,9 +182,9 @@ rule all:
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/collage2.{type}.png", n_replicate=[1], type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20, 100], folded=['folded', 'unfolded'], collage_type=['realistic_full_dfe', 'realistic_del_dfe']),
             expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1, 2], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant', 'expansion', 'bottleneck']),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-8", "1e-6"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['expansion']),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['folded'], collage_type=['mixed'], demography=['constant', 'expansion', 'bottleneck']),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[100], folded=['unfolded'], collage_type=['mixed'], demography=['constant', 'expansion', 'bottleneck']),
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-8", "1e-6"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['expansion']),
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['folded'], collage_type=['mixed'], demography=['constant', 'expansion', 'bottleneck']),
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[100], folded=['unfolded'], collage_type=['mixed'], demography=['constant', 'expansion', 'bottleneck']),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png",
             #        n_replicate=[1],n_chunks=[100],n=[20],L=["1e7"],mu=["1e-8"],s_b=["1e0"],b=[0.4],s_d=["1e0"],p_b=[0.4],g=["1e4", "2e4", "4e4"],r=["1e-6"],N=["1e3"]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png",
