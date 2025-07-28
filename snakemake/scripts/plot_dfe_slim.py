@@ -42,9 +42,9 @@ Ne = spectra['neutral'].theta / (4 * mu)
 
 params = dict(
     S_d=-4 * Ne * s_d,
-    S_b=4 * Ne * s_b,
     b=b,
     p_b=p_b,
+    S_b=4 * Ne * s_b,
     N_e=Ne
 )
 
