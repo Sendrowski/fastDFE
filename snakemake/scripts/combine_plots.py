@@ -20,6 +20,8 @@ try:
     n_rows = snakemake.params.get('n_rows', None)
     titles = snakemake.params.get('titles', None)
     title_size_rel = snakemake.params.get('title_size_rel', 20)
+    title_xoffset = snakemake.params.get('title_xoffset', None)
+    pad = snakemake.params.get('pad', 0.1)
     figsize = snakemake.params.get('figsize', None)
     dpi = snakemake.params.get('dpi', 1000)
     out = snakemake.output[0]
@@ -36,6 +38,8 @@ except NameError:
     n_rows = None
     titles = None
     title_size_rel = 20
+    title_xoffset = None
+    pad = 0.1
     figsize = None
     dpi = 1000
     out = "scratch/combined2.png"
@@ -127,14 +131,14 @@ axs = axs.flatten()
 
 for file, title, ax in zip(files, titles, axs):
     ax.imshow(mpimg.imread(file))
-    ax.set_title(title, fontdict=dict(fontsize=title_size_rel / n_cols), pad=0)
+    ax.set_title(title, x=title_xoffset, fontdict=dict(fontsize=title_size_rel / n_cols), pad=0)
 
 # turn off axes
 [ax.axis("off") for ax in axs]
 
-fig.tight_layout(pad=0)
+fig.tight_layout(pad=pad)
 
-plt.savefig(out, dpi=dpi, bbox_inches='tight', pad_inches=0.1)
+plt.savefig(out, dpi=dpi, bbox_inches='tight', pad_inches=pad)
 
 if testing:
     plt.show()
