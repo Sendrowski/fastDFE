@@ -6,12 +6,13 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2022-30-03"
 
+import itertools
+import re
+from typing import List
+
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
-import re
-import itertools
-from typing import List
 
 try:
     testing = False
@@ -131,7 +132,12 @@ axs = axs.flatten()
 
 for file, title, ax in zip(files, titles, axs):
     ax.imshow(mpimg.imread(file))
-    ax.set_title(title, x=title_xoffset, fontdict=dict(fontsize=title_size_rel / n_cols), pad=0)
+    ax.set_title(
+        title,
+        fontdict=dict(fontsize=title_size_rel / n_cols),
+        pad=0,
+        **(dict(x=title_xoffset) if title_xoffset is not None else {})
+    )
 
 # turn off axes
 [ax.axis("off") for ax in axs]
