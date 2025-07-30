@@ -65,8 +65,7 @@ params_str = dict(
     S_d=f"{params['S_d']:.0f}",
     b=f"{params['b']:.2f}",
     p_b=f"{params['p_b']:.2f}",
-    S_b=f"{params['S_b']:.1f}",
-    eps=f"{params['eps']:.2f}"
+    S_b=f"{params['S_b']:.1f}"
 )
 
 # plot results
