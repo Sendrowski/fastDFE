@@ -49,6 +49,7 @@ Ne = theta / (4 * mu)
 
 model = fd.GammaExpParametrization()
 model.bounds['S_b'] = (1e-10, 100)
+model.bounds['S_d'] = (-1e6, -1e-2)
 
 sim = fd.Simulation(
     params=dict(
