@@ -1584,7 +1584,7 @@ rule combine_sfs_plots_slim_r_and_s_d:
     input:
         "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks=100/g={g}/L=1e7/mu=1e-8/r=1e-7/N={N}/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n={n}/{demography}/{folded}/sfs.png",
         "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks=100/g={g}/L=1e7/mu=1e-8/r=1e-9/N={N}/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n={n}/{demography}/{folded}/sfs.png",
-        "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks=100/g={g}/L=1e7/mu=1e-8/r=1e-7/N={N}/s_b=1e-3/b=0.3/s_d=100/p_b=0.00/n={n}/{demography}/{folded}/sfs.png",
+        "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks=100/g={g}/L=1e7/mu=1e-8/r=1e-7/N={N}/s_b=1e-3/b=0.3/s_d=30/p_b=0.00/n={n}/{demography}/{folded}/sfs.png",
     output:
         "results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/s_d_and_b.sfs.png"
     params:
