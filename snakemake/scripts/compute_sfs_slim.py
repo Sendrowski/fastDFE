@@ -46,17 +46,6 @@ except NameError:
 # load the tree sequence
 ts = tskit.load(file_in)
 
-# sample 20 individuals
-ids = random.sample([ind.id for ind in ts.individuals()], n)
-
-# get the nodes for the selected individuals
-nodes = []
-for i in ids:
-    individual = ts.individual(i)
-
-    # randomly select one node from each individual
-    nodes += [random.sample(list(individual.nodes), 1)[0]]
-
 j = 0
 sfs_sel = np.zeros(n + 1)
 n_repeat_sel = 0
@@ -78,6 +67,7 @@ print(f"Repeat mutations (selected): {n_repeat_sel}")
 # add monomorphic sites
 sfs_sel[0] = L - sfs_sel.sum()
 
+# simulate neutral mutations
 ts = ms.sim_mutations(ts, rate=mu, keep=False)
 
 sfs_neut = np.zeros(n + 1)
