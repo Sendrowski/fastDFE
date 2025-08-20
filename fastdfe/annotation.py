@@ -2223,7 +2223,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         :param parallelize: Whether to parallelize the computation across multiple cores.
         :param prior: The prior to use for the polarization probabilities. See
             :class:`KingmanPolarizationPrior` and :class:`AdaptivePolarizationPrior` for more information. By default,
-            :class:`KingmanPolarizationPrior` is used. Use ``None`` for no prior.
+            :class:`KingmanPolarizationPrior` is used. Use ``''`` for no prior.
         :param max_sites: The maximum number of sites to consider. This is useful if the number of sites is very large.
             Choosing a reasonably large subset of sites (on the order of a few thousand bi-allelic sites) can speed up
             the computation considerably as parsing can be slow. This subset is then used to calibrate the rate
