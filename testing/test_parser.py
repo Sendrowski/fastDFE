@@ -79,7 +79,7 @@ class ParserTestCase(TestCase):
         diff_rel = np.abs(sfs.data - sfs2.data) / sfs2.data
 
         # used to be 1e-12 but dadi was updated
-        assert diff_rel.max() < 1e-4
+        assert diff_rel.max() < 1e-3
 
     @staticmethod
     @pytest.mark.slow

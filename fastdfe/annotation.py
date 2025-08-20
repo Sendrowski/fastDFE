@@ -2184,6 +2184,8 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             seed: int | None = 0,
             confidence_threshold: float = 0,
             n_target_sites: int | None = None,
+            n_samples_target_sites: int | None = 100000,
+            adjust_target_sites: bool = True,
             subsample_mode: Literal['random', 'probabilistic'] = 'probabilistic'
     ):
         """
@@ -2248,10 +2250,13 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             sampled. Sampling takes place between the variants of the last and first site on every contig considered
             in the VCF file. Use `None` to disable this feature. Note that the number of target sites is automatically
             carried over if not specified and this class is used together with :class:`Parser`. In order to use this
-            feature, you must also specify a FASTA file to :class:`Parser` or :class:`Annotator`. Also note that we
-            extrapolate the number of mono-allelic sites to be sampled from the FASTA file based on the ratio of
-            sites with called outgroup bases parsed from the VCF file. This is done to obtain branch rates that are
-            comparable to the ones obtained when using a VCF file that contains both mono- and bi-allelic sites.
+            feature, you also need to specify a FASTA file to :class:`Parser` or :class:`Annotator`. Also note that
+            by default we extrapolate the number of mono-allelic sites to be sampled from the FASTA file based on the
+            ratio of sites with called outgroup bases parsed from the VCF file (``adjust_target_sites``).
+        :param n_samples_target_sites: The number of sites to sample from the FASTA file when determining the number of
+            target sites (``n_target_sites``). From this the total number of target sites is extrapolated.
+        :param adjust_target_sites: Whether to adjust the number of target sites based on the parsed VCF sites relative
+            to the total number of sites in the VCF. Defaults to ``True``.
         :param subsample_mode: The subsampling mode. For ``random``, we draw once without replacement from the set of
             all available ingroup genotypes per site. For ``probabilistic``, we integrate over the hypergeometric
             distribution when parsing and computing the ancestral probabilities. Probabilistic subsampling requires a
@@ -2339,6 +2344,15 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         #: The total number of target sites.
         self.n_target_sites: int | None = n_target_sites
 
+        #: The number of sites to sample from the FASTA file when determining the number of target sites.
+        self.n_samples_target_sites: int = n_samples_target_sites
+
+        #: Whether to adjust the number of target sites based on the number of sites parsed from the VCF file.
+        self.adjust_target_sites: bool = adjust_target_sites
+
+        #: The monomorphic site counts sampled from the FASTA file.
+        self._monomorphic_samples: Dict[str, int] = {'A': 0, 'C': 0, 'G': 0, 'T': 0}
+
     def _setup(self, handler: MultiHandler):
         """
         Parse the VCF file and perform the optimization.
@@ -2390,15 +2404,17 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             f"Included {n_sites} sites for the inference ({n_polymorphic} polymorphic, {n_monomorphic} monomorphic)."
         )
 
-    def _get_n_samples_fasta(self) -> int:
+    def _get_n_target_sites_adjusted(self) -> int:
         """
-        Get the number of sites to be sampled from the FASTA file. This assumed that the sites have not
-        been sampled yet.
+        Get the number of target sites adjusted by the number of sites parsed.
+        This assumed that the sites have not been sampled yet.
         """
-        # ratio of parsed sites to sites used for MLE
-        ratio_mle = self._get_mle_configs().multiplicity.sum() / self.n_sites
+        if self.adjust_target_sites:
+            ratio = self._get_mle_configs().multiplicity.sum() / self.n_sites
+        else:
+            ratio = 1
 
-        return int(ratio_mle * (self.n_target_sites - self.n_sites))
+        return int(ratio * (self.n_target_sites - self.n_sites))
 
     def _get_n_sites(self) -> int:
         """
@@ -2417,17 +2433,14 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             raise ValueError(f"The number of target sites ({self.n_target_sites}) must be at least "
                              f"as large as the number of sites parsed ({self.n_sites}).")
 
-        # number of mono-allelic sites to sample
-        n_samples = self._get_n_samples_fasta()
-
         # check that we have enough sites to sample
-        if n_samples == 0:
+        if self.n_samples_target_sites <= 0 or len(self._contig_bounds) == 0:
             self._logger.info("No mono-allelic sites to sample, skipping.")
             return
 
         # initialize progress bar
         pbar = tqdm(
-            total=n_samples,
+            total=self.n_samples_target_sites,
             desc=f'{self.__class__.__name__}>Sampling mono-allelic sites',
             disable=Settings.disable_pbar
         )
@@ -2442,7 +2455,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         probs = range_sizes / np.sum(range_sizes)
 
         # sample number of sites per contig
-        sample_counts = self.rng.multinomial(n_samples, probs)
+        sample_counts = self.rng.multinomial(self.n_samples_target_sites, probs)
 
         # sampled bases
         samples = dict(A=0, C=0, G=0, T=0)
@@ -2478,8 +2491,30 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         # rewind fasta iterator
         FASTAHandler._rewind(self._handler)
 
-        # add site counts to data frame
-        self.configs = self._add_monomorphic_sites(samples)
+        n_target_sites = self._get_n_target_sites_adjusted()
+
+        if self.adjust_target_sites:
+            self._logger.info(f"Extrapolating to {n_target_sites} mutational target sites "
+                              f"based on the number of sites parsed.")
+        else:
+            self._logger.info(f"Extrapolating to {self.n_target_sites} mutational target sites.")
+
+        # ratio for extrapolating to the total number of target sites
+        ratio = n_target_sites / self.n_samples_target_sites
+
+        # extrapolate the number of monomorphic sites
+        vec = np.array([samples[k] for k in bases], dtype=float)
+        scaled = vec * ratio
+        floors = np.floor(scaled).astype(int)
+        remainder = n_target_sites - int(floors.sum())
+        if remainder > 0:
+            order = np.argsort(scaled - floors)[::-1]
+            floors[order[:remainder]] += 1
+
+        self._monomorphic_samples = {k: int(v) for k, v in zip(bases, floors)}
+
+        # add monomorphic site counts to data frame
+        self.configs = self._add_monomorphic_sites(self._monomorphic_samples)
 
         # update number of sites
         self.n_sites = self._get_n_sites()
@@ -4010,6 +4045,9 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         :return: The observed transition/transversion ratio.
         """
         configs = self._get_mle_configs()
+
+        if len(configs) == 0:
+            raise RuntimeError("No sites available to calculate the transition/transversion ratio.")
 
         tuples = configs[["minor_base", "major_base"]].apply(tuple, axis=1)
 

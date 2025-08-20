@@ -2180,7 +2180,6 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         self.assertAlmostEqual(1, sum([site.multiplicity for site in sites]))
         self.assertEqual({s.n_major for s in sites}, {3, 4, 5})
 
-
     @staticmethod
     def test_plot_tree_no_outgroup():
         """
@@ -3389,6 +3388,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         _annotate_site = anc.annotate_site
         probs = []
+
         def annotate_site(variant):
             _annotate_site(variant)
             probs.append(variant.INFO['AA_prob'])
@@ -3400,3 +3400,39 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         # make sure all probabilities are greater than 0.5
         self.assertGreater(min(probs), 0.5)
+
+    def test_n_samples_target_sites_argument(self):
+        """
+        Test that the n_samples_target_sites is properly extrapolated to n_target_sites
+        """
+        n_target_sites = 100000
+        max_sites = 100
+
+        anc, ann = {}, {}
+        for n_samples in [10 ** 3, 10 ** 4, 10 ** 5, 10 ** 6]:
+            anc[n_samples] = fd.MaximumLikelihoodAncestralAnnotation(
+                outgroups=["ERR2103730"],
+                n_runs=1,
+                n_ingroups=5,
+                max_sites=max_sites,
+                n_target_sites=n_target_sites,
+                n_samples_target_sites=n_samples,
+                model=fd.JCSubstitutionModel(),
+                adjust_target_sites=False
+            )
+
+            ann[n_samples] = fd.Annotator(
+                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                fasta="resources/genome/betula/genome.fasta",
+                output='scratch/test_n_samples_target_sites_argument.vcf',
+                annotations=[anc[n_samples]],
+                max_sites=max_sites
+            )
+
+            ann[n_samples].annotate()
+
+            self.assertEqual(anc[n_samples].n_sites, n_target_sites)
+
+        counts = np.array([list(v._monomorphic_samples.values()) for k, v in anc.items()]) / n_target_sites
+
+        self.assertLessEqual(np.max(np.var(counts, axis=0)), 1e-4)
