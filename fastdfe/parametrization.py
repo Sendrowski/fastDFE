@@ -809,7 +809,7 @@ class DiscreteFractionalParametrization(Parametrization):
         Convert representation of fraction of total mass to the left
         to representation of fractions which sum to 1.
 
-        :param params: Parameter values S0, S2, ..., Sk
+        :param params: Parameter values S1, S2, ..., Sk
         :return: Converted parameters
         """
         # converted parameters
