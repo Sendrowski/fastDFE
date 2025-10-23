@@ -201,6 +201,13 @@ class BaseInference(AbstractInference):
         #: Sample size
         self.n: int = sfs_neut.n
 
+        if self.n > 400:
+            raise ValueError(
+                f"Population sample size n={self.n} above allowed maximum of 400. "
+                f"Note that high sample sizes (e.g. n > 50) don't carry much additional "
+                f"information over moderate sample sizes and don't necessarily improve DFE inference."
+            )
+
         if discretization is None:
             # create discretization instance
             #: Discretization instance

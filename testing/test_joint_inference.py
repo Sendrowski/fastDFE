@@ -732,3 +732,15 @@ class JointInferenceTestCase(InferenceTestCase):
 
         self.assertTrue(hasattr(inf.marginal_inferences['all'].result, 'direc'))
         self.assertTrue(hasattr(inf.marginal_inferences['example_1'].bootstrap_results[0], 'direc'))
+
+    def test_raise_error_n_above_400(self):
+        """
+        Test whether an error is raised when sample size is above 400.
+        """
+        with self.assertRaises(ValueError) as context:
+            fd.JointInference(
+                sfs_neut=fd.Spectrum.standard_kingman(401, n_monomorphic=10000).to_spectra(),
+                sfs_sel=fd.Spectrum.standard_kingman(401, n_monomorphic=10000).to_spectra()
+            )
+
+        print(context.exception)

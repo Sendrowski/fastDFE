@@ -1206,3 +1206,15 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf_alt = fd.BaseInference.from_config(config.update(method_mle='Powell'))
         inf_alt.run()
         self.assertTrue(hasattr(inf_alt.result, 'direc'))
+
+    def test_raise_error_n_above_400(self):
+        """
+        Test whether an error is raised when sample size is above 400.
+        """
+        with self.assertRaises(ValueError) as context:
+            fd.BaseInference(
+                sfs_neut=fd.Spectrum.standard_kingman(401, n_monomorphic=10000),
+                sfs_sel=fd.Spectrum.standard_kingman(401, n_monomorphic=10000)
+            )
+
+        print(context.exception)
