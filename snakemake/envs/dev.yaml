@@ -6,7 +6,7 @@ dependencies:
   - dadi
   - r-base
   - rpy2
-  - r-rjsonio
+  #- r-rjsonio
   - r-irkernel
   - r-usethis
   - r-devtools
