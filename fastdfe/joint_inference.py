@@ -692,8 +692,8 @@ class JointInference(BaseInference):
                 spectra = {}
                 for t in types:
                     spectra[t] = dict(
-                        neut=sfs_neut[t].resample(seed=seed + i),
-                        sel=sfs_sel[t].resample(seed=seed + i)
+                        neut=sfs_neut[t].resample(seed=seed + 2 * i),
+                        sel=sfs_sel[t].resample(seed=seed + 2 * i + 1)
                     )
 
                 # perform joint optimization

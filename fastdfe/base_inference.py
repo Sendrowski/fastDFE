@@ -715,8 +715,8 @@ class BaseInference(AbstractInference):
         for i in range(max(self.n_bootstrap_retries, 0) + 1):
 
             # resample spectra
-            sfs_sel = self.sfs_sel.resample(seed=seed + i)
-            sfs_neut = self.sfs_neut.resample(seed=seed + i)
+            sfs_sel = self.sfs_sel.resample(seed=seed + 2 * i)
+            sfs_neut = self.sfs_neut.resample(seed=seed + 2 * i + 1)
 
             # perform numerical minimization
             result, params_mle = self.optimization.run(

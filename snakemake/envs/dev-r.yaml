@@ -1,0 +1,33 @@
+name: dev-r-fastdfe
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - typing-extensions
+  - matplotlib
+  - seaborn
+  - numpy
+  - pandas
+  - jsonpickle
+  - multiprocess
+  - pyyaml
+  - tqdm
+  - mpmath
+  - biopython
+  - requests
+  - scipy
+  - cyvcf2
+  - r-base
+  - r-matrix
+  - r-reticulate
+  - r-ggplot2
+  - r-cowplot
+  - r-pheatmap
+  - r-scales
+  - r-rcolorbrewer
+  - rpy2
+  - r-irkernel
+  - r-usethis
+  - r-devtools
+  - jupyterlab
+  - jupyter
