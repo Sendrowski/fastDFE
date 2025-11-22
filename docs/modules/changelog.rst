@@ -3,9 +3,14 @@
 Changelog
 =========
 
+[1.1.13] - 2025-11-22
+^^^^^^^^^^^^^^^^^^^^^
+- Fixed bootstrap issue where seeding caused unwanted correlation between the resampled neutral and selected SFS, which could result in smaller confidence intervals.
+
 [1.1.12] - 2025-05-26
 ^^^^^^^^^^^^^^^^^^^^^
 - Made ``cyvcf2`` an optional dependency via ``fastdfe[vcf]``
+- Added support for ``Conda``
 - Improved x-axis labels for discretized DFE plots
 - Added support for introducing ancestral misidentification in ``Spectrum``
 - Added unnormalized Watterson’s theta property

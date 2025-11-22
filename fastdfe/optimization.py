@@ -55,7 +55,7 @@ def parallelize(
         iterator = map(func, data)
 
     # whether to show a progress bar
-    if pbar is True or (pbar is None and not parallelize and n > 1) or pbar is None and n > mp.cpu_count():
+    if pbar is True or (pbar is None and n > 1):
         iterator = tqdm(iterator, total=n, disable=Settings.disable_pbar, desc=desc)
 
     return np.array(list(iterator), dtype=dtype)
