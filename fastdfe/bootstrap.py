@@ -120,7 +120,10 @@ class Bootstrap:
                 logger.warning('Some confidence intervals could not be computed.')
 
                 # set undefined confidence intervals to values
-                cis[np.equal(cis, None)] = values[np.any(np.equal(cis, None), axis=0)]
+                mask = np.equal(cis, None)
+                for j in range(cis.shape[1]):
+                    if mask[:, j].any():
+                        cis[mask[:, j], j] = values[j]
 
             # determine error using original values
             errors = np.array([values - cis[0], cis[1] - values])
