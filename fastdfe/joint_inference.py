@@ -706,7 +706,7 @@ class JointInference(BaseInference):
                     n_runs=1,
                     debug_iterations=False,
                     print_info=False,
-                    desc=f"{self.__class__.__name__}>Bootstrapping joint inference",
+                    desc=f"JointInference>Bootstrapping joint inference",
                     get_counts=dict((t, lambda params, t=t: BaseInference._model_sfs(
                         discretization=discretization,
                         model=model,
