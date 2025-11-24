@@ -1060,6 +1060,15 @@ class Spectra:
         """
         return Spectra.from_spectra({t: s.subsample(n, mode) for t, s in self.to_spectra().items()})
 
+    def resample(self, seed: int = None) -> 'Spectra':
+        """
+        Resample SFS assuming independent Poisson counts.
+
+        :param seed: Seed for random number generator.
+        :return: Resampled spectra.
+        """
+        return Spectra.from_spectra({t: s.resample(seed) for t, s in self.to_spectra().items()})
+
     def is_folded(self) -> Dict[str, bool]:
         """
         Check whether spectra are folded.
