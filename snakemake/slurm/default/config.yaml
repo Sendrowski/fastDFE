@@ -1,0 +1,10 @@
+executor: slurm
+jobs: 1000
+default-resources: [ cpus=1, time=600, mem_mb=8000, disk_mb=100000, slurm_account="primates_fast_dfe", slurm_partition="short" ]
+nolock: true
+printshellcmds: true
+latency-wait: 60
+use-conda: true
+slurm-keep-successful-logs: true
+show-failed-logs: true
+rerun-triggers: mtime
