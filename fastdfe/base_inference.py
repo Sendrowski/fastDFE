@@ -93,6 +93,10 @@ class BaseInference(AbstractInference):
         # gtol=1e-10
     )
 
+    #: Whether to initialize bootstrap samples randomly, static for backward-compatible serialization.
+    #: .. autodoc-skip-member::
+    bootstrap_global_mode: bool = True
+
     def __init__(
             self,
             sfs_neut: Spectra | Spectrum,
@@ -113,7 +117,8 @@ class BaseInference(AbstractInference):
             fixed_params: Dict[str, Dict[str, float]] = {},
             do_bootstrap: bool = False,
             n_bootstraps: int = 100,
-            n_bootstrap_retries: int = 2,
+            n_bootstrap_retries: int = 3,
+            bootstrap_global_mode: bool = True,
             parallelize: bool = True,
             folded: bool = None,
             discretization: Discretization = None,
@@ -149,7 +154,18 @@ class BaseInference(AbstractInference):
         :param fixed_params: Parameters held fixed during optimization, i.e., ``{'all': {param: value}}``
         :param do_bootstrap: Whether to do bootstrapping.
         :param n_bootstraps: Number of bootstraps.
-        :param n_bootstrap_retries: Number of retries for bootstraps that did not terminate normally.
+        :param n_bootstrap_retries: Number of optimization runs for each bootstrap sample. This parameter previously
+            defined the number of retries per bootstrap sample when subsequent runs failed, but now it defines the
+            total number of runs per bootstrap sample, taking the most likely one.
+        :param bootstrap_global_mode: Whether to use x0 for the first run and then draw random initial parameters for
+            subsequent runs of each bootstrap sample, rather than always from the MLE and perturbing it for every retry.
+            This approach is slower and may require more n_retries to obtain good fits. However, starting near the MLE
+            can cause the optimizer to converge repeatedly to values close to the MLE, producing artificially narrow
+            confidence intervals. For complex likelihood surfaces, this behavior can sometimes be desirable.
+            If `bootstrap_global_mode` is set to `True`, consider using at least as many bootstrap retries
+            (`n_bootstrap_retries`) as the number of initial runs (`n_runs`) to avoid suboptimal bootstrap fits and
+            unrealistically large confidence intervals.
+        :param pbar: Whether to show a progress bar.
         :param parallelize: Whether to parallelize computations.
         :param folded: Whether the SFS are folded. If not specified, the SFS will be folded if both of the given
             SFS appear to be folded.
@@ -247,6 +263,9 @@ class BaseInference(AbstractInference):
         #: Number of MLE runs to perform
         self.n_runs: int = n_runs
 
+        #: Dataframe holding information on all optimization runs
+        self.runs: Optional[pd.DataFrame] = None
+
         #: Numerical optimization result
         self.result: Optional['scipy.optimize.OptimizeResult'] = None
 
@@ -258,8 +277,11 @@ class BaseInference(AbstractInference):
         #: Number of bootstraps
         self.n_bootstraps: int = n_bootstraps
 
-        #: Number of retries for bootstraps that did not terminate normally
+        #: Number of optimization runs for each bootstrap sample
         self.n_bootstrap_retries: int = n_bootstrap_retries
+
+        #: Whether to randomly choose initial parameters for each bootstrap sample
+        self.bootstrap_global_mode: bool = bootstrap_global_mode
 
         #: Whether to parallelize computations
         self.parallelize: bool = parallelize
@@ -453,8 +475,9 @@ class BaseInference(AbstractInference):
             desc=f'{self.__class__.__name__}>Performing inference'
         )
 
-        # assign likelihoods
-        self.likelihoods = self.optimization.likelihoods
+        # assign runs dataframe and likelihoods
+        self.runs = self.optimization.runs
+        self.likelihoods = self.runs.likelihood.to_list()
 
         # unpack shared parameters
         params_mle = unpack_shared(params_mle)
@@ -572,17 +595,27 @@ class BaseInference(AbstractInference):
         if result.success:
             self._logger.info(f"Successfully finished optimization after {result.nit} iterations "
                               f"and {result.nfev} function evaluations, obtaining a log-likelihood "
-                              f"of -{result.fun}.")
+                              f"of -{result.fun:.4g}")
         else:
             self._logger.warning("Numerical optimization did not terminate normally, so "
                                  "the result might be unreliable. Consider adjusting "
                                  "the optimization parameters (increasing `gtol` or `n_runs`) "
                                  "or decreasing the number of optimized parameters.")
 
-        # param string for MLE params
-        param_string = str(flatten_dict(params)).replace('\'', '')
+        self._logger.info(f"Inferred parameters: {self._format_dict(params)}.")
 
-        self._logger.info(f"Inferred parameters: {param_string}.")
+        std = self.runs.select_dtypes("number").std().fillna(0)
+        self._logger.info(f"Standard deviations across run: {self._format_dict(std)}.")
+
+    @staticmethod
+    def _format_dict(d: dict):
+        """
+        Format numerical dictionary for printing.
+
+        :param d: Dictionary to print.
+        :return: Formatted string.
+        """
+        return str({k: f"{v:.4g}" for k, v in flatten_dict(d).items()}).replace('\'', '')
 
     def update_properties(self, **kwargs) -> Self:
         """
@@ -608,6 +641,7 @@ class BaseInference(AbstractInference):
             parallelize: bool = None,
             update_likelihood: bool = True,
             n_retries: int = None,
+            global_mode: bool = False,
             pbar: bool = True
     ) -> pd.DataFrame:
         """
@@ -616,8 +650,11 @@ class BaseInference(AbstractInference):
         :param n_samples: Number of bootstrap samples. Defaults to :attr:`n_bootstraps`.
         :param parallelize: Whether to parallelize the bootstrap. Defaults to :attr:`parallelize`.
         :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples.
-        :param n_retries: Number of retries for bootstrap samples that did not terminate normally. Defaults to
+        :param n_retries: Number of optimization runs for each bootstrap sample. Defaults to
             :attr:`n_bootstrap_retries`.
+        :param global_mode: Whether to randomly choose initial parameters for each bootstrap sample
+            rather than using the MLE parameters as starting point. Note that this will take longer to run and
+            more `n_retries` may be required to obtain good fits. Can be appropriate for complex likelihood surfaces.
         :param pbar: Whether to show a progress bar.
         :return: Dataframe with bootstrap results.
         """
@@ -631,7 +668,8 @@ class BaseInference(AbstractInference):
         self.update_properties(
             n_bootstraps=n_samples,
             parallelize=parallelize,
-            n_bootstrap_retries=n_retries
+            n_bootstrap_retries=n_retries,
+            global_mode=global_mode
         )
 
         n_bootstraps = int(self.n_bootstraps)
@@ -651,16 +689,35 @@ class BaseInference(AbstractInference):
         seeds = self.rng.integers(0, high=2 ** 32, size=n_bootstraps)
 
         # run bootstraps
+        mode = 'local' if not self.bootstrap_global_mode else 'global'
         result = optimization.parallelize(
             func=self._run_bootstrap_sample,
             data=seeds,
             parallelize=self.parallelize,
             pbar=pbar,
-            desc=f'{self.__class__.__name__}>Bootstrapping'
+            desc=f'{self.__class__.__name__}>Bootstrapping ({mode} mode)'
         )
 
         # number of successful runs
         n_success = np.sum([res.success for res in result[:, 0]])
+
+        # dataframe of MLE estimates
+        self.bootstraps = pd.DataFrame([r['all'] for r in result[:, 1]])
+
+        # add estimates for alpha to the bootstraps
+        self._add_alpha_to_bootstraps()
+
+        # assign additional info to bootstraps
+        self.bootstraps['likelihood'] = [-r.fun for r in result[:, 0]]
+        self.bootstraps['success'] = [r.success for r in result[:, 0]]
+        self.bootstraps['result'] = [str(r) for r in result[:, 0]]
+        self.bootstraps['x0'] = [str(flatten_dict(r)) for r in result[:, 2]]
+
+        # assign bootstrap results
+        self.bootstrap_results = list(result[:, 0])
+
+        std = self.bootstraps.select_dtypes("number").std().fillna(0)
+        self._logger.info(f"Standard deviations across bootstraps: {self._format_dict(std)}.")
 
         # issue warning if some runs did not finish successfully
         if n_success < n_bootstraps:
@@ -668,19 +725,10 @@ class BaseInference(AbstractInference):
                 f"{n_bootstraps - n_success} out of {n_bootstraps} bootstrap samples "
                 "did not terminate normally during numerical optimization. "
                 "The confidence intervals might thus be unreliable. Consider "
-                "increasing the number of retries (`n_retries`), "
+                "increasing the number of optimization runs per bootstrap sample (`n_retries`), "
                 "adjusting the optimization parameters (increasing `gtol` or `n_runs`), "
                 "or decreasing the number of optimized parameters."
             )
-
-            # dataframe of MLE estimates
-        self.bootstraps = pd.DataFrame([r['all'] for r in result[:, 1]])
-
-        # assign bootstrap results
-        self.bootstrap_results = list(result[:, 0])
-
-        # add estimates for alpha to the bootstraps
-        self._add_alpha_to_bootstraps()
 
         # add execution time
         self.execution_time += time.time() - start_time
@@ -700,29 +748,32 @@ class BaseInference(AbstractInference):
         # add alpha estimates
         self.bootstraps['alpha'] = self.bootstraps.apply(lambda r: self.get_alpha(dict(r)), axis=1)
 
-    def _run_bootstrap_sample(self, seed: int) -> ('scipy.optimize.OptimizeResult', dict):
+    def _run_bootstrap_sample(self, seed: int) -> Tuple['scipy.optimize.OptimizeResult', dict, dict]:
         """
         Resample the observed selected SFS and rerun the optimization procedure.
-        We take the MLE params as initial params here. In case the optimization
-        does not terminate normally, we retry up to :attr:`n_bootstrap_retries` times.
+        We take the MLE params as initial params here and perturb them for every
+        additional run.
 
         :param seed: Seed for random number generator.
-        :return: Optimization result and MLE parameters.
+        :return: Optimization result of best run, MLE parameters, and best x0.
         """
-        result, params_mle = None, None
+        result, params_mle, x0_best = None, None, None
+        x0 = dict(all=self.params_mle)
 
-        # retry up to `n_bootstrap_retries` times
-        for i in range(max(self.n_bootstrap_retries, 0) + 1):
+        # resample spectra
+        sfs_sel = self.sfs_sel.resample(seed=seed)
+        sfs_neut = self.sfs_neut.resample(seed=seed + 1)
+        scales = self.get_scales_linear() if not self.bootstrap_global_mode else self.scales
+        bounds = self.get_bounds_linear() if not self.bootstrap_global_mode else self.bounds
 
-            # resample spectra
-            sfs_sel = self.sfs_sel.resample(seed=seed + 2 * i)
-            sfs_neut = self.sfs_neut.resample(seed=seed + 2 * i + 1)
+        # run `n_bootstrap_retries` times
+        for i in range(max(self.n_bootstrap_retries, 1)):
 
             # perform numerical minimization
-            result, params_mle = self.optimization.run(
-                x0=dict(all=self.params_mle),
-                scales=self.get_scales_linear(),
-                bounds=self.get_bounds_linear(),
+            result_new, params_mle_new = self.optimization.run(
+                x0=x0,
+                scales=scales,
+                bounds=bounds,
                 n_runs=1,
                 debug_iterations=False,
                 print_info=False,
@@ -737,16 +788,31 @@ class BaseInference(AbstractInference):
                 desc=f'{self.__class__.__name__}>Bootstrapping'
             )
 
-            # unpack shared parameters
-            params_mle = unpack_shared(params_mle)
+            # keep best result
+            if result is None or (result_new.success and result_new.fun < result.fun):
+                if result is not None:
+                    pass
+                result = result_new
+                params_mle = params_mle_new
+                x0_best = x0
 
-            # normalize MLE estimates
-            params_mle['all'] = self.model._normalize(params_mle['all'])
+                # unpack shared parameters
+                params_mle = unpack_shared(params_mle)
 
-            if result.success:
-                return result, params_mle
+                # normalize MLE estimates
+                params_mle['all'] = self.model._normalize(params_mle['all'])
 
-        return result, params_mle
+            # perturb x0 for next run or choose randomly
+            if not self.bootstrap_global_mode:
+                x0 = dict(all=self.optimization.perturb_params(
+                    params=self.params_mle,
+                    bounds=self.get_bounds_linear(),
+                    seed=seed + i
+                ))
+            else:
+                x0 = self.optimization.sample_x0(dict(all=self.params_mle), seed=seed + i)
+
+        return result, params_mle, x0_best
 
     def get_scales_linear(self) -> Dict[str, Literal['lin']]:
         """

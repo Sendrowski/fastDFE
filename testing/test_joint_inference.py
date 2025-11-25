@@ -744,3 +744,23 @@ class JointInferenceTestCase(InferenceTestCase):
             )
 
         print(context.exception)
+
+    @pytest.mark.skip(reason="not a real test")
+    def test_bootstrap_n_retries(self):
+        """
+        Test whether bootstrapping with retries works as expected.
+        """
+        stds = {}
+
+        for n in [1, 2, 3, 10]:
+            inf = fd.JointInference.from_config_file("resources/configs/shared/covariates_Sd_fixed_params/config.yaml")
+            inf.n_bootstraps = 20
+            inf.do_bootstrap = True
+            inf.n_bootstrap_retries = n
+
+            inf.run()
+            stds[n] = dict(joint=inf.bootstraps.likelihood.std()) | {
+                t: inf.marginal_inferences[t].bootstraps.likelihood.std() for t in inf.types
+            }
+
+        print(stds)

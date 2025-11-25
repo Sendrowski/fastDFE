@@ -610,6 +610,12 @@ class DiscreteParametrization(Parametrization):
         """
         super().__init__()
 
+        # deprecation warning
+        self._logger.warning(
+            'DiscreteParametrization is deprecated. Use DiscreteFractionalParametrization instead, which '
+            'has better optimization properties.'
+        )
+
         #: Intervals
         self.intervals: np.ndarray = np.concatenate(([-np.inf], intervals, [np.inf]))
 

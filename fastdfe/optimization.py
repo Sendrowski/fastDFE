@@ -14,6 +14,7 @@ from typing import Callable, List, Dict, Literal, Tuple, Optional, Sequence
 
 import multiprocess as mp
 import numpy as np
+import pandas as pd
 from numpy.linalg import norm
 from numpy.random import Generator
 from scipy.stats import loguniform, uniform
@@ -578,6 +579,25 @@ def unscale_value(scaled_value: float, bounds: Tuple[float, float], scale: Liter
     raise ValueError(f'Unknown scale {scale}.')
 
 
+def perturb_value(value: float, bounds: Tuple[float, float], rng: np.random.Generator) -> float:
+    """
+    Perturb a value within the given bounds using a normal distribution with mean at the value
+    and standard deviation equal to the value.
+
+    :param value: The value to perturb.
+    :param bounds: The bounds to perturb within.
+    :param rng: The random number generator to use.
+    :return: The perturbed value.
+    """
+    std = 2 * abs(value) if value != 0 else 0.1 * abs(bounds[1] - bounds[0])
+    perturbed = rng.normal(loc=value, scale=std)
+
+    # ensure within bounds
+    perturbed = max(bounds[0], min(bounds[1], perturbed))
+
+    return perturbed
+
+
 def scale_values(
         params: Dict[str, Dict[str, float]],
         bounds: Dict[str, Tuple[float, float]],
@@ -899,8 +919,8 @@ class Optimization:
         #: Number of runs
         self.n_runs: Optional[int] = None
 
-        #: Likelihoods for each run
-        self.likelihoods: Optional[np.ndarray] = None
+        #: DataFrame holding information about all optimization runs
+        self.runs: Optional[pd.DataFrame] = None
 
         #: Random generator instance
         self.rng = np.random.default_rng(seed=seed)
@@ -1004,11 +1024,23 @@ class Optimization:
         # parallelize MLE for different initializations
         results = parallelize(optimize, initial_params, self.parallelize, pbar=pbar, desc=desc)
 
-        # list of the best likelihood for each run
-        self.likelihoods = -np.array([res.fun for res in results])
+        # build a pandas DataFrame of all runs
+        records = []
+        for i, res in enumerate(results):
+            params = unpack_params(res.x, self.x0)
+            params = unscale_values(params, self.bounds, self.scales)
+            flat = flatten_dict(params)
+            flat['likelihood'] = -res.fun
+            flat['success'] = res.success
+            flat['result'] = str(str)
+            flat['x0'] = str(flatten_dict(initial_params[i]))
+            records.append(flat)
+
+        # store runs as DataFrame
+        self.runs = pd.DataFrame(records)
 
         # get result with the lowest likelihood
-        result = results[np.argmax(self.likelihoods)]
+        result = results[np.argmax(self.runs.likelihood)]
 
         # unpack MLE params array into a dictionary
         params_mle = unpack_params(result.x, self.x0)
@@ -1097,20 +1129,21 @@ class Optimization:
 
         return loss
 
-    def sample_x0(self, example: dict) -> Dict[str, dict]:
+    def sample_x0(self, example: dict, seed: int = None) -> Dict[str, dict]:
         """
         Sample initial values.
 
         :param example: An example dictionary for generating the initial values
+        :param seed: Random seed
         :return: A dictionary of initial values
         """
         sample = {}
 
         for key, value in example.items():
             if isinstance(value, dict):
-                sample[key] = self.sample_x0(value)
-            else:
-                sample[key] = self.sample_value(self.bounds[key], self.scales[key], random_state=self.rng)
+                sample[key] = self.sample_x0(value, seed)
+            elif key in self.bounds and key in self.scales:
+                sample[key] = self.sample_value(self.bounds[key], self.scales[key], random_state=seed)
 
         return sample
 
@@ -1264,3 +1297,27 @@ class Optimization:
         :param fixed_params: Dictionary of fixed parameters
         """
         self.fixed_params = flatten_dict(fixed_params)
+
+    @staticmethod
+    def perturb_params(
+            params: Dict[str, Dict[str, float]],
+            bounds: Dict[str, Tuple[float, float]],
+            seed: Optional[int] = None,
+    ) -> Dict[str, Dict[str, float]]:
+        """
+        Perturb values within the given bounds using a normal distribution with mean at the value
+        and standard deviation equal to the value.
+
+        :param params: Nested dictionary of parameters indexed by type and parameter
+        :param bounds: Dictionary of bounds indexed by parameter name
+        :param seed: Seed for the random number generator
+        :return: Nested dictionary of perturbed parameters indexed by type and parameter
+        """
+        rng = np.random.default_rng(seed)
+        perturbed = {}
+
+        for key, value in flatten_dict(params).items():
+            # perturb value
+            perturbed[key] = perturb_value(value, bounds[get_basename(key)], rng)
+
+        return unflatten_dict(perturbed)

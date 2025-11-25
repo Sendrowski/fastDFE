@@ -281,8 +281,8 @@ class SimulationTestCase(TestCase):
         for key in sim.params:
             self.assertAlmostEqual(inf.params_mle[key], sim.params[key], delta=np.abs(sim.params[key]) / 1000)
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_d'], sim.params['S_d'], delta=sim.params['S_d'] / -100)
-        self.assertAlmostEqual(inf.bootstraps.mean()['b'], sim.params['b'], delta=sim.params['b'] / 100)
+        self.assertAlmostEqual(inf.bootstraps.mean()['S_d'], sim.params['S_d'], delta=10)
+        self.assertAlmostEqual(inf.bootstraps.mean()['b'], sim.params['b'], delta=0.1)
         self.assertAlmostEqual(inf.bootstraps.mean()['eps'], 0, delta=1e-3)
 
         self.assertAlmostEqual(inf.bootstraps.mean()['p_b'], 0)

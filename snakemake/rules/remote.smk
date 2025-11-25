@@ -11,5 +11,5 @@ rule copy_from_remote:
         output_dir=lambda w: os.path.dirname(w.path),
     shell:
         """
-        scp -r sendrowskij@login.genome.au.dk:/faststorage/project/primates_fast_dfe/{output} {params.output_dir}
+        scp -r sendrowskij@login.genome.au.dk:/Users/au732936/PycharmProjects/fastDFE/snakemake/{output} {params.output_dir}
         """

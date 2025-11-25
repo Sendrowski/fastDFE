@@ -7,7 +7,7 @@ from numpy import testing
 
 from fastdfe.optimization import pack_params, unpack_params, flatten_dict, unflatten_dict, filter_dict, Optimization, \
     merge_dicts, correct_values, to_symlog, from_symlog, scale_bound, scale_value, unscale_value, unscale_bound, \
-    check_bounds
+    check_bounds, perturb_value
 from testing import TestCase
 
 
@@ -438,3 +438,63 @@ class OptimizationTestCase(TestCase):
 
         # param7 doesn't work for log scale
         self.assertEqual(['param6', 'param8'], list(upper.keys()))
+
+    def test_perturb_value(self):
+        """
+        Test the perturb_value function.
+        """
+        rng = np.random.default_rng(seed=42)
+
+        bounds = (1, 10)
+        value = 5
+
+        perturbed_values = [perturb_value(value, bounds, rng) for _ in range(100)]
+
+        self.assertGreaterEqual(np.std(perturbed_values), 0.3)
+
+    def test_perturb_value_near_bounds(self):
+        """
+        Test the perturb_value function when the value is near the bounds.
+        """
+        rng = np.random.default_rng(seed=42)
+
+        bounds = (1, 10)
+        value_low = 1.1
+        value_high = 9.9
+
+        perturbed_values_low = np.array([perturb_value(value_low, bounds, rng) for _ in range(100)])
+        perturbed_values_high = np.array([perturb_value(value_high, bounds, rng) for _ in range(100)])
+
+        self.assertGreaterEqual(np.std(perturbed_values_low), 0.03)
+        self.assertGreaterEqual(np.std(perturbed_values_high), 0.3)
+
+        # make sure that perturbed values are within bounds
+        self.assertTrue(np.all((perturbed_values_low >= bounds[0]) & (perturbed_values_low <= bounds[1])))
+        self.assertTrue(np.all((perturbed_values_high >= bounds[0]) & (perturbed_values_high <= bounds[1])))
+
+    def test_perturb_params(self):
+        """
+        Test the perturb_params function.
+        """
+        rng = np.random.default_rng(seed=42)
+
+        bounds = {
+            'param1': (1, 10),
+            'param2': (1, 10),
+            'param3': (-10, -1),
+        }
+
+        params = {
+            'param1': 5,
+            'param2': 9,
+            'param3': -5,
+        }
+
+        for i in range(10):
+
+            perturbed_params = flatten_dict(Optimization.perturb_params(params, bounds, rng))
+
+            for key in params.keys():
+                self.assertNotEqual(params[key], perturbed_params[key])
+                self.assertGreaterEqual(perturbed_params[key], bounds[key][0])
+                self.assertLessEqual(perturbed_params[key], bounds[key][1])

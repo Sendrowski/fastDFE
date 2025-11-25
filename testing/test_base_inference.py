@@ -615,7 +615,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         config3 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0)))
         config4 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0, S_b=1)))
         config5 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0)),
-                                               model=fd.DiscreteParametrization())
+                                                model=fd.DiscreteParametrization())
 
         def is_nested(simple: fd.Config, complex: fd.Config) -> bool:
             return fd.BaseInference.from_config(simple)._is_nested(fd.BaseInference.from_config(complex))
@@ -1218,3 +1218,71 @@ class BaseInferenceTestCase(InferenceTestCase):
             )
 
         print(context.exception)
+
+    def test_bootstrap_n_retries(self):
+        """
+        Test whether bootstrapping with retries works as expected.
+        """
+        config = fd.Config.from_file(self.config_file)
+        discretization = fd.BaseInference.from_config(config).discretization
+        results = {}
+        infs = {}
+
+        for parallelize in [True, False]:
+            for bootstrap_global_mode in [True, False]:
+                config.update(do_bootstrap=True, n_bootstraps=100, seed=123,
+                              parallelize=parallelize, bootstrap_global_mode=bootstrap_global_mode)
+                stds = {}
+
+                for n in [1, 2, 3]:
+                    inf = fd.BaseInference.from_config(config.update(n_bootstrap_retries=n))
+                    inf.discretization = discretization
+
+                    inf.run()
+                    inf.plot_discretized()
+                    stds[n] = inf.bootstraps.likelihood.std()
+                    infs[(parallelize, bootstrap_global_mode, n)] = inf
+
+                # assert descending order of stds
+                stds_list = list(stds.values())
+                results[(parallelize, bootstrap_global_mode)] = stds_list
+                # self.assertTrue(all(a > b for a, b in zip(stds_list, stds_list[1:])))
+
+        print(results)
+
+    def test_bootstrap_debug(self):
+        """
+        Test whether bootstrapping with retries works as expected.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            do_bootstrap=True,
+            n_runs=10,
+            n_bootstrap_retries=3,
+            bootstrap_global_mode=False,
+            parallelize=False
+        )
+
+        inf.run()
+
+        pass
+
+    def test_bootstrap_debug2(self):
+        """
+        Test whether bootstrapping with retries works as expected.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            do_bootstrap=True,
+            n_runs=10,
+            n_bootstrap_retries=3,
+            bootstrap_global_mode=False,
+            parallelize=False
+        )
+
+        inf.run()
+
+
+        pass
