@@ -1278,11 +1278,12 @@ class BaseInferenceTestCase(InferenceTestCase):
             do_bootstrap=True,
             n_runs=10,
             n_bootstrap_retries=3,
-            bootstrap_global_mode=False,
-            parallelize=False
+            n_bootstraps=10,
+            bootstrap_global_mode=True,
+            parallelize=True,
+            seed=None
         )
 
         inf.run()
-
 
         pass

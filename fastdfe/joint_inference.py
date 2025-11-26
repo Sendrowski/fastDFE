@@ -678,7 +678,6 @@ class JointInference(BaseInference):
         types = self.types
         folded = self.folded
         params_mle_raw = self.params_mle_raw
-        x0_initial = self.x0
         scales = self.get_scales_linear() if not self.bootstrap_global_mode else self.scales
         bounds = self.get_bounds_linear() if not self.bootstrap_global_mode else self.bounds
         scales_default = self.scales
@@ -695,7 +694,7 @@ class JointInference(BaseInference):
 
             :return: :return: Optimization result of best run, MLE parameters, and best x0.
             """
-            result, params_mle, x0_best, i_best = None, None, None, None
+            results = []
             x0 = params_mle_raw
 
             # resample spectra
@@ -712,7 +711,7 @@ class JointInference(BaseInference):
                 # perform joint optimization
                 # Note that it's important we bind t into the lambda function
                 # at the time of creation.
-                result_new, params_mle_new = optimization.run(
+                result, params_mle = optimization.run(
                     x0=x0,
                     scales=scales,
                     bounds=bounds,
@@ -730,23 +729,21 @@ class JointInference(BaseInference):
                     )) for t in types)
                 )
 
-                # keep best result
-                if result is None or (result_new.success and result_new.fun < result.fun):
-                    result, params_mle, x0_best, i_best = result_new, params_mle_new, x0, i
+                # unpack shared parameters
+                params_mle = unpack_shared(params_mle)
 
-                    # unpack shared parameters
-                    params_mle = unpack_shared(params_mle)
+                for t in types:
+                    # normalize parameters for each type
+                    params_mle[t] = model._normalize(params_mle[t])
 
-                    for t in types:
-                        # normalize parameters for each type
-                        params_mle[t] = model._normalize(params_mle[t])
+                    # add covariates for each type
+                    params_mle[t] = correct_values(
+                        params=Covariate._apply(covariates, params_mle[t], t),
+                        bounds=bounds_default,
+                        scales=scales_default
+                    )
 
-                        # add covariates for each type
-                        params_mle[t] = correct_values(
-                            params=Covariate._apply(covariates, params_mle[t], t),
-                            bounds=bounds_default,
-                            scales=scales_default
-                        )
+                results += [(result, params_mle, x0, i)]
 
                 # perturb x0 for next run or choose randomly
                 if not self.bootstrap_global_mode:
@@ -758,7 +755,7 @@ class JointInference(BaseInference):
                 else:
                     x0 = self.optimization.sample_x0(params_mle_raw, seed=seed + i)
 
-            return result, params_mle, x0_best, i_best
+            return results
 
         return run_bootstrap_sample
 
@@ -828,13 +825,19 @@ class JointInference(BaseInference):
         seeds = self.rng.integers(0, high=2 ** 32, size=n_bootstraps)
 
         # run bootstraps
-        result = parallelize_func(
+        results = parallelize_func(
             func=self._get_run_bootstrap_sample(),
             data=seeds,
             parallelize=self.parallelize,
             pbar=True,
             desc=f"{self.__class__.__name__}>Bootstrapping joint inference ({mode} mode)"
         )
+
+        # select best result for each bootstrap sample
+        i_best = [np.argmax([-r[0].fun if r[0].success else -np.inf for r in res]) for res in results]
+
+        # get best results
+        result = results[np.arange(n_bootstraps), i_best]
 
         # number of successful runs
         n_success = np.sum([res.success for res in result[:, 0]])
@@ -855,7 +858,8 @@ class JointInference(BaseInference):
         self.bootstraps['success'] = [r.success for r in result[:, 0]]
         self.bootstraps['result'] = [str(r) for r in result[:, 0]]
         self.bootstraps['x0'] = [str(flatten_dict(r)) for r in result[:, 2]]
-        self.bootstraps['i_run'] = [r for r in result[:, 3]]
+        self.bootstraps['i_run'] = i_best
+        self.bootstraps['likelihoods_runs'] = [[-r[0].fun for r in res] for res in results]
 
         # assign bootstrap results
         self.bootstrap_results = list(result[:, 0])

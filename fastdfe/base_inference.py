@@ -690,13 +690,19 @@ class BaseInference(AbstractInference):
 
         # run bootstraps
         mode = 'local' if not self.bootstrap_global_mode else 'global'
-        result = optimization.parallelize(
+        results = optimization.parallelize(
             func=self._run_bootstrap_sample,
             data=seeds,
             parallelize=self.parallelize,
             pbar=pbar,
             desc=f'{self.__class__.__name__}>Bootstrapping ({mode} mode)'
         )
+
+        # select best result for each bootstrap sample
+        i_best = [np.argmax([-r[0].fun if r[0].success else -np.inf for r in res]) for res in results]
+
+        # get best results
+        result = results[np.arange(n_bootstraps), i_best]
 
         # number of successful runs
         n_success = np.sum([res.success for res in result[:, 0]])
@@ -712,7 +718,8 @@ class BaseInference(AbstractInference):
         self.bootstraps['success'] = [r.success for r in result[:, 0]]
         self.bootstraps['result'] = [str(r) for r in result[:, 0]]
         self.bootstraps['x0'] = [str(flatten_dict(r)) for r in result[:, 2]]
-        self.bootstraps['i_run'] = [r for r in result[:, 3]]
+        self.bootstraps['i_run'] = i_best
+        self.bootstraps['likelihoods_runs'] = [[-r[0].fun for r in res] for res in results]
 
         # assign bootstrap results
         self.bootstrap_results = list(result[:, 0])
@@ -756,9 +763,9 @@ class BaseInference(AbstractInference):
         additional run.
 
         :param seed: Seed for random number generator.
-        :return: Optimization result of best run, MLE parameters, the best x0, and its index.
+        :return: List of optimization results, MLE parameters, initial parameters
         """
-        result, params_mle, x0_best, i_best = None, None, None, None
+        results = []
         x0 = dict(all=self.params_mle)
 
         # resample spectra
@@ -771,7 +778,7 @@ class BaseInference(AbstractInference):
         for i in range(max(self.n_bootstrap_retries, 1)):
 
             # perform numerical minimization
-            result_new, params_mle_new = self.optimization.run(
+            result, params_mle = self.optimization.run(
                 x0=x0,
                 scales=scales,
                 bounds=bounds,
@@ -789,15 +796,13 @@ class BaseInference(AbstractInference):
                 desc=f'{self.__class__.__name__}>Bootstrapping'
             )
 
-            # keep best result
-            if result is None or (result_new.success and result_new.fun < result.fun):
-                result, params_mle, x0_best, i_best = result_new, params_mle_new, x0, i
+            # unpack shared parameters
+            params_mle = unpack_shared(params_mle)
 
-                # unpack shared parameters
-                params_mle = unpack_shared(params_mle)
+            # normalize MLE estimates
+            params_mle['all'] = self.model._normalize(params_mle['all'])
 
-                # normalize MLE estimates
-                params_mle['all'] = self.model._normalize(params_mle['all'])
+            results += [(result, params_mle, x0)]
 
             # perturb x0 for next run or choose randomly
             if not self.bootstrap_global_mode:
@@ -809,7 +814,7 @@ class BaseInference(AbstractInference):
             else:
                 x0 = self.optimization.sample_x0(dict(all=self.params_mle), seed=seed + i)
 
-        return result, params_mle, x0_best, i_best
+        return results
 
     def get_scales_linear(self) -> Dict[str, Literal['lin']]:
         """
