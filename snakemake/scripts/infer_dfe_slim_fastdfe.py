@@ -47,7 +47,7 @@ inf = fd.BaseInference(
     do_bootstrap=True,
     parallelize=True,
     n_runs=100,
-    fixed_params=dict(all=dict(eps=0) | dict(p_b=0, S_b=1) if not full_dfe else {})
+    fixed_params=dict(all=dict(eps=0) | (dict(p_b=0, S_b=1) if not full_dfe else {}))
 )
 
 # perform inference
