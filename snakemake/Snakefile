@@ -182,10 +182,10 @@ rule all:
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/collage2.{type}.png", n_replicate=[1], type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20, 100], folded=['folded', 'unfolded'], collage_type=['realistic_full_dfe', 'realistic_del_dfe']),
             expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1, 2], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant', 'expansion', 'reduction', 'bottleneck']),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[100], folded=['unfolded'], collage_type=['mixed'], demography=['constant']),
+            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[8, 100], folded=['unfolded'], collage_type=['mixed'], demography=['constant']),
             expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['folded'], collage_type=['mixed'], demography=['constant']),
             expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{folded}/demographies.sfs.png", n_replicate=[1], n_chunks=[100], g=["1e4"], L=["1e7"], mu=["1e-8"], r=["1e-7"], N=["1e3"], s_b=["1e-3"], b=["0.3"], s_d=["3e-1"], p_b=["0.00"], n=[20], folded=['unfolded']),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/s_d_and_b.sfs.png", n_replicate=[1], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], demography=['constant'], folded=['unfolded']),
+            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/s_d_and_r.sfs.png", n_replicate=[1], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], demography=['constant'], folded=['unfolded']),
             expand("results/graphs/comp/slim/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/replicates.sfs.png", n_chunks=[100], g=["1e4"], L=["1e7"], mu=["1e-8"], r=["1e-7"], N=["1e3"], s_b=["1e-3"], b=["0.3"], s_d=["3e-1"], p_b=["0.00"], n=[20], demography=['constant'], folded=['unfolded']),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1, 2], plot_type=['dfe', 'sfs'], g=["1e5"], N=["1e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant', 'expansion']),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["3e4"], N=["3e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant']),
@@ -1588,10 +1588,10 @@ rule combine_sfs_plots_slim_r_and_s_d:
         "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks=100/g={g}/L=1e7/mu=1e-8/r=1e-9/N={N}/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n={n}/{demography}/{folded}/sfs.png",
         "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks=100/g={g}/L=1e7/mu=1e-8/r=1e-7/N={N}/s_b=1e-3/b=0.3/s_d=100/p_b=0.00/n={n}/{demography}/{folded}/sfs.png",
     output:
-        "results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/s_d_and_b.sfs.png"
+        "results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/s_d_and_r.sfs.png"
     params:
-        titles=['default', 'normal recombination', 'reduced recombination', 'increased s_d'],
-        title_size_rel=44,
+        titles=['default ($r=$10^{{-7}}$)', 'normal recombination ($r=$10^{{-8}}$)', 'reduced recombination ($r=$10^{{-9}}$)', 'strong purifying selection ($s_d=100$)'],
+        title_size_rel=24,
         title_xoffset=0.58,
         pad=0.8
     conda:
