@@ -1644,6 +1644,8 @@ rule combine_dfe_plots_different_sample_sizes:
         pad=0.8
     conda:
         "envs/base.yaml"
+    resources:
+        mem_mb=50000,
     script:
         "scripts/combine_plots.py"
 
