@@ -664,12 +664,12 @@ class JointInference(BaseInference):
 
         return self.lrt(simple.likelihood, self.likelihood, len(self.covariates))
 
-    def _get_run_bootstrap_sample(self) -> Callable[[int], Tuple['scipy.optimize.OptimizeResult', dict, dict]]:
+    def _get_run_bootstrap_sample(self) -> Callable[[int], Tuple['scipy.optimize.OptimizeResult', dict, dict, int]]:
         """
         Get function which runs a single bootstrap sample.
 
         :return: Static function which runs a single bootstrap sample, taking an optional seed and returning the
-            optimization result and the MLE parameters.
+            optimization result of best run, MLE parameters, the best x0, and its index.
         """
         optimization = self.optimization
         discretization = self.discretization
@@ -695,7 +695,7 @@ class JointInference(BaseInference):
 
             :return: :return: Optimization result of best run, MLE parameters, and best x0.
             """
-            result, params_mle, x0_best = None, None, None
+            result, params_mle, x0_best, i_best = None, None, None, None
             x0 = params_mle_raw
 
             # resample spectra
@@ -732,9 +732,7 @@ class JointInference(BaseInference):
 
                 # keep best result
                 if result is None or (result_new.success and result_new.fun < result.fun):
-                    result = result_new
-                    params_mle = params_mle_new
-                    x0_best = x0
+                    result, params_mle, x0_best, i_best = result_new, params_mle_new, x0, i
 
                     # unpack shared parameters
                     params_mle = unpack_shared(params_mle)
@@ -760,7 +758,7 @@ class JointInference(BaseInference):
                 else:
                     x0 = self.optimization.sample_x0(params_mle_raw, seed=seed + i)
 
-            return result, params_mle, x0_best
+            return result, params_mle, x0_best, i_best
 
         return run_bootstrap_sample
 
@@ -844,9 +842,6 @@ class JointInference(BaseInference):
         # dataframe of MLE estimates in flattened format
         self.bootstraps = pd.DataFrame([flatten_dict(r) for r in result[:, 1]])
 
-        # assign bootstrap results
-        self.bootstrap_results = list(result[:, 0])
-
         # assign bootstrap parameters to joint inference objects
         for t, inf in self.joint_inferences.items():
             # filter for columns belonging to the current type
@@ -860,6 +855,10 @@ class JointInference(BaseInference):
         self.bootstraps['success'] = [r.success for r in result[:, 0]]
         self.bootstraps['result'] = [str(r) for r in result[:, 0]]
         self.bootstraps['x0'] = [str(flatten_dict(r)) for r in result[:, 2]]
+        self.bootstraps['i_run'] = [r for r in result[:, 3]]
+
+        # assign bootstrap results
+        self.bootstrap_results = list(result[:, 0])
 
         std = self.bootstraps.select_dtypes("number").std().fillna(0)
         self._logger.info(f"Standard deviations across bootstraps: {self._format_dict(std)}.")

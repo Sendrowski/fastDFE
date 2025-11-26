@@ -712,6 +712,7 @@ class BaseInference(AbstractInference):
         self.bootstraps['success'] = [r.success for r in result[:, 0]]
         self.bootstraps['result'] = [str(r) for r in result[:, 0]]
         self.bootstraps['x0'] = [str(flatten_dict(r)) for r in result[:, 2]]
+        self.bootstraps['i_run'] = [r for r in result[:, 3]]
 
         # assign bootstrap results
         self.bootstrap_results = list(result[:, 0])
@@ -748,16 +749,16 @@ class BaseInference(AbstractInference):
         # add alpha estimates
         self.bootstraps['alpha'] = self.bootstraps.apply(lambda r: self.get_alpha(dict(r)), axis=1)
 
-    def _run_bootstrap_sample(self, seed: int) -> Tuple['scipy.optimize.OptimizeResult', dict, dict]:
+    def _run_bootstrap_sample(self, seed: int) -> Tuple['scipy.optimize.OptimizeResult', dict, dict, int]:
         """
         Resample the observed selected SFS and rerun the optimization procedure.
         We take the MLE params as initial params here and perturb them for every
         additional run.
 
         :param seed: Seed for random number generator.
-        :return: Optimization result of best run, MLE parameters, and best x0.
+        :return: Optimization result of best run, MLE parameters, the best x0, and its index.
         """
-        result, params_mle, x0_best = None, None, None
+        result, params_mle, x0_best, i_best = None, None, None, None
         x0 = dict(all=self.params_mle)
 
         # resample spectra
@@ -790,11 +791,7 @@ class BaseInference(AbstractInference):
 
             # keep best result
             if result is None or (result_new.success and result_new.fun < result.fun):
-                if result is not None:
-                    pass
-                result = result_new
-                params_mle = params_mle_new
-                x0_best = x0
+                result, params_mle, x0_best, i_best = result_new, params_mle_new, x0, i
 
                 # unpack shared parameters
                 params_mle = unpack_shared(params_mle)
@@ -812,7 +809,7 @@ class BaseInference(AbstractInference):
             else:
                 x0 = self.optimization.sample_x0(dict(all=self.params_mle), seed=seed + i)
 
-        return result, params_mle, x0_best
+        return result, params_mle, x0_best, i_best
 
     def get_scales_linear(self) -> Dict[str, Literal['lin']]:
         """
