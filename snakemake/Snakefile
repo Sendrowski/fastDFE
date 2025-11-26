@@ -1544,7 +1544,7 @@ rule combine_plots_collage_slim:
     input:
         lambda w: expand(collages[w.collage_type], **w)
     output:
-        "results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png"
+        "results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png"
     params:
         n_cols=lambda w: 1 if w.plot_type == 'dfe' else None
     conda:
