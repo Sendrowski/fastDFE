@@ -1,7 +1,7 @@
 import re
 from typing import List
 
-configfile: "config.yaml"
+configfile: "config/config.yaml"
 
 # whether we run snakemake locally
 is_local = config.get('local',False)
