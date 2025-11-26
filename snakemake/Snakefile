@@ -1556,7 +1556,7 @@ rule combine_plots_collage_slim:
 # plot SFS comparison collage
 rule combine_plots_collage_slim_inferred:
     input:
-        lambda w: expand(collages[w.collage_type], **w)
+        lambda w: expand([c.replace('.png', '.inferred.png') for c in collages[w.collage_type]], **w)
     output:
         "results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.inferred.png"
     params:
