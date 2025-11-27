@@ -718,8 +718,10 @@ class BaseInference(AbstractInference):
         self.bootstraps['success'] = [r.success for r in result[:, 0]]
         self.bootstraps['result'] = [str(r) for r in result[:, 0]]
         self.bootstraps['x0'] = [str(flatten_dict(r)) for r in result[:, 2]]
-        self.bootstraps['i_run'] = i_best
+        self.bootstraps['i_best_run'] = i_best
         self.bootstraps['likelihoods_runs'] = [[-r[0].fun for r in res] for res in results]
+        self.bootstraps['results_runs'] = [[str(r[0]) for r in res] for res in results]
+        self.bootstraps['x0_runs'] = [[str(flatten_dict(r[2])) for r in res] for res in results]
 
         # assign bootstrap results
         self.bootstrap_results = list(result[:, 0])

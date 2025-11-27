@@ -59,7 +59,7 @@ inf.to_file(out_serialized)
 # save summary
 inf.get_summary().to_file(out_summary)
 
-params = {k: v for k, v in inf.bootstraps.select_dtypes('number').mean().to_dict().items()}
+params = {k: v for k, v in inf.bootstraps.select_dtypes('number').median().to_dict().items()}
 
 params_str = dict(
     S_d=f"{params['S_d']:.0f}",
