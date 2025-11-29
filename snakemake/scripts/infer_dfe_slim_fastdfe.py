@@ -6,14 +6,19 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2024-02-26"
 
+import sys
+
+# necessary to import fastdfe locally
+sys.path.append('..')
+
+import fastdfe as fd
+
+print(fd.__file__)
+print(sys.path)
 import numpy as np
 from matplotlib import pyplot as plt
 
 try:
-    import sys
-
-    # necessary to import fastdfe locally
-    sys.path.append('..')
 
     testing = False
     sfs_file = snakemake.input[0]
@@ -35,8 +40,6 @@ except NameError:
     out_model_fit = "scratch/model_fit.png"
     out_spectra = "scratch/spectra.png"
     out_params = "scratch/params.png"
-
-import fastdfe as fd
 
 s = fd.Spectra.from_file(sfs_file)
 

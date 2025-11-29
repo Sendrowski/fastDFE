@@ -1129,21 +1129,24 @@ class Optimization:
 
         return loss
 
-    def sample_x0(self, example: dict, seed: int = None) -> Dict[str, dict]:
+    def sample_x0(self, example: dict, random_state: int | Generator = None) -> Dict[str, dict]:
         """
         Sample initial values.
 
         :param example: An example dictionary for generating the initial values
-        :param seed: Random seed
+        :param random_state: Random state or seed
         :return: A dictionary of initial values
         """
+        if random_state is None:
+            random_state = self.rng
+
         sample = {}
 
         for key, value in example.items():
             if isinstance(value, dict):
-                sample[key] = self.sample_x0(value, seed)
+                sample[key] = self.sample_x0(value, random_state)
             elif key in self.bounds and key in self.scales:
-                sample[key] = self.sample_value(self.bounds[key], self.scales[key], random_state=seed)
+                sample[key] = self.sample_value(self.bounds[key], self.scales[key], random_state)
 
         return sample
 
@@ -1161,7 +1164,7 @@ class Optimization:
 
         :param bounds: Tuple of lower and upper bounds
         :param scale: Scaling of the parameter.
-        :param random_state: Random state
+        :param random_state: Random state or seed
         :return: Sampled value
         """
 

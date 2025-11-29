@@ -197,12 +197,12 @@ class SimulationTestCase(TestCase):
         for key in sim.params:
             self.assertAlmostEqual(inf.params_mle[key], sim.params[key], delta=np.abs(sim.params[key]) / 500)
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_d'], sim.params['S_d'], delta=sim.params['S_d'] / -100)
-        self.assertAlmostEqual(inf.bootstraps.mean()['b'], sim.params['b'], delta=sim.params['b'] / 50)
-        self.assertAlmostEqual(inf.bootstraps.mean()['p_b'], sim.params['p_b'], delta=sim.params['p_b'] / 20)
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_b'], sim.params['S_b'], delta=sim.params['S_b'] / 1.5)
+        self.assertAlmostEqual(inf.bootstraps['S_d'].mean(), sim.params['S_d'], delta=30)
+        self.assertAlmostEqual(inf.bootstraps['b'].mean(), sim.params['b'], delta=0.05)
+        self.assertAlmostEqual(inf.bootstraps['p_b'].mean(), sim.params['p_b'], delta=0.01)
+        self.assertAlmostEqual(inf.bootstraps['S_b'].mean(), sim.params['S_b'], delta=0.15)
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['eps'], 0, delta=1e-3)
+        self.assertAlmostEqual(inf.bootstraps['eps'].mean(), 0, delta=1e-3)
 
     def test_recover_result_full_dfe_with_demography(self):
         """
@@ -242,12 +242,12 @@ class SimulationTestCase(TestCase):
         for key in sim.params:
             self.assertAlmostEqual(inf.params_mle[key], sim.params[key], delta=np.abs(sim.params[key]) / 100)
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_d'], sim.params['S_d'], delta=sim.params['S_d'] / -100)
-        self.assertAlmostEqual(inf.bootstraps.mean()['b'], sim.params['b'], delta=sim.params['b'] / 50)
-        self.assertAlmostEqual(inf.bootstraps.mean()['p_b'], sim.params['p_b'], delta=sim.params['p_b'] / 20)
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_b'], sim.params['S_b'], delta=sim.params['S_b'] / 1.5)
+        self.assertAlmostEqual(inf.bootstraps['S_d'].mean(), sim.params['S_d'], delta=30)
+        self.assertAlmostEqual(inf.bootstraps['b'].mean(), sim.params['b'], delta=0.1)
+        self.assertAlmostEqual(inf.bootstraps['p_b'].mean(), sim.params['p_b'], delta=0.01)
+        self.assertAlmostEqual(inf.bootstraps['S_b'].mean(), sim.params['S_b'], delta=0.15)
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['eps'], 0, delta=1e-3)
+        self.assertAlmostEqual(inf.bootstraps['eps'].mean(), 0, delta=1e-3)
 
     def test_recover_result_deleterious_dfe_no_demography(self):
         """
@@ -281,12 +281,12 @@ class SimulationTestCase(TestCase):
         for key in sim.params:
             self.assertAlmostEqual(inf.params_mle[key], sim.params[key], delta=np.abs(sim.params[key]) / 1000)
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_d'], sim.params['S_d'], delta=10)
-        self.assertAlmostEqual(inf.bootstraps.mean()['b'], sim.params['b'], delta=0.1)
-        self.assertAlmostEqual(inf.bootstraps.mean()['eps'], 0, delta=1e-3)
+        self.assertAlmostEqual(inf.bootstraps['S_d'].mean(), sim.params['S_d'], delta=10)
+        self.assertAlmostEqual(inf.bootstraps['b'].mean(), sim.params['b'], delta=0.1)
+        self.assertAlmostEqual(inf.bootstraps['eps'].mean(), 0, delta=1e-3)
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['p_b'], 0)
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_b'], 0.1)
+        self.assertAlmostEqual(inf.bootstraps['p_b'].mean(), 0)
+        self.assertAlmostEqual(inf.bootstraps['S_b'].mean(), 0.1)
 
     def test_usage_example_simulation_class(self):
         """

@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+from pandas._testing import assert_frame_equal
 
 import fastdfe as fd
 from fastdfe import JointInference, Config, SharedParams, Covariate, Spectra
@@ -778,3 +779,47 @@ class JointInferenceTestCase(InferenceTestCase):
         # assert keys are present
         for t in inf.types:
             assert t in alpha
+
+    def test_seeded_inference_is_deterministic_non_parallelized(self):
+        """
+        Check that inference is deterministic when seeded and not parallelized.
+        """
+        config = fd.Config.from_file(self.config_file)
+
+        config.update(
+            seed=0,
+            do_bootstrap=True,
+            parallelize=False,
+            n_bootstraps=2
+        )
+
+        inf = fd.JointInference.from_config(config)
+        inf.run()
+
+        inf2 = fd.JointInference.from_config(config)
+        inf2.run()
+
+        self.assertEqual(inf.params_mle, inf2.params_mle)
+        assert_frame_equal(inf.bootstraps, inf2.bootstraps)
+
+    def test_seeded_inference_is_deterministic_parallelized(self):
+        """
+        Check that seeded inference is deterministic when parallelized.
+        """
+        config = fd.Config.from_file(self.config_file)
+
+        config.update(
+            seed=0,
+            do_bootstrap=True,
+            parallelize=True,
+            n_bootstraps=2
+        )
+
+        inference = fd.JointInference.from_config(config)
+        inference.run()
+
+        inference2 = fd.JointInference.from_config(config)
+        inference2.run()
+
+        self.assertEqual(inference.params_mle, inference2.params_mle)
+        assert_frame_equal(inference.bootstraps, inference2.bootstraps)

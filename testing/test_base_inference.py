@@ -162,8 +162,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         config = fd.Config.from_file(self.config_file)
         config.update(parallelize=True)
 
-        inference = fd.BaseInference.from_config(config)
-        inference.run()
+        inf = fd.BaseInference.from_config(config)
+        inf.run()
+
+        # make sure the likelihood is the maximum of the runs
+        self.assertEqual(inf.likelihood, inf.runs.likelihood.max())
 
     def test_run_inference_from_config_not_parallelized(self):
         """
@@ -172,8 +175,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         config = fd.Config.from_file(self.config_file)
         config.update(parallelize=False)
 
-        inference = fd.BaseInference.from_config(config)
-        inference.run()
+        inf = fd.BaseInference.from_config(config)
+        inf.run()
+
+        # make sure the likelihood is the maximum of the runs
+        self.assertEqual(inf.likelihood, inf.runs.likelihood.max())
 
     def test_seeded_inference_is_deterministic_non_parallelized(self):
         """
@@ -188,14 +194,14 @@ class BaseInferenceTestCase(InferenceTestCase):
             n_bootstraps=2
         )
 
-        inference = fd.BaseInference.from_config(config)
-        inference.run()
+        inf = fd.BaseInference.from_config(config)
+        inf.run()
 
-        inference2 = fd.BaseInference.from_config(config)
-        inference2.run()
+        inf2 = fd.BaseInference.from_config(config)
+        inf2.run()
 
-        self.assertEqual(inference.params_mle, inference2.params_mle)
-        assert_frame_equal(inference.bootstraps, inference2.bootstraps)
+        self.assertEqual(inf.params_mle, inf2.params_mle)
+        assert_frame_equal(inf.bootstraps, inf2.bootstraps)
 
     def test_seeded_inference_is_deterministic_parallelized(self):
         """
@@ -254,8 +260,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         inference_lin.run()
 
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
-        inference_lin.plot_inferred_parameters(ax=axs[0], show=False)
-        inference_log.plot_inferred_parameters(ax=axs[1], show=False)
+        inference_lin.plot_discretized(ax=axs[0], show=False)
+        inference_log.plot_discretized(ax=axs[1], show=False)
 
         axs[0].set_title('Linear scales')
         axs[1].set_title('Log scales')
@@ -271,9 +277,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         assert np.all(cis_lin[0] < cis_log[1])
         assert np.all(cis_log[0] < cis_lin[1])
 
-        # assert inference_log.likelihood > inference_lin.likelihood
+        # likelihood on log scales should be better
+        assert inference_log.likelihood > inference_lin.likelihood
 
-        self.assertAlmostEqual(inference_log.likelihood, inference_lin.likelihood, places=0)
+        # standard deviation of bootstrapped likelihoods should be lower on log scales
+        assert inference_log.bootstraps.likelihoods_std.mean() * 2 < inference_lin.bootstraps.likelihoods_std.mean()
 
     def test_compare_inference_with_log_scales_vs_lin_scales_tutorial(self):
         """
@@ -331,14 +339,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         # assert np.all(cis_lin[0] < cis_log[1])
         # assert np.all(cis_log[0] < cis_lin[1])
 
-        # not always true
-        # assert inference_log.likelihood > inference_lin.likelihood
+        # likelihood on log scales should be better
+        assert inference_log.likelihood > inference_lin.likelihood
 
-        # using log scales appears to provide a lower likelihood in general
-        # but things become more equal when increasing ``n_runs``
-        self.assertAlmostEqual(inference_log.likelihood, inference_lin.likelihood, places=0)
-
-        pass
+        # standard deviation of bootstrapped likelihoods should be lower on log scales
+        assert inference_log.bootstraps.likelihoods_std.mean() * 100 < inference_lin.bootstraps.likelihoods_std.mean()
 
     def test_restore_serialized_inference(self):
         """

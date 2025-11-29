@@ -686,13 +686,14 @@ class JointInference(BaseInference):
             """
             results = []
             x0 = params_mle_raw
+            rng = np.random.default_rng(seed)
 
             # resample spectra
             spectra = {}
             for t in types:
                 spectra[t] = dict(
-                    neut=sfs_neut[t].resample(seed=seed),
-                    sel=sfs_sel[t].resample(seed=seed + 1)
+                    neut=sfs_neut[t].resample(seed=rng),
+                    sel=sfs_sel[t].resample(seed=rng)
                 )
 
             # run `n_retries` times
@@ -735,7 +736,7 @@ class JointInference(BaseInference):
 
                 results += [(result, params_mle, x0, i)]
 
-                x0 = self.optimization.sample_x0(params_mle_raw, seed=seed + i)
+                x0 = self.optimization.sample_x0(params_mle_raw, random_state=rng)
 
             return results
 

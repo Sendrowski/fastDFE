@@ -797,10 +797,11 @@ class BaseInference(AbstractInference):
             """
             results = []
             x0 = dict(all=self.params_mle)
+            rng = np.random.default_rng(seed=seed)
 
             # resample spectra
-            sfs_sel = self.sfs_sel.resample(seed=seed)
-            sfs_neut = self.sfs_neut.resample(seed=seed + 1)
+            sfs_sel = self.sfs_sel.resample(seed=rng)
+            sfs_neut = self.sfs_neut.resample(seed=rng)
             scales = self.scales
             bounds = self.bounds
 
@@ -834,7 +835,7 @@ class BaseInference(AbstractInference):
 
                 results += [(result, params_mle, x0)]
 
-                x0 = self.optimization.sample_x0(dict(all=self.params_mle), seed=seed + i)
+                x0 = self.optimization.sample_x0(dict(all=self.params_mle), random_state=rng)
 
             return results
 
