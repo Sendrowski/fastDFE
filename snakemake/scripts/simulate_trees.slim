@@ -36,8 +36,8 @@ initialize()
     if (demography == "substructure") {
         // split population into two subpopulations with migration
         sim.addSubpopSplit("p2", asInteger(N/2), p1);
-        p1.setMigrationRates(p2, 0.001);
-        p2.setMigrationRates(p1, 0.001);
+        p1.setMigrationRates(p2, 0.00001);
+        p2.setMigrationRates(p1, 0.00001);
     }
 }
 
@@ -77,6 +77,13 @@ late()
 
     // noinspection all
     if (community.tick == g) {
+
+        // compute FST once at the end (only makes sense for substructure)
+        if (demography == "substructure") {
+            fst = calcFST(p1.genomes, p2.genomes);
+            cat("\nFinal FST between p1 and p2: " + fst + "\n");
+        }
+
         sim.treeSeqOutput(out);
         sim.simulationFinished();
     }
