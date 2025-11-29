@@ -1437,7 +1437,7 @@ rule simulate_trees_slim:
         -d "s_d={params.s_d}" \
         -d "p_b={params.p_b}" \
         -d "demography=\'{params.demography}\'" \
-        scripts/simulate_trees.slim
+        workflow/scripts/simulate_trees.slim
         """
 
 # parse SLiM trees
