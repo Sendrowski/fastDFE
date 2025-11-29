@@ -10,11 +10,11 @@ import sys
 
 # necessary to import fastdfe locally
 sys.path.append('..')
-
+print(sys.path)
 import fastdfe as fd
 
 print(fd.__file__)
-print(sys.path)
+
 import numpy as np
 from matplotlib import pyplot as plt
 
