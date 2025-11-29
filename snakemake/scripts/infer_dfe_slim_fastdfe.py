@@ -9,7 +9,7 @@ __date__ = "2024-02-26"
 import sys
 
 # necessary to import fastdfe locally
-sys.path.append('..')
+sys.path.append('.')
 print(sys.path)
 import fastdfe as fd
 
