@@ -34,6 +34,7 @@ initialize()
     sim.addSubpop("p1", N);
 
     if (demography == "substructure") {
+        // split population into two subpopulations with migration
         sim.addSubpopSplit("p2", asInteger(N/2), p1);
         p1.setMigrationRates(p2, 0.001);
         p2.setMigrationRates(p1, 0.001);
