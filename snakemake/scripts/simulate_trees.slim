@@ -80,7 +80,7 @@ late()
 
         // compute FST once at the end (only makes sense for substructure)
         if (demography == "substructure") {
-            fst = calcFST(p1.genomes, p2.genomes);
+            fst = calcFST(p1.haplosomes, p2.haplosomes);
             cat("\nFinal FST between p1 and p2: " + fst + "\n");
         }
 
