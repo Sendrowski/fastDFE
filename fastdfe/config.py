@@ -54,8 +54,7 @@ class Config:
             covariates: List[Covariate] = [],
             do_bootstrap: bool = False,
             n_bootstraps: int = 100,
-            n_bootstrap_retries: int = 3,
-            bootstrap_global_mode: bool = True,
+            n_bootstrap_retries: int = 2,
             parallelize: bool = True,
             **kwargs
     ):
@@ -93,14 +92,6 @@ class Config:
         :param n_bootstrap_retries: Number of optimization runs for each bootstrap sample. This parameter previously
             defined the number of retries per bootstrap sample when subsequent runs failed, but now it defines the
             total number of runs per bootstrap sample, taking the most likely one.
-        :param bootstrap_global_mode: Whether to use x0 for the first run and then draw random initial parameters for
-            subsequent runs of each bootstrap sample, rather than always from the MLE and perturbing it for every retry.
-            This approach is slower and may require more n_retries to obtain good fits. However, starting near the MLE
-            can cause the optimizer to converge repeatedly to values close to the MLE, producing artificially narrow
-            confidence intervals. For complex likelihood surfaces, this behavior can sometimes be desirable.
-            If `bootstrap_global_mode` is set to `True`, consider using at least as many bootstrap retries
-            (`n_bootstrap_retries`) as the number of initial runs (`n_runs`) to avoid suboptimal bootstrap fits and
-            unrealistically large confidence intervals.
         :param parallelize: Whether to parallelize the optimization.
         :param kwargs: Additional keyword arguments which are ignored.
         """
@@ -127,7 +118,6 @@ class Config:
             do_bootstrap=do_bootstrap,
             n_bootstraps=n_bootstraps,
             n_bootstrap_retries=n_bootstrap_retries,
-            bootstrap_global_mode=bootstrap_global_mode,
             parallelize=parallelize,
             loss_type=loss_type
         )

@@ -32,6 +32,14 @@ initialize()
 
 1 early() {
     sim.addSubpop("p1", N);
+
+    if (demography == "substructure") {
+        sim.subpopulations[0].divideSubpop(
+            asInteger(N/2), "p2"
+        );
+        p1.setMigrationRates(p2, 0.001);
+        p2.setMigrationRates(p1, 0.001);
+    }
 }
 
 early() {

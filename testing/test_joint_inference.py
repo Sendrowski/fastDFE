@@ -745,22 +745,36 @@ class JointInferenceTestCase(InferenceTestCase):
 
         print(context.exception)
 
-    @pytest.mark.skip(reason="not a real test")
     def test_bootstrap_n_retries(self):
         """
         Test whether bootstrapping with retries works as expected.
         """
-        stds = {}
+        config = fd.Config.from_file(
+            "resources/configs/shared/covariates_Sd_fixed_params/config.yaml"
+        ).update(
+            n_bootstrap_retries=3,
+            parallelize=True,
+            n_bootstraps=3,
+            do_bootstrap=True
+        )
+        inf = fd.JointInference.from_config(config)
+        inf.run()
 
-        for n in [1, 2, 3, 10]:
-            inf = fd.JointInference.from_config_file("resources/configs/shared/covariates_Sd_fixed_params/config.yaml")
-            inf.n_bootstraps = 20
-            inf.do_bootstrap = True
-            inf.n_bootstrap_retries = n
+        for inf in list(inf.marginal_inferences.values()) + [inf]:
+            self.assertEqual(3, len(inf.bootstraps.likelihoods_runs.iloc[0]))
+            self.assertEqual(3, len(inf.bootstraps.x0_runs.iloc[0]))
+            self.assertGreater(inf.bootstraps.likelihoods_std.mean(), 0)
 
-            inf.run()
-            stds[n] = dict(joint=inf.bootstraps.likelihood.std()) | {
-                t: inf.marginal_inferences[t].bootstraps.likelihood.std() for t in inf.types
-            }
+    def test_get_alpha(self):
+        """
+        Test get_alpha method.
+        """
+        inf = JointInference.from_file(
+            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
+        )
 
-        print(stds)
+        alpha = inf.get_alpha()
+
+        # assert keys are present
+        for t in inf.types:
+            assert t in alpha
