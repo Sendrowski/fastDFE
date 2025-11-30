@@ -1428,7 +1428,7 @@ rule simulate_trees_slim:
         """
         slim \
         -d "out_trees=\'{output.trees}\'" \
-        -d "out_stats=\'{output.log}\'" \
+        -d "out_stats=\'{output.stats}\'" \
         -d "g={params.g}" \
         -d "length={params.L}" \
         -d "mu={params.mu}" \
