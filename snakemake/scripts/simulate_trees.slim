@@ -41,15 +41,17 @@ initialize()
     }
 }
 
-if (demography == "dominance") {
-    // custom dominance coefficient function for deleterious mutations
-    mutationEffect(m1) {
-        if (homozygous) {
-            return 1.0 + mut.selectionCoeff;
-        } else {
+// custom dominance coefficient function for deleterious mutations
+mutationEffect(m1) {
+    if (homozygous) {
+        return 1.0 + mut.selectionCoeff;
+    } else {
+        if (demography == "dominance") {
             dom = 0.4 * exp(-139 * abs(mut.selectionCoeff));
-            return 1.0 + dom * mut.selectionCoeff;
+        } else {
+            dom = 0.5;
         }
+        return 1.0 + dom * mut.selectionCoeff;
     }
 }
 
