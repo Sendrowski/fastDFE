@@ -22,10 +22,13 @@ initialize()
 
     if (demography == "dominance") {
         // custom dominance coefficient function for deleterious mutations
-        m1.dominanceCoeff = function(mut) {
-            k = 139
-            return 0.4 * exp(-k * abs(mut.selectionCoeff));
-        };
+        mutationEffect(m1) {
+            if (homozygous)
+                return 1.0 + mut.selectionCoeff;
+            else
+                dom = 0.4 * exp(-139 * abs(mut.selectionCoeff));
+                return 1.0 + dom * mut.selectionCoeff;
+        }
     }
 
     // exponential distribution for beneficial mutations
