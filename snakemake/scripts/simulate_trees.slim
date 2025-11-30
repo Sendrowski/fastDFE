@@ -20,18 +20,6 @@ initialize()
     // gamma distribution for deleterious mutations
     initializeMutationType("m1", 0.5, "g", - 2 * s_d, b);
 
-    if (demography == "dominance") {
-        // custom dominance coefficient function for deleterious mutations
-        mutationEffect(m1) {
-            if (homozygous) {
-                return 1.0 + mut.selectionCoeff;
-            } else {
-                dom = 0.4 * exp(-139 * abs(mut.selectionCoeff));
-                return 1.0 + dom * mut.selectionCoeff;
-            }
-        }
-    }
-
     // exponential distribution for beneficial mutations
     initializeMutationType("m2", 0.5, "e", 2 * s_b);
 
@@ -50,6 +38,18 @@ initialize()
         sim.addSubpopSplit("p2", asInteger(N/2), p1);
         p1.setMigrationRates(p2, 0.0001);
         p2.setMigrationRates(p1, 0.0001);
+    }
+}
+
+if (demography == "dominance") {
+    // custom dominance coefficient function for deleterious mutations
+    mutationEffect(m1) {
+        if (homozygous) {
+            return 1.0 + mut.selectionCoeff;
+        } else {
+            dom = 0.4 * exp(-139 * abs(mut.selectionCoeff));
+            return 1.0 + dom * mut.selectionCoeff;
+        }
     }
 }
 
