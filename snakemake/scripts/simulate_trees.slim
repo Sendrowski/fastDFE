@@ -8,7 +8,7 @@
 // N: population size
 // g: generation to stop simulation
 // length: sequence length
-// demography: demographic events ('constant', 'expansion', 'bottleneck')
+// demography: demographic events ('constant', 'expansion', 'bottleneck', 'reduction', 'substructure', 'dominance')
 
 initialize()
 {
@@ -19,6 +19,14 @@ initialize()
 
     // gamma distribution for deleterious mutations
     initializeMutationType("m1", 0.5, "g", - 2 * s_d, b);
+
+    if (demography == "dominance") {
+        // custom dominance coefficient function for deleterious mutations
+        m1.dominanceCoeff = function(mut) {
+            k = 139
+            return 0.4 * exp(-k * abs(mut.selectionCoeff));
+        };
+    }
 
     // exponential distribution for beneficial mutations
     initializeMutationType("m2", 0.5, "e", 2 * s_b);
@@ -82,9 +90,10 @@ late()
         if (demography == "substructure") {
             fst = calcFST(p1.haplosomes, p2.haplosomes);
             cat("\nFinal FST between p1 and p2: " + fst + "\n");
+            writeFile(out_stats, "fst\n" + fst + "\n");
         }
 
-        sim.treeSeqOutput(out);
+        sim.treeSeqOutput(out_trees);
         sim.simulationFinished();
     }
 }

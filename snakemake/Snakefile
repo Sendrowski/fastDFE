@@ -1409,7 +1409,8 @@ use rule * from subset_vcf
 # simulate trees using SLiM
 rule simulate_trees_slim:
     output:
-        temp("results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/chunk={chunk}/{demography}/sequence.trees")
+        trees=temp("results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/chunk={chunk}/{demography}/sequence.trees"),
+        stats=touch("results/slim/stats/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/chunk={chunk}/{demography}/stats.csv")
     params:
         g=lambda w: int(float(w.g)),
         L=lambda w: int(float(w.L)),
@@ -1426,7 +1427,8 @@ rule simulate_trees_slim:
     shell:
         """
         slim \
-        -d "out=\'{output}\'" \
+        -d "out_trees=\'{output.trees}\'" \
+        -d "out_stats=\'{output.log}\'" \
         -d "g={params.g}" \
         -d "length={params.L}" \
         -d "mu={params.mu}" \
