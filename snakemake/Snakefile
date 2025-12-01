@@ -1654,11 +1654,11 @@ rule combine_dfe_plots_different_sample_sizes:
 # update the documentation
 rule update_docs:
     output:
-        directory("../docs/_build")
+        directory("docs/_build")
     conda:
         "envs/dev.yaml"
     shell:
-        "make html -C ../docs"
+        "make html -C docs"
 
 # plot SFS for hgdp
 rule plot_spectra:
