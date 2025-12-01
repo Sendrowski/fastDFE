@@ -1241,3 +1241,6 @@ class BaseInferenceTestCase(InferenceTestCase):
         self.assertEqual(3, len(inf.bootstraps.x0_runs.iloc[0]))
         self.assertGreater(inf.bootstraps.likelihoods_std.mean(), 0)
 
+        # make sure that the best likelihood per bootstrap is equal to the maximum over runs
+        self.assertTrue(np.all(inf.bootstraps.likelihoods_runs.apply(max) == inf.bootstraps.likelihood))
+

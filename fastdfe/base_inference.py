@@ -110,8 +110,8 @@ class BaseInference(AbstractInference):
             opts_mle: dict = {},
             method_mle: str = 'L-BFGS-B',
             n_runs: int = 10,
-            fixed_params: Dict[str, Dict[str, float]] = {},
-            do_bootstrap: bool = False,
+            fixed_params: Dict[str, Dict[str, float]] = None,
+            do_bootstrap: bool = True,
             n_bootstraps: int = 100,
             n_bootstrap_retries: int = 2,
             parallelize: bool = True,
@@ -146,7 +146,9 @@ class BaseInference(AbstractInference):
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
-        :param fixed_params: Parameters held fixed during optimization, i.e., ``{'all': {param: value}}``
+        :param fixed_params: Parameters kept constant during optimization, given as ``{'all': {param: value}}``.
+            By default, the ancestral misidentification rate `eps` is fixed to zero, and the DFE
+            parameters are fixed so that only the deleterious component of the DFE is estimated.
         :param do_bootstrap: Whether to do bootstrapping.
         :param n_bootstraps: Number of bootstraps.
         :param n_bootstrap_retries: Number of optimization runs for each bootstrap sample. This parameter previously
@@ -269,6 +271,9 @@ class BaseInference(AbstractInference):
 
         #: Whether to parallelize computations
         self.parallelize: bool = parallelize
+
+        if fixed_params is None:
+            fixed_params = {'all': {'eps': 0} | self.model.submodels['dele']}
 
         # expand 'all' type
         #: Fixed parameters

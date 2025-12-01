@@ -87,10 +87,10 @@ class JointInference(BaseInference):
             opts_mle: dict = {},
             method_mle: str = 'L-BFGS-B',
             n_runs: int = 10,
-            fixed_params: Dict[str, Dict[str, float]] = {},
+            fixed_params: Dict[str, Dict[str, float]] = None,
             shared_params: List[SharedParams] = [],
             covariates: List[Covariate] = [],
-            do_bootstrap: bool = False,
+            do_bootstrap: bool = True,
             n_bootstraps: int = 100,
             n_bootstrap_retries: int = 2,
             parallelize: bool = True,
@@ -121,7 +121,9 @@ class JointInference(BaseInference):
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
-        :param fixed_params: Dictionary of fixed parameters in the form ``{type: {param: value}}``
+        :param fixed_params: Parameters kept constant during optimization, given as ``{type: {param: value}}``.
+            By default, the ancestral misidentification rate `eps` is fixed to zero, and the DFE
+            parameters are fixed so that only the deleterious component of the DFE is estimated.
         :param shared_params: List of shared parameters
         :param do_bootstrap: Whether to perform bootstrapping
         :param n_bootstraps: Number of bootstraps
@@ -190,6 +192,9 @@ class JointInference(BaseInference):
 
         # use linear scale for covariates
         scales_cov = dict((k, cov.bounds_scale) for k, cov in self.covariates.items())
+
+        if fixed_params is None:
+            fixed_params = {'all': {'eps': 0} | self.model.submodels['dele']}
 
         #: fixed parameters with expanded 'all' type
         self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, self.types)
