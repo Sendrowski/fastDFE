@@ -1,0 +1,7 @@
+{
+    "_ARRAY_DIMENSIONS": [
+        "variants",
+        "samples"
+    ],
+    "description": "Physical phasing ID information, where each unique ID within a given sample (but not across samples) connects records within a phasing group"
+}
