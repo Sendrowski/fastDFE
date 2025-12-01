@@ -647,7 +647,7 @@ class DiscreteParametrization(Parametrization):
         #: Submodels
         self.submodels: Dict[str, Dict[str, float]] = dict(
             full=dict(),
-            dele=dict((p, 0) for p in self.params[1:-1][self.intervals[1:-2] < 0])
+            dele=dict((p, 0) for p in self.params[1:-1][self.intervals[1:-2] >= 0])
         )
 
     def _normalize(self, params: dict) -> dict:
@@ -807,7 +807,7 @@ class DiscreteFractionalParametrization(Parametrization):
         #: Submodels
         self.submodels: Dict[str, Dict[str, float]] = dict(
             full=dict(),
-            dele=dict((p, 0) for p in self.params[1:-1][self.intervals[1:-2] < 0])
+            dele=dict((p, 1) for p in self.params[1:-2][self.intervals[2:-2] >= 0])
         )
 
     def to_nominal(self, params: Dict[str, float]) -> Dict[str, float]:

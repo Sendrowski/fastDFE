@@ -461,4 +461,26 @@ class ParametrizationTestCase(TestCase):
         """
         GammaExpParametrization().plot(
             params=GammaExpParametrization.x0
-        ).plot()
+        )
+
+    def test_deleterious_submodel_discrete_parametrization(self):
+        """
+        Test that deleterious submodel works for DiscreteParametrization.
+        """
+        for inv in [
+            np.array([-100000, -100, -10, -1, 0, 1, 1000]),
+            np.array([-100000, -1, 0, 1, 10, 1000])
+        ]:
+            p = DiscreteFractionalParametrization(intervals=inv)
+
+            y = p.get_pdf(
+                **(p.x0 | p.submodels['dele'])
+            )(np.linspace(0.00001, 1000, 100))
+
+            self.assertEqual(np.sum(y), 0)
+
+            y = p.get_pdf(
+                **(p.x0)
+            )(np.linspace(0.00001, 1000, 100))
+
+            self.assertGreater(np.sum(y), 0)
