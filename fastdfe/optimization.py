@@ -985,12 +985,14 @@ class Optimization:
         # issue debug messages
         logger.debug(f'Performing optimization on {len(flattened)} parameters: {list(flattened.keys())}.')
         logger.debug(f'Using initial values: {flattened}.')
-        logger.debug(f"Optimizing parameters: {optimized_param_names}")
 
-        # issue warning when the number of parameters to be optimized is large
-        if len(optimized_param_names) > 10 and print_info:
-            logger.warning(f'A large number of parameters is optimized jointly ({len(optimized_param_names)}). '
-                           f'Please be aware that this makes it harder to find a good optimum.')
+        if print_info:
+            logger.info(f"Optimizing {len(optimized_param_names)} parameters: [{', '.join(optimized_param_names)}].")
+
+            # issue warning when the number of parameters to be optimized is large
+            if len(optimized_param_names) > 10:
+                logger.warning(f'A large number of parameters is optimized jointly. '
+                               f'Please be aware that this makes it harder to find a good optimum.')
 
         # correct initial values to be within bounds
         self.x0 = unflatten_dict(correct_values(flattened, self.bounds, warn=True, scales=self.scales))
