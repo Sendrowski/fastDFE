@@ -130,7 +130,8 @@ from .parser import Parser, Stratification, BaseTransitionStratification, BaseCo
     DegeneracyStratification, TransitionTransversionStratification, AncestralBaseStratification, \
     SynonymyStratification, VEPStratification, SnpEffStratification, ContigStratification, ChunkedStratification, \
     RandomStratification, TargetSiteCounter
-from .io_handlers import VCFHandler, FASTAHandler, GFFHandler, FileHandler
+from .io_handlers import VCFHandler, FASTAHandler, GFFHandler, FileHandler, Variant, VariantHandler, VariantReader, \
+    VariantWriter, AutoVariantHandler, DummyVariant, ZarrHandler, ZarrWriter, ZarrReader
 from .annotation import Annotator, Annotation, MaximumParsimonyAncestralAnnotation, SiteInfo, \
     MaximumLikelihoodAncestralAnnotation, DegeneracyAnnotation, SynonymyAnnotation, SubstitutionModel, \
     K2SubstitutionModel, JCSubstitutionModel, PolarizationPrior, KingmanPolarizationPrior, AdaptivePolarizationPrior
@@ -160,6 +161,15 @@ __all__ = [
     'VCFHandler',
     'FASTAHandler',
     'GFFHandler',
+    'Variant',
+    'VariantHandler',
+    'VariantReader',
+    'VariantWriter',
+    'AutoVariantHandler',
+    'DummyVariant',
+    'ZarrHandler',
+    'ZarrWriter',
+    'ZarrReader',
     'TargetSiteCounter',
     'Stratification',
     'BaseTransitionStratification',

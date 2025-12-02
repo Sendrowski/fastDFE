@@ -13,9 +13,10 @@ import os
 import shutil
 import tempfile
 import warnings
+from abc import ABC, abstractmethod
 from collections import Counter
 from functools import cached_property
-from typing import List, Iterable, TextIO, Dict, Optional, Tuple, Union, Sequence
+from typing import List, Iterable, TextIO, Dict, Optional, Tuple, Union, Sequence, Type, Iterator
 from urllib.parse import urlparse
 
 import numpy as np
@@ -140,6 +141,91 @@ def open_file(file: str) -> TextIO:
         return gzip.open(file, "rt")
 
     return open(file, 'r')
+
+
+class Variant:
+    """
+    Variant class to emulate a cyvcf2.Variant.
+    """
+
+    #: Whether the variant is an SNP
+    is_snp: bool
+
+    #: Whether the variant is an MNP
+    is_mnp: bool
+
+    #: Whether the variant is an indel
+    is_indel: bool
+
+    #: Whether the variant is a deletion
+    is_deletion: bool
+
+    #: Whether the variant is a structural variant
+    is_sv: bool
+
+    #: The alternate alleles
+    ALT: List[str]
+
+    #: The reference allele
+    REF: str
+
+    #: The variant position
+    POS: int
+
+    #: The contig/chromosome
+    CHROM: str
+
+    #: Info field
+    INFO: Dict[str, any]
+
+    #: The genotypes
+    gt_bases: np.ndarray
+
+
+class DummyVariant(Variant):
+    """
+    Dummy variant class to emulate mono-allelic sites sampled from a fasta file.
+    """
+    #: Whether the variant is an SNP
+    is_snp: bool = False
+
+    #: Whether the variant is an MNP
+    is_mnp: bool = False
+
+    #: Whether the variant is an indel
+    is_indel: bool = False
+
+    #: Whether the variant is a deletion
+    is_deletion: bool = False
+
+    #: Whether the variant is a structural variant
+    is_sv: bool = False
+
+    #: The alternate alleles
+    ALT: List[str] = []
+
+    #: Info field
+    INFO: Dict[str, any] = {}
+
+    #: The genotypes
+    gt_bases: np.ndarray = np.array([])
+
+    def __init__(self, ref: str, pos: int, chrom: str):
+        """
+        Initialize the dummy variant.
+
+        :param ref: The reference allele
+        :param pos: The position
+        :param chrom: The contig
+        """
+        #: The reference allele
+        self.REF = ref
+
+        #: The position
+        self.POS = pos
+
+        #: The contig
+        self.CHROM = chrom
 
 
 class FileHandler:
@@ -575,7 +661,201 @@ class GFFHandler(FileHandler):
         return cds
 
 
-class VCFHandler(FileHandler):
+class VariantReader(Iterable, ABC):
+    """
+    Base class for variant reading.
+    """
+
+    @abstractmethod
+    def __iter__(self) -> Iterator[Variant]:
+        pass
+
+    @abstractmethod
+    def add_info_to_header(self, data: dict):
+        """
+        Add an INFO field, `ID`, `Number`, `Type` and `Description`.
+
+        :param data: The INFO field data.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def samples(self) -> List[str]:
+        """
+        List of sample names.
+
+        :return: The sample names.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def seqnames(self) -> List[str]:
+        """
+        List of chromosome/contig names.
+
+        :return: The sequence names.
+        """
+        pass
+
+    @abstractmethod
+    def close(self):
+        """
+        Close the reader.
+        """
+        pass
+
+
+class VariantWriter(ABC):
+    """
+    Base class for variant writing.
+    """
+
+    @abstractmethod
+    def write_record(self, variant: Variant):
+        """
+        Write a variant record.
+
+        :param variant: The variant to write.
+        """
+        pass
+
+    @abstractmethod
+    def close(self):
+        """
+        Close the writer.
+        """
+        pass
+
+
+class VariantHandler(FileHandler, ABC):
+    """
+    Base class for variant handling.
+    """
+
+    @abstractmethod
+    def __init__(
+            self,
+            vcf: str | Iterable[Variant],
+            output: str = None,
+            info_ancestral: str = 'AA',
+            max_sites: int = np.inf,
+            seed: int | None = 0,
+            cache: bool = True,
+            aliases: Dict[str, List[str]] = {}
+    ):
+        """
+        Create a new VCF instance.
+
+        :param vcf: The path to the variant file or an iterable of variants, can be gzipped, urls are also supported
+        :param output: The output variant file path.
+        :param info_ancestral: The tag in the INFO field that contains the ancestral allele
+        :param max_sites: Maximum number of sites to consider
+        :param seed: Seed for the random number generator. Use ``None`` for no seed.
+        :param cache: Whether to cache files that are downloaded from URLs
+        :param aliases: The contig aliases.
+        """
+        super().__init__(cache=cache, aliases=aliases)
+
+    @property
+    @abstractmethod
+    def _reader(self) -> VariantReader:
+        """
+        Get the variant reader.
+
+        :return: The variant reader.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def _writer(self) -> VariantWriter:
+        """
+        Get the variant writer.
+
+        :return: The variant writer.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def n_sites(self) -> int:
+        """
+        Get the number of sites in the variant file.
+
+        :return: Number of sites
+        """
+        pass
+
+    @abstractmethod
+    def _rewind(self):
+        """
+        Rewind the variant iterator.
+        """
+        pass
+
+    @abstractmethod
+    def load_variants(self) -> VariantReader:
+        """
+        Load a variant file.
+
+        :return: The variant reader.
+        """
+        pass
+
+    @abstractmethod
+    def count_sites(self) -> int:
+        """
+        Count the number of sites in the variant file.
+
+        :return: Number of sites
+        """
+        pass
+
+    @abstractmethod
+    def get_pbar(self, desc: str = "Processing sites", total: int | None = 0) -> tqdm:
+        """
+        Return a progress bar for the number of sites.
+
+        :param desc: Description for the progress bar
+        :param total: Total number of items
+        :return: tqdm
+        """
+        pass
+
+
+class ZarrHandler(VariantHandler):
+    """
+    Zarr handler.
+    """
+
+    @staticmethod
+    def is_zarr(path: str) -> bool:
+        """
+        Check if the given path is a Zarr file.
+
+        :param path: The path to check.
+        :return: ``True`` if the path is a Zarr file, ``False`` otherwise.
+        """
+        pass
+
+
+class ZarrReader(VariantReader):
+    """
+    Zarr reader.
+    """
+    pass
+
+
+class ZarrWriter(VariantWriter):
+    """
+    Zarr writer.
+    """
+    pass
+
+
+class VCFHandler(VariantHandler):
     """
     Base class for VCF handling.
     """
@@ -583,6 +863,7 @@ class VCFHandler(FileHandler):
     def __init__(
             self,
             vcf: str | Iterable['cyvcf2.Variant'],
+            output: str = None,
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
             seed: int | None = 0,
@@ -593,6 +874,7 @@ class VCFHandler(FileHandler):
         Create a new VCF instance.
 
         :param vcf: The path to the VCF file or an iterable of variants, can be gzipped, urls are also supported
+        :param output: The output file.
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
         :param max_sites: Maximum number of sites to consider
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
@@ -603,6 +885,9 @@ class VCFHandler(FileHandler):
 
         #: The path to the VCF file or an iterable of variants
         self.vcf = vcf
+
+        #: The output file.
+        self.output: str = output
 
         #: The tag in the INFO field that contains the ancestral allele
         self.info_ancestral: str = info_ancestral
@@ -623,7 +908,24 @@ class VCFHandler(FileHandler):
 
         :return: The VCF reader.
         """
-        return self.load_vcf()
+        return self.load_variants()
+
+    @cached_property
+    def _writer(self) -> 'cyvcf2.VCF':
+        """
+        Get the VCF writer.
+
+        :return: The VCF writer.
+        """
+        try:
+            from cyvcf2 import Writer
+        except ImportError:
+            raise ImportError(
+                "VCF support in fastdfe requires the optional 'cyvcf2' package. "
+                "Please install fastdfe with the 'vcf' extra: pip install fastdfe[vcf]"
+            )
+
+        return Writer(self.output, self._reader)
 
     def _rewind(self):
         """
@@ -633,7 +935,7 @@ class VCFHandler(FileHandler):
             # noinspection all
             del self._reader
 
-    def load_vcf(self) -> 'cyvcf2.VCF':
+    def load_variants(self) -> 'cyvcf2.VCF':
         """
         Load a VCF file into a dictionary.
 
@@ -687,16 +989,48 @@ class VCFHandler(FileHandler):
         )
 
 
-class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
+class AutoVariantHandler:
+    """
+    VariantHandler wrapper that automatically delegates all behaviour to the
+    correct backend, based on the input file.
+    """
+
+    def __init__(self, vcf: str, **kwargs):
+        self.backend: VariantHandler = self.select_variant_handler(vcf)(vcf, **kwargs)
+
+    @staticmethod
+    def select_variant_handler(file: str) -> Type['VariantHandler']:
+        """
+        Select the appropriate variant handler.
+
+        :return: The variant handler.
+        """
+        if ZarrHandler.is_zarr(file):
+            return ZarrHandler
+
+        return VCFHandler
+
+    def __getattr__(self, name: str):
+        """
+        Forward attribute/method access to backend when not found on this wrapper.
+        """
+        try:
+            return getattr(self.backend, name)
+        except AttributeError:
+            raise AttributeError(f"{self.__class__.__name__} has no attribute '{name}'")
+
+
+class MultiHandler(AutoVariantHandler, FASTAHandler, GFFHandler):
     """
     Handle VCF, FASTA and GFF files.
     """
 
     def __init__(
             self,
-            vcf: str | Iterable['cyvcf2.Variant'],
+            vcf: str | Iterable[Variant],
             fasta: str | None = None,
             gff: str | None = None,
+            output: str = None,
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
             seed: int | None = 0,
@@ -709,6 +1043,7 @@ class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
         :param vcf: The path to the VCF file or an iterable of variants, can be gzipped, urls are also supported
         :param fasta: The path to the FASTA file.
         :param gff: The path to the GFF file.
+        :param output: The output variant file path.
         :param info_ancestral: The tag in the INFO field that contains the ancestral allele
         :param max_sites: Maximum number of sites to consider
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
@@ -716,9 +1051,10 @@ class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
         :param aliases: The contig aliases.
         """
         # initialize vcf handler
-        VCFHandler.__init__(
+        AutoVariantHandler.__init__(
             self,
             vcf=vcf,
+            output=output,
             info_ancestral=info_ancestral,
             max_sites=max_sites,
             seed=seed,
@@ -773,47 +1109,3 @@ class NoTypeException(BaseException):
     Exception thrown when no type can be determined.
     """
     pass
-
-
-class DummyVariant:
-    """
-    Dummy variant class to emulate a mono-allelic site.
-    """
-
-    #: Whether the variant is an SNP
-    is_snp = False
-
-    #: Whether the variant is an MNP
-    is_mnp = False
-
-    #: Whether the variant is an indel
-    is_indel = False
-
-    #: Whether the variant is a deletion
-    is_deletion = False
-
-    #: Whether the variant is a structural variant
-    is_sv = False
-
-    #: The alternate alleles
-    ALT = []
-
-    def __init__(self, ref: str, pos: int, chrom: str):
-        """
-        Initialize the dummy variant.
-
-        :param ref: The reference allele
-        :param pos: The position
-        :param chrom: The contig
-        """
-        #: The reference allele
-        self.REF = ref
-
-        #: The position
-        self.POS = pos
-
-        #: The contig
-        self.CHROM = chrom
-
-        #: Info field
-        self.INFO = {}

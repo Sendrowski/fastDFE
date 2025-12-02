@@ -17,7 +17,7 @@ from enum import Enum
 from functools import cached_property
 from io import StringIO
 from itertools import product
-from typing import List, Optional, Dict, Tuple, Callable, Literal, Iterable, cast, Any, Generator, Union
+from typing import List, Optional, Dict, Tuple, Callable, Literal, Iterable, cast, Any, Generator
 
 import Bio.Data.CodonTable
 import jsonpickle
@@ -30,7 +30,7 @@ from Bio.SeqRecord import SeqRecord
 from scipy.stats import hypergeom
 from tqdm import tqdm
 
-from .io_handlers import DummyVariant, MultiHandler, FASTAHandler
+from .io_handlers import DummyVariant, MultiHandler, FASTAHandler, VariantReader, Variant
 from .io_handlers import GFFHandler, get_major_base, get_called_bases
 from .optimization import parallelize as parallelize_func, check_bounds
 from .settings import Settings
@@ -105,7 +105,7 @@ class Annotation(ABC):
         self._logger.info(f'Annotated {self.n_annotated} sites.')
 
     @abstractmethod
-    def annotate_site(self, variant: Union['cyvcf2.Variant', DummyVariant]):
+    def annotate_site(self, variant: Variant):
         """
         Annotate a single site.
 
@@ -187,13 +187,13 @@ class DegeneracyAnnotation(Annotation):
         self._contig: Optional[SeqRecord] = None
 
         #: The variants that could not be annotated correctly.
-        self.mismatches: List['cyvcf2.Variant'] = []
+        self.mismatches: List[Variant] = []
 
         #: The variant that were skipped because they were not in coding regions.
         self.n_skipped: int = 0
 
         #: The variants for which the codon could not be determined.
-        self.errors: List['cyvcf2.Variant'] = []
+        self.errors: List[Variant] = []
 
     def _setup(self, handler: MultiHandler):
         """
@@ -240,7 +240,7 @@ class DegeneracyAnnotation(Annotation):
         self._cd_prev = None
         self._contig = None
 
-    def _parse_codon_forward(self, variant: Union['cyvcf2.Variant', DummyVariant]):
+    def _parse_codon_forward(self, variant: Variant):
         """
         Parse the codon in forward direction.
 
@@ -288,7 +288,7 @@ class DegeneracyAnnotation(Annotation):
 
         return codon, codon_pos, codon_start, pos_codon, pos_rel
 
-    def _parse_codon_backward(self, variant: Union['cyvcf2.Variant', DummyVariant]):
+    def _parse_codon_backward(self, variant: Variant):
         """
         Parse the codon in reverse direction.
 
@@ -339,7 +339,7 @@ class DegeneracyAnnotation(Annotation):
 
         return codon, codon_pos, codon_start, pos_codon, pos_rel
 
-    def _parse_codon(self, variant: Union['cyvcf2.Variant', DummyVariant]):
+    def _parse_codon(self, variant: Variant):
         """
         Parse the codon for the given variant.
 
@@ -391,7 +391,7 @@ class DegeneracyAnnotation(Annotation):
 
         return codon_degeneracy
 
-    def _fetch_cds(self, v: Union['cyvcf2.Variant', DummyVariant]):
+    def _fetch_cds(self, v: Variant):
         """
         Fetch the coding sequence for the given variant.
 
@@ -449,7 +449,7 @@ class DegeneracyAnnotation(Annotation):
         if self._cd is None or not (self._cd.start <= v.POS <= self._cd.end):
             raise LookupError(f"No coding sequence found, skipping record {v.CHROM}:{v.POS}")
 
-    def _fetch_contig(self, v: Union['cyvcf2.Variant', DummyVariant]):
+    def _fetch_contig(self, v: Variant):
         """
         Fetch the contig for the given variant.
 
@@ -464,7 +464,7 @@ class DegeneracyAnnotation(Annotation):
             # fetch contig
             self._contig = self._handler.get_contig(aliases)
 
-    def _fetch(self, variant: Union['cyvcf2.Variant', DummyVariant]):
+    def _fetch(self, variant: Variant):
         """
         Fetch all required data for the given variant.
 
@@ -480,7 +480,7 @@ class DegeneracyAnnotation(Annotation):
             self._logger.warning(f"Could not fetch contig '{variant.CHROM}'.")
             raise
 
-    def annotate_site(self, v: Union['cyvcf2.Variant', DummyVariant]):
+    def annotate_site(self, v: Variant):
         """
         Annotate a single site.
 
@@ -568,10 +568,10 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         super().__init__()
 
         #: The number of sites that did not match with VEP.
-        self.vep_mismatches: List['cyvcf2.Variant'] = []
+        self.vep_mismatches: List[Variant] = []
 
         #: The number of sites that did not math with the annotation provided by SnpEff
-        self.snpeff_mismatches: List['cyvcf2.Variant'] = []
+        self.snpeff_mismatches: List[Variant] = []
 
         #: The number of sites that were concordant with VEP.
         self.n_vep_comparisons: int = 0
@@ -612,7 +612,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
             'Description': 'Alt codon and extra information'
         })
 
-    def _get_alt_allele(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> str | None:
+    def _get_alt_allele(self, variant: Variant) -> str | None:
         """
         Get the alternative allele.
 
@@ -655,7 +655,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
 
         return codon_table[codon1] == codon_table[codon2]
 
-    def _parse_codons_vep(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> List[str]:
+    def _parse_codons_vep(self, variant: Variant) -> List[str]:
         """
         Parse the codons from the VEP annotation if present.
 
@@ -674,7 +674,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         return []
 
     @staticmethod
-    def _parse_synonymy_snpeff(variant: Union['cyvcf2.Variant', DummyVariant]) -> int | None:
+    def _parse_synonymy_snpeff(variant: Variant) -> int | None:
         """
         Parse the synonymy from the annotation provided by SnpEff
 
@@ -701,7 +701,7 @@ class SynonymyAnnotation(DegeneracyAnnotation):
         if self.n_snpeff_comparisons != 0:
             self._logger.info(f'Number of mismatches with SnpEff: {len(self.snpeff_mismatches)}')
 
-    def annotate_site(self, v: Union['cyvcf2.Variant', DummyVariant]):
+    def annotate_site(self, v: Variant):
         """
         Annotate a single site.
 
@@ -863,7 +863,7 @@ class MaximumParsimonyAncestralAnnotation(AncestralAlleleAnnotation):
         else:
             self.samples_mask = np.isin(handler._reader.samples, self.samples)
 
-    def annotate_site(self, variant: Union['cyvcf2.Variant', DummyVariant]):
+    def annotate_site(self, variant: Variant):
         """
         Annotate a single site.
 
@@ -879,7 +879,7 @@ class MaximumParsimonyAncestralAnnotation(AncestralAlleleAnnotation):
 
     @staticmethod
     def _get_ancestral(
-            variant: Union['cyvcf2.Variant', DummyVariant],
+            variant: Variant,
             mask: np.ndarray,
     ) -> str:
         """
@@ -1860,7 +1860,7 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         })
 
         # set reader
-        self._reader = self._handler.load_vcf()
+        self._reader = self._handler.load_variants()
 
         # prepare masks
         self._prepare_masks(handler._reader.samples)
@@ -1966,7 +1966,7 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
 
         return major_alleles, n_majors, m
 
-    def _parse_variant(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> List[SiteConfig]:
+    def _parse_variant(self, variant: Variant) -> List[SiteConfig]:
         """
         Parse a VCF variant. We only consider sites that are at most bi-allelic in the in- and outgroups.
 
@@ -2307,7 +2307,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         self.model: SubstitutionModel = K2SubstitutionModel() if model is None else model
 
         #: The VCF reader.
-        self._reader: 'cyvcf2.VCF' | None = None
+        self._reader: VariantReader | None = None
 
         #: The data frame holding all site configurations.
         self.configs: pd.DataFrame | None = None
@@ -3835,7 +3835,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         """
         return not (1 - threshold) / 2 < p < 1 - (1 - threshold) / 2
 
-    def annotate_site(self, variant: Union['cyvcf2.Variant', DummyVariant]):
+    def annotate_site(self, variant: Variant):
         """
         Annotate a single site.
 
@@ -4106,7 +4106,7 @@ class AdHocAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             ancestral_base=ancestral_base
         )
 
-    def annotate_site(self, variant: Union['cyvcf2.Variant', DummyVariant]):
+    def annotate_site(self, variant: Variant):
         """
         Annotate a single site. Mono-allelic sites are assigned the major allele as ancestral. Sites with
         more than two alleles are ignored.
@@ -4308,7 +4308,7 @@ class _ESTSFSAncestralAnnotation(AncestralAlleleAnnotation):  # pragma: no cover
         # rename columns
         self.probs.rename(columns={1: 'config', 2: 'prob'}, inplace=True)
 
-    def annotate_site(self, variant: Union['cyvcf2.Variant', DummyVariant]):
+    def annotate_site(self, variant: Variant):
         """
         Not implemented.
 
@@ -4420,6 +4420,7 @@ class Annotator(MultiHandler):
             vcf=vcf,
             gff=gff,
             fasta=fasta,
+            output=output,
             info_ancestral=info_ancestral,
             max_sites=max_sites,
             seed=seed,
@@ -4433,26 +4434,12 @@ class Annotator(MultiHandler):
         #: The annotations to apply.
         self.annotations: List[Annotation] = annotations
 
-        #: The VCF writer.
-        self._writer: 'cyvcf2.Writer' | None = None
-
     def _setup(self):
         """
         Set up the annotator.
         """
-        try:
-            from cyvcf2 import Writer
-        except ImportError:
-            raise ImportError(
-                "VCF support in fastdfe requires the optional 'cyvcf2' package. "
-                "Please install fastdfe with the 'vcf' extra: pip install fastdfe[vcf]"
-            )
-
         for annotation in self.annotations:
             annotation._setup(self)
-
-        # create the writer
-        self._writer = Writer(self.output, self._reader)
 
     def _teardown(self):
         """
