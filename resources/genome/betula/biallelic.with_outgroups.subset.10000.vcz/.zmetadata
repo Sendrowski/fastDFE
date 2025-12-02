@@ -1,0 +1,1603 @@
+{
+    "metadata": {
+        ".zattrs": {
+            "source": "bio2zarr-0.1.6",
+            "vcf_meta_information": [
+                [
+                    "fileformat",
+                    "VCFv4.2"
+                ],
+                [
+                    "ALT",
+                    "<ID=NON_REF,Description=\"Represents any possible alternative allele not already represented at this location by REF and ALT\">"
+                ],
+                [
+                    "GATKCommandLine",
+                    "<ID=GenomicsDBImport,CommandLine=\"GenomicsDBImport --genomicsdb-workspace-path results/default/variants/genomics_dbs/db72 --variant results/default/variants/haplotypes/ASP01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP03/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP04/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP05/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP08/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP09/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP10/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP11/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP12/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP13/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP14/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP15/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP16/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP17/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP18/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP19/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP20/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP21/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP22/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP50/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP55/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ASP56/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA04/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA05/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA08/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA09/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA10/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA11/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA12/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA13/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA14/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA15/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA16/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA17/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA18/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA19/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA20/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA22/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA23/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA24/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA25/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA26/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA27/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BRA30/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR03/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR04/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR05/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR08/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR10/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR11/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR12/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR13/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR14/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR15/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR16/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR17/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR18/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR19/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR20/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR21/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR22/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR23/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR24/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR25a/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR25b/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR27a/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/BUR27b/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU04/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU09/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU10/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU11/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU12/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU13/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU53/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU57/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU59/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU60/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU63/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU69/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU70/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU73/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU74/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU78/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU80/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU81/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU82/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU84/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DJU87/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK03/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK04/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK08/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK09/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK11/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK13/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK14/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK15/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK16/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK18/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK19/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK20/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK21/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK22/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK24/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK25/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK26/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK27/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK28/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK29/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/DOK30/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA03/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA04/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA05/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA08/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA09/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA10/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA11/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA13/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA14/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA15/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA16/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA17/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA19/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA20/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA22/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA24/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA25/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA26/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA27/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA29/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/GNA30/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK04/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK05/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK08/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK09/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK11/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK13/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK14/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK15/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK16/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK17/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK18/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK19/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK20/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK21/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK23/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK24/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK25/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK27/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK28/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK30/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/JOKK31/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU03/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU05/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU08/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU09/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU10/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU15/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU16/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU19/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU20/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU22/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU23/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU24/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU25/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU26/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU27/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU28/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU29/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU30/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU31/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU32/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/KAU33/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN03/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN08/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN10/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN13/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN14/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN15/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN16/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN18/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN19/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN21/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN22/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN23/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN24/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN25/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN26/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN27/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN28/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN29/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN32/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN33/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/LIN34/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK04/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK10/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK11/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK12/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK13/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK23/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK25/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK26/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK28/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK29/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK30/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK31/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK32/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK33/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK35/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK36/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK37/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK38/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK39/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK40/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK41/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK42/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/MOK43/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED04/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED08/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED09/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED11/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED13/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED14/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED15/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED16/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED17/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED18/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED19/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED20/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED21/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED23/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED24/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED25/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED26/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED27/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED28/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED30/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NED31/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR04/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR08/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR09/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR11/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR12/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR13/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR14/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR15/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR16/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR17/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR18/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR19/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR21/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR25/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR26/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR27/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR28/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR29/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR30/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR31/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/NOR32/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT01/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT03/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT04/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT05/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT08/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT09/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT10/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT11/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT12/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT13D/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT14/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT16/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT17/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT18/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT19/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT23/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT24/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT25/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT26/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT28/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT29/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/PIT30/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA02/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA08/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA10/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA13/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA19/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA20/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA22/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA23/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA24/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA28/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA30/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA34/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA35/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA39/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA40/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA42/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA43/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA44/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA45/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA46/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA49/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA51/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA55/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/SKA57/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL04/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL05/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL06/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL07/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL51/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL52/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL53/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL54/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL55/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL57/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL58/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL64/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL68/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL71/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL72/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL74/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL75/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL77/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL78/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL82/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL83/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL92/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL93/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL94/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/VAL97/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ERR2103730/all.sorted.g.vcf.gz --variant results/default/variants/haplotypes/ERR2103731/all.sorted.g.vcf.gz --batch-size 10 --intervals results/default/variants/intervals/intervals72.bed --interval-padding 100 --tmp-dir /scratch/30147381 --genomicsdb-segment-size 1048576 --genomicsdb-vcf-buffer-size 16384 --overwrite-existing-genomicsdb-workspace false --consolidate false --validate-sample-name-map false --merge-input-intervals false --reader-threads 1 --max-num-intervals-to-import-in-parallel 1 --merge-contigs-into-num-partitions 0 --genomicsdb-shared-posixfs-optimizations false --genomicsdb-use-gcs-hdfs-connector false --interval-set-rule UNION --interval-exclusion-padding 0 --interval-merging-rule ALL --read-validation-stringency SILENT --seconds-between-progress-updates 10.0 --disable-sequence-dictionary-validation false --create-output-bam-index true --create-output-bam-md5 false --create-output-variant-index true --create-output-variant-md5 false --max-variants-per-shard 0 --lenient false --add-output-sam-program-record true --add-output-vcf-command-line true --cloud-prefetch-buffer 0 --cloud-index-prefetch-buffer 0 --disable-bam-index-caching false --sites-only-vcf-output false --help false --version false --showHidden false --verbosity INFO --QUIET false --use-jdk-deflater false --use-jdk-inflater false --gcs-max-retries 20 --gcs-project-for-requester-pays  --disable-tool-default-read-filters false\",Version=\"4.2.2.0\",Date=\"October 2, 2022 9:27:30 AM CEST\">"
+                ],
+                [
+                    "VEP",
+                    "\"v104\" time=\"2022-10-02 10:23:11\" ensembl-funcgen=104.59ae779 ensembl=104.1af1dce ensembl-variation=104.6154f8b ensembl-io=104.1d3bb6e"
+                ],
+                [
+                    "bcftools_viewCommand",
+                    "view -Oz --apply-filters .,PASS --max-alleles 2 --exclude-types indels,mnps,other results/default/variants/vcfs/variants72.quality.tagged.vcf.gz"
+                ],
+                [
+                    "bcftools_viewVersion",
+                    "1.3.1+htslib-1.3.1"
+                ],
+                [
+                    "source",
+                    "GenomicsDBImport"
+                ]
+            ],
+            "vcf_zarr_version": "0.4"
+        },
+        ".zgroup": {
+            "zarr_format": 2
+        },
+        "call_AD/.zarray": {
+            "chunks": [
+                1000,
+                379,
+                2
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<i2",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                379,
+                2
+            ],
+            "zarr_format": 2
+        },
+        "call_AD/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples",
+                "alleles"
+            ],
+            "description": "Allelic depths for the ref and alt alleles in the order listed"
+        },
+        "call_DP/.zarray": {
+            "chunks": [
+                1000,
+                379
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<i2",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                379
+            ],
+            "zarr_format": 2
+        },
+        "call_DP/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples"
+            ],
+            "description": "Approximate read depth (reads with MQ=255 or with bad mates are filtered)"
+        },
+        "call_GQ/.zarray": {
+            "chunks": [
+                1000,
+                379
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|i1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                379
+            ],
+            "zarr_format": 2
+        },
+        "call_GQ/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples"
+            ],
+            "description": "Genotype Quality"
+        },
+        "call_MIN_DP/.zarray": {
+            "chunks": [
+                1000,
+                379
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|i1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                379
+            ],
+            "zarr_format": 2
+        },
+        "call_MIN_DP/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples"
+            ],
+            "description": "Minimum DP observed within the GVCF block"
+        },
+        "call_PGT/.zarray": {
+            "chunks": [
+                1000,
+                379
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|O",
+            "fill_value": null,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                10000,
+                379
+            ],
+            "zarr_format": 2
+        },
+        "call_PGT/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples"
+            ],
+            "description": "Physical phasing haplotype information, describing how the alternate alleles are phased in relation to one another; will always be heterozygous and is not intended to describe called alleles"
+        },
+        "call_PID/.zarray": {
+            "chunks": [
+                1000,
+                379
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|O",
+            "fill_value": null,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                10000,
+                379
+            ],
+            "zarr_format": 2
+        },
+        "call_PID/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples"
+            ],
+            "description": "Physical phasing ID information, where each unique ID within a given sample (but not across samples) connects records within a phasing group"
+        },
+        "call_PL/.zarray": {
+            "chunks": [
+                1000,
+                379,
+                3
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<i4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                379,
+                3
+            ],
+            "zarr_format": 2
+        },
+        "call_PL/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples",
+                "genotypes"
+            ],
+            "description": "Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification"
+        },
+        "call_PS/.zarray": {
+            "chunks": [
+                1000,
+                379
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<i4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                379
+            ],
+            "zarr_format": 2
+        },
+        "call_PS/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples"
+            ],
+            "description": "Phasing set (typically the position of the first variant in the set)"
+        },
+        "call_RGQ/.zarray": {
+            "chunks": [
+                1000,
+                379
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|i1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                379
+            ],
+            "zarr_format": 2
+        },
+        "call_RGQ/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples"
+            ],
+            "description": "Unconditional reference genotype confidence, encoded as a phred quality -10*log10 p(genotype call is wrong)"
+        },
+        "call_SB/.zarray": {
+            "chunks": [
+                1000,
+                379,
+                4
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|i1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                379,
+                4
+            ],
+            "zarr_format": 2
+        },
+        "call_SB/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples",
+                "FORMAT_SB_dim"
+            ],
+            "description": "Per-sample component statistics which comprise the Fisher's Exact Test to detect strand bias."
+        },
+        "call_genotype/.zarray": {
+            "chunks": [
+                1000,
+                379,
+                2
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 2
+            },
+            "dimension_separator": "/",
+            "dtype": "|i1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                379,
+                2
+            ],
+            "zarr_format": 2
+        },
+        "call_genotype/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples",
+                "ploidy"
+            ],
+            "description": ""
+        },
+        "call_genotype_mask/.zarray": {
+            "chunks": [
+                1000,
+                379,
+                2
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 2
+            },
+            "dimension_separator": "/",
+            "dtype": "|b1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                379,
+                2
+            ],
+            "zarr_format": 2
+        },
+        "call_genotype_mask/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples",
+                "ploidy"
+            ],
+            "description": ""
+        },
+        "call_genotype_phased/.zarray": {
+            "chunks": [
+                1000,
+                379
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 2
+            },
+            "dimension_separator": "/",
+            "dtype": "|b1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                379
+            ],
+            "zarr_format": 2
+        },
+        "call_genotype_phased/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "samples"
+            ],
+            "description": ""
+        },
+        "contig_id/.zarray": {
+            "chunks": [
+                5642
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "|O",
+            "fill_value": 0,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                5642
+            ],
+            "zarr_format": 2
+        },
+        "contig_id/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "contigs"
+            ]
+        },
+        "contig_length/.zarray": {
+            "chunks": [
+                5642
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<i8",
+            "fill_value": 0,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                5642
+            ],
+            "zarr_format": 2
+        },
+        "contig_length/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "contigs"
+            ]
+        },
+        "filter_description/.zarray": {
+            "chunks": [
+                7
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "|O",
+            "fill_value": 0,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                7
+            ],
+            "zarr_format": 2
+        },
+        "filter_description/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "filters"
+            ]
+        },
+        "filter_id/.zarray": {
+            "chunks": [
+                7
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "|O",
+            "fill_value": 0,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                7
+            ],
+            "zarr_format": 2
+        },
+        "filter_id/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "filters"
+            ]
+        },
+        "region_index/.zarray": {
+            "chunks": [
+                12,
+                6
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 9,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 0
+            },
+            "dimension_separator": "/",
+            "dtype": "<i4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                12,
+                6
+            ],
+            "zarr_format": 2
+        },
+        "region_index/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "region_index_values",
+                "region_index_fields"
+            ]
+        },
+        "sample_id/.zarray": {
+            "chunks": [
+                379
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "|O",
+            "fill_value": 0,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                379
+            ],
+            "zarr_format": 2
+        },
+        "sample_id/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "samples"
+            ]
+        },
+        "variant_AA/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|O",
+            "fill_value": null,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_AA/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Ancestral Allele"
+        },
+        "variant_AC/.zarray": {
+            "chunks": [
+                1000,
+                1
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<i2",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                1
+            ],
+            "zarr_format": 2
+        },
+        "variant_AC/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "alt_alleles"
+            ],
+            "description": "Allele count in genotypes, for each ALT allele, in the same order as listed"
+        },
+        "variant_AF/.zarray": {
+            "chunks": [
+                1000,
+                1
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<f4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                1
+            ],
+            "zarr_format": 2
+        },
+        "variant_AF/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "alt_alleles"
+            ],
+            "description": "Allele Frequency, for each ALT allele, in the same order as listed"
+        },
+        "variant_AN/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<i2",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_AN/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Total number of alleles in called genotypes"
+        },
+        "variant_BaseQRankSum/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<f4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_BaseQRankSum/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities"
+        },
+        "variant_CSQ/.zarray": {
+            "chunks": [
+                1000,
+                3
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|O",
+            "fill_value": null,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                10000,
+                3
+            ],
+            "zarr_format": 2
+        },
+        "variant_CSQ/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "INFO_CSQ_dim"
+            ],
+            "description": "Consequence annotations from Ensembl VEP. Format: Consequence|Codons"
+        },
+        "variant_DP/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<i4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_DP/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Approximate read depth; some reads may have been filtered"
+        },
+        "variant_Degeneracy/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|i1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_Degeneracy/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "n-fold degeneracy"
+        },
+        "variant_Degeneracy_Info/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|O",
+            "fill_value": null,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_Degeneracy_Info/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Additional information about custom degeneracy annotation:"
+        },
+        "variant_END/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|i1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_END/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Stop position of the interval"
+        },
+        "variant_EST_SFS_input/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|O",
+            "fill_value": null,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_EST_SFS_input/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "EST-SFS input"
+        },
+        "variant_EST_SFS_probs/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|O",
+            "fill_value": null,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_EST_SFS_probs/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "EST-SFS probabilities"
+        },
+        "variant_ExcessHet/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<f4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_ExcessHet/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Phred-scaled p-value for exact test of excess heterozygosity"
+        },
+        "variant_FS/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<f4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_FS/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Phred-scaled p-value using Fisher's exact test to detect strand bias"
+        },
+        "variant_InbreedingCoeff/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<f4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_InbreedingCoeff/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Inbreeding coefficient as estimated from the genotype likelihoods per-sample when compared against the Hardy-Weinberg expectation"
+        },
+        "variant_MLEAC/.zarray": {
+            "chunks": [
+                1000,
+                1
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<i2",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                1
+            ],
+            "zarr_format": 2
+        },
+        "variant_MLEAC/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "alt_alleles"
+            ],
+            "description": "Maximum likelihood expectation (MLE) for the allele counts (not necessarily the same as the AC), for each ALT allele, in the same order as listed"
+        },
+        "variant_MLEAF/.zarray": {
+            "chunks": [
+                1000,
+                1
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<f4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                1
+            ],
+            "zarr_format": 2
+        },
+        "variant_MLEAF/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "alt_alleles"
+            ],
+            "description": "Maximum likelihood expectation (MLE) for the allele frequency (not necessarily the same as the AF), for each ALT allele, in the same order as listed"
+        },
+        "variant_MQ/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<f4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_MQ/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "RMS Mapping Quality"
+        },
+        "variant_MQRankSum/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<f4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_MQRankSum/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Z-score From Wilcoxon rank sum test of Alt vs. Ref read mapping qualities"
+        },
+        "variant_QD/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<f4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_QD/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Variant Confidence/Quality by Depth"
+        },
+        "variant_RAW_MQandDP/.zarray": {
+            "chunks": [
+                1000,
+                2
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|i1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                2
+            ],
+            "zarr_format": 2
+        },
+        "variant_RAW_MQandDP/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "INFO_RAW_MQandDP_dim"
+            ],
+            "description": "Raw data (sum of squared MQ and total depth) for improved RMS Mapping Quality calculation. Incompatible with deprecated RAW_MQ formulation."
+        },
+        "variant_ReadPosRankSum/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<f4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_ReadPosRankSum/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias"
+        },
+        "variant_SOR/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<f4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_SOR/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Symmetric Odds Ratio of 2x2 contingency table to detect strand bias"
+        },
+        "variant_Synonymy/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|i1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_Synonymy/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Whether coding site is synonymous"
+        },
+        "variant_Synonymy_Info/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|O",
+            "fill_value": null,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_Synonymy_Info/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Additional information about custom synonymy annotation:"
+        },
+        "variant_allele/.zarray": {
+            "chunks": [
+                1000,
+                2
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|O",
+            "fill_value": null,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                10000,
+                2
+            ],
+            "zarr_format": 2
+        },
+        "variant_allele/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "alleles"
+            ],
+            "description": "List of the reference and alternate alleles"
+        },
+        "variant_contig/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<i2",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_contig/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "An identifier from the reference genome or an angle-bracketed ID string pointing to a contig in the assembly file"
+        },
+        "variant_filter/.zarray": {
+            "chunks": [
+                1000,
+                7
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 2
+            },
+            "dimension_separator": "/",
+            "dtype": "|b1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000,
+                7
+            ],
+            "zarr_format": 2
+        },
+        "variant_filter/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants",
+                "filters"
+            ],
+            "description": "Filter status of the variant"
+        },
+        "variant_genome.corrected.gff.gz/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|O",
+            "fill_value": null,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_genome.corrected.gff.gz/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "resources/reference/genome.corrected.gff.gz (overlap)"
+        },
+        "variant_id/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|O",
+            "fill_value": null,
+            "filters": [
+                {
+                    "id": "vlen-utf8"
+                }
+            ],
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_id/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "List of unique identifiers where applicable"
+        },
+        "variant_id_mask/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 2
+            },
+            "dimension_separator": "/",
+            "dtype": "|b1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_id_mask/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": ""
+        },
+        "variant_length/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "|i1",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_length/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "The length of the variant measured in bases"
+        },
+        "variant_position/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<i4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_position/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "The reference position"
+        },
+        "variant_quality/.zarray": {
+            "chunks": [
+                1000
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 7,
+                "cname": "zstd",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dimension_separator": "/",
+            "dtype": "<f4",
+            "fill_value": null,
+            "filters": null,
+            "order": "C",
+            "shape": [
+                10000
+            ],
+            "zarr_format": 2
+        },
+        "variant_quality/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "variants"
+            ],
+            "description": "Phred-scaled quality score"
+        }
+    },
+    "zarr_consolidated_format": 1
+}

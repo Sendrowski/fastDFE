@@ -1,0 +1,7 @@
+{
+    "_ARRAY_DIMENSIONS": [
+        "variants",
+        "INFO_RAW_MQandDP_dim"
+    ],
+    "description": "Raw data (sum of squared MQ and total depth) for improved RMS Mapping Quality calculation. Incompatible with deprecated RAW_MQ formulation."
+}

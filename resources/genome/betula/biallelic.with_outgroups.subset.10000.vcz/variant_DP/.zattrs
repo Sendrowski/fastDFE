@@ -1,0 +1,6 @@
+{
+    "_ARRAY_DIMENSIONS": [
+        "variants"
+    ],
+    "description": "Approximate read depth; some reads may have been filtered"
+}
