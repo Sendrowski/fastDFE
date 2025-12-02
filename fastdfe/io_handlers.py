@@ -762,7 +762,7 @@ class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):
 
     def _rewind(self):
         """
-        Rewind the fasta and gff handler.
+        Rewind the fasta and vcf handler.
         """
         FASTAHandler._rewind(self)
         VCFHandler._rewind(self)
