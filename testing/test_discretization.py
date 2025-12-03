@@ -1,9 +1,10 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.special import hyp1f1
+from tqdm import tqdm
 
 from fastdfe import GammaExpParametrization, discretization
-from fastdfe.discretization import Discretization
+from fastdfe.discretization import Discretization, prf_binom_integral_vec
 from fastdfe.discretization import H, H_regularized
 from fastdfe.discretization import H_fixed, H_fixed_regularized
 from testing import TestCase
@@ -235,3 +236,28 @@ class DiscretizationTestCase(TestCase):
 
         plt.legend()
         plt.show()
+
+    def test_compare_with_poisson_random_field_dominance(self):
+        """
+        Compare discretization with Poisson Random Field implementation.
+        """
+        m = 5
+        diff = np.zeros((3, m, 201))
+        for i, n in enumerate([6, 20, 100]):
+            d = Discretization(
+                n=n,
+                intervals_ben=(1.0e-5, 1.0e4, 100),
+                intervals_del=(-1.0e+8, -1.0e-5, 100)
+            )
+
+            for j, k in tqdm(enumerate(np.linspace(1, n - 1, m).astype(int)), total=m):
+                ys1 = prf_binom_integral_vec(n=d.n, k=k, S=d.s, h=[0.5])[0]
+                ys2 = d.get_allele_count_regularized(k=np.full_like(d.s, k), S=d.s)
+
+                diff[i,j] = (np.abs(ys1 - ys2) / (ys2 + 1e-10))
+
+        diff_max = np.max(diff, axis=(1,2))
+        diff_mean = np.mean(diff, axis=(1,2))
+        self.assertLess(diff.mean(), 0.004)
+        self.assertTrue((diff_max < np.array([0.02, 0.06, 0.3])).all())
+        pass
