@@ -175,8 +175,9 @@ def prf_binom_integral_vec(
         k: int,
         h: np.ndarray,
         S: np.ndarray,
-        n_grid: int = 800,
-        n_inner: int = 200
+        n_outer: int = 1000,
+        n_inner: int = 200,
+        pow_cluster: int = 4
 ):
     """
     Vectorized version of prf_binom_integral over S and h.
@@ -185,8 +186,9 @@ def prf_binom_integral_vec(
     :param k: Allele count.
     :param h: Dominance coefficients.
     :param S: Selection coefficients.
-    :param n_grid: Grid size for outer integral over x.
-    :param n_inner: Grid size for inner integrals (S > 0 branch and norm_0).
+    :param n_outer: Grid size for outer integral over x.
+    :param n_inner: Grid size for inner integrals.
+    :param pow_cluster: Power for clustering grid points towards 0.
 
     :return: Array of shape (len(h), len(S)) with allele counts.
     """
@@ -194,8 +196,7 @@ def prf_binom_integral_vec(
     S = np.asarray(S)
 
     # x-grid (same as your scalar code)
-    # x-grid
-    x = np.linspace(0, 1, n_grid) ** 5  # (n_grid,)
+    x = np.linspace(0, 1, n_outer) ** pow_cluster  # (n_grid,)
 
     # binomial term
     binom = comb(n, k) * x ** (k - 1) * (1 - x) ** (n - k - 1)  # (n_grid,)
@@ -208,20 +209,19 @@ def prf_binom_integral_vec(
         S_neg = S[is_deleterious]  # (P1,)
         p1 = S_neg.size
 
-        num_q = 200
-        t = np.linspace(0, 1, num_q)  # (num_q,)
+        t = np.linspace(0, 1, n_inner)  # (n_inner,)
 
         # q-grid from x to 1
         xx = x[:, None, None, None] + (1 - x)[:, None, None, None] * t[None, None, None, :]
-        xx = np.broadcast_to(xx, (n_grid, h.size, p1, num_q))  # (n_grid, H, P1, num_q)
+        xx = np.broadcast_to(xx, (n_outer, h.size, p1, n_inner))  # (n_grid, H, P1, n_inner)
 
         H4 = h[None, :, None, None]  # (1, H, 1, 1)
         SN4 = S_neg[None, None, :, None]  # (1, 1, P1, 1)
 
-        exponent = -2 * SN4 * H4 * xx - SN4 * (1 - 2 * H4) * xx ** 2  # (n_grid, H, P1, num_q)
+        exponent = -2 * SN4 * H4 * xx - SN4 * (1 - 2 * H4) * xx ** 2  # (n_grid, H, P1, n_inner)
 
         max_exp = exponent.max(axis=(0, 3), keepdims=True)  # (1, H, P1, 1)
-        exp_shift = np.exp(exponent - max_exp)  # (n_grid, H, P1, num_q)
+        exp_shift = np.exp(exponent - max_exp)  # (n_grid, H, P1, n_inner)
 
         norm_q = np.trapz(exp_shift, xx, axis=3)  # (n_grid, H, P1)
         norm0 = norm_q[0]  # (H, P1)
@@ -240,15 +240,11 @@ def prf_binom_integral_vec(
 
         y[:, is_deleterious] = np.trapz(integrand, x, axis=0)  # (H, P1)
 
-    # ------------------------------------------------------------------
-    # S > 0 branch
-    # ------------------------------------------------------------------
     if (~is_deleterious).any():
         S_pos = S[~is_deleterious]  # (P2,)
         p2 = S_pos.size
 
-        xx0 = np.linspace(0, 1, n_inner) ** 5  # (n_inner,)
-        m = xx0.size
+        xx0 = np.linspace(0, 1, n_inner) ** pow_cluster  # (n_inner,)
 
         Hn = h[:, None, None]  # (H, 1, 1)
         SPn = S_pos[None, :, None]  # (1, P2, 1)
@@ -259,7 +255,7 @@ def prf_binom_integral_vec(
 
         t = np.linspace(0, 1, n_inner) ** 5  # (n_inner,)
         xx = x[:, None, None, None] + (1 - x)[:, None, None, None] * t[None, None, None, :]
-        xx = np.broadcast_to(xx, (n_grid, h.size, p2, n_inner))  # (n_grid, H, P2, n_inner)
+        xx = np.broadcast_to(xx, (n_outer, h.size, p2, n_inner))  # (n_grid, H, P2, n_inner)
 
         X = x[:, None, None, None]  # (n_grid, 1, 1, 1)
         H4b = h[None, :, None, None]  # (1, H, 1, 1)
