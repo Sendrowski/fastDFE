@@ -8,6 +8,7 @@ __date__ = "2023-02-26"
 
 import logging
 from functools import cached_property, wraps
+from math import comb
 from typing import Literal, Sequence, Tuple
 
 import mpmath as mp
@@ -136,6 +137,136 @@ def H_fixed_regularized(S: float | int | np.ndarray) -> float | int | np.ndarray
 
     # evaluate as usual
     y[remaining] = H_fixed(S[remaining])
+
+    return y
+
+
+def prf_binom_integral_dep(n: int, k: int, h: float, S: float, n_grid: int = 400) -> float:
+    # grid
+    x = np.linspace(0, 1, n_grid) ** 10
+
+    # binomial term
+    binom = comb(n, k) * x ** (k - 1) * (1 - x) ** (n - k - 1)
+
+    n_inner = 10000
+
+    if S <= 0:
+        xx = np.linspace(x, 1, 200).T
+        exponent = -2 * S * h * xx - S * (1 - 2 * h) * xx ** 2
+        norm_q = np.trapz(np.exp(exponent - np.max(exponent)), xx)
+        exponent = np.exp(2 * S * h * x + S * (1 - 2 * h) * x ** 2)
+        integrand = binom * exponent * norm_q / norm_q[0]
+    else:
+
+        xx = np.linspace(0, 1, n_inner).T
+        exponent = -2 * S * h * xx - S * (1 - 2 * h) * xx ** 2
+        norm_0 = np.trapz(np.exp(exponent), xx)
+
+        xx = np.linspace(x, 1, n_inner).T
+        term = S * (x[:, None] - xx) * ((1 - 2 * h) * (x[:, None] + xx) + 2 * h)
+        c = np.trapz(np.exp(term), xx)
+        integrand = binom * c / norm_0
+
+    return float(np.trapz(integrand, x))
+
+
+def prf_binom_integral_vec(
+        n: int,
+        k: int,
+        h: np.ndarray,
+        S: np.ndarray,
+        n_outer: int = 1000,
+        n_inner: int = 200,
+        pow_cluster: int = 4
+):
+    """
+    Vectorized version of prf_binom_integral over S and h.
+
+    :param n: Sample size.
+    :param k: Allele count.
+    :param h: Dominance coefficients.
+    :param S: Selection coefficients.
+    :param n_outer: Grid size for outer integral over x.
+    :param n_inner: Grid size for inner integrals.
+    :param pow_cluster: Power for clustering grid points towards 0.
+
+    :return: Array of shape (len(h), len(S)) with allele counts.
+    """
+    h = np.asarray(h)
+    S = np.asarray(S)
+
+    # x-grid (same as your scalar code)
+    x = np.linspace(0, 1, n_outer) ** pow_cluster  # (n_grid,)
+
+    # binomial term
+    binom = comb(n, k) * x ** (k - 1) * (1 - x) ** (n - k - 1)  # (n_grid,)
+
+    # result array
+    y = np.empty((h.size, S.size), dtype=float)  # (H, P)
+
+    is_deleterious = S <= 0
+    if is_deleterious.any():
+        S_neg = S[is_deleterious]  # (P1,)
+        p1 = S_neg.size
+
+        t = np.linspace(0, 1, n_inner)  # (n_inner,)
+
+        # q-grid from x to 1
+        xx = x[:, None, None, None] + (1 - x)[:, None, None, None] * t[None, None, None, :]
+        xx = np.broadcast_to(xx, (n_outer, h.size, p1, n_inner))  # (n_grid, H, P1, n_inner)
+
+        H4 = h[None, :, None, None]  # (1, H, 1, 1)
+        SN4 = S_neg[None, None, :, None]  # (1, 1, P1, 1)
+
+        exponent = -2 * SN4 * H4 * xx - SN4 * (1 - 2 * H4) * xx ** 2  # (n_grid, H, P1, n_inner)
+
+        max_exp = exponent.max(axis=(0, 3), keepdims=True)  # (1, H, P1, 1)
+        exp_shift = np.exp(exponent - max_exp)  # (n_grid, H, P1, n_inner)
+
+        norm_q = np.trapz(exp_shift, xx, axis=3)  # (n_grid, H, P1)
+        norm0 = norm_q[0]  # (H, P1)
+
+        H3 = h[None, :, None]  # (1, H, 1)
+        SN3 = S_neg[None, None, :]  # (1, 1, P1)
+
+        exponent_main = np.exp(
+            2 * SN3 * H3 * x[:, None, None] +
+            SN3 * (1 - 2 * H3) * x[:, None, None] ** 2
+        )  # (n_grid, H, P1)
+
+        ratio = norm_q / norm0  # (n_grid, H, P1)
+
+        integrand = binom[:, None, None] * exponent_main * ratio  # (n_grid, H, P1)
+
+        y[:, is_deleterious] = np.trapz(integrand, x, axis=0)  # (H, P1)
+
+    if (~is_deleterious).any():
+        S_pos = S[~is_deleterious]  # (P2,)
+        p2 = S_pos.size
+
+        xx0 = np.linspace(0, 1, n_inner) ** pow_cluster  # (n_inner,)
+
+        Hn = h[:, None, None]  # (H, 1, 1)
+        SPn = S_pos[None, :, None]  # (1, P2, 1)
+        XX0 = xx0[None, None, :]  # (1, 1, n_inner)
+
+        exponent0 = -2 * SPn * Hn * XX0 - SPn * (1 - 2 * Hn) * XX0 ** 2  # (H, P2, n_inner)
+        norm0 = np.trapz(np.exp(exponent0), xx0, axis=2)  # (H, P2)
+
+        t = np.linspace(0, 1, n_inner) ** 5  # (n_inner,)
+        xx = x[:, None, None, None] + (1 - x)[:, None, None, None] * t[None, None, None, :]
+        xx = np.broadcast_to(xx, (n_outer, h.size, p2, n_inner))  # (n_grid, H, P2, n_inner)
+
+        X = x[:, None, None, None]  # (n_grid, 1, 1, 1)
+        H4b = h[None, :, None, None]  # (1, H, 1, 1)
+        SP4b = S_pos[None, None, :, None]  # (1, 1, P2, 1)
+
+        term = SP4b * (X - xx) * ((1 - 2 * H4b) * (X + xx) + 2 * H4b)  # (n_grid, H, P2, n_inner)
+        c = np.trapz(np.exp(term), xx, axis=3)  # (n_grid, H, P2)
+
+        integrand = binom[:, None, None] * c / norm0  # (n_grid, H, P2)
+
+        y[:, ~is_deleterious] = np.trapz(integrand, x, axis=0)  # (H, P2)
 
     return y
 
