@@ -114,7 +114,7 @@ wildcard_constraints:
     param="[a-zA-Z0-9_]+",
     config=r'\w+',
     population=r'\w+',
-    demography=r'\w+',
+    #demography=r'\w+',
     chunk=r'\d+',
     n=r'\d+',
     i=r'\d+',
