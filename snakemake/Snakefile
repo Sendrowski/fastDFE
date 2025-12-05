@@ -1422,7 +1422,12 @@ rule simulate_trees_slim:
         b=lambda w: float(w.b),
         s_d=lambda w: float(w.s_d),
         p_b=lambda w: float(w.p_b),
-        demography="{demography}"
+        h=lambda w: (
+            float(w.demography.split("_")[1])
+            if w.demography.startswith("dominance_")
+            else None
+        ),
+        demography=lambda w: w.demography.split('_')[0]
     conda:
         "envs/slim.yaml"
     shell:
@@ -1439,6 +1444,7 @@ rule simulate_trees_slim:
         -d "b={params.b}" \
         -d "s_d={params.s_d}" \
         -d "p_b={params.p_b}" \
+        -d "h={params.h}" \
         -d "demography=\'{params.demography}\'" \
         workflow/scripts/simulate_trees.slim
         """

@@ -4,6 +4,7 @@
 // s_b: selection coefficient for beneficial mutations
 // b: shape parameter for gamma distribution
 // p_b: proportion of beneficial mutations
+// h: dominance coefficient for deleterious mutations (if applicable)
 // r: recombination rate
 // N: population size
 // g: generation to stop simulation
@@ -46,15 +47,21 @@ mutationEffect(m1) {
     if (homozygous) {
         return 1.0 + mut.selectionCoeff;
     } else {
-        if (strstarts(demography, "dominance_")) {
-            h = strsplit(demography, "_")[1];
-            dom = asFloat(h);
-        } else if (demography == "dominance") {
+        if (demography == "dominance") {
             dom = 0.4 * exp(-139 * abs(mut.selectionCoeff));
         } else {
-            dom = 0.5;
+            dom = h;
         }
         return 1.0 + dom * mut.selectionCoeff;
+    }
+}
+
+// custom dominance coefficient function for beneficial mutations
+mutationEffect(m2) {
+    if (homozygous) {
+        return 1.0 + mut.selectionCoeff;
+    } else {
+        return 1.0 + h * mut.selectionCoeff;
     }
 }
 
