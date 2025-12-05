@@ -172,8 +172,7 @@ class SimulationTestCase(TestCase):
         # very deleterious DFEs were difficult to recover
         sim = fd.Simulation(
             sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=1e8, theta=1e-4),
-            params=dict(S_d=-300, b=1, p_b=0.05, S_b=0.1),
-            eps=0,
+            params=dict(S_d=-300, b=1, p_b=0.05, S_b=0.1)
         )
 
         sfs_sel = sim.run()
@@ -217,8 +216,7 @@ class SimulationTestCase(TestCase):
                    1.12, 0.95, 1.21, 0.87, 1.43, 0.92,
                    0.99, 1.12, 0.95, 1.21, 0.87, 1.43]
             ),
-            params=dict(S_d=-300, b=1, p_b=0.05, S_b=0.1),
-            eps=0
+            params=dict(S_d=-300, b=1, p_b=0.05, S_b=0.1)
         )
 
         sfs_sel = sim.run()
@@ -255,8 +253,7 @@ class SimulationTestCase(TestCase):
         """
         sim = fd.Simulation(
             sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=1e8, theta=1e-4),
-            params=dict(S_d=-300, b=1, p_b=0, S_b=0.1),
-            eps=0
+            params=dict(S_d=-300, b=1, p_b=0, S_b=0.1)
         )
 
         sfs_sel = sim.run()
@@ -365,8 +362,7 @@ class SimulationTestCase(TestCase):
         """
         sim = fd.simulation.WrightFisherSimulation(
             sfs_neut=fd.Simulation.get_neutral_sfs(n=10, n_sites=1e8, theta=1e-6),
-            params=dict(S_d=-1e-100, b=1, p_b=0, S_b=1),
-            eps=0,
+            params=dict(S_d=-1e-100, b=1, p_b=0, S_b=1)
             n_generations=1000,
             pop_size=100
         )
@@ -393,7 +389,6 @@ class SimulationTestCase(TestCase):
         sim = fd.simulation.WrightFisherSimulation(
             sfs_neut=fd.Simulation.get_neutral_sfs(n=10, n_sites=1e8, theta=1e-6),
             params=dict(S_d=-100, b=1, p_b=0, S_b=1),
-            eps=0,
             n_generations=100,
             pop_size=100
         )

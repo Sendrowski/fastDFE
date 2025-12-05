@@ -22,6 +22,7 @@ try:
     s_d = snakemake.params.s_d
     p_b = snakemake.params.p_b
     n = snakemake.params.n
+    h = snakemake.params.h
     mu = snakemake.params.mu
     title = snakemake.params.title
     out_sfs = snakemake.output.sfs
@@ -31,10 +32,11 @@ except NameError:
     testing = True
     sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=5/s_d=3e-1/p_b=0/n=20/unfolded/sfs.csv'
     s_b = 1e-9
-    b = 5
+    b = 0.2
     s_d = 3e-1
     p_b = 0
     n = 20
+    h = 0.2
     mu = 1e-8
     title = "$s_b$=1e-9, $b=1$, $s_d=1e-1$, $p_b=0.2$"
     out_sfs = "scratch/sfs.csv"
@@ -57,9 +59,11 @@ sim = fd.Simulation(
         b=b,
         S_d=-4 * Ne * s_d,
         p_b=p_b,
+        h=h,
     ),
     sfs_neut=spectra['neutral'],
-    model=model
+    model=model,
+    parallelize=False,
 )
 
 sfs_sel = sim.run()

@@ -577,6 +577,13 @@ class Discretization:
         :param h: Dominance coefficient
         :return: Matrix of size (n_intervals, n)
         """
+        if (
+                self._cache is None or
+                self.__dict__.get('dfe_to_sfs_h', None) is None or
+                self.__dict__.get('dfe_to_sfs', None) is None
+        ):
+            self.precompute()
+
         if h == 0.5:
             return self.dfe_to_sfs
 
