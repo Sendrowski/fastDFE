@@ -349,6 +349,7 @@ class Discretization:
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0.0, 1.0, 100),
+            s_chunk_size: int = 100,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             parallelize: bool = True,
@@ -361,6 +362,8 @@ class Discretization:
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled selection coefficients.
         :param intervals_ben: ``(start, stop, n_interval)`` for beneficial population-scaled selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients.
+        :param s_chunk_size: Chunk size for S values when precomputing across dominance coefficients.
+            This controls memory usage vs. speed trade-off.
         :param integration_mode : 'midpoint' or 'quad' for midpoint integration or Scipy's quad method.
         :param linearized: Whether to use linearized integral or compute integral numerically in each iteration.
         :param parallelize: Whether to parallelize the computation of the discretization.
@@ -386,6 +389,9 @@ class Discretization:
 
         # interval bounds for discretizing dominance coefficients
         self.intervals_h: Tuple[float, float, int] = intervals_h
+
+        # chunk size for S values when precomputing across dominance coefficients
+        self.s_chunk_size: int = s_chunk_size
 
         self.integration_mode: Literal['midpoint', 'quad'] = integration_mode
         self.linearized: bool = linearized
@@ -481,12 +487,12 @@ class Discretization:
 
         return P.T
 
-    @cached_property
-    def dfe_to_sfs(self) -> np.ndarray:
+    def get_dfe_to_sfs(self) -> np.ndarray:
         """
-        Linearized DFE to SFS transformation for ``h = 0.5``.
+        Linearized DFE to SFS transformation for `h = 0.5`.
 
         :return: Matrix of size (n_intervals, n)
+        :raises NotImplementedError: If integration mode is not supported.
         """
         # precompute linearized transformation.
         if self.integration_mode == 'midpoint':
@@ -499,11 +505,11 @@ class Discretization:
 
     def precompute(self):
         """
-        Precompute DFE to SFS transformation across dominance coefficients.
+        Precompute DFE to SFS transformation, possibly across dominance coefficients.
         """
         # compute special case h = 0.5
         if self.h == 0.5:
-            _ = self.dfe_to_sfs
+            self._cache = self.get_dfe_to_sfs()
             return
 
         if self.h is None:
@@ -514,7 +520,7 @@ class Discretization:
         K = np.arange(1, self.n)
 
         # chunk S-bins
-        S_chunks = np.array_split(self.bins, int(np.ceil(len(self.bins) / 100)))
+        S_chunks = np.array_split(self.bins, int(np.ceil(len(self.bins) / self.s_chunk_size)))
 
         def compute_slice(args):
             """
@@ -559,9 +565,6 @@ class Discretization:
                 self.__dict__.get('dfe_to_sfs', None) is None
         ):
             self.precompute()
-
-        if h == 0.5:
-            return self.dfe_to_sfs
 
         if len(self.H) == 1:
             return self._cache[:, 0, :]

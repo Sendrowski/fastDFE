@@ -1309,9 +1309,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
             sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
-            intervals_h=(0, 1, 10),
+            intervals_ben=(1.0e-5, 1.0e4, 1000),
+            intervals_del=(-1.0e+8, -1.0e-5, 1000),
+            intervals_h=(0, 1, 20),
             fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0}},
-            parallelize=False,
+            parallelize=True,
             do_bootstrap=True,
             n_bootstraps=50,
             n_runs=10

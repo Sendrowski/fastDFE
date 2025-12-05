@@ -47,7 +47,7 @@ mutationEffect(m1) {
     if (homozygous) {
         return 1.0 + mut.selectionCoeff;
     } else {
-        if (demography == "dominance") {
+        if (demography == "dominance_function") {
             dom = 0.4 * exp(-139 * abs(mut.selectionCoeff));
         } else {
             dom = h;
@@ -61,7 +61,12 @@ mutationEffect(m2) {
     if (homozygous) {
         return 1.0 + mut.selectionCoeff;
     } else {
-        return 1.0 + h * mut.selectionCoeff;
+        if (demography == "dominance_function") {
+            dom = 0.4 * exp(-139 * abs(mut.selectionCoeff));
+        } else {
+            dom = h;
+        }
+        return 1.0 + dom * mut.selectionCoeff;
     }
 }
 
