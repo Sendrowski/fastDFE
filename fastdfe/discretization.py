@@ -514,10 +514,15 @@ class Discretization:
         K = np.arange(1, self.n)
 
         # chunk S-bins
-        chunk = 100
-        S_chunks = [self.bins[p:p + chunk] for p in range(0, len(self.bins), chunk)]
+        S_chunks = np.array_split(self.bins, int(np.ceil(len(self.bins) / 100)))
 
         def compute_slice(args):
+            """
+            Compute allele counts for given (i, j, c).
+
+            :param args: Tuple of (i, j, c) where i is allele count index, j is dominance index, c is S-chunk index
+            :return:
+            """
             i, j, c = args
             return H_h(n=self.n, k=K[i], S=S_chunks[c], h=[self.H[j]])
 
@@ -536,12 +541,8 @@ class Discretization:
             wrap_array=False
         )
 
-        # concatenate last axis using list comprehension
-
-
-        # reshape back and concatenate S chunks
-        P = P.reshape(self.n - 1, len(self.H), len(S_chunks), -1)
-        P = np.concatenate(P, axis=2)
+        P = np.concatenate(P, axis=1)
+        P = P.reshape(self.n - 1, len(self.H), -1)
 
         self._cache = (P[:, :, :-1] + P[:, :, 1:]) / 2 * self.interval_sizes
 
