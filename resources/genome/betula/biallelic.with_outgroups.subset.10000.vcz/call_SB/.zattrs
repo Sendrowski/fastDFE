@@ -1,0 +1,8 @@
+{
+    "_ARRAY_DIMENSIONS": [
+        "variants",
+        "samples",
+        "FORMAT_SB_dim"
+    ],
+    "description": "Per-sample component statistics which comprise the Fisher's Exact Test to detect strand bias."
+}
