@@ -1,10 +1,12 @@
+import time
+
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.special import hyp1f1
 from tqdm import tqdm
 
 from fastdfe import GammaExpParametrization, discretization
-from fastdfe.discretization import Discretization, prf_binom_integral_vec
+from fastdfe.discretization import Discretization, H_h
 from fastdfe.discretization import H, H_regularized
 from fastdfe.discretization import H_fixed, H_fixed_regularized
 from testing import TestCase
@@ -237,9 +239,10 @@ class DiscretizationTestCase(TestCase):
         plt.legend()
         plt.show()
 
-    def test_compare_with_poisson_random_field_dominance(self):
+    def test_compare_with_semidominant(self):
         """
-        Compare discretization with Poisson Random Field implementation.
+        Compare regularized allele counts with those obtained
+        from H_h for semi-dominant case (h = 0.5).
         """
         m = 5
         diff = np.zeros((3, m, 201))
@@ -251,7 +254,7 @@ class DiscretizationTestCase(TestCase):
             )
 
             for j, k in tqdm(enumerate(np.linspace(1, n - 1, m).astype(int)), total=m):
-                ys1 = prf_binom_integral_vec(n=d.n, k=k, S=d.s, h=[0.5])[0]
+                ys1 = H_h(n=d.n, k=k, S=d.s, h=[0.5])[0]
                 ys2 = d.get_allele_count_regularized(k=np.full_like(d.s, k), S=d.s)
 
                 diff[i,j] = (np.abs(ys1 - ys2) / (ys2 + 1e-10))
@@ -261,3 +264,67 @@ class DiscretizationTestCase(TestCase):
         self.assertLess(diff.mean(), 0.004)
         self.assertTrue((diff_max < np.array([0.02, 0.06, 0.3])).all())
         pass
+
+    def test_cache_dominance(self):
+        """
+        Test caching of dominance-specific allele counts.
+        """
+        d = Discretization(
+            n=10,
+            h=None,
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            intervals_h=(0.0, 1.0, 5)
+        )
+
+        d.precompute()
+
+        T = d.dfe_to_sfs
+        T2 = d.get_dfe_to_sfs(h=0.5)
+        T3 = d.get_dfe_to_sfs(h=0.5 - 1e-5)
+        T4 = d.get_dfe_to_sfs(h=0.5 + 1e-5)
+
+        diff = (np.abs(T2 - T) / (T + 1e-10))
+        diff_max = np.max(diff)
+        diff_mean = np.mean(diff)
+
+        self.assertLess(diff_max, 0.03)
+        self.assertLess(diff_mean, 1e-3)
+        self.assertLess((np.abs(T2 - T3) / (T2 + 1e-10)).max(), 0.01)
+        self.assertLess((np.abs(T2 - T4) / (T2 + 1e-10)).max(), 0.01)
+
+    def test_plot_over_h(self):
+        """
+        Plot allele counts over h.
+        """
+        d = Discretization(
+            n=10,
+            h=None,
+            intervals_ben=(1, 1000, 5),
+            intervals_del=(-1.0e+8, -1, 5),
+            intervals_h=(0.0, 1.0, 10)
+        )
+
+        hs = np.linspace(0, 1, 100)
+        counts = np.array([d.get_dfe_to_sfs(h=h) for h in hs]).transpose(1, 2, 0)
+
+        fig, ax = plt.subplots(
+            nrows=d.n // 3,
+            ncols=3,
+            figsize=(14, 10)
+        )
+        ax = ax.flatten()
+
+        for k in range(d.n - 1):
+            for j in range(d.s.shape[0]):
+                ax[k].plot(hs, counts[k, j], alpha=0.7, label=f"S={d.s[j]:.2f}", linewidth=2)
+            ax[k].set_ylabel("SFS count")
+            ax[k].set_xlabel("h")
+            ax[k].set_yscale("log")
+            ax[k].set_title(f"k={k+1}")
+
+        ax[0].legend(prop=dict(size=8))
+        fig.tight_layout()
+        plt.show()
+
+

@@ -8,8 +8,9 @@ __date__ = "2023-02-26"
 
 import logging
 from functools import cached_property, wraps
+from itertools import product
 from math import comb
-from typing import Literal, Sequence, Tuple
+from typing import Literal, Sequence, Tuple, Optional
 
 import mpmath as mp
 import numpy as np
@@ -55,7 +56,7 @@ def get_bins(intervals_del: tuple, intervals_ben: tuple) -> np.ndarray:
 
 def H(x, S):
     """
-    Allele frequency sojourn time. Note that this function is not used in practice.
+    Allele frequency sojourn times. Note that this function is not used in practice.
 
     :param S: Selection coefficient
     :param x: Allele frequency
@@ -97,7 +98,7 @@ def H_regularized(x, S: float | int | np.ndarray):
 
 def H_fixed(S: float | int | np.ndarray) -> float | int | np.ndarray:
     """
-    The sojourn time as x -> 1. Note that this function is not used in practice.
+    The sojourn time as x -> 1.
 
     :param S: Selection coefficient
     :return: Sojourn time as x -> 1
@@ -108,7 +109,6 @@ def H_fixed(S: float | int | np.ndarray) -> float | int | np.ndarray:
 def H_fixed_regularized(S: float | int | np.ndarray) -> float | int | np.ndarray:
     """
     As :func:`H_fixed` but replacing with the limits close to the limit points.
-    Note that this function is not used in practice.
 
     :param S: Selection coefficient
     :return: Sojourn time as x -> 1
@@ -142,6 +142,15 @@ def H_fixed_regularized(S: float | int | np.ndarray) -> float | int | np.ndarray
 
 
 def prf_binom_integral_dep(n: int, k: int, h: float, S: float, n_grid: int = 400) -> float:
+    """
+    TODO remove
+    :param n:
+    :param k:
+    :param h:
+    :param S:
+    :param n_grid:
+    :return:
+    """
     # grid
     x = np.linspace(0, 1, n_grid) ** 10
 
@@ -170,7 +179,7 @@ def prf_binom_integral_dep(n: int, k: int, h: float, S: float, n_grid: int = 400
     return float(np.trapz(integrand, x))
 
 
-def prf_binom_integral_vec(
+def H_h(
         n: int,
         k: int,
         h: np.ndarray,
@@ -180,7 +189,7 @@ def prf_binom_integral_vec(
         pow_cluster: int = 4
 ):
     """
-    Vectorized version of prf_binom_integral over S and h.
+    Allele frequency sojourn times under selection with specific dominance coefficients.
 
     :param n: Sample size.
     :param k: Allele count.
@@ -335,8 +344,10 @@ class Discretization:
     def __init__(
             self,
             n: int,
+            h: Optional[float] = 0.5,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
+            intervals_h: Tuple[float, float, int] = (0.0, 1.0, 100),
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             parallelize: bool = True,
@@ -344,15 +355,15 @@ class Discretization:
         """
         Create Discretization instance.
 
-        :return: Number of individuals
+        :param n: Number of individuals in the SFS sample.
+        :param h: Dominance coefficient if not varying, else `None`.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled selection coefficients.
         :param intervals_ben: ``(start, stop, n_interval)`` for beneficial population-scaled selection coefficients.
+        :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients.
         :param integration_mode : 'midpoint' or 'quad' for midpoint integration or Scipy's quad method.
-        :return: Whether to linearize the integral
-        :param parallelize: Whether to parallelize the computation of the discretization
+        :param linearized: Whether to use linearized integral or compute integral numerically in each iteration.
+        :param parallelize: Whether to parallelize the computation of the discretization.
         """
-        self.n = n
-
         # make sure lower bounds are lower than upper bounds
         if not intervals_del[0] < intervals_del[1] or not intervals_ben[0] < intervals_ben[1]:
             raise Exception('Lower intervals bounds must be lower than upper bounds.')
@@ -362,25 +373,40 @@ class Discretization:
             raise Exception('Bounds for S should within the interval [-1e10, 1e10] to avoid '
                             'unexpected numerical behavior.')
 
-        # bounds for discretizing DFE
-        self.intervals_del = intervals_del
-        self.intervals_ben = intervals_ben
+        #: SFS sample size
+        self.n: int = n
 
-        self.integration_mode = integration_mode
-        self.linearized = linearized
-        self.parallelize = parallelize
+        #: Dominance coefficient
+        self.h: float = h
+
+        # interval bounds for discretizing DFE
+        self.intervals_del: Tuple[float, float, int] = intervals_del
+        self.intervals_ben: Tuple[float, float, int] = intervals_ben
+
+        # interval bounds for discretizing dominance coefficients
+        self.intervals_h: Tuple[float, float, int] = intervals_h
+
+        self.integration_mode: Literal['midpoint', 'quad'] = integration_mode
+        self.linearized: bool = linearized
+        self.parallelize: bool = parallelize
 
         # iteration counter
-        self.n_it = 0
+        self.n_it: int = 0
 
         # define bins, midpoints and step size
         # these intervals are used when linearizing the integral
         # and when plotting the DFE
-        self.bins = get_bins(intervals_del, intervals_ben)
+        self.bins: np.ndarray = get_bins(intervals_del, intervals_ben)
         self.s, self.interval_sizes = get_midpoints_and_spacing(self.bins)
 
+        # dominance coefficients
+        self.H = np.linspace(*self.intervals_h)
+
         # the number of intervals
-        self.n_intervals = self.s.shape[0]
+        self.n_intervals: int = self.s.shape[0]
+
+        # cache for DFE to SFS transformations
+        self._cache: np.ndarray = None
 
     def get_dfe_to_sfs_midpoint(self) -> np.ndarray:
         """
@@ -454,7 +480,7 @@ class Discretization:
     @cached_property
     def dfe_to_sfs(self) -> np.ndarray:
         """
-        Linearized DFE to SFS transformation.
+        Linearized DFE to SFS transformation for ``h = 0.5``.
 
         :return: Matrix of size (n_intervals, n)
         """
@@ -466,6 +492,110 @@ class Discretization:
             return self.get_dfe_to_sfs_quad()
 
         raise NotImplementedError(f'Integration mode {self.integration_mode} not supported.')
+
+    def precompute(self):
+        """
+        Precompute DFE to SFS transformation.
+        """
+        if self.h == 0.5:
+            _ = self.dfe_to_sfs
+        elif self.h is None:
+            self.precompute_across_h()
+        else:
+            _ = self.dfe_to_sfs_h
+
+    @cached_property
+    def dfe_to_sfs_h(self):
+        """
+        Precompute DFE to SFS transformation for fixed dominance coefficient h.
+        """
+        logger.info(f'Precomputing linear DFE-SFS transformation for fixed h={self.h}.')
+
+        # we use midpoint integration
+        K = np.arange(1, self.n)
+
+        def compute_slice(i: int) -> np.ndarray:
+            """
+            Compute allele counts of a given multiplicity.
+
+            :param i: Multiplicity
+            :return: Discretized counts
+            """
+            return H_h(n=self.n, k=K[i], S=self.bins, h=[self.h])
+
+        # retrieve allele counts
+        P = parallelize_func(
+            func=compute_slice,
+            data=np.arange(self.n - 1),
+            parallelize=self.parallelize,
+            desc=f"{self.__class__.__name__}>Precomputing",
+            dtype=float
+        )
+
+        # take midpoint and multiply by interval size
+        return (P[:, 0, :-1] + P[:, 0, 1:]) / 2 * self.interval_sizes
+
+    def precompute_across_h(self):
+        """
+        Precompute DFE to SFS transformation across dominance coefficients.
+        """
+        logger.info('Precomputing DFE-SFS transformation across dominance coefficients.')
+
+        # we use midpoint integration
+        K = np.arange(1, self.n)
+
+        def compute_slice(args: list) -> np.ndarray:
+            """
+            Compute allele counts of a given multiplicity.
+
+            :param args: (i, j) tuple
+            :return: Discretized counts
+            """
+            i, j = args
+
+            return H_h(n=self.n, k=K[i], S=self.bins, h=[self.H[j]])
+
+        ij = list(product(range(self.n - 1), range(len(self.H))))
+
+        # retrieve allele counts
+        P = parallelize_func(
+            func=compute_slice,
+            data=ij,
+            parallelize=self.parallelize,
+            desc=f"{self.__class__.__name__}>Precomputing",
+            dtype=float
+        ).reshape(self.n - 1, len(self.H), -1)
+
+        # take midpoint and multiply by interval size
+        self._cache = (P[:, :, :-1] + P[:, :, 1:]) / 2 * self.interval_sizes
+
+    def get_dfe_to_sfs(self, h: float) -> np.ndarray:
+        """
+        Get DFE to SFS transformation for given dominance coefficient.
+        Interpolates linearly between precomputed values.
+
+        :param h: Dominance coefficient
+        :return: Matrix of size (n_intervals, n)
+        """
+        if h == 0.5:
+            return self.dfe_to_sfs
+
+        if h == self.h:
+            return self.dfe_to_sfs_h
+
+        # require h within precomputed range
+        if not (self.H[0] <= h <= self.H[-1]):
+            raise ValueError(f"h={h} is outside precomputed dominance range [{self.H[0]}, {self.H[-1]}].")
+
+        # find surrounding indices and weights
+        idx = np.searchsorted(self.H, h)
+        h0, h1 = self.H[idx - 1], self.H[idx]
+        w = (h - h0) / (h1 - h0)
+
+        # linear interpolation
+        interpolated = (1.0 - w) * self._cache[:, idx - 1, :] + w * self._cache[:, idx, :]
+
+        return interpolated
 
     @to_float
     def get_allele_count_large_negative_S(self, S: float | np.ndarray, k: float | np.ndarray) -> np.ndarray | float:
@@ -492,7 +622,7 @@ class Discretization:
     def get_allele_count(self, S: float | np.ndarray, k: float | np.ndarray) -> np.ndarray | float:
         """
         The number of counts in frequency class P(k) with
-        population-scaled selection coefficient S.
+        population-scaled selection coefficient S and h = 0.5.
         Binomial sampling is included here.
         See appendix of https://pubmed.ncbi.nlm.nih.gov/31975166
 
@@ -562,7 +692,7 @@ class Discretization:
 
             # get SFS from DFE using linearization
             # the interval sizes are already included here
-            counts_modelled = self.dfe_to_sfs @ dfe
+            counts_modelled = self.get_dfe_to_sfs(params['h']) @ dfe
         else:
             dfe_pdf = model.get_pdf(**params)
 

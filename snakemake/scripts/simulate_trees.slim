@@ -46,7 +46,10 @@ mutationEffect(m1) {
     if (homozygous) {
         return 1.0 + mut.selectionCoeff;
     } else {
-        if (demography == "dominance") {
+        if (strstarts(demography, "dominance_")) {
+            h = strsplit(demography, "_")[1];
+            dom = asFloat(h);
+        } else if (demography == "dominance") {
             dom = 0.4 * exp(-139 * abs(mut.selectionCoeff));
         } else {
             dom = 0.5;

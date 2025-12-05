@@ -20,6 +20,7 @@ try:
     testing = False
     sfs_file = snakemake.input[0]
     full_dfe = snakemake.params.get('full_dfe')
+    demography = snakemake.params.get('h', 0.5)
     out_summary = snakemake.output.summary
     out_serialized = snakemake.output.serialized
     out_dfe = snakemake.output.get('dfe', None)
@@ -31,6 +32,7 @@ except NameError:
     testing = True
     sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=5/s_d=3e-1/p_b=0/n=100/folded/sfs.csv'
     full_dfe = True
+    h = 0.5
     out_summary = "scratch/summary.json"
     out_serialized = "scratch/serialized.json"
     out_dfe = "scratch/dfe.png"
@@ -47,7 +49,7 @@ inf = fd.BaseInference(
     do_bootstrap=True,
     parallelize=True,
     n_runs=100,
-    fixed_params=dict(all=dict(eps=0) | (dict(p_b=0, S_b=1) if not full_dfe else {}))
+    fixed_params=dict(all=dict(eps=0, h=h) | (dict(p_b=0, S_b=1) if not full_dfe else {}))
 )
 
 # perform inference

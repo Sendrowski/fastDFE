@@ -74,17 +74,20 @@ class BaseInference(AbstractInference):
 
     #: Default parameters not connected to the DFE parametrization
     _default_x0 = dict(
-        eps=0.0
+        eps=0.0,
+        h=0.5
     )
 
     #: Default parameter bounds not connected to the DFE parametrization
     _default_bounds = dict(
-        eps=(0, 0.15)
+        eps=(0, 0.15),
+        h=(0, 1)
     )
 
     #: Default scales for the parameters not connected to the DFE parametrization
     _default_scales = dict(
-        eps='lin'
+        eps='lin',
+        h='lin'
     )
 
     #: Default options for the maximum likelihood optimization
@@ -99,6 +102,7 @@ class BaseInference(AbstractInference):
             sfs_sel: Spectra | Spectrum,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
+            intervals_h: Tuple[float, float, int] = (0.0, 1.0, 100),
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -125,14 +129,15 @@ class BaseInference(AbstractInference):
         Create BaseInference instance.
 
         :param sfs_neut: The neutral SFS. Note that we require monomorphic counts to be specified in order to infer
-            the mutation rate. If a :class:`~fastdfe.spectrum.Spectra` object with more than one SFS is provided, the ``all`` attribute will be
-            used.
+            the mutation rate. If a :class:`~fastdfe.spectrum.Spectra` object with more than one SFS is provided, the
+            ``all`` attribute will be used.
         :param sfs_sel: The selected SFS. Note that we require monomorphic counts to be specified in order to infer
-            the mutation rate. If a :class:`~fastdfe.spectrum.Spectra` object with more than one SFS is provided, the ``all`` attribute will be
-            used.
+            the mutation rate. If a :class:`~fastdfe.spectrum.Spectra` object with more than one SFS is provided, the
+            ``all`` attribute will be used.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
+        :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
         :param integration_mode: Integration mode for the DFE, ``quad`` not recommended
         :param linearized: Whether to use the linearized DFE, ``False`` not recommended
         :param model: Instance of DFEParametrization which parametrized the DFE
@@ -147,7 +152,7 @@ class BaseInference(AbstractInference):
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
         :param fixed_params: Parameters kept constant during optimization, given as ``{'all': {param: value}}``.
-            By default, the ancestral misidentification rate `eps` is fixed to zero, and the DFE
+            By default, the ancestral misidentification rate `eps` is fixed to zero, `h` to 0.5, and the DFE
             parameters are fixed so that only the deleterious component of the DFE is estimated.
         :param do_bootstrap: Whether to do bootstrapping.
         :param n_bootstraps: Number of bootstraps.
@@ -213,13 +218,31 @@ class BaseInference(AbstractInference):
                 f"information over moderate sample sizes and don't necessarily improve DFE inference."
             )
 
+        if fixed_params is None:
+            fixed_params = {'all': {'eps': 0, 'h': 0.5} | self.model.submodels['dele']}
+
+        if fixed_params == {}:
+            fixed_params = {'all': {}}
+
+        if 'all' not in fixed_params:
+            raise ValueError("Fixed parameters must include an 'all' entry.")
+
+        # expand 'all' type
+        #: Fixed parameters
+        self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, ['all'])
+
+        # check that the fixed parameters are valid
+        self.check_fixed_params_exist()
+
         if discretization is None:
             # create discretization instance
             #: Discretization instance
             self.discretization: Discretization = Discretization(
                 n=self.n,
+                h=self.fixed_params['all'].get('h', None),
                 intervals_del=intervals_del,
                 intervals_ben=intervals_ben,
+                intervals_h=intervals_h,
                 integration_mode=integration_mode,
                 linearized=linearized,
                 parallelize=parallelize
@@ -271,16 +294,6 @@ class BaseInference(AbstractInference):
 
         #: Whether to parallelize computations
         self.parallelize: bool = parallelize
-
-        if fixed_params is None:
-            fixed_params = {'all': {'eps': 0} | self.model.submodels['dele']}
-
-        # expand 'all' type
-        #: Fixed parameters
-        self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, ['all'])
-
-        # check that the fixed parameters are valid
-        self.check_fixed_params_exist()
 
         #: parameter scales
         self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = self.model.scales | self._default_scales | scales
@@ -447,11 +460,8 @@ class BaseInference(AbstractInference):
                            'independently initialized samples which are run ' +
                            ('in parallel.' if self.parallelize else 'sequentially.'))
 
-        # Access cached property to trigger potential pre-computation
-        # of linearization. This is necessary if the optimization is
-        # parallelized so that the pre-computation does not have to be
-        # performed in each thread.
-        _ = self.discretization.dfe_to_sfs
+        # precompute discretization
+        self.discretization.precompute()
 
         # perform numerical minimization
         result, params_mle = self.optimization.run(
@@ -1691,7 +1701,7 @@ class BaseInference(AbstractInference):
 
         :return: List of parameter names.
         """
-        return self.model.param_names + ['eps']
+        return self.model.param_names + ['eps', 'h']
 
     def _set_fixed_params(self, params: Dict[str, Dict[str, float]]):
         """
