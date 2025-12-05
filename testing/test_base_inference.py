@@ -1,5 +1,6 @@
 import copy
 import logging
+import resource
 from abc import ABC
 from unittest import mock
 
@@ -1277,6 +1278,28 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf.run()
 
         inf.plot_discretized()
+
+    def test_infer_dfe_with_fixed_h_memory_consumption(self):
+        """
+        Test whether fixing h to a value works as expected.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            fixed_params={'all': {'h': 0.25, 'S_b': 1, 'p_b': 0, 'eps': 0}},
+            parallelize=False,
+            do_bootstrap=True,
+            n_bootstraps=50,
+            n_runs=10
+        )
+
+        inf.run()
+
+        mem_gb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 ** 3
+
+        pass
 
     def test_infer_h(self):
         """

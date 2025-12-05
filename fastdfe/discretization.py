@@ -205,10 +205,10 @@ def H_h(
     S = np.asarray(S)
 
     # x-grid (same as your scalar code)
-    x = np.linspace(0, 1, n_outer) ** pow_cluster  # (n_grid,)
+    x = np.linspace(0, 1, n_outer) ** pow_cluster  # (n_outer,)
 
     # binomial term
-    binom = comb(n, k) * x ** (k - 1) * (1 - x) ** (n - k - 1)  # (n_grid,)
+    binom = comb(n, k) * x ** (k - 1) * (1 - x) ** (n - k - 1)  # (n_outer,)
 
     # result array
     y = np.empty((h.size, S.size), dtype=float)  # (H, P)
@@ -222,17 +222,17 @@ def H_h(
 
         # q-grid from x to 1
         xx = x[:, None, None, None] + (1 - x)[:, None, None, None] * t[None, None, None, :]
-        xx = np.broadcast_to(xx, (n_outer, h.size, p1, n_inner))  # (n_grid, H, P1, n_inner)
+        xx = np.broadcast_to(xx, (n_outer, h.size, p1, n_inner))  # (n_outer, H, P1, n_inner)
 
         H4 = h[None, :, None, None]  # (1, H, 1, 1)
         SN4 = S_neg[None, None, :, None]  # (1, 1, P1, 1)
 
-        exponent = -2 * SN4 * H4 * xx - SN4 * (1 - 2 * H4) * xx ** 2  # (n_grid, H, P1, n_inner)
+        exponent = -2 * SN4 * H4 * xx - SN4 * (1 - 2 * H4) * xx ** 2  # (n_outer, H, P1, n_inner)
 
         max_exp = exponent.max(axis=(0, 3), keepdims=True)  # (1, H, P1, 1)
-        exp_shift = np.exp(exponent - max_exp)  # (n_grid, H, P1, n_inner)
 
-        norm_q = np.trapz(exp_shift, xx, axis=3)  # (n_grid, H, P1)
+        norm_q = np.trapz(np.exp(exponent - max_exp), xx, axis=3)  # (n_outer, H, P1)
+        del exponent, xx
         norm0 = norm_q[0]  # (H, P1)
 
         H3 = h[None, :, None]  # (1, H, 1)
@@ -241,11 +241,11 @@ def H_h(
         exponent_main = np.exp(
             2 * SN3 * H3 * x[:, None, None] +
             SN3 * (1 - 2 * H3) * x[:, None, None] ** 2
-        )  # (n_grid, H, P1)
+        )  # (n_outer, H, P1)
 
-        ratio = norm_q / norm0  # (n_grid, H, P1)
+        ratio = norm_q / norm0  # (n_outer, H, P1)
 
-        integrand = binom[:, None, None] * exponent_main * ratio  # (n_grid, H, P1)
+        integrand = binom[:, None, None] * exponent_main * ratio  # (n_outer, H, P1)
 
         y[:, is_deleterious] = np.trapz(integrand, x, axis=0)  # (H, P1)
 
@@ -264,16 +264,17 @@ def H_h(
 
         t = np.linspace(0, 1, n_inner) ** 5  # (n_inner,)
         xx = x[:, None, None, None] + (1 - x)[:, None, None, None] * t[None, None, None, :]
-        xx = np.broadcast_to(xx, (n_outer, h.size, p2, n_inner))  # (n_grid, H, P2, n_inner)
+        xx = np.broadcast_to(xx, (n_outer, h.size, p2, n_inner))  # (n_outer, H, P2, n_inner)
 
-        X = x[:, None, None, None]  # (n_grid, 1, 1, 1)
+        X = x[:, None, None, None]  # (n_outer, 1, 1, 1)
         H4b = h[None, :, None, None]  # (1, H, 1, 1)
         SP4b = S_pos[None, None, :, None]  # (1, 1, P2, 1)
 
-        term = SP4b * (X - xx) * ((1 - 2 * H4b) * (X + xx) + 2 * H4b)  # (n_grid, H, P2, n_inner)
-        c = np.trapz(np.exp(term), xx, axis=3)  # (n_grid, H, P2)
+        term = SP4b * (X - xx) * ((1 - 2 * H4b) * (X + xx) + 2 * H4b)  # (n_outer, H, P2, n_inner)
+        c = np.trapz(np.exp(term), xx, axis=3)  # (n_outer, H, P2)
+        del term, xx
 
-        integrand = binom[:, None, None] * c / norm0  # (n_grid, H, P2)
+        integrand = binom[:, None, None] * c / norm0  # (n_outer, H, P2)
 
         y[:, ~is_deleterious] = np.trapz(integrand, x, axis=0)  # (H, P2)
 
@@ -399,8 +400,11 @@ class Discretization:
         self.bins: np.ndarray = get_bins(intervals_del, intervals_ben)
         self.s, self.interval_sizes = get_midpoints_and_spacing(self.bins)
 
-        # dominance coefficients
-        self.H = np.linspace(*self.intervals_h)
+        # grid of dominance coefficients
+        if h is None:
+            self.H = np.linspace(*self.intervals_h)
+        else:
+            self.H = np.array([h])
 
         # the number of intervals
         self.n_intervals: int = self.s.shape[0]
@@ -495,51 +499,17 @@ class Discretization:
 
     def precompute(self):
         """
-        Precompute DFE to SFS transformation.
-        """
-        if self.h == 0.5:
-            _ = self.dfe_to_sfs
-        elif self.h is None:
-            self.precompute_across_h()
-        else:
-            _ = self.dfe_to_sfs_h
-
-    @cached_property
-    def dfe_to_sfs_h(self):
-        """
-        Precompute DFE to SFS transformation for fixed dominance coefficient h.
-        """
-        logger.info(f'Precomputing linear DFE-SFS transformation for fixed h={self.h}.')
-
-        # we use midpoint integration
-        K = np.arange(1, self.n)
-
-        def compute_slice(i: int) -> np.ndarray:
-            """
-            Compute allele counts of a given multiplicity.
-
-            :param i: Multiplicity
-            :return: Discretized counts
-            """
-            return H_h(n=self.n, k=K[i], S=self.bins, h=[self.h])
-
-        # retrieve allele counts
-        P = parallelize_func(
-            func=compute_slice,
-            data=np.arange(self.n - 1),
-            parallelize=self.parallelize,
-            desc=f"{self.__class__.__name__}>Precomputing",
-            dtype=float
-        )
-
-        # take midpoint and multiply by interval size
-        return (P[:, 0, :-1] + P[:, 0, 1:]) / 2 * self.interval_sizes
-
-    def precompute_across_h(self):
-        """
         Precompute DFE to SFS transformation across dominance coefficients.
         """
-        logger.info('Precomputing DFE-SFS transformation across dominance coefficients.')
+        # compute special case h = 0.5
+        if self.h == 0.5:
+            _ = self.dfe_to_sfs
+            return
+
+        if self.h is None:
+            logger.info('Precomputing DFE-SFS transformation across dominance coefficients.')
+        else:
+            logger.info(f'Precomputing DFE-SFS transformation for fixed h={self.h}.')
 
         # we use midpoint integration
         K = np.arange(1, self.n)
@@ -578,8 +548,7 @@ class Discretization:
         :return: Matrix of size (n_intervals, n)
         """
         if (
-                self._cache is None or
-                self.__dict__.get('dfe_to_sfs_h', None) is None or
+                self._cache is None and
                 self.__dict__.get('dfe_to_sfs', None) is None
         ):
             self.precompute()
@@ -587,8 +556,8 @@ class Discretization:
         if h == 0.5:
             return self.dfe_to_sfs
 
-        if h == self.h:
-            return self.dfe_to_sfs_h
+        if len(self.H) == 1:
+            return self._cache[:, 0, :]
 
         # require h within precomputed range
         if not (self.H[0] <= h <= self.H[-1]):
