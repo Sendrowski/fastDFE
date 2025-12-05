@@ -33,7 +33,8 @@ def parallelize(
         parallelize: bool = True,
         pbar: bool = None,
         desc: str = None,
-        dtype: type = object
+        dtype: type = object,
+        wrap_array: bool = True
 ) -> np.ndarray:
     """
     Parallelize given function or execute sequentially.
@@ -44,6 +45,7 @@ def parallelize(
     :param pbar: Whether to show a progress bar
     :param desc: Description for progress bar
     :param dtype: Data type of the returned array
+    :param wrap_array: Whether to wrap the result in a numpy array
     :return: List of results
     """
     n = len(data)
@@ -59,7 +61,10 @@ def parallelize(
     if pbar is True or (pbar is None and n > 1):
         iterator = tqdm(iterator, total=n, disable=Settings.disable_pbar, desc=desc)
 
-    return np.array(list(iterator), dtype=dtype)
+    if wrap_array:
+        return np.array(list(iterator), dtype=dtype)
+
+    return list(iterator)
 
 
 def flatten_dict(d: dict, separator='.', prefix=''):

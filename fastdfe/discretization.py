@@ -511,32 +511,38 @@ class Discretization:
         else:
             logger.info(f'Precomputing DFE-SFS transformation for fixed h={self.h}.')
 
-        # we use midpoint integration
         K = np.arange(1, self.n)
 
-        def compute_slice(args: list) -> np.ndarray:
-            """
-            Compute allele counts of a given multiplicity.
+        # chunk S-bins
+        chunk = 100
+        S_chunks = [self.bins[p:p + chunk] for p in range(0, len(self.bins), chunk)]
 
-            :param args: (i, j) tuple
-            :return: Discretized counts
-            """
-            i, j = args
+        def compute_slice(args):
+            i, j, c = args
+            return H_h(n=self.n, k=K[i], S=S_chunks[c], h=[self.H[j]])
 
-            return H_h(n=self.n, k=K[i], S=self.bins, h=[self.H[j]])
+        ijc = product(
+            range(self.n - 1),
+            range(len(self.H)),
+            range(len(S_chunks))
+        )
 
-        ij = list(product(range(self.n - 1), range(len(self.H))))
-
-        # retrieve allele counts
         P = parallelize_func(
             func=compute_slice,
-            data=ij,
+            data=list(ijc),
             parallelize=self.parallelize,
             desc=f"{self.__class__.__name__}>Precomputing",
-            dtype=float
-        ).reshape(self.n - 1, len(self.H), -1)
+            dtype=float,
+            wrap_array=False
+        )
 
-        # take midpoint and multiply by interval size
+        # concatenate last axis using list comprehension
+
+
+        # reshape back and concatenate S chunks
+        P = P.reshape(self.n - 1, len(self.H), len(S_chunks), -1)
+        P = np.concatenate(P, axis=2)
+
         self._cache = (P[:, :, :-1] + P[:, :, 1:]) / 2 * self.interval_sizes
 
     def get_dfe_to_sfs(self, h: float) -> np.ndarray:
