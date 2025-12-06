@@ -8,7 +8,7 @@ import numpy as np
 import scipy.special as sp
 from matplotlib import pyplot as plt
 
-from fastdfe import discretization
+from fastdfe.discretization import Discretization
 
 
 def integral(S, h, x):
@@ -38,7 +38,7 @@ def f(x, S, h):
 
 comp = {}
 for (x, S) in [(0.1, 1)]:
-    comp[(x, S)] = (f(x=x, S=S, h=0.6), discretization.H_regularized(x=x, S=S))
+    comp[(x, S)] = (f(x=x, S=S, h=0.6), Discretization.get_counts_high_precision_regularized(x=x, S=S))
 
 
 def plot_surface(ax: plt.Axes, func: Callable, title: str):
@@ -78,7 +78,7 @@ plot_surface(ax1, lambda x, S: f(x, S, h=0.6), title="f(x, S, h=0.6)")
 
 # Second subplot for discretization.H_regularized
 ax2 = fig.add_subplot(122, projection='3d')
-plot_surface(ax2, discretization.H_regularized, title="discretization.H_regularized")
+plot_surface(ax2, Discretization.get_counts_high_precision_regularized, title="discretization.H_regularized")
 
 plt.tight_layout()
 plt.show()

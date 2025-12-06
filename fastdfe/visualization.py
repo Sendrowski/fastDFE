@@ -261,13 +261,13 @@ class Visualization:
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`.
         :return: Axes
         """
-        from .discretization import get_midpoints_and_spacing
+        from .discretization import Discretization
 
         n_bins = len(bins) - 1
         n_dfes = len(values)
 
         # get interval sizes
-        _, interval_sizes = get_midpoints_and_spacing(bins)
+        _, interval_sizes = Discretization.get_midpoints_and_spacing(bins)
 
         for i in range(n_dfes):
             x = np.arange(n_bins)

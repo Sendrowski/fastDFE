@@ -7,9 +7,7 @@ from scipy.special import hyp1f1
 from tqdm import tqdm
 
 from fastdfe import GammaExpParametrization, discretization
-from fastdfe.discretization import Discretization, H_h
-from fastdfe.discretization import H, H_regularized
-from fastdfe.discretization import H_fixed, H_fixed_regularized
+from fastdfe.discretization import Discretization
 from testing import TestCase
 
 
@@ -70,7 +68,7 @@ class DiscretizationTestCase(TestCase):
         assert diff < 1
 
         model = GammaExpParametrization()
-        params = GammaExpParametrization.x0
+        params = GammaExpParametrization.x0 | {'h': 0.5}
 
         sfs_quad = d_quad.model_selection_sfs(model, params)
         sfs_mid = d_midpoint.model_selection_sfs(model, params)
@@ -84,7 +82,7 @@ class DiscretizationTestCase(TestCase):
         Compare precomputed linearization using scipy's quad with ad hoc integration.
         """
         model = GammaExpParametrization()
-        params = GammaExpParametrization.x0
+        params = GammaExpParametrization.x0 | {'h': 0.5}
 
         opts = dict(
             n=self.n,
@@ -111,8 +109,8 @@ class DiscretizationTestCase(TestCase):
         fig.tight_layout(pad=4)
 
         for ax in axs:
-            ax.plot(np.abs(s), H(0.95, s), label='H(s)')
-            ax.plot(np.abs(s), H_regularized(0.95, s), label='$H_{reg}(s)$')
+            ax.plot(np.abs(s), Discretization.get_counts_high_precision(0.95, s), label='H(s)')
+            ax.plot(np.abs(s), Discretization.get_counts_high_precision_regularized(0.95, s), label='$H_{reg}(s)$')
 
             s = -s
 
@@ -155,7 +153,7 @@ class DiscretizationTestCase(TestCase):
         K = k[None, :] * I
 
         y_scipy = hyp1f1(K, self.n, S)
-        y_mpmath = discretization.hyp1f1(K, self.n, S)
+        y_mpmath = Discretization.hyp1f1(K, self.n, S)
 
         assert self.diff_rel_max_abs(y_scipy, y_mpmath) < 1e-11
 
@@ -217,8 +215,8 @@ class DiscretizationTestCase(TestCase):
             intervals_del=(-1000000, -1.0e-15, 1000)
         )
 
-        plt.plot(np.arange(len(d.s)), H_fixed_regularized(d.s), alpha=0.5, label='regularized')
-        plt.plot(np.arange(len(d.s)), H_fixed(d.s), alpha=0.5, label='normal')
+        plt.plot(np.arange(len(d.s)), d.get_counts_fixed_regularized(d.s), alpha=0.5, label='regularized')
+        plt.plot(np.arange(len(d.s)), d.get_counts_fixed(d.s), alpha=0.5, label='normal')
 
         plt.legend()
         plt.show()
@@ -234,9 +232,9 @@ class DiscretizationTestCase(TestCase):
             intervals_del=(-1000000, -1.0e-15, 0)
         )
 
-        plt.plot(np.arange(len(d.s)), H_fixed_regularized(d.s), alpha=0.5,
+        plt.plot(np.arange(len(d.s)), d.get_counts_fixed_regularized(d.s), alpha=0.5,
                  label='positive regularized')
-        plt.plot(np.arange(len(d.s)), H_fixed(d.s), alpha=0.5, label='positive normal')
+        plt.plot(np.arange(len(d.s)), d.get_counts_fixed(d.s), alpha=0.5, label='positive normal')
 
         plt.legend()
         plt.show()
@@ -256,7 +254,7 @@ class DiscretizationTestCase(TestCase):
             )
 
             for j, k in tqdm(enumerate(np.linspace(1, n - 1, m).astype(int)), total=m):
-                ys1 = H_h(n=d.n, k=k, S=d.s, h=[0.5])[0]
+                ys1 = d._get_counts_dominant(n=d.n, k=k, S=d.s, h=[0.5])[0]
                 ys2 = d.get_counts_semidominant_regularized(k=np.full_like(d.s, k), S=d.s)
 
                 diff[i,j] = (np.abs(ys1 - ys2) / (ys2 + 1e-10))
@@ -280,7 +278,7 @@ class DiscretizationTestCase(TestCase):
             parallelize=False
         )
 
-        with patch.object(d, "_get_counts_dominant", wraps=d._get_counts_dominant) as spy:
+        with patch.object(d, "get_counts_dominant_grid", wraps=d.get_counts_dominant_grid) as spy:
             d.precompute()
             spy.assert_called()
 

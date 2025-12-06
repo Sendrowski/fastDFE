@@ -299,6 +299,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inference_log = fd.BaseInference(
             sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
             sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            fixed_params=dict(all=dict(h=0.5)),
             model=model,
             do_bootstrap=True,
             n_runs=10
@@ -316,6 +317,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inference_lin = fd.BaseInference(
             sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
             sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            fixed_params=dict(all=dict(h=0.5)),
             model=model,
             do_bootstrap=True,
             n_runs=10
@@ -825,11 +827,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         config = fd.Config.from_file(self.config_file)
 
-        assert fd.BaseInference.from_config(config).get_n_optimized() == 5
+        assert fd.BaseInference.from_config(config).get_n_optimized() == 6
 
         config.data['fixed_params'] = dict(all=dict(S_b=1, p_b=0))
 
-        assert fd.BaseInference.from_config(config).get_n_optimized() == 3
+        assert fd.BaseInference.from_config(config).get_n_optimized() == 4
 
     def test_non_existing_fixed_param_raises_error(self):
         """
@@ -961,7 +963,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
-            fixed_params=dict(all=dict(S_b=1, p_b=0))
+            fixed_params=dict(all=dict(S_b=1, p_b=0, h=0.5))
         )
 
         inf.plot_discretized()
@@ -977,7 +979,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
-            fixed_params=dict(all=dict(S_b=1, p_b=0))
+            fixed_params=dict(all=dict(S_b=1, p_b=0, h=0.5))
         )
 
         inf.plot_discretized()
@@ -993,7 +995,8 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inf = fd.BaseInference(
             sfs_neut=sfs_neut,
-            sfs_sel=sfs_sel
+            sfs_sel=sfs_sel,
+            fixed_params=dict(all=dict(h=0.5)),
         )
 
         inf.run()
@@ -1020,6 +1023,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
+            fixed_params=dict(all=dict(h=0.5)),
             loss_type='L2',
             do_bootstrap=True,
             n_bootstraps=5
@@ -1079,7 +1083,8 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inf_float = fd.BaseInference(
             sfs_neut=sfs_neut,
-            sfs_sel=sfs_sel
+            sfs_sel=sfs_sel,
+            fixed_params=dict(all=dict(h=0.5)),
         )
 
         inf_float.run()
@@ -1087,6 +1092,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf_int = fd.BaseInference(
             sfs_neut=fd.Spectrum(sfs_neut.data.astype(int)),
             sfs_sel=fd.Spectrum(sfs_sel.data.astype(int)),
+            fixed_params=dict(all=dict(h=0.5)),
         )
 
         inf_int.run()
@@ -1132,6 +1138,7 @@ class BaseInferenceTestCase(InferenceTestCase):
             inf = fd.BaseInference(
                 sfs_neut=sfs * m,
                 sfs_sel=sfs * m,
+                fixed_params=dict(all=dict(h=0.5)),
                 seed=42,
                 model=fd.DiscreteFractionalParametrization(
                     intervals=np.array([-100000, -0.1, 0.1, 10000])
@@ -1143,6 +1150,23 @@ class BaseInferenceTestCase(InferenceTestCase):
             # check that DFE is very neutral
             self.assertAlmostEqual(1, inf.get_discretized(intervals=np.array([-100000, -0.1, 0.1, 10000]))[0][1])
 
+    def test_infer_strongly_beneficial_selection_target_sites(self):
+        """
+        Test whether we infer a strongly beneficial DFE when there is strong selection.
+        """
+        # use different mutational target sizes
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum.standard_kingman(10, n_monomorphic=100),
+            sfs_sel=fd.Spectrum.standard_kingman(10, n_monomorphic=10),
+            fixed_params=dict(all=dict(h=0.5)),
+            seed=42
+        )
+
+        inf.run()
+
+        # check that DFE is very weakly beneficial
+        self.assertGreaterEqual(inf.get_discretized()[0][-1], 0.4)
+
     def test_infer_strongly_deleterious_selection_target_sites(self):
         """
         Test whether we infer a strongly deleterious DFE when there is strong selection.
@@ -1151,6 +1175,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=fd.Spectrum.standard_kingman(10, n_monomorphic=100),
             sfs_sel=fd.Spectrum.standard_kingman(10, n_monomorphic=1000),
+            fixed_params=dict(all=dict(h=0.5)),
             seed=42
         )
 
@@ -1175,6 +1200,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
+            fixed_params=dict(all=dict(h=0.5)),
             seed=42
         )
 
@@ -1182,22 +1208,6 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         # check that DFE is very deleterious
         self.assertAlmostEqual(1, inf.get_discretized(np.array([-np.inf, -1, np.inf]))[0][0])
-
-    def test_infer_beneficial_selection_target_sites(self):
-        """
-        Test whether we infer a weakly beneficial DFE when there is weak selection.
-        """
-        # use different mutational target sizes
-        inf = fd.BaseInference(
-            sfs_neut=fd.Spectrum.standard_kingman(10, n_monomorphic=100),
-            sfs_sel=fd.Spectrum.standard_kingman(10, n_monomorphic=10),
-            seed=42
-        )
-
-        inf.run()
-
-        # check that DFE is very weakly beneficial
-        self.assertGreaterEqual(inf.get_discretized()[0][-1], 0.4)
 
     def test_alternative_optimizer(self):
         """
