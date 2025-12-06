@@ -1677,6 +1677,22 @@ class BaseInference(AbstractInference):
 
         return cls.from_config(Config.from_file(file, cache=cache))
 
+    @classmethod
+    def from_file(cls, file: str, classes=None) -> Self:
+        """
+        Load object from file.
+
+        :param classes: Classes to be used for unserialization
+        :param file: File to load from
+        """
+        inf: BaseInference = super().from_file(file, classes=classes)
+
+        # precompute discretization cache if necessary to ensure backwards compatibility
+        if not hasattr(inf.discretization, '_cache'):
+            inf.discretization.precompute()
+
+        return inf
+
     def get_summary(self) -> 'InferenceResults':
         """
         Get summary.

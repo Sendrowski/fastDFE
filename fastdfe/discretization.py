@@ -55,6 +55,12 @@ class Discretization:
     Class for discretizing the integral mapping the DFE to the expected SFS.
     """
 
+    #: Dominance coefficient, static to ensure backward compatibility
+    h: float = 0.5
+
+    #: Grid of dominance coefficients, static to ensure backward compatibility
+    grid_h: np.ndarray = np.array([0.5])
+
     def __init__(
             self,
             n: int,
@@ -404,7 +410,8 @@ class Discretization:
         :param h: Dominance coefficient
         :return: Matrix of size (n_intervals, n)
         """
-        if self._cache is None:
+        # check for attribute to ensure backwards compatibility
+        if not hasattr(self, "_cache") or self._cache is None:
             self.precompute()
 
         if len(self.grid_h) == 1:

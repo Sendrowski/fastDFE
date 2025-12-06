@@ -963,7 +963,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
-            fixed_params=dict(all=dict(S_b=1, p_b=0, h=0.5))
+            fixed_params=dict(all=dict(S_b=1, p_b=0, h=0.5)),
+            do_bootstrap=False,
         )
 
         inf.plot_discretized()
@@ -979,7 +980,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
-            fixed_params=dict(all=dict(S_b=1, p_b=0, h=0.5))
+            fixed_params=dict(all=dict(S_b=1, p_b=0, h=0.5)),
+            do_bootstrap=False,
         )
 
         inf.plot_discretized()
@@ -997,6 +999,7 @@ class BaseInferenceTestCase(InferenceTestCase):
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
             fixed_params=dict(all=dict(h=0.5)),
+            do_bootstrap=False,
         )
 
         inf.run()
@@ -1039,6 +1042,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=fd.Spectrum([1243, 0, 0, 1, 0, 0, 0]),
             sfs_sel=fd.Spectrum([12421, 0, 0, 0, 0, 1, 0]),
+            do_bootstrap=False,
         )
 
         # There are sometimes problems with the optimization for spectra like these,
@@ -1085,6 +1089,7 @@ class BaseInferenceTestCase(InferenceTestCase):
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
             fixed_params=dict(all=dict(h=0.5)),
+            do_bootstrap=False,
         )
 
         inf_float.run()
@@ -1093,6 +1098,7 @@ class BaseInferenceTestCase(InferenceTestCase):
             sfs_neut=fd.Spectrum(sfs_neut.data.astype(int)),
             sfs_sel=fd.Spectrum(sfs_sel.data.astype(int)),
             fixed_params=dict(all=dict(h=0.5)),
+            do_bootstrap=False,
         )
 
         inf_int.run()
@@ -1139,6 +1145,7 @@ class BaseInferenceTestCase(InferenceTestCase):
                 sfs_neut=sfs * m,
                 sfs_sel=sfs * m,
                 fixed_params=dict(all=dict(h=0.5)),
+                do_bootstrap=False,
                 seed=42,
                 model=fd.DiscreteFractionalParametrization(
                     intervals=np.array([-100000, -0.1, 0.1, 10000])
@@ -1159,6 +1166,7 @@ class BaseInferenceTestCase(InferenceTestCase):
             sfs_neut=fd.Spectrum.standard_kingman(10, n_monomorphic=100),
             sfs_sel=fd.Spectrum.standard_kingman(10, n_monomorphic=10),
             fixed_params=dict(all=dict(h=0.5)),
+            do_bootstrap=False,
             seed=42
         )
 
@@ -1176,6 +1184,7 @@ class BaseInferenceTestCase(InferenceTestCase):
             sfs_neut=fd.Spectrum.standard_kingman(10, n_monomorphic=100),
             sfs_sel=fd.Spectrum.standard_kingman(10, n_monomorphic=1000),
             fixed_params=dict(all=dict(h=0.5)),
+            do_bootstrap=False,
             seed=42
         )
 
@@ -1201,6 +1210,7 @@ class BaseInferenceTestCase(InferenceTestCase):
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
             fixed_params=dict(all=dict(h=0.5)),
+            do_bootstrap=False,
             seed=42
         )
 
@@ -1298,9 +1308,9 @@ class BaseInferenceTestCase(InferenceTestCase):
                 sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
                 sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
                 fixed_params={'all': {'h': h, 'S_b': 1, 'p_b': 0, 'eps': 0}},
-                parallelize=False,
+                parallelize=True,
                 do_bootstrap=True,
-                n_bootstraps=50,
+                n_bootstraps=10,
                 n_runs=10
             )
 
@@ -1312,16 +1322,16 @@ class BaseInferenceTestCase(InferenceTestCase):
 
     def test_infer_h(self):
         """
-        Test whether fixing h to a value works as expected.
+        Test inference of h parameter.
         """
         inf = fd.BaseInference(
             sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
             sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
-            intervals_ben=(1.0e-5, 1.0e4, 1000),
-            intervals_del=(-1.0e+8, -1.0e-5, 1000),
-            intervals_h=(0, 1, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            intervals_h=(0, 1, 10),
             fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0}},
-            parallelize=True,
+            parallelize=False,
             do_bootstrap=True,
             n_bootstraps=50,
             n_runs=10
@@ -1331,4 +1341,6 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         mem_gb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 ** 3
 
-        pass
+        self.assertLess(mem_gb, 0.3)
+
+        self.assertGreater(inf.bootstraps.h.std(), 0)

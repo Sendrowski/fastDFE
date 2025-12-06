@@ -159,7 +159,10 @@ class Config:
         fixed_params, x0 = parse_init_file(_from_string(self.data['model']).param_names, file, id)
 
         # merge with existing config
-        self.data['fixed_params'] = merge_dicts(self.data['fixed_params'], dict(all=fixed_params))
+        self.data['fixed_params'] = merge_dicts(
+            self.data['fixed_params'] if isinstance(self.data['fixed_params'], dict) else {},
+            dict(all=fixed_params)
+        )
         self.data['x0'] |= {type: x0}
 
     def create_polydfe_init_file(self, file: str, n: int, type: str = 'all'):
