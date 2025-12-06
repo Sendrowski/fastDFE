@@ -487,9 +487,9 @@ class Discretization:
 
         return P.T
 
-    def get_dfe_to_sfs(self) -> np.ndarray:
+    def get_dfe_to_sfs_semidominant(self) -> np.ndarray:
         """
-        Linearized DFE to SFS transformation for `h = 0.5`.
+        Linearized DFE to SFS transformation for `h = 0.5` using special formula.
 
         :return: Matrix of size (n_intervals, n)
         :raises NotImplementedError: If integration mode is not supported.
@@ -509,7 +509,7 @@ class Discretization:
         """
         # compute special case h = 0.5
         if self.h == 0.5:
-            self._cache = self.get_dfe_to_sfs()
+            self._cache = np.array([self.get_dfe_to_sfs_semidominant()])
             return
 
         if self.h is None:
@@ -560,10 +560,7 @@ class Discretization:
         :param h: Dominance coefficient
         :return: Matrix of size (n_intervals, n)
         """
-        if (
-                self._cache is None and
-                self.__dict__.get('dfe_to_sfs', None) is None
-        ):
+        if self._cache is None:
             self.precompute()
 
         if len(self.H) == 1:
