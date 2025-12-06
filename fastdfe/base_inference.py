@@ -165,7 +165,7 @@ class BaseInference(AbstractInference):
             SFS appear to be folded.
         :param discretization: Discretization instance. Mainly intended for internal use.
         :param optimization: Optimization instance. Mainly intended for internal use.
-        :param locked: Whether to lock the instance.
+        :param locked: Whether inferences can be run from the class itself. Used internally.
         :param kwargs: Additional keyword arguments which are ignored.
         """
         super().__init__()
@@ -1676,22 +1676,6 @@ class BaseInference(AbstractInference):
         from . import Config
 
         return cls.from_config(Config.from_file(file, cache=cache))
-
-    @classmethod
-    def from_file(cls, file: str, classes=None) -> Self:
-        """
-        Load object from file.
-
-        :param classes: Classes to be used for unserialization
-        :param file: File to load from
-        """
-        inf: BaseInference = super().from_file(file, classes=classes)
-
-        # precompute discretization cache if necessary to ensure backwards compatibility
-        if not hasattr(inf.discretization, '_cache'):
-            inf.discretization.precompute()
-
-        return inf
 
     def get_summary(self) -> 'InferenceResults':
         """

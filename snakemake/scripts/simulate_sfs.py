@@ -65,6 +65,8 @@ sim = fd.Simulation(
     model=model,
     parallelize=False,
 )
+sim.discretization.n_outer = 2000
+sim.discretization.n_inner = 400
 
 sfs_sel = sim.run()
 

@@ -44831,7 +44831,9 @@
     "n_bootstrap_retries": 2,
     "parallelize": true,
     "fixed_params": {
-        "all": {}
+        "all": {
+          "h": 0.5
+        }
     },
     "scales": {
         "S_d": "log",
@@ -44915,7 +44917,11 @@
         },
         "opts_mle": {},
         "loss_type": "likelihood",
-        "fixed_params": {},
+        "fixed_params": {
+            "all": {
+                "h": 0.5
+            }
+        },
         "param_names": [
             "S_d",
             "b",

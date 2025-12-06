@@ -561,12 +561,12 @@ class BaseInferenceTestCase(InferenceTestCase):
         Make sure that comparing nested models with the same parametrization works as expected.
         """
         config1 = fd.Config.from_file(self.config_file)
-        config1.update(fixed_params=dict(all=dict(S_b=1, p_b=0)), do_bootstrap=False)
+        config1.update(fixed_params=dict(all=dict(S_b=1, p_b=0, h=0.5)), do_bootstrap=False)
         inf1 = fd.BaseInference.from_config(config1)
         inf1.run()
 
         config2 = fd.Config.from_file(self.config_file)
-        config2.update(fixed_params=dict(all=dict(S_b=1)), do_bootstrap=False)
+        config2.update(fixed_params=dict(all=dict(S_b=1, h=0.5)), do_bootstrap=False)
         inf2 = fd.BaseInference.from_config(config2)
         inf2.run()
 
@@ -577,11 +577,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         Make sure that comparing nested models with the same parametrization works as expected.
         """
         config1 = fd.Config.from_file(self.config_file)
-        config1.update(fixed_params=dict(all=dict(S_b=1, p_b=0)), do_bootstrap=False)
+        config1.update(fixed_params=dict(all=dict(S_b=1, p_b=0, h=0.5)), do_bootstrap=False)
         inf1 = fd.BaseInference.from_config(config1)
 
         config2 = fd.Config.from_file(self.config_file)
-        config2.update(fixed_params=dict(all=dict(S_b=1)), do_bootstrap=False)
+        config2.update(fixed_params=dict(all=dict(S_b=1, h=0.5)), do_bootstrap=False)
         inf2 = fd.BaseInference.from_config(config2)
 
         assert 0 < inf1.compare_nested(inf2) < 1
@@ -666,7 +666,8 @@ class BaseInferenceTestCase(InferenceTestCase):
             config = fd.Config.from_file(self.config_file).update(
                 model=p,
                 do_bootstrap=True,
-                n_bootstraps=2
+                n_bootstraps=2,
+                fixed_params=dict(all=dict(h=0.5))
             )
 
             # unserialize
@@ -688,27 +689,19 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test inference against cached result.
         """
-        inference = fd.BaseInference.from_file(self.serialized)
-        inference2 = fd.BaseInference.from_config(inference.create_config())
+        inf = fd.BaseInference.from_file(self.serialized)
+        inf2 = fd.BaseInference.from_config(inf.create_config())
 
-        inference2.run()
+        inf2.run()
 
-        inference2.to_file("scratch/test_cached_result.json")
-        inference2.get_summary().to_file("scratch/test_cached_result_summary.json")
+        inf_params_mle = np.array(list((inf.params_mle | {'h': 0.5}).values()))
+        inf2_params_mle = np.array(list(inf2.params_mle.values()))
 
-        # inference.get_summary().to_file("scratch/test_cached_result_summary_actual.json")
+        diff = np.abs(inf_params_mle - inf2_params_mle) / (inf_params_mle + 1e-10)
 
-        def get_dict(inf: fd.BaseInference) -> dict:
-            """
+        # compare MLE parameters
+        self.assertLess(diff.max(), 1e-3)
 
-            :param inf:
-            :return:
-            """
-            exclude = ['execution_time', 'result']
-
-            return dict((k, v) for k, v in inference.get_summary().__dict__.items() if k not in exclude)
-
-        self.assertDictEqual(get_dict(inference), get_dict(inference2))
 
     def test_run_if_necessary_wrapper_triggers_run(self):
         """
@@ -809,7 +802,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         config = fd.Config.from_file(self.config_file)
 
-        config.data['fixed_params'] = dict(all=dict(b=1.123, eps=0.123))
+        config.data['fixed_params'] = dict(all=dict(b=1.123, eps=0.123, h=0.5))
 
         inference = fd.BaseInference.from_config(config)
 
@@ -827,11 +820,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         config = fd.Config.from_file(self.config_file)
 
-        assert fd.BaseInference.from_config(config).get_n_optimized() == 6
+        assert fd.BaseInference.from_config(config).get_n_optimized() == 5
 
         config.data['fixed_params'] = dict(all=dict(S_b=1, p_b=0))
 
-        assert fd.BaseInference.from_config(config).get_n_optimized() == 4
+        assert fd.BaseInference.from_config(config).get_n_optimized() == 3
 
     def test_non_existing_fixed_param_raises_error(self):
         """
@@ -859,6 +852,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Get the MLE parameters from the cis inference.
         """
         inference = fd.BaseInference.from_file(self.serialized)
+        inference.discretization.precompute()
 
         inference.bootstrap()
 
@@ -869,6 +863,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Get the discretized DFE errors.
         """
         inference = fd.BaseInference.from_file(self.serialized)
+        inference.discretization.precompute()
 
         inference.bootstrap()
 
@@ -1265,40 +1260,6 @@ class BaseInferenceTestCase(InferenceTestCase):
         # make sure that the best likelihood per bootstrap is equal to the maximum over runs
         self.assertTrue(np.all(inf.bootstraps.likelihoods_runs.apply(max) == inf.bootstraps.likelihood))
 
-    def test_fix_h_to_value(self):
-        """
-        Test whether fixing h to a value works as expected.
-        """
-        config = fd.Config.from_file(self.config_file).update(
-            intervals_del=(-1.0e+8, -1.0e-5, 100),
-            intervals_ben=(1.0e-5, 1.0e4, 100),
-            intervals_h=(0.0, 1.0, 10),
-            fixed_params={},
-            parallelize=True,
-        )
-
-        inf = fd.BaseInference.from_config(config)
-        inf.run()
-
-        self.assertEqual(0.5, inf.params_mle['h'])
-
-    def test_infer_for_different_fixed_h(self):
-        """
-        Test whether fixing h to a value works as expected.
-        """
-        inf = fd.BaseInference(
-            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
-            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
-            fixed_params={'all': {'h': 1, 'S_b': 1, 'p_b': 0, 'eps': 0}},
-            parallelize=False,
-            do_bootstrap=True,
-            n_bootstraps=50,
-            n_runs=10
-        )
-        inf.run()
-
-        inf.plot_discretized()
-
     def test_infer_dfe_with_fixed_h_low_memory_consumption(self):
         """
         Make sure memory consumption is low for default settings.
@@ -1319,6 +1280,8 @@ class BaseInferenceTestCase(InferenceTestCase):
             mem_gb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 ** 3
 
             self.assertLess(mem_gb, 0.4)
+
+            self.assertEqual(inf.params_mle['h'], h)
 
     def test_infer_h(self):
         """

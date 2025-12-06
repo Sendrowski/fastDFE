@@ -23,6 +23,7 @@ from .abstract_inference import Inference
 from .base_inference import BaseInference
 from .bootstrap import Bootstrap
 from .config import Config
+from .discretization import Discretization
 from .optimization import Optimization, SharedParams, pack_shared, expand_shared, \
     Covariate, flatten_dict, merge_dicts, correct_values, parallelize as parallelize_func, expand_fixed, \
     collapse_fixed, unpack_shared
@@ -76,6 +77,7 @@ class JointInference(BaseInference):
             include_divergence: bool = None,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
+            intervals_h: Tuple[float, float, int] = (0.0, 1.0, 100),
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -95,6 +97,9 @@ class JointInference(BaseInference):
             n_bootstrap_retries: int = 2,
             parallelize: bool = True,
             folded: bool = None,
+            discretization: Discretization = None,
+            optimization: Optimization = None,
+            locked: bool = False,
             **kwargs
     ):
         """
@@ -108,13 +113,14 @@ class JointInference(BaseInference):
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
+        :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
         :param integration_mode: Integration mode, ``quad`` not recommended
         :param linearized: Whether to use the linearized model, ``False`` not recommended
         :param model: DFE parametrization
         :param seed: Random seed. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
-        :param bounds: Bounds for the optimization in the form {param: (lower, upper)}
-        :param scales: Scales for the optimization in the form {param: scale}
+        :param bounds: Bounds for the optimization in the form ``{param: (lower, upper)}``
+        :param scales: Scales for the optimization in the form ``{param: scale}``
         :param loss_type: Loss type
         :param opts_mle: Options for the optimization
         :param method_mle: Method to use for optimization. See `scipy.optimize.minimize` for available methods.
@@ -122,7 +128,7 @@ class JointInference(BaseInference):
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
         :param fixed_params: Parameters kept constant during optimization, given as ``{type: {param: value}}``.
-            By default, the ancestral misidentification rate `eps` is fixed to zero, and the DFE
+            By default, the ancestral misidentification rate `eps` is fixed to zero, `h` to 0.5, and the DFE
             parameters are fixed so that only the deleterious component of the DFE is estimated.
         :param shared_params: List of shared parameters
         :param do_bootstrap: Whether to perform bootstrapping
@@ -133,6 +139,9 @@ class JointInference(BaseInference):
         :param parallelize: Whether to parallelize computations
         :param folded: Whether the SFS are folded. If not specified, the SFS will be folded if all of the given
             SFS appear to be folded.
+        :param discretization: Discretization instance. Mainly intended for internal use.
+        :param optimization: Optimization instance. Mainly intended for internal use.
+        :param locked: Whether inferences can be run from the class itself. Used internally.
         :param kwargs: Additional keyword arguments which are ignored.
         """
         if sfs_neut.has_dots() or sfs_sel.has_dots():
@@ -194,10 +203,31 @@ class JointInference(BaseInference):
         scales_cov = dict((k, cov.bounds_scale) for k, cov in self.covariates.items())
 
         if fixed_params is None:
-            fixed_params = {'all': {'eps': 0} | self.model.submodels['dele']}
+            fixed_params = {'all': {'eps': 0, 'h': 0.5} | self.model.submodels['dele']}
+
+        if fixed_params == {}:
+            fixed_params = {'all': {}}
 
         #: fixed parameters with expanded 'all' type
         self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, self.types)
+
+        if discretization is None:
+            # create discretization instance
+            #: Discretization instance
+            self.discretization: Discretization = Discretization(
+                n=self.n,
+                h=fixed_params['all'].get('h', None),
+                intervals_del=intervals_del,
+                intervals_ben=intervals_ben,
+                intervals_h=intervals_h,
+                integration_mode=integration_mode,
+                linearized=linearized,
+                parallelize=parallelize
+            )
+
+        else:
+            # otherwise assign instance
+            self.discretization: Discretization = discretization
 
         # collapse fixed parameters
         fixed_collapsed = collapse_fixed(self.fixed_params, self.types)

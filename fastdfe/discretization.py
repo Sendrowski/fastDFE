@@ -68,6 +68,8 @@ class Discretization:
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0.0, 1.0, 100),
+            n_outer: int = 1000,
+            n_inner: int = 200,
             s_chunk_size: int = 10,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
@@ -82,6 +84,10 @@ class Discretization:
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled selection coefficients.
         :param intervals_ben: ``(start, stop, n_interval)`` for beneficial population-scaled selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients.
+        :param n_outer: Number of grid points for outer integrals when computing allele counts for varying
+            dominance coefficients.
+        :param n_inner: Number of grid points for inner integrals when computing allele counts for varying
+            dominance coefficients.
         :param s_chunk_size: Chunk size for S values when precomputing across dominance coefficients.
             This controls memory usage vs. speed trade-off.
         :param integration_mode : 'midpoint' or 'quad' for midpoint integration or Scipy's quad method.
@@ -109,6 +115,10 @@ class Discretization:
 
         # interval bounds for discretizing dominance coefficients
         self.intervals_h: Tuple[float, float, int] = intervals_h
+
+        # grid sizes for integrals when computing allele counts for varying dominance coefficients
+        self.n_outer: int = n_outer
+        self.n_inner: int = n_inner
 
         # chunk size for S values when precomputing across dominance coefficients
         self.s_chunk_size: int = s_chunk_size
@@ -301,8 +311,8 @@ class Discretization:
         :param k: Allele count.
         :param h: Dominance coefficients.
         :param S: Selection coefficients.
-        :param n_outer: Grid size for outer integral over x.
-        :param n_inner: Grid size for inner integrals.
+        :param n_outer: Grid size for outer integral over allele frequencies for binomial sampling.
+        :param n_inner: Grid size for inner integrals over allele frequencies.
         :param pow_cluster: Power for clustering grid points towards 0.
 
         :return: Array of shape (len(h), len(S)) with allele counts.
@@ -543,7 +553,14 @@ class Discretization:
             :return:
             """
             i, j, c = args
-            return self._get_counts_dominant(n=self.n, k=K[i], S=S_chunks[c], h=[h_grid[j]])
+            return self._get_counts_dominant(
+                n=self.n,
+                k=K[i],
+                S=S_chunks[c],
+                h=[h_grid[j]],
+                n_outer=self.n_outer,
+                n_inner=self.n_inner
+            )
 
         ijc = product(
             range(self.n - 1),
