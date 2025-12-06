@@ -1,4 +1,5 @@
 import time
+from unittest.mock import patch
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -50,6 +51,7 @@ class DiscretizationTestCase(TestCase):
         """
         opts = dict(
             n=self.n,
+            h=0.5,
             intervals_ben=(1.0e-5, 100, 100),
             intervals_del=(-10000, -1.0e-5, 100)
         )
@@ -57,8 +59,8 @@ class DiscretizationTestCase(TestCase):
         d_midpoint = Discretization(**opts, integration_mode='midpoint')
         d_quad = Discretization(**opts, integration_mode='quad')
 
-        P_quad = d_midpoint.dfe_to_sfs
-        P_lin = d_quad.dfe_to_sfs
+        P_quad = d_midpoint.get_counts(h=0.5)
+        P_lin = d_quad.get_counts(h=0.5)
 
         # P_diff_rel = self.diff_rel(P_quad, P_lin)
         diff = self.diff_rel_max_abs(P_quad, P_lin)
@@ -134,8 +136,8 @@ class DiscretizationTestCase(TestCase):
         S = np.linspace(-100, -10000, 100)
         k = np.arange(1, self.n)
         I = np.ones((S.shape[0], k.shape[0]))
-        c1 = d.get_allele_count(S[:, None] * I, k[None, :] * I)
-        c2 = d.get_allele_count_large_negative_S(S[:, None] * I, k[None, :] * I)
+        c1 = d.get_counts_semidominant_unregularized(S[:, None] * I, k[None, :] * I)
+        c2 = d.get_counts_semidominant_large_negative_S(S[:, None] * I, k[None, :] * I)
 
         diff = self.diff_rel_max_abs(c1, c2)
 
@@ -169,8 +171,8 @@ class DiscretizationTestCase(TestCase):
         S = np.linspace(900000, 1000000, 100)
         k = np.arange(1, self.n)
         I = np.ones((S.shape[0], k.shape[0]))
-        c1 = d.get_allele_count(S[:, None] * I, k[None, :] * I)
-        c2 = d.get_allele_count_large_positive_S(S[:, None] * I, k[None, :] * I)
+        c1 = d.get_counts_semidominant_unregularized(S[:, None] * I, k[None, :] * I)
+        c2 = d.get_counts_semidominant_large_positive_S(S[:, None] * I, k[None, :] * I)
 
         diff = self.diff_rel_max_abs(c1, c2)
 
@@ -193,11 +195,11 @@ class DiscretizationTestCase(TestCase):
 
         for k in range(1, self.n):
             ax2.plot(np.arange(d.s[d.s != 0].shape[0]),
-                     d.get_allele_count(d.s[d.s != 0], k * np.ones_like(d.s[d.s != 0])), label=f"k = {k}")
+                     d.get_counts_semidominant_unregularized(d.s[d.s != 0], k * np.ones_like(d.s[d.s != 0])), label=f"k = {k}")
             ax1.set_title('default')
 
         for k in range(1, self.n):
-            ax1.plot(np.arange(d.s.shape[0]), d.get_allele_count_regularized(d.s, k * np.ones_like(d.s)),
+            ax1.plot(np.arange(d.s.shape[0]), d.get_counts_semidominant_regularized(d.s, k * np.ones_like(d.s)),
                      label=f"k = {k}")
             ax1.set_title('regularized')
 
@@ -255,7 +257,7 @@ class DiscretizationTestCase(TestCase):
 
             for j, k in tqdm(enumerate(np.linspace(1, n - 1, m).astype(int)), total=m):
                 ys1 = H_h(n=d.n, k=k, S=d.s, h=[0.5])[0]
-                ys2 = d.get_allele_count_regularized(k=np.full_like(d.s, k), S=d.s)
+                ys2 = d.get_counts_semidominant_regularized(k=np.full_like(d.s, k), S=d.s)
 
                 diff[i,j] = (np.abs(ys1 - ys2) / (ys2 + 1e-10))
 
@@ -264,6 +266,40 @@ class DiscretizationTestCase(TestCase):
         self.assertLess(diff.mean(), 0.004)
         self.assertTrue((diff_max < np.array([0.02, 0.06, 0.3])).all())
         pass
+
+    def test_cache_fixed_h_not_semidominant(self):
+        """
+        Make sure that caching of dominance-specific allele counts invokes the correct methods.
+        """
+        d = Discretization(
+            n=10,
+            h=0.2,
+            intervals_ben=(1e-5, 1e4, 100),
+            intervals_del=(-1e8, -1e-5, 100),
+            intervals_h=(0.0, 1.0, 5),
+            parallelize=False
+        )
+
+        with patch.object(d, "_get_counts_dominant", wraps=d._get_counts_dominant) as spy:
+            d.precompute()
+            spy.assert_called()
+
+    def test_cache_fixed_h_semidominant(self):
+        """
+        Make sure that caching of semidominant allele counts invokes the correct methods.
+        """
+        d = Discretization(
+            n=10,
+            h=0.5,
+            intervals_ben=(1e-5, 1e4, 100),
+            intervals_del=(-1e8, -1e-5, 100),
+            intervals_h=(0.0, 1.0, 5),
+            parallelize=False
+        )
+
+        with patch.object(d, "get_counts_semidominant", wraps=d.get_counts_semidominant) as spy:
+            d.precompute()
+            spy.assert_called()
 
     def test_cache_dominance(self):
         """
@@ -279,10 +315,12 @@ class DiscretizationTestCase(TestCase):
 
         d.precompute()
 
-        T = d.dfe_to_sfs
-        T2 = d.get_dfe_to_sfs(h=0.5)
-        T3 = d.get_dfe_to_sfs(h=0.5 - 1e-5)
-        T4 = d.get_dfe_to_sfs(h=0.5 + 1e-5)
+        np.testing.assert_array_equal(d.grid_h, [0.0, 0.25, 0.5, 0.75, 1.0])
+
+        T = d.get_counts_semidominant()
+        T2 = d.get_counts(h=0.5)
+        T3 = d.get_counts(h=0.5 - 1e-5)
+        T4 = d.get_counts(h=0.5 + 1e-5)
 
         diff = (np.abs(T2 - T) / (T + 1e-10))
         diff_max = np.max(diff)
@@ -306,7 +344,7 @@ class DiscretizationTestCase(TestCase):
         )
 
         hs = np.linspace(0, 1, 100)
-        counts = np.array([d.get_dfe_to_sfs(h=h) for h in hs]).transpose(1, 2, 0)
+        counts = np.array([d.get_counts(h=h) for h in hs]).transpose(1, 2, 0)
 
         fig, ax = plt.subplots(
             nrows=d.n // 3,

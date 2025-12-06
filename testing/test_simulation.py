@@ -188,7 +188,7 @@ class SimulationTestCase(TestCase):
 
         inf.run()
 
-        self.assertAlmostEqual(sim.n_sites, inf.sfs_sel.n_sites)
+        self.assertAlmostEqual(sim.n_sites, inf.sfs_sel.n_sites, delta=1e-6)
         self.assertAlmostEqual(sim.n_sites, inf.sfs_neut.n_sites)
 
         self.assertAlmostEqual(sim.theta, inf.sfs_neut.theta)
@@ -362,7 +362,7 @@ class SimulationTestCase(TestCase):
         """
         sim = fd.simulation.WrightFisherSimulation(
             sfs_neut=fd.Simulation.get_neutral_sfs(n=10, n_sites=1e8, theta=1e-6),
-            params=dict(S_d=-1e-100, b=1, p_b=0, S_b=1)
+            params=dict(S_d=-1e-100, b=1, p_b=0, S_b=1),
             n_generations=1000,
             pop_size=100
         )

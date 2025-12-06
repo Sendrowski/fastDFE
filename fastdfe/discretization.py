@@ -7,7 +7,7 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-02-26"
 
 import logging
-from functools import cached_property, wraps
+from functools import wraps
 from itertools import product
 from math import comb
 from typing import Literal, Sequence, Tuple, Optional
@@ -56,7 +56,7 @@ def get_bins(intervals_del: tuple, intervals_ben: tuple) -> np.ndarray:
 
 def H(x, S):
     """
-    Allele frequency sojourn times. Note that this function is not used in practice.
+    Allele frequency sojourn times semidominance. Note that this function is not used in practice.
 
     :param S: Selection coefficient
     :param x: Allele frequency
@@ -98,7 +98,7 @@ def H_regularized(x, S: float | int | np.ndarray):
 
 def H_fixed(S: float | int | np.ndarray) -> float | int | np.ndarray:
     """
-    The sojourn time as x -> 1.
+    The sojourn time as x -> 1  for semidominance.
 
     :param S: Selection coefficient
     :return: Sojourn time as x -> 1
@@ -139,44 +139,6 @@ def H_fixed_regularized(S: float | int | np.ndarray) -> float | int | np.ndarray
     y[remaining] = H_fixed(S[remaining])
 
     return y
-
-
-def prf_binom_integral_dep(n: int, k: int, h: float, S: float, n_grid: int = 400) -> float:
-    """
-    TODO remove
-    :param n:
-    :param k:
-    :param h:
-    :param S:
-    :param n_grid:
-    :return:
-    """
-    # grid
-    x = np.linspace(0, 1, n_grid) ** 10
-
-    # binomial term
-    binom = comb(n, k) * x ** (k - 1) * (1 - x) ** (n - k - 1)
-
-    n_inner = 10000
-
-    if S <= 0:
-        xx = np.linspace(x, 1, 200).T
-        exponent = -2 * S * h * xx - S * (1 - 2 * h) * xx ** 2
-        norm_q = np.trapz(np.exp(exponent - np.max(exponent)), xx)
-        exponent = np.exp(2 * S * h * x + S * (1 - 2 * h) * x ** 2)
-        integrand = binom * exponent * norm_q / norm_q[0]
-    else:
-
-        xx = np.linspace(0, 1, n_inner).T
-        exponent = -2 * S * h * xx - S * (1 - 2 * h) * xx ** 2
-        norm_0 = np.trapz(np.exp(exponent), xx)
-
-        xx = np.linspace(x, 1, n_inner).T
-        term = S * (x[:, None] - xx) * ((1 - 2 * h) * (x[:, None] + xx) + 2 * h)
-        c = np.trapz(np.exp(term), xx)
-        integrand = binom * c / norm_0
-
-    return float(np.trapz(integrand, x))
 
 
 def H_h(
@@ -332,14 +294,7 @@ def to_float(func):
 
 class Discretization:
     """
-    The integral mapping the DFE to allele counts can be discretized
-    and computed once beforehand so that transforming the DFE to
-    the expected SFS counts can be carried out by matrix multiplication.
-    To evaluate the integral over the specified intervals, midpoint
-    integration or Scipy's quad method can be used.
-    The integral can also alternatively be evaluated numerically
-    in each optimizing iteration.
-    The loss function supports Poisson likelihoods and the L2 norm.
+    Class for discretizing the integral mapping the DFE to the expected SFS.
     """
 
     def __init__(
@@ -349,7 +304,7 @@ class Discretization:
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0.0, 1.0, 100),
-            s_chunk_size: int = 100,
+            s_chunk_size: int = 10,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             parallelize: bool = True,
@@ -358,7 +313,8 @@ class Discretization:
         Create Discretization instance.
 
         :param n: Number of individuals in the SFS sample.
-        :param h: Dominance coefficient if not varying, else `None`.
+        :param h: Dominance coefficient if not varying, else `None`. When `None`, `h` is precomputed across
+            `intervals_h` and interpolated as needed.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled selection coefficients.
         :param intervals_ben: ``(start, stop, n_interval)`` for beneficial population-scaled selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients.
@@ -408,17 +364,61 @@ class Discretization:
 
         # grid of dominance coefficients
         if h is None:
-            self.H = np.linspace(*self.intervals_h)
+            self.grid_h = np.linspace(*self.intervals_h)
         else:
-            self.H = np.array([h])
+            self.grid_h = np.array([h])
 
         # the number of intervals
         self.n_intervals: int = self.s.shape[0]
 
-        # cache for DFE to SFS transformations
+        # cache for DFE to SFS transformations of shape (len(grid_h), n, n_intervals)
         self._cache: np.ndarray = None
 
-    def get_dfe_to_sfs_midpoint(self) -> np.ndarray:
+    def precompute(self):
+        """
+        Precompute DFE to SFS transformation, possibly across dominance coefficients.
+        """
+        # compute special case h = 0.5
+        if self.h == 0.5:
+            self._cache = np.array([self.get_counts_semidominant()])
+            return
+
+        if self.h is None:
+            logger.info('Precomputing DFE-SFS transformation across dominance coefficients.')
+        else:
+            logger.info(f'Precomputing DFE-SFS transformation for fixed h={self.h}.')
+
+        self._cache = self._get_counts_dominant(self.grid_h)
+
+    def get_counts(self, h: float) -> np.ndarray:
+        """
+        Get DFE to SFS transformation for given dominance coefficient using precomputed values.
+        Interpolates linearly between precomputed values.
+
+        :param h: Dominance coefficient
+        :return: Matrix of size (n_intervals, n)
+        """
+        if self._cache is None:
+            self.precompute()
+
+        if len(self.grid_h) == 1:
+            return self._cache[0]
+
+        # require h within precomputed range
+        if not (self.grid_h[0] <= h <= self.grid_h[-1]):
+            raise ValueError(f"h={h} is outside precomputed dominance range [{self.grid_h[0]}, {self.grid_h[-1]}].")
+
+        # find surrounding indices and weights
+        idx = np.searchsorted(self.grid_h, h)
+        h0, h1 = self.grid_h[idx - 1], self.grid_h[idx]
+        w = (h - h0) / (h1 - h0)
+
+        # linear interpolation
+        interpolated = (1.0 - w) * self._cache[:, idx - 1, :] + w * self._cache[:, idx, :]
+
+        return interpolated
+
+    def get_counts_semidominant_midpoint(self) -> np.ndarray:
         """
         Precompute linearized integral using midpoint integration.
         Consider parallelizing this.
@@ -440,7 +440,7 @@ class Discretization:
             :param i: Multiplicity
             :return: Discretized counts
             """
-            return self.get_allele_count_regularized(S[i], K[i])
+            return self.get_counts_semidominant_regularized(S[i], K[i])
 
         # retrieve allele counts
         P = parallelize_func(
@@ -454,7 +454,7 @@ class Discretization:
         # take midpoint and multiply by interval size
         return (P[:, :-1] + P[:, 1:]) / 2 * self.interval_sizes
 
-    def get_dfe_to_sfs_quad(self) -> np.ndarray:
+    def get_counts_semidominant_quad(self) -> np.ndarray:
         """
         Precompute linearized integral using Scipy's quad method.
 
@@ -472,7 +472,7 @@ class Discretization:
 
             # iterate over allele count classes
             for j in range(self.n - 1):
-                P[i, j] = quad(lambda s: (self.get_allele_count_regularized(
+                P[i, j] = quad(lambda s: (self.get_counts_semidominant_regularized(
                     s, j + 1)), self.bins[i], self.bins[i + 1])[0]
 
         # For GammaExpParametrization, there is a discontinuity at 0
@@ -487,36 +487,36 @@ class Discretization:
 
         return P.T
 
-    def get_dfe_to_sfs_semidominant(self) -> np.ndarray:
+    def get_counts_semidominant(self) -> np.ndarray:
         """
-        Linearized DFE to SFS transformation for `h = 0.5` using special formula.
+        Get uncached linearized DFE to SFS transformation for `h = 0.5` using special formulae.
 
         :return: Matrix of size (n_intervals, n)
         :raises NotImplementedError: If integration mode is not supported.
         """
         # precompute linearized transformation.
         if self.integration_mode == 'midpoint':
-            return self.get_dfe_to_sfs_midpoint()
+            return self.get_counts_semidominant_midpoint()
 
         if self.integration_mode == 'quad':
-            return self.get_dfe_to_sfs_quad()
+            return self.get_counts_semidominant_quad()
 
         raise NotImplementedError(f'Integration mode {self.integration_mode} not supported.')
 
-    def precompute(self):
+    def get_counts_dominant(self, h: float) -> np.ndarray:
         """
-        Precompute DFE to SFS transformation, possibly across dominance coefficients.
+        Get uncached DFE to SFS transformation for given dominance coefficient.
+
+        :return: Matrix of size (n_intervals, n)
         """
-        # compute special case h = 0.5
-        if self.h == 0.5:
-            self._cache = np.array([self.get_dfe_to_sfs_semidominant()])
-            return
+        return self._get_counts_dominant(np.array([h]))[:, 0, :]
 
-        if self.h is None:
-            logger.info('Precomputing DFE-SFS transformation across dominance coefficients.')
-        else:
-            logger.info(f'Precomputing DFE-SFS transformation for fixed h={self.h}.')
+    def _get_counts_dominant(self, h_grid: np.ndarray) -> np.ndarray:
+        """
+        Get DFE to SFS transformation for different dominance coefficients.
 
+        :return: Matrix of size (n_intervals, n)
+        """
         K = np.arange(1, self.n)
 
         # chunk S-bins
@@ -530,11 +530,11 @@ class Discretization:
             :return:
             """
             i, j, c = args
-            return H_h(n=self.n, k=K[i], S=S_chunks[c], h=[self.H[j]])
+            return H_h(n=self.n, k=K[i], S=S_chunks[c], h=[h_grid[j]])
 
         ijc = product(
             range(self.n - 1),
-            range(len(self.H)),
+            range(len(h_grid)),
             range(len(S_chunks))
         )
 
@@ -548,40 +548,16 @@ class Discretization:
         )
 
         P = np.concatenate(P, axis=1)
-        P = P.reshape(self.n - 1, len(self.H), -1)
+        P = P.reshape(self.n - 1, len(h_grid), -1)
 
-        self._cache = (P[:, :, :-1] + P[:, :, 1:]) / 2 * self.interval_sizes
-
-    def get_dfe_to_sfs(self, h: float) -> np.ndarray:
-        """
-        Get DFE to SFS transformation for given dominance coefficient.
-        Interpolates linearly between precomputed values.
-
-        :param h: Dominance coefficient
-        :return: Matrix of size (n_intervals, n)
-        """
-        if self._cache is None:
-            self.precompute()
-
-        if len(self.H) == 1:
-            return self._cache[:, 0, :]
-
-        # require h within precomputed range
-        if not (self.H[0] <= h <= self.H[-1]):
-            raise ValueError(f"h={h} is outside precomputed dominance range [{self.H[0]}, {self.H[-1]}].")
-
-        # find surrounding indices and weights
-        idx = np.searchsorted(self.H, h)
-        h0, h1 = self.H[idx - 1], self.H[idx]
-        w = (h - h0) / (h1 - h0)
-
-        # linear interpolation
-        interpolated = (1.0 - w) * self._cache[:, idx - 1, :] + w * self._cache[:, idx, :]
-
-        return interpolated
+        return (P[:, :, :-1] + P[:, :, 1:]) / 2 * self.interval_sizes
 
     @to_float
-    def get_allele_count_large_negative_S(self, S: float | np.ndarray, k: float | np.ndarray) -> np.ndarray | float:
+    def get_counts_semidominant_large_negative_S(
+            self,
+            S: float | np.ndarray,
+            k: float | np.ndarray
+    ) -> np.ndarray | float:
         """
         Limit of get_allele_count for large negative S.
 
@@ -591,7 +567,11 @@ class Discretization:
         """
         return self.n / (k * (self.n - k)) * hyp1f1(k, self.n, S)
 
-    def get_allele_count_large_positive_S(self, S: float | np.ndarray, k: float | np.ndarray) -> np.ndarray | float:
+    def get_counts_semidominant_large_positive_S(
+            self,
+            S: float | np.ndarray,
+            k: float | np.ndarray
+    ) -> np.ndarray | float:
         """
         Limit of get_allele_count for large positive S.
 
@@ -602,7 +582,11 @@ class Discretization:
         return self.n / (k * (self.n - k))
 
     @to_float
-    def get_allele_count(self, S: float | np.ndarray, k: float | np.ndarray) -> np.ndarray | float:
+    def get_counts_semidominant_unregularized(
+            self,
+            S: float | np.ndarray,
+            k: float | np.ndarray
+    ) -> np.ndarray | float:
         """
         The number of counts in frequency class P(k) with
         population-scaled selection coefficient S and h = 0.5.
@@ -615,9 +599,9 @@ class Discretization:
         """
         return (self.n / (k * (self.n - k))) * ((1 - exp(-S) * hyp1f1(k, self.n, S)) / (1 - exp(-S)))
 
-    def get_allele_count_regularized(self, S: float | np.ndarray, k: float | np.ndarray) -> float | np.ndarray:
+    def get_counts_semidominant_regularized(self, S: float | np.ndarray, k: float | np.ndarray) -> float | np.ndarray:
         """
-        As :meth:`get_allele_count` but using the respective limits
+        As :meth:`get_counts_semidominant` but using the respective limits
         for ``S`` close to zero and ``S`` very negative.
         Note that ``S`` and ``k`` need to have the same shape.
 
@@ -627,7 +611,7 @@ class Discretization:
         """
         # make it accept scalars for S
         if isinstance(S, (float, int)):
-            return self.get_allele_count_regularized(np.array([S]), np.array([k]))[0]
+            return self.get_counts_semidominant_regularized(np.array([S]), np.array([k]))[0]
 
         # else S is an array
         y = np.zeros_like(S, dtype=float)
@@ -648,14 +632,14 @@ class Discretization:
         # We check if there are any negative values here
         # as numpy's vectorize does not work with empty arrays.
         if very_negative.any():
-            y[very_negative] = self.get_allele_count_large_negative_S(S[very_negative], k[very_negative])
+            y[very_negative] = self.get_counts_semidominant_large_negative_S(S[very_negative], k[very_negative])
 
         # remaining values of S
         remaining = np.array(~(close_to_zero | very_negative))
 
         # evaluate function as usual for remaining values
         if remaining.any():
-            y[remaining] = self.get_allele_count(S[remaining], k[remaining])
+            y[remaining] = self.get_counts_semidominant_unregularized(S[remaining], k[remaining])
 
         return y
 
@@ -675,7 +659,7 @@ class Discretization:
 
             # get SFS from DFE using linearization
             # the interval sizes are already included here
-            counts_modelled = self.get_dfe_to_sfs(params['h']) @ dfe
+            counts_modelled = self.get_counts(params['h']) @ dfe
         else:
             dfe_pdf = model.get_pdf(**params)
 
@@ -691,7 +675,7 @@ class Discretization:
                     Note that this produces too small results for low s,
                     but we don't make use of it in production code anyway.
                     """
-                    return self.get_allele_count_regularized(s, k) * dfe_pdf(s)
+                    return self.get_counts_semidominant_regularized(s, k) * dfe_pdf(s)
 
                 return quad(integrate_dfe, self.bins[0], self.bins[-1])[0]
 

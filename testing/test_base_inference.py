@@ -1167,7 +1167,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         sfs_neut = fd.Spectrum.standard_kingman(n, n_monomorphic=100)
         sfs_sel = fd.Spectrum.from_polymorphic(
-            Discretization(n=n).get_allele_count_regularized(-10 * np.ones(n - 1), np.arange(1, n))
+            Discretization(n=n).get_counts_semidominant_regularized(-10 * np.ones(n - 1), np.arange(1, n))
         )
         sfs_sel.data[0] = 100
 
@@ -1279,28 +1279,26 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inf.plot_discretized()
 
-    def test_infer_dfe_with_fixed_h_memory_consumption(self):
+    def test_infer_dfe_with_fixed_h_low_memory_consumption(self):
         """
-        Test whether fixing h to a value works as expected.
+        Make sure memory consumption is low for default settings.
         """
-        inf = fd.BaseInference(
-            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
-            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
-            intervals_ben=(1.0e-5, 1.0e4, 1000),
-            intervals_del=(-1.0e+8, -1.0e-5, 1000),
-            fixed_params={'all': {'h': 0.2, 'S_b': 1, 'p_b': 0, 'eps': 0}},
-            parallelize=True,
-            do_bootstrap=True,
-            n_bootstraps=50,
-            n_runs=10
-        )
+        for h in [0, 0.5, 1]:
+            inf = fd.BaseInference(
+                sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+                sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+                fixed_params={'all': {'h': h, 'S_b': 1, 'p_b': 0, 'eps': 0}},
+                parallelize=False,
+                do_bootstrap=True,
+                n_bootstraps=50,
+                n_runs=10
+            )
 
-        inf.run()
-        inf.plot_discretized()
+            inf.run()
 
-        mem_gb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 ** 3
+            mem_gb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 ** 3
 
-        pass
+            self.assertLess(mem_gb, 0.4)
 
     def test_infer_h(self):
         """
