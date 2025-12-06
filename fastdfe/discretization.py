@@ -396,10 +396,13 @@ class Discretization:
 
         return y
 
-    def precompute(self):
+    def precompute(self, force: bool = False):
         """
         Precompute DFE to SFS transformation, possibly across dominance coefficients.
         """
+        if self._cache is not None and not force:
+            return
+
         # compute special case h = 0.5
         if self.h == 0.5:
             self._cache = self.get_counts_semidominant()[:, None, :]

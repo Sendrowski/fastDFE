@@ -699,6 +699,9 @@ class BaseInference(AbstractInference):
         # perform inference first if not done yet
         self.run_if_required()
 
+        # precompute discretization if not done yet
+        self.discretization.precompute()
+
         # update properties
         self.update_properties(
             n_bootstraps=n_samples,

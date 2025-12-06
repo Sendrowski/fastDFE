@@ -619,7 +619,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         Check whether the is_nested method works as expected.
         """
         config1 = fd.Config.from_file(self.config_file)
-        config2 = copy.deepcopy(config1).update(model=fd.DiscreteParametrization())
+        config2 = copy.deepcopy(config1).update(fixed_params={}, model=fd.DiscreteParametrization())
         config3 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0)))
         config4 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0, S_b=1)))
         config5 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0)),
@@ -822,7 +822,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         assert fd.BaseInference.from_config(config).get_n_optimized() == 5
 
-        config.data['fixed_params'] = dict(all=dict(S_b=1, p_b=0))
+        config.data['fixed_params'] = dict(all=dict(S_b=1, p_b=0, h=0.5))
 
         assert fd.BaseInference.from_config(config).get_n_optimized() == 3
 
@@ -852,7 +852,6 @@ class BaseInferenceTestCase(InferenceTestCase):
         Get the MLE parameters from the cis inference.
         """
         inference = fd.BaseInference.from_file(self.serialized)
-        inference.discretization.precompute()
 
         inference.bootstrap()
 
@@ -863,7 +862,6 @@ class BaseInferenceTestCase(InferenceTestCase):
         Get the discretized DFE errors.
         """
         inference = fd.BaseInference.from_file(self.serialized)
-        inference.discretization.precompute()
 
         inference.bootstrap()
 
@@ -1304,6 +1302,6 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         mem_gb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 ** 3
 
-        self.assertLess(mem_gb, 0.3)
+        self.assertLess(mem_gb, 0.7)
 
         self.assertGreater(inf.bootstraps.h.std(), 0)

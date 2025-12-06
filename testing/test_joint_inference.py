@@ -110,6 +110,7 @@ class JointInferenceTestCase(InferenceTestCase):
                 pendula=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
                 pubescens=[791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
             )),
+            fixed_params=dict(all=dict(h=0.5)),
             do_bootstrap=False,
             parallelize=False,
             n_bootstraps=2,
@@ -135,7 +136,7 @@ class JointInferenceTestCase(InferenceTestCase):
                 pendula=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
                 pubescens=[791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
             )),
-            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1)),
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)),
             do_bootstrap=True,
             n_bootstraps=2,
             n_runs=1,
@@ -279,7 +280,7 @@ class JointInferenceTestCase(InferenceTestCase):
 
         # define fixed parameters
         config.data['fixed_params'] = dict(
-            all=dict(eps=0.123),
+            all=dict(eps=0.123, h=0.5),
             example_1=dict(b=1.234),
             example_2=dict(b=1.132),
             pendula=dict(S_b=10.1)
@@ -297,12 +298,12 @@ class JointInferenceTestCase(InferenceTestCase):
         params_mle = inf.params_mle
 
         fixed = {
-            'all': {'eps': 0.123},
-            'example_1': {'eps': 0.123, 'b': 1.234},
-            'example_2': {'eps': 0.123, 'b': 1.132},
-            'example_3': {'eps': 0.123},
-            'pendula': {'eps': 0.123, 'S_b': 10.1},
-            'pubescens': {'eps': 0.123},
+            'all': {'eps': 0.123, 'h': 0.5},
+            'example_1': {'eps': 0.123, 'h': 0.5, 'b': 1.234},
+            'example_2': {'eps': 0.123, 'h': 0.5, 'b': 1.132},
+            'example_3': {'eps': 0.123, 'h': 0.5},
+            'pendula': {'eps': 0.123, 'h': 0.5, 'S_b': 10.1},
+            'pubescens': {'eps': 0.123, 'h': 0.5},
         }
 
         assert inf.marginal_inferences['all'].optimization.fixed_params == flatten_dict(dict(all=fixed['all']))
@@ -335,7 +336,7 @@ class JointInferenceTestCase(InferenceTestCase):
         )
 
         config.update(
-            fixed_params={'all': dict(S_b=1, eps=0, p_b=0)},
+            fixed_params={'all': dict(S_b=1, eps=0, p_b=0, h=0.5)},
             shared_params=[
                 SharedParams(types=['example_1', 'example_2'], params=['b']),
                 SharedParams(types=['pendula', 'pubescens'], params=['b'])
@@ -470,7 +471,7 @@ class JointInferenceTestCase(InferenceTestCase):
             sfs_neut=spectra[['neutral.*']].merge_groups(1),
             sfs_sel=spectra[['selected.*']].merge_groups(1),
             covariates=[Covariate(param='S_d', values=dict(A=1, C=2, T=3, G=4))],
-            fixed_params={'all': dict(S_b=1, eps=0)},
+            fixed_params={'all': dict(S_b=1, eps=0, h=0.5)},
             parallelize=True,
             do_bootstrap=True,
             n_bootstraps=2
@@ -501,7 +502,7 @@ class JointInferenceTestCase(InferenceTestCase):
             sfs_neut=spectra[['neutral.*']].merge_groups(1),
             sfs_sel=spectra[['selected.*']].merge_groups(1),
             covariates=[Covariate(param='S_d', values=dict(A=-100000, C=-2045, T=-60504, G=-5024))],
-            fixed_params={'all': dict(S_b=1, eps=0, p_b=0)},
+            fixed_params={'all': dict(S_b=1, eps=0, p_b=0, h=0.5)},
             parallelize=True,
             do_bootstrap=True,
             n_bootstraps=100,
@@ -535,7 +536,7 @@ class JointInferenceTestCase(InferenceTestCase):
             sfs_neut=spectra[['neutral.*']].merge_groups(1),
             sfs_sel=spectra[['selected.*']].merge_groups(1),
             covariates=[Covariate(param='S_d', values=dict(A=-100000, C=-2045, T=-60504, G=-5024))],
-            fixed_params={'all': dict(S_b=1, eps=0, p_b=0)},
+            fixed_params={'all': dict(S_b=1, eps=0, p_b=0, h=0.5)},
             parallelize=True,
             do_bootstrap=True,
             n_runs=10,
@@ -652,7 +653,7 @@ class JointInferenceTestCase(InferenceTestCase):
             JointInference(
                 sfs_neut=sfs_neut,
                 sfs_sel=sfs_sel,
-                fixed_params={'all': dict(eps=0)},
+                fixed_params={'all': dict(eps=0, h=0.5)},
                 shared_params=[SharedParams(types=["pendula.foo", "pubescens.bar.foo"], params=["S_d", "S_b", "p_b"])],
                 do_bootstrap=True
             )
@@ -678,7 +679,7 @@ class JointInferenceTestCase(InferenceTestCase):
             JointInference(
                 sfs_neut=sfs_neut,
                 sfs_sel=sfs_sel,
-                fixed_params={'all': dict(eps=0)},
+                fixed_params={'all': dict(eps=0, h=0.5)},
                 shared_params=[SharedParams(types=["pendula", "pubescens.bar.foo"], params=["S_d", "S_b", "p_b"])],
                 do_bootstrap=True
             )

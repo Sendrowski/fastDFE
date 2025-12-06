@@ -2,7 +2,9 @@ bounds: {}
 covariates: []
 do_bootstrap: false
 fixed_params:
-  all: {}
+  all: {
+    h: 0.5
+  }
 integration_mode: midpoint
 intervals_ben:
 - 1.0e-05
