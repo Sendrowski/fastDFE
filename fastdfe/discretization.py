@@ -400,7 +400,7 @@ class Discretization:
         """
         Precompute DFE to SFS transformation, possibly across dominance coefficients.
         """
-        if self._cache is not None and not force:
+        if (hasattr(self, '_cache') and self._cache is not None) and not force:
             return
 
         # compute special case h = 0.5

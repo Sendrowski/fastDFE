@@ -618,6 +618,7 @@ class JointInferenceTestCase(InferenceTestCase):
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
             shared_params=[SharedParams(types=["pendula", "pubescens"], params=["eps", "S_d"])],
+            fixed_params={'all': dict(h=0.5)},
             do_bootstrap=True,
             n_bootstraps=2
         )
