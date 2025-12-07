@@ -338,10 +338,10 @@ class DiscretizationTestCase(TestCase):
             h=None,
             intervals_ben=(1, 1000, 5),
             intervals_del=(-1.0e+8, -1, 5),
-            intervals_h=(0.0, 1.0, 10)
+            intervals_h=(0, 1, 11)
         )
 
-        hs = np.linspace(0, 1, 100)
+        hs = np.linspace(0, 1, 101)
         counts = np.array([d.get_counts(h=h) for h in hs]).transpose(1, 2, 0)
 
         fig, ax = plt.subplots(

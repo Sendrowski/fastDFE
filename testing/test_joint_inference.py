@@ -825,3 +825,77 @@ class JointInferenceTestCase(InferenceTestCase):
 
         self.assertEqual(inference.params_mle, inference2.params_mle)
         assert_frame_equal(inference.bootstraps, inference2.bootstraps)
+
+    def test_joint_different_fixed_h(self):
+        """
+        Test joint inference with different fixed h values.
+        """
+        inf = JointInference(
+            sfs_neut=Spectra(dict(
+                pendula=[177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+                pendula2=[177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+            )),
+            sfs_sel=Spectra(dict(
+                pendula=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+                pendula2=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+            )),
+            fixed_params=dict(all=dict(eps=0, S_b=1, p_b=0), pendula=dict(h=0.2), pendula2=dict(h=0.8)),
+            shared_params=[SharedParams(types='all', params=['b'])],
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_h=(0, 1, 11),
+            do_bootstrap=False,
+            parallelize=True,
+            n_runs=10
+        )
+
+        inf.run()
+
+        # make sure that h values are correctly held fixed
+        self.assertEqual(0.2, inf.params_mle['pendula']['h'])
+        self.assertEqual(0.8, inf.params_mle['pendula2']['h'])
+
+        self.assertEqual(0.2, inf.joint_inferences['pendula'].params_mle['h'])
+        self.assertEqual(0.8, inf.joint_inferences['pendula2'].params_mle['h'])
+
+        self.assertEqual(0.2, inf.marginal_inferences['pendula'].params_mle['h'])
+        self.assertEqual(0.8, inf.marginal_inferences['pendula2'].params_mle['h'])
+
+        inf.plot_discretized()
+
+        # make sure that the DFE for h=0.2 is shifted towards more deleterious mutations for both marginals and joints
+        discretized = inf.get_discretized()[0]
+        self.assertGreater(discretized["marginal.pendula"][0], discretized["marginal.pendula2"][0])
+        self.assertGreater(discretized["joint.pendula"][0], discretized["joint.pendula2"][0])
+
+    def test_joint_optimized_different_h(self):
+        """
+        Test joint inference with different optimized h values.
+        """
+        inf = JointInference(
+            sfs_neut=Spectra(dict(
+                pendula=[177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+                pubescens=[172528, 3612, 1359, 790, 584, 427, 325, 234, 166, 76, 31]
+            )),
+            sfs_sel=Spectra(dict(
+                pendula=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+                pubescens=[791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
+            )),
+            fixed_params=dict(all=dict(eps=0, S_b=1, p_b=0)),
+            shared_params=[SharedParams(types='all', params=['b', 'S_d'])],
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_h=(0, 1, 11),
+            do_bootstrap=False,
+            parallelize=True,
+            n_runs=10
+        )
+
+        inf.run()
+
+        self.assertNotEqual(inf.params_mle['pendula']['h'], inf.params_mle['pubescens']['h'])
+        self.assertNotEqual(
+            inf.joint_inferences['pendula'].params_mle['h'],
+            inf.joint_inferences['pubescens'].params_mle['h']
+        )
+

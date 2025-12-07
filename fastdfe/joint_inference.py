@@ -77,7 +77,7 @@ class JointInference(BaseInference):
             include_divergence: bool = None,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
-            intervals_h: Tuple[float, float, int] = (0.0, 1.0, 100),
+            intervals_h: Tuple[float, float, int] = (0, 1, 21),
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -114,6 +114,7 @@ class JointInference(BaseInference):
             selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
+            This is only used when inferring dominance coefficients.
         :param integration_mode: Integration mode, ``quad`` not recommended
         :param linearized: Whether to use the linearized model, ``False`` not recommended
         :param model: DFE parametrization
@@ -280,7 +281,7 @@ class JointInference(BaseInference):
             opts_mle=self.optimization.opts_mle,
             method_mle=method_mle,
             loss_type=self.optimization.loss_type,
-            param_names=self.model.param_names + ['eps'] + args_cov,
+            param_names=self.model.param_names + ['eps', 'h'] + args_cov,
             parallelize=self.parallelize,
             fixed_params=self.fixed_params,
             seed=self.seed
