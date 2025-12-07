@@ -102,7 +102,7 @@ class BaseInference(AbstractInference):
             sfs_sel: Spectra | Spectrum,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
-            intervals_h: Tuple[float, float, int] = (0.0, 1.0, 100),
+            intervals_h: Tuple[float, float, int] = (0, 1, 21),
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -138,6 +138,7 @@ class BaseInference(AbstractInference):
             selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
+            This is only used when inferring dominance coefficients.
         :param integration_mode: Integration mode for the DFE, ``quad`` not recommended
         :param linearized: Whether to use the linearized DFE, ``False`` not recommended
         :param model: Instance of DFEParametrization which parametrized the DFE
@@ -223,9 +224,6 @@ class BaseInference(AbstractInference):
 
         if fixed_params == {}:
             fixed_params = {'all': {}}
-
-        if 'all' not in fixed_params:
-            raise ValueError("Fixed parameters must include an 'all' entry.")
 
         # expand 'all' type
         #: Fixed parameters

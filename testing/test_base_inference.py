@@ -1290,7 +1290,7 @@ class BaseInferenceTestCase(InferenceTestCase):
             sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
             intervals_ben=(1.0e-5, 1.0e4, 100),
             intervals_del=(-1.0e+8, -1.0e-5, 100),
-            intervals_h=(0, 1, 10),
+            intervals_h=(0, 1, 11),
             fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0}},
             parallelize=False,
             do_bootstrap=True,
@@ -1305,3 +1305,34 @@ class BaseInferenceTestCase(InferenceTestCase):
         self.assertLess(mem_gb, 0.7)
 
         self.assertGreater(inf.bootstraps.h.std(), 0)
+
+    def test_compare_nested_h_parameter(self):
+        """
+        Test nested model comparison when h is optimized in one model and fixed in the other.
+        """
+        inf1 = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            intervals_h=(0, 1, 11),
+            fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0}},
+            parallelize=True,
+            do_bootstrap=True,
+            n_runs=5,
+            n_bootstraps=20
+        )
+
+        inf1.run()
+
+        inf2 = fd.BaseInference.from_config(
+            inf1.create_config().update(
+                fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0, 'h': 0.5}}
+            )
+        )
+        inf2.run()
+
+        p = inf2.compare_nested(inf1)
+
+        self.assertTrue(0 < p < 1)
+

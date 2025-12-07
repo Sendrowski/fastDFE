@@ -67,7 +67,7 @@ class Discretization:
             h: Optional[float] = 0.5,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
-            intervals_h: Tuple[float, float, int] = (0.0, 1.0, 100),
+            intervals_h: Tuple[float, float, int] = (0, 1, 21),
             n_outer: int = 1000,
             n_inner: int = 200,
             s_chunk_size: int = 10,
@@ -409,7 +409,10 @@ class Discretization:
             return
 
         if self.h is None:
-            logger.info('Precomputing DFE-SFS transformation across dominance coefficients.')
+            logger.info(
+                f'Precomputing DFE-SFS transformation across dominance '
+                f'coefficients (grid size: {len(self.grid_h)}).'
+            )
         else:
             logger.info(f'Precomputing DFE-SFS transformation for fixed h={self.h}.')
 
@@ -451,7 +454,7 @@ class Discretization:
 
         :return: Matrix of size (n_intervals, n)
         """
-        logger.info('Precomputing linear DFE-SFS transformation using midpoint integration.')
+        logger.info('Precomputing semidominant DFE-SFS transformation using midpoint integration.')
 
         I = np.ones((self.n - 1, self.n_intervals + 1))
 
@@ -486,7 +489,7 @@ class Discretization:
 
         :return: Matrix of size (n_intervals, n)
         """
-        logger.info('Precomputing linear DFE-SFS transformation using scipy.integrate.quad.')
+        logger.info('Precomputing semidominant DFE-SFS transformation using scipy.integrate.quad.')
 
         # initialize matrix
         P = np.zeros((self.bins.shape[0] - 1, self.n - 1))
