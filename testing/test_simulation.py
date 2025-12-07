@@ -50,7 +50,12 @@ class SLiMTestCase(TestCase):
         p_b=[0.01, 0.05],
         folded=["folded", "unfolded"],
         n=[20, 100]
-    )
+    ) + expand(
+        "testing/cache/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/dominance_{h}/unfolded/sfs.csv",
+        h=np.round(np.linspace(0.1, 1, 10), 1)
+    ) + [
+        "testing/cache/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-6/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/dominance_0.0/unfolded/sfs.csv",
+    ]
 
     def test_compare_against_slim(self):
         """
@@ -68,6 +73,9 @@ class SLiMTestCase(TestCase):
                 if match:
                     params[p] = float(match.group(1))
 
+            if match := re.search(r"dominance_([\d.]+)", file_path):
+                params['h'] = float(match.group(1))
+
             Ne = spectra['neutral'].theta / (4 * params['mu'])
             params['S_b'] = 4 * Ne * params['s_b']
             params['S_d'] = -4 * Ne * params['s_d']
@@ -82,10 +90,10 @@ class SLiMTestCase(TestCase):
             )
 
             # cache discretization
-            if params['n'] in cached:
-                sim.discretization = cached[params['n']]
+            if (params['n'], params['h']) in cached:
+                sim.discretization = cached[(params['n'], params['h'])]
             else:
-                cached[params['n']] = sim.discretization
+                cached[(params['n'], params['h'])] = sim.discretization
 
             sfs_sel = sim.run()
             comp = fd.Spectra(dict(slim=spectra['selected'], fastdfe=sfs_sel))
