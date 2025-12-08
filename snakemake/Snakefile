@@ -1422,11 +1422,11 @@ rule simulate_trees_slim:
         s_d=lambda w: float(w.s_d),
         p_b=lambda w: float(w.p_b),
         h=lambda w: (
-            float(w.demography.split("_")[1])
+            float(w.demography.split("_")[-1])
             if w.demography.startswith("dominance_")
-            else None
+            else 0.5
         ),
-        demography=lambda w: w.demography.split('_')[0]
+        demography=lambda w: w.demography.rsplit('_', 1)[0]
     conda:
         "envs/slim.yaml"
     shell:
@@ -1523,9 +1523,9 @@ rule infer_dfe_slim_fastdfe:
     params:
         full_dfe=lambda w: w.p_b != 0,
         h=lambda w: (
-            float(w.demography.split("_")[1])
+            float(w.demography.split("_")[-1])
             if w.demography.startswith("dominance_")
-            else None
+            else 0.5
         )
     conda:
         "envs/base.yaml"
@@ -1547,9 +1547,9 @@ rule simulate_sfs:
         p_b=lambda w: float(w.p_b),
         n=lambda w: int(w.n),
         h=lambda w: (
-            float(w.demography.split("_")[1])
+            float(w.demography.split("_")[-1])
             if w.demography.startswith("dominance_")
-            else None
+            else 0.5
         ),
         #title=lambda w: f"g={w.g}/L={int(float(w.L) * int(w.n_chunks)):.1e}/mu={w.mu}/r={w.r}/N={w.N}/s_b={w.s_b}/b={w.b}/s_d={w.s_d}/p_b={w.p_b}"
         title=lambda w: f"$s_d$={w.s_d}, $b$={w.b}, $p_b$={w.p_b}, $s_b$={w.s_b}"

@@ -702,7 +702,6 @@ class BaseInferenceTestCase(InferenceTestCase):
         # compare MLE parameters
         self.assertLess(diff.max(), 1e-3)
 
-
     def test_run_if_necessary_wrapper_triggers_run(self):
         """
         Test whether the run_if_necessary wrapper triggers a run if the inference has not been run yet.
@@ -1306,6 +1305,36 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         self.assertGreater(inf.bootstraps.h.std(), 0)
 
+    def test_infer_h_custom_callback(self):
+        """
+        Test inference of h parameter.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            h_callback=lambda h, S: 0.4 * np.exp(-h * abs(S)),
+            intervals_h=(0, 1, 11),
+            fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0}},
+            bounds={
+                'S_d': (-100000.0, -0.01),
+                'b': (0.01, 10),
+                'p_b': (0, 0.5),
+                'S_b': (0.0001, 100),
+                'eps': (0, 0.15),
+                'h': (0, 100)
+            },
+            parallelize=False,
+            do_bootstrap=True,
+            n_bootstraps=50,
+            n_runs=10
+        )
+        inf.run()
+        inf.plot_discretized()
+
+        pass
+
     def test_compare_nested_h_parameter(self):
         """
         Test nested model comparison when h is optimized in one model and fixed in the other.
@@ -1335,4 +1364,3 @@ class BaseInferenceTestCase(InferenceTestCase):
         p = inf2.compare_nested(inf1)
 
         self.assertTrue(0 < p < 1)
-

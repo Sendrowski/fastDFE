@@ -7,7 +7,7 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-02-26"
 
 import logging
-from typing import Literal, Sequence
+from typing import Literal, Sequence, Tuple
 
 import numpy as np
 from scipy.stats import norm as normal
@@ -88,7 +88,7 @@ class Bootstrap:
             bs: np.ndarray,
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
-    ) -> (np.ndarray, np.ndarray):
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Get error values and confidence intervals from the list of original
         values and its bootstraps for a list of parameters.

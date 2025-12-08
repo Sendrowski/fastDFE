@@ -1,4 +1,3 @@
-import time
 from unittest.mock import patch
 
 import numpy as np
@@ -6,7 +5,7 @@ from matplotlib import pyplot as plt
 from scipy.special import hyp1f1
 from tqdm import tqdm
 
-from fastdfe import GammaExpParametrization, discretization
+from fastdfe import GammaExpParametrization
 from fastdfe.discretization import Discretization
 from testing import TestCase
 
@@ -193,7 +192,8 @@ class DiscretizationTestCase(TestCase):
 
         for k in range(1, self.n):
             ax2.plot(np.arange(d.s[d.s != 0].shape[0]),
-                     d.get_counts_semidominant_unregularized(d.s[d.s != 0], k * np.ones_like(d.s[d.s != 0])), label=f"k = {k}")
+                     d.get_counts_semidominant_unregularized(d.s[d.s != 0], k * np.ones_like(d.s[d.s != 0])),
+                     label=f"k = {k}")
             ax1.set_title('default')
 
         for k in range(1, self.n):
@@ -257,10 +257,10 @@ class DiscretizationTestCase(TestCase):
                 ys1 = d._get_counts_dominant(n=d.n, k=k, S=d.s, h=[0.5])[0]
                 ys2 = d.get_counts_semidominant_regularized(k=np.full_like(d.s, k), S=d.s)
 
-                diff[i,j] = (np.abs(ys1 - ys2) / (ys2 + 1e-10))
+                diff[i, j] = (np.abs(ys1 - ys2) / (ys2 + 1e-10))
 
-        diff_max = np.max(diff, axis=(1,2))
-        diff_mean = np.mean(diff, axis=(1,2))
+        diff_max = np.max(diff, axis=(1, 2))
+        diff_mean = np.mean(diff, axis=(1, 2))
         self.assertLess(diff.mean(), 0.004)
         self.assertTrue((diff_max < np.array([0.02, 0.06, 0.3])).all())
         pass
@@ -331,36 +331,134 @@ class DiscretizationTestCase(TestCase):
 
     def test_plot_over_h(self):
         """
-        Plot allele counts over h.
+        Plot allele counts over h for different h callbacks.
+        """
+        for callback in [lambda k, S: np.full_like(S, k), lambda k, S: np.full_like(S, np.sqrt(k))]:
+            d = Discretization(
+                n=10,
+                h=None,
+                h_callback=callback,
+                intervals_ben=(1, 1000, 5),
+                intervals_del=(-1.0e+8, -1, 5),
+                intervals_h=(0, 1, 10)
+            )
+
+            hs = np.linspace(0, 1, 101)
+            counts = np.array([d.get_counts(h=h) for h in hs]).transpose(1, 2, 0)
+
+            fig, ax = plt.subplots(
+                nrows=d.n // 3,
+                ncols=3,
+                figsize=(14, 10)
+            )
+            ax = ax.flatten()
+
+            for k in range(d.n - 1):
+                for j in range(d.s.shape[0]):
+                    ax[k].plot(hs, counts[k, j], alpha=0.7, label=f"S={d.s[j]:.2f}", linewidth=2)
+                ax[k].set_ylabel("SFS count")
+                ax[k].set_xlabel("h")
+                ax[k].set_yscale("log")
+                ax[k].set_title(f"k={k + 1}")
+
+            ax[0].legend(prop=dict(size=8))
+            fig.tight_layout()
+            plt.show()
+
+    def test_default_h_callback(self):
+        """
+        Make sure default results in single fixed h of 0.5.
         """
         d = Discretization(
             n=10,
+            h_callback=lambda k, S: np.full_like(S, k),
+            h=0.5,
+            intervals_h=(0.0, 1.0, 6),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1e8, -1.0e-5, 100)
+        )
+
+        np.testing.assert_array_equal(d.grid_h, [0.5])
+
+        counts1 = d.get_counts(h=0.5)
+        counts2 = d.get_counts(h=0.6)
+        np.testing.assert_array_equal((counts1 + counts2) / 2, d.get_counts(h=0.55))
+
+    def test_custom_h_fixed_callback_fixed_h(self):
+        """
+        Make sure passing fixed h callback and fixed h results in correct grid.
+        """
+        d = Discretization(
+            n=10,
+            h_callback=lambda k, S: np.full_like(S, k - 0.1),
+            h=0.5,
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1e8, -1.0e-5, 100)
+        )
+
+        np.testing.assert_array_equal(d.grid_h, [0.4])
+
+    def test_custom_h_fixed_callback_variable_h(self):
+        """
+        Make sure fixed h callback with variable h results in default grid.
+        """
+        d = Discretization(
+            n=10,
+            h_callback=lambda k, S: np.full_like(S, k - 0.1),
             h=None,
-            intervals_ben=(1, 1000, 5),
-            intervals_del=(-1.0e+8, -1, 5),
-            intervals_h=(0, 1, 11)
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1e8, -1.0e-5, 100)
         )
 
-        hs = np.linspace(0, 1, 101)
-        counts = np.array([d.get_counts(h=h) for h in hs]).transpose(1, 2, 0)
+        np.testing.assert_array_equal(d.grid_h, np.linspace(*d.intervals_h))
 
-        fig, ax = plt.subplots(
-            nrows=d.n // 3,
-            ncols=3,
-            figsize=(14, 10)
+    def test_custom_h_variable_callback_fixed_h(self):
+        """
+        Make sure variable h callback with fixed h results in correct grid and interpolation.
+        """
+        d = Discretization(
+            n=10,
+            h=0.5,
+            h_callback=lambda k, S: 0.4 * np.exp(-k * abs(S)),
+            intervals_h=(0.0, 1.0, 6),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1e8, -1.0e-5, 100)
         )
-        ax = ax.flatten()
 
-        for k in range(d.n - 1):
-            for j in range(d.s.shape[0]):
-                ax[k].plot(hs, counts[k, j], alpha=0.7, label=f"S={d.s[j]:.2f}", linewidth=2)
-            ax[k].set_ylabel("SFS count")
-            ax[k].set_xlabel("h")
-            ax[k].set_yscale("log")
-            ax[k].set_title(f"k={k+1}")
+        np.testing.assert_array_equal(d.grid_h, np.linspace(*d.intervals_h))
 
-        ax[0].legend(prop=dict(size=8))
-        fig.tight_layout()
+        i, w = d.get_interpolation_weights(h=0.5)
+        hs = d.h_callback(0.5, d.s)
+        np.testing.assert_array_almost_equal(i + w, hs * 5 + 1)
+        x = np.arange(len(d.s))
+
+        plt.plot(x, i + w, label='index + weight')
+        plt.plot(x, w, label='weights')
+        plt.plot(x, i, label='indices')
+        plt.plot(x, hs, label='h callback')
+        plt.title("Interpolation indices + weights over S")
+        plt.xlabel("S")
+        plt.ylabel("Index + weight")
+        plt.legend()
         plt.show()
 
+        pass
 
+    def test_plot_custom_h_callback(self):
+        """
+        Plot allele counts over h for a custom h callback.
+        """
+        h = lambda k, S: 0.4 * np.exp(-k * abs(S))
+
+        plt_s = np.logspace(-5, 2, 100)
+        plt_k = [10, 50, 100]
+        plt.figure(figsize=(10, 6))
+        for k in plt_k:
+            hs = h(k, plt_s)
+            plt.plot(plt_s, hs, label=f'k={k}')
+        plt.xscale('log')
+        plt.xlabel('S')
+        plt.ylabel('h')
+        plt.title('Custom h callback over S for different k')
+        plt.legend()
+        plt.show()

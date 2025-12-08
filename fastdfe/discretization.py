@@ -10,7 +10,7 @@ import logging
 from functools import wraps
 from itertools import product
 from math import comb
-from typing import Literal, Sequence, Tuple, Optional
+from typing import Literal, Sequence, Tuple, Optional, Callable
 
 import mpmath as mp
 import numpy as np
@@ -65,6 +65,7 @@ class Discretization:
             self,
             n: int,
             h: Optional[float] = 0.5,
+            h_callback: Callable[[float, np.ndarray], np.ndarray] = lambda h, S: np.full_like(S, h),
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0, 1, 21),
@@ -109,6 +110,9 @@ class Discretization:
         #: Dominance coefficient
         self.h: float = h
 
+        #: Dominance coefficient callback
+        self.h_callback: Callable[[np.ndarray], np.ndarray] = h_callback
+
         # interval bounds for discretizing DFE
         self.intervals_del: Tuple[float, float, int] = intervals_del
         self.intervals_ben: Tuple[float, float, int] = intervals_ben
@@ -136,16 +140,27 @@ class Discretization:
         self.bins: np.ndarray = self.get_bins(intervals_del, intervals_ben)
         self.s, self.interval_sizes = self.get_midpoints_and_spacing(self.bins)
 
+        #: Mapped dominance coefficients if `h` is not `None`.
+        self.h_mapped: np.ndarray
+
+        if h is not None:
+            self.h_mapped = np.unique(h_callback(h, self.s))
+        else:
+            self.h_mapped = np.array([])
+
+        #: Grid over which to precompute dominance coefficients. Either fixed or varying.
+        self.grid_h: np.ndarray
+
         # grid of dominance coefficients
-        if h is None:
+        if h is None or len(self.h_mapped) > 1:
             self.grid_h = np.linspace(*self.intervals_h)
         else:
-            self.grid_h = np.array([h])
+            self.grid_h = self.h_mapped
 
         # the number of intervals
         self.n_intervals: int = self.s.shape[0]
 
-        # cache for DFE to SFS transformations of shape (len(grid_h), n, n_intervals)
+        # cache for DFE to SFS transformations of shape (n, len(grid_h), n_intervals)
         self._cache: np.ndarray = None
 
     @staticmethod
@@ -171,7 +186,7 @@ class Discretization:
         return np.vectorize(mp.hyp1f1)(a, b, z)
 
     @staticmethod
-    def get_midpoints_and_spacing(bins: np.ndarray) -> (np.ndarray, np.ndarray):
+    def get_midpoints_and_spacing(bins: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
         Obtain midpoints and spacing for the given bins.
 
@@ -404,17 +419,17 @@ class Discretization:
             return
 
         # compute special case h = 0.5
-        if self.h == 0.5:
+        if len(self.h_mapped) == 1 and self.h_mapped[0] == 0.5:
             self._cache = self.get_counts_semidominant()[:, None, :]
             return
 
-        if self.h is None:
+        if len(self.h_mapped) == 1:
+            logger.info(f'Precomputing DFE-SFS transformation for fixed h={self.h_mapped[0]}.')
+        else:
             logger.info(
                 f'Precomputing DFE-SFS transformation across dominance '
                 f'coefficients (grid size: {len(self.grid_h)}).'
             )
-        else:
-            logger.info(f'Precomputing DFE-SFS transformation for fixed h={self.h}.')
 
         self._cache = self.get_counts_dominant_grid(self.grid_h)
 
@@ -433,19 +448,37 @@ class Discretization:
         if len(self.grid_h) == 1:
             return self._cache[:, 0, :]
 
-        # require h within precomputed range
-        if not (self.grid_h[0] <= h <= self.grid_h[-1]):
-            raise ValueError(f"h={h} is outside precomputed dominance range [{self.grid_h[0]}, {self.grid_h[-1]}].")
-
-        # find surrounding indices and weights
-        idx = np.searchsorted(self.grid_h, h)
-        h0, h1 = self.grid_h[idx - 1], self.grid_h[idx]
-        w = (h - h0) / (h1 - h0)
+        # get surrounding indices and weights
+        i, w = self.get_interpolation_weights(h)
+        j = np.arange(self.n_intervals)
 
         # linear interpolation
-        interpolated = (1.0 - w) * self._cache[:, idx - 1, :] + w * self._cache[:, idx, :]
+        interpolated = (1.0 - w) * self._cache[:, i - 1, j] + w * self._cache[:, i, j]
 
         return interpolated
+
+    def get_interpolation_weights(self, h: float) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Get indices and weights for interpolating precomputed dominance coefficients.
+
+        :param h: Dominance coefficient
+        :return: Indices and weights
+        """
+        hs = self.h_callback(h, self.s)
+
+        # require h within precomputed range
+        if hs.min() < self.grid_h.min():
+            raise ValueError(f'Dominance coefficient {hs.min()} smaller than precomputed minimum {self.grid_h.min()}.')
+
+        if hs.max() > self.grid_h.max():
+            raise ValueError(f'Dominance coefficient {hs.max()} larger than precomputed maximum {self.grid_h.max()}.')
+
+        # find surrounding indices and weights
+        i = np.searchsorted(self.grid_h, hs)
+        h0, h1 = self.grid_h[i - 1], self.grid_h[i]
+        w = (hs - h0) / (h1 - h0)
+
+        return i, w
 
     def get_counts_semidominant_midpoint(self) -> np.ndarray:
         """

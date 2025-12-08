@@ -356,7 +356,7 @@ class Inference:
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
 
-    ) -> (np.ndarray, Optional[np.ndarray]):
+    ) -> Tuple[Dict[str, np.ndarray], Dict[str, Optional[np.ndarray]]]:
         """
         Get values and errors of discretized DFE.
 
@@ -366,7 +366,7 @@ class Inference:
         :param ci_level: Confidence interval level
         :param confidence_intervals: Whether to compute confidence intervals
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
-        :return: Array of values and array of errors
+        :return: Dictionary of values and dictionary of errors indexed by labels.
         """
         values = {}
         errors = {}
@@ -496,7 +496,7 @@ class AbstractInference(ABC):
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
-    ) -> (np.ndarray, np.ndarray):
+    ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
         """
         Get discretized DFE.
 

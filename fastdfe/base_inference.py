@@ -103,6 +103,7 @@ class BaseInference(AbstractInference):
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0, 1, 21),
+            h_callback: Callable[[np.ndarray], np.ndarray] = lambda h, S: np.full_like(S, h),
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -238,6 +239,7 @@ class BaseInference(AbstractInference):
             self.discretization: Discretization = Discretization(
                 n=self.n,
                 h=self.fixed_params['all'].get('h', None),
+                h_callback=h_callback,
                 intervals_del=intervals_del,
                 intervals_ben=intervals_ben,
                 intervals_h=intervals_h,
@@ -892,7 +894,7 @@ class BaseInference(AbstractInference):
             sfs_neut: Spectrum,
             sfs_sel: Spectrum,
             folded: bool
-    ) -> (np.ndarray, np.ndarray):
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Model the selected SFS from the given parameters.
 

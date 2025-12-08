@@ -48,7 +48,7 @@ mutationEffect(m1) {
         return 1.0 + mut.selectionCoeff;
     } else {
         if (demography == "dominance_function") {
-            dom = 0.4 * exp(-139 * abs(mut.selectionCoeff));
+            dom = 0.4 * exp(-h * abs(mut.selectionCoeff));
         } else {
             dom = h;
         }
@@ -62,7 +62,7 @@ mutationEffect(m2) {
         return 1.0 + mut.selectionCoeff;
     } else {
         if (demography == "dominance_function") {
-            dom = 0.4 * exp(-139 * abs(mut.selectionCoeff));
+            dom = 0.4 * exp(-h * abs(mut.selectionCoeff));
         } else {
             dom = h;
         }
