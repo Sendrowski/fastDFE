@@ -9,6 +9,8 @@ __date__ = "2024-12-25"
 import numpy as np
 from matplotlib import pyplot as plt
 
+from snakemake.scripts.infer_dfe_slim_fastdfe import demography
+
 try:
     import sys
 
@@ -24,6 +26,7 @@ try:
     n = snakemake.params.n
     h = snakemake.params.h
     mu = snakemake.params.mu
+    demography = snakemake.params.demography
     title = snakemake.params.title
     out_sfs = snakemake.output.sfs
     out_comparison = snakemake.output.comp
@@ -38,6 +41,7 @@ except NameError:
     n = 20
     h = 0.2
     mu = 1e-8
+    demography = "dominance_function"
     title = "$s_b$=1e-9, $b=1$, $s_d=1e-1$, $p_b=0.2$"
     out_sfs = "scratch/sfs.csv"
     out_comparison = "scratch/comp.png"
@@ -53,6 +57,11 @@ model = fd.GammaExpParametrization()
 model.bounds['S_b'] = (1e-10, 100)
 model.bounds['S_d'] = (-1e6, -1e-2)
 
+if demography == 'dominance_function':
+    h_callback = lambda k, S: 0.4 * np.exp(-k * abs(S))
+else:
+    h_callback = lambda h, S: np.full_like(S, h)
+
 sim = fd.Simulation(
     params=dict(
         S_b=4 * Ne * s_b,
@@ -61,6 +70,7 @@ sim = fd.Simulation(
         p_b=p_b,
         h=h,
     ),
+    h_callback=h_callback,
     sfs_neut=spectra['neutral'],
     model=model,
     parallelize=False,
