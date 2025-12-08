@@ -9,6 +9,7 @@ __date__ = "2023-05-29"
 import gzip
 import hashlib
 import logging
+import re
 import os
 import shutil
 import tempfile
@@ -226,6 +227,47 @@ class DummyVariant(Variant):
 
         #: The contig
         self.CHROM = chrom
+
+
+class ZarrVariant(Variant):
+    variant_contig: int
+
+    def __init__(self, ref: str, pos: int, chrom: str,
+                 gt_bases: np.ndarray, variant_contig: int = None,
+                 is_snp: bool = False, is_mnp: bool = False,
+                 info: Dict[str, any] = {}):
+        """
+        Initialize the Zarr variant.
+
+        :param ref: The reference allele
+        :param pos: The position
+        :param chrom: The contig
+        :param gt_bases: The genotype bases
+        :param variant_contig: The contig id (number)
+        :param is_snp: Whether the variant is an SNP
+        :param is_mnp: Whether the variant is an MNP
+        :param info: The INFO field
+        """
+        #: The reference allele
+        self.REF = ref
+
+        #: The position
+        self.POS = pos
+
+        #: The contig
+        self.CHROM = chrom
+
+        #: The genotypes
+        self.gt_bases = gt_bases
+
+        #: The contig id (number)
+        self.variant_contig = variant_contig
+
+        self.is_snp = is_snp
+
+        self.is_mnp = is_mnp
+
+        self.INFO = info
 
 
 class FileHandler:
@@ -829,6 +871,116 @@ class ZarrHandler(VariantHandler):
     """
     Zarr handler.
     """
+    zarr_suffixes = [".vcz"]
+
+    def __init__(
+        self,
+        vcf: str | Iterable['ZarrVariant'],
+        output: str = None,
+        info_ancestral: str = 'AA',
+        max_sites: int = np.inf,
+        seed: int | None = 0,
+        cache: bool = True,
+        aliases: Dict[str, List[str]] = {}
+    ):
+        """
+        Create a new Zarr instance.
+
+        :param vcf: The path to the Zarr store.
+        :param output: The output store. Defaults to the input store.
+        :param info_ancestral: The tag in the INFO field that contains the ancestral allele
+        :param max_sites: Maximum number of sites to consider
+        :param seed: Seed for the random number generator. Use ``None`` for no seed.
+        :param cache: Whether to cache files that are downloaded from URLs
+        :param aliases: The contig aliases.
+        """
+        FileHandler.__init__(self, cache=cache, aliases=aliases)
+
+        #: The path to the VCF file or an iterable of variants
+        self.vcf = vcf
+
+        #: The output zarr store.
+        self.output: str = self.vcf if output is None else output
+
+        # The name of the ancestral allele Zarr array
+        self.info_ancestral: str = info_ancestral
+
+        #: Maximum number of sites to consider
+        self.max_sites: int = int(max_sites) if not np.isinf(max_sites) else np.inf
+
+        #: Seed for the random number generator
+        self.seed: Optional[int] = int(seed) if seed is not None else None
+
+        #: Random generator instance
+        self.rng = np.random.default_rng(seed=seed)
+
+
+    @cached_property
+    def _reader(self) -> 'ZarrReader':
+        return self.load_variants()
+
+
+    @cached_property
+    def _writer(self):
+        """
+        Get the Zarr writer.
+
+        :return: The Zarr writer.
+        """
+        return ZarrWriter(self.output)
+
+
+    def _rewind(self):
+        """
+        Rewind the Zarr iterator.
+        """
+        if hasattr(self, '_reader'):
+            # noinspection all
+            del self._reader
+
+    def count_sites(self) -> int:
+        """
+        Count the number of sites in the Zarr store.
+
+        :return: Number of sites
+        """
+        return self._reader.count_sites()
+
+
+    @cached_property
+    def n_sites(self) -> int:
+        """
+        Get the number of sites in the VCF.
+
+        :return: Number of sites
+        """
+        return self.count_sites()
+
+
+    def load_variants(self) -> 'ZarrReader':
+        """
+        Load a Zarr archive a dictionary.
+
+        :return: The Zarr reader.
+        """
+        self._logger.info("Loading Zarr archive for reading")
+        return ZarrReader(self.vcf)
+
+
+    def get_pbar(self, desc: str = "Processing sites", total: int | None = 0) -> tqdm:
+        """
+        Return a progress bar for the number of sites.
+
+        :param desc: Description for the progress bar
+        :param total: Total number of items
+        :return: tqdm
+        """
+        return tqdm(
+            total=self.n_sites if total == 0 else total,
+            disable=Settings.disable_pbar,
+            desc=desc
+        )
+
 
     @staticmethod
     def is_zarr(path: str) -> bool:
@@ -838,21 +990,181 @@ class ZarrHandler(VariantHandler):
         :param path: The path to check.
         :return: ``True`` if the path is a Zarr file, ``False`` otherwise.
         """
-        pass
+        _, sfx = os.path.splitext(path)
+        return os.path.isdir(path) and (sfx in ZarrHandler.zarr_suffixes)
 
 
 class ZarrReader(VariantReader):
     """
     Zarr reader.
     """
-    pass
+    def __init__(
+        self,
+        zarrstore: str,
+        samples: List[str] | None = None,
+    ):
+        """
+        Create a new ZarrReader instance.
+        :param zarrstore: The path to the Zarr store.
+        """
+        try:
+            from vcztools import retrieval
+        except ImportError:
+            raise ImportError(
+                "Zarr support in fastdfe requires the optional 'vcztools' package. "
+                "Please install vcztools: pip install vcztools"
+            )
+        self._retrieval = retrieval
+        self.zarr = zarrstore
+        self._samples = self._parse_samples(samples)
+        self.fields = None
+
+    def __enter__(self):
+        return self
+
+    def __iter__(self) -> Iterator[ZarrVariant]:
+        return self
+
+    def __next__(self) -> ZarrVariant:
+        try:
+            v = next(self.iter)
+        except IndexError:
+            raise StopIteration
+        except StopIteration:
+            raise StopIteration
+        alleles = v["variant_allele"]
+        phased = v["call_genotype_phased"]
+        gt_bases = np.array([
+            ["/", "|"][np.int8(ph)].join(alleles[gt]) for ph, gt in zip(phased, v["call_genotype"])
+        ])
+        is_snp = v["variant_length"] == 1
+        is_mnp = v["variant_length"] > 1
+
+        # Set the info fields
+        info = dict(
+            (re.sub(r"^variant_", "", k), v[k]) for k in v.keys() if k.startswith("variant_")
+        )
+
+        return ZarrVariant(
+            ref=alleles[0],
+            chrom=self.seqnames[v["variant_contig"]],
+            pos=v["variant_position"],
+            gt_bases=gt_bases,
+            variant_contig=v["variant_contig"],
+            is_snp=is_snp, is_mnp=is_mnp,
+            info=info
+        )
+
+
+    def _variant_iter(self) -> Iterator:
+        """
+        Get the Zarr variant iterator.
+        :return: The Zarr variant iterator.
+        """
+        return self._retrieval.variant_iter(
+            self.zarr, samples=self.samples,
+            fields=self.fields
+        )
+
+    def _parse_samples(self, samples):
+        all_samples = self.root['sample_id'][:]
+        return list(self._retrieval.parse_samples(samples, all_samples)[0])
+
+
+    @property
+    def samples(self) -> List[str]:
+        """
+        List of sample names.
+
+        :return: The sample names.
+        """
+        return self._samples
+
+
+    @cached_property
+    def iter(self) -> Iterator:
+        """
+        Get the Zarr variant iterator.
+
+        :return: The Zarr variant iterator.
+        """
+        return self._variant_iter()
+
+
+    def close(self):
+        pass
+
+
+    def count_sites(self) -> int:
+        """
+        Count the number of sites in the Zarr store.
+        :return: Number of sites
+        """
+        return self.root["variant_id"].shape[0]
+
+    def add_info_to_header(self, data: dict):
+        pass
+
+    @cached_property
+    def root(self):
+        """The Zarr root group."""
+        return self._init_store()
+
+    def _init_store(self):
+        """Initialize the Zarr store."""
+        try:
+            import zarr
+        except ImportError:
+            raise ImportError(
+                "Zarr support in fastdfe requires the optional 'zarr' package. "
+                "Please install fastdfe with the 'zarr' extra: pip install fastdfe[zarr]"
+            )
+        return zarr.open(self.zarr, mode='r')
+
+    @cached_property
+    def seqnames(self):
+        """
+        List of chromosome/contig names.
+
+        :return: The sequence names.
+        """
+        return list(self.root["contig_id"][:])
 
 
 class ZarrWriter(VariantWriter):
     """
     Zarr writer.
     """
-    pass
+
+    def __init__(self, path: str):
+        """
+        Create a new ZarrWriter instance.
+        :param path: The path to the Zarr store.
+        """
+        try:
+            import zarr
+        except ImportError:
+            raise ImportError(
+                "Zarr support in fastdfe requires the optional 'zarr' package. "
+                "Please install fastdfe with the 'zarr' extra: pip install fastdfe[zarr]"
+            )
+        self.zarr = path
+        self.store = zarr.open(self.zarr, mode='a')
+        # FIXME: Initialize temporary arrays to hold fields that are
+        # to be annotated
+
+    def write_record(self, variant: ZarrVariant):
+        # FIXME: write the modified fields to a temporary array and
+        # then write these arrays in one go to the correct positions
+        # in the Zarr store. Need to keep track of which fields are
+        # being annotated.
+        print(variant)
+
+    def close(self):
+        # FIXME: flush / write the temporary arrays to the Zarr store
+        # here.
+        pass
+
 
 
 class VCFHandler(VariantHandler):
