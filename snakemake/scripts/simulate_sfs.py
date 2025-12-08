@@ -9,8 +9,6 @@ __date__ = "2024-12-25"
 import numpy as np
 from matplotlib import pyplot as plt
 
-from snakemake.scripts.infer_dfe_slim_fastdfe import demography
-
 try:
     import sys
 
