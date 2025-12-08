@@ -1,0 +1,6 @@
+{
+    "_ARRAY_DIMENSIONS": [
+        "variants"
+    ],
+    "description": "Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities"
+}
