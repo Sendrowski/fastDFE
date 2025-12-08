@@ -78,6 +78,7 @@ class JointInference(BaseInference):
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0, 1, 21),
+            h_callback: Callable[[np.ndarray], np.ndarray] = lambda h, S: np.full_like(S, h),
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -112,13 +113,23 @@ class JointInference(BaseInference):
         :param include_divergence: Whether to include divergence in the likelihood
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
-        :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
+        :param intervals_ben: Same as `intervals_del` but for positive selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
-            This is only used when inferring dominance coefficients.
-        :param integration_mode: Integration mode, ``quad`` not recommended
-        :param linearized: Whether to use the linearized model, ``False`` not recommended
+            This is only used when inferring dominance coefficients. Values of `h` between the edges will be
+            interpolated linearly.
+        :param h_callback: A function mapping the scalar parameter `h` and the array of selection
+            coefficients `S` to dominance coefficients of the same shape, allowing models where `h`
+            depends on `S`. The default is ``lambda h, S: np.full_like(S, h)``, keeping `h` constant.
+            Expected allele counts for a given dominance value are obtained by linear interpolation
+            between precomputed values in `intervals_h`. The inferred parameter is still named `h`,
+            even if transformed by `h_callback`, and its bounds, scales, and initial values can be set
+            via `bounds`, `scales`, and `x0`.
+        :param integration_mode: Integration mode when computing expected SFS under semidominance.
+            `quad` is not recommended.
+        :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
+            `scipy.integrate.quad` in each call. `False` not recommended.
         :param model: DFE parametrization
-        :param seed: Random seed. Use ``None`` for no seed.
+        :param seed: Random seed. Use `None` for no seed.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
         :param bounds: Bounds for the optimization in the form ``{param: (lower, upper)}``
         :param scales: Scales for the optimization in the form ``{param: scale}``
@@ -221,6 +232,7 @@ class JointInference(BaseInference):
                 intervals_del=intervals_del,
                 intervals_ben=intervals_ben,
                 intervals_h=intervals_h,
+                h_callback=h_callback,
                 integration_mode=integration_mode,
                 linearized=linearized,
                 parallelize=parallelize

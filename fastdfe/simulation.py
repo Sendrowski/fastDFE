@@ -54,6 +54,8 @@ class Simulation:
             sfs_neut: Spectrum = None,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
+            intervals_h: Tuple[float, float, int] = (0, 1, 21),
+            h_callback: Callable[[np.ndarray], np.ndarray] = lambda h, S: np.full_like(S, h),
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             discretization: Discretization = None,
@@ -71,8 +73,20 @@ class Simulation:
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as `intervals_del` but for positive selection coefficients
-        :param integration_mode: Integration mode for the DFE, `quad` not recommended
-        :param linearized: Whether to use the linearized DFE, `False` not recommended
+        :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
+            This is only used when inferring dominance coefficients. Values of `h` between the edges will be
+            interpolated linearly.
+        :param h_callback: A function mapping the scalar parameter `h` and the array of selection
+            coefficients `S` to dominance coefficients of the same shape, allowing models where `h`
+            depends on `S`. The default is ``lambda h, S: np.full_like(S, h)``, keeping `h` constant.
+            Expected allele counts for a given dominance value are obtained by linear interpolation
+            between precomputed values in `intervals_h`. The inferred parameter is still named `h`,
+            even if transformed by `h_callback`, and its bounds, scales, and initial values can be set
+            via `bounds`, `scales`, and `x0`.
+        :param integration_mode: Integration mode when computing expected SFS under semidominance.
+            `quad` is not recommended.
+        :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
+            `scipy.integrate.quad` in each call. `False` not recommended.
         :param parallelize: Whether to parallelize computations
         """
         #: The DFE parametrization
@@ -110,6 +124,8 @@ class Simulation:
                 h=self.params['h'],
                 intervals_del=intervals_del,
                 intervals_ben=intervals_ben,
+                intervals_h=intervals_h,
+                h_callback=h_callback,
                 integration_mode=integration_mode,
                 linearized=linearized,
                 parallelize=parallelize

@@ -131,19 +131,29 @@ class BaseInference(AbstractInference):
 
         :param sfs_neut: The neutral SFS. Note that we require monomorphic counts to be specified in order to infer
             the mutation rate. If a :class:`~fastdfe.spectrum.Spectra` object with more than one SFS is provided, the
-            ``all`` attribute will be used.
+            `all` attribute will be used.
         :param sfs_sel: The selected SFS. Note that we require monomorphic counts to be specified in order to infer
             the mutation rate. If a :class:`~fastdfe.spectrum.Spectra` object with more than one SFS is provided, the
-            ``all`` attribute will be used.
+            `all` attribute will be used.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
-        :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
+        :param intervals_ben: Same as `intervals_del` but for positive selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
-            This is only used when inferring dominance coefficients.
-        :param integration_mode: Integration mode for the DFE, ``quad`` not recommended
-        :param linearized: Whether to use the linearized DFE, ``False`` not recommended
+            This is only used when inferring dominance coefficients. Values of `h` between the edges will be
+            interpolated linearly.
+        :param h_callback: A function mapping the scalar parameter `h` and the array of selection
+            coefficients `S` to dominance coefficients of the same shape, allowing models where `h`
+            depends on `S`. The default is ``lambda h, S: np.full_like(S, h)``, keeping `h` constant.
+            Expected allele counts for a given dominance value are obtained by linear interpolation
+            between precomputed values in `intervals_h`. The inferred parameter is still named `h`,
+            even if transformed by `h_callback`, and its bounds, scales, and initial values can be set
+            via `bounds`, `scales`, and `x0`.
+        :param integration_mode: Integration mode when computing expected SFS under semidominance.
+            `quad` is not recommended.
+        :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
+            `scipy.integrate.quad` in each call. `False` not recommended.
         :param model: Instance of DFEParametrization which parametrized the DFE
-        :param seed: Seed for the random number generator. Use ``None`` for no seed.
+        :param seed: Seed for the random number generator. Use `None` for no seed.
         :param x0: Dictionary of initial values in the form ``{'all': {param: value}}``
         :param bounds: Bounds for the optimization in the form ``{param: (lower, upper)}``
         :param scales: Scales for the optimization in the form ``{param: scale}``
@@ -825,7 +835,6 @@ class BaseInference(AbstractInference):
 
             # run `n_bootstrap_retries` times
             for i in range(max(self.n_bootstrap_retries, 1)):
-
                 # perform numerical minimization
                 result, params_mle = self.optimization.run(
                     x0=x0,

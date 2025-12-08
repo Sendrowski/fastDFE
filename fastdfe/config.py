@@ -73,9 +73,12 @@ class Config:
             selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
-            This is only used when inferring dominance coefficients.
-        :param integration_mode: Integration mode, ``quad`` not recommended
-        :param linearized: Whether to use the linearized version of the DFE, ``False`` not recommended.
+            This is only used when inferring dominance coefficients. Values of `h` between the edges will be
+            interpolated linearly.
+        :param integration_mode: Integration mode when computing expected SFS under semidominance.
+            `quad` is not recommended.
+        :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
+            `scipy.integrate.quad` in each call. `False` not recommended.
         :param model: Parametrization of the DFE.
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``

@@ -84,7 +84,9 @@ class Discretization:
             `intervals_h` and interpolated as needed.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled selection coefficients.
         :param intervals_ben: ``(start, stop, n_interval)`` for beneficial population-scaled selection coefficients.
-        :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients.
+        :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
+            This is only used when inferring dominance coefficients. Values of `h` between the edges will be
+            interpolated linearly.
         :param n_outer: Number of grid points for outer integrals when computing allele counts for varying
             dominance coefficients.
         :param n_inner: Number of grid points for inner integrals when computing allele counts for varying
@@ -92,7 +94,8 @@ class Discretization:
         :param s_chunk_size: Chunk size for S values when precomputing across dominance coefficients.
             This controls memory usage vs. speed trade-off.
         :param integration_mode : 'midpoint' or 'quad' for midpoint integration or Scipy's quad method.
-        :param linearized: Whether to use linearized integral or compute integral numerically in each iteration.
+        :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
+            `scipy.integrate.quad` in each call.
         :param parallelize: Whether to parallelize the computation of the discretization.
         """
         # make sure lower bounds are lower than upper bounds
@@ -730,6 +733,10 @@ class Discretization:
             # the interval sizes are already included here
             counts_modelled = self.get_counts(params.get('h', 0.5)) @ dfe
         else:
+
+            if params.get('h', 0.5) != 0.5:
+                raise NotImplementedError('Non-linearized integral currently only implemented for h = 0.5.')
+
             dfe_pdf = model.get_pdf(**params)
 
             def integrate(k: int) -> float:
