@@ -56,7 +56,7 @@ class Discretization:
     """
 
     #: Dominance coefficient, static to ensure backward compatibility
-    h: float = 0.5
+    h_mapped: float = np.array([0.5])
 
     #: Grid of dominance coefficients, static to ensure backward compatibility
     grid_h: np.ndarray = np.array([0.5])
@@ -80,8 +80,9 @@ class Discretization:
         Create Discretization instance.
 
         :param n: Number of individuals in the SFS sample.
-        :param h: Dominance coefficient if not varying, else `None`. When `None`, `h` is precomputed across
-            `intervals_h` and interpolated as needed.
+        :param h: Parameter h mapping dominance coefficients if not varying, else `None`. When `None`, or if
+            `h_callback` produces varying values, dominance coefficients are precomputed across `intervals_h`
+            and interpolated as needed. Otherwise, only the fixed value is precomputed.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled selection coefficients.
         :param intervals_ben: ``(start, stop, n_interval)`` for beneficial population-scaled selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
@@ -110,7 +111,7 @@ class Discretization:
         #: SFS sample size
         self.n: int = n
 
-        #: Dominance coefficient
+        #: Parameter h mapping dominance coefficients if not varying
         self.h: float = h
 
         #: Dominance coefficient callback
@@ -133,9 +134,6 @@ class Discretization:
         self.integration_mode: Literal['midpoint', 'quad'] = integration_mode
         self.linearized: bool = linearized
         self.parallelize: bool = parallelize
-
-        # iteration counter
-        self.n_it: int = 0
 
         # define bins, midpoints and step size
         # these intervals are used when linearizing the integral
@@ -441,7 +439,7 @@ class Discretization:
         Get DFE to SFS transformation for given dominance coefficient using precomputed values.
         Interpolates linearly between precomputed values.
 
-        :param h: Dominance coefficient
+        :param h: Parameter h mapping dominance coefficients
         :return: Matrix of size (n_intervals, n)
         """
         # check for attribute to ensure backwards compatibility
@@ -464,7 +462,7 @@ class Discretization:
         """
         Get indices and weights for interpolating precomputed dominance coefficients.
 
-        :param h: Dominance coefficient
+        :param h: Parameter h mapping dominance coefficients
         :return: Indices and weights
         """
         hs = self.h_callback(h, self.s)

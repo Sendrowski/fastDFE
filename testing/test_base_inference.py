@@ -618,7 +618,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Check whether the is_nested method works as expected.
         """
-        config1 = fd.Config.from_file(self.config_file)
+        config1 = fd.Config.from_file(self.config_file).update(fixed_params={})
         config2 = copy.deepcopy(config1).update(fixed_params={}, model=fd.DiscreteParametrization())
         config3 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0)))
         config4 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0, S_b=1)))
