@@ -468,7 +468,7 @@ class DiscretizationTestCase(TestCase):
         h = lambda k, S: 0.4 * np.exp(-k * abs(S))
 
         plt_s = np.logspace(-5, 2, 100)
-        plt_k = [10, 50, 100]
+        plt_k = [0.1, 1, 10, 100]
         plt.figure(figsize=(10, 6))
         for k in plt_k:
             hs = h(k, plt_s)
