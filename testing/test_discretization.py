@@ -479,3 +479,10 @@ class DiscretizationTestCase(TestCase):
         plt.title('Custom h callback over S for different k')
         plt.legend()
         plt.show()
+
+    def test_fixed_h_vs_interpolated_h(self):
+        """
+        TODO Compare allele counts obtained using fixed h vs interpolated h where S changes with h.
+        """
+        raise NotImplementedError()
+

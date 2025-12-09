@@ -32,13 +32,13 @@ try:
 except NameError:
     # testing
     testing = True
-    sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-6/N=1e3/s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05/n=20/dominance_0.0/unfolded/sfs.csv'
+    sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/dominance_function_10/unfolded/sfs.csv'
     s_b = 1e-3
     b = 0.3
     s_d = 3e-2
     p_b = 0.05
     n = 20
-    h = 0.5
+    h = 10
     mu = 1e-8
     demography = "dominance_function"
     parallelize = True
@@ -58,7 +58,8 @@ model.bounds['S_b'] = (1e-10, 100)
 model.bounds['S_d'] = (-1e6, -1e-2)
 
 if demography == 'dominance_function':
-    h_callback = lambda k, S: 0.4 * np.exp(-k * abs(S / (4 * Ne)))
+    h_callback = lambda k, S: 0.4 * np.exp(-h * abs(S / (4 * Ne)))
+    #h_callback = lambda k, S: np.full_like(S, 0.7)
 else:
     h_callback = lambda h, S: np.full_like(S, h)
 
@@ -70,6 +71,8 @@ sim = fd.Simulation(
         p_b=p_b,
         h=h,
     ),
+    intervals_del=(-1.0e+8, -1.0e-5, 100),
+    intervals_ben=(1.0e-5, 1.0e4, 100),
     h_callback=h_callback,
     sfs_neut=spectra['neutral'],
     model=model,

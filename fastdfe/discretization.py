@@ -58,9 +58,6 @@ class Discretization:
     #: Dominance coefficient, static to ensure backward compatibility
     h_mapped: float = np.array([0.5])
 
-    #: Grid of dominance coefficients, static to ensure backward compatibility
-    grid_h: np.ndarray = np.array([0.5])
-
     def __init__(
             self,
             n: int,
@@ -422,10 +419,10 @@ class Discretization:
             self._cache = self.get_counts_semidominant()[:, None, :]
             return
 
-        if self.h is not None:
-            logger.info('Precomputing DFE-SFS transformation for fixed dominance coefficients.')
-        elif isinstance(self.h_mapped, np.ndarray) and self.h_mapped.size == 1:
+        if isinstance(self.h_mapped, np.ndarray) and self.h_mapped.size == 1:
             logger.info(f'Precomputing DFE-SFS transformation for fixed h={self.h_mapped[0]}.')
+        elif self.h is not None:
+            logger.info('Precomputing DFE-SFS transformation for fixed dominance coefficients.')
         else:
             logger.info(
                 f'Precomputing DFE-SFS transformation across dominance coefficients (grid size: {len(self.grid_h)}).'
@@ -445,6 +442,7 @@ class Discretization:
         if not hasattr(self, "_cache") or self._cache is None:
             self.precompute()
 
+        # return single precomputed value if h is fixed
         if self.h is not None:
             return self._cache[:, 0, :]
 
@@ -452,14 +450,14 @@ class Discretization:
         i, w = self.get_interpolation_weights(h)
         j = np.arange(self.n_intervals)
 
-        # linear interpolation
+        # linear interpolation between h values
         interpolated = (1.0 - w) * self._cache[:, i - 1, j] + w * self._cache[:, i, j]
 
         return interpolated
 
     def get_interpolation_weights(self, h: float) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Get indices and weights for interpolating precomputed dominance coefficients.
+        Get indices and weights for interpolating precomputed dominance coefficients across S.
 
         :param h: Parameter h mapping dominance coefficients
         :return: Indices and weights
