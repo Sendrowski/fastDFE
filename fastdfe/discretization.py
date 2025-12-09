@@ -80,9 +80,9 @@ class Discretization:
         Create Discretization instance.
 
         :param n: Number of individuals in the SFS sample.
-        :param h: Parameter h mapping dominance coefficients if not varying, else `None`. When `None`, or if
-            `h_callback` produces varying values, dominance coefficients are precomputed across `intervals_h`
-            and interpolated as needed. Otherwise, only the fixed value is precomputed.
+        :param h: Parameter h mapping dominance coefficients if not varying, else `None`. When `None`, dominance
+            coefficients are precomputed across `intervals_h` and interpolated as needed. Otherwise, only the fixed
+            value is precomputed.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled selection coefficients.
         :param intervals_ben: ``(start, stop, n_interval)`` for beneficial population-scaled selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
@@ -141,22 +141,16 @@ class Discretization:
         self.bins: np.ndarray = self.get_bins(intervals_del, intervals_ben)
         self.s, self.interval_sizes = self.get_midpoints_and_spacing(self.bins)
 
-        #: Mapped dominance coefficients if `h` is not `None`.
-        self.h_mapped: np.ndarray
+        if h is None:
+            self.h_mapped: Optional[np.ndarray] = None
 
-        if h is not None:
-            self.h_mapped = np.unique(h_callback(h, self.s))
+            #: Grid over which to precompute dominance coefficients. Either fixed or varying.
+            self.grid_h: Optional[np.ndarray] = np.linspace(*self.intervals_h)
         else:
-            self.h_mapped = np.array([])
+            #: Mapped dominance coefficients if `h` is not `None`.
+            self.h_mapped: Optional[np.ndarray] = h_callback(h, self.bins)
 
-        #: Grid over which to precompute dominance coefficients. Either fixed or varying.
-        self.grid_h: np.ndarray
-
-        # grid of dominance coefficients
-        if h is None or len(self.h_mapped) > 1:
-            self.grid_h = np.linspace(*self.intervals_h)
-        else:
-            self.grid_h = self.h_mapped
+            self.grid_h: Optional[np.ndarray] = None
 
         # the number of intervals
         self.n_intervals: int = self.s.shape[0]
@@ -314,7 +308,7 @@ class Discretization:
     def _get_counts_dominant(
             n: int,
             k: int,
-            h: np.ndarray,
+            h: float | np.ndarray,
             S: np.ndarray,
             n_outer: int = 1000,
             n_inner: int = 200,
@@ -325,15 +319,15 @@ class Discretization:
 
         :param n: Sample size.
         :param k: Allele count.
-        :param h: Dominance coefficients.
+        :param h: Dominance coefficients associated with selection coefficients or single dominance coefficient.
         :param S: Selection coefficients.
         :param n_outer: Grid size for outer integral over allele frequencies for binomial sampling.
         :param n_inner: Grid size for inner integrals over allele frequencies.
         :param pow_cluster: Power for clustering grid points towards 0.
 
-        :return: Array of shape (len(h), len(S)) with allele counts.
+        :return: Array of shape (len(S),) with allele counts.
         """
-        h = np.asarray(h)
+        h = np.full_like(S, h) if np.isscalar(h) else np.asarray(h)
         S = np.asarray(S)
 
         # x-grid (same as your scalar code)
@@ -343,72 +337,74 @@ class Discretization:
         binom = comb(n, k) * x ** (k - 1) * (1 - x) ** (n - k - 1)  # (n_outer,)
 
         # result array
-        y = np.empty((h.size, S.size), dtype=float)  # (H, P)
+        y = np.empty(S.size, dtype=float)  # (P,)
 
         is_deleterious = S <= 0
         if is_deleterious.any():
             S_neg = S[is_deleterious]  # (P1,)
+            h_neg = h[is_deleterious]  # (P1,)
             p1 = S_neg.size
 
             t = np.linspace(0, 1, n_inner)  # (n_inner,)
 
             # q-grid from x to 1
-            xx = x[:, None, None, None] + (1 - x)[:, None, None, None] * t[None, None, None, :]
-            xx = np.broadcast_to(xx, (n_outer, h.size, p1, n_inner))  # (n_outer, H, P1, n_inner)
+            xx = x[:, None, None] + (1 - x)[:, None, None] * t[None, None, :]
+            xx = np.broadcast_to(xx, (n_outer, p1, n_inner))  # (n_outer, P1, n_inner)
 
-            H4 = h[None, :, None, None]  # (1, H, 1, 1)
-            SN4 = S_neg[None, None, :, None]  # (1, 1, P1, 1)
+            H4 = h_neg[None, :, None]  # (1, P1, 1)
+            SN4 = S_neg[None, :, None]  # (1, P1, 1)
 
-            exponent = -2 * SN4 * H4 * xx - SN4 * (1 - 2 * H4) * xx ** 2  # (n_outer, H, P1, n_inner)
+            exponent = -2 * SN4 * H4 * xx - SN4 * (1 - 2 * H4) * xx ** 2  # (n_outer, P1, n_inner)
 
-            max_exp = exponent.max(axis=(0, 3), keepdims=True)  # (1, H, P1, 1)
+            max_exp = exponent.max(axis=2, keepdims=True)  # (n_outer, P1, 1)
 
-            norm_q = np.trapz(np.exp(exponent - max_exp), xx, axis=3)  # (n_outer, H, P1)
+            norm_q = np.trapz(np.exp(exponent - max_exp), xx, axis=2)  # (n_outer, P1)
             del exponent, xx
-            norm0 = norm_q[0]  # (H, P1)
+            norm0 = norm_q[0]  # (P1,)
 
-            H3 = h[None, :, None]  # (1, H, 1)
-            SN3 = S_neg[None, None, :]  # (1, 1, P1)
+            H3 = h_neg[None, :]  # (1, P1)
+            SN3 = S_neg[None, :]  # (1, P1)
 
             exponent_main = np.exp(
-                2 * SN3 * H3 * x[:, None, None] +
-                SN3 * (1 - 2 * H3) * x[:, None, None] ** 2
-            )  # (n_outer, H, P1)
+                2 * SN3 * H3 * x[:, None] +
+                SN3 * (1 - 2 * H3) * x[:, None] ** 2
+            )  # (n_outer, P1)
 
-            ratio = norm_q / norm0  # (n_outer, H, P1)
+            ratio = norm_q / norm0  # (n_outer, P1)
 
-            integrand = binom[:, None, None] * exponent_main * ratio  # (n_outer, H, P1)
+            integrand = binom[:, None] * exponent_main * ratio  # (n_outer, P1)
 
-            y[:, is_deleterious] = np.trapz(integrand, x, axis=0)  # (H, P1)
+            y[is_deleterious] = np.trapz(integrand, x, axis=0)  # (P1,)
 
         if (~is_deleterious).any():
             S_pos = S[~is_deleterious]  # (P2,)
+            h_pos = h[~is_deleterious]  # (P2,)
             p2 = S_pos.size
 
             xx0 = np.linspace(0, 1, n_inner) ** pow_cluster  # (n_inner,)
 
-            Hn = h[:, None, None]  # (H, 1, 1)
-            SPn = S_pos[None, :, None]  # (1, P2, 1)
-            XX0 = xx0[None, None, :]  # (1, 1, n_inner)
+            Hn = h_pos[:, None]  # (P2, 1)
+            SPn = S_pos[:, None]  # (P2, 1)
+            XX0 = xx0[None, :]  # (1, n_inner)
 
-            exponent0 = -2 * SPn * Hn * XX0 - SPn * (1 - 2 * Hn) * XX0 ** 2  # (H, P2, n_inner)
-            norm0 = np.trapz(np.exp(exponent0), xx0, axis=2)  # (H, P2)
+            exponent0 = -2 * SPn * Hn * XX0 - SPn * (1 - 2 * Hn) * XX0 ** 2  # (P2, n_inner)
+            norm0 = np.trapz(np.exp(exponent0), xx0, axis=1)  # (P2,)
 
             t = np.linspace(0, 1, n_inner) ** 5  # (n_inner,)
-            xx = x[:, None, None, None] + (1 - x)[:, None, None, None] * t[None, None, None, :]
-            xx = np.broadcast_to(xx, (n_outer, h.size, p2, n_inner))  # (n_outer, H, P2, n_inner)
+            xx = x[:, None, None] + (1 - x)[:, None, None] * t[None, None, :]
+            xx = np.broadcast_to(xx, (n_outer, p2, n_inner))  # (n_outer, P2, n_inner)
 
-            X = x[:, None, None, None]  # (n_outer, 1, 1, 1)
-            H4b = h[None, :, None, None]  # (1, H, 1, 1)
-            SP4b = S_pos[None, None, :, None]  # (1, 1, P2, 1)
+            X = x[:, None, None]  # (n_outer, 1, 1)
+            H4b = h_pos[None, :, None]  # (1, P2, 1)
+            SP4b = S_pos[None, :, None]  # (1, P2, 1)
 
-            term = SP4b * (X - xx) * ((1 - 2 * H4b) * (X + xx) + 2 * H4b)  # (n_outer, H, P2, n_inner)
-            c = np.trapz(np.exp(term), xx, axis=3)  # (n_outer, H, P2)
+            term = SP4b * (X - xx) * ((1 - 2 * H4b) * (X + xx) + 2 * H4b)  # (n_outer, P2, n_inner)
+            c = np.trapz(np.exp(term), xx, axis=2)  # (n_outer, P2)
             del term, xx
 
-            integrand = binom[:, None, None] * c / norm0  # (n_outer, H, P2)
+            integrand = binom[:, None] * c / norm0[None, :]  # (n_outer, P2)
 
-            y[:, ~is_deleterious] = np.trapz(integrand, x, axis=0)  # (H, P2)
+            y[~is_deleterious] = np.trapz(integrand, x, axis=0)  # (P2,)
 
         return y
 
@@ -419,20 +415,23 @@ class Discretization:
         if (hasattr(self, '_cache') and self._cache is not None) and not force:
             return
 
+        h_mapped = np.unique(self.h_mapped)
+
         # compute special case h = 0.5
-        if len(self.h_mapped) == 1 and self.h_mapped[0] == 0.5:
+        if h_mapped.size == 1 and h_mapped[0] == 0.5:
             self._cache = self.get_counts_semidominant()[:, None, :]
             return
 
-        if len(self.h_mapped) == 1:
+        if self.h is not None:
+            logger.info('Precomputing DFE-SFS transformation for fixed dominance coefficients.')
+        elif isinstance(self.h_mapped, np.ndarray) and self.h_mapped.size == 1:
             logger.info(f'Precomputing DFE-SFS transformation for fixed h={self.h_mapped[0]}.')
         else:
             logger.info(
-                f'Precomputing DFE-SFS transformation across dominance '
-                f'coefficients (grid size: {len(self.grid_h)}).'
+                f'Precomputing DFE-SFS transformation across dominance coefficients (grid size: {len(self.grid_h)}).'
             )
 
-        self._cache = self.get_counts_dominant_grid(self.grid_h)
+        self._cache = self.get_counts_dominant()
 
     def get_counts(self, h: float) -> np.ndarray:
         """
@@ -446,7 +445,7 @@ class Discretization:
         if not hasattr(self, "_cache") or self._cache is None:
             self.precompute()
 
-        if len(self.grid_h) == 1:
+        if self.h is not None:
             return self._cache[:, 0, :]
 
         # get surrounding indices and weights
@@ -566,51 +565,48 @@ class Discretization:
 
         raise NotImplementedError(f'Integration mode {self.integration_mode} not supported.')
 
-    def get_counts_dominant(self, h: float) -> np.ndarray:
-        """
-        Get uncached DFE to SFS transformation for given dominance coefficient.
-
-        :return: Matrix of size (n_intervals, n)
-        """
-        return self.get_counts_dominant_grid(np.array([h]))[:, 0, :]
-
-    def get_counts_dominant_grid(self, h_grid: np.ndarray) -> np.ndarray:
+    def get_counts_dominant(self) -> np.ndarray:
         """
         Get DFE to SFS transformation for different dominance coefficients.
 
-        :return: Matrix of size (n_intervals, n)
+        :return: Matrix of size (n_intervals, len(grid_h), n)
         """
         K = np.arange(1, self.n)
 
         # chunk S-bins
-        S_chunks = np.array_split(self.bins, int(np.ceil(len(self.bins) / self.s_chunk_size)))
+        n_chunks = int(np.ceil(len(self.bins) / self.s_chunk_size))
+        S_chunks = np.array_split(self.bins, n_chunks)
+        h_mapped_chunks = np.array_split(self.h_mapped, n_chunks) if self.h_mapped is not None else None
+
+        # number of dominance entries
+        n_h = self.grid_h.size if self.h is None else 1
 
         def compute_slice(args):
             """
             Compute allele counts for given (i, j, c).
 
             :param args: Tuple of (i, j, c) where i is allele count index, j is dominance index, c is S-chunk index
-            :return:
             """
             i, j, c = args
-            return self._get_counts_dominant(
+
+            return [self._get_counts_dominant(
                 n=self.n,
                 k=K[i],
                 S=S_chunks[c],
-                h=[h_grid[j]],
+                h=np.full_like(S_chunks[c], self.grid_h[j]) if self.h is None else h_mapped_chunks[c],
                 n_outer=self.n_outer,
                 n_inner=self.n_inner
-            )
+            )]
 
-        ijc = product(
+        ijc = list(product(
             range(self.n - 1),
-            range(len(h_grid)),
-            range(len(S_chunks))
-        )
+            range(n_h),
+            range(n_chunks)
+        ))
 
         P = parallelize_func(
             func=compute_slice,
-            data=list(ijc),
+            data=ijc,
             parallelize=self.parallelize,
             desc=f"{self.__class__.__name__}>Precomputing",
             dtype=float,
@@ -618,7 +614,7 @@ class Discretization:
         )
 
         P = np.concatenate(P, axis=1)
-        P = P.reshape(self.n - 1, len(h_grid), -1)
+        P = P.reshape(self.n - 1, n_h, -1)
 
         return (P[:, :, :-1] + P[:, :, 1:]) / 2 * self.interval_sizes
 

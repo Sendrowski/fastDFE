@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import numpy as np
+import pytest
 from matplotlib import pyplot as plt
 from scipy.special import hyp1f1
 from tqdm import tqdm
@@ -97,6 +98,7 @@ class DiscretizationTestCase(TestCase):
 
         assert diff < 4e-3
 
+    @pytest.mark.skip(reason="np.float128 not available for current testing setup")
     def test_compare_H_with_regularized(self):
         """
         Compare H with its regularized equivalent that
@@ -254,7 +256,7 @@ class DiscretizationTestCase(TestCase):
             )
 
             for j, k in tqdm(enumerate(np.linspace(1, n - 1, m).astype(int)), total=m):
-                ys1 = d._get_counts_dominant(n=d.n, k=k, S=d.s, h=[0.5])[0]
+                ys1 = d._get_counts_dominant(n=d.n, k=k, S=d.s, h=0.5)
                 ys2 = d.get_counts_semidominant_regularized(k=np.full_like(d.s, k), S=d.s)
 
                 diff[i, j] = (np.abs(ys1 - ys2) / (ys2 + 1e-10))
@@ -278,7 +280,7 @@ class DiscretizationTestCase(TestCase):
             parallelize=False
         )
 
-        with patch.object(d, "get_counts_dominant_grid", wraps=d.get_counts_dominant_grid) as spy:
+        with patch.object(d, "get_counts_dominant", wraps=d.get_counts_dominant) as spy:
             d.precompute()
             spy.assert_called()
 
@@ -378,7 +380,7 @@ class DiscretizationTestCase(TestCase):
             intervals_del=(-1e8, -1.0e-5, 100)
         )
 
-        np.testing.assert_array_equal(d.grid_h, [0.5])
+        self.assertEqual(d.grid_h, None)
 
         counts1 = d.get_counts(h=0.5)
         counts2 = d.get_counts(h=0.6)
@@ -396,7 +398,7 @@ class DiscretizationTestCase(TestCase):
             intervals_del=(-1e8, -1.0e-5, 100)
         )
 
-        np.testing.assert_array_equal(d.grid_h, [0.4])
+        self.assertEqual(d.grid_h, None)
 
     def test_custom_h_fixed_callback_variable_h(self):
         """
@@ -419,6 +421,21 @@ class DiscretizationTestCase(TestCase):
         d = Discretization(
             n=10,
             h=0.5,
+            h_callback=lambda k, S: 0.4 * np.exp(-k * abs(S)),
+            intervals_h=(0.0, 1.0, 6),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1e8, -1.0e-5, 100)
+        )
+
+        self.assertEqual(d.grid_h, None)
+
+    def test_interpolation_weights_variable_h_fixed_callback(self):
+        """
+        Make sure variable h callback with fixed h results in correct grid and interpolation.
+        """
+        d = Discretization(
+            n=10,
+            h=None,
             h_callback=lambda k, S: 0.4 * np.exp(-k * abs(S)),
             intervals_h=(0.0, 1.0, 6),
             intervals_ben=(1.0e-5, 1.0e4, 100),
