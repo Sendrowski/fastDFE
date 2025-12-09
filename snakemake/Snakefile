@@ -1431,6 +1431,8 @@ rule simulate_trees_slim:
         demography=lambda w: w.demography.rsplit('_', 1)[0]
     conda:
         "envs/slim.yaml"
+    resources:
+        mem_mb=16000
     shell:
         """
         slim \
