@@ -31,16 +31,16 @@ try:
 except NameError:
     # testing
     testing = True
-    sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=5/s_d=3e-1/p_b=0/n=20/unfolded/sfs.csv'
-    s_b = 1e-9
-    b = 0.2
-    s_d = 3e-1
-    p_b = 0
+    sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-6/N=1e3/s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05/n=20/dominance_0.0/unfolded/sfs.csv'
+    s_b = 1e-3
+    b = 0.3
+    s_d = 3e-2
+    p_b = 0.05
     n = 20
-    h = 0.2
+    h = 0.5
     mu = 1e-8
     demography = "dominance_function"
-    title = "$s_b$=1e-9, $b=1$, $s_d=1e-1$, $p_b=0.2$"
+    title = "$s_b$=1e-3, $b$=0.3, $s_d$=3e-2, $p_b$=0.05"
     out_sfs = "scratch/sfs.csv"
     out_comparison = "scratch/comp.png"
 
