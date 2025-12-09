@@ -25,6 +25,7 @@ try:
     h = snakemake.params.h
     mu = snakemake.params.mu
     demography = snakemake.params.demography
+    parallelize = snakemake.params.get('parallelize', False)
     title = snakemake.params.title
     out_sfs = snakemake.output.sfs
     out_comparison = snakemake.output.comp
@@ -40,6 +41,7 @@ except NameError:
     h = 0.5
     mu = 1e-8
     demography = "dominance_function"
+    parallelize = True
     title = "$s_b$=1e-3, $b$=0.3, $s_d$=3e-2, $p_b$=0.05"
     out_sfs = "scratch/sfs.csv"
     out_comparison = "scratch/comp.png"
@@ -71,7 +73,7 @@ sim = fd.Simulation(
     h_callback=h_callback,
     sfs_neut=spectra['neutral'],
     model=model,
-    parallelize=False,
+    parallelize=parallelize,
 )
 
 sfs_sel = sim.run()
