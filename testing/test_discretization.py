@@ -392,8 +392,8 @@ class DiscretizationTestCase(TestCase):
         """
         d = Discretization(
             n=10,
-            h_callback=lambda k, S: np.full_like(S, k - 0.1),
             h=0.5,
+            h_callback=lambda k, S: np.full_like(S, k - 0.1),
             intervals_ben=(1.0e-5, 1.0e4, 100),
             intervals_del=(-1e8, -1.0e-5, 100)
         )
@@ -406,8 +406,8 @@ class DiscretizationTestCase(TestCase):
         """
         d = Discretization(
             n=10,
-            h_callback=lambda k, S: np.full_like(S, k - 0.1),
             h=None,
+            h_callback=lambda k, S: np.full_like(S, k - 0.1),
             intervals_ben=(1.0e-5, 1.0e4, 100),
             intervals_del=(-1e8, -1.0e-5, 100)
         )
@@ -482,7 +482,27 @@ class DiscretizationTestCase(TestCase):
 
     def test_fixed_h_vs_interpolated_h(self):
         """
-        TODO Compare allele counts obtained using fixed h vs interpolated h where S changes with h.
+        Compare allele counts  for default grid values obtained
+        using fixed h vs interpolated h where S changes with h.
         """
-        raise NotImplementedError()
+        k = 1
 
+        d1 = Discretization(
+            n=10,
+            h=0.5,
+            h_callback=lambda k, S: 0.4 * np.exp(-k * abs(S))
+        )
+
+        c1 = d1.get_counts(0.5)
+
+        d2 = Discretization(
+            n=10,
+            h=None,
+            h_callback=d1.h_callback,
+        )
+
+        c2 = d2.get_counts(0.5)
+
+        diff = self.diff_rel_max_abs(c1, c2)
+        print(diff)
+        self.assertLess(diff, 0.03)

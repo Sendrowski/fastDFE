@@ -7,6 +7,7 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2024-12-25"
 
 import numpy as np
+import re
 from matplotlib import pyplot as plt
 
 try:
@@ -30,19 +31,23 @@ try:
     out_sfs = snakemake.output.sfs
     out_comparison = snakemake.output.comp
 except NameError:
+
+    def get_param(string, param):
+        return float(re.search(rf"{param}=([\d.e+-]+)", string).group(1))
+
     # testing
     testing = True
-    sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/dominance_function_10/unfolded/sfs.csv'
-    s_b = 1e-3
-    b = 0.3
-    s_d = 3e-2
-    p_b = 0.05
+    sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-6/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/dominance_function_10/unfolded/sfs.csv'
+    s_b = get_param(sfs_file, 's_b')
+    b = get_param(sfs_file, '/b')
+    s_d = get_param(sfs_file, 's_d')
+    p_b = get_param(sfs_file, 'p_b')
     n = 20
-    h = 10
+    h = float(re.search(r"dominance_function_([\d.]+)", sfs_file).group(1))
     mu = 1e-8
     demography = "dominance_function"
     parallelize = True
-    title = "$s_b$=1e-3, $b$=0.3, $s_d$=3e-2, $p_b$=0.05"
+    title = f"$s_b$={s_b:.0e}, $b$={b}, $s_d$={s_d:.0e}, $p_b$={p_b}"
     out_sfs = "scratch/sfs.csv"
     out_comparison = "scratch/comp.png"
 
@@ -58,7 +63,7 @@ model.bounds['S_b'] = (1e-10, 100)
 model.bounds['S_d'] = (-1e6, -1e-2)
 
 if demography == 'dominance_function':
-    h_callback = lambda k, S: 0.4 * np.exp(-h * abs(S / (4 * Ne)))
+    h_callback = lambda k, S: 0.4 * np.exp(-h * abs(S * 2 / (4 * Ne)))
     #h_callback = lambda k, S: np.full_like(S, 0.7)
 else:
     h_callback = lambda h, S: np.full_like(S, h)
