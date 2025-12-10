@@ -382,10 +382,6 @@ class DiscretizationTestCase(TestCase):
 
         self.assertEqual(d.grid_h, None)
 
-        counts1 = d.get_counts(h=0.5)
-        counts2 = d.get_counts(h=0.6)
-        np.testing.assert_array_equal((counts1 + counts2) / 2, d.get_counts(h=0.55))
-
     def test_custom_h_fixed_callback_fixed_h(self):
         """
         Make sure passing fixed h callback and fixed h results in correct grid.
@@ -408,11 +404,17 @@ class DiscretizationTestCase(TestCase):
             n=10,
             h=None,
             h_callback=lambda k, S: np.full_like(S, k - 0.1),
+            intervals_h=(0.0, 1.0, 6),
             intervals_ben=(1.0e-5, 1.0e4, 100),
-            intervals_del=(-1e8, -1.0e-5, 100)
+            intervals_del=(-1e8, -1.0e-5, 100),
         )
 
         np.testing.assert_array_equal(d.grid_h, np.linspace(*d.intervals_h))
+
+        # test interpolation
+        counts1 = d.get_counts(h=0.5)
+        counts2 = d.get_counts(h=0.6)
+        np.testing.assert_array_almost_equal((counts1 + counts2) / 2, d.get_counts(h=0.55))
 
     def test_custom_h_variable_callback_fixed_h(self):
         """
@@ -482,15 +484,17 @@ class DiscretizationTestCase(TestCase):
 
     def test_fixed_h_vs_interpolated_h(self):
         """
-        Compare allele counts  for default grid values obtained
-        using fixed h vs interpolated h where S changes with h.
+        Compare allele counts obtained using fixed h(S) vs interpolated h.
         """
         k = 1
 
         d1 = Discretization(
             n=10,
             h=0.5,
-            h_callback=lambda k, S: 0.4 * np.exp(-k * abs(S))
+            h_callback=lambda k, S: 0.4 * np.exp(-k * abs(S)),
+            intervals_h=(0.0, 1.0, 6),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1e8, -1.0e-5, 100)
         )
 
         c1 = d1.get_counts(0.5)
@@ -499,10 +503,12 @@ class DiscretizationTestCase(TestCase):
             n=10,
             h=None,
             h_callback=d1.h_callback,
+            intervals_h=d1.intervals_h,
+            intervals_ben=d1.intervals_ben,
+            intervals_del=d1.intervals_del
         )
 
         c2 = d2.get_counts(0.5)
 
         diff = self.diff_rel_max_abs(c1, c2)
-        print(diff)
         self.assertLess(diff, 0.03)
