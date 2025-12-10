@@ -112,7 +112,7 @@ class Discretization:
         self.h: float = h
 
         #: Dominance coefficient callback
-        self.h_callback: Callable[[np.ndarray], np.ndarray] = h_callback
+        self.h_callback: Callable[[float, np.ndarray], np.ndarray] = h_callback
 
         # interval bounds for discretizing DFE
         self.intervals_del: Tuple[float, float, int] = intervals_del
@@ -145,7 +145,7 @@ class Discretization:
             self.grid_h: Optional[np.ndarray] = np.linspace(*self.intervals_h)
         else:
             #: Mapped dominance coefficients if `h` is not `None`.
-            self.h_mapped: Optional[np.ndarray] = h_callback(h, self.bins)
+            self.h_mapped: Optional[np.ndarray] = self.map_h(h, self.bins)
 
             self.grid_h: Optional[np.ndarray] = None
 
@@ -154,6 +154,17 @@ class Discretization:
 
         # cache for DFE to SFS transformations of shape (n, len(grid_h), n_intervals)
         self._cache: np.ndarray = None
+
+    @staticmethod
+    def default_h_callback(h: float, S: np.ndarray) -> np.ndarray:
+        """
+        Default callback for mapping dominance coefficients.
+
+        :param h: Dominance coefficient
+        :param S: Population-scaled selection coefficients
+        :return: Mapped dominance coefficients
+        """
+        return np.full_like(S, h)
 
     @staticmethod
     def exp(x: float | np.ndarray) -> float | np.ndarray:
@@ -405,6 +416,19 @@ class Discretization:
 
         return y
 
+    def map_h(self, h: float, S: np.ndarray) -> np.ndarray:
+        """
+        Map dominance coefficients using the default mapping.
+
+        :param h: Dominance coefficient
+        :param S: Population-scaled selection coefficients
+        :return: Mapped dominance coefficients
+        """
+        if self.h_callback is not None:
+            return self.h_callback(h, S)
+
+        return self.default_h_callback(h, S)
+
     def precompute(self, force: bool = False):
         """
         Precompute DFE to SFS transformation, possibly across dominance coefficients.
@@ -467,7 +491,7 @@ class Discretization:
         :param h: Parameter h mapping dominance coefficients
         :return: Indices and weights
         """
-        hs = self.h_callback(h, self.s)
+        hs = self.map_h(h, self.s)
 
         # require h within precomputed range
         if hs.min() < self.grid_h.min():

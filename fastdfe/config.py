@@ -8,10 +8,12 @@ __date__ = "2023-02-26"
 
 import json
 import logging
-from typing import List, Literal, Dict, Tuple
+from typing import List, Literal, Dict, Tuple, Callable
 
+import numpy as np
 import yaml
 
+from .discretization import Discretization
 from .io_handlers import download_if_url
 from .json_handlers import CustomEncoder
 from .optimization import Covariate
@@ -39,6 +41,7 @@ class Config:
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0, 1, 21),
+            h_callback: Callable[[np.ndarray], np.ndarray] = None,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -75,6 +78,14 @@ class Config:
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
             This is only used when inferring dominance coefficients. Values of `h` between the edges will be
             interpolated linearly.
+        :param h_callback: A function mapping the scalar parameter `h` and the array of selection
+            coefficients `S` to dominance coefficients of the same shape, allowing models where `h`
+            depends on `S`. The default is ``lambda h, S: np.full_like(S, h)``, keeping `h` constant.
+            Expected allele counts for a given dominance value are obtained by linear interpolation
+            between precomputed values in `intervals_h`. The inferred parameter is still named `h`,
+            even if transformed by `h_callback`, and its bounds, scales, and initial values can be set
+            via `bounds`, `scales`, and `x0`. The fitness of heterozygotes and mutation homozygotes is defined as
+            `1 + 2hs` and `1 + 2s`, respectively.
         :param integration_mode: Integration mode when computing expected SFS under semidominance.
             `quad` is not recommended.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
@@ -107,6 +118,8 @@ class Config:
             model=model,
             intervals_del=intervals_del,
             intervals_ben=intervals_ben,
+            intervals_h=intervals_h,
+            h_callback=h_callback,
             integration_mode=integration_mode,
             linearized=linearized,
             seed=seed,

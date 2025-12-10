@@ -445,7 +445,7 @@ class DiscretizationTestCase(TestCase):
         np.testing.assert_array_equal(d.grid_h, np.linspace(*d.intervals_h))
 
         i, w = d.get_interpolation_weights(h=0.5)
-        hs = d.h_callback(0.5, d.s)
+        hs = d.map_h(0.5, d.s)
         np.testing.assert_array_almost_equal(i + w, hs * 5 + 1)
         x = np.arange(len(d.s))
 

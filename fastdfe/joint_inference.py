@@ -78,7 +78,7 @@ class JointInference(BaseInference):
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0, 1, 21),
-            h_callback: Callable[[np.ndarray], np.ndarray] = lambda h, S: np.full_like(S, h),
+            h_callback: Callable[[np.ndarray], np.ndarray] = None,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -123,7 +123,8 @@ class JointInference(BaseInference):
             Expected allele counts for a given dominance value are obtained by linear interpolation
             between precomputed values in `intervals_h`. The inferred parameter is still named `h`,
             even if transformed by `h_callback`, and its bounds, scales, and initial values can be set
-            via `bounds`, `scales`, and `x0`.
+            via `bounds`, `scales`, and `x0`. The fitness of heterozygotes and mutation homozygotes is defined as
+            `1 + 2hs` and `1 + 2s`, respectively.
         :param integration_mode: Integration mode when computing expected SFS under semidominance.
             `quad` is not recommended.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
