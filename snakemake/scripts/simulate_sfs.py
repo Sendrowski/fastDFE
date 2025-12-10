@@ -63,7 +63,7 @@ model.bounds['S_b'] = (1e-10, 100)
 model.bounds['S_d'] = (-1e6, -1e-2)
 
 if demography == 'dominance_function':
-    h_callback = lambda k, S: max(0.4 * np.exp(-h * abs(S * 2 / (4 * Ne))), 0.1)
+    h_callback = lambda k, S: np.maximum(0.4 * np.exp(-h * abs(S * 2 / (4 * Ne))), 0.1)
     #h_callback = lambda k, S: np.full_like(S, 0.7)
 else:
     h_callback = lambda h, S: np.full_like(S, h)
