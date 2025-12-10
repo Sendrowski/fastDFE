@@ -37,7 +37,7 @@ except NameError:
 
     # testing
     testing = True
-    sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-6/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/dominance_function_10/unfolded/sfs.csv'
+    sfs_file = 'results/slim/n_replicate=3/n_chunks=8/g=1e4/L=1e7/mu=1e-8/r=1e-6/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/dominance_function_10/unfolded/sfs.csv'
     s_b = get_param(sfs_file, 's_b')
     b = get_param(sfs_file, '/b')
     s_d = get_param(sfs_file, 's_d')
@@ -63,7 +63,7 @@ model.bounds['S_b'] = (1e-10, 100)
 model.bounds['S_d'] = (-1e6, -1e-2)
 
 if demography == 'dominance_function':
-    h_callback = lambda k, S: np.maximum(0.4 * np.exp(-h * abs(S * 2 / (4 * Ne))), 0.1)
+    h_callback = lambda k, S: np.maximum(0.4 * np.exp(-h * abs(S / (4 * Ne))), 0.1)
     #h_callback = lambda k, S: np.full_like(S, 0.7)
 else:
     h_callback = lambda h, S: np.full_like(S, h)

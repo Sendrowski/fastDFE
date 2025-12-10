@@ -19,6 +19,8 @@ initialize()
     initializeMutationRate(mu); // mutation rate
 
     // gamma distribution for deleterious mutations
+    // SLiM defines fitness effects as 1 + hs and 1 + s for heterozygous and homozygous genotypes respectively
+    // In fastDFE, we define them as 1 + 2hs and 1 + 2s, so we need to adjust s by a factor of 2 here
     initializeMutationType("m1", 0.5, "g", - 2 * s_d, b);
 
     // exponential distribution for beneficial mutations
@@ -48,7 +50,7 @@ mutationEffect(m1) {
         return 1.0 + mut.selectionCoeff;
     } else {
         if (demography == "dominance_function") {
-            dom = max(0.4 * exp(-h * abs(mut.selectionCoeff)), 0.1);
+            dom = max(0.4 * exp(-h * abs(mut.selectionCoeff) / 2), 0.1);
         } else {
             dom = h;
         }
@@ -62,7 +64,7 @@ mutationEffect(m2) {
         return 1.0 + mut.selectionCoeff;
     } else {
         if (demography == "dominance_function") {
-            dom = 0.4 * exp(-h * abs(mut.selectionCoeff));
+            dom = max(0.4 * exp(-h * abs(mut.selectionCoeff) / 2), 0.1);
         } else {
             dom = h;
         }
