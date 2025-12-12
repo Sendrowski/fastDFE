@@ -1535,6 +1535,27 @@ rule infer_dfe_slim_fastdfe:
     script:
         "scripts/infer_dfe_slim_fastdfe.py"
 
+# infer DFE using fastdfe from SLiM trees assuming semidominance
+rule infer_dfe_slim_fastdfe_semidominant:
+    input:
+        "results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.csv"
+    output:
+        serialized="results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/serialized.semidominant.json",
+        summary="results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/summary.semidominant.json",
+        dfe="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.inferred.semidominant.png",
+        model_fit="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/model_fit.semidominant.png",
+        spectra="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/spectra.semidominant.png",
+        params="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/params.semidominant.png"
+    params:
+        full_dfe=lambda w: w.p_b != 0,
+        mu=lambda w: float(w.mu),
+        demography='constant',
+        h=0.5
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/infer_dfe_slim_fastdfe.py"
+
 # simulate SFS using fastDFE
 rule simulate_sfs:
     input:
@@ -1575,6 +1596,19 @@ rule combine_plots_collage_slim:
     script:
         "scripts/combine_plots.py"
 
+# plot SFS comparison collage assuming semidominance when inferring DFE
+rule combine_plots_collage_slim_semidominant:
+    input:
+        lambda w: expand([c.replace('.png','.semidominant.png') for c in collages[w.collage_type]],**w)
+    output:
+        "results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.semidominant.png"
+    params:
+        n_cols=lambda w: 1 if w.plot_type == 'dfe' else None
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/combine_plots.py"
+
 # plot SFS comparison collage
 rule combine_plots_collage_slim_inferred:
     input:
@@ -1595,6 +1629,18 @@ rule combine_dfe_plots_slim:
         "results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.inferred.png"
     output:
         "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.png"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/combine_plots.py"
+
+# combine DFE plots assuming semidominance when inferring DFE
+rule combine_dfe_plots_slim_semidominant:
+    input:
+        "results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.simulated.png",
+        "results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.inferred.semidominant.png"
+    output:
+        "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.semidominant.png"
     conda:
         "envs/base.yaml"
     script:
