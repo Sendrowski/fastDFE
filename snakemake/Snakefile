@@ -1523,6 +1523,7 @@ rule infer_dfe_slim_fastdfe:
         params="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/params.png"
     params:
         full_dfe=lambda w: w.p_b != 0,
+        mu=lambda w: float(w.mu),
         h=lambda w: (
             float(w.demography.split("_")[-1])
             if w.demography.startswith("dominance_")
