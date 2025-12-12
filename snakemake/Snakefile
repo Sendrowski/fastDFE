@@ -1674,7 +1674,7 @@ rule combine_sfs_plots_slim_demographies:
     input:
         (
                 expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.png",demography=['constant', 'expansion', 'reduction', 'bottleneck', 'substructure'],allow_missing=True) +
-                ["results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dominance_0.5/{folded}/sfs.semidominant.png"]
+                ["results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dominance_0.4/{folded}/sfs.semidominant.png"]
         )
     output:
         "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{folded}/demographies.sfs.png"
