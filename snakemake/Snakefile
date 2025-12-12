@@ -1583,6 +1583,29 @@ rule simulate_sfs:
     script:
         "scripts/simulate_sfs.py"
 
+# simulate SFS using fastDFE
+rule simulate_sfs_semidominant:
+    input:
+        "results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.csv"
+    output:
+        sfs="results/sfs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.semidominant.csv",
+        comp="results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.semidominant.png"
+    params:
+        mu=lambda w: float(w.mu),
+        s_b=lambda w: float(w.s_b),
+        b=lambda w: float(w.b),
+        s_d=lambda w: float(w.s_d),
+        p_b=lambda w: float(w.p_b),
+        n=lambda w: int(w.n),
+        h=0.5,
+        demography='constant',
+        #title=lambda w: f"g={w.g}/L={int(float(w.L) * int(w.n_chunks)):.1e}/mu={w.mu}/r={w.r}/N={w.N}/s_b={w.s_b}/b={w.b}/s_d={w.s_d}/p_b={w.p_b}"
+        title=lambda w: f"$s_d$={w.s_d}, $b$={w.b}, $p_b$={w.p_b}, $s_b$={w.s_b}"
+    conda:
+        "envs/dev.yaml"
+    script:
+        "scripts/simulate_sfs.py"
+
 # plot SFS comparison collage
 rule combine_plots_collage_slim:
     input:
@@ -1649,11 +1672,14 @@ rule combine_dfe_plots_slim_semidominant:
 # combine SFS plots for different demographies
 rule combine_sfs_plots_slim_demographies:
     input:
-        expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.png",demography=['constant', 'expansion', 'reduction', 'bottleneck', 'substructure'],allow_missing=True)
+        (
+                expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.png",demography=['constant', 'expansion', 'reduction', 'bottleneck', 'substructure'],allow_missing=True) +
+                ["results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dominance_0.5/{folded}/sfs.semidominant.png"]
+        )
     output:
         "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{folded}/demographies.sfs.png"
     params:
-        titles=['constant', 'expansion', 'reduction', 'bottleneck', 'substructure'],
+        titles=['constant', 'expansion', 'reduction', 'bottleneck', 'substructure', 'recessiveness'],
         title_size_rel=32,
         title_xoffset=0.57,
         pad=0.8
