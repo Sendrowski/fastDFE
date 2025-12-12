@@ -69,6 +69,16 @@ class SLiMTestCase(TestCase):
             "s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05"
         ],
         n=[20, 100]
+    ) + expand(
+        "testing/cache/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-6/N=1e3/{params}/n={n}/dominance_function_{k}/unfolded/sfs.csv",
+        k=[0.1, 1, 10, 100],
+        params=[
+            "s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00",
+            "s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00",
+            "s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01",
+            "s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05"
+        ],
+        n=[20]
     )
 
     def test_compare_against_slim(self):
@@ -104,10 +114,10 @@ class SLiMTestCase(TestCase):
             )
 
             # cache discretization
-            if (params['n'], params['h']) in cached:
-                sim.discretization = cached[(params['n'], params['h'])]
+            if sim.discretization in cached:
+                sim.discretization = cached[sim.discretization]
             else:
-                cached[(params['n'], params['h'])] = sim.discretization
+                cached[sim.discretization] = sim.discretization
 
             sfs_sel = sim.run()
             comp = fd.Spectra(dict(slim=spectra['selected'], fastdfe=sfs_sel))
@@ -203,6 +213,7 @@ class SimulationTestCase(TestCase):
             sfs_sel=sfs_sel,
             sfs_neut=sim.sfs_neut,
             discretization=sim.discretization,
+            fixed_params=dict(all=dict(eps=0, h=0.5)),
             do_bootstrap=True,
             n_bootstraps=100,
             parallelize=True
@@ -247,6 +258,7 @@ class SimulationTestCase(TestCase):
             sfs_sel=sfs_sel,
             sfs_neut=sim.sfs_neut,
             discretization=sim.discretization,
+            fixed_params=dict(all=dict(eps=0, h=0.5)),
             do_bootstrap=True,
             n_bootstraps=100,
             parallelize=True
@@ -284,7 +296,7 @@ class SimulationTestCase(TestCase):
             sfs_sel=sfs_sel,
             sfs_neut=sim.sfs_neut,
             discretization=sim.discretization,
-            fixed_params=dict(all=dict(p_b=0, S_b=0.1)),
+            fixed_params=dict(all=dict(p_b=0, S_b=0.1, h=0.5, eps=0)),
             do_bootstrap=True,
             n_bootstraps=100,
             parallelize=True

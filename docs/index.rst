@@ -52,10 +52,11 @@ Contents
    reference/Python/installation
    reference/Python/quickstart
    reference/Python/inference
-   reference/Python/config
+   reference/Python/simulation
    reference/Python/parametrizations
    reference/Python/spectra
    reference/Python/parser
+   reference/Python/config
    reference/Python/miscellaneous
 
 .. toctree::
@@ -64,10 +65,11 @@ Contents
    reference/R/installation
    reference/R/quickstart
    reference/R/inference
-   reference/R/config
+   reference/R/simulation
    reference/R/parametrizations
    reference/R/spectra
    reference/R/parser
+   reference/R/config
    reference/R/miscellaneous
 
 .. toctree::
@@ -75,14 +77,14 @@ Contents
    :maxdepth: 1
 
    modules/inference
-   modules/config
+   modules/simulation
    modules/parametrization
    modules/spectrum
    modules/spectra
    modules/parser
    modules/annotation
    modules/filtration
-   modules/simulation
+   modules/config
 
 .. toctree::
    :caption: Miscellaneous

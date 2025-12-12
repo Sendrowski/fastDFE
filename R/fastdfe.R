@@ -165,12 +165,24 @@ load_fastdfe <- function(install = FALSE) {
     if (is.null(labels)) {
       labels <- as.character(1:n_dfes)
     }
-    df$group <- as.factor(rep(unlist(labels), each = n_intervals))
+
+    df$group <- factor(
+      rep(labels, each = n_intervals),
+      levels = labels
+    )
     
     # if errors provided, calculate ymin and ymax
-    if (!is.null(errors) && !is.null(errors[[1]])) {
-      df$ymin <- unlist(lapply(1:n_dfes, function(i) values[[i]] - errors[[i]][1, ]))
-      df$ymax <- unlist(lapply(1:n_dfes, function(i) values[[i]] + errors[[i]][2, ]))
+    if (!is.null(errors)) {
+      has_err <- vapply(errors, function(e) !is.null(e), logical(1))
+
+      if (any(has_err)) {
+        df$ymin <- unlist(lapply(seq_len(n_dfes), function(i)
+          if (has_err[i]) values[[i]] - errors[[i]][1, ] else rep(NA_real_, n_intervals)
+        ))
+        df$ymax <- unlist(lapply(seq_len(n_dfes), function(i)
+          if (has_err[i]) values[[i]] + errors[[i]][2, ] else rep(NA_real_, n_intervals)
+        ))
+      }
     }
     
     # create labels for x-axis

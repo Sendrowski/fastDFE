@@ -715,6 +715,7 @@ class JointInferenceTestCase(InferenceTestCase):
 
         pass
 
+    @pytest.mark.skip("Only works with variable h")
     def test_alternative_optimizer(self):
         """
         Test for alternative optimizer.

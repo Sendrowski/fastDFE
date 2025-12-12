@@ -310,7 +310,7 @@ class Inference:
             inferences: List['AbstractInference'],
             labels: Sequence,
             param_names: Sequence
-    ) -> (Dict[str, Tuple[np.ndarray, np.ndarray] | None], Dict[str, np.ndarray]):
+    ) -> Tuple[Dict[str, Tuple[np.ndarray, np.ndarray] | None], Dict[str, np.ndarray]]:
         """
         Get errors and values for MLE params of inferences.
 
@@ -412,7 +412,7 @@ class Inference:
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
 
-    ) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Compute errors and confidence interval for a discretized DFE.
 
@@ -613,7 +613,7 @@ class AbstractInference(ABC):
         """
         Load object from file.
 
-        :param classes: Classes to be used for unserialization
+        :param classes: Classes to be used for unserialization.
         :param file: File to load from
         """
         with open(file, 'r') as fh:

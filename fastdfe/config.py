@@ -40,7 +40,7 @@ class Config:
             sfs_sel: Spectra | Spectrum = None,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
-            intervals_h: Tuple[float, float, int] = (0, 1, 21),
+            intervals_h: Tuple[float, float, int] = (0.0, 1.0, 21),
             h_callback: Callable[[np.ndarray], np.ndarray] = None,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
@@ -76,20 +76,20 @@ class Config:
             selection coefficients. The intervals will be log10-spaced.
         :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
-            This is only used when inferring dominance coefficients. Values of `h` between the edges will be
+            This is only used when inferring dominance coefficients. Values of ``h`` between the edges will be
             interpolated linearly.
-        :param h_callback: A function mapping the scalar parameter `h` and the array of selection
-            coefficients `S` to dominance coefficients of the same shape, allowing models where `h`
-            depends on `S`. The default is ``lambda h, S: np.full_like(S, h)``, keeping `h` constant.
+        :param h_callback: A function mapping the scalar parameter ``h`` and the array of selection
+            coefficients ``S`` to dominance coefficients of the same shape, allowing models where ``h``
+            depends on ``S``. The default is ``lambda h, S: np.full_like(S, h)``, keeping ``h`` constant.
             Expected allele counts for a given dominance value are obtained by linear interpolation
-            between precomputed values in `intervals_h`. The inferred parameter is still named `h`,
-            even if transformed by `h_callback`, and its bounds, scales, and initial values can be set
-            via `bounds`, `scales`, and `x0`. The fitness of heterozygotes and mutation homozygotes is defined as
-            `1 + 2hs` and `1 + 2s`, respectively.
+            between precomputed values in ``intervals_h``. The inferred parameter is still named ``h``,
+            even if transformed by ``h_callback``, and its bounds, scales, and initial values can be set
+            via ``bounds``, ``scales``, and ``x0``. The fitness of heterozygotes and mutation homozygotes is defined as
+            ``1 + 2hs`` and ``1 + 2s``, respectively.
         :param integration_mode: Integration mode when computing expected SFS under semidominance.
-            `quad` is not recommended.
+            ``quad`` is not recommended.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
-            `scipy.integrate.quad` in each call. `False` not recommended.
+            ``scipy.integrate.quad`` in each call. ``False`` not recommended.
         :param model: Parametrization of the DFE.
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
@@ -97,7 +97,7 @@ class Config:
         :param scales: Scales for the optimization in the form {param: scale}
         :param loss_type: Loss function to use.
         :param opts_mle: Options for the optimization.
-        :param method_mle: Method to use for optimization. See `scipy.optimize.minimize` for available methods.
+        :param method_mle: Method to use for optimization. See ``scipy.optimize.minimize`` for available methods.
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
@@ -282,7 +282,7 @@ class Config:
 
         # cast to tuple of (float, float, int)
         # useful when restoring from YAML file
-        for key in ['intervals_ben', 'intervals_del']:
+        for key in ['intervals_ben', 'intervals_del', 'intervals_h']:
             if key in data:
                 data[key] = (float(data[key][0]), float(data[key][1]), int(data[key][2]))
 
@@ -313,7 +313,7 @@ class Config:
         """
         Load object from file.
 
-        :param file: Path to file, possibly gzipped.
+        :param file: Path to file, possibly gzipped or a URL.
         :param cache: Whether to use the cache if available.
         :return: Config object.
         """

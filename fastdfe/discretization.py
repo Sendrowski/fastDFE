@@ -55,8 +55,11 @@ class Discretization:
     Class for discretizing the integral mapping the DFE to the expected SFS.
     """
 
-    #: Dominance coefficient, static to ensure backward compatibility
+    #: Mapped dominance coefficient, static to ensure backward compatibility
     h_mapped: float = np.array([0.5])
+
+    #: Parameter h mapping dominance coefficients if not varying, static to ensure backward compatibility
+    h: Optional[float] = 0.5
 
     def __init__(
             self,
@@ -65,7 +68,7 @@ class Discretization:
             h_callback: Callable[[float, np.ndarray], np.ndarray] = lambda h, S: np.full_like(S, h),
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
-            intervals_h: Tuple[float, float, int] = (0, 1, 21),
+            intervals_h: Tuple[float, float, int] = (0.0, 1.0, 21),
             n_outer: int = 1000,
             n_inner: int = 200,
             s_chunk_size: int = 10,
@@ -77,13 +80,13 @@ class Discretization:
         Create Discretization instance.
 
         :param n: Number of individuals in the SFS sample.
-        :param h: Parameter h mapping dominance coefficients if not varying, else `None`. When `None`, dominance
-            coefficients are precomputed across `intervals_h` and interpolated as needed. Otherwise, only the fixed
+        :param h: Parameter h mapping dominance coefficients if not varying, else ``None``. When ``None``, dominance
+            coefficients are precomputed across ``intervals_h`` and interpolated as needed. Otherwise, only the fixed
             value is precomputed.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled selection coefficients.
         :param intervals_ben: ``(start, stop, n_interval)`` for beneficial population-scaled selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
-            This is only used when inferring dominance coefficients. Values of `h` between the edges will be
+            This is only used when inferring dominance coefficients. Values of ``h`` between the edges will be
             interpolated linearly.
         :param n_outer: Number of grid points for outer integrals when computing allele counts for varying
             dominance coefficients.
@@ -106,7 +109,7 @@ class Discretization:
                             'unexpected numerical behavior.')
 
         #: SFS sample size
-        self.n: int = n
+        self.n: int = int(n)
 
         #: Parameter h mapping dominance coefficients if not varying
         self.h: float = h
@@ -142,9 +145,9 @@ class Discretization:
             self.h_mapped: Optional[np.ndarray] = None
 
             #: Grid over which to precompute dominance coefficients. Either fixed or varying.
-            self.grid_h: Optional[np.ndarray] = np.linspace(*self.intervals_h)
+            self.grid_h: Optional[np.ndarray] = np.linspace(intervals_h[0], intervals_h[1], int(intervals_h[2]))
         else:
-            #: Mapped dominance coefficients if `h` is not `None`.
+            #: Mapped dominance coefficients if ``h`` is not ``None``.
             self.h_mapped: Optional[np.ndarray] = self.map_h(h, self.bins)
 
             self.grid_h: Optional[np.ndarray] = None
@@ -214,12 +217,14 @@ class Discretization:
         """
         bins_del = -np.logspace(
             np.log10(np.abs(intervals_del[0])),
-            np.log10(np.abs(intervals_del[1])), intervals_del[2] + 1
+            np.log10(np.abs(intervals_del[1])),
+            int(intervals_del[2]) + 1
         )
 
         bins_ben = np.logspace(
             np.log10(intervals_ben[0]),
-            np.log10(intervals_ben[1]), intervals_ben[2] + 1
+            np.log10(intervals_ben[1]),
+            int(intervals_ben[2]) + 1
         )
 
         return np.concatenate([bins_del, bins_ben])
@@ -443,7 +448,7 @@ class Discretization:
             self._cache = self.get_counts_semidominant()[:, None, :]
             return
 
-        if isinstance(self.h_mapped, np.ndarray) and self.h_mapped.size == 1:
+        if isinstance(self.h_mapped, np.ndarray) and np.unique(self.h_mapped).size == 1:
             logger.info(f'Precomputing DFE-SFS transformation for fixed h={self.h_mapped[0]}.')
         elif self.h is not None:
             logger.info('Precomputing DFE-SFS transformation for fixed dominance coefficients.')
@@ -461,7 +466,7 @@ class Discretization:
 
         :param h: Parameter h mapping dominance coefficients
         :return: Matrix of size (n_intervals, n)
-        :raises ValueError: If `h` is outside precomputed range.
+        :raises ValueError: If ``h`` is outside precomputed range.
         """
         # check for attribute to ensure backwards compatibility
         if not hasattr(self, "_cache") or self._cache is None:
@@ -578,7 +583,7 @@ class Discretization:
 
     def get_counts_semidominant(self) -> np.ndarray:
         """
-        Get uncached linearized DFE to SFS transformation for `h = 0.5` using special formulae.
+        Get uncached linearized DFE to SFS transformation for ``h = 0.5`` using special formulae.
 
         :return: Matrix of size (n_intervals, n)
         :raises NotImplementedError: If integration mode is not supported.
@@ -803,3 +808,47 @@ class Discretization:
         :return: Interval density
         """
         return np.array([np.sum((inter[i - 1] < self.s) & (self.s < inter[i])) for i in range(1, len(inter))])
+
+    def __eq__(self, other) -> bool:
+        """
+        Compare two instances for equality.
+
+        :param other: Other Discretization instance
+        :return: True if equal, False otherwise
+        """
+        if not isinstance(other, Discretization):
+            return False
+
+        return (
+                self.n == other.n and
+                self.h == other.h and
+                np.array_equal(self.h_mapped, other.h_mapped) and
+                self.h_callback == other.h_callback and
+                self.intervals_del == other.intervals_del and
+                self.intervals_ben == other.intervals_ben and
+                self.intervals_h == other.intervals_h and
+                self.n_outer == other.n_outer and
+                self.n_inner == other.n_inner and
+                self.s_chunk_size == other.s_chunk_size and
+                self.integration_mode == other.integration_mode and
+                self.linearized == other.linearized and
+                self.parallelize == other.parallelize
+        )
+
+    def __hash__(self) -> int:
+        """
+        Hash instance.
+        """
+        return hash((
+            self.n,
+            self.h,
+            tuple(self.intervals_del),
+            tuple(self.intervals_ben),
+            tuple(self.intervals_h),
+            self.n_outer,
+            self.n_inner,
+            self.s_chunk_size,
+            self.integration_mode,
+            self.linearized,
+            self.parallelize,
+        ))

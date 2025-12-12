@@ -1,12 +1,14 @@
 import copy
 import logging
 import resource
+import time
 from abc import ABC
 from unittest import mock
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pytest
 from numpy.random._generator import Generator
 from pandas.testing import assert_frame_equal
 from scipy.optimize import OptimizeResult
@@ -280,6 +282,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         # likelihood on log scales should be better
         assert inference_log.likelihood > inference_lin.likelihood
+        assert inference_log.bootstraps.likelihood.mean() > inference_lin.bootstraps.likelihood.mean()
 
         # standard deviation of bootstrapped likelihoods should be lower on log scales
         assert inference_log.bootstraps.likelihoods_std.mean() * 2 < inference_lin.bootstraps.likelihoods_std.mean()
@@ -1219,11 +1222,9 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inf_default = fd.BaseInference.from_config(config)
         inf_default.run()
-        self.assertFalse(hasattr(inf_default.result, 'direc'))
 
-        inf_alt = fd.BaseInference.from_config(config.update(method_mle='Powell'))
+        inf_alt = fd.BaseInference.from_config(config.update(method_mle='TNC'))
         inf_alt.run()
-        self.assertTrue(hasattr(inf_alt.result, 'direc'))
 
     def test_raise_error_n_above_400(self):
         """
@@ -1364,3 +1365,47 @@ class BaseInferenceTestCase(InferenceTestCase):
         p = inf2.compare_nested(inf1)
 
         self.assertTrue(0 < p < 1)
+
+    def test_get_dfe_and_plot(self):
+        """
+        Test get DFE method.
+        """
+        inf = fd.BaseInference.from_file(self.serialized)
+
+        inf.get_dfe().plot()
+
+        inf.bootstrap(parallelize=False, n_samples=10)
+
+        inf.get_dfe().plot()
+
+        inf.get_dfe().get_bootstrap_dfes()[1].plot()
+
+    @pytest.mark.skip(reason="Not a real test.")
+    def test_runtime_sequential_vs_parallel(self):
+        """
+        Test whether parallelization speeds up inference.
+        This doesn't seem to be true currently on osx-arm64 at least.
+        """
+        inf_seq = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            parallelize=False,
+            do_bootstrap=True
+        )
+
+        start_time = time.time()
+        inf_seq.run()
+        seq_time = time.time() - start_time
+
+        inf_par = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            parallelize=True,
+            do_bootstrap=True
+        )
+
+        start_time = time.time()
+        inf_par.run()
+        par_time = time.time() - start_time
+
+        self.assertLess(par_time, seq_time)

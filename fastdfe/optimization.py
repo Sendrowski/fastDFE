@@ -50,7 +50,7 @@ def parallelize(
     """
     n = len(data)
 
-    if parallelize and n > 1:
+    if parallelize and n > 1 and Settings.parallelize is not False:
         # parallelize
         iterator = mp.Pool().imap(func, data)
     else:
@@ -264,8 +264,9 @@ def expand_fixed(
             if t not in expanded:
                 expanded[t] = {}
 
-            for param, value in params.items():
-                expanded[t][param] = value
+            if isinstance(params, dict):
+                for param, value in params.items():
+                    expanded[t][param] = value
 
     return expanded
 
@@ -942,7 +943,7 @@ class Optimization:
             opts_mle: dict = None,
             pbar: bool = None,
             desc: str = 'Inferring DFE',
-    ) -> ('scipy.optimize.OptimizeResult', dict):
+    ) -> Tuple['scipy.optimize.OptimizeResult', dict]:
         """
         Perform the optimization procedure.
 

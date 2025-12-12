@@ -22,7 +22,7 @@ class Bootstrap:
     """
 
     @staticmethod
-    def get_bounds_from_quantile(data: Sequence, a1: float, a2: float, n: int) -> (float, float):
+    def get_bounds_from_quantile(data: Sequence, a1: float, a2: float, n: int) -> Tuple[float, float]:
         """
         Get confidence interval bounds.
 
@@ -38,7 +38,7 @@ class Bootstrap:
         return data[max(round(a1 * n), 0)], data[min(round(a2 * n), n - 1)]
 
     @staticmethod
-    def get_ci_percentile(bootstraps: Sequence, a: float) -> (float, float):
+    def get_ci_percentile(bootstraps: Sequence, a: float) -> Tuple[float, float]:
         """
         Get the (1 - a)% confidence intervals using the percentile bootstrap.
 
@@ -52,7 +52,7 @@ class Bootstrap:
         return Bootstrap.get_bounds_from_quantile(np.sort(bootstraps), a, 1 - a, len(bootstraps))
 
     @staticmethod
-    def get_ci_bca(bootstraps: Sequence, original: float, a: float) -> (float, float):
+    def get_ci_bca(bootstraps: Sequence, original: float, a: float) -> Tuple[float, float]:
         """
         Get the (1 - a)% confidence intervals using the BCa method.
         cf. An Introduction to the Bootstrap, Bradley Efron, Robert J. Tibshirani, section 14.2.

@@ -8,7 +8,7 @@ __date__ = "2023-02-26"
 
 import logging
 import os
-from typing import TextIO, List
+from typing import TextIO, List, Tuple
 
 import pandas as pd
 
@@ -86,7 +86,7 @@ def parse_init_file(
         file: str,
         id: int = 1,
         ignore: list = ['eps_deprecated', 'r']
-) -> (dict, dict):
+) -> Tuple[dict, dict]:
     """
     Parse polyDFE init file.
     This will define the initial parameters and

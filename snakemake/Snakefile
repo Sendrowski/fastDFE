@@ -1,5 +1,5 @@
 import re
-from typing import List
+from typing import List, Tuple
 
 configfile: "config/config.yaml"
 
@@ -38,7 +38,7 @@ def extract_opt(str: str, name, default_value=None) -> str:
     return default_value
 
 
-def expand_comparisons(path) -> (List[str], List[str]):
+def expand_comparisons(path) -> Tuple[List[str], List[str]]:
     """
     Expand over the comma separated lists in 'path'
 
@@ -47,7 +47,7 @@ def expand_comparisons(path) -> (List[str], List[str]):
     """
     matches = re.finditer(r"\[(.*?)\]",path)
 
-    def expand(strings: List[str], match: re.Match) -> (List[str], List[str]):
+    def expand(strings: List[str], match: re.Match) -> Tuple[List[str], List[str]]:
         """
         Expand by substituting first match in given strings.
         Also attempt to parse labels enclosed in <> tags.

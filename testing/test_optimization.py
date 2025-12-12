@@ -7,7 +7,7 @@ from numpy import testing
 
 from fastdfe.optimization import pack_params, unpack_params, flatten_dict, unflatten_dict, filter_dict, Optimization, \
     merge_dicts, correct_values, to_symlog, from_symlog, scale_bound, scale_value, unscale_value, unscale_bound, \
-    check_bounds, perturb_value
+    check_bounds, perturb_value, collapse_fixed
 from testing import TestCase
 
 
@@ -498,3 +498,19 @@ class OptimizationTestCase(TestCase):
                 self.assertNotEqual(params[key], perturbed_params[key])
                 self.assertGreaterEqual(perturbed_params[key], bounds[key][0])
                 self.assertLessEqual(perturbed_params[key], bounds[key][1])
+
+    def test_collapse_fixed(self):
+        """
+        Test the collapse_fixed function.
+        """
+        fixed = {
+            'pendula': {'eps': 0, 'h': 0.6, 'p_b': 0, 'S_b': 1},
+            'pubescens': {'eps': 0, 'h': 0.5, 'p_b': 0, 'S_b': 1}
+        }
+
+        collapsed_params = collapse_fixed(fixed, ['pendula', 'pubescens'])
+
+        self.assertDictEqual(
+            collapsed_params,
+            {'all' : {'eps': 0, 'h': 0.55, 'p_b': 0, 'S_b': 1}}
+        )

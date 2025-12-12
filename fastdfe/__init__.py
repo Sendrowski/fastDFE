@@ -117,7 +117,7 @@ logger.addHandler(handler)
 
 # load class from modules
 from .parametrization import Parametrization, GammaExpParametrization, DiscreteParametrization, \
-    GammaDiscreteParametrization, DisplacedGammaParametrization, DiscreteFractionalParametrization
+    GammaDiscreteParametrization, DisplacedGammaParametrization, DiscreteFractionalParametrization, DFE
 from .config import Config
 from .settings import Settings
 from .abstract_inference import Inference
@@ -145,6 +145,7 @@ __all__ = [
     'GammaDiscreteParametrization',
     'DisplacedGammaParametrization',
     'DiscreteFractionalParametrization',
+    'DFE',
     'Config',
     'Settings',
     'Inference',

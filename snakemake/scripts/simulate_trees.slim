@@ -50,6 +50,7 @@ mutationEffect(m1) {
         return 1.0 + mut.selectionCoeff;
     } else {
         if (demography == "dominance_function") {
+            // remove scaling of 2 to base mapping on `real` s values
             dom = max(0.4 * exp(-h * abs(mut.selectionCoeff) / 2), 0.1);
         } else {
             dom = h;
@@ -64,6 +65,7 @@ mutationEffect(m2) {
         return 1.0 + mut.selectionCoeff;
     } else {
         if (demography == "dominance_function") {
+            // remove scaling of 2 to base mapping on `real` s values
             dom = max(0.4 * exp(-h * abs(mut.selectionCoeff) / 2), 0.1);
         } else {
             dom = h;

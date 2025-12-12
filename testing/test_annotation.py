@@ -4,7 +4,7 @@ import os
 import tempfile
 from collections import defaultdict
 from hashlib import md5
-from typing import Literal, cast
+from typing import Literal, cast, Tuple
 from unittest.mock import MagicMock, PropertyMock, patch, Mock
 
 import numpy as np
@@ -534,7 +534,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
     def compare_with_est_sfs(
             anc: fd.MaximumLikelihoodAncestralAnnotation,
             cache: str = None
-    ) -> (_ESTSFSAncestralAnnotation, pd.DataFrame):
+    ) -> Tuple[_ESTSFSAncestralAnnotation, pd.DataFrame]:
         """
         Compare the results of the MaximumLikelihoodAncestralAnnotation class with the results of EST-SFS.
 

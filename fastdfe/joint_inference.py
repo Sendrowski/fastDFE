@@ -77,7 +77,7 @@ class JointInference(BaseInference):
             include_divergence: bool = None,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
-            intervals_h: Tuple[float, float, int] = (0, 1, 21),
+            intervals_h: Tuple[float, float, int] = (0.0, 1.0, 21),
             h_callback: Callable[[np.ndarray], np.ndarray] = None,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
@@ -113,35 +113,35 @@ class JointInference(BaseInference):
         :param include_divergence: Whether to include divergence in the likelihood
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced.
-        :param intervals_ben: Same as `intervals_del` but for positive selection coefficients.
+        :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
         :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
-            This is only used when inferring dominance coefficients. Values of `h` between the edges will be
+            This is only used when inferring dominance coefficients. Values of ``h`` between the edges will be
             interpolated linearly.
-        :param h_callback: A function mapping the scalar parameter `h` and the array of selection
-            coefficients `S` to dominance coefficients of the same shape, allowing models where `h`
-            depends on `S`. The default is ``lambda h, S: np.full_like(S, h)``, keeping `h` constant.
+        :param h_callback: A function mapping the scalar parameter ``h`` and the array of selection
+            coefficients ``S`` to dominance coefficients of the same shape, allowing models where ``h``
+            depends on ``S``. The default is ``lambda h, S: np.full_like(S, h)``, keeping ``h`` constant.
             Expected allele counts for a given dominance value are obtained by linear interpolation
-            between precomputed values in `intervals_h`. The inferred parameter is still named `h`,
-            even if transformed by `h_callback`, and its bounds, scales, and initial values can be set
-            via `bounds`, `scales`, and `x0`. The fitness of heterozygotes and mutation homozygotes is defined as
-            `1 + 2hs` and `1 + 2s`, respectively.
+            between precomputed values in ``intervals_h``. The inferred parameter is still named ``h``,
+            even if transformed by ``h_callback``, and its bounds, scales, and initial values can be set
+            via ``bounds``, ``scales``, and ``x0``. The fitness of heterozygotes and mutation homozygotes is defined as
+            ``1 + 2hs`` and ``1 + 2s``, respectively.
         :param integration_mode: Integration mode when computing expected SFS under semidominance.
-            `quad` is not recommended.
+            ``quad`` is not recommended.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
-            `scipy.integrate.quad` in each call. `False` not recommended.
+            ``scipy.integrate.quad`` in each call. ``False`` not recommended.
         :param model: DFE parametrization
-        :param seed: Random seed. Use `None` for no seed.
+        :param seed: Random seed. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
         :param bounds: Bounds for the optimization in the form ``{param: (lower, upper)}``
         :param scales: Scales for the optimization in the form ``{param: scale}``
         :param loss_type: Loss type
         :param opts_mle: Options for the optimization
-        :param method_mle: Method to use for optimization. See `scipy.optimize.minimize` for available methods.
+        :param method_mle: Method to use for optimization. See ``scipy.optimize.minimize`` for available methods.
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
         :param fixed_params: Parameters kept constant during optimization, given as ``{type: {param: value}}``.
-            By default, the ancestral misidentification rate `eps` is fixed to zero, `h` to 0.5, and the DFE
+            By default, the ancestral misidentification rate ``eps`` is fixed to zero, ``h`` to 0.5, and the DFE
             parameters are fixed so that only the deleterious component of the DFE is estimated.
         :param shared_params: List of shared parameters
         :param do_bootstrap: Whether to perform bootstrapping
@@ -218,8 +218,8 @@ class JointInference(BaseInference):
         if fixed_params is None:
             fixed_params = {'all': {'eps': 0, 'h': 0.5} | self.model.submodels['dele']}
 
-        if fixed_params == {}:
-            fixed_params = {'all': {}}
+        if not 'all' in fixed_params:
+            fixed_params['all'] = {}
 
         #: fixed parameters with expanded 'all' type
         self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, self.types)
@@ -229,7 +229,7 @@ class JointInference(BaseInference):
             #: Discretization instance
             self.discretization: Discretization = Discretization(
                 n=self.n,
-                h=fixed_params['all'].get('h', None),
+                h=fixed_params.get('all', {}).get('h', None),
                 intervals_del=intervals_del,
                 intervals_ben=intervals_ben,
                 intervals_h=intervals_h,
@@ -725,7 +725,7 @@ class JointInference(BaseInference):
         sfs_neut = dict((t, self.marginal_inferences[t].sfs_neut) for t in self.types)
         sfs_sel = dict((t, self.marginal_inferences[t].sfs_sel) for t in self.types)
 
-        def run_bootstrap_sample(seed: int) -> ('scipy.optimize.OptimizeResult', dict):
+        def run_bootstrap_sample(seed: int) -> Tuple['scipy.optimize.OptimizeResult', dict, dict, int]:
             """
             Resample the observed selected SFS and rerun the optimization procedure.
             We take the MLE params as initial params here.
@@ -746,7 +746,7 @@ class JointInference(BaseInference):
                 )
 
             # run `n_retries` times
-            for i in range(max(n_retries, 1)):
+            for _ in range(max(n_retries, 1)):
 
                 # perform joint optimization
                 # Note that it's important we bind t into the lambda function
@@ -783,7 +783,7 @@ class JointInference(BaseInference):
                         scales=scales_default
                     )
 
-                results += [(result, params_mle, x0, i)]
+                results += [(result, params_mle, x0)]
 
                 x0 = self.optimization.sample_x0(params_mle_raw, random_state=rng)
 

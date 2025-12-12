@@ -1971,8 +1971,8 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         Parse a VCF variant. We only consider sites that are at most bi-allelic in the in- and outgroups.
 
         :param variant: The variant.
-        :return: List of site configurations containing a single element if subsample_mode is `random` or
-            multiple elements if subsample_mode is `probabilistic` or ``None`` if the site is not valid.
+        :return: List of site configurations containing a single element if subsample_mode is ``random`` or
+            multiple elements if subsample_mode is ``probabilistic`` or ``None`` if the site is not valid.
         :raises _TooFewIngroupsSiteError: If there are too few ingroups to consider a site for ancestral allele
             annotation. _PolyAllelicSiteError: If a site has more than two alleles.
         """
@@ -2099,7 +2099,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
     :meth:`from_est_sfs` methods.
 
     Initially, the branch rates are determined using MLE. Similar to :class:`Parser`, we can also specify the number of
-    mutational target sites (see the `n_target_sites` argument) in case our VCF file does not contain the full set of
+    mutational target sites (see the ``n_target_sites`` argument) in case our VCF file does not contain the full set of
     monomorphic sites. This is necessary to obtain realistic branch rate estimates. You can also choose a prior for the
     polarization probabilities (see :class:`PolarizationPrior`). Eventually, for every site, the probability that the
     major allele is ancestral is calculated.
@@ -2248,7 +2248,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
             both mono- and bi-allelic sites. Ignoring mono-allelic sites will lead to overestimation of the rate
             parameters. For this to work, a FASTA file must be provided from which the mono-allelic sites can be
             sampled. Sampling takes place between the variants of the last and first site on every contig considered
-            in the VCF file. Use `None` to disable this feature. Note that the number of target sites is automatically
+            in the VCF file. Use ``None`` to disable this feature. Note that the number of target sites is automatically
             carried over if not specified and this class is used together with :class:`Parser`. In order to use this
             feature, you also need to specify a FASTA file to :class:`Parser` or :class:`Annotator`. Also note that
             by default we extrapolate the number of mono-allelic sites to be sampled from the FASTA file based on the

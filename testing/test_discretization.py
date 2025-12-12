@@ -98,7 +98,7 @@ class DiscretizationTestCase(TestCase):
 
         assert diff < 4e-3
 
-    @pytest.mark.skip(reason="np.float128 not available for current testing setup")
+    @pytest.mark.skip(reason="np.float128 not available on osx-arm64")
     def test_compare_H_with_regularized(self):
         """
         Compare H with its regularized equivalent that
