@@ -891,22 +891,22 @@ class Optimization:
         :param param_names: List of parameter names
         """
         #: Parameter bounds
-        self.bounds = bounds
+        self.bounds: Dict[str, Tuple[float, float]] = bounds
 
         #: Parameter scales to use
-        self.scales = scales
+        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = scales
 
         #: additional options for the optimizer
-        self.opts_mle = opts_mle
+        self.opts_mle: dict = opts_mle
 
         #: Optimization method to use
-        self.method_mle = method_mle
+        self.method_mle: str = method_mle
 
         #: Type of loss function to use
-        self.loss_type = loss_type
+        self.loss_type: str = loss_type
 
         #: Fixed parameters
-        self.fixed_params = flatten_dict(fixed_params)
+        self.fixed_params: Dict[str, Dict[str, float]] = flatten_dict(fixed_params)
 
         # check if fixed parameters are within the specified bounds
         if correct_values(self.fixed_params, self.bounds, warn=False, scales=scales) != self.fixed_params:
@@ -914,10 +914,10 @@ class Optimization:
                              f'Fixed params: {self.fixed_params}, bounds: {self.bounds}.')
 
         #: Parameter names
-        self.param_names = param_names
+        self.param_names: List[str] = param_names
 
         #: Whether to parallelize the optimization
-        self.parallelize = parallelize
+        self.parallelize: bool = parallelize
 
         #: Initial values
         self.x0: Optional[dict] = None

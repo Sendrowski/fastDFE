@@ -60,6 +60,7 @@ inf = fd.BaseInference(
     sfs_sel=s['selected'],
     do_bootstrap=True,
     parallelize=True,
+    bounds=dict(h=(0, h)),
     n_runs=100,
     h_callback=h_callback,
     fixed_params=dict(all=dict(eps=0, h=h) | (dict(p_b=0, S_b=1) if not full_dfe else {}))
