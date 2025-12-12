@@ -1524,6 +1524,7 @@ rule infer_dfe_slim_fastdfe:
     params:
         full_dfe=lambda w: w.p_b != 0,
         mu=lambda w: float(w.mu),
+        demography=lambda w: w.demography.rsplit('_', 1)[0],
         h=lambda w: (
             float(w.demography.split("_")[-1])
             if w.demography.startswith("dominance_")
@@ -1553,7 +1554,7 @@ rule simulate_sfs:
             if w.demography.startswith("dominance_")
             else 0.5
         ),
-        demography=lambda w: w.demography.rsplit('_', 1)[0] if w.demography.startswith('dominance_') else w.demography,
+        demography=lambda w: w.demography.rsplit('_', 1)[0],
         #title=lambda w: f"g={w.g}/L={int(float(w.L) * int(w.n_chunks)):.1e}/mu={w.mu}/r={w.r}/N={w.N}/s_b={w.s_b}/b={w.b}/s_d={w.s_d}/p_b={w.p_b}"
         title=lambda w: f"$s_d$={w.s_d}, $b$={w.b}, $p_b$={w.p_b}, $s_b$={w.s_b}"
     conda:
