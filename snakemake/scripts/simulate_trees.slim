@@ -77,26 +77,26 @@ mutationEffect(m2) {
 early() {
     if (demography == "expansion") {
         if (community.tick == g - 500) {
-            // population doubles 100 generations before stopping
+            // population doubles 500 generations before stopping
             p1.setSubpopulationSize(2 * N);
         }
     }
 
     if (demography == "reduction") {
         if (community.tick == g - 500) {
-            // population doubles 100 generations before stopping
+            // population halves 500 generations before stopping
             p1.setSubpopulationSize(asInteger(N / 2));
         }
     }
 
     if (demography == "bottleneck") {
         if (community.tick == g - 600) {
-            // bottleneck to 10% of original size 200 generations before stopping
+            // bottleneck to 10% of original size 600 generations before stopping
             p1.setSubpopulationSize(asInteger(N / 10));
         }
 
         if (community.tick == g - 500) {
-            // recover to original size 100 generations before stopping
+            // recover to original size 500 generations before stopping
             p1.setSubpopulationSize(N);
         }
     }
