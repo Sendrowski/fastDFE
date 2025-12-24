@@ -13,3 +13,6 @@ class Settings:
     """
     #: Whether to disable the progress bar.
     disable_pbar = False
+
+    #: Whether to use parallel processing. Use ``None`` for local setting.
+    parallelize = None

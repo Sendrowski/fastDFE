@@ -51,7 +51,7 @@ fastdfe_is_installed <- function() {
 #' @examples
 #' \dontrun{
 #' install_fastdfe()  # Installs the latest version of fastdfe
-#' install_fastdfe("1.1.13")  # Installs version 1.1.13 of fastdfe
+#' install_fastdfe("1.2.0")  # Installs version 1.2.0 of fastdfe
 #' install_fastdfe(force = TRUE)  # Reinstalls the fastdfe module
 #' }
 #' 
@@ -165,12 +165,24 @@ load_fastdfe <- function(install = FALSE) {
     if (is.null(labels)) {
       labels <- as.character(1:n_dfes)
     }
-    df$group <- as.factor(rep(unlist(labels), each = n_intervals))
+
+    df$group <- factor(
+      rep(labels, each = n_intervals),
+      levels = labels
+    )
     
     # if errors provided, calculate ymin and ymax
-    if (!is.null(errors) && !is.null(errors[[1]])) {
-      df$ymin <- unlist(lapply(1:n_dfes, function(i) values[[i]] - errors[[i]][1, ]))
-      df$ymax <- unlist(lapply(1:n_dfes, function(i) values[[i]] + errors[[i]][2, ]))
+    if (!is.null(errors)) {
+      has_err <- vapply(errors, function(e) !is.null(e), logical(1))
+
+      if (any(has_err)) {
+        df$ymin <- unlist(lapply(seq_len(n_dfes), function(i)
+          if (has_err[i]) values[[i]] - errors[[i]][1, ] else rep(NA_real_, n_intervals)
+        ))
+        df$ymax <- unlist(lapply(seq_len(n_dfes), function(i)
+          if (has_err[i]) values[[i]] + errors[[i]][2, ] else rep(NA_real_, n_intervals)
+        ))
+      }
     }
     
     # create labels for x-axis
@@ -280,7 +292,6 @@ load_fastdfe <- function(install = FALSE) {
       ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge(),
                         show.legend = n_types > 1) +
       ggplot2::scale_x_discrete(labels = updated_param_names, expand = ggplot2::expansion(mult = c(0, 0))) +
-      ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.05))) +
       ggplot2::labs(x = "Parameters", y = "Values", title = title) +
       ggplot2::theme_bw() +
       ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
@@ -299,9 +310,15 @@ load_fastdfe <- function(install = FALSE) {
     # add legend on the right if labels were provided
     if (legend) p <- p + ggplot2::theme(legend.position = "right")
     
-    # scale y axis if specified
-    if (scale == 'log') {
-      suppressWarnings(p <- p + ggplot2::scale_y_continuous(trans = "log10"))
+    if (scale == "log") {
+      p <- p + ggplot2::scale_y_continuous(
+        trans = "log10",
+        expand = ggplot2::expansion(mult = c(0, 0.05))
+      )
+    } else {
+      p <- p + ggplot2::scale_y_continuous(
+        expand = ggplot2::expansion(mult = c(0, 0.05))
+      )
     }
     
     # display plot if 'show' is TRUE

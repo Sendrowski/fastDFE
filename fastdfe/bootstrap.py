@@ -7,7 +7,7 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-02-26"
 
 import logging
-from typing import Literal, Sequence
+from typing import Literal, Sequence, Tuple
 
 import numpy as np
 from scipy.stats import norm as normal
@@ -22,7 +22,7 @@ class Bootstrap:
     """
 
     @staticmethod
-    def get_bounds_from_quantile(data: Sequence, a1: float, a2: float, n: int) -> (float, float):
+    def get_bounds_from_quantile(data: Sequence, a1: float, a2: float, n: int) -> Tuple[float, float]:
         """
         Get confidence interval bounds.
 
@@ -38,7 +38,7 @@ class Bootstrap:
         return data[max(round(a1 * n), 0)], data[min(round(a2 * n), n - 1)]
 
     @staticmethod
-    def get_ci_percentile(bootstraps: Sequence, a: float) -> (float, float):
+    def get_ci_percentile(bootstraps: Sequence, a: float) -> Tuple[float, float]:
         """
         Get the (1 - a)% confidence intervals using the percentile bootstrap.
 
@@ -52,7 +52,7 @@ class Bootstrap:
         return Bootstrap.get_bounds_from_quantile(np.sort(bootstraps), a, 1 - a, len(bootstraps))
 
     @staticmethod
-    def get_ci_bca(bootstraps: Sequence, original: float, a: float) -> (float, float):
+    def get_ci_bca(bootstraps: Sequence, original: float, a: float) -> Tuple[float, float]:
         """
         Get the (1 - a)% confidence intervals using the BCa method.
         cf. An Introduction to the Bootstrap, Bradley Efron, Robert J. Tibshirani, section 14.2.
@@ -87,8 +87,9 @@ class Bootstrap:
             values: Sequence,
             bs: np.ndarray,
             ci_level: float = 0.05,
-            bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
-    ) -> (np.ndarray, np.ndarray):
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'original',
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Get error values and confidence intervals from the list of original
         values and its bootstraps for a list of parameters.
@@ -97,21 +98,24 @@ class Bootstrap:
         :param bs: Array containing bootstraps as first and the values as second dimension.
         :param ci_level: The confidence level.
         :param bootstrap_type: The bootstrap type.
-        :return: Arrays of errors and confidence intervals.
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
+        :return: Center values, errors around center, and confidence intervals.
         """
         # number of values
         n_values = len(values)
 
-        # replace value by mean
-        means = np.mean(bs, axis=0)
+        # use mean of bootstraps instead of original values
+        if point_estimate == 'mean':
+            center = np.mean(bs, axis=0)
+        elif point_estimate == 'median':
+            center = np.median(bs, axis=0)
+        else:
+            center = np.array(values)
 
         # determine confidence intervals and errors on y axis
         if bootstrap_type == 'percentile':
             cis = np.array([Bootstrap.get_ci_percentile(bs[:, i], ci_level) for i in range(n_values)]).T
 
-            # Determine errors using mean values of the bootstraps.
-            # Note that this sometimes causes the errors to be negative.
-            errors = np.array([means - cis[0], cis[1] - means])
         elif bootstrap_type == 'bca':
             cis = np.array([Bootstrap.get_ci_bca(bs[:, i], values[i], ci_level) for i in range(n_values)]).T
 
@@ -125,10 +129,11 @@ class Bootstrap:
                     if mask[:, j].any():
                         cis[mask[:, j], j] = values[j]
 
-            # determine error using original values
-            errors = np.array([values - cis[0], cis[1] - values])
         else:
             raise NotImplementedError(f"Bootstrap type {bootstrap_type} not supported.")
+
+        # determine error relative to center
+        errors = np.array([center - cis[0], cis[1] - center])
 
         # issue notice if some errors are negative
         if np.sum(np.less(errors, 0)) > 0:
@@ -137,4 +142,4 @@ class Bootstrap:
             # set negative errors to 0
             errors[errors < 0] = 0
 
-        return errors, cis
+        return center, errors, cis

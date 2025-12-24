@@ -14,7 +14,11 @@ shared_params:
       - S_d
       - b
 do_bootstrap: false
-fixed_params: { }
+fixed_params: {
+  all: {
+    h: 0.5
+  }
+}
 integration_mode: midpoint
 intervals_ben:
   - 1.0e-05

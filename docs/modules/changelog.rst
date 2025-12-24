@@ -3,6 +3,18 @@
 Changelog
 =========
 
+[1.2.0] - 2025-12-24
+^^^^^^^^^^^^^^^^^^^^
+- Adding dominance coefficient ``h`` to DFE inference. ``h`` can either be fixed or inferred jointly with the DFE parameters. We can also introduce a relationship between ``h`` and ``S`` (see `h_callback <../search.html?q=h_callback>`_). When estimating ``h``, precomputation over a grid of dominance coefficients takes some time. Implementation was validated with ``SLiM``.
+- By default, parameters are now fixed to infer a semidominant (``h=0.5``) deleterious DFE without correcting for ancestral misidentification (``eps=0``).
+- Improved bootstrapping. By default, 2 runs are carried out per bootstrap sample and the most likely result is taken (see `n_bootstrap_retries <../search.html?q=n_bootstrap_retries>`_ which previously controlled the number of retries in case of optimization failure). Bootstrapping is now also carried out by default (`do_bootstrap <../search.html?q=do_bootstrap>`_), and mean and standard deviation across bootstraps are logged.
+- Initial optimization runs are now recorded in :attr:`~fastdfe.base_inference.BaseInference.runs` dataframe.
+- Added :class:`~fastdfe.parametrization.DFE` class representing a frozen :class:`~fastdfe.parametrization.Parametrization`.
+- Expanded documentation on SFS parsing and DFE inference.
+- Allow to specify how the point estimate is determined when plotting discretized DFE with confidence intervals (see `point_estimate <../search.html?q=point_estimate>`_).
+- Refactored :class:`~fastdfe.base_inference.InferenceResult`.
+- Refactored methods returning CIs. For example, removed ``get_cis_params_mle()``, use `get_errors_params_mle() <../search.html?q=get_errors_params_mle>`_ instead.
+
 [1.1.13] - 2025-11-22
 ^^^^^^^^^^^^^^^^^^^^^
 - Fixed bootstrap issue where seeding caused unwanted correlation between the resampled neutral and selected SFS, which could result in smaller confidence intervals.

@@ -8,10 +8,12 @@ __date__ = "2023-02-26"
 
 import json
 import logging
-from typing import List, Literal, Dict, Tuple
+from typing import List, Literal, Dict, Tuple, Callable
 
+import numpy as np
 import yaml
 
+from .discretization import Discretization
 from .io_handlers import download_if_url
 from .json_handlers import CustomEncoder
 from .optimization import Covariate
@@ -38,6 +40,8 @@ class Config:
             sfs_sel: Spectra | Spectrum = None,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
+            intervals_h: Tuple[float, float, int] = (0.0, 1.0, 21),
+            h_callback: Callable[[np.ndarray], np.ndarray] = None,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -49,10 +53,10 @@ class Config:
             opts_mle: dict = {},
             method_mle: str = 'L-BFGS-B',
             n_runs: int = 10,
-            fixed_params: Dict[str, Dict[str, float]] = {},
+            fixed_params: Dict[str, Dict[str, float]] = None,
             shared_params: List[SharedParams] = [],
             covariates: List[Covariate] = [],
-            do_bootstrap: bool = False,
+            do_bootstrap: bool = True,
             n_bootstraps: int = 100,
             n_bootstrap_retries: int = 2,
             parallelize: bool = True,
@@ -69,10 +73,27 @@ class Config:
         :param sfs_sel: Selected SFS. Note that we require monomorphic counts to be specified in order to infer
             the mutation rate.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
-            selection coefficients. The intervals will be log10-spaced.
-        :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
-        :param integration_mode: Integration mode, ``quad`` not recommended
-        :param linearized: Whether to use the linearized version of the DFE, ``False`` not recommended.
+            selection coefficients. The intervals will be log10-spaced. Decreasing the number of intervals to ``100``
+            provides nearly identical results while increasing speed, especially when precomputing across dominance
+            coefficients.
+        :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients. Decreasing the number
+            of intervals to ``100`` provides nearly identical results while increasing speed, especially when
+            precomputing across dominance coefficients.
+        :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
+            This is only used when inferring dominance coefficients. Values of ``h`` between the edges will be
+            interpolated linearly.
+        :param h_callback: A function mapping the scalar parameter ``h`` and the array of selection
+            coefficients ``S`` to dominance coefficients of the same shape, allowing models where ``h``
+            depends on ``S``. The default is ``lambda h, S: np.full_like(S, h)``, keeping ``h`` constant.
+            Expected allele counts for a given dominance value are obtained by linear interpolation
+            between precomputed values in ``intervals_h``. The inferred parameter is still named ``h``,
+            even if transformed by ``h_callback``, and its bounds, scales, and initial values can be set
+            via ``bounds``, ``scales``, and ``x0``. The fitness of heterozygotes and mutation homozygotes is defined as
+            ``1 + 2hs`` and ``1 + 2s``, respectively.
+        :param integration_mode: Integration mode when computing expected SFS under semidominance.
+            ``quad`` is not recommended.
+        :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
+            ``scipy.integrate.quad`` in each call. ``False`` not recommended.
         :param model: Parametrization of the DFE.
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
@@ -80,7 +101,7 @@ class Config:
         :param scales: Scales for the optimization in the form {param: scale}
         :param loss_type: Loss function to use.
         :param opts_mle: Options for the optimization.
-        :param method_mle: Method to use for optimization. See `scipy.optimize.minimize` for available methods.
+        :param method_mle: Method to use for optimization. See ``scipy.optimize.minimize`` for available methods.
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
@@ -89,7 +110,9 @@ class Config:
         :param covariates: Covariates for the optimization.
         :param do_bootstrap: Whether to do bootstrapping automatically.
         :param n_bootstraps: Number of bootstraps.
-        :param n_bootstrap_retries: Number of retries for bootstraps that did not terminate normally.
+        :param n_bootstrap_retries: Number of optimization runs for each bootstrap sample. This parameter previously
+            defined the number of retries per bootstrap sample when subsequent runs failed, but now it defines the
+            total number of runs per bootstrap sample, taking the most likely one.
         :param parallelize: Whether to parallelize the optimization.
         :param kwargs: Additional keyword arguments which are ignored.
         """
@@ -99,6 +122,8 @@ class Config:
             model=model,
             intervals_del=intervals_del,
             intervals_ben=intervals_ben,
+            intervals_h=intervals_h,
+            h_callback=h_callback,
             integration_mode=integration_mode,
             linearized=linearized,
             seed=seed,
@@ -157,7 +182,10 @@ class Config:
         fixed_params, x0 = parse_init_file(_from_string(self.data['model']).param_names, file, id)
 
         # merge with existing config
-        self.data['fixed_params'] = merge_dicts(self.data['fixed_params'], dict(all=fixed_params))
+        self.data['fixed_params'] = merge_dicts(
+            self.data['fixed_params'] if isinstance(self.data['fixed_params'], dict) else {},
+            dict(all=fixed_params)
+        )
         self.data['x0'] |= {type: x0}
 
     def create_polydfe_init_file(self, file: str, n: int, type: str = 'all'):
@@ -258,7 +286,7 @@ class Config:
 
         # cast to tuple of (float, float, int)
         # useful when restoring from YAML file
-        for key in ['intervals_ben', 'intervals_del']:
+        for key in ['intervals_ben', 'intervals_del', 'intervals_h']:
             if key in data:
                 data[key] = (float(data[key][0]), float(data[key][1]), int(data[key][2]))
 
@@ -289,7 +317,7 @@ class Config:
         """
         Load object from file.
 
-        :param file: Path to file, possibly gzipped.
+        :param file: Path to file, possibly gzipped or a URL.
         :param cache: Whether to use the cache if available.
         :return: Config object.
         """

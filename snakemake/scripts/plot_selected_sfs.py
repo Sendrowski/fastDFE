@@ -38,7 +38,7 @@ d = Discretization(
 )
 
 k = np.arange(1, n)
-s = Spectrum.from_polymorphic(d.get_allele_count_regularized(S * np.ones_like(k), k))
+s = Spectrum.from_polymorphic(d.get_counts_semidominant_regularized(S * np.ones_like(k), k))
 
 plt.figure(figsize=(2, 2))
 s.plot(file=out, show=False, title=f"S = {S}", ax=plt.gca())

@@ -1,7 +1,7 @@
 .. _modules.base_inference:
 
-Inference
----------
+DFE Inference
+-------------
 
 .. autoclass:: fastdfe.base_inference.BaseInference
    :inherited-members:
@@ -14,6 +14,11 @@ Inference
    :show-inheritance:
 
 .. autoclass:: fastdfe.abstract_inference.Inference
+   :inherited-members:
+   :undoc-members:
+   :show-inheritance:
+
+.. autoclass:: fastdfe.base_inference.InferenceResult
    :inherited-members:
    :undoc-members:
    :show-inheritance:

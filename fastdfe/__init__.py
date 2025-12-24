@@ -6,7 +6,7 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-03-10"
 
-__version__ = '1.1.13'
+__version__ = '1.2.0'
 
 import logging
 import sys
@@ -117,11 +117,12 @@ logger.addHandler(handler)
 
 # load class from modules
 from .parametrization import Parametrization, GammaExpParametrization, DiscreteParametrization, \
-    GammaDiscreteParametrization, DisplacedGammaParametrization, DiscreteFractionalParametrization
+    GammaDiscreteParametrization, DisplacedGammaParametrization, DiscreteFractionalParametrization, DFE
+from .discretization import Discretization
 from .config import Config
 from .settings import Settings
 from .abstract_inference import Inference
-from .base_inference import BaseInference, InferenceResults
+from .base_inference import BaseInference, InferenceResult
 from .joint_inference import JointInference, SharedParams
 from .optimization import Covariate
 from .simulation import Simulation
@@ -145,11 +146,14 @@ __all__ = [
     'GammaDiscreteParametrization',
     'DisplacedGammaParametrization',
     'DiscreteFractionalParametrization',
+    'DFE',
+    'Discretization',
     'Config',
     'Settings',
     'Inference',
     'BaseInference',
     'JointInference',
+    'InferenceResult',
     'Simulation',
     'SharedParams',
     'Covariate',

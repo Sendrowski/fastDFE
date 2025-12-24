@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+import fastdfe as fd
 from fastdfe import GammaExpParametrization, BaseInference, Config
 from fastdfe.visualization import Visualization
 from fastdfe.discretization import Discretization
@@ -461,4 +462,80 @@ class ParametrizationTestCase(TestCase):
         """
         GammaExpParametrization().plot(
             params=GammaExpParametrization.x0
-        ).plot()
+        )
+
+    def test_deleterious_submodel_discrete_parametrization(self):
+        """
+        Test that deleterious submodel works for DiscreteParametrization.
+        """
+        for inv in [
+            np.array([-100000, -100, -10, -1, 0, 1, 1000]),
+            np.array([-100000, -1, 0, 1, 10, 1000])
+        ]:
+            p = DiscreteFractionalParametrization(intervals=inv)
+
+            y = p.get_pdf(
+                **(p.x0 | p.submodels['dele'])
+            )(np.linspace(0.00001, 1000, 100))
+
+            self.assertEqual(np.sum(y), 0)
+
+            y = p.get_pdf(
+                **(p.x0)
+            )(np.linspace(0.00001, 1000, 100))
+
+            self.assertGreater(np.sum(y), 0)
+
+    def test_dfe_cdf_pdf(self):
+        """
+        Test that DFE CDF works for all parametrizations.
+        """
+        p = GammaExpParametrization()
+        dfe = p.freeze(p.x0)
+
+        s = np.linspace(*p.bounds['S_d'], 1000)
+
+        y1 = p.get_cdf(**p.x0)(s)
+        y2 = dfe.cdf(s)
+
+        np.testing.assert_array_equal(y1, y2)
+
+        y1 = p.get_pdf(**p.x0)(s)
+        y2 = dfe.pdf(s)
+
+        np.testing.assert_array_equal(y1, y2)
+
+    def test_custom_bounds(self):
+        """
+        Test that custom bounds work as expected.
+        """
+        self.assertDictEqual(
+            GammaExpParametrization(bounds=dict(p_b=(0.1, 0.9))).bounds,
+            GammaExpParametrization.bounds | dict(p_b=(0.1, 0.9))
+        )
+
+        # make sure original class variable is not modified
+        self.assertTupleEqual(
+            GammaExpParametrization.bounds['p_b'],
+            (0.0, 0.5)
+        )
+
+        self.assertTupleEqual(
+            DiscreteParametrization(bounds=dict(S1=(0.1, 0.9))).bounds['S1'],
+            (0.1, 0.9)
+        )
+
+        self.assertTupleEqual(
+            DiscreteParametrization().bounds['S1'],
+            (0.0, 1.0)
+        )
+
+    def test_dfe_serialization(self):
+        """
+        Test that DFE serialization works for all parametrizations.
+        """
+        dfe = GammaExpParametrization().freeze(GammaExpParametrization.x0)
+        dfe.to_file("scratch/gamma_exp_dfe.json")
+        dfe2 = fd.DFE.from_file("scratch/gamma_exp_dfe.json")
+
+        self.assertDictEqual(dfe.params, dfe2.params)

@@ -1,7 +1,6 @@
-import re
-from typing import List
+from typing import List, Tuple
 
-configfile: "config.yaml"
+configfile: "config/config.yaml"
 
 # whether we run snakemake locally
 is_local = config.get('local',False)
@@ -38,7 +37,7 @@ def extract_opt(str: str, name, default_value=None) -> str:
     return default_value
 
 
-def expand_comparisons(path) -> (List[str], List[str]):
+def expand_comparisons(path) -> Tuple[List[str], List[str]]:
     """
     Expand over the comma separated lists in 'path'
 
@@ -47,7 +46,7 @@ def expand_comparisons(path) -> (List[str], List[str]):
     """
     matches = re.finditer(r"\[(.*?)\]",path)
 
-    def expand(strings: List[str], match: re.Match) -> (List[str], List[str]):
+    def expand(strings: List[str], match: re.Match) -> Tuple[List[str], List[str]]:
         """
         Expand by substituting first match in given strings.
         Also attempt to parse labels enclosed in <> tags.
@@ -114,12 +113,11 @@ wildcard_constraints:
     param="[a-zA-Z0-9_]+",
     config=r'\w+',
     population=r'\w+',
-    demography=r'\w+',
+    demography=r'[\w.]+',
     chunk=r'\d+',
     n=r'\d+',
     i=r'\d+',
     folded='folded|unfolded',
-
 
 hominidae = [
     'bonobo',
@@ -148,7 +146,6 @@ collages = {
     )
     for k, v in configs_collages.items()
 }
-
 
 collages["mixed"] = [
     "results/graphs/comp/slim/n_replicate={{n_replicate}}/n_chunks=100/g={{g}}/L=1e7/mu=1e-8/r={{r}}/N={{N}}/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n={{n}}/{{demography}}/{{folded}}/{{plot_type}}.png",
@@ -180,17 +177,27 @@ rule all:
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/collage1.{type}.png", n_replicate=[1], type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/collage2.{type}.png", n_replicate=[1], type=['dfe', 'sfs'], g=["1e4"], N=["1e3"]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/collage2.{type}.png", n_replicate=[1], type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"]),
-            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20, 100], folded=['folded', 'unfolded'], collage_type=['realistic_full_dfe', 'realistic_del_dfe']),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1, 2], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant', 'expansion', 'reduction', 'bottleneck']),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[100], folded=['unfolded'], collage_type=['mixed'], demography=['constant']),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['folded'], collage_type=['mixed'], demography=['constant']),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{folded}/demographies.sfs.png", n_replicate=[1], n_chunks=[100], g=["1e4"], L=["1e7"], mu=["1e-8"], r=["1e-7"], N=["1e3"], s_b=["1e-3"], b=["0.3"], s_d=["3e-1"], p_b=["0.00"], n=[20], folded=['unfolded']),
-            expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/s_d_and_b.sfs.png", n_replicate=[1], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], demography=['constant'], folded=['unfolded']),
-            expand("results/graphs/comp/slim/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/replicates.sfs.png", n_chunks=[100], g=["1e4"], L=["1e7"], mu=["1e-8"], r=["1e-7"], N=["1e3"], s_b=["1e-3"], b=["0.3"], s_d=["3e-1"], p_b=["0.00"], n=[20], demography=['constant'], folded=['unfolded']),
-            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1, 2], plot_type=['dfe', 'sfs'], g=["1e5"], N=["1e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant', 'expansion']),
-            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["3e4"], N=["3e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant']),
-            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-8", "1e-6"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['expansion']),
-            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['folded'], collage_type=['mixed'], demography=['constant', 'expansion', 'bottleneck']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20, 100], folded=['folded', 'unfolded'], collage_type=['realistic_full_dfe', 'realistic_del_dfe']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1, 2], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant', 'expansion', 'bottleneck', 'reduction', 'substructure']),
+            expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png",n_replicate=[1],plot_type=['dfe', 'sfs'],g=["1e4"],N=["1e3"],r=["1e-7"],n=[20],folded=['unfolded'],collage_type=['mixed'],demography=['substructure_0.0001', 'expansion_4', 'bottleneck_20', 'reduction_4']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png",n_replicate=[3],plot_type=['dfe', 'sfs'],g=["1e4"],N=["1e3"],r=["1e-7"],n=[20],folded=['unfolded'],collage_type=['mixed'],demography=['bottleneck_20']),
+            #expand("results/slim/stats_agg/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/{dfe_params}/substructure_0.0001/stats.csv", n_replicate=[1], n_chunks=[100], g=["1e4"], L=["1e7"], mu=["1e-8"], r=["1e-7"], N=["1e3"], dfe_params=["s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00", "s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00", "s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01", "s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05"], n=[20], folded=['unfolded']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.semidominant.png",n_replicate=[1],plot_type=['dfe', 'sfs'],g=["1e4"],N=["1e3"],r=["1e-7"],n=[20],folded=['unfolded'],collage_type=['mixed'],demography=['dominance_0.2']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[8, 100], folded=['unfolded'], collage_type=['mixed'], demography=['constant']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['folded'], collage_type=['mixed'], demography=['constant']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/{demography}/{folded}/{collage_type}.sample_sizes.dfe.inferred.png", n_replicate=[1], g=["1e4"], N=["1e3"], r=["1e-7"], demography=['constant'], folded=['unfolded'], collage_type=['mixed']),
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/{dfe_params}/n={n}/{folded}/demographies.sfs.png", n_replicate=[1], n_chunks=[100], g=["1e4"], L=["1e7"], mu=["1e-8"], r=["1e-7"], N=["1e3"], dfe_params=["s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00", "s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00", "s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01", "s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05"], n=[20], folded=['unfolded']),
+            #expand("results/slim/stats_agg/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{dfe_params}/substructure/stats.csv", dfe_params=["s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00", "s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00", "s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01", "s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05"]),
+            #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/s_d_and_r.sfs.png", n_replicate=[1], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], demography=['constant'], folded=['unfolded']),
+            #expand("results/graphs/comp/slim/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/replicates.sfs.png", n_chunks=[100], g=["1e4"], L=["1e7"], mu=["1e-8"], r=["1e-7"], N=["1e3"], s_b=["1e-3"], b=["0.3"], s_d=["3e-1"], p_b=["0.00"], n=[20], demography=['constant'], folded=['unfolded']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png",n_replicate=[1],plot_type=['sfs', 'dfe'],g=["1e4"],N=["1e3"],r=["1e-7"],n=[20, 100],folded=['unfolded'],collage_type=['mixed'],demography=[f"dominance_{round(i * 0.1,1)}" for i in range(11)]),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png",n_replicate=[1],plot_type=['sfs', 'dfe'],g=["1e4"],N=["1e3"],r=["1e-6"],n=[20, 100],folded=['unfolded'],collage_type=['mixed'],demography=[f"dominance_0.0"]),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png",n_replicate=[1],plot_type=['sfs', 'dfe'],g=["1e4"],N=["1e3"],r=["1e-6"],n=[20],folded=['unfolded'],collage_type=['mixed'],demography=[f"dominance_function_{k}" for k in [0.1, 1, 10, 100]]),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1, 2], plot_type=['dfe', 'sfs'], g=["1e5"], N=["1e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant', 'expansion']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["3e4"], N=["3e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-8", "1e-6"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['expansion']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['folded'], collage_type=['mixed'], demography=['constant', 'expansion', 'bottleneck']),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png",
             #        n_replicate=[1],n_chunks=[100],n=[20],L=["1e7"],mu=["1e-8"],s_b=["1e0"],b=[0.4],s_d=["1e0"],p_b=[0.4],g=["1e4", "2e4", "4e4"],r=["1e-6"],N=["1e3"]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/sfs.png",
@@ -946,12 +953,15 @@ rule annotate_snpeff_sapiens:
 
 # generate a requirements.txt using poetry
 rule generate_requirements_poetry:
+    input:
+        base="workflow/envs/base.yaml",
+        dev="workflow/envs/dev.yaml"
     output:
-        base="envs/requirements.txt",
-        base_snakemake=".snakemake/conda/requirements.txt",
-        testing="envs/requirements_testing.txt",
-        testing_snakemake=".snakemake/conda/requirements_testing.txt",
-        docs="../docs/requirements.txt"
+        base="workflow/envs/requirements.txt",
+        base_snakemake="workflow/.snakemake/conda/requirements.txt",
+        testing="workflow/envs/requirements_testing.txt",
+        testing_snakemake="workflow/.snakemake/conda/requirements_testing.txt",
+        docs="docs/requirements.txt"
     conda:
         "envs/build.yaml"
     shell:
@@ -962,8 +972,8 @@ rule generate_requirements_poetry:
             poetry export --with dev -f requirements.txt --without-hashes -o {output.testing}
             poetry export --with dev -f requirements.txt --without-hashes -o {output.testing_snakemake}
             poetry export --with dev -f requirements.txt --without-hashes -o {output.docs}
-            mamba env update -f envs/dev.yaml
-            mamba env update -f envs/base.yaml
+            mamba env update -f {input.dev}
+            mamba env update -f {input.base}
         """
 
 # download human chromosome-level VCF
@@ -1408,7 +1418,8 @@ use rule * from subset_vcf
 # simulate trees using SLiM
 rule simulate_trees_slim:
     output:
-        temp("results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/chunk={chunk}/{demography}/sequence.trees")
+        trees=temp("results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/chunk={chunk}/{demography}/sequence.trees"),
+        stats=touch("results/slim/stats/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/chunk={chunk}/{demography}/stats.csv")
     params:
         g=lambda w: int(float(w.g)),
         L=lambda w: int(float(w.L)),
@@ -1419,13 +1430,20 @@ rule simulate_trees_slim:
         b=lambda w: float(w.b),
         s_d=lambda w: float(w.s_d),
         p_b=lambda w: float(w.p_b),
-        demography="{demography}"
+        h=lambda w: (
+            float(w.demography.split("_")[-1])
+            if w.demography.startswith("dominance_")
+            else 0.5
+        ),
+        k=lambda w: float(w.demography.split("_")[-1]) if '_' in w.demography else 0,
+        demography=lambda w: w.demography.rsplit('_',1)[0]
     conda:
         "envs/slim.yaml"
     shell:
         """
         slim \
-        -d "out=\'{output}\'" \
+        -d "out_trees=\'{output.trees}\'" \
+        -d "out_stats=\'{output.stats}\'" \
         -d "g={params.g}" \
         -d "length={params.L}" \
         -d "mu={params.mu}" \
@@ -1435,9 +1453,46 @@ rule simulate_trees_slim:
         -d "b={params.b}" \
         -d "s_d={params.s_d}" \
         -d "p_b={params.p_b}" \
+        -d "h={params.h}" \
+        -d "k={params.k}" \
         -d "demography=\'{params.demography}\'" \
-        scripts/simulate_trees.slim
+        workflow/scripts/simulate_trees.slim
         """
+
+# aggregate stats across chunks
+rule aggregate_stats:
+    input:
+        lambda w: expand("results/slim/stats/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/chunk={chunk}/{demography}/stats.csv",chunk=range(int(w.n_chunks)),**w)
+    output:
+        "results/slim/stats_agg/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/{demography}/stats.csv"
+    run:
+        import pandas as pd
+        import re
+
+        dfs = []
+        for f in input:
+            chunk = int(re.search(r"chunk=(\d+)",f).group(1))
+            df = pd.read_csv(f)
+            df["chunk"] = chunk
+            dfs.append(df)
+
+        df = pd.concat(dfs,ignore_index=True).sort_values("chunk")
+
+        # numeric columns only (excluding 'chunk')
+        num = df.select_dtypes("number")
+
+        mean_row = num.mean().to_dict()
+        std_row = num.std().to_dict()
+
+        mean_row["chunk"] = "mean"
+        std_row["chunk"] = "std"
+
+        df = pd.concat(
+            [df, pd.DataFrame([mean_row, std_row])],
+            ignore_index=True
+        )
+
+        df.to_csv(output[0],index=False)
 
 # parse SLiM trees
 rule compute_sfs_slim:
@@ -1512,7 +1567,35 @@ rule infer_dfe_slim_fastdfe:
         spectra="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/spectra.png",
         params="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/params.png"
     params:
-        full_dfe=lambda w: w.p_b != 0
+        full_dfe=lambda w: w.p_b != 0,
+        mu=lambda w: float(w.mu),
+        demography=lambda w: w.demography.rsplit('_',1)[0],
+        h=lambda w: (
+            float(w.demography.split("_")[-1])
+            if w.demography.startswith("dominance_")
+            else 0.5
+        )
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/infer_dfe_slim_fastdfe.py"
+
+# infer DFE using fastdfe from SLiM trees assuming semidominance
+rule infer_dfe_slim_fastdfe_semidominant:
+    input:
+        "results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.csv"
+    output:
+        serialized="results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/serialized.semidominant.json",
+        summary="results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/summary.semidominant.json",
+        dfe="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.inferred.semidominant.png",
+        model_fit="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/model_fit.semidominant.png",
+        spectra="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/spectra.semidominant.png",
+        params="results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/params.semidominant.png"
+    params:
+        full_dfe=lambda w: w.p_b != 0,
+        mu=lambda w: float(w.mu),
+        demography='constant',
+        h=0.5
     conda:
         "envs/base.yaml"
     script:
@@ -1532,6 +1615,35 @@ rule simulate_sfs:
         s_d=lambda w: float(w.s_d),
         p_b=lambda w: float(w.p_b),
         n=lambda w: int(w.n),
+        h=lambda w: (
+            float(w.demography.split("_")[-1])
+            if w.demography.startswith("dominance_")
+            else 0.5
+        ),
+        demography=lambda w: w.demography.rsplit('_',1)[0],
+        #title=lambda w: f"g={w.g}/L={int(float(w.L) * int(w.n_chunks)):.1e}/mu={w.mu}/r={w.r}/N={w.N}/s_b={w.s_b}/b={w.b}/s_d={w.s_d}/p_b={w.p_b}"
+        title=lambda w: f"$s_d$={w.s_d}, $b$={w.b}, $p_b$={w.p_b}, $s_b$={w.s_b}"
+    conda:
+        "envs/dev.yaml"
+    script:
+        "scripts/simulate_sfs.py"
+
+# simulate SFS using fastDFE
+rule simulate_sfs_semidominant:
+    input:
+        "results/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.csv"
+    output:
+        sfs="results/sfs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.semidominant.csv",
+        comp="results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.semidominant.png"
+    params:
+        mu=lambda w: float(w.mu),
+        s_b=lambda w: float(w.s_b),
+        b=lambda w: float(w.b),
+        s_d=lambda w: float(w.s_d),
+        p_b=lambda w: float(w.p_b),
+        n=lambda w: int(w.n),
+        h=0.5,
+        demography='constant',
         #title=lambda w: f"g={w.g}/L={int(float(w.L) * int(w.n_chunks)):.1e}/mu={w.mu}/r={w.r}/N={w.N}/s_b={w.s_b}/b={w.b}/s_d={w.s_d}/p_b={w.p_b}"
         title=lambda w: f"$s_d$={w.s_d}, $b$={w.b}, $p_b$={w.p_b}, $s_b$={w.s_b}"
     conda:
@@ -1542,11 +1654,52 @@ rule simulate_sfs:
 # plot SFS comparison collage
 rule combine_plots_collage_slim:
     input:
-        lambda w: expand(collages[w.collage_type], **w)
+        lambda w: expand(collages[w.collage_type],**w)
     output:
-        "results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/collage/{collage_type}.{plot_type}.png"
+        "results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png"
     params:
         n_cols=lambda w: 1 if w.plot_type == 'dfe' else None
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/combine_plots.py"
+
+# plot SFS comparison collage assuming semidominance when inferring DFE
+rule combine_plots_collage_slim_semidominant:
+    input:
+        lambda w: expand([c.replace('.png','.semidominant.png') for c in collages[w.collage_type]],**w)
+    output:
+        "results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.semidominant.png"
+    params:
+        n_cols=lambda w: 1 if w.plot_type == 'dfe' else None
+    conda:
+        "envs/base.yaml"
+    resources:
+        mem_mb=16000
+    script:
+        "scripts/combine_plots.py"
+
+# plot SFS comparison collage for inferred DFE
+rule combine_plots_collage_slim_inferred:
+    input:
+        lambda w: expand([c.replace('.png','.inferred.png') for c in collages[w.collage_type]],**w)
+    output:
+        "results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.inferred.png"
+    params:
+        n_cols=1
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/combine_plots.py"
+
+# plot SFS comparison collage for simulated DFE
+rule combine_plots_collage_slim_simulated:
+    input:
+        lambda w: expand([c.replace('.png','.simulated.png') for c in collages[w.collage_type]],**w)
+    output:
+        "results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.simulated.png"
+    params:
+        n_cols=1
     conda:
         "envs/base.yaml"
     script:
@@ -1564,33 +1717,51 @@ rule combine_dfe_plots_slim:
     script:
         "scripts/combine_plots.py"
 
+# combine DFE plots assuming semidominance when inferring DFE
+rule combine_dfe_plots_slim_semidominant:
+    input:
+        "results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.simulated.png",
+        "results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.inferred.semidominant.png",
+        "results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.inferred.png"
+    output:
+        "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.semidominant.png"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/combine_plots.py"
+
 # combine SFS plots for different demographies
 rule combine_sfs_plots_slim_demographies:
     input:
-        expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.png", demography=['constant', 'expansion', 'reduction', 'bottleneck'], allow_missing=True)
+        (
+                expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.png",demography=['constant', 'expansion_4', 'reduction_4', 'bottleneck_20', 'substructure_0.0001'],allow_missing=True) +
+                ["results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/dominance_0.2/{folded}/sfs.semidominant.png"]
+        )
     output:
         "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{folded}/demographies.sfs.png"
     params:
-        titles=['constant', 'expansion', 'reduction', 'bottleneck'],
+        titles=['constant', 'expansion', 'reduction', 'bottleneck', 'substructure', 'recessiveness'],
+        n_cols=2,
         title_size_rel=32,
         title_xoffset=0.57,
-        pad=0.8
+        pad=0.4
     conda:
         "envs/base.yaml"
     script:
         "scripts/combine_plots.py"
 
 # combine SFS plots for different values of r and s_d
-rule combine_sfs_plots_slim_r_and_s_d:
+rule combine_sfs_plots_slim_s_d_and_r:
     input:
         "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks=100/g={g}/L=1e7/mu=1e-8/r=1e-7/N={N}/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n={n}/{demography}/{folded}/sfs.png",
+        "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks=100/g={g}/L=1e7/mu=1e-8/r=1e-8/N={N}/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n={n}/{demography}/{folded}/sfs.png",
         "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks=100/g={g}/L=1e7/mu=1e-8/r=1e-9/N={N}/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n={n}/{demography}/{folded}/sfs.png",
         "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks=100/g={g}/L=1e7/mu=1e-8/r=1e-7/N={N}/s_b=1e-3/b=0.3/s_d=100/p_b=0.00/n={n}/{demography}/{folded}/sfs.png",
     output:
-        "results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/s_d_and_b.sfs.png"
+        "results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/s_d_and_r.sfs.png"
     params:
-        titles=['default', 'reduced recombination', 'increased s_d'],
-        title_size_rel=44,
+        titles=['default ($r=10^{{-7}}$)', 'normal recombination ($r=10^{{-8}}$)', 'reduced recombination ($r=10^{{-9}}$)', 'strong purifying selection ($s_d=100$)'],
+        title_size_rel=24,
         title_xoffset=0.58,
         pad=0.8
     conda:
@@ -1601,7 +1772,7 @@ rule combine_sfs_plots_slim_r_and_s_d:
 # combine SFS plots for 3 replicates
 rule combine_sfs_plots_slim_replicates:
     input:
-        expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.png", n_replicate=[1, 2, 3], allow_missing=True)
+        expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/sfs.png",n_replicate=[1, 2, 3],allow_missing=True)
     output:
         "results/graphs/comp/slim/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/replicates.sfs.png"
     params:
@@ -1614,15 +1785,34 @@ rule combine_sfs_plots_slim_replicates:
     script:
         "scripts/combine_plots.py"
 
+# combine DFE plots for different sample sizes
+rule combine_inferred_dfe_plots_different_sample_sizes:
+    input:
+        "results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n=8/{demography}/{folded}/{collage_type}.dfe.inferred.png",
+        "results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n=20/{demography}/{folded}/{collage_type}.dfe.inferred.png",
+        "results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n=100/{demography}/{folded}/{collage_type}.dfe.inferred.png",
+    output:
+        "results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/{demography}/{folded}/{collage_type}.sample_sizes.dfe.inferred.png"
+    params:
+        titles=['$n=8$', '$n=20$', '$n=100$'],
+        title_size_rel=44,
+        title_xoffset=0.58,
+        pad=0.8
+    conda:
+        "envs/base.yaml"
+    resources:
+        mem_mb=50000,
+    script:
+        "scripts/combine_plots.py"
 
 # update the documentation
 rule update_docs:
     output:
-        directory("../docs/_build")
+        directory("docs/_build")
     conda:
         "envs/dev.yaml"
     shell:
-        "make html -C ../docs"
+        "make html -C docs"
 
 # plot SFS for hgdp
 rule plot_spectra:
@@ -1634,3 +1824,33 @@ rule plot_spectra:
         "envs/base.yaml"
     script:
         "scripts/plot_spectra.py"
+
+# compare DFE across different SFS sample sizes and number of SNPs
+rule compare_dfe_sample_sizes:
+    output:
+        "results/graphs/simulation/sample_size_comparison.png"
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/compare_dfe_sample_sizes.py"
+
+# infer dominance coefficient from simulated data
+rule infer_dominance_simulation:
+    output:
+        "results/graphs/simulation/inferred_dominance_{n}.png"
+    params:
+        n=lambda w: int(w.n)
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/infer_dominance_simulation.py"
+
+# compare speed of parallelization
+rule compare_speed_parallelization:
+    output:
+        touch("results/benchmarks/speed_parallelization.txt")
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/compare_speed_parallelization.py"
+

@@ -4,11 +4,12 @@
 // s_b: selection coefficient for beneficial mutations
 // b: shape parameter for gamma distribution
 // p_b: proportion of beneficial mutations
+// h: dominance coefficient for deleterious mutations (if applicable)
 // r: recombination rate
 // N: population size
 // g: generation to stop simulation
 // length: sequence length
-// demography: demographic events ('constant', 'expansion', 'bottleneck')
+// demography: demographic events ('constant', 'expansion', 'bottleneck', 'reduction', 'substructure', 'dominance')
 
 initialize()
 {
@@ -18,6 +19,8 @@ initialize()
     initializeMutationRate(mu); // mutation rate
 
     // gamma distribution for deleterious mutations
+    // SLiM defines fitness effects as 1 + hs and 1 + s for heterozygous and homozygous genotypes respectively
+    // In fastDFE, we define them as 1 + 2hs and 1 + 2s, so we need to adjust s by a factor of 2 here
     initializeMutationType("m1", 0.5, "g", - 2 * s_d, b);
 
     // exponential distribution for beneficial mutations
@@ -32,31 +35,68 @@ initialize()
 
 1 early() {
     sim.addSubpop("p1", N);
+
+    if (demography == "substructure") {
+        // split population into two subpopulations with migration
+        sim.addSubpopSplit("p2", asInteger(N / 2), p1);
+        p1.setMigrationRates(p2, k);
+        p2.setMigrationRates(p1, k);
+    }
+}
+
+// custom dominance coefficient function for deleterious mutations
+mutationEffect(m1) {
+    if (homozygous) {
+        return 1.0 + mut.selectionCoeff;
+    } else {
+        if (demography == "dominance_function") {
+            // remove scaling of 2 to base mapping on `real` s values
+            dom = max(0.4 * exp(-k * abs(mut.selectionCoeff) / 2), 0.1);
+        } else {
+            dom = h;
+        }
+        return 1.0 + dom * mut.selectionCoeff;
+    }
+}
+
+// custom dominance coefficient function for beneficial mutations
+mutationEffect(m2) {
+    if (homozygous) {
+        return 1.0 + mut.selectionCoeff;
+    } else {
+        if (demography == "dominance_function") {
+            // remove scaling of 2 to base mapping on `real` s values
+            dom = max(0.4 * exp(-k * abs(mut.selectionCoeff) / 2), 0.1);
+        } else {
+            dom = h;
+        }
+        return 1.0 + dom * mut.selectionCoeff;
+    }
 }
 
 early() {
     if (demography == "expansion") {
         if (community.tick == g - 500) {
-            // population doubles 100 generations before stopping
-            p1.setSubpopulationSize(2 * N);
+            // population expands to k times original size 500 generations before stopping
+            p1.setSubpopulationSize(asInteger(k * N));
         }
     }
 
     if (demography == "reduction") {
         if (community.tick == g - 500) {
-            // population doubles 100 generations before stopping
-            p1.setSubpopulationSize(asInteger(N / 2));
+            // population reduces to 1 / k of original size 500 generations before stopping
+            p1.setSubpopulationSize(asInteger(N / k));
         }
     }
 
     if (demography == "bottleneck") {
         if (community.tick == g - 600) {
-            // bottleneck to 10% of original size 200 generations before stopping
-            p1.setSubpopulationSize(asInteger(N / 10));
+            // bottleneck to 1 / k of original size 600 generations before stopping
+            p1.setSubpopulationSize(asInteger(N / k));
         }
 
         if (community.tick == g - 500) {
-            // recover to original size 100 generations before stopping
+            // recover to original size 500 generations before stopping
             p1.setSubpopulationSize(N);
         }
     }
@@ -70,7 +110,15 @@ late()
 
     // noinspection all
     if (community.tick == g) {
-        sim.treeSeqOutput(out);
+
+        // compute FST once at the end (only makes sense for substructure)
+        if (demography == "substructure") {
+            fst = calcFST(p1.haplosomes, p2.haplosomes);
+            cat("\nFinal FST between p1 and p2: " + fst + "\n");
+            writeFile(out_stats, "fst\n" + fst + "\n");
+        }
+
+        sim.treeSeqOutput(out_trees);
         sim.simulationFinished();
     }
 }

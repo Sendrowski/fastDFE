@@ -1,11 +1,14 @@
 import copy
 import logging
+import resource
+import time
 from abc import ABC
 from unittest import mock
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pytest
 from numpy.random._generator import Generator
 from pandas.testing import assert_frame_equal
 from scipy.optimize import OptimizeResult
@@ -21,9 +24,10 @@ class InferenceTestCase(TestCase, ABC):
     Test inference.
     """
 
-    def assertEqualInference(self, obj1: object, obj2: object, ignore_keys=[]):
+    def assertEqualObjects(self, obj1: object, obj2: object, ignore_keys=[]):
         """
-        Compare Inference objects, recursively comparing their attributes.
+        Compare objects, recursively comparing their attributes.
+
         :param obj1: First object
         :param obj2: Second object
         :param ignore_keys: Keys to ignore
@@ -48,7 +52,7 @@ class InferenceTestCase(TestCase, ABC):
                     self.assertEqual(value1.keys(), value2.keys())
 
                     for k in value1.keys():
-                        self.assertEqualInference(value1[k], value2[k], ignore_keys=ignore_keys)
+                        self.assertEqualObjects(value1[k], value2[k], ignore_keys=ignore_keys)
 
                 elif isinstance(value1, (int, float, str, bool, tuple, list, type(None), np.bool_)):
                     self.assertEqual(value1, value2)
@@ -66,7 +70,7 @@ class InferenceTestCase(TestCase, ABC):
                     np.testing.assert_equal(value1.to_list(), value2.to_list())
 
                 elif isinstance(value1, object):
-                    self.assertEqualInference(value1, value2, ignore_keys=ignore_keys)
+                    self.assertEqualObjects(value1, value2, ignore_keys=ignore_keys)
 
                 else:
                     raise AssertionError('Some objects were not compared.')
@@ -106,6 +110,7 @@ class PolyDFETestCase(InferenceTestCase):
         Test whether the results are similar to those of PolyDFE.
         """
         conf = fd.Config.from_file(f"testing/cache/configs/{config}/config.yaml")
+        conf.data['fixed_params']['all']['h'] = 0.5
         inf_polydfe = PolyDFE.from_file(f"testing/cache/polydfe/{config}/serialized.json")
 
         inf_fastdfe = fd.BaseInference.from_config(conf)
@@ -162,8 +167,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         config = fd.Config.from_file(self.config_file)
         config.update(parallelize=True)
 
-        inference = fd.BaseInference.from_config(config)
-        inference.run()
+        inf = fd.BaseInference.from_config(config)
+        inf.run()
+
+        # make sure the likelihood is the maximum of the runs
+        self.assertEqual(inf.likelihood, inf.runs.likelihood.max())
 
     def test_run_inference_from_config_not_parallelized(self):
         """
@@ -172,8 +180,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         config = fd.Config.from_file(self.config_file)
         config.update(parallelize=False)
 
-        inference = fd.BaseInference.from_config(config)
-        inference.run()
+        inf = fd.BaseInference.from_config(config)
+        inf.run()
+
+        # make sure the likelihood is the maximum of the runs
+        self.assertEqual(inf.likelihood, inf.runs.likelihood.max())
 
     def test_seeded_inference_is_deterministic_non_parallelized(self):
         """
@@ -188,14 +199,14 @@ class BaseInferenceTestCase(InferenceTestCase):
             n_bootstraps=2
         )
 
-        inference = fd.BaseInference.from_config(config)
-        inference.run()
+        inf = fd.BaseInference.from_config(config)
+        inf.run()
 
-        inference2 = fd.BaseInference.from_config(config)
-        inference2.run()
+        inf2 = fd.BaseInference.from_config(config)
+        inf2.run()
 
-        self.assertEqual(inference.params_mle, inference2.params_mle)
-        assert_frame_equal(inference.bootstraps, inference2.bootstraps)
+        self.assertEqual(inf.params_mle, inf2.params_mle)
+        assert_frame_equal(inf.bootstraps, inf2.bootstraps)
 
     def test_seeded_inference_is_deterministic_parallelized(self):
         """
@@ -254,8 +265,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         inference_lin.run()
 
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
-        inference_lin.plot_inferred_parameters(ax=axs[0], show=False)
-        inference_log.plot_inferred_parameters(ax=axs[1], show=False)
+        inference_lin.plot_discretized(ax=axs[0], show=False)
+        inference_log.plot_discretized(ax=axs[1], show=False)
 
         axs[0].set_title('Linear scales')
         axs[1].set_title('Log scales')
@@ -264,16 +275,19 @@ class BaseInferenceTestCase(InferenceTestCase):
         plt.show()
 
         # get confidence intervals
-        cis_lin = inference_lin.get_errors_discretized_dfe()[1]
-        cis_log = inference_log.get_errors_discretized_dfe()[1]
+        cis_lin = inference_lin.get_stats_discretized()[2]
+        cis_log = inference_log.get_stats_discretized()[2]
 
         # assert that the confidence intervals overlap
         assert np.all(cis_lin[0] < cis_log[1])
         assert np.all(cis_log[0] < cis_lin[1])
 
-        # assert inference_log.likelihood > inference_lin.likelihood
+        # likelihood on log scales should be better
+        assert inference_log.likelihood > inference_lin.likelihood
+        assert inference_log.bootstraps.likelihood.mean() > inference_lin.bootstraps.likelihood.mean()
 
-        self.assertAlmostEqual(inference_log.likelihood, inference_lin.likelihood, places=0)
+        # standard deviation of bootstrapped likelihoods should be lower on log scales
+        assert inference_log.bootstraps.likelihoods_std.mean() * 2 < inference_lin.bootstraps.likelihoods_std.mean()
 
     def test_compare_inference_with_log_scales_vs_lin_scales_tutorial(self):
         """
@@ -290,6 +304,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inference_log = fd.BaseInference(
             sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
             sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            fixed_params=dict(all=dict(h=0.5)),
             model=model,
             do_bootstrap=True,
             n_runs=10
@@ -307,6 +322,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inference_lin = fd.BaseInference(
             sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
             sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            fixed_params=dict(all=dict(h=0.5)),
             model=model,
             do_bootstrap=True,
             n_runs=10
@@ -324,21 +340,18 @@ class BaseInferenceTestCase(InferenceTestCase):
         plt.show()
 
         # get confidence intervals
-        cis_lin = inference_lin.get_errors_discretized_dfe()[1]
-        cis_log = inference_log.get_errors_discretized_dfe()[1]
+        cis_lin = inference_lin.get_stats_discretized()[1]
+        cis_log = inference_log.get_stats_discretized()[1]
 
         # assert that the confidence intervals overlap
         # assert np.all(cis_lin[0] < cis_log[1])
         # assert np.all(cis_log[0] < cis_lin[1])
 
-        # not always true
-        # assert inference_log.likelihood > inference_lin.likelihood
+        # likelihood on log scales should be better
+        assert inference_log.likelihood > inference_lin.likelihood
 
-        # using log scales appears to provide a lower likelihood in general
-        # but things become more equal when increasing ``n_runs``
-        self.assertAlmostEqual(inference_log.likelihood, inference_lin.likelihood, places=0)
-
-        pass
+        # standard deviation of bootstrapped likelihoods should be lower on log scales
+        assert inference_log.bootstraps.likelihoods_std.mean() * 100 < inference_lin.bootstraps.likelihoods_std.mean()
 
     def test_restore_serialized_inference(self):
         """
@@ -352,7 +365,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inference_restored = fd.BaseInference.from_file(serialized)
 
         # self.assertEqual(inference.to_json(), inference_restored.to_json())
-        self.assertEqualInference(inference, inference_restored)
+        self.assertEqualObjects(inference, inference_restored)
 
     def test_inference_run_bootstrap(self):
         """
@@ -553,12 +566,12 @@ class BaseInferenceTestCase(InferenceTestCase):
         Make sure that comparing nested models with the same parametrization works as expected.
         """
         config1 = fd.Config.from_file(self.config_file)
-        config1.update(fixed_params=dict(all=dict(S_b=1, p_b=0)), do_bootstrap=False)
+        config1.update(fixed_params=dict(all=dict(S_b=1, p_b=0, h=0.5)), do_bootstrap=False)
         inf1 = fd.BaseInference.from_config(config1)
         inf1.run()
 
         config2 = fd.Config.from_file(self.config_file)
-        config2.update(fixed_params=dict(all=dict(S_b=1)), do_bootstrap=False)
+        config2.update(fixed_params=dict(all=dict(S_b=1, h=0.5)), do_bootstrap=False)
         inf2 = fd.BaseInference.from_config(config2)
         inf2.run()
 
@@ -569,11 +582,11 @@ class BaseInferenceTestCase(InferenceTestCase):
         Make sure that comparing nested models with the same parametrization works as expected.
         """
         config1 = fd.Config.from_file(self.config_file)
-        config1.update(fixed_params=dict(all=dict(S_b=1, p_b=0)), do_bootstrap=False)
+        config1.update(fixed_params=dict(all=dict(S_b=1, p_b=0, h=0.5)), do_bootstrap=False)
         inf1 = fd.BaseInference.from_config(config1)
 
         config2 = fd.Config.from_file(self.config_file)
-        config2.update(fixed_params=dict(all=dict(S_b=1)), do_bootstrap=False)
+        config2.update(fixed_params=dict(all=dict(S_b=1, h=0.5)), do_bootstrap=False)
         inf2 = fd.BaseInference.from_config(config2)
 
         assert 0 < inf1.compare_nested(inf2) < 1
@@ -610,12 +623,12 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Check whether the is_nested method works as expected.
         """
-        config1 = fd.Config.from_file(self.config_file)
-        config2 = copy.deepcopy(config1).update(model=fd.DiscreteParametrization())
+        config1 = fd.Config.from_file(self.config_file).update(fixed_params={})
+        config2 = copy.deepcopy(config1).update(fixed_params={}, model=fd.DiscreteParametrization())
         config3 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0)))
         config4 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0, S_b=1)))
         config5 = copy.deepcopy(config1).update(fixed_params=dict(all=dict(eps=0)),
-                                               model=fd.DiscreteParametrization())
+                                                model=fd.DiscreteParametrization())
 
         def is_nested(simple: fd.Config, complex: fd.Config) -> bool:
             return fd.BaseInference.from_config(simple)._is_nested(fd.BaseInference.from_config(complex))
@@ -658,7 +671,8 @@ class BaseInferenceTestCase(InferenceTestCase):
             config = fd.Config.from_file(self.config_file).update(
                 model=p,
                 do_bootstrap=True,
-                n_bootstraps=2
+                n_bootstraps=2,
+                fixed_params=dict(all=dict(h=0.5))
             )
 
             # unserialize
@@ -674,33 +688,24 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inf2 = fd.BaseInference.from_config(inf.create_config())
 
-        self.assertEqualInference(inf, inf2)
+        self.assertEqualObjects(inf, inf2)
 
     def test_cached_result(self):
         """
         Test inference against cached result.
         """
-        inference = fd.BaseInference.from_file(self.serialized)
-        inference2 = fd.BaseInference.from_config(inference.create_config())
+        inf = fd.BaseInference.from_file(self.serialized)
+        inf2 = fd.BaseInference.from_config(inf.create_config())
 
-        inference2.run()
+        inf2.run()
 
-        inference2.to_file("scratch/test_cached_result.json")
-        inference2.get_summary().to_file("scratch/test_cached_result_summary.json")
+        inf_params_mle = np.array(list((inf.params_mle | {'h': 0.5}).values()))
+        inf2_params_mle = np.array(list(inf2.params_mle.values()))
 
-        # inference.get_summary().to_file("scratch/test_cached_result_summary_actual.json")
+        diff = np.abs(inf_params_mle - inf2_params_mle) / (inf_params_mle + 1e-10)
 
-        def get_dict(inf: fd.BaseInference) -> dict:
-            """
-
-            :param inf:
-            :return:
-            """
-            exclude = ['execution_time', 'result']
-
-            return dict((k, v) for k, v in inference.get_summary().__dict__.items() if k not in exclude)
-
-        self.assertDictEqual(get_dict(inference), get_dict(inference2))
+        # compare MLE parameters
+        self.assertLess(diff.max(), 1e-3)
 
     def test_run_if_necessary_wrapper_triggers_run(self):
         """
@@ -801,7 +806,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         config = fd.Config.from_file(self.config_file)
 
-        config.data['fixed_params'] = dict(all=dict(b=1.123, eps=0.123))
+        config.data['fixed_params'] = dict(all=dict(b=1.123, eps=0.123, h=0.5))
 
         inference = fd.BaseInference.from_config(config)
 
@@ -821,7 +826,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         assert fd.BaseInference.from_config(config).get_n_optimized() == 5
 
-        config.data['fixed_params'] = dict(all=dict(S_b=1, p_b=0))
+        config.data['fixed_params'] = dict(all=dict(S_b=1, p_b=0, h=0.5))
 
         assert fd.BaseInference.from_config(config).get_n_optimized() == 3
 
@@ -835,26 +840,6 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         with self.assertRaises(ValueError):
             fd.BaseInference.from_config(config)
-
-    def test_get_cis_params_mle_no_bootstraps(self):
-        """
-        Get the MLE parameters from the cis inference.
-        """
-        inference = fd.BaseInference.from_file(self.serialized)
-
-        cis = inference.get_cis_params_mle()
-
-        assert cis is None
-
-    def test_get_cis_params_mle_with_bootstraps(self):
-        """
-        Get the MLE parameters from the cis inference.
-        """
-        inference = fd.BaseInference.from_file(self.serialized)
-
-        inference.bootstrap()
-
-        cis = inference.get_cis_params_mle()
 
     def test_get_discretized_errors_with_bootstraps(self):
         """
@@ -955,7 +940,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
-            fixed_params=dict(all=dict(S_b=1, p_b=0))
+            fixed_params=dict(all=dict(S_b=1, p_b=0, h=0.5)),
+            do_bootstrap=False,
         )
 
         inf.plot_discretized()
@@ -971,7 +957,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
-            fixed_params=dict(all=dict(S_b=1, p_b=0))
+            fixed_params=dict(all=dict(S_b=1, p_b=0, h=0.5)),
+            do_bootstrap=False,
         )
 
         inf.plot_discretized()
@@ -987,7 +974,9 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inf = fd.BaseInference(
             sfs_neut=sfs_neut,
-            sfs_sel=sfs_sel
+            sfs_sel=sfs_sel,
+            fixed_params=dict(all=dict(h=0.5)),
+            do_bootstrap=False,
         )
 
         inf.run()
@@ -1014,6 +1003,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
+            fixed_params=dict(all=dict(h=0.5)),
             loss_type='L2',
             do_bootstrap=True,
             n_bootstraps=5
@@ -1029,6 +1019,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=fd.Spectrum([1243, 0, 0, 1, 0, 0, 0]),
             sfs_sel=fd.Spectrum([12421, 0, 0, 0, 0, 1, 0]),
+            do_bootstrap=False,
         )
 
         # There are sometimes problems with the optimization for spectra like these,
@@ -1073,7 +1064,9 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inf_float = fd.BaseInference(
             sfs_neut=sfs_neut,
-            sfs_sel=sfs_sel
+            sfs_sel=sfs_sel,
+            fixed_params=dict(all=dict(h=0.5)),
+            do_bootstrap=False,
         )
 
         inf_float.run()
@@ -1081,6 +1074,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf_int = fd.BaseInference(
             sfs_neut=fd.Spectrum(sfs_neut.data.astype(int)),
             sfs_sel=fd.Spectrum(sfs_sel.data.astype(int)),
+            fixed_params=dict(all=dict(h=0.5)),
+            do_bootstrap=False,
         )
 
         inf_int.run()
@@ -1126,6 +1121,8 @@ class BaseInferenceTestCase(InferenceTestCase):
             inf = fd.BaseInference(
                 sfs_neut=sfs * m,
                 sfs_sel=sfs * m,
+                fixed_params=dict(all=dict(h=0.5)),
+                do_bootstrap=False,
                 seed=42,
                 model=fd.DiscreteFractionalParametrization(
                     intervals=np.array([-100000, -0.1, 0.1, 10000])
@@ -1137,6 +1134,24 @@ class BaseInferenceTestCase(InferenceTestCase):
             # check that DFE is very neutral
             self.assertAlmostEqual(1, inf.get_discretized(intervals=np.array([-100000, -0.1, 0.1, 10000]))[0][1])
 
+    def test_infer_strongly_beneficial_selection_target_sites(self):
+        """
+        Test whether we infer a strongly beneficial DFE when there is strong selection.
+        """
+        # use different mutational target sizes
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum.standard_kingman(10, n_monomorphic=100),
+            sfs_sel=fd.Spectrum.standard_kingman(10, n_monomorphic=10),
+            fixed_params=dict(all=dict(h=0.5)),
+            do_bootstrap=False,
+            seed=42
+        )
+
+        inf.run()
+
+        # check that DFE is very weakly beneficial
+        self.assertGreaterEqual(inf.get_discretized()[0][-1], 0.4)
+
     def test_infer_strongly_deleterious_selection_target_sites(self):
         """
         Test whether we infer a strongly deleterious DFE when there is strong selection.
@@ -1145,6 +1160,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=fd.Spectrum.standard_kingman(10, n_monomorphic=100),
             sfs_sel=fd.Spectrum.standard_kingman(10, n_monomorphic=1000),
+            fixed_params=dict(all=dict(h=0.5)),
+            do_bootstrap=False,
             seed=42
         )
 
@@ -1161,7 +1178,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         sfs_neut = fd.Spectrum.standard_kingman(n, n_monomorphic=100)
         sfs_sel = fd.Spectrum.from_polymorphic(
-            Discretization(n=n).get_allele_count_regularized(-10 * np.ones(n - 1), np.arange(1, n))
+            Discretization(n=n).get_counts_semidominant_regularized(-10 * np.ones(n - 1), np.arange(1, n))
         )
         sfs_sel.data[0] = 100
 
@@ -1169,6 +1186,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
+            fixed_params=dict(all=dict(h=0.5)),
+            do_bootstrap=False,
             seed=42
         )
 
@@ -1176,22 +1195,6 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         # check that DFE is very deleterious
         self.assertAlmostEqual(1, inf.get_discretized(np.array([-np.inf, -1, np.inf]))[0][0])
-
-    def test_infer_beneficial_selection_target_sites(self):
-        """
-        Test whether we infer a weakly beneficial DFE when there is weak selection.
-        """
-        # use different mutational target sizes
-        inf = fd.BaseInference(
-            sfs_neut=fd.Spectrum.standard_kingman(10, n_monomorphic=100),
-            sfs_sel=fd.Spectrum.standard_kingman(10, n_monomorphic=10),
-            seed=42
-        )
-
-        inf.run()
-
-        # check that DFE is very weakly beneficial
-        self.assertGreaterEqual(inf.get_discretized()[0][-1], 0.4)
 
     def test_alternative_optimizer(self):
         """
@@ -1201,11 +1204,9 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inf_default = fd.BaseInference.from_config(config)
         inf_default.run()
-        self.assertFalse(hasattr(inf_default.result, 'direc'))
 
-        inf_alt = fd.BaseInference.from_config(config.update(method_mle='Powell'))
+        inf_alt = fd.BaseInference.from_config(config.update(method_mle='TNC'))
         inf_alt.run()
-        self.assertTrue(hasattr(inf_alt.result, 'direc'))
 
     def test_raise_error_n_above_400(self):
         """
@@ -1218,3 +1219,191 @@ class BaseInferenceTestCase(InferenceTestCase):
             )
 
         print(context.exception)
+
+    def test_bootstrap_n_retries(self):
+        """
+        Test whether bootstrapping with retries works as expected.
+        """
+        config = fd.Config.from_file(self.config_file).update(
+            n_bootstrap_retries=3,
+            parallelize=True,
+            n_bootstraps=3,
+            do_bootstrap=True
+        )
+        inf = fd.BaseInference.from_config(config)
+        inf.run()
+
+        self.assertEqual(3, len(inf.bootstraps.likelihoods_runs.iloc[0]))
+        self.assertEqual(3, len(inf.bootstraps.x0_runs.iloc[0]))
+        self.assertGreater(inf.bootstraps.likelihoods_std.mean(), 0)
+
+        # make sure that the best likelihood per bootstrap is equal to the maximum over runs
+        self.assertTrue(np.all(inf.bootstraps.likelihoods_runs.apply(max) == inf.bootstraps.likelihood))
+
+    def test_infer_dfe_with_fixed_h_low_memory_consumption(self):
+        """
+        Make sure memory consumption is low for default settings.
+        """
+        for h in [0, 0.5, 1]:
+            inf = fd.BaseInference(
+                sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+                sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+                fixed_params={'all': {'h': h, 'S_b': 1, 'p_b': 0, 'eps': 0}},
+                parallelize=True,
+                do_bootstrap=True,
+                n_bootstraps=10,
+                n_runs=10
+            )
+
+            inf.run()
+
+            mem_gb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 ** 3
+
+            self.assertLess(mem_gb, 1)
+
+            self.assertEqual(inf.params_mle['h'], h)
+
+    def test_infer_h(self):
+        """
+        Test inference of h parameter.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            intervals_h=(0, 1, 11),
+            fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0}},
+            parallelize=False,
+            do_bootstrap=True,
+            n_bootstraps=50,
+            n_runs=10
+        )
+        inf.run()
+        inf.plot_discretized()
+
+        mem_gb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 ** 3
+
+        self.assertLess(mem_gb, 1)
+
+        self.assertGreater(inf.bootstraps.h.std(), 0)
+
+    def test_infer_h_custom_callback(self):
+        """
+        Test inference of h parameter.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            h_callback=lambda h, S: 0.4 * np.exp(-h * abs(S)),
+            intervals_h=(0, 1, 11),
+            fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0}},
+            bounds={
+                'S_d': (-100000.0, -0.01),
+                'b': (0.01, 10),
+                'p_b': (0, 0.5),
+                'S_b': (0.0001, 100),
+                'eps': (0, 0.15),
+                'h': (0, 100)
+            },
+            parallelize=False,
+            do_bootstrap=True,
+            n_bootstraps=50,
+            n_runs=10
+        )
+        inf.run()
+        inf.plot_discretized()
+
+        pass
+
+    def test_compare_nested_h_parameter(self):
+        """
+        Test nested model comparison when h is optimized in one model and fixed in the other.
+        """
+        inf1 = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            intervals_h=(0, 1, 11),
+            fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0}},
+            parallelize=True,
+            do_bootstrap=True,
+            n_runs=5,
+            n_bootstraps=20
+        )
+
+        inf1.run()
+
+        inf2 = fd.BaseInference.from_config(
+            inf1.create_config().update(
+                fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0, 'h': 0.5}}
+            )
+        )
+        inf2.run()
+
+        p = inf2.compare_nested(inf1)
+
+        self.assertTrue(0 < p < 1)
+
+    def test_get_dfe_and_plot(self):
+        """
+        Test get DFE method.
+        """
+        inf = fd.BaseInference.from_file(self.serialized)
+
+        inf.get_dfe().plot()
+
+        inf.bootstrap(parallelize=False, n_samples=10)
+
+        inf.get_dfe().plot()
+
+        inf.get_dfe().get_bootstrap_dfes()[1].plot()
+
+    @pytest.mark.skip(reason="Not a real test.")
+    def test_runtime_sequential_vs_parallel(self):
+        """
+        Test whether parallelization speeds up inference.
+        This doesn't seem to be true currently on osx-arm64 at least.
+        """
+        inf_seq = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            parallelize=False,
+            do_bootstrap=True
+        )
+
+        start_time = time.time()
+        inf_seq.run()
+        seq_time = time.time() - start_time
+
+        inf_par = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            parallelize=True,
+            do_bootstrap=True
+        )
+
+        start_time = time.time()
+        inf_par.run()
+        par_time = time.time() - start_time
+
+        self.assertLess(par_time, seq_time)
+
+    def test_serialize_inference_result(self):
+        """
+        Test whether inference results can be serialized and unserialized correctly.
+        """
+        inf = fd.BaseInference.from_file(self.serialized)
+
+        # serialize
+        result = inf.get_summary()
+
+        result.to_file("scratch/inference_result.json")
+
+        # unserialize
+        result2 = fd.InferenceResult.from_file("scratch/inference_result.json")
+
+        self.assertEqualObjects(result, result2)

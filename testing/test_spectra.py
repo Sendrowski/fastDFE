@@ -808,3 +808,20 @@ class SpectraTestCase(TestCase):
             sfs.misidentify(1).data,
             [sfs.data[0]] + sfs.data[1:sfs.n][::-1].tolist() + [sfs.data[-1]]
         )
+
+    def test_resample_spectrum(self):
+        """
+        Test whether the Poisson resample method works as expected.
+        """
+        sfs = Spectrum.standard_kingman(10, n_monomorphic=3 * 10 ** 6) * 1000
+
+        resampled = np.array([sfs.resample().data for _ in range(1000)])
+        mean = resampled.mean(axis=0)
+        var = resampled.var(axis=0)
+
+        self.assertLess(self.rel_diff(sfs.data, mean).max(), 5e-3)
+
+        rel_var_diff = np.abs(var - mean) / mean
+
+        self.assertLess(rel_var_diff[1:-1].max(), 0.2)
+

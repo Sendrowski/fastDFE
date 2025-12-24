@@ -14,6 +14,7 @@ from typing import Callable, List, Dict, Literal, Tuple, Optional, Sequence
 
 import multiprocess as mp
 import numpy as np
+import pandas as pd
 from numpy.linalg import norm
 from numpy.random import Generator
 from scipy.stats import loguniform, uniform
@@ -32,7 +33,8 @@ def parallelize(
         parallelize: bool = True,
         pbar: bool = None,
         desc: str = None,
-        dtype: type = object
+        dtype: type = object,
+        wrap_array: bool = True
 ) -> np.ndarray:
     """
     Parallelize given function or execute sequentially.
@@ -43,11 +45,12 @@ def parallelize(
     :param pbar: Whether to show a progress bar
     :param desc: Description for progress bar
     :param dtype: Data type of the returned array
+    :param wrap_array: Whether to wrap the result in a numpy array
     :return: List of results
     """
     n = len(data)
 
-    if parallelize and n > 1:
+    if parallelize and n > 1 and Settings.parallelize is not False:
         # parallelize
         iterator = mp.Pool().imap(func, data)
     else:
@@ -58,7 +61,10 @@ def parallelize(
     if pbar is True or (pbar is None and n > 1):
         iterator = tqdm(iterator, total=n, disable=Settings.disable_pbar, desc=desc)
 
-    return np.array(list(iterator), dtype=dtype)
+    if wrap_array:
+        return np.array(list(iterator), dtype=dtype)
+
+    return list(iterator)
 
 
 def flatten_dict(d: dict, separator='.', prefix=''):
@@ -258,11 +264,38 @@ def expand_fixed(
             if t not in expanded:
                 expanded[t] = {}
 
-            for param, value in params.items():
-                expanded[t][param] = value
+            if isinstance(params, dict):
+                for param, value in params.items():
+                    expanded[t][param] = value
 
     return expanded
 
+
+def collapse_fixed_to_mean(
+        expanded_params: Dict[str, Dict[str, float]],
+        types: List[str]
+) -> Dict[str, Dict[str, float]]:
+    """
+    Collapse expanded fixed parameters to 'all' type if all types have the same fixed parameter.
+    Take the mean of the fixed parameters.
+
+    :param expanded_params: Expanded dictionary of fixed parameters
+    :param types: List of types
+    :return: Collapsed dictionary of fixed parameters
+    """
+    out = {"all": dict(expanded_params.get("all", {}))}
+
+    # collect params appearing in any type
+    params = set()
+    for t in types:
+        params |= expanded_params.get(t, {}).keys()
+
+    for p in params:
+        vals = [expanded_params[t][p] for t in types if p in expanded_params.get(t, {})]
+        if len(vals) == len(types):
+            out["all"][p] = float(np.mean(vals))
+
+    return out
 
 def collapse_fixed(
         expanded_params: Dict[str, Dict[str, float]],
@@ -275,20 +308,29 @@ def collapse_fixed(
     :param types: List of types
     :return: Collapsed dictionary of fixed parameters
     """
-    all_params = {param: [] for params in expanded_params.values() for param in params}
+    # copy first
+    out = {k: dict(v) for k, v in expanded_params.items()}
+    out.setdefault("all", {})
 
-    # Collect parameter values for all types
-    for params in expanded_params.values():
-        for param, value in params.items():
-            all_params[param].append(value)
+    # find params present in *every* type with identical value
+    common = None
+    for t in types:
+        d = expanded_params.get(t, {})
+        keys = set(d.keys())
+        common = keys if common is None else (common & keys)
 
-    # Calculate the mean and check if parameters can be collapsed
-    collapsed = {}
-    for param, values in all_params.items():
-        if len(values) == len(types):
-            collapsed[param] = np.mean(values)
+    if not common:
+        return out
 
-    return {'all': collapsed} if len(collapsed) > 0 else expanded_params
+    for p in list(common):
+        vals = [expanded_params[t][p] for t in types]
+        if all(v == vals[0] for v in vals):
+            out["all"][p] = vals[0]
+            for t in types:
+                out[t].pop(p, None)
+
+    return out
+
 
 
 def merge_dicts(dict1: dict, dict2: dict) -> dict:
@@ -578,6 +620,25 @@ def unscale_value(scaled_value: float, bounds: Tuple[float, float], scale: Liter
     raise ValueError(f'Unknown scale {scale}.')
 
 
+def perturb_value(value: float, bounds: Tuple[float, float], rng: np.random.Generator) -> float:
+    """
+    Perturb a value within the given bounds using a normal distribution with mean at the value
+    and standard deviation equal to the value.
+
+    :param value: The value to perturb.
+    :param bounds: The bounds to perturb within.
+    :param rng: The random number generator to use.
+    :return: The perturbed value.
+    """
+    std = 2 * abs(value) if value != 0 else 0.1 * abs(bounds[1] - bounds[0])
+    perturbed = rng.normal(loc=value, scale=std)
+
+    # ensure within bounds
+    perturbed = max(bounds[0], min(bounds[1], perturbed))
+
+    return perturbed
+
+
 def scale_values(
         params: Dict[str, Dict[str, float]],
         bounds: Dict[str, Tuple[float, float]],
@@ -865,22 +926,22 @@ class Optimization:
         :param param_names: List of parameter names
         """
         #: Parameter bounds
-        self.bounds = bounds
+        self.bounds: Dict[str, Tuple[float, float]] = bounds
 
         #: Parameter scales to use
-        self.scales = scales
+        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = scales
 
         #: additional options for the optimizer
-        self.opts_mle = opts_mle
+        self.opts_mle: dict = opts_mle
 
         #: Optimization method to use
-        self.method_mle = method_mle
+        self.method_mle: str = method_mle
 
         #: Type of loss function to use
-        self.loss_type = loss_type
+        self.loss_type: str = loss_type
 
         #: Fixed parameters
-        self.fixed_params = flatten_dict(fixed_params)
+        self.fixed_params: Dict[str, Dict[str, float]] = flatten_dict(fixed_params)
 
         # check if fixed parameters are within the specified bounds
         if correct_values(self.fixed_params, self.bounds, warn=False, scales=scales) != self.fixed_params:
@@ -888,10 +949,10 @@ class Optimization:
                              f'Fixed params: {self.fixed_params}, bounds: {self.bounds}.')
 
         #: Parameter names
-        self.param_names = param_names
+        self.param_names: List[str] = param_names
 
         #: Whether to parallelize the optimization
-        self.parallelize = parallelize
+        self.parallelize: bool = parallelize
 
         #: Initial values
         self.x0: Optional[dict] = None
@@ -899,8 +960,8 @@ class Optimization:
         #: Number of runs
         self.n_runs: Optional[int] = None
 
-        #: Likelihoods for each run
-        self.likelihoods: Optional[np.ndarray] = None
+        #: DataFrame holding information about all optimization runs
+        self.runs: Optional[pd.DataFrame] = None
 
         #: Random generator instance
         self.rng = np.random.default_rng(seed=seed)
@@ -917,7 +978,7 @@ class Optimization:
             opts_mle: dict = None,
             pbar: bool = None,
             desc: str = 'Inferring DFE',
-    ) -> ('scipy.optimize.OptimizeResult', dict):
+    ) -> Tuple['scipy.optimize.OptimizeResult', dict]:
         """
         Perform the optimization procedure.
 
@@ -965,12 +1026,14 @@ class Optimization:
         # issue debug messages
         logger.debug(f'Performing optimization on {len(flattened)} parameters: {list(flattened.keys())}.')
         logger.debug(f'Using initial values: {flattened}.')
-        logger.debug(f"Optimizing parameters: {optimized_param_names}")
 
-        # issue warning when the number of parameters to be optimized is large
-        if len(optimized_param_names) > 10 and print_info:
-            logger.warning(f'A large number of parameters is optimized jointly ({len(optimized_param_names)}). '
-                           f'Please be aware that this makes it harder to find a good optimum.')
+        if print_info:
+            logger.info(f"Optimizing {len(optimized_param_names)} parameters: [{', '.join(optimized_param_names)}].")
+
+            # issue warning when the number of parameters to be optimized is large
+            if len(optimized_param_names) > 10:
+                logger.warning(f'A large number of parameters is optimized jointly. '
+                               f'Please be aware that this makes it harder to find a good optimum.')
 
         # correct initial values to be within bounds
         self.x0 = unflatten_dict(correct_values(flattened, self.bounds, warn=True, scales=self.scales))
@@ -1004,11 +1067,23 @@ class Optimization:
         # parallelize MLE for different initializations
         results = parallelize(optimize, initial_params, self.parallelize, pbar=pbar, desc=desc)
 
-        # list of the best likelihood for each run
-        self.likelihoods = -np.array([res.fun for res in results])
+        # build a pandas DataFrame of all runs
+        records = []
+        for i, res in enumerate(results):
+            params = unpack_params(res.x, self.x0)
+            params = unscale_values(params, self.bounds, self.scales)
+            flat = flatten_dict(params)
+            flat['likelihood'] = -res.fun
+            flat['success'] = res.success
+            flat['result'] = str(str)
+            flat['x0'] = str(flatten_dict(initial_params[i]))
+            records.append(flat)
+
+        # store runs as DataFrame
+        self.runs = pd.DataFrame(records)
 
         # get result with the lowest likelihood
-        result = results[np.argmax(self.likelihoods)]
+        result = results[np.argmax(self.runs.likelihood)]
 
         # unpack MLE params array into a dictionary
         params_mle = unpack_params(result.x, self.x0)
@@ -1097,20 +1172,24 @@ class Optimization:
 
         return loss
 
-    def sample_x0(self, example: dict) -> Dict[str, dict]:
+    def sample_x0(self, example: dict, random_state: int | Generator = None) -> Dict[str, dict]:
         """
         Sample initial values.
 
         :param example: An example dictionary for generating the initial values
+        :param random_state: Random state or seed
         :return: A dictionary of initial values
         """
+        if random_state is None:
+            random_state = self.rng
+
         sample = {}
 
         for key, value in example.items():
             if isinstance(value, dict):
-                sample[key] = self.sample_x0(value)
-            else:
-                sample[key] = self.sample_value(self.bounds[key], self.scales[key], random_state=self.rng)
+                sample[key] = self.sample_x0(value, random_state)
+            elif key in self.bounds and key in self.scales:
+                sample[key] = self.sample_value(self.bounds[key], self.scales[key], random_state)
 
         return sample
 
@@ -1128,7 +1207,7 @@ class Optimization:
 
         :param bounds: Tuple of lower and upper bounds
         :param scale: Scaling of the parameter.
-        :param random_state: Random state
+        :param random_state: Random state or seed
         :return: Sampled value
         """
 
@@ -1264,3 +1343,27 @@ class Optimization:
         :param fixed_params: Dictionary of fixed parameters
         """
         self.fixed_params = flatten_dict(fixed_params)
+
+    @staticmethod
+    def perturb_params(
+            params: Dict[str, Dict[str, float]],
+            bounds: Dict[str, Tuple[float, float]],
+            seed: Optional[int] = None,
+    ) -> Dict[str, Dict[str, float]]:
+        """
+        Perturb values within the given bounds using a normal distribution with mean at the value
+        and standard deviation equal to the value.
+
+        :param params: Nested dictionary of parameters indexed by type and parameter
+        :param bounds: Dictionary of bounds indexed by parameter name
+        :param seed: Seed for the random number generator
+        :return: Nested dictionary of perturbed parameters indexed by type and parameter
+        """
+        rng = np.random.default_rng(seed)
+        perturbed = {}
+
+        for key, value in flatten_dict(params).items():
+            # perturb value
+            perturbed[key] = perturb_value(value, bounds[get_basename(key)], rng)
+
+        return unflatten_dict(perturbed)

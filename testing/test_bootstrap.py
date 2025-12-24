@@ -62,8 +62,8 @@ class BootstrapTestCase(TestCase):
         lower_bound, upper_bound = self.get_cis(ci_level, values)
 
         # calculate errors and confidence intervals using the get_errors function
-        errors_perc, cis_perc = Bootstrap.get_errors([original], np.array([values]).T, ci_level, 'percentile')
-        errors_bca, cis_bca = Bootstrap.get_errors([original], np.array([values]).T, ci_level, 'bca')
+        _, errors_perc, cis_perc = Bootstrap.get_errors([original], np.array([values]).T, ci_level, 'percentile')
+        _, errors_bca, cis_bca = Bootstrap.get_errors([original], np.array([values]).T, ci_level, 'bca')
 
         assert np.abs(lower_bound - cis_perc[0][0]) / lower_bound < 0.005
         assert np.abs(upper_bound - cis_perc[1][0]) / upper_bound < 0.005

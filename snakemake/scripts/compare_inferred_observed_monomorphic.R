@@ -5,7 +5,7 @@ fd <- load_fastdfe()
 # url for fastdfe repo
 url = "https://github.com/Sendrowski/fastDFE/blob/dev/resources/genome/betula/"
 
-# create parser where we consider monomrphic sites
+# create parser where we consider monomorphic sites
 p <- fd$Parser(
   vcf = paste0(url, "all.with_outgroups.subset.200000.vcf.gz?raw=true"),
   fasta = paste0(url, "genome.subset.1000.fasta.gz?raw=true"),

@@ -23,9 +23,10 @@ from .abstract_inference import Inference
 from .base_inference import BaseInference
 from .bootstrap import Bootstrap
 from .config import Config
+from .discretization import Discretization
 from .optimization import Optimization, SharedParams, pack_shared, expand_shared, \
     Covariate, flatten_dict, merge_dicts, correct_values, parallelize as parallelize_func, expand_fixed, \
-    collapse_fixed, unpack_shared
+    collapse_fixed_to_mean, unpack_shared, collapse_fixed
 from .parametrization import Parametrization
 from .settings import Settings
 from .spectrum import Spectrum, Spectra
@@ -76,6 +77,8 @@ class JointInference(BaseInference):
             include_divergence: bool = None,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
+            intervals_h: Tuple[float, float, int] = (0.0, 1.0, 21),
+            h_callback: Callable[[np.ndarray], np.ndarray] = None,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -87,14 +90,17 @@ class JointInference(BaseInference):
             opts_mle: dict = {},
             method_mle: str = 'L-BFGS-B',
             n_runs: int = 10,
-            fixed_params: Dict[str, Dict[str, float]] = {},
+            fixed_params: Dict[str, Dict[str, float]] = None,
             shared_params: List[SharedParams] = [],
             covariates: List[Covariate] = [],
-            do_bootstrap: bool = False,
+            do_bootstrap: bool = True,
             n_bootstraps: int = 100,
             n_bootstrap_retries: int = 2,
             parallelize: bool = True,
             folded: bool = None,
+            discretization: Discretization = None,
+            optimization: Optimization = None,
+            locked: bool = False,
             **kwargs
     ):
         """
@@ -106,29 +112,53 @@ class JointInference(BaseInference):
             the mutation rate.
         :param include_divergence: Whether to include divergence in the likelihood
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
-            selection coefficients. The intervals will be log10-spaced.
-        :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients.
-        :param integration_mode: Integration mode, ``quad`` not recommended
-        :param linearized: Whether to use the linearized model, ``False`` not recommended
+            selection coefficients. The intervals will be log10-spaced. Decreasing the number of intervals to ``100``
+            provides nearly identical results while increasing speed, especially when precomputing across dominance
+            coefficients.
+        :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients. Decreasing the number
+            of intervals to ``100`` provides nearly identical results while increasing speed, especially when
+            precomputing across dominance coefficients.
+        :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
+            This is only used when inferring dominance coefficients. Values of ``h`` between the edges will be
+            interpolated linearly.
+        :param h_callback: A function mapping the scalar parameter ``h`` and the array of selection
+            coefficients ``S`` to dominance coefficients of the same shape, allowing models where ``h``
+            depends on ``S``. The default is ``lambda h, S: np.full_like(S, h)``, keeping ``h`` constant.
+            Expected allele counts for a given dominance value are obtained by linear interpolation
+            between precomputed values in ``intervals_h``. The inferred parameter is still named ``h``,
+            even if transformed by ``h_callback``, and its bounds, scales, and initial values can be set
+            via ``bounds``, ``scales``, and ``x0``. The fitness of heterozygotes and mutation homozygotes is defined as
+            ``1 + 2hs`` and ``1 + 2s``, respectively.
+        :param integration_mode: Integration mode when computing expected SFS under semidominance.
+            ``quad`` is not recommended.
+        :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
+            ``scipy.integrate.quad`` in each call. ``False`` not recommended.
         :param model: DFE parametrization
         :param seed: Random seed. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
-        :param bounds: Bounds for the optimization in the form {param: (lower, upper)}
-        :param scales: Scales for the optimization in the form {param: scale}
+        :param bounds: Bounds for the optimization in the form ``{param: (lower, upper)}``
+        :param scales: Scales for the optimization in the form ``{param: scale}``
         :param loss_type: Loss type
         :param opts_mle: Options for the optimization
-        :param method_mle: Method to use for optimization. See `scipy.optimize.minimize` for available methods.
+        :param method_mle: Method to use for optimization. See ``scipy.optimize.minimize`` for available methods.
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
-        :param fixed_params: Dictionary of fixed parameters in the form ``{type: {param: value}}``
+        :param fixed_params: Parameters kept constant during optimization, given as ``{type: {param: value}}``.
+            By default, the ancestral misidentification rate ``eps`` is fixed to zero, ``h`` to 0.5, and the DFE
+            parameters are fixed so that only the deleterious component of the DFE is estimated.
         :param shared_params: List of shared parameters
         :param do_bootstrap: Whether to perform bootstrapping
         :param n_bootstraps: Number of bootstraps
-        :param n_bootstrap_retries: Number of retries for bootstraps that did not terminate normally.
+        :param n_bootstrap_retries: Number of optimization runs for each bootstrap sample. This parameter previously
+            defined the number of retries per bootstrap sample when subsequent runs failed, but now it defines the
+            total number of runs per bootstrap sample, taking the most likely one.
         :param parallelize: Whether to parallelize computations
         :param folded: Whether the SFS are folded. If not specified, the SFS will be folded if all of the given
             SFS appear to be folded.
+        :param discretization: Discretization instance. Mainly intended for internal use.
+        :param optimization: Optimization instance. Mainly intended for internal use.
+        :param locked: Whether inferences can be run from the class itself. Used internally.
         :param kwargs: Additional keyword arguments which are ignored.
         """
         if sfs_neut.has_dots() or sfs_sel.has_dots():
@@ -189,11 +219,36 @@ class JointInference(BaseInference):
         # use linear scale for covariates
         scales_cov = dict((k, cov.bounds_scale) for k, cov in self.covariates.items())
 
+        if fixed_params is None:
+            fixed_params = {'all': {'eps': 0, 'h': 0.5} | self.model.submodels['dele']}
+
+        if not 'all' in fixed_params:
+            fixed_params['all'] = {}
+
         #: fixed parameters with expanded 'all' type
         self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, self.types)
 
+        if discretization is None:
+            # create discretization instance
+            #: Discretization instance
+            self.discretization: Discretization = Discretization(
+                n=self.n,
+                h=collapse_fixed(fixed_params, self.types)['all'].get('h', None),
+                intervals_del=intervals_del,
+                intervals_ben=intervals_ben,
+                intervals_h=intervals_h,
+                h_callback=h_callback,
+                integration_mode=integration_mode,
+                linearized=linearized,
+                parallelize=parallelize
+            )
+
+        else:
+            # otherwise assign instance
+            self.discretization: Discretization = discretization
+
         # collapse fixed parameters
-        fixed_collapsed = collapse_fixed(self.fixed_params, self.types)
+        fixed_collapsed = collapse_fixed_to_mean(self.fixed_params, self.types)
 
         # include 'all' type with infers the DFE for all spectra added together
         #: Dictionary of marginal inferences indexed by type
@@ -243,7 +298,7 @@ class JointInference(BaseInference):
             opts_mle=self.optimization.opts_mle,
             method_mle=method_mle,
             loss_type=self.optimization.loss_type,
-            param_names=self.model.param_names + ['eps'] + args_cov,
+            param_names=self.model.param_names + ['eps', 'h'] + args_cov,
             parallelize=self.parallelize,
             fixed_params=self.fixed_params,
             seed=self.seed
@@ -423,8 +478,7 @@ class JointInference(BaseInference):
             self._logger.info(f"Running marginal inference for type '{data[0]}'.")
 
             data[1].run_if_required(
-                do_bootstrap=False,
-                pbar=False
+                do_bootstrap=False
             )
 
             return data
@@ -492,8 +546,9 @@ class JointInference(BaseInference):
             desc=f'{self.__class__.__name__}>Performing joint inference'
         )
 
-        # assign likelihoods
-        self.likelihoods = self.optimization.likelihoods
+        # assign runs dataframe and likelihoods
+        self.runs = self.optimization.runs
+        self.likelihoods = self.runs.likelihood.to_list()
 
         # store packed MLE params for later usage
         self.params_mle_raw = copy.deepcopy(params_mle)
@@ -652,12 +707,12 @@ class JointInference(BaseInference):
 
         return self.lrt(simple.likelihood, self.likelihood, len(self.covariates))
 
-    def _get_run_bootstrap_sample(self) -> Callable[[int], Tuple['scipy.optimize.OptimizeResult', dict]]:
+    def _get_run_bootstrap_sample(self) -> Callable[[int], Tuple['scipy.optimize.OptimizeResult', dict, dict, int]]:
         """
         Get function which runs a single bootstrap sample.
 
         :return: Static function which runs a single bootstrap sample, taking an optional seed and returning the
-            optimization result and the MLE parameters.
+            optimization result of best run, MLE parameters, the best x0, and its index.
         """
         optimization = self.optimization
         discretization = self.discretization
@@ -666,43 +721,44 @@ class JointInference(BaseInference):
         types = self.types
         folded = self.folded
         params_mle_raw = self.params_mle_raw
-        scales_linear = self.get_scales_linear()
-        bounds_linear = self.get_bounds_linear()
         scales = self.scales
         bounds = self.bounds
+        scales_default = self.scales
+        bounds_default = self.bounds
         n_retries = self.n_bootstrap_retries
         sfs_neut = dict((t, self.marginal_inferences[t].sfs_neut) for t in self.types)
         sfs_sel = dict((t, self.marginal_inferences[t].sfs_sel) for t in self.types)
 
-        def run_bootstrap_sample(seed: int) -> ('scipy.optimize.OptimizeResult', dict):
+        def run_bootstrap_sample(seed: int) -> Tuple['scipy.optimize.OptimizeResult', dict, dict, int]:
             """
             Resample the observed selected SFS and rerun the optimization procedure.
             We take the MLE params as initial params here.
             We make this function static to improve performance when parallelizing.
-            In case the optimization does not terminate normally, we retry up to `n_retries` times.
 
-            :return: Optimization result and dictionary of MLE params
+            :return: :return: Optimization result of best run, MLE parameters, and best x0.
             """
-            result, params_mle = None, None
+            results = []
+            x0 = params_mle_raw
+            rng = np.random.default_rng(seed)
 
-            # retry up to `n_retries` times
-            for i in range(max(n_retries, 0) + 1):
+            # resample spectra
+            spectra = {}
+            for t in types:
+                spectra[t] = dict(
+                    neut=sfs_neut[t].resample(seed=rng),
+                    sel=sfs_sel[t].resample(seed=rng)
+                )
 
-                # resample spectra
-                spectra = {}
-                for t in types:
-                    spectra[t] = dict(
-                        neut=sfs_neut[t].resample(seed=seed + 2 * i),
-                        sel=sfs_sel[t].resample(seed=seed + 2 * i + 1)
-                    )
+            # run `n_retries` times
+            for _ in range(max(n_retries, 1)):
 
                 # perform joint optimization
                 # Note that it's important we bind t into the lambda function
                 # at the time of creation.
                 result, params_mle = optimization.run(
-                    x0=params_mle_raw,
-                    scales=scales_linear,
-                    bounds=bounds_linear,
+                    x0=x0,
+                    scales=scales,
+                    bounds=bounds,
                     n_runs=1,
                     debug_iterations=False,
                     print_info=False,
@@ -710,7 +766,7 @@ class JointInference(BaseInference):
                     get_counts=dict((t, lambda params, t=t: BaseInference._model_sfs(
                         discretization=discretization,
                         model=model,
-                        params=correct_values(Covariate._apply(covariates, params, t), bounds, scales),
+                        params=correct_values(Covariate._apply(covariates, params, t), bounds_default, scales_default),
                         sfs_neut=spectra[t]['neut'],
                         sfs_sel=spectra[t]['sel'],
                         folded=folded
@@ -727,14 +783,15 @@ class JointInference(BaseInference):
                     # add covariates for each type
                     params_mle[t] = correct_values(
                         params=Covariate._apply(covariates, params_mle[t], t),
-                        bounds=bounds,
-                        scales=scales
+                        bounds=bounds_default,
+                        scales=scales_default
                     )
 
-                if result.success:
-                    return result, params_mle
+                results += [(result, params_mle, x0)]
 
-            return result, params_mle
+                x0 = self.optimization.sample_x0(params_mle_raw, random_state=rng)
+
+            return results
 
         return run_bootstrap_sample
 
@@ -742,23 +799,23 @@ class JointInference(BaseInference):
             self,
             n_samples: int = None,
             parallelize: bool = None,
-            n_retries: int = None,
             update_likelihood: bool = True,
-            **kwargs
+            n_retries: int = None,
+            pbar: bool = True,
+            pbar_title: str = 'Bootstrapping joint inference'
     ) -> Optional[pd.DataFrame]:
         """
         Perform the parametric bootstrap both for the marginal and joint inferences.
 
         :param n_samples: Number of bootstrap samples. Defaults to :attr:`n_bootstraps`.
-        :param parallelize: Whether to parallelize computations. Defaults to :attr:`parallelize`.
-        :param n_retries: Number of retries for bootstraps that did not terminate normally. Defaults to
+        :param parallelize: Whether to parallelize the bootstrap. Defaults to :attr:`parallelize`.
+        :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples.
+        :param n_retries: Number of optimization runs for each bootstrap sample. Defaults to
             :attr:`n_bootstrap_retries`.
-        :param update_likelihood: Whether to update the likelihood
+        :param pbar: Whether to show a progress bar.
+        :param pbar_title: Title for the progress bar.
         :return: DataFrame with bootstrap samples
         """
-        # perform inference first if not done yet
-        self.run_if_required()
-
         # update properties
         self.update_properties(
             n_bootstraps=n_samples,
@@ -766,70 +823,27 @@ class JointInference(BaseInference):
             n_bootstrap_retries=n_retries
         )
 
-        n_bootstraps = int(self.n_bootstraps)
+        # bootstrap marginal inferences
+        for t, inf in self.marginal_inferences.items():
+            self._logger.info(f"Bootstrapping type '{t}'.")
 
-        with tqdm(
-                total=len(self.marginal_inferences) * n_bootstraps,
-                disable=Settings.disable_pbar,
-                desc=f"{self.__class__.__name__}>Bootstrapping marginal inferences"
-        ) as pbar:
-
-            # bootstrap marginal inferences
-            for t, inf in self.marginal_inferences.items():
-                self._logger.info(f"Bootstrapping type '{t}'.")
-
-                inf.bootstrap(
-                    n_samples=n_bootstraps,
-                    parallelize=self.parallelize,
-                    n_retries=self.n_bootstrap_retries,
-                    update_likelihood=update_likelihood,
-                    pbar=False
-                )
-
-                pbar.update(n_bootstraps)
-
-        start_time = time.time()
-
-        # parallelize computations if desired
-        if self.parallelize:
-
-            self._logger.debug(f"Running {n_bootstraps} joint bootstrap samples "
-                               f"in parallel on {min(mp.cpu_count(), n_bootstraps)} cores.")
-
-        else:
-            self._logger.debug(f"Running {n_bootstraps} joint bootstrap samples sequentially.")
-
-        # seeds for bootstraps
-        seeds = self.rng.integers(0, high=2 ** 32, size=n_bootstraps)
-
-        # run bootstraps
-        result = parallelize_func(
-            func=self._get_run_bootstrap_sample(),
-            data=seeds,
-            parallelize=self.parallelize,
-            pbar=True,
-            desc=f"{self.__class__.__name__}>Bootstrapping joint inference"
-        )
-
-        # number of successful runs
-        n_success = np.sum([res.success for res in result[:, 0]])
-
-        # issue warning if some runs did not finish successfully
-        if n_success < n_bootstraps:
-            self._logger.warning(
-                f"{n_bootstraps - n_success} out of {n_bootstraps} bootstrap samples "
-                "did not terminate normally during numerical optimization. "
-                "The confidence intervals might thus be unreliable. Consider "
-                "increasing the number of retries (`n_retries`), "
-                "adjusting the optimization parameters (increasing `gtol` or `n_runs`), "
-                "or decreasing the number of optimized parameters."
+            inf.bootstrap(
+                n_samples=int(self.n_bootstraps),
+                parallelize=self.parallelize,
+                n_retries=self.n_bootstrap_retries,
+                update_likelihood=update_likelihood,
+                pbar_title=f"Bootstrapping '{t}'"
             )
 
-        # dataframe of MLE estimates in flattened format
-        self.bootstraps = pd.DataFrame([flatten_dict(r) for r in result[:, 1]])
-
-        # assign bootstrap results
-        self.bootstrap_results = list(result[:, 0])
+        # bootstrap joint inference
+        self._bootstrap(
+            n_samples=n_samples,
+            parallelize=parallelize,
+            update_likelihood=update_likelihood,
+            n_retries=n_retries,
+            pbar=pbar,
+            pbar_title=pbar_title
+        )
 
         # assign bootstrap parameters to joint inference objects
         for t, inf in self.joint_inferences.items():
@@ -838,13 +852,6 @@ class JointInference(BaseInference):
 
             # add estimates for alpha to the bootstraps
             inf._add_alpha_to_bootstraps()
-
-        # add execution time
-        self.execution_time += time.time() - start_time
-
-        # assign average likelihood of successful runs
-        if update_likelihood:
-            self.likelihood = np.mean([-res.fun for res in result[:, 0] if res.success] + [self.likelihood])
 
         return self.bootstraps
 
@@ -972,6 +979,7 @@ class JointInference(BaseInference):
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'original',
             title: str = 'discretized DFE comparison',
             labels: List[str] = None,
             kwargs_legend: dict = dict(prop=dict(size=8)),
@@ -985,6 +993,7 @@ class JointInference(BaseInference):
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
         :param show_marginals: Whether to also show marginal inferences
         :param bootstrap_type: Type of bootstrap
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :param ci_level: Confidence level
         :param confidence_intervals: Whether to plot confidence intervals
         :param file: File to save plot to
@@ -1182,6 +1191,7 @@ class JointInference(BaseInference):
             show: bool = True,
             title: str = None,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'original',
             show_types: bool = True,
             ci_level: float = 0.05,
             xlabel: str = "cov",
@@ -1196,6 +1206,7 @@ class JointInference(BaseInference):
         :param show: Whether to show plot.
         :param title: Plot title.
         :param bootstrap_type: Bootstrap type.
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :param show_types: Whether to show types on second x-axis.
         :param ci_level: Confidence level.
         :param xlabel: X-axis label.
@@ -1224,15 +1235,13 @@ class JointInference(BaseInference):
             bootstraps = np.array([self.bootstraps[f"{t}.{cov.param}"] for t in self.types]).T
 
             # compute errors
-            errors = Bootstrap.get_errors(
+            values, errors, _ = Bootstrap.get_errors(
                 values=values,
                 bs=bootstraps,
                 bootstrap_type=bootstrap_type,
-                ci_level=ci_level
-            )[0]
-
-            # take mean of bootstraps as values
-            values = bootstraps.mean(axis=0)
+                ci_level=ci_level,
+                point_estimate=point_estimate
+            )
 
         return Visualization.plot_covariate(
             covariates=[cov.values[t] for t in self.types],
@@ -1247,46 +1256,22 @@ class JointInference(BaseInference):
             ax=ax
         )
 
-    def get_cis_params_mle(
-            self,
-            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
-            ci_level: float = 0.05,
-            param_names: Optional[list[str]] = None
-    ):
-        """
-        Get confidence intervals for the parameters.
-
-        :return: Confidence intervals for the parameters
-        """
-        # get dict of inferences
-        inferences = self.get_inferences()
-
-        # get param names if not given
-        if param_names is None:
-            param_names = list(inferences.values())[0].get_bootstrap_param_names()
-
-        return Inference.get_cis_params_mle(
-            inferences=list(inferences.values()),
-            bootstrap_type=bootstrap_type,
-            ci_level=ci_level,
-            param_names=param_names,
-            labels=list(inferences.keys())
-        )
-
     def get_discretized(
             self,
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
-            bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean'
     ) -> Dict[str, Tuple[np.ndarray, np.ndarray]]:
         """
         Get discretized DFEs.
 
-        :param bootstrap_type: Type of bootstrap
-        :param ci_level: Confidence interval level
-        :param confidence_intervals: Whether to return confidence intervals
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bins.
+        :param confidence_intervals: Whether to return confidence intervals
+        :param ci_level: Confidence interval level
+        :param bootstrap_type: Type of bootstrap
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :return: Dictionary of array of values and array of errors indexed by inference type
         """
         return Inference.get_discretized(
@@ -1295,7 +1280,8 @@ class JointInference(BaseInference):
             intervals=intervals,
             confidence_intervals=confidence_intervals,
             ci_level=ci_level,
-            bootstrap_type=bootstrap_type
+            bootstrap_type=bootstrap_type,
+            point_estimate=point_estimate
         )
 
     def get_bootstrap_params(self) -> Dict[str, float]:
@@ -1360,3 +1346,18 @@ class JointInference(BaseInference):
         counts_sel = np.array([inf.sfs_sel.polymorphic for inf in self.joint_inferences.values()]).flatten()
 
         return norm(counts_mle - counts_sel, k)
+
+    def get_alpha(self, params: dict = None) -> float:
+        """
+        Get alpha, the proportion of beneficial non-synonymous substitutions.
+
+        :param params: DFE parameters to use for calculation of format `{type: {param: value}}`.
+        """
+        if params is None:
+            params = self.params_mle
+
+        alphas = {}
+        for t in self.types:
+            alphas[t] = self.discretization.get_alpha(self.model, params[t])
+
+        return alphas

@@ -15,6 +15,7 @@ shared_params:
 fixed_params:
   all:
     eps: 0
+    h: 0.5
   example_1:
     S_b: 90
   example_2:

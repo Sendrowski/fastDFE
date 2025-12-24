@@ -13,7 +13,11 @@ covariates:
     bin_8: 0.5351717990123456
     bin_9: 0.6606861559537753
 do_bootstrap: true
-fixed_params: {}
+fixed_params: {
+  all: {
+    h: 0.5
+  }
+}
 integration_mode: midpoint
 intervals_ben:
 - 1.0e-05
@@ -475,6 +479,6 @@ sfs_sel:
   - 441.0
   - 111304.0
 shared_params:
-- params: all
+- params: [eps, S_b, S_d, p_b, b]
   types: all
 x0: {}

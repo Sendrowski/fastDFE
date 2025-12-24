@@ -1,0 +1,5 @@
+name: fastdfe
+channels:
+  - conda-forge
+dependencies:
+  - fastdfe

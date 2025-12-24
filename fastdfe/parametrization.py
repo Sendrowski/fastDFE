@@ -10,10 +10,13 @@ import logging
 import warnings
 from abc import abstractmethod, ABC
 from functools import wraps
-from typing import Callable, List, Union, Dict, Tuple, Literal, Sequence
+from typing import Callable, List, Union, Dict, Tuple, Literal, Sequence, Optional
 
 import numpy as np
+import pandas as pd
 from scipy.stats import gamma, expon
+
+from fastdfe.utils import Serializable
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -48,7 +51,7 @@ def _to_string(model: Union['Parametrization', str]) -> str:
     return model
 
 
-class Parametrization(ABC):
+class Parametrization(Serializable, ABC):
     """
     Base class for DFE parametrizations.
 
@@ -71,11 +74,30 @@ class Parametrization(ABC):
         dele=dict()
     )
 
-    def __init__(self):
+    def __init__(
+            self,
+            bounds: Optional[Dict[str, Tuple[float, float]]] = None,
+            scales: Optional[Dict[str, Literal['lin', 'log']]] = None,
+            x0: Optional[Dict[str, float]] = None
+    ):
         """
         Initialize parametrization.
+
+        :param bounds: Custom parameter bounds merging with defaults
+        :param scales: Custom scales merging with defaults
+        :param x0: Custom initial parameters merging with defaults
         """
         self._logger = logger.getChild(self.__class__.__name__)
+
+        # merge custom settings
+        if bounds is not None:
+            self.bounds = self.bounds | bounds
+
+        if scales is not None:
+            self.scales = self.scales | scales
+
+        if x0 is not None:
+            self.x0 = self.x0 | x0
 
         #: argument names
         self.param_names: List = list(self.x0.keys())
@@ -197,6 +219,18 @@ class Parametrization(ABC):
             title=title,
             ax=ax
         )
+
+    def freeze(
+            self,
+            params: Dict[str, float]
+    ) -> 'DFE':
+        """
+        Freeze parameters to create a DFE object.
+
+        :param params: Parameters of the parametrization
+        :return: DFE object
+        """
+        return DFE(model=self, params=params)
 
 
 class GammaExpParametrization(Parametrization):
@@ -601,14 +635,26 @@ class DiscreteParametrization(Parametrization):
 
     def __init__(
             self,
-            intervals: Sequence = np.array([-100000, -100, -10, -1, 0, 1, 1000])
+            intervals: Sequence = np.array([-100000, -100, -10, -1, 0, 1, 1000]),
+            bounds: Optional[Dict[str, Tuple[float, float]]] = None,
+            scales: Optional[Dict[str, Literal['lin', 'log']]] = None,
+            x0: Optional[Dict[str, float]] = None
     ):
         """
         Constructor.
 
         :param intervals: The intervals of the discrete distribution.
+        :param bounds: Custom parameter bounds merging with defaults
+        :param scales: Custom scales merging with defaults
+        :param x0: Custom initial parameters merging with defaults
         """
         super().__init__()
+
+        # deprecation warning
+        self._logger.warning(
+            'DiscreteParametrization is deprecated. Use DiscreteFractionalParametrization instead, which '
+            'has better optimization properties.'
+        )
 
         #: Intervals
         self.intervals: np.ndarray = np.concatenate(([-np.inf], intervals, [np.inf]))
@@ -629,19 +675,19 @@ class DiscreteParametrization(Parametrization):
         self.fixed_params: Dict[str, int] = {self.params[0]: 0, self.params[-1]: 0}
 
         #: Default initial parameters
-        self.x0: Dict[str, float] = dict((p, 1 / (self.k - 2)) for p in self.param_names)
+        self.x0: Dict[str, float] = dict((p, 1 / (self.k - 2)) for p in self.param_names) | (x0 or {})
 
         #: Default parameter bounds
-        self.bounds: Dict[str, Tuple[float, float]] = dict((p, (0, 1)) for p in self.param_names)
+        self.bounds: Dict[str, Tuple[float, float]] = dict((p, (0, 1)) for p in self.param_names) | (bounds or {})
 
         #: Scales
         # noinspection all
-        self.scales: Dict[str, Literal['lin', 'log']] = dict((p, 'lin') for p in self.param_names)
+        self.scales: Dict[str, Literal['lin', 'log']] = dict((p, 'lin') for p in self.param_names) | (scales or {})
 
         #: Submodels
         self.submodels: Dict[str, Dict[str, float]] = dict(
             full=dict(),
-            dele=dict((p, 0) for p in self.params[1:-1][self.intervals[1:-2] < 0])
+            dele=dict((p, 0) for p in self.params[1:-1][self.intervals[1:-2] >= 0])
         )
 
     def _normalize(self, params: dict) -> dict:
@@ -761,12 +807,18 @@ class DiscreteFractionalParametrization(Parametrization):
 
     def __init__(
             self,
-            intervals: Sequence = np.array([-100000, -100, -10, -1, 0, 1, 1000])
+            intervals: Sequence = np.array([-100000, -100, -10, -1, 0, 1, 1000]),
+            bounds: Optional[Dict[str, Tuple[float, float]]] = None,
+            scales: Optional[Dict[str, Literal['lin', 'log']]] = None,
+            x0: Optional[Dict[str, float]] = None
     ):
         """
         Constructor.
 
         :param intervals: The intervals of the discrete distribution.
+        :param bounds: Custom parameter bounds merging with defaults
+        :param scales: Custom scales merging with defaults
+        :param x0: Custom initial parameters merging with defaults
         """
         super().__init__()
 
@@ -789,19 +841,20 @@ class DiscreteFractionalParametrization(Parametrization):
         self.fixed_params = {self.params[0]: 0, self.params[-2]: 1, self.params[-1]: 0}
 
         #: Default initial parameters
-        self.x0: Dict[str, float] = self.to_fractional(dict((p, 1 / (self.k - 2)) for p in self.param_names))
+        self.x0: Dict[str, float] = self.to_fractional(dict((p, 1 / (self.k - 2)) for p in self.param_names)) | (
+                    x0 or {})
 
         #: Default parameter bounds
-        self.bounds: Dict[str, Tuple[float, float]] = dict((p, (0, 1)) for p in self.param_names)
+        self.bounds: Dict[str, Tuple[float, float]] = dict((p, (0, 1)) for p in self.param_names) | (bounds or {})
 
         #: Scales
         # noinspection all
-        self.scales: Dict[str, Literal['lin', 'log']] = dict((p, 'lin') for p in self.param_names)
+        self.scales: Dict[str, Literal['lin', 'log']] = dict((p, 'lin') for p in self.param_names) | (scales or {})
 
         #: Submodels
         self.submodels: Dict[str, Dict[str, float]] = dict(
             full=dict(),
-            dele=dict((p, 0) for p in self.params[1:-1][self.intervals[1:-2] < 0])
+            dele=dict((p, 1) for p in self.params[1:-2][self.intervals[2:-2] >= 0])
         )
 
     def to_nominal(self, params: Dict[str, float]) -> Dict[str, float]:
@@ -934,3 +987,206 @@ class DiscreteFractionalParametrization(Parametrization):
             return cum_prev + cum_within
 
         return cdf
+
+
+class DFE(Serializable):
+    """
+    Frozen parametrization of a DFE.
+
+    Wraps a :class:`Parametrization` instance together with fixed parameter
+    values.
+    """
+
+    def __init__(
+            self,
+            params: dict,
+            model: Parametrization = None,
+            bootstraps: Optional[pd.DataFrame] = None
+    ):
+        """
+        :param params: Frozen parameter values.
+        :param model: Parametrization instance used to generate the DFE. Defaults to :class:`GammaExpParametrization`.
+        :param bootstraps: Optional bootstrap DataFrame (same format as AbstractInference.bootstraps).
+        """
+        #: Underlying parametrization model
+        self.model: Parametrization = model or GammaExpParametrization()
+
+        #: Frozen parameters
+        self.params: Dict[str, float] = params
+
+        #: Optional bootstrap samples
+        self.bootstraps: Optional[pd.DataFrame] = bootstraps
+
+    def get_bootstrap_dfes(self) -> List['DFE']:
+        """
+        Get DFEs for all bootstrap samples.
+
+        :return: List of DFE instances for each bootstrap sample.
+        """
+        if self.bootstraps is None:
+            return []
+
+        dfes = []
+
+        for _, row in self.bootstraps.iterrows():
+            params = row.to_dict()
+            dfes.append(DFE(model=self.model, params=params))
+
+        return dfes
+
+    def pdf(self, S: np.ndarray | float) -> np.ndarray | float:
+        """
+        Evaluate the frozen PDF.
+
+        :param S: Selection coefficient(s)
+        :return: Probability density
+        """
+        return self.model.get_pdf(**self.params)(S)
+
+    def cdf(self, S: np.ndarray | float) -> np.ndarray | float:
+        """
+        Evaluate the frozen CDF.
+
+        :param S: Selection coefficient(s)
+        :return: Cumulative probability
+        """
+        return self.model.get_cdf(**self.params)(S)
+
+    def discretize(
+            self,
+            bins: np.ndarray,
+            warn_mass: bool = True,
+            confidence_intervals: bool = True,
+            ci_level: float = 0.05,
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean'
+    ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
+        """
+        Discretize the DFE with optional bootstrap confidence intervals.
+
+        :param bins: Intervals to use for discretization.
+        :param warn_mass: Whether to warn if mass is lost during discretization.
+        :param confidence_intervals: Whether to compute confidence intervals.
+        :param ci_level: Confidence interval level (e.g., 0.05 for 95% CI).
+        :param bootstrap_type: Type of bootstrap confidence intervals ('percentile' or 'bca').
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
+        :return: Center values and (optionally) errors for each bin.
+        """
+        from .abstract_inference import Inference
+
+        # no bootstraps -> plain histogram
+        if not confidence_intervals or self.bootstraps is None:
+            return self.model._discretize(self.params, bins, warn_mass=warn_mass), None
+
+        return Inference.get_stats_discretized(
+            params=self.params,
+            bootstraps=self.bootstraps,
+            model=self.model,
+            ci_level=ci_level,
+            intervals=bins,
+            bootstrap_type=bootstrap_type,
+            point_estimate=point_estimate
+        )[:2]
+
+    @staticmethod
+    def plot_many(
+            dfes: Sequence['DFE'],
+            labels: Optional[Sequence[str]] = None,
+            intervals=np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            file=None,
+            show=True,
+            title="discretized DFE",
+            ax=None,
+            confidence_intervals: bool = True,
+            ci_level: float = 0.05,
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean',
+            kwargs_legend: dict = dict(prop=dict(size=8)),
+    ):
+        """
+        Plot several DFE instances in a single discretized plot.
+
+        :param dfes: Sequence of DFE instances to plot.
+        :param labels: Labels for the DFEs.
+        :param intervals: Intervals to use for discretization.
+        :param file: File to save the plot to.
+        :param show: Whether to show the plot.
+        :param title: Title of the plot.
+        :param ax: Axes to use for the plot.
+        :param confidence_intervals: Whether to plot confidence intervals.
+        :param ci_level: Confidence interval level (e.g., 0.05 for 95% CI).
+        :param bootstrap_type: Type of bootstrap confidence intervals ('percentile' or 'bca').
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
+        :param kwargs_legend: Additional keyword arguments for the legend.
+        :return: Matplotlib Axes object.
+        """
+        from .visualization import Visualization
+
+        intervals = np.array(intervals)
+        values = []
+        errors = []
+
+        for d in dfes:
+            vals, errs = d.discretize(
+                bins=intervals,
+                confidence_intervals=confidence_intervals,
+                ci_level=ci_level,
+                bootstrap_type=bootstrap_type,
+                point_estimate=point_estimate
+            )
+            values.append(vals)
+            errors.append(errs)
+
+        return Visualization.plot_discretized(
+            ax=ax,
+            values=values,
+            errors=errors,
+            labels=labels,
+            file=file,
+            show=show,
+            intervals=intervals,
+            title=title,
+            kwargs_legend=kwargs_legend
+        )
+
+    def plot(
+            self,
+            intervals=np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            file=None,
+            show=True,
+            title="discretized DFE",
+            ax=None,
+            confidence_intervals: bool = True,
+            ci_level: float = 0.05,
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean',
+            kwargs_legend: dict = dict(prop=dict(size=8))
+    ):
+        """
+        Plot this DFE instance in a discretized plot.
+
+        :param intervals: Intervals to use for discretization.
+        :param file: File to save the plot to.
+        :param show: Whether to show the plot.
+        :param title: Title of the plot.
+        :param ax: Axes to use for the plot.
+        :param confidence_intervals: Whether to plot confidence intervals.
+        :param ci_level: Confidence interval level (e.g., 0.05 for 95% CI).
+        :param bootstrap_type: Type of bootstrap confidence intervals ('percentile' or 'bca').
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
+        :param kwargs_legend: Additional keyword arguments for the legend.
+        :return: Matplotlib Axes object.
+        """
+        return DFE.plot_many(
+            dfes=[self],
+            intervals=intervals,
+            file=file,
+            show=show,
+            title=title,
+            ax=ax,
+            confidence_intervals=confidence_intervals,
+            ci_level=ci_level,
+            bootstrap_type=bootstrap_type,
+            point_estimate=point_estimate,
+            kwargs_legend=kwargs_legend
+        )

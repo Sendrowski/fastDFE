@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+from pandas._testing import assert_frame_equal
 
 import fastdfe as fd
 from fastdfe import JointInference, Config, SharedParams, Covariate, Spectra
@@ -32,7 +33,7 @@ class JointInferenceTestCase(InferenceTestCase):
 
         inference2 = JointInference.from_file(out)
 
-        self.assertEqualInference(inference, inference2)
+        self.assertEqualObjects(inference, inference2)
 
     def test_recreate_from_config(self):
         """
@@ -42,7 +43,7 @@ class JointInferenceTestCase(InferenceTestCase):
 
         inf2 = JointInference.from_config(inf.create_config())
 
-        self.assertEqualInference(inf, inf2, ignore_keys=['fixed_params'])
+        self.assertEqualObjects(inf, inf2, ignore_keys=['fixed_params'])
 
     def test_bootstrap_joint_inference(self):
         """
@@ -109,6 +110,7 @@ class JointInferenceTestCase(InferenceTestCase):
                 pendula=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
                 pubescens=[791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
             )),
+            fixed_params=dict(all=dict(h=0.5)),
             do_bootstrap=False,
             parallelize=False,
             n_bootstraps=2,
@@ -134,7 +136,7 @@ class JointInferenceTestCase(InferenceTestCase):
                 pendula=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
                 pubescens=[791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
             )),
-            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1)),
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)),
             do_bootstrap=True,
             n_bootstraps=2,
             n_runs=1,
@@ -278,7 +280,7 @@ class JointInferenceTestCase(InferenceTestCase):
 
         # define fixed parameters
         config.data['fixed_params'] = dict(
-            all=dict(eps=0.123),
+            all=dict(eps=0.123, h=0.5),
             example_1=dict(b=1.234),
             example_2=dict(b=1.132),
             pendula=dict(S_b=10.1)
@@ -296,12 +298,12 @@ class JointInferenceTestCase(InferenceTestCase):
         params_mle = inf.params_mle
 
         fixed = {
-            'all': {'eps': 0.123},
-            'example_1': {'eps': 0.123, 'b': 1.234},
-            'example_2': {'eps': 0.123, 'b': 1.132},
-            'example_3': {'eps': 0.123},
-            'pendula': {'eps': 0.123, 'S_b': 10.1},
-            'pubescens': {'eps': 0.123},
+            'all': {'eps': 0.123, 'h': 0.5},
+            'example_1': {'eps': 0.123, 'h': 0.5, 'b': 1.234},
+            'example_2': {'eps': 0.123, 'h': 0.5, 'b': 1.132},
+            'example_3': {'eps': 0.123, 'h': 0.5},
+            'pendula': {'eps': 0.123, 'h': 0.5, 'S_b': 10.1},
+            'pubescens': {'eps': 0.123, 'h': 0.5},
         }
 
         assert inf.marginal_inferences['all'].optimization.fixed_params == flatten_dict(dict(all=fixed['all']))
@@ -334,7 +336,7 @@ class JointInferenceTestCase(InferenceTestCase):
         )
 
         config.update(
-            fixed_params={'all': dict(S_b=1, eps=0, p_b=0)},
+            fixed_params={'all': dict(S_b=1, eps=0, p_b=0, h=0.5)},
             shared_params=[
                 SharedParams(types=['example_1', 'example_2'], params=['b']),
                 SharedParams(types=['pendula', 'pubescens'], params=['b'])
@@ -469,7 +471,7 @@ class JointInferenceTestCase(InferenceTestCase):
             sfs_neut=spectra[['neutral.*']].merge_groups(1),
             sfs_sel=spectra[['selected.*']].merge_groups(1),
             covariates=[Covariate(param='S_d', values=dict(A=1, C=2, T=3, G=4))],
-            fixed_params={'all': dict(S_b=1, eps=0)},
+            fixed_params={'all': dict(S_b=1, eps=0, h=0.5)},
             parallelize=True,
             do_bootstrap=True,
             n_bootstraps=2
@@ -500,7 +502,7 @@ class JointInferenceTestCase(InferenceTestCase):
             sfs_neut=spectra[['neutral.*']].merge_groups(1),
             sfs_sel=spectra[['selected.*']].merge_groups(1),
             covariates=[Covariate(param='S_d', values=dict(A=-100000, C=-2045, T=-60504, G=-5024))],
-            fixed_params={'all': dict(S_b=1, eps=0, p_b=0)},
+            fixed_params={'all': dict(S_b=1, eps=0, p_b=0, h=0.5)},
             parallelize=True,
             do_bootstrap=True,
             n_bootstraps=100,
@@ -534,7 +536,7 @@ class JointInferenceTestCase(InferenceTestCase):
             sfs_neut=spectra[['neutral.*']].merge_groups(1),
             sfs_sel=spectra[['selected.*']].merge_groups(1),
             covariates=[Covariate(param='S_d', values=dict(A=-100000, C=-2045, T=-60504, G=-5024))],
-            fixed_params={'all': dict(S_b=1, eps=0, p_b=0)},
+            fixed_params={'all': dict(S_b=1, eps=0, p_b=0, h=0.5)},
             parallelize=True,
             do_bootstrap=True,
             n_runs=10,
@@ -542,32 +544,6 @@ class JointInferenceTestCase(InferenceTestCase):
         )
 
         inf.plot_inferred_parameters()
-
-    def test_get_cis_params_mle_with_boostraps(self):
-        """
-        Get the MLE parameters from the cis inference.
-        """
-        inference = JointInference.from_file(
-            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
-        )
-
-        inference.bootstrap(2)
-
-        cis = inference.get_cis_params_mle()
-
-    def test_get_cis_params_mle_no_boostraps(self):
-        """
-        Get the MLE parameters from the cis inference.
-        """
-        inference = JointInference.from_file(
-            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
-        )
-
-        cis = inference.get_cis_params_mle()
-
-        # check that all values are None
-        for inf in cis.values():
-            assert inf is None
 
     def test_get_discretized_errors_with_bootstraps(self):
         """
@@ -616,6 +592,7 @@ class JointInferenceTestCase(InferenceTestCase):
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
             shared_params=[SharedParams(types=["pendula", "pubescens"], params=["eps", "S_d"])],
+            fixed_params={'all': dict(h=0.5)},
             do_bootstrap=True,
             n_bootstraps=2
         )
@@ -651,7 +628,7 @@ class JointInferenceTestCase(InferenceTestCase):
             JointInference(
                 sfs_neut=sfs_neut,
                 sfs_sel=sfs_sel,
-                fixed_params={'all': dict(eps=0)},
+                fixed_params={'all': dict(eps=0, h=0.5)},
                 shared_params=[SharedParams(types=["pendula.foo", "pubescens.bar.foo"], params=["S_d", "S_b", "p_b"])],
                 do_bootstrap=True
             )
@@ -677,7 +654,7 @@ class JointInferenceTestCase(InferenceTestCase):
             JointInference(
                 sfs_neut=sfs_neut,
                 sfs_sel=sfs_sel,
-                fixed_params={'all': dict(eps=0)},
+                fixed_params={'all': dict(eps=0, h=0.5)},
                 shared_params=[SharedParams(types=["pendula", "pubescens.bar.foo"], params=["S_d", "S_b", "p_b"])],
                 do_bootstrap=True
             )
@@ -690,11 +667,9 @@ class JointInferenceTestCase(InferenceTestCase):
         Note the warning on a large residual for the joint inference is not
         unusual as the fit to each component SFS naturally is worse when sharing parameters.
         """
-        inf = fd.JointInference.from_config_file(
-            "https://github.com/Sendrowski/fastDFE/"
-            "blob/master/resources/configs/arabidopsis/"
-            "covariates_example.yaml?raw=true"
-        )
+        config = fd.Config.from_file("resources/configs/arabidopsis/covariates_example.yaml")
+
+        inf = fd.JointInference.from_config(config)
 
         inf.run()
 
@@ -712,6 +687,7 @@ class JointInferenceTestCase(InferenceTestCase):
 
         pass
 
+    @pytest.mark.skip("Only works with variable h")
     def test_alternative_optimizer(self):
         """
         Test for alternative optimizer.
@@ -744,3 +720,155 @@ class JointInferenceTestCase(InferenceTestCase):
             )
 
         print(context.exception)
+
+    def test_bootstrap_n_retries(self):
+        """
+        Test whether bootstrapping with retries works as expected.
+        """
+        config = fd.Config.from_file(
+            "resources/configs/shared/covariates_Sd_fixed_params/config.yaml"
+        ).update(
+            n_bootstrap_retries=3,
+            parallelize=True,
+            n_bootstraps=3,
+            do_bootstrap=True
+        )
+        inf = fd.JointInference.from_config(config)
+        inf.run()
+
+        for inf in list(inf.marginal_inferences.values()) + [inf]:
+            self.assertEqual(3, len(inf.bootstraps.likelihoods_runs.iloc[0]))
+            self.assertEqual(3, len(inf.bootstraps.x0_runs.iloc[0]))
+            self.assertGreater(inf.bootstraps.likelihoods_std.mean(), 0)
+
+    def test_get_alpha(self):
+        """
+        Test get_alpha method.
+        """
+        inf = JointInference.from_file(
+            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
+        )
+
+        alpha = inf.get_alpha()
+
+        # assert keys are present
+        for t in inf.types:
+            assert t in alpha
+
+    def test_seeded_inference_is_deterministic_non_parallelized(self):
+        """
+        Check that inference is deterministic when seeded and not parallelized.
+        """
+        config = fd.Config.from_file(self.config_file)
+
+        config.update(
+            seed=0,
+            do_bootstrap=True,
+            parallelize=False,
+            n_bootstraps=2
+        )
+
+        inf = fd.JointInference.from_config(config)
+        inf.run()
+
+        inf2 = fd.JointInference.from_config(config)
+        inf2.run()
+
+        self.assertEqual(inf.params_mle, inf2.params_mle)
+        assert_frame_equal(inf.bootstraps, inf2.bootstraps)
+
+    def test_seeded_inference_is_deterministic_parallelized(self):
+        """
+        Check that seeded inference is deterministic when parallelized.
+        """
+        config = fd.Config.from_file(self.config_file)
+
+        config.update(
+            seed=0,
+            do_bootstrap=True,
+            parallelize=True,
+            n_bootstraps=2
+        )
+
+        inference = fd.JointInference.from_config(config)
+        inference.run()
+
+        inference2 = fd.JointInference.from_config(config)
+        inference2.run()
+
+        self.assertEqual(inference.params_mle, inference2.params_mle)
+        assert_frame_equal(inference.bootstraps, inference2.bootstraps)
+
+    def test_joint_different_fixed_h(self):
+        """
+        Test joint inference with different fixed h values.
+        """
+        inf = JointInference(
+            sfs_neut=Spectra(dict(
+                pendula=[177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+                pendula2=[177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+            )),
+            sfs_sel=Spectra(dict(
+                pendula=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+                pendula2=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+            )),
+            fixed_params=dict(all=dict(eps=0, S_b=1, p_b=0), pendula=dict(h=0.2), pendula2=dict(h=0.8)),
+            shared_params=[SharedParams(types='all', params=['b'])],
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_h=(0, 1, 11),
+            do_bootstrap=False,
+            parallelize=True,
+            n_runs=10
+        )
+
+        inf.run()
+
+        # make sure that h values are correctly held fixed
+        self.assertEqual(0.2, inf.params_mle['pendula']['h'])
+        self.assertEqual(0.8, inf.params_mle['pendula2']['h'])
+
+        self.assertEqual(0.2, inf.joint_inferences['pendula'].params_mle['h'])
+        self.assertEqual(0.8, inf.joint_inferences['pendula2'].params_mle['h'])
+
+        self.assertEqual(0.2, inf.marginal_inferences['pendula'].params_mle['h'])
+        self.assertEqual(0.8, inf.marginal_inferences['pendula2'].params_mle['h'])
+
+        inf.plot_discretized()
+
+        # make sure that the DFE for h=0.2 is shifted towards more deleterious mutations for both marginals and joints
+        discretized = inf.get_discretized()[0]
+        self.assertGreater(discretized["marginal.pendula"][0], discretized["marginal.pendula2"][0])
+        self.assertGreater(discretized["joint.pendula"][0], discretized["joint.pendula2"][0])
+
+    def test_joint_optimized_different_h(self):
+        """
+        Test joint inference with different optimized h values.
+        """
+        inf = JointInference(
+            sfs_neut=Spectra(dict(
+                pendula=[177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+                pubescens=[172528, 3612, 1359, 790, 584, 427, 325, 234, 166, 76, 31]
+            )),
+            sfs_sel=Spectra(dict(
+                pendula=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+                pubescens=[791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
+            )),
+            fixed_params=dict(all=dict(eps=0, S_b=1, p_b=0)),
+            shared_params=[SharedParams(types='all', params=['b', 'S_d'])],
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            intervals_h=(0, 1, 11),
+            do_bootstrap=False,
+            parallelize=True,
+            n_runs=10
+        )
+
+        inf.run()
+
+        self.assertNotEqual(inf.params_mle['pendula']['h'], inf.params_mle['pubescens']['h'])
+        self.assertNotEqual(
+            inf.joint_inferences['pendula'].params_mle['h'],
+            inf.joint_inferences['pubescens'].params_mle['h']
+        )
+

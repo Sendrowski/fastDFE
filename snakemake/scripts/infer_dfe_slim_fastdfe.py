@@ -6,18 +6,23 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2024-02-26"
 
+import sys
+
+# necessary to import fastdfe locally
+sys.path.append('.')
+import fastdfe as fd
+
 import numpy as np
 from matplotlib import pyplot as plt
 
 try:
-    import sys
-
-    # necessary to import fastdfe locally
-    sys.path.append('..')
 
     testing = False
     sfs_file = snakemake.input[0]
     full_dfe = snakemake.params.get('full_dfe')
+    h = snakemake.params.get('h', 0.5)
+    mu = snakemake.params.mu
+    demography = snakemake.params.demography
     out_summary = snakemake.output.summary
     out_serialized = snakemake.output.serialized
     out_dfe = snakemake.output.get('dfe', None)
@@ -29,6 +34,9 @@ except NameError:
     testing = True
     sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-9/b=5/s_d=3e-1/p_b=0/n=100/folded/sfs.csv'
     full_dfe = True
+    h = 0.5
+    mu = 1e-8
+    demography = "constant"
     out_summary = "scratch/summary.json"
     out_serialized = "scratch/serialized.json"
     out_dfe = "scratch/dfe.png"
@@ -36,9 +44,15 @@ except NameError:
     out_spectra = "scratch/spectra.png"
     out_params = "scratch/params.png"
 
-import fastdfe as fd
-
 s = fd.Spectra.from_file(sfs_file)
+
+theta = s['neutral'].theta
+Ne = theta / (4 * mu)
+
+if demography == 'dominance_function':
+    h_callback = lambda k, S: np.maximum(0.4 * np.exp(-h * abs(S / (4 * Ne))), 0.1)
+else:
+    h_callback = lambda h, S: np.full_like(S, h)
 
 # create from config
 inf = fd.BaseInference(
@@ -46,8 +60,10 @@ inf = fd.BaseInference(
     sfs_sel=s['selected'],
     do_bootstrap=True,
     parallelize=True,
+    bounds=dict(h=(0, h)),
     n_runs=100,
-    fixed_params=dict(all=dict(eps=0) | dict(p_b=0, S_b=1) if not full_dfe else {})
+    h_callback=h_callback,
+    fixed_params=dict(all=dict(eps=0, h=h) | (dict(p_b=0, S_b=1) if not full_dfe else {}))
 )
 
 # perform inference
@@ -59,7 +75,7 @@ inf.to_file(out_serialized)
 # save summary
 inf.get_summary().to_file(out_summary)
 
-params = {k: v for k, v in inf.bootstraps.mean().to_dict().items() if k not in ['alpha']}
+params = {k: v for k, v in inf.bootstraps.select_dtypes('number').median().to_dict().items()}
 
 params_str = dict(
     S_d=f"{params['S_d']:.0f}",

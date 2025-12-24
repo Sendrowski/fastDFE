@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest import TestCase as BaseTestCase
 
 import matplotlib
+import numpy as np
 import pytest
 from matplotlib import pyplot as plt
 
@@ -38,13 +39,18 @@ logger.info(sys.version)
 logger.info(f"Running tests for {fastdfe.__file__}")
 logger.info(f"fastdfe version: {fastdfe.__version__}")
 
-# only be verbose when running on Pycharm
+# only show plots when running in PyCharm
 if 'PYCHARM_HOSTED' not in os.environ:
     matplotlib.use('Agg')
-    fastdfe.Settings.disable_pbar = True
-    logger.setLevel(logging.WARNING)
+    #fastdfe.Settings.disable_pbar = True
+    #logger.setLevel(logging.WARNING)
 else:
     logger.setLevel(logging.INFO)
+
+# check for PARALLELIZE environment variable
+if 'PARALLELIZE' in os.environ and os.environ['PARALLELIZE'].lower() == 'false':
+    fastdfe.Settings.parallelize = False
+    logger.info("Parallelization disabled.")
 
 # create scratch directory if it doesn't exist
 if not os.path.exists('scratch'):
@@ -59,3 +65,10 @@ class TestCase(BaseTestCase):
         """
         yield
         plt.close('all')
+
+    @staticmethod
+    def rel_diff(a, b, eps=1e-12):
+        """
+        Compute the relative difference between a and b.
+        """
+        return np.abs(a - b) / (np.abs(a) + np.abs(b) + eps)

@@ -15,9 +15,9 @@ from tqdm import tqdm
 
 from .base_inference import BaseInference
 from .discretization import Discretization
-from .parametrization import Parametrization
+from .parametrization import Parametrization, DFE
 from .parametrization import _from_string
-from .spectrum import Spectrum
+from .spectrum import Spectrum, Spectra
 
 logger = logging.getLogger('fastdfe')
 
@@ -40,21 +40,21 @@ class Simulation:
         )
 
         # perform the simulation
-        sfs_sel = sim.run()
+        sim.run()
 
-        # plot SFS
-        sfs_sel.plot()
+        # plot spectra
+        sim.get_spectra().plot()
 
     """
 
     def __init__(
             self,
+            sfs_neut: Spectrum,
             params: dict = None,
             model: Parametrization | str = 'GammaExpParametrization',
-            sfs_neut: Spectrum = None,
-            eps: float = 0,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
+            h_callback: Callable[[np.ndarray], np.ndarray] = None,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             discretization: Discretization = None,
@@ -63,17 +63,31 @@ class Simulation:
         """
         Create a simulation object.
 
-        :param params: Parameters for the DFE parametrization (see model). By default, the default parameters of
-            ``model`` will be used.
-        :param model: DFE parametrization model
         :param sfs_neut: Neutral SFS. This sfs is informative on the population sample size, population mutation rate,
             the number of sites, and demography. :func:`get_neutral_sfs` can be used to obtain a neutral SFS.
-        :param eps: Ancestral misidentification error
+        :param params: Parameters of the DFE parametrization (see model) in addition to ancestral misidentification
+            params ``eps`` and dominance ``h``. By default, `eps=0`, `h=0.5`, the default parameters of ``model``
+            will be used.
+        :param model: DFE parametrization model
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
-            selection coefficients. The intervals will be log10-spaced.
-        :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients
-        :param integration_mode: Integration mode for the DFE, ``quad`` not recommended
-        :param linearized: Whether to use the linearized DFE, ``False`` not recommended
+            selection coefficients. The intervals will be log10-spaced. Decreasing the number of intervals to ``100``
+            provides nearly identical results while increasing speed, especially when precomputing across dominance
+            coefficients.
+        :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients. Decreasing the number
+            of intervals to ``100`` provides nearly identical results while increasing speed, especially when
+            precomputing across dominance coefficients.
+        :param h_callback: A function mapping the scalar parameter ``h`` and the array of selection
+            coefficients ``S`` to dominance coefficients of the same shape, allowing models where ``h``
+            depends on ``S``. The default is ``lambda h, S: np.full_like(S, h)``, keeping ``h`` constant.
+            Expected allele counts for a given dominance value are obtained by linear interpolation
+            between precomputed values in ``intervals_h``. The inferred parameter is still named ``h``,
+            even if transformed by ``h_callback``, and its bounds, scales, and initial values can be set
+            via ``bounds``, ``scales``, and ``x0``. The fitness of heterozygotes and mutation homozygotes is defined as
+            ``1 + 2hs`` and ``1 + 2s``, respectively.
+        :param integration_mode: Integration mode when computing expected SFS under semidominance.
+            ``quad`` is not recommended.
+        :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
+            ``scipy.integrate.quad`` in each call. ``False`` not recommended.
         :param parallelize: Whether to parallelize computations
         """
         #: The DFE parametrization
@@ -82,11 +96,23 @@ class Simulation:
         #: Parameters for the DFE parametrization
         self.params: dict = self.model.x0 if params is None else params
 
+        if 'eps' not in self.params:
+            self.params['eps'] = 0
+
+        if 'h' not in self.params:
+            self.params['h'] = 0.5
+
         # check if parameters are within bounds
         self._check_bounds()
 
         #: Neutral SFS
         self.sfs_neut: Spectrum = sfs_neut
+
+        #: Modelled SFS
+        self.sfs_sel: Spectrum = None
+
+        #: DFE instance
+        self.dfe: DFE = DFE(model=self.model, params=self.params)
 
         #: SFS sample size
         self.n: int = self.sfs_neut.n
@@ -97,16 +123,15 @@ class Simulation:
         #: Number of sites
         self.n_sites: float = self.sfs_neut.n_sites
 
-        #: Ancestral misidentification error
-        self.eps: float = eps
-
         if discretization is None:
             # create discretization instance
             #: Discretization instance
             self.discretization: Discretization = Discretization(
                 n=self.n,
+                h=self.params['h'],
                 intervals_del=intervals_del,
                 intervals_ben=intervals_ben,
+                h_callback=h_callback,
                 integration_mode=integration_mode,
                 linearized=linearized,
                 parallelize=parallelize
@@ -125,6 +150,10 @@ class Simulation:
 
         :return: Simulated SFS
         """
+        self._logger.info("Simulating SFS under selection using parameters: " + ', '.join(
+            [f"{k}={v:.4g}" for k, v in self.params.items()]
+        ))
+
         # obtain modelled selected SFS
         counts_modelled = self.discretization.model_selection_sfs(self.model, self.params)
 
@@ -132,9 +161,11 @@ class Simulation:
         counts_modelled *= self.theta * self.n_sites
 
         # add contribution of demography and adjust polarization error
-        counts_modelled = BaseInference._add_demography(self.sfs_neut, counts_modelled, eps=self.eps)
+        counts_modelled = BaseInference._add_demography(self.sfs_neut, counts_modelled, eps=self.params['eps'])
 
-        return Spectrum([self.n_sites - sum(counts_modelled)] + list(counts_modelled) + [0])
+        self.sfs_sel = Spectrum([self.n_sites - sum(counts_modelled)] + list(counts_modelled) + [0])
+
+        return self.sfs_sel
 
     def _check_bounds(self):
         """
@@ -143,9 +174,34 @@ class Simulation:
         for k, v in self.params.items():
             if k in self.model.bounds and not self.model.bounds[k][0] <= v <= self.model.bounds[k][1]:
                 raise ValueError(
-                    f"Parameter {k}= {v} is not out of bounds {self.model.bounds[k]} "
+                    f"Parameter {k}={v} is out of bounds {self.model.bounds[k]} "
                     f"for model {self.model.__class__.__name__}."
                 )
+
+        if not 0 <= self.params['eps'] <= 1:
+            raise ValueError(f"Ancestral misidentification parameter eps={self.params['eps']} is out of bounds [0, 1].")
+
+        if not 0 <= self.params['h'] <= 1:
+            raise ValueError(f"Dominance parameter h={self.params['h']} is out of bounds [0, 1].")
+
+    def get_spectra(self) -> Spectra:
+        """
+        Get the spectra used in the simulation.
+
+        :return: Tuple of neutral SFS and selected SFS
+        """
+        return Spectra.from_spectra({
+            "neutral": self.sfs_neut,
+            "selected": self.sfs_sel
+        })
+
+    def get_alpha(self) -> float:
+        """
+        Get the proportion of adaptive substitutions (alpha) under the specified DFE and parameters.
+
+        :return: Proportion of adaptive substitutions
+        """
+        return self.discretization.get_alpha(self.model, self.params)
 
     @staticmethod
     def get_neutral_sfs(
@@ -158,14 +214,16 @@ class Simulation:
         Obtain a standard neutral SFS for a given theta and number of sites.
 
         :param theta: Population mutation rate
-        :param n_sites: Number of sites in the simulated SFS
-        :param n: Number of frequency classes in the simulated SFS
+        :param n_sites: Number of total sites
+        :param n: Number of frequency classes
         :param r: Nuisance parameters that account for demography. An array of length ``n-1`` whose elements are
             multiplied element-wise with the polymorphic counts of the Kingman SFS. By default, no demography effects
             are considered which is equivalent to ``r = [1] * (n-1)``. Note that non-default values of ``r`` will also
             affect estimates of the population mutation rate.
         :return: Neutral SFS
         """
+        n = int(n)
+
         if r is None:
             r = np.ones(n + 1)
         else:
@@ -202,7 +260,6 @@ class Simulation:
             params=self.params,
             model=self.model,
             sfs_neut=self.sfs_neut,
-            eps=self.eps,
             pop_size=pop_size,
             n_generations=generations,
         )
@@ -240,7 +297,6 @@ class WrightFisherSimulation:  # pragma: no cover
             params: dict = None,
             model: Parametrization | str = 'GammaExpParametrization',
             sfs_neut: Spectrum = None,
-            eps: float = 0,
             pop_size: int = 1000,
             n_generations: int = 100,
             n_sites: int = None,
@@ -256,12 +312,11 @@ class WrightFisherSimulation:  # pragma: no cover
         :param model: DFE parametrization model
         :param sfs_neut: Neutral SFS. This sfs is informative on the population sample size, population mutation rate,
             the number of sites, and demography. :func:`get_neutral_sfs` can be used to obtain a neutral SFS.
-        :param eps: Ancestral misidentification error
         :param pop_size: Effective population size
         :param n_generations: Number of generations to simulate
-        :param n_sites: Number of sites in the simulated SFS. If not provided, the number of sites in `sfs_neut` will
+        :param n_sites: Number of sites in the simulated SFS. If not provided, the number of sites in ``sfs_neut`` will
             be used.
-        :param theta: Population mutation rate. If not provided, the population mutation rate in `sfs_neut` will be used.
+        :param theta: Population mutation rate. If not provided, the population mutation rate in ``sfs_neut`` will be used.
         :param parallelize: Whether to parallelize computations
         :param n_threads: Number of threads to use for parallelization
         """
@@ -282,9 +337,6 @@ class WrightFisherSimulation:  # pragma: no cover
 
         #: Number of sites
         self.n_sites: int = self.sfs_neut.n_sites if n_sites is None else n_sites
-
-        #: Ancestral misidentification error
-        self.eps: float = eps
 
         #: Effective population size
         self.pop_size: int = pop_size

@@ -17,9 +17,9 @@ from typing_extensions import Self
 
 from .bootstrap import Bootstrap
 from .parametrization import Parametrization, _from_string
+from .utils import Serializable
 
 logger = logging.getLogger("fastdfe")
-
 
 class Inference:
     """
@@ -33,6 +33,7 @@ class Inference:
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean',
             file: str = None,
             show: bool = True,
             title: str = 'discretized DFEs',
@@ -50,6 +51,7 @@ class Inference:
         :param confidence_intervals: Whether to plot confidence intervals.
         :param ci_level: Confidence level for confidence intervals.
         :param bootstrap_type: Type of bootstrap to use for confidence intervals.
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :param file: Path to file to save the plot to.
         :param show: Whether to show the plot.
         :param title: Title of the plot.
@@ -69,7 +71,8 @@ class Inference:
                 intervals=np.array(intervals),
                 confidence_intervals=confidence_intervals,
                 ci_level=ci_level,
-                bootstrap_type=bootstrap_type
+                bootstrap_type=bootstrap_type,
+                point_estimate=point_estimate
             )
 
             values.append(val)
@@ -160,6 +163,7 @@ class Inference:
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean',
             file: str = None,
             show: bool = True,
             title: str = 'parameter estimates',
@@ -179,6 +183,7 @@ class Inference:
         :param confidence_intervals: Whether to plot confidence intervals.
         :param ci_level: Confidence level for confidence intervals.
         :param bootstrap_type: Type of bootstrap to use for confidence intervals.
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :param file: Path to file to save the plot to.
         :param show: Whether to show the plot.
         :param title: Title of the plot.
@@ -203,7 +208,8 @@ class Inference:
             confidence_intervals=confidence_intervals,
             inferences=inferences,
             labels=labels,
-            param_names=param_names
+            param_names=param_names,
+            point_estimate=point_estimate
         )
 
         return Visualization.plot_inferred_parameters(
@@ -265,65 +271,28 @@ class Inference:
         )
 
     @staticmethod
-    def get_cis_params_mle(
-            bootstrap_type: Literal['percentile', 'bca'],
-            ci_level: float,
-            inferences: List['AbstractInference'],
-            labels: Sequence,
-            param_names: Sequence
-    ) -> dict[str, Optional[Dict[str, Tuple[float, float]]]]:
-        """
-        Get confidence intervals for the MLE parameters.
-
-        :param bootstrap_type: Type of bootstrap to use for confidence intervals.
-        :param ci_level: Confidence level for confidence intervals.
-        :param inferences: List of inference objects.
-        :param labels: Labels for the DFEs.
-        :param param_names: Names of the parameters.
-        :return: Dictionary of confidence intervals indexed by labels.
-        """
-        cis = {}
-        for label, inf in zip(labels, inferences):
-
-            if inf.bootstraps is not None:
-
-                values = list(inf.get_bootstrap_params()[k] for k in param_names)
-
-                res = Bootstrap.get_errors(
-                    values=values,
-                    bs=inf.bootstraps[param_names].to_numpy(),
-                    bootstrap_type=bootstrap_type,
-                    ci_level=ci_level
-                )
-
-                cis[label] = {k: tuple(res[1][:, i]) for i, k in enumerate(param_names)}
-            else:
-                cis[label] = None
-
-        return cis
-
-    @staticmethod
     def get_errors_params_mle(
-            bootstrap_type: Literal['percentile', 'bca'],
             ci_level: float,
             confidence_intervals: bool,
             inferences: List['AbstractInference'],
             labels: Sequence,
-            param_names: Sequence
-    ) -> (Dict[str, Tuple[np.ndarray, np.ndarray] | None], Dict[str, np.ndarray]):
+            param_names: Sequence,
+            bootstrap_type: Literal['percentile', 'bca'],
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean',
+    ) -> Tuple[Dict[str, Tuple[np.ndarray, np.ndarray] | None], Dict[str, np.ndarray]]:
         """
         Get errors and values for MLE params of inferences.
 
-        :param bootstrap_type: Type of bootstrap to use.
         :param ci_level: Confidence level for confidence intervals.
         :param confidence_intervals: Whether to compute confidence intervals.
         :param inferences: List of inference objects.
         :param labels: Labels for the inferences.
         :param param_names: Names of the parameters to get errors and values for.
-        :return: dictionary of errors and dictionary of values
+        :param bootstrap_type: Type of bootstrap to use.
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
+        :return: dictionary of errors and dictionary of center values indexed by labels.
         """
-        errors = {}
-        values = {}
+        errors, values, center = {}, {}, {}
         for label, inf in zip(labels, inferences):
 
             values[label] = list(inf.get_bootstrap_params()[k] for k in param_names)
@@ -331,21 +300,19 @@ class Inference:
             # whether to compute errors
             if confidence_intervals and inf.bootstraps is not None:
 
-                # use mean of bootstraps instead of original values
-                if bootstrap_type == 'percentile':
-                    values[label] = inf.bootstraps[param_names].mean().to_list()
-
                 # compute errors
-                errors[label], _ = Bootstrap.get_errors(
+                center[label], errors[label], _ = Bootstrap.get_errors(
                     values=values[label],
                     bs=inf.bootstraps[param_names].to_numpy(),
                     bootstrap_type=bootstrap_type,
-                    ci_level=ci_level
+                    ci_level=ci_level,
+                    point_estimate=point_estimate,
                 )
             else:
+                center[label] = np.array(values[label])
                 errors[label] = None
 
-        return errors, values
+        return errors, center
 
     @staticmethod
     def get_discretized(
@@ -354,9 +321,9 @@ class Inference:
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
-            bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
-
-    ) -> (np.ndarray, Optional[np.ndarray]):
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean'
+    ) -> Tuple[Dict[str, np.ndarray], Dict[str, Optional[np.ndarray]]]:
         """
         Get values and errors of discretized DFE.
 
@@ -366,7 +333,8 @@ class Inference:
         :param ci_level: Confidence interval level
         :param confidence_intervals: Whether to compute confidence intervals
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
-        :return: Array of values and array of errors
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
+        :return: Dictionary of values and dictionary of errors indexed by labels.
         """
         values = {}
         errors = {}
@@ -375,31 +343,23 @@ class Inference:
 
             if confidence_intervals and inf.bootstraps is not None:
                 # get bootstraps and errors if specified
-                errs, _, bs, means, vals = Inference.get_stats_discretized(
+                values[label], errors[label], _ = Inference.get_stats_discretized(
                     params=inf.get_bootstrap_params(),
                     bootstraps=inf.bootstraps,
                     model=inf.model,
                     ci_level=ci_level,
                     intervals=intervals,
-                    bootstrap_type=bootstrap_type
+                    bootstrap_type=bootstrap_type,
+                    point_estimate=point_estimate
                 )
             else:
                 # otherwise just get discretized values
-                vals = Inference.compute_histogram(
+                values[label] = Inference.compute_histogram(
                     params=inf.get_bootstrap_params(),
                     model=inf.model,
                     intervals=intervals
                 )
-                errs, means, bs = None, None, None
-
-            # whether to use the mean of all bootstraps instead of the original values
-            use_means = confidence_intervals and inf.bootstraps is not None and bootstrap_type == 'percentile'
-
-            if use_means:
-                vals = np.mean(bs, axis=0)
-
-            values[label] = vals
-            errors[label] = errs
+                errors[label] = None
 
         return values, errors
 
@@ -410,9 +370,9 @@ class Inference:
             model: Parametrization | str,
             ci_level: float = 0.05,
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
-            bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
-
-    ) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean'
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Compute errors and confidence interval for a discretized DFE.
 
@@ -422,7 +382,8 @@ class Inference:
         :param ci_level: Confidence interval level
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
         :param bootstrap_type: Type of bootstrap
-        :return: Arrays of errors, confidence intervals, bootstraps, means and values
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
+        :return: Center values, errors around center, and confidence intervals.
         """
         # discretize MLE DFE
         values = Inference.compute_histogram(model, params, intervals)
@@ -431,17 +392,13 @@ class Inference:
         # get discretized DFE per bootstrap sample
         bs = np.array([Inference.compute_histogram(model, dict(r), intervals) for _, r in bootstraps.iterrows()])
 
-        errors, cis = Bootstrap.get_errors(
+        return Bootstrap.get_errors(
             values=values,
             bs=bs,
             bootstrap_type=bootstrap_type,
-            ci_level=ci_level
+            ci_level=ci_level,
+            point_estimate=point_estimate
         )
-
-        # calculate mean values
-        means = np.mean(bs, axis=0)
-
-        return errors, cis, bs, means, values
 
     @staticmethod
     def compute_histogram(
@@ -464,7 +421,7 @@ class Inference:
         return y / y.sum()
 
 
-class AbstractInference(ABC):
+class AbstractInference(Serializable, ABC):
     """
     Base class for main Inference and polyDFE wrapper.
     """
@@ -495,15 +452,17 @@ class AbstractInference(ABC):
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
-            bootstrap_type: Literal['percentile', 'bca'] = 'percentile'
-    ) -> (np.ndarray, np.ndarray):
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean'
+    ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
         """
         Get discretized DFE.
 
-        :param bootstrap_type: Type of bootstrap
-        :param ci_level: Confidence interval level
-        :param confidence_intervals: Whether to return confidence intervals
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bins.
+        :param confidence_intervals: Whether to return confidence intervals
+        :param ci_level: Confidence interval level
+        :param bootstrap_type: Type of bootstrap
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :return: Array of values and array of deviations
         """
         values, errors = Inference.get_discretized(
@@ -512,7 +471,8 @@ class AbstractInference(ABC):
             intervals=intervals,
             confidence_intervals=confidence_intervals,
             ci_level=ci_level,
-            bootstrap_type=bootstrap_type
+            bootstrap_type=bootstrap_type,
+            point_estimate=point_estimate
         )
 
         return values['all'], errors['all']
@@ -525,6 +485,7 @@ class AbstractInference(ABC):
             confidence_intervals: bool = True,
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean',
             title: str = 'discretized DFE',
             ax: 'plt.Axes' = None,
             kwargs_legend: dict = dict(prop=dict(size=8)),
@@ -532,13 +493,14 @@ class AbstractInference(ABC):
         """
         Plot discretized DFE.
 
-        :param title: Title of the plot
-        :param bootstrap_type: Type of bootstrap
-        :param ci_level: Confidence interval level
-        :param confidence_intervals: Whether to plot confidence intervals
         :param file: File to save the plot to
         :param show: Whether to show the plot
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
+        :param confidence_intervals: Whether to plot confidence intervals
+        :param ci_level: Confidence interval level
+        :param bootstrap_type: Type of bootstrap
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
+        :param title: Title of the plot
         :param ax: Axes to plot on. Only for Python visualization backend.
         :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
         :return: Axes
@@ -551,73 +513,11 @@ class AbstractInference(ABC):
             confidence_intervals=confidence_intervals,
             ci_level=ci_level,
             bootstrap_type=bootstrap_type,
+            point_estimate=point_estimate,
             title=title,
             kwargs_legend=kwargs_legend,
             ax=ax
         )
-
-    def get_cis_params_mle(
-            self,
-            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
-            ci_level: float = 0.05,
-            param_names: Optional[list[str]] = None
-    ) -> Dict[str, Tuple[float, float]]:
-        """
-        Get confidence intervals for the MLE parameters.
-
-        :param bootstrap_type: Type of bootstrap
-        :param ci_level: Confidence interval level
-        :param param_names: Names of the parameters to return confidence intervals for
-        :return: Confidence intervals for the parameters
-        """
-        if param_names is None:
-            param_names = self.get_bootstrap_param_names()
-
-        return Inference.get_cis_params_mle(
-            inferences=[self],
-            bootstrap_type=bootstrap_type,
-            ci_level=ci_level,
-            param_names=param_names,
-            labels=['all']
-        )['all']
-
-    def to_json(self) -> str:
-        """
-        Serialize object.
-
-        :return: JSON string
-        """
-        return jsonpickle.encode(self, indent=4, warn=True)
-
-    def to_file(self, file: str):
-        """
-        Save object to file.
-
-        :param file: File to save to
-        """
-        with open(file, 'w') as fh:
-            fh.write(self.to_json())
-
-    @classmethod
-    def from_json(cls, json: str, classes=None) -> Self:
-        """
-        Unserialize object.
-
-        :param classes: Classes to be used for unserialization
-        :param json: JSON string
-        """
-        return jsonpickle.decode(json, classes=classes)
-
-    @classmethod
-    def from_file(cls, file: str, classes=None) -> Self:
-        """
-        Load object from file.
-
-        :param classes: Classes to be used for unserialization
-        :param file: File to load from
-        """
-        with open(file, 'r') as fh:
-            return cls.from_json(fh.read(), classes)
 
     @abstractmethod
     def get_bootstrap_param_names(self) -> List[str]:

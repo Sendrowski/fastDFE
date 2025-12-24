@@ -40,8 +40,8 @@ fig.tight_layout(pad=4)
 ones = np.ones(d.n_intervals - 1)
 
 for i in range(1, n):
-    ax1.plot(np.arange(d.n_intervals - 1), d.get_allele_count(d.s[d.s != 0], i * ones), label=f"i={i}")
-    ax2.plot(np.arange(d.n_intervals - 1), d.get_allele_count_regularized(d.s[d.s != 0], i * ones),
+    ax1.plot(np.arange(d.n_intervals - 1), d.get_counts_semidominant_unregularized(d.s[d.s != 0], i * ones), label=f"i={i}")
+    ax2.plot(np.arange(d.n_intervals - 1), d.get_counts_semidominant_regularized(d.s[d.s != 0], i * ones),
              label=f"i={i}")
 
 ax1.set_title('allele counts')

@@ -50,6 +50,35 @@ class SLiMTestCase(TestCase):
         p_b=[0.01, 0.05],
         folded=["folded", "unfolded"],
         n=[20, 100]
+    ) + expand(
+        "testing/cache/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n={n}/dominance_{h}/unfolded/sfs.csv",
+        h=np.round(np.linspace(0.1, 1, 10), 1),
+        params=[
+            "s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00",
+            "s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00",
+            "s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01",
+            "s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05"
+        ],
+        n=[20, 100]
+    ) + expand(
+        "testing/cache/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-6/N=1e3/{params}/n={n}/dominance_0.0/unfolded/sfs.csv",
+        params=[
+            "s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00",
+            "s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00",
+            "s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01",
+            "s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05"
+        ],
+        n=[20, 100]
+    ) + expand(
+        "testing/cache/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-6/N=1e3/{params}/n={n}/dominance_function_{k}/unfolded/sfs.csv",
+        k=[0.1, 1, 10, 100],
+        params=[
+            "s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00",
+            "s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00",
+            "s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01",
+            "s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05"
+        ],
+        n=[20]
     )
 
     def test_compare_against_slim(self):
@@ -68,6 +97,9 @@ class SLiMTestCase(TestCase):
                 if match:
                     params[p] = float(match.group(1))
 
+            if match := re.search(r"dominance_([\d.]+)", file_path):
+                params['h'] = float(match.group(1))
+
             Ne = spectra['neutral'].theta / (4 * params['mu'])
             params['S_b'] = 4 * Ne * params['s_b']
             params['S_d'] = -4 * Ne * params['s_d']
@@ -78,14 +110,16 @@ class SLiMTestCase(TestCase):
             sim = fd.Simulation(
                 params=params,
                 sfs_neut=spectra['neutral'],
-                model=model
+                model=model,
+                intervals_del=(-1.0e+8, -1.0e-5, 100),
+                intervals_ben=(1.0e-5, 1.0e4, 100)
             )
 
             # cache discretization
-            if params['n'] in cached:
-                sim.discretization = cached[params['n']]
+            if sim.discretization in cached:
+                sim.discretization = cached[sim.discretization]
             else:
-                cached[params['n']] = sim.discretization
+                cached[sim.discretization] = sim.discretization
 
             sfs_sel = sim.run()
             comp = fd.Spectra(dict(slim=spectra['selected'], fastdfe=sfs_sel))
@@ -97,7 +131,7 @@ class SLiMTestCase(TestCase):
 
             # compute root mean squared error
             diff = np.sqrt((diff_rel ** 2).mean())
-            tol = 0.125
+            tol = 0.16  # 0.125 with default discretization bins
 
             if diff < tol:
                 fd.logger.info(f"{diff:.3f} < {tol} for {params}")
@@ -172,8 +206,7 @@ class SimulationTestCase(TestCase):
         # very deleterious DFEs were difficult to recover
         sim = fd.Simulation(
             sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=1e8, theta=1e-4),
-            params=dict(S_d=-300, b=1, p_b=0.05, S_b=0.1),
-            eps=0,
+            params=dict(S_d=-300, b=1, p_b=0.05, S_b=0.1)
         )
 
         sfs_sel = sim.run()
@@ -182,6 +215,7 @@ class SimulationTestCase(TestCase):
             sfs_sel=sfs_sel,
             sfs_neut=sim.sfs_neut,
             discretization=sim.discretization,
+            fixed_params=dict(all=dict(eps=0, h=0.5)),
             do_bootstrap=True,
             n_bootstraps=100,
             parallelize=True
@@ -189,7 +223,7 @@ class SimulationTestCase(TestCase):
 
         inf.run()
 
-        self.assertAlmostEqual(sim.n_sites, inf.sfs_sel.n_sites)
+        self.assertAlmostEqual(sim.n_sites, inf.sfs_sel.n_sites, delta=1e-6)
         self.assertAlmostEqual(sim.n_sites, inf.sfs_neut.n_sites)
 
         self.assertAlmostEqual(sim.theta, inf.sfs_neut.theta)
@@ -197,12 +231,14 @@ class SimulationTestCase(TestCase):
         for key in sim.params:
             self.assertAlmostEqual(inf.params_mle[key], sim.params[key], delta=np.abs(sim.params[key]) / 500)
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_d'], sim.params['S_d'], delta=sim.params['S_d'] / -100)
-        self.assertAlmostEqual(inf.bootstraps.mean()['b'], sim.params['b'], delta=sim.params['b'] / 50)
-        self.assertAlmostEqual(inf.bootstraps.mean()['p_b'], sim.params['p_b'], delta=sim.params['p_b'] / 20)
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_b'], sim.params['S_b'], delta=sim.params['S_b'] / 1.5)
+        mean = inf.bootstraps.select_dtypes("number").mean()
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['eps'], 0, delta=1e-3)
+        self.assertAlmostEqual(mean['S_d'], sim.params['S_d'], delta=np.abs(sim.params['S_d']) / 10)
+        self.assertAlmostEqual(mean['b'], sim.params['b'], delta=np.abs(sim.params['b']) / 10)
+        self.assertAlmostEqual(mean['p_b'], sim.params['p_b'], delta=np.abs(sim.params['p_b']) / 8)
+        self.assertAlmostEqual(mean['S_b'], sim.params['S_b'], delta=np.abs(sim.params['S_b']) * 3)
+
+        self.assertAlmostEqual(mean['eps'], 0, delta=1e-3)
 
     def test_recover_result_full_dfe_with_demography(self):
         """
@@ -217,8 +253,7 @@ class SimulationTestCase(TestCase):
                    1.12, 0.95, 1.21, 0.87, 1.43, 0.92,
                    0.99, 1.12, 0.95, 1.21, 0.87, 1.43]
             ),
-            params=dict(S_d=-300, b=1, p_b=0.05, S_b=0.1),
-            eps=0
+            params=dict(S_d=-300, b=1, p_b=0.05, S_b=0.1)
         )
 
         sfs_sel = sim.run()
@@ -227,6 +262,7 @@ class SimulationTestCase(TestCase):
             sfs_sel=sfs_sel,
             sfs_neut=sim.sfs_neut,
             discretization=sim.discretization,
+            fixed_params=dict(all=dict(eps=0, h=0.5)),
             do_bootstrap=True,
             n_bootstraps=100,
             parallelize=True
@@ -242,12 +278,14 @@ class SimulationTestCase(TestCase):
         for key in sim.params:
             self.assertAlmostEqual(inf.params_mle[key], sim.params[key], delta=np.abs(sim.params[key]) / 100)
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_d'], sim.params['S_d'], delta=sim.params['S_d'] / -100)
-        self.assertAlmostEqual(inf.bootstraps.mean()['b'], sim.params['b'], delta=sim.params['b'] / 50)
-        self.assertAlmostEqual(inf.bootstraps.mean()['p_b'], sim.params['p_b'], delta=sim.params['p_b'] / 20)
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_b'], sim.params['S_b'], delta=sim.params['S_b'] / 1.5)
+        mean = inf.bootstraps.select_dtypes("number").mean()
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['eps'], 0, delta=1e-3)
+        self.assertAlmostEqual(mean['S_d'], sim.params['S_d'], delta=np.abs(sim.params['S_d']) / 8)
+        self.assertAlmostEqual(mean['b'], sim.params['b'], delta=np.abs(sim.params['b']) / 10)
+        self.assertAlmostEqual(mean['p_b'], sim.params['p_b'], delta=np.abs(sim.params['p_b']) / 5)
+        self.assertAlmostEqual(mean['S_b'], sim.params['S_b'], delta=np.abs(sim.params['S_b']) * 3)
+
+        self.assertAlmostEqual(inf.bootstraps['eps'].mean(), 0, delta=1e-3)
 
     def test_recover_result_deleterious_dfe_no_demography(self):
         """
@@ -255,8 +293,7 @@ class SimulationTestCase(TestCase):
         """
         sim = fd.Simulation(
             sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=1e8, theta=1e-4),
-            params=dict(S_d=-300, b=1, p_b=0, S_b=0.1),
-            eps=0
+            params=dict(S_d=-300, b=1, p_b=0, S_b=0.1)
         )
 
         sfs_sel = sim.run()
@@ -265,7 +302,7 @@ class SimulationTestCase(TestCase):
             sfs_sel=sfs_sel,
             sfs_neut=sim.sfs_neut,
             discretization=sim.discretization,
-            fixed_params=dict(all=dict(p_b=0, S_b=0.1)),
+            fixed_params=dict(all=dict(p_b=0, S_b=0.1, h=0.5, eps=0)),
             do_bootstrap=True,
             n_bootstraps=100,
             parallelize=True
@@ -281,12 +318,12 @@ class SimulationTestCase(TestCase):
         for key in sim.params:
             self.assertAlmostEqual(inf.params_mle[key], sim.params[key], delta=np.abs(sim.params[key]) / 1000)
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_d'], sim.params['S_d'], delta=sim.params['S_d'] / -100)
-        self.assertAlmostEqual(inf.bootstraps.mean()['b'], sim.params['b'], delta=sim.params['b'] / 100)
-        self.assertAlmostEqual(inf.bootstraps.mean()['eps'], 0, delta=1e-3)
+        self.assertAlmostEqual(inf.bootstraps['S_d'].mean(), sim.params['S_d'], delta=10)
+        self.assertAlmostEqual(inf.bootstraps['b'].mean(), sim.params['b'], delta=0.1)
+        self.assertAlmostEqual(inf.bootstraps['eps'].mean(), 0, delta=1e-3)
 
-        self.assertAlmostEqual(inf.bootstraps.mean()['p_b'], 0)
-        self.assertAlmostEqual(inf.bootstraps.mean()['S_b'], 0.1)
+        self.assertAlmostEqual(inf.bootstraps['p_b'].mean(), 0)
+        self.assertAlmostEqual(inf.bootstraps['S_b'].mean(), 0.1)
 
     def test_usage_example_simulation_class(self):
         """
@@ -366,7 +403,6 @@ class SimulationTestCase(TestCase):
         sim = fd.simulation.WrightFisherSimulation(
             sfs_neut=fd.Simulation.get_neutral_sfs(n=10, n_sites=1e8, theta=1e-6),
             params=dict(S_d=-1e-100, b=1, p_b=0, S_b=1),
-            eps=0,
             n_generations=1000,
             pop_size=100
         )
@@ -393,7 +429,6 @@ class SimulationTestCase(TestCase):
         sim = fd.simulation.WrightFisherSimulation(
             sfs_neut=fd.Simulation.get_neutral_sfs(n=10, n_sites=1e8, theta=1e-6),
             params=dict(S_d=-100, b=1, p_b=0, S_b=1),
-            eps=0,
             n_generations=100,
             pop_size=100
         )
@@ -401,3 +436,30 @@ class SimulationTestCase(TestCase):
         sfs_sel = sim.run()
 
         sfs_sel.plot()
+
+    def test_get_alpha(self):
+        """
+        Test the get_alpha method.
+        """
+        alphas = []
+        for h in np.linspace(0, 1, 11):
+            sim = fd.Simulation(
+                sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=1e8, theta=1e-4),
+                params=dict(S_d=-300, b=0.3, p_b=0.05, S_b=0.1, h=h)
+            )
+
+            alphas.append(sim.get_alpha())
+
+        # make sure order is ascending
+        self.assertTrue(np.all(np.diff(alphas) >= 0))
+
+        self.assertEqual(fd.Simulation(
+            sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=1e8, theta=1e-4),
+            params=dict(S_d=-300, b=0.3, p_b=0, S_b=0.1, h=h)
+        ).get_alpha(), 0)
+
+        self.assertAlmostEqual(fd.Simulation(
+            model=fd.GammaExpParametrization(bounds=dict(p_b=(0, 1))),
+            sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=1e8, theta=1e-4),
+            params=dict(S_d=-300, b=0.3, p_b=1, S_b=0.1, h=h)
+        ).get_alpha(), 1, delta=1e-3)

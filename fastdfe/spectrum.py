@@ -8,6 +8,7 @@ __date__ = "2022-07-24"
 
 import logging
 from typing import Dict, List, Union, Iterable, Any, Literal, Sequence
+from numpy.random import Generator
 
 import numpy as np
 import pandas as pd
@@ -213,7 +214,7 @@ class Spectrum(Iterable):
             self,
             n: int,
             mode: Literal['random', 'probabilistic'] = 'probabilistic',
-            seed: int | None = None
+            seed: int | Generator = None
     ) -> 'Spectrum':
         """
         Subsample spectrum to a given sample size.
@@ -225,7 +226,7 @@ class Spectrum(Iterable):
 
         :param n: Sample size
         :param mode: Subsampling mode. Either 'random' or 'probabilistic'.
-        :param seed: Seed for random number generator. Only for 'random' mode.
+        :param seed: Random state or seed. Only for 'random' mode.
         :return: Subsampled spectrum
         """
         if n >= self.n:
@@ -263,18 +264,21 @@ class Spectrum(Iterable):
 
         return sfs
 
-    def resample(self, seed: int = None) -> 'Spectrum':
+    def resample(self, seed: int | Generator = None) -> 'Spectrum':
         """
         Resample SFS assuming independent Poisson counts.
 
-        :param seed: Seed for random number generator.
+        :param seed: Random state or seed
         :return: Resampled spectrum.
         """
-        seed = None if seed is None else int(seed)
+        if isinstance(seed, Generator):
+            rng = seed
+        else:
+            rng = np.random.default_rng(None if seed is None else int(seed))
 
         return Spectrum.from_polydfe(
             # resample polymorphic sites only
-            polymorphic=np.random.default_rng(seed=seed).poisson(lam=self.polymorphic),
+            polymorphic=rng.poisson(lam=self.polymorphic),
             n_sites=self.n_sites,
             n_div=self.n_div
         )
@@ -429,6 +433,14 @@ class Spectrum(Iterable):
         :return: Iterator
         """
         return self.data.__iter__()
+
+    def __len__(self) -> int:
+        """
+        Get length of spectrum (including monomorphic and fixed counts).
+
+        :return: Length of spectrum
+        """
+        return self.data.shape[0]
 
     def plot(
             self,
@@ -1044,7 +1056,8 @@ class Spectra:
     def subsample(
             self,
             n: int,
-            mode: Literal['random', 'probabilistic'] = 'probabilistic'
+            mode: Literal['random', 'probabilistic'] = 'probabilistic',
+            seed: int | Generator = None
     ) -> 'Spectra':
         """
         Subsample spectra to a given sample size.
@@ -1056,9 +1069,19 @@ class Spectra:
 
         :param n: Sample size
         :param mode: Subsampling mode. Either 'random' or 'probabilistic'.
+        :param seed: Random state or seed. Only for 'random' mode.
         :return: Subsampled spectra
         """
-        return Spectra.from_spectra({t: s.subsample(n, mode) for t, s in self.to_spectra().items()})
+        return Spectra.from_spectra({t: s.subsample(n, mode, seed) for t, s in self.to_spectra().items()})
+
+    def resample(self, seed: int | Generator = None) -> 'Spectra':
+        """
+        Resample SFS assuming independent Poisson counts.
+
+        :param seed: Random state or seed
+        :return: Resampled spectra.
+        """
+        return Spectra.from_spectra({t: s.resample(seed) for t, s in self.to_spectra().items()})
 
     def is_folded(self) -> Dict[str, bool]:
         """
