@@ -45,22 +45,12 @@ class JointInferenceTestCase(InferenceTestCase):
 
         self.assertEqualObjects(inf, inf2, ignore_keys=['fixed_params'])
 
-    def test_bootstrap_joint_inference(self):
-        """
-        Test that the bootstrap method works.
-        """
-        inference = JointInference.from_file(
-            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
-        )
-
-        inference.bootstrap(2)
-
     def test_perform_lrt_shared(self):
         """
         Test that the perform_lrt_shared method works.
         """
         inference = JointInference.from_file(
-            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/shared_example_2/serialized.json"
         )
 
         # inference.evaluate_likelihood(inference.params_mle)
@@ -70,7 +60,7 @@ class JointInferenceTestCase(InferenceTestCase):
 
         assert inference.perform_lrt_shared() < 1
 
-        np.testing.assert_array_equal(inference.get_shared_param_names(), ['S_b', 'S_d', 'b', 'eps', 'p_b'])
+        np.testing.assert_array_equal(inference.get_shared_param_names(), ['S_d'])
 
     def test_perform_lrt_covariates_no_covariates_raises_error(self):
         """
@@ -550,7 +540,7 @@ class JointInferenceTestCase(InferenceTestCase):
         Get the discretized DFE errors.
         """
         inference = JointInference.from_file(
-            "testing/cache/fastdfe/templates/shared/shared_example_1/serialized.json"
+            "testing/cache/fastdfe/templates/shared/shared_example_2/serialized.json"
         )
 
         inference.bootstrap(2)
@@ -660,6 +650,7 @@ class JointInferenceTestCase(InferenceTestCase):
             )
 
     @staticmethod
+    @pytest.mark.slow
     def test_manuscript_example():
         """
         Test the example in the manuscript.

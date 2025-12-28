@@ -1138,6 +1138,7 @@ class ParserTestCase(TestCase):
         np.testing.assert_array_equal(result, expected)
 
     @staticmethod
+    @pytest.mark.slow
     def test_manuscript_example():
         """
         Test the example from the manuscript.

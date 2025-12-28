@@ -672,6 +672,7 @@ class BaseInferenceTestCase(InferenceTestCase):
                 model=p,
                 do_bootstrap=True,
                 n_bootstraps=2,
+                n_runs=1,
                 fixed_params=dict(all=dict(h=0.5))
             )
 

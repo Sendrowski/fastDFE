@@ -3,7 +3,10 @@ covariates: []
 do_bootstrap: false
 fixed_params:
   all: {
-    h: 0.5
+    h: 0.5,
+    S_b: 1,
+    eps: 0,
+    p_b: 0
   }
 integration_mode: midpoint
 intervals_ben:
