@@ -170,7 +170,7 @@ class Spectrum(Iterable):
     @property
     def Theta(self) -> float:
         """
-        Calculate population mutation rate using Watterson's estimator.
+        Calculate genome-wide population mutation rate using Watterson's estimator.
 
         .. note:: Property :attr:`Theta` is not normalized by the total number of sites, unlike :attr:`theta`.
         """
@@ -611,7 +611,7 @@ class Spectra:
     @property
     def Theta(self) -> pd.Series:
         """
-        Calculate population mutation rate using Watterson's estimator.
+        Calculate genome-wide population mutation rate using Watterson's estimator.
 
         .. note:: Property :attr:`Theta` is not normalized by the total number of sites, unlike :attr:`theta`.
         """
