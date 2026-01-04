@@ -1,5 +1,5 @@
 """
-Plot SFS from different demographic scenarios.
+Combine DFE plots.
 """
 import re
 import sys

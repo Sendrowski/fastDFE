@@ -37,15 +37,15 @@ except NameError:
 
     # testing
     testing = True
-    sfs_file = 'results/slim/n_replicate=3/n_chunks=8/g=1e4/L=1e7/mu=1e-8/r=1e-6/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/dominance_function_10/unfolded/sfs.csv'
+    sfs_file = 'results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/constant/unfolded/sfs.csv'
     s_b = get_param(sfs_file, 's_b')
     b = get_param(sfs_file, '/b')
     s_d = get_param(sfs_file, 's_d')
     p_b = get_param(sfs_file, 'p_b')
     n = 20
-    h = float(re.search(r"dominance_function_([\d.]+)", sfs_file).group(1))
+    h = float(re.search(r"dominance_function_([\d.]+)", sfs_file).group(1)) if "dominance" in sfs_file else 0.5
     mu = 1e-8
-    demography = "dominance_function"
+    demography = "constant"
     parallelize = True
     title = f"$s_b$={s_b:.0e}, $b$={b}, $s_d$={s_d:.0e}, $p_b$={p_b}"
     out_sfs = "scratch/sfs.csv"
