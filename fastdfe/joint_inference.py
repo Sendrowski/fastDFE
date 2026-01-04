@@ -61,7 +61,6 @@ class JointInference(BaseInference):
         inf = fd.JointInference(
             sfs_neut=sfs_neut,
             sfs_sel=sfs_sel,
-            fixed_params=dict(eps=0), # fix eps to 0
             do_bootstrap=True
         )
 
@@ -682,7 +681,7 @@ class JointInference(BaseInference):
         )
 
     @BaseInference._run_if_required_wrapper
-    def perform_lrt_covariates(self, do_bootstrap: bool = True) -> float:
+    def perform_lrt_covariates(self, do_bootstrap: bool = False) -> float:
         """
         Perform likelihood ratio test against joint inference without covariates.
         In the simple model we share parameters across types. Low p-values indicate that
@@ -691,8 +690,7 @@ class JointInference(BaseInference):
         To access the JointInference object without covariates, you can call :meth:`run_joint_without_covariates`,
         which is cached.
 
-        :param do_bootstrap: Whether to bootstrap. This improves the accuracy of the p-value. Note
-            that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
+        :param do_bootstrap: Whether to bootstrap.
         :return: Likelihood ratio test p-value.
         """
         if len(self.covariates) == 0:
@@ -799,7 +797,7 @@ class JointInference(BaseInference):
             self,
             n_samples: int = None,
             parallelize: bool = None,
-            update_likelihood: bool = True,
+            update_likelihood: bool = False,
             n_retries: int = None,
             pbar: bool = True,
             pbar_title: str = 'Bootstrapping joint inference'
@@ -809,7 +807,9 @@ class JointInference(BaseInference):
 
         :param n_samples: Number of bootstrap samples. Defaults to :attr:`n_bootstraps`.
         :param parallelize: Whether to parallelize the bootstrap. Defaults to :attr:`parallelize`.
-        :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples.
+        :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples and
+            the original likelihood. This is not statistically valid but can stabilize maximum likelihood estimate
+            subject optimization noise.
         :param n_retries: Number of optimization runs for each bootstrap sample. Defaults to
             :attr:`n_bootstrap_retries`.
         :param pbar: Whether to show a progress bar.
@@ -896,7 +896,7 @@ class JointInference(BaseInference):
         return merge_dicts(packed, {':'.join(self.types): self._x0_cov})
 
     @BaseInference._run_if_required_wrapper
-    def perform_lrt_shared(self, do_bootstrap: bool = True) -> float:
+    def perform_lrt_shared(self, do_bootstrap: bool = False) -> float:
         """
         Compare likelihood of joint inference with product of marginal likelihoods.
         This provides information about the goodness of fit achieved by the parameter sharing.
@@ -905,8 +905,7 @@ class JointInference(BaseInference):
         optimize the joint likelihood, which makes this test conservative, i.e., the reported p-value
         may be larger than what it should be.
 
-        :param do_bootstrap: Whether to perform bootstrapping. This improves the accuracy of the p-value. Note
-            that if bootstrapping was performed previously without updating the likelihood, this won't have any effect.
+        :param do_bootstrap: Whether to perform bootstrapping.
         :return: p-value
         """
         if do_bootstrap:
@@ -915,7 +914,7 @@ class JointInference(BaseInference):
         # determine likelihood of marginal inferences
         ll_marginal = sum([inf.likelihood for inf in self.marginals_without_all().values()])
 
-        # determine number of parameters
+        # determine number of parameters, fixed parameters cancel out
         n_marginal = np.sum([len(inf.params_mle) for inf in self.marginals_without_all().values()])
         n_joint = len(flatten_dict(self.get_x0()))
 

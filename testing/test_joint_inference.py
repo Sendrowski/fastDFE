@@ -133,7 +133,7 @@ class JointInferenceTestCase(InferenceTestCase):
             covariates=[Covariate(param='S_d', values=dict(pendula=0.3, pubescens=0.6))]
         )
 
-        assert inf.perform_lrt_covariates()
+        assert inf.perform_lrt_covariates() < 1
 
     def test_plot_inferred_parameters_boxplot(self):
         """
@@ -470,9 +470,9 @@ class JointInferenceTestCase(InferenceTestCase):
         # run inference
         inf.run()
 
-        inf_no_cov = inf.run_joint_without_covariates(do_bootstrap=True)
+        inf_no_cov = inf.run_joint_without_covariates()
 
-        p = inf.perform_lrt_covariates(do_bootstrap=True)
+        p = inf.perform_lrt_covariates()
 
         inf.plot_inferred_parameters()
 
@@ -502,9 +502,9 @@ class JointInferenceTestCase(InferenceTestCase):
         # run inference
         inf.run()
 
-        inf_no_cov = inf.run_joint_without_covariates(do_bootstrap=True)
+        inf_no_cov = inf.run_joint_without_covariates()
 
-        p = inf.perform_lrt_covariates(do_bootstrap=True)
+        p = inf.perform_lrt_covariates()
 
         inf.plot_inferred_parameters()
 

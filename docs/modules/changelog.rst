@@ -3,6 +3,11 @@
 Changelog
 =========
 
+[1.2.1] - 2026-01-04
+^^^^^^^^^^^^^^^^^^^^
+- Don't average likelihood over bootstraps by default as it may mitigate optimization noise but is not statistically sound (see `update_likelihood <../search.html?q=update_likelihood>`_).
+- Set ``do_bootstrap`` flag to false by default for methods performing nested model comparison.
+
 [1.2.0] - 2025-12-24
 ^^^^^^^^^^^^^^^^^^^^
 - Adding dominance coefficient ``h`` to DFE inference. ``h`` can either be fixed or inferred jointly with the DFE parameters. We can also introduce a relationship between ``h`` and ``S`` (see `h_callback <../search.html?q=h_callback>`_). When estimating ``h``, precomputation over a grid of dominance coefficients takes some time. Implementation was validated with ``SLiM``.

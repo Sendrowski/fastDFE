@@ -665,7 +665,7 @@ class BaseInference(AbstractInference):
             self,
             n_samples: int = None,
             parallelize: bool = None,
-            update_likelihood: bool = True,
+            update_likelihood: bool = False,
             n_retries: int = None,
             pbar: bool = True,
             pbar_title: str = 'Bootstrapping'
@@ -675,7 +675,9 @@ class BaseInference(AbstractInference):
 
         :param n_samples: Number of bootstrap samples. Defaults to :attr:`n_bootstraps`.
         :param parallelize: Whether to parallelize the bootstrap. Defaults to :attr:`parallelize`.
-        :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples.
+        :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples and
+            the original likelihood. This is not statistically valid but can stabilize maximum likelihood estimate
+            subject optimization noise.
         :param n_retries: Number of optimization runs for each bootstrap sample. Defaults to
             :attr:`n_bootstrap_retries`.
         :param pbar: Whether to show a progress bar.
@@ -703,7 +705,7 @@ class BaseInference(AbstractInference):
             self,
             n_samples: int = None,
             parallelize: bool = None,
-            update_likelihood: bool = True,
+            update_likelihood: bool = False,
             n_retries: int = None,
             pbar: bool = True,
             pbar_title: str = 'Bootstrapping',
@@ -713,7 +715,9 @@ class BaseInference(AbstractInference):
 
         :param n_samples: Number of bootstrap samples. Defaults to :attr:`n_bootstraps`.
         :param parallelize: Whether to parallelize the bootstrap. Defaults to :attr:`parallelize`.
-        :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples.
+        :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples and
+            the original likelihood. This is not statistically valid but can stabilize maximum likelihood estimate
+            subject optimization noise.
         :param n_retries: Number of optimization runs for each bootstrap sample. Defaults to
             :attr:`n_bootstrap_retries`.
         :param pbar: Whether to show a progress bar.
@@ -1485,13 +1489,13 @@ class BaseInference(AbstractInference):
 
     @_run_if_required_wrapper
     @functools.lru_cache
-    def compare_nested_models(self, do_bootstrap: bool = True) -> Tuple[np.ndarray, Dict[str, 'BaseInference']]:
+    def compare_nested_models(self, do_bootstrap: bool = False) -> Tuple[np.ndarray, Dict[str, 'BaseInference']]:
         """
         Compare the various nested versions of the specified
         model using likelihood ratio tests. We check for inclusion of ancestral misidentification
         and beneficial mutations.
 
-        :param do_bootstrap: Whether to perform bootstrapping. This is recommended to get more accurate p-values.
+        :param do_bootstrap: Whether to perform bootstrapping.
         :return: Matrix of p-values, dict of base inference objects
         """
 
@@ -1560,8 +1564,7 @@ class BaseInference(AbstractInference):
             cmap: str = None,
             title: str = 'nested model comparison',
             ax: 'plt.Axes' = None,
-            do_bootstrap: bool = True,
-
+            do_bootstrap: bool = False,
     ) -> 'plt.Axes':
         """
         Plot the p-values of nested likelihoods.
@@ -1573,7 +1576,7 @@ class BaseInference(AbstractInference):
         :param cmap: Colormap to use.
         :param title: Plot title.
         :param ax: Axes to plot on. Only for Python visualization backend.
-        :param do_bootstrap: Whether to perform bootstrapping. This is recommended to get more accurate p-values.
+        :param do_bootstrap: Whether to perform bootstrapping.
         :return: Axes object
         """
         from .visualization import Visualization

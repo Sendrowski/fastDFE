@@ -520,17 +520,6 @@ class BaseInferenceTestCase(InferenceTestCase):
         inference.plot_nested_models(remove_empty=True)
         inference.plot_nested_models(transpose=True)
 
-    def test_compare_nested_without_bootstrap(self):
-        """
-        Compare nested likelihoods.
-        """
-        # unserialize
-        inference = fd.BaseInference.from_config_file(self.config_file)
-
-        inference.compare_nested_models(do_bootstrap=False)
-
-        inference.plot_nested_models(do_bootstrap=False)
-
     def test_compare_nested_different_parametrizations_raises_error(self):
         """
         Make sure that comparing nested likelihoods with different parametrizations raises an error.
