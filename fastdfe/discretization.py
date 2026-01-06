@@ -530,7 +530,7 @@ class Discretization:
         # return single precomputed value if h is fixed
         if self.h is not None:
 
-            if h != self.h:
+            if not np.isclose(h, self.h):
                 raise ValueError(f'Dominance coefficient {h} does not match precomputed value {self.h}.')
 
             return self._cache[:, 0, :]
