@@ -337,7 +337,7 @@ class AnnotationTestCase(TestCase):
         syn = fd.SynonymyAnnotation()
 
         ann = fd.Annotator(
-            vcf="snakemake/results/vcf/hgdp/21/opts.vep.vcf.gz",
+            vcf="snakemake/results/vcf/sapiens/chr21.vep.vcf.gz",
             output="scratch/test_compare_synonymy_annotation_with_vep_hgdp_chr21.vcf",
             fasta="snakemake/results/fasta/hgdp/21.fasta.gz",
             gff="snakemake/results/gff/hgdp/21.gff3.gz",

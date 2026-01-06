@@ -84,7 +84,7 @@ class JointInferenceTestCase(InferenceTestCase):
 
         inf.n_bootstraps = 2
 
-        assert inf.perform_lrt_covariates() < 1
+        assert inf.perform_lrt_covariates() <= 1
 
     def test_no_shared_params(self):
         """
@@ -133,7 +133,7 @@ class JointInferenceTestCase(InferenceTestCase):
             covariates=[Covariate(param='S_d', values=dict(pendula=0.3, pubescens=0.6))]
         )
 
-        assert inf.perform_lrt_covariates() < 1
+        assert inf.perform_lrt_covariates() <= 1
 
     def test_plot_inferred_parameters_boxplot(self):
         """

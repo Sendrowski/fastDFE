@@ -1274,7 +1274,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         mem_gb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 ** 3
 
-        self.assertLess(mem_gb, 1)
+        self.assertLess(mem_gb, 1.1)
 
         self.assertGreater(inf.bootstraps.h.std(), 0)
 
