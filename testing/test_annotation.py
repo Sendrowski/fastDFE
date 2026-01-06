@@ -1218,10 +1218,12 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             cache="testing/cache/est-sfs/test_papio_thorough_three_outgroups.json"
         )
 
-        diff_params = np.array(list(anc2.params_mle.values())) / np.array(list(anc.params_mle.values()))
+        params = np.array(list(anc.params_mle.values()))
+        params2 = np.array(list(anc2.params_mle.values()))
+        diff_rel = np.abs(params - params2) / (params + params2) * 2
 
         # mle estimates are very similar
-        self.assertTrue(np.all(((0.6 < diff_params) & (diff_params < 1.5)) | (diff_params == 0)))
+        self.assertTrue(np.all(diff_rel < 0.37))
 
         self.assertTrue(anc.is_monotonic())
 
