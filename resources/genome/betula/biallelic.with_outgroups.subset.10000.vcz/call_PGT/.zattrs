@@ -1,0 +1,7 @@
+{
+    "_ARRAY_DIMENSIONS": [
+        "variants",
+        "samples"
+    ],
+    "description": "Physical phasing haplotype information, describing how the alternate alleles are phased in relation to one another; will always be heterozygous and is not intended to describe called alleles"
+}

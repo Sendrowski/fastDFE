@@ -1,0 +1,7 @@
+{
+    "_ARRAY_DIMENSIONS": [
+        "variants",
+        "INFO_CSQ_dim"
+    ],
+    "description": "Consequence annotations from Ensembl VEP. Format: Consequence|Codons"
+}
