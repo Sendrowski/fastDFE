@@ -15,20 +15,16 @@ import fastdfe as fd
 
 try:
     testing = False
-    files_sfs = snakemake.input.slim
-    files_summary = snakemake.input.fastdfe
+    files = snakemake.input
     labels = snakemake.params.labels
     out = snakemake.output[0]
 except NameError:
     testing = True
-    files_sfs = [
-        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/constant/unfolded/sfs.csv",
-        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/constant/unfolded/sfs.csv",
-        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01/n=20/constant/unfolded/sfs.csv",
-        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05/n=20/constant/unfolded/sfs.csv",
-    ]
-    files_summary = [
-        Path(f).with_name("summary.json") for f in files_sfs
+    files = [
+        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/constant/unfolded/summary.json",
+        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/constant/unfolded/summary.json",
+        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01/n=20/constant/unfolded/summary.json",
+        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05/n=20/constant/unfolded/summary.json"
     ]
     labels = [
         "Strongly deleterious",
@@ -90,13 +86,11 @@ def format_params(params_slim: dict, params_fd: dict) -> tuple[dict, dict]:
 fig, ax = plt.subplots(2, 2, figsize=(7, 4), sharex=True, sharey=True)
 ax = ax.flatten()
 
-for i, (f_sfs, f_sum) in enumerate(zip(files_sfs, files_summary)):
-    spectra = fd.Spectra.from_file(f_sfs)
-    result = fd.InferenceResult.from_file(f_sum)
+for i, f in enumerate(files):
+    result = fd.InferenceResult.from_file(f)
+    params = extract_params(f)
 
-    params = extract_params(f_sfs)
-
-    Ne = spectra["neutral"].theta / (4 * params["mu"])
+    Ne = result.spectra["neutral"].theta / (4 * params["mu"])
 
     dfe_slim = fd.DFE(dict(
         S_d=-4 * Ne * params["s_d"],
