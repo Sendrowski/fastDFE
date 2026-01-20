@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+from matplotlib.container import BarContainer
 
 # necessary to import fastdfe locally
 sys.path.append('.')
@@ -101,8 +102,6 @@ for i, f in enumerate(files):
     ))
 
     params_slim = dfe_slim.params.copy()
-    if params_slim["p_b"] == 0:
-        params_slim.pop("S_b")
     params_fd = {k: v for k, v in result.dfe.params.items() if k in params_slim}
 
     params_slim, params_fd = format_params(params_slim, params_fd)
@@ -118,8 +117,20 @@ for i, f in enumerate(files):
         show=False,
         title=labels[i],
     )
+
+    colors = ["C0", "C1"]
+
+    bar_containers = [c for c in ax[i].containers if isinstance(c, BarContainer)]
+
+    for j, bc in enumerate(bar_containers):
+        for patch in bc.patches:
+            patch.set_facecolor(colors[j])
+            patch.set_edgecolor(colors[j])
+
     leg = ax[i].legend(loc='upper left', prop={"family": "monospace", "size": 6.3})
-    for h in leg.legend_handles:
+    for j, h in enumerate(ax[i].legend_.legend_handles):
+        h.set_facecolor(colors[j])
+        h.set_edgecolor(colors[j])
         h.set_hatch(None)
 
     ax[i].set_ylim(0, 1)
