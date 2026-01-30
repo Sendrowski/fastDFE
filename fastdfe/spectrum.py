@@ -491,6 +491,61 @@ class Spectrum(Iterable):
 
         return sfs
 
+    @staticmethod
+    def get_neutral(
+            theta: float,
+            n_sites: float,
+            n: int,
+            r: Sequence[float] = None
+    ) -> 'Spectrum':
+        """
+        Obtain a standard neutral SFS for a given theta and number of sites.
+
+        :param theta: Population mutation rate
+        :param n_sites: Number of total sites
+        :param n: Number of frequency classes
+        :param r: Nuisance parameters that account for demography. An array of length ``n-1`` whose elements are
+            multiplied element-wise with the polymorphic counts of the Kingman SFS. By default, no demography effects
+            are considered which is equivalent to ``r = [1] * (n-1)``. Note that non-default values of ``r`` will also
+            affect estimates of the population mutation rate.
+        :return: Neutral SFS
+        """
+        n = int(n)
+
+        if r is None:
+            r = np.ones(n + 1)
+        else:
+            r = list(r)
+
+            if len(r) != n - 1:
+                raise ValueError(f"The length of r must be n - 1 = {n - 1}; got {len(r)}.")
+
+            r = np.array([1] + r + [1])
+
+        sfs: Spectrum = Spectrum.standard_kingman(n=n) * theta * n_sites
+
+        # add demography
+        sfs.data *= r
+
+        # add monomorphic counts
+        sfs.data[0] = n_sites - sfs.n_sites
+
+        return sfs
+
+    def scale_theta(self, theta: float) -> 'Spectrum':
+        """
+        Scale the spectrum to a different theta value by
+
+        :param theta: New theta value
+        :return: Scaled spectrum
+        """
+        data = self.data.copy()
+
+        data[1:-1] *= theta / self.theta
+        data[0] = self.n_sites - data[1:-1].sum()
+
+        return Spectrum(data)
+
 
 class Spectra:
     """

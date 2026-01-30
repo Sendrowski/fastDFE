@@ -222,27 +222,12 @@ class Simulation:
             affect estimates of the population mutation rate.
         :return: Neutral SFS
         """
-        n = int(n)
-
-        if r is None:
-            r = np.ones(n + 1)
-        else:
-            r = list(r)
-
-            if len(r) != n - 1:
-                raise ValueError(f"The length of r must be n - 1 = {n - 1}; got {len(r)}.")
-
-            r = np.array([1] + r + [1])
-
-        sfs: Spectrum = Spectrum.standard_kingman(n=n) * theta * n_sites
-
-        # add demography
-        sfs.data *= r
-
-        # add monomorphic counts
-        sfs.data[0] = n_sites - sfs.n_sites
-
-        return sfs
+        return Spectrum.get_neutral(
+            theta=theta,
+            n_sites=n_sites,
+            n=n,
+            r=r
+        )
 
     def get_wright_fisher(
             self,

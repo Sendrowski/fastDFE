@@ -825,3 +825,17 @@ class SpectraTestCase(TestCase):
 
         self.assertLess(rel_var_diff[1:-1].max(), 0.2)
 
+    def test_scale_theta(self):
+        """
+        Test whether the scale_theta method works as expected.
+        """
+        sfs = Spectrum.get_neutral(theta=0.01, n=10, n_sites=10*6)
+
+        self.assertEqual(sfs.theta, 0.01)
+
+        self.assertEqual(sfs.scale_theta(0.02).theta, 0.02)
+
+        np.testing.assert_array_almost_equal(
+            sfs.scale_theta(0.02).data,
+            Spectrum.get_neutral(theta=0.02, n=10, n_sites=10*6).data
+        )
