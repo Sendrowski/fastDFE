@@ -129,10 +129,10 @@ class Visualization:
             :return: Formatted number
             """
             if n == -np.inf:
-                return '-inf'
+                return '-∞'
 
             if n == np.inf:
-                return 'inf'
+                return '∞'
 
             return '{:0.0f}'.format(n)
 
