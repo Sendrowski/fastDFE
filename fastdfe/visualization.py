@@ -666,7 +666,7 @@ class Visualization:
 
         ax.set_xticks([i + (width_total - width) / 2 for i in indices_ticks], indices_ticks)
 
-        ax.set_xlabel('frequency')
+        ax.set_xlabel('allele count')
 
         # remove x-margins
         ax.autoscale(tight=True, axis='x')
