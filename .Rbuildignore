@@ -3,6 +3,8 @@
 ^\.Rproj.user$
 ^docs$
 ^resources$
+^results$
+^workflow
 ^scratch$
 ^snakemake$
 ^testing$
