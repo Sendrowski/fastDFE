@@ -7,7 +7,7 @@ try:
     import sys
 
     # necessary to import fastdfe locally
-    sys.path.append('..')
+    sys.path.append('.')
 
     testing = False
     file = snakemake.input[0]

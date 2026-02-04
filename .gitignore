@@ -6,6 +6,7 @@
 /presentations/
 /docs/_build/
 .snakemake/
+.snakemake
 .snakemake_timestamp
 /dist/
 .DS_Store

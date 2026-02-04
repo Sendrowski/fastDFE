@@ -154,6 +154,13 @@ collages["mixed"] = [
     "results/graphs/comp/slim/n_replicate={{n_replicate}}/n_chunks=100/g={{g}}/L=1e7/mu=1e-8/r={{r}}/N={{N}}/s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05/n={{n}}/{{demography}}/{{folded}}/{{plot_type}}.png",
 ]
 
+collage_params = [
+    "s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00",
+    "s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00",
+    "s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01",
+    "s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05",
+]
+
 rule all:
     input:
         (
@@ -179,14 +186,16 @@ rule all:
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/collage2.{type}.png", n_replicate=[1], type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"]),
             #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20, 100], folded=['folded', 'unfolded'], collage_type=['realistic_full_dfe', 'realistic_del_dfe']),
             #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1, 2], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant', 'expansion', 'bottleneck', 'reduction', 'substructure']),
-            expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant']),
+            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['unfolded'], collage_type=['mixed'], demography=['constant']),
+            expand("results/graphs/collage/slim/n_replicate=1/g=1e4/N=1e3/r=1e-7/n=20/{demography}/unfolded/dfe_collage.png",demography=['constant', 'expansion_4', 'reduction_4', 'bottleneck_20', 'substructure_0.0001', 'dominance_0.2']),
+            expand("results/graphs/collage/slim/n_replicate=1/g=1e4/N=1e3/r=1e-7/n=20/{demography}/folded/dfe_collage.png",demography=['constant']),
+            expand("results/graphs/collage/slim/custom/n_replicate=1/g=1e4/N=1e3/r=1e-7/n=20/dominance_0.2/unfolded/dfe.semidominant.png")
             #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png",n_replicate=[1],plot_type=['dfe', 'sfs'],g=["1e4"],N=["1e3"],r=["1e-7"],n=[20],folded=['unfolded'],collage_type=['mixed'],demography=['substructure_0.0001', 'expansion_4', 'bottleneck_20', 'reduction_4']),
             #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png",n_replicate=[3],plot_type=['dfe', 'sfs'],g=["1e4"],N=["1e3"],r=["1e-7"],n=[20],folded=['unfolded'],collage_type=['mixed'],demography=['bottleneck_20']),
             #expand("results/slim/stats_agg/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/{dfe_params}/substructure_0.0001/stats.csv", n_replicate=[1], n_chunks=[100], g=["1e4"], L=["1e7"], mu=["1e-8"], r=["1e-7"], N=["1e3"], dfe_params=["s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00", "s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00", "s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01", "s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05"], n=[20], folded=['unfolded']),
             #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.semidominant.png",n_replicate=[1],plot_type=['dfe', 'sfs'],g=["1e4"],N=["1e3"],r=["1e-7"],n=[20],folded=['unfolded'],collage_type=['mixed'],demography=['dominance_0.2']),
             #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[8, 100], folded=['unfolded'], collage_type=['mixed'], demography=['constant']),
             #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/{collage_type}.{plot_type}.png", n_replicate=[1], plot_type=['dfe', 'sfs'], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], folded=['folded'], collage_type=['mixed'], demography=['constant']),
-            #expand("results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/{demography}/{folded}/{collage_type}.sample_sizes.dfe.inferred.png", n_replicate=[1], g=["1e4"], N=["1e3"], r=["1e-7"], demography=['constant'], folded=['unfolded'], collage_type=['mixed']),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/{dfe_params}/n={n}/{folded}/demographies.sfs.png", n_replicate=[1], n_chunks=[100], g=["1e4"], L=["1e7"], mu=["1e-8"], r=["1e-7"], N=["1e3"], dfe_params=["s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00", "s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00", "s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01", "s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05"], n=[20], folded=['unfolded']),
             #expand("results/slim/stats_agg/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{dfe_params}/substructure/stats.csv", dfe_params=["s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00", "s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00", "s_b=1e-2/b=0.1/s_d=3e-1/p_b=0.01", "s_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05"]),
             #expand("results/graphs/comp/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/s_d_and_r.sfs.png", n_replicate=[1], g=["1e4"], N=["1e3"], r=["1e-7"], n=[20], demography=['constant'], folded=['unfolded']),
@@ -1725,6 +1734,60 @@ rule combine_dfe_plots_slim_semidominant:
         "results/graphs/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.inferred.png"
     output:
         "results/graphs/comp/slim/n_replicate={n_replicate}/n_chunks={n_chunks}/g={g}/L={L}/mu={mu}/r={r}/N={N}/s_b={s_b}/b={b}/s_d={s_d}/p_b={p_b}/n={n}/{demography}/{folded}/dfe.semidominant.png"
+    params:
+        titles=lambda w: (
+            lambda h: [
+                rf"simulated ($h={h}$)",
+                r"inferred (semidominant, $h=0.5$)",
+                rf"inferred (true $h={h}$)",
+            ]
+        )(
+            float(w.demography.split("_")[1])
+            if w.demography.startswith("dominance_")
+            else 0.5
+        ),
+        title_size_rel=30,
+        title_xoffset=0.58,
+        pad=0
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/combine_plots.py"
+
+# combine DFE plots into a vertical collage
+rule combine_dfe_plots_slim_vertical_by_kind:
+    input:
+        lambda w: expand("results/graphs/slim/n_replicate={n_replicate}/n_chunks=100/g={g}/L=1e7/mu=1e-8/r={r}/N={N}/{dfe_params}/n={n}/{demography}/{folded}/dfe.{kind}.png",dfe_params=collage_params,**w)
+    output:
+        "results/graphs/collage/slim/tmp/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/dfe.{kind}.column.png"
+    wildcard_constraints:
+        kind="simulated|inferred.semidominant|inferred"
+    params:
+        n_cols=1,
+        n_rows=len(collage_params),
+        pad=0,
+        crop=(0.12, 0.12, 0, 0)
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/combine_plots.py"
+
+# combine simulated, semidominant inferred, and true inferred DFE plots into a single plot
+rule combine_dfe_plots_slim_semidominant_collage:
+    input:
+        sim="results/graphs/collage/slim/tmp/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/dfe.simulated.column.png",
+        semi="results/graphs/collage/slim/tmp/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/dfe.inferred.semidominant.column.png",
+        true="results/graphs/collage/slim/tmp/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/dfe.inferred.column.png"
+    output:
+        "results/graphs/collage/slim/custom/n_replicate={n_replicate}/g={g}/N={N}/r={r}/n={n}/{demography}/{folded}/dfe.semidominant.png"
+    params:
+        n_cols=3,
+        n_rows=1,
+        titles=lambda w: (lambda h: [rf"simulated ($h={h}$)", r"inferred ($h=0.5$)", rf"inferred ($h={h}$)"])(float(w.demography.split("_")[1]) if w.demography.startswith("dominance_") else 0.5),
+        title_size_rel=23,
+        title_xoffset=0.55,
+        title_yoffset=1.03,
+        pad=0.3
     conda:
         "envs/base.yaml"
     script:
@@ -1795,15 +1858,37 @@ rule combine_inferred_dfe_plots_different_sample_sizes:
         "results/graphs/collage/slim/n_replicate={n_replicate}/g={g}/N={N}/r={r}/{demography}/{folded}/{collage_type}.sample_sizes.dfe.inferred.png"
     params:
         titles=['$n=8$', '$n=20$', '$n=100$'],
-        title_size_rel=44,
+        title_size_rel=30,
         title_xoffset=0.58,
-        pad=0.8
+        pad=0
     conda:
         "envs/base.yaml"
     resources:
         mem_mb=50000,
     script:
         "scripts/combine_plots.py"
+
+# plot DFE collage comparing SLiM and fastDFE
+rule plot_dfe_collage_slim_fastdfe:
+    input:
+        lambda w: expand(
+            "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/"
+            "r=1e-7/N=1e3/{dfe_params}/n=20/{{demography}}/{{folded}}/summary.json",
+            dfe_params=collage_params,
+        )
+    output:
+        "results/graphs/collage/slim/n_replicate=1/g=1e4/N=1e3/r=1e-7/n=20/{demography}/{folded}/dfe_collage.png"
+    params:
+        labels=[
+            "Strongly deleterious",
+            "Weakly deleterious",
+            "Rare beneficial",
+            "Frequent beneficial",
+        ]
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/plot_dfe_collage.py"
 
 # update the documentation
 rule update_docs:
@@ -1853,4 +1938,3 @@ rule compare_speed_parallelization:
         "envs/base.yaml"
     script:
         "scripts/compare_speed_parallelization.py"
-

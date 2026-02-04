@@ -129,10 +129,10 @@ class Visualization:
             :return: Formatted number
             """
             if n == -np.inf:
-                return '-inf'
+                return '-∞'
 
             if n == np.inf:
-                return 'inf'
+                return '∞'
 
             return '{:0.0f}'.format(n)
 
@@ -666,7 +666,7 @@ class Visualization:
 
         ax.set_xticks([i + (width_total - width) / 2 for i in indices_ticks], indices_ticks)
 
-        ax.set_xlabel('frequency')
+        ax.set_xlabel('allele count')
 
         # remove x-margins
         ax.autoscale(tight=True, axis='x')

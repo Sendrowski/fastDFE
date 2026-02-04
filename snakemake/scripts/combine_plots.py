@@ -22,7 +22,9 @@ try:
     titles = snakemake.params.get('titles', None)
     title_size_rel = snakemake.params.get('title_size_rel', 20)
     title_xoffset = snakemake.params.get('title_xoffset', None)
+    title_yoffset = snakemake.params.get('title_yoffset', None)
     pad = snakemake.params.get('pad', 0.1)
+    crop = snakemake.params.get("crop", None)
     figsize = snakemake.params.get('figsize', None)
     dpi = snakemake.params.get('dpi', 1000)
     out = snakemake.output[0]
@@ -40,11 +42,12 @@ except NameError:
     titles = None
     title_size_rel = 20
     title_xoffset = None
+    title_yoffset = None
     pad = 0.1
+    crop = None
     figsize = None
     dpi = 1000
     out = "scratch/combined2.png"
-
 
 def get_index_common_start(strs: List[str]):
     """
@@ -131,12 +134,23 @@ fig, axs = plt.subplots(nrows=n_rows, ncols=n_cols, squeeze=False, figsize=figsi
 axs = axs.flatten()
 
 for file, title, ax in zip(files, titles, axs):
-    ax.imshow(mpimg.imread(file))
+
+    img = mpimg.imread(file)
+    if crop is not None:
+        top, bottom, left, right = crop
+        h, w = img.shape[:2]
+        img = img[int(top * h):int((1 - bottom) * h), int(left * w):int((1 - right) * w)]
+    ax.imshow(img)
+
     ax.set_title(
         title,
         fontdict=dict(fontsize=title_size_rel / n_cols),
         pad=0,
-        **(dict(x=title_xoffset) if title_xoffset is not None else {})
+        **(
+            dict(x=title_xoffset, y=title_yoffset)
+            if title_xoffset is not None or title_yoffset is not None
+            else {}
+        )
     )
 
 # turn off axes
