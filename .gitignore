@@ -5,6 +5,8 @@
 /reports/
 /presentations/
 /docs/_build/
+workflow
+results
 .snakemake/
 .snakemake
 .snakemake_timestamp
