@@ -3436,3 +3436,30 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         counts = np.array([list(v._monomorphic_samples.values()) for k, v in anc.items()]) / n_target_sites
 
         self.assertLessEqual(np.max(np.var(counts, axis=0)), 1e-4)
+
+
+class ZarrAnnotationTestCase(TestCase):
+    """
+    Test the annotators using Zarr backend.
+    """
+
+    def test_run_inference_full_betula_dataset(self):
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_ingroups=10,
+            prior=None,
+            model=fd.K2SubstitutionModel(),
+            parallelize=True
+        )
+
+        ann = fd.Annotator(
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcz",
+            output='scratch/test_get_likelihood_full_betula_dataset_zarr.vcf',
+            annotations=[anc],
+            max_sites=10000,
+        )
+        ann.annotate()
+
+        anc.to_est_sfs("resources/EST-SFS/test-betula-biallelic-100000.txt")
+
+        self.assertEqual(anc.evaluate_likelihood(anc.params_mle), anc.likelihood)

@@ -27,6 +27,9 @@ from Bio.SeqRecord import SeqRecord
 from pandas.errors import SettingWithCopyWarning
 from tqdm import tqdm
 
+import zarr
+from vcztools import retrieval
+
 from .settings import Settings
 
 #: The DNA bases
@@ -616,6 +619,8 @@ class VCFHandler(FileHandler):
         #: Random generator instance
         self.rng = np.random.default_rng(seed=seed)
 
+        self.is_zarr_store = False
+
     @cached_property
     def _reader(self) -> 'cyvcf2.VCF':
         """
@@ -623,6 +628,9 @@ class VCFHandler(FileHandler):
 
         :return: The VCF reader.
         """
+        if os.path.isdir(self.vcf) and self.vcf.endswith('.vcz'):
+            self.is_zarr_store = True
+            return self.load_zarr()
         return self.load_vcf()
 
     def _rewind(self):
@@ -651,6 +659,18 @@ class VCFHandler(FileHandler):
 
         return VCF(self.download_if_url(self.vcf))
 
+
+    def load_zarr(self):
+        """
+        Load a Zarr file into a dictionary.
+
+        :return: The Zarr reader.
+        """
+        self._logger.info("Loading Zarr file")
+
+        return ZarrStore(self.vcf)
+
+
     @cached_property
     def n_sites(self) -> int:
         """
@@ -666,6 +686,9 @@ class VCFHandler(FileHandler):
 
         :return: Number of sites
         """
+        if self.is_zarr_store:
+            return self._reader.count_sites()
+
         return count_sites(
             vcf=self.download_if_url(self.vcf),
             max_sites=self.max_sites,
@@ -685,6 +708,81 @@ class VCFHandler(FileHandler):
             disable=Settings.disable_pbar,
             desc=desc
         )
+
+
+class ZarrVariant:
+    def __init__(
+        self,
+        ref: str,
+        chrom: str,
+        pos: int,
+        gt_bases: np.ndarray,
+    ):
+        self.REF = ref
+        self.CHROM = chrom
+        self.POS = pos
+        self.INFO = {}
+        self.gt_bases = gt_bases
+        self.is_snp = True
+
+
+class ZarrStore:
+
+    def __init__(self, fname: str, samples: List[str] = None):
+        """
+        Initialize a Zarr store.
+
+        The iterator iterates over Variant objects.
+
+        :param fname: The file name
+        """
+        self.fname = fname
+        self.root = zarr.open(fname, mode='r')
+        all_samples = self.root["sample_id"][:]
+        self.samples = list(retrieval.parse_samples(samples, all_samples)[0])
+        self.iter = retrieval.variant_iter(
+            fname,
+            samples=samples,
+            fields=["variant_contig", "variant_position", "variant_allele",
+                    "call_genotype", "call_genotype_phased"]
+        )
+
+    def __enter__(self):
+        return self
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        v = next(self.iter)
+        alleles = v["variant_allele"]
+        phased = v["call_genotype_phased"]
+        gt_bases = np.array([
+            ["/", "|"][np.int8(ph)].join(alleles[gt]) for ph, gt in zip(phased, v["call_genotype"])
+        ])
+        return ZarrVariant(
+            ref=alleles[0],
+            chrom=v["variant_contig"],
+            pos=v["variant_position"],
+            gt_bases=gt_bases,
+        )
+
+    def count_sites(self) -> int:
+        """
+        Count the number of sites in the Zarr store.
+
+        :return: Number of sites
+        """
+        return self.root["variant_id"].shape[0]
+
+    def add_info_to_header(self, header):
+        """
+        Add the info fields to the header.
+
+        :param header: The header
+        """
+        print("Adding info to header: ", header)
+        pass
 
 
 class MultiHandler(VCFHandler, FASTAHandler, GFFHandler):

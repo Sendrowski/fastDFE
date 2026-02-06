@@ -1860,7 +1860,10 @@ class _OutgroupAncestralAlleleAnnotation(AncestralAlleleAnnotation, ABC):
         })
 
         # set reader
-        self._reader = self._handler.load_vcf()
+        if self._handler.is_zarr_store:
+            self._reader = self._handler.load_zarr()
+        else:
+            self._reader = self._handler.load_vcf()
 
         # prepare masks
         self._prepare_masks(handler._reader.samples)
@@ -4452,7 +4455,8 @@ class Annotator(MultiHandler):
             annotation._setup(self)
 
         # create the writer
-        self._writer = Writer(self.output, self._reader)
+        if not self.is_zarr_store:
+            self._writer = Writer(self.output, self._reader)
 
     def _teardown(self):
         """
@@ -4462,8 +4466,9 @@ class Annotator(MultiHandler):
             annotation._teardown()
 
         # close the writer and reader
-        self._writer.close()
-        self._reader.close()
+        if not self.is_zarr_store:
+            self._writer.close()
+            self._reader.close()
 
     def annotate(self):
         """
@@ -4485,7 +4490,8 @@ class Annotator(MultiHandler):
                     annotation.annotate_site(variant)
 
                 # write the variant
-                self._writer.write_record(variant)
+                if not self.is_zarr_store:
+                    self._writer.write_record(variant)
 
                 # update the progress bar
                 pbar.update()

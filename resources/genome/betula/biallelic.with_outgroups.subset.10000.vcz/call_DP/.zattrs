@@ -1,0 +1,7 @@
+{
+    "_ARRAY_DIMENSIONS": [
+        "variants",
+        "samples"
+    ],
+    "description": "Approximate read depth (reads with MQ=255 or with bad mates are filtered)"
+}
