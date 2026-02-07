@@ -3133,7 +3133,7 @@ class MaximumLikelihoodAncestralAnnotation(_OutgroupAncestralAlleleAnnotation):
         fun = self._get_likelihood()
 
         # log warning if unusually low number of monomorphic sites
-        if self.configs[self.configs.minor_base == -1].multiplicity.sum() / self.n_sites < 0.75:
+        if self.configs[self.configs.minor_base == -1].multiplicity.sum() / self.n_sites < 0.95:
             self._logger.warning("The number of monomorphic sites is unusually low. Please note that "
                                  "including monomorphic sites is necessary to obtain realistic "
                                  "branch rate estimates.")
