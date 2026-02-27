@@ -20,21 +20,22 @@ try:
 except NameError:
     # testing
     testing = True
+    params = "s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00"
     files_fd = [
-        "results/sfs/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/constant/unfolded/sfs.csv",
-        "results/sfs/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/expansion_4/unfolded/sfs.csv",
-        "results/sfs/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/reduction_4/unfolded/sfs.csv",
-        "results/sfs/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/bottleneck_20/unfolded/sfs.csv",
-        "results/sfs/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/substructure_0.0001/unfolded/sfs.csv",
-        "results/sfs/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/dominance_0.2/unfolded/sfs.semidominant.csv"
+        f"results/sfs/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/constant/unfolded/sfs.csv",
+        f"results/sfs/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/expansion_4/unfolded/sfs.csv",
+        f"results/sfs/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/reduction_4/unfolded/sfs.csv",
+        f"results/sfs/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/bottleneck_20/unfolded/sfs.csv",
+        f"results/sfs/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/substructure_0.0001/unfolded/sfs.csv",
+        f"results/sfs/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/dominance_0.3/unfolded/sfs.semidominant.csv"
     ]
     files_slim = [
-        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/constant/unfolded/sfs.csv",
-        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/expansion_4/unfolded/sfs.csv",
-        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/reduction_4/unfolded/sfs.csv",
-        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/bottleneck_20/unfolded/sfs.csv",
-        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/substructure_0.0001/unfolded/sfs.csv",
-        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.1/s_d=3e-2/p_b=0.00/n=20/dominance_0.2/unfolded/sfs.csv"
+        f"results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/constant/unfolded/sfs.csv",
+        f"results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/expansion_4/unfolded/sfs.csv",
+        f"results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/reduction_4/unfolded/sfs.csv",
+        f"results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/bottleneck_20/unfolded/sfs.csv",
+        f"results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/substructure_0.0001/unfolded/sfs.csv",
+        f"results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/dominance_0.2/unfolded/sfs.csv"
     ]
     labels = ["constant", "expansion", "reduction", "bottleneck", "substructure", "recessiveness"]
     out = "scratch/sfs_demographies.png"
