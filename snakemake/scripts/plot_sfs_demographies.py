@@ -35,12 +35,12 @@ except NameError:
         f"results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/reduction_4/unfolded/sfs.csv",
         f"results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/bottleneck_20/unfolded/sfs.csv",
         f"results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/substructure_0.0001/unfolded/sfs.csv",
-        f"results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/dominance_0.2/unfolded/sfs.csv"
+        f"results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/{params}/n=20/dominance_0.3/unfolded/sfs.csv"
     ]
     labels = ["constant", "expansion", "reduction", "bottleneck", "substructure", "recessiveness"]
     out = "scratch/sfs_demographies.png"
 
-fig, ax = plt.subplots(3, 2, figsize=(7, 4.5), sharex=True)
+fig, ax = plt.subplots(3, 2, figsize=(7, 4.5), sharex=True, dpi=400)
 ax = ax.flatten()
 
 for i in range(len(files_fd)):
@@ -60,5 +60,5 @@ fig.tight_layout(pad=0.7)
 if testing:
     plt.show()
 
-fig.savefig(out, dpi=300)
+fig.savefig(out, dpi=400)
 pass
