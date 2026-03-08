@@ -542,7 +542,7 @@ class BiasedGCConversionFiltration(Filtration):
     @_count_filtered
     def filter_site(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> bool:
         """
-        Remove bi-allelic sites that are not A<->T or G<->C substitutions.
+        Remove bi-allelic sites that are not A<->T or G<->C mutations.
 
         :param variant: The variant to filter.
         :return: ``True`` if the variant should be kept, ``False`` otherwise.
