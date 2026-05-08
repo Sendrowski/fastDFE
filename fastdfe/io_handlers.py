@@ -217,12 +217,13 @@ class FileHandler:
         """
         # check if the file extension is .gz
         if file.endswith('.gz'):
-            # create a new file path by removing the .gz extension
-            unzipped = file[:-3]
+            suffix = os.path.splitext(file[:-3])[1] or '.tmp'
+            fd, unzipped = tempfile.mkstemp(suffix=suffix)
 
-            # unzip file
+            logger.info(f'Unzipping {file} to {unzipped}')
+
             with gzip.open(file, 'rb') as f_in:
-                with open(unzipped, 'wb') as f_out:
+                with os.fdopen(fd, 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
 
             return unzipped
