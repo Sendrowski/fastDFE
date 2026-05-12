@@ -1,0 +1,6 @@
+{
+    "_ARRAY_DIMENSIONS": [
+        "variants"
+    ],
+    "description": "Phred-scaled p-value using Fisher's exact test to detect strand bias"
+}

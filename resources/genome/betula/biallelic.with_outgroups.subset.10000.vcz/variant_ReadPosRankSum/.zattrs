@@ -1,0 +1,6 @@
+{
+    "_ARRAY_DIMENSIONS": [
+        "variants"
+    ],
+    "description": "Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias"
+}

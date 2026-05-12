@@ -1,0 +1,8 @@
+{
+    "_ARRAY_DIMENSIONS": [
+        "variants",
+        "samples",
+        "genotypes"
+    ],
+    "description": "Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification"
+}

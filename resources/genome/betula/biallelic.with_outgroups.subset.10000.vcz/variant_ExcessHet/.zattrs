@@ -1,0 +1,6 @@
+{
+    "_ARRAY_DIMENSIONS": [
+        "variants"
+    ],
+    "description": "Phred-scaled p-value for exact test of excess heterozygosity"
+}
