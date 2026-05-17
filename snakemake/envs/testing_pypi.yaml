@@ -14,4 +14,4 @@ dependencies:
       - pytest-cov
       - pytest-sugar
       - pytest-pycharm
-      - fastdfe[vcf]
+      - fastdfe[vcf]==1.2.2

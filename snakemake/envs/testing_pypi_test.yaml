@@ -16,4 +16,4 @@ dependencies:
       - pytest-pycharm
       - --index-url https://test.pypi.org/simple/
       - --extra-index-url https://pypi.org/simple
-      - fastdfe[vcf]
+      - fastdfe[vcf]==1.2.2
