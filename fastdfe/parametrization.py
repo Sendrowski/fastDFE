@@ -251,7 +251,7 @@ class GammaExpParametrization(Parametrization):
     * :math:`p_b` is the probability that :math:`S \geq 0`
     * :math:`S_b` is the mean of the DFE for :math:`S \geq 0`
     * :math:`f_\Gamma(x; m, b)` is the density of the gamma distribution with mean :math:`m` and shape :math:`b`
-    * :math:`f_e(x; m)` is the density of the Exponential distribution with mean :math:`m`
+    * :math:`f_e(x; m)` is the density of the exponential distribution with mean :math:`m`
     * :math:`\mathbf{1}_{\{A\}}` denotes the indicator function, which is 1 if :math:`A` is true, and 0 otherwise.
 
     The DFE has often been observed to be multi-modal for negative selection coefficients. A gamma distribution

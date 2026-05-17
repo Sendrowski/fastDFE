@@ -14,7 +14,7 @@ from typing import Literal, Sequence, Tuple, Optional, Callable
 
 import mpmath as mp
 import numpy as np
-from scipy.integrate import quad
+from scipy.integrate import quad, trapezoid
 
 from .optimization import parallelize as parallelize_func
 from .parametrization import Parametrization
@@ -357,7 +357,7 @@ class Discretization:
         m = np.max(exponent, axis=1, keepdims=True)
         integrand = np.exp(exponent - m)  # (P, n_bins)
 
-        Z = np.trapz(integrand, x, axis=1)
+        Z = trapezoid(integrand, x, axis=1)
 
         return np.exp(-m[:, 0]) / Z
 
@@ -426,7 +426,7 @@ class Discretization:
 
             max_exp = exponent.max(axis=2, keepdims=True)  # (n_outer, P1, 1)
 
-            norm_q = np.trapz(np.exp(exponent - max_exp), xx, axis=2)  # (n_outer, P1)
+            norm_q = trapezoid(np.exp(exponent - max_exp), xx, axis=2)  # (n_outer, P1)
             del exponent, xx
             norm0 = norm_q[0]  # (P1,)
 
@@ -442,7 +442,7 @@ class Discretization:
 
             integrand = binom[:, None] * exponent_main * ratio  # (n_outer, P1)
 
-            y[is_deleterious] = np.trapz(integrand, x, axis=0)  # (P1,)
+            y[is_deleterious] = trapezoid(integrand, x, axis=0)  # (P1,)
 
         if (~is_deleterious).any():
             S_pos = S[~is_deleterious]  # (P2,)
@@ -456,7 +456,7 @@ class Discretization:
             XX0 = xx0[None, :]  # (1, n_inner)
 
             exponent0 = -2 * SPn * Hn * XX0 - SPn * (1 - 2 * Hn) * XX0 ** 2  # (P2, n_inner)
-            norm0 = np.trapz(np.exp(exponent0), xx0, axis=1)  # (P2,)
+            norm0 = trapezoid(np.exp(exponent0), xx0, axis=1)  # (P2,)
 
             t = np.linspace(0, 1, n_inner) ** 5  # (n_inner,)
             xx = x[:, None, None] + (1 - x)[:, None, None] * t[None, None, :]
@@ -467,12 +467,12 @@ class Discretization:
             SP3b = S_pos[None, :, None]  # (1, P2, 1)
 
             term = SP3b * (X - xx) * ((1 - 2 * H3b) * (X + xx) + 2 * H3b)  # (n_outer, P2, n_inner)
-            c = np.trapz(np.exp(term), xx, axis=2)  # (n_outer, P2)
+            c = trapezoid(np.exp(term), xx, axis=2)  # (n_outer, P2)
             del term, xx
 
             integrand = binom[:, None] * c / norm0[None, :]  # (n_outer, P2)
 
-            y[~is_deleterious] = np.trapz(integrand, x, axis=0)  # (P2,)
+            y[~is_deleterious] = trapezoid(integrand, x, axis=0)  # (P2,)
 
         return y
 

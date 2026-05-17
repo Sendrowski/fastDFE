@@ -10,10 +10,23 @@ plt.figure(figsize=(2.6, 1.5), dpi=200)
 
 ax = plt.gca()
 
-fd.DFE(fd.GammaExpParametrization().x0).plot(
+fd.DFE(dict(S_d=-1000, b=0.2, p_b=0.1, S_b=1)).plot(
     ax=ax, show=False,
     intervals=[-np.inf, -100, -1, 0, np.inf]
 )
+
+bars = ax.patches  # bars in order of intervals
+
+# muted palette
+muted_red = "#c65f5f"
+muted_green = "#6fa38f"
+
+# first 3 bars red, last bar green (leave others default if any)
+for i, b in enumerate(bars):
+    if i < 3:
+        b.set_facecolor(muted_red)
+    elif i == len(bars) - 1:
+        b.set_facecolor(muted_green)
 
 # aesthetics
 ax.spines["top"].set_visible(False)

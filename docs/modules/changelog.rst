@@ -3,6 +3,13 @@
 Changelog
 =========
 
+[1.2.2] - 2026-05-17
+^^^^^^^^^^^^^^^^^^^^
+- Added support for ``numpy`` 2 and Python 3.13. Bumped minimum versions of ``scipy``, ``matplotlib``, ``pandas``, ``seaborn``, and ``biopython``.
+- Added :meth:`~fastdfe.spectrum.Spectrum.scale_theta` and :meth:`~fastdfe.spectrum.Spectrum.get_neutral` methods to the ``Spectrum`` class.
+- Fixed potential race condition when the same FASTA or GFF files are unzipped simultaneously.
+- Use approximate equality instead of strict identity when looking up precomputed values for the dominance coefficient ``h``.
+
 [1.2.1] - 2026-01-04
 ^^^^^^^^^^^^^^^^^^^^
 - Don't average likelihood over bootstraps by default as it may mitigate optimization noise but is not statistically sound (see `update_likelihood <../search.html?q=update_likelihood>`_).
