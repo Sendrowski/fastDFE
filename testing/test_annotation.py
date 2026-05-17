@@ -3381,7 +3381,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         )
 
         ann = fd.Annotator(
-            vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
             fasta="resources/genome/betula/genome.fasta",
             output='scratch/test_betula_validate_prob_aa_field.vcf',
             annotations=[anc],
@@ -3424,7 +3424,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
             )
 
             ann[n_samples] = fd.Annotator(
-                vcf="resources/genome/betula/biallelic.with_outgroups.vcf.gz",
+                vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
                 fasta="resources/genome/betula/genome.fasta",
                 output='scratch/test_n_samples_target_sites_argument.vcf',
                 annotations=[anc[n_samples]],
