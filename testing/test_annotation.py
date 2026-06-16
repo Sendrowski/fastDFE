@@ -3380,6 +3380,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         self.assertIsNone(a.prior)
 
+    @pytest.mark.inference
     def test_betula_validate_prob_aa_field(self):
         """
         Test the MLEAncestralAlleleAnnotation class on the betula vcf file.

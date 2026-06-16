@@ -3,6 +3,7 @@ from typing import List
 from unittest.mock import Mock
 
 import numpy as np
+import pytest
 
 import fastdfe as fd
 from fastdfe.io_handlers import count_sites
@@ -384,7 +385,7 @@ class FiltrationTestCase(TestCase):
         f = fd.Filterer(
             vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
             output='scratch/test_coding_sequence_filtration.vcf',
-            gff="resources/genome/betula/genome.gff",
+            gff="resources/genome/betula/genome.gff.gz",
             filtrations=[fd.CodingSequenceFiltration()],
         )
 
@@ -460,6 +461,7 @@ class FiltrationTestCase(TestCase):
                 filtrations=[fd.CpGFiltration()],
             ).filter()
 
+    @pytest.mark.inference
     @staticmethod
     def test_cpg_filtration():
         """
