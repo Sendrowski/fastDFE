@@ -1,5 +1,6 @@
 import copy
 import logging
+import os
 import resource
 import time
 from abc import ABC
@@ -76,6 +77,7 @@ class InferenceTestCase(TestCase, ABC):
                     raise AssertionError('Some objects were not compared.')
 
 
+@pytest.mark.inference
 class PolyDFETestCase(InferenceTestCase):
     """
     Test results against cached PolyDFE results.
@@ -111,6 +113,17 @@ class PolyDFETestCase(InferenceTestCase):
         """
         conf = fd.Config.from_file(f"testing/cache/configs/{config}/config.yaml")
         conf.data['fixed_params']['all']['h'] = 0.5
+        # speed up: fewer optimization restarts (the datasets converge easily), a single run per
+        # bootstrap sample, and fewer bootstraps. The confidence intervals stay wide enough for the
+        # (tolerant) overlap comparison below.
+        conf.data['n_runs'] = 3
+        conf.data['n_bootstrap_retries'] = 1
+        conf.data['n_bootstraps'] = 30
+        # coarser integration grid (1000 -> 100 bins) is ~10x cheaper per optimization and leaves the
+        # binned DFE / CIs essentially unchanged, since get_discretized() bins independently of the
+        # integration resolution. The comparison tolerance below is therefore left untouched.
+        conf.data['intervals_del'] = (-1.0e+8, -1.0e-5, 100)
+        conf.data['intervals_ben'] = (1.0e-5, 1.0e4, 100)
         inf_polydfe = PolyDFE.from_file(f"testing/cache/polydfe/{config}/serialized.json")
 
         inf_fastdfe = fd.BaseInference.from_config(conf)
@@ -153,6 +166,354 @@ class PolyDFETestCase(InferenceTestCase):
         locals()[f'test_compare_with_polydfe_{config}'] = generate_compare_with_polydfe(config)
 
 
+class DivergenceTestCase(InferenceTestCase):
+    """
+    Test divergence-count support (polyDFE-style alpha estimation).
+    """
+
+    # polyDFE example datasets which carry divergence counts and a separate divergence target size
+    examples = ['example_1', 'example_2', 'example_3']
+
+    @staticmethod
+    def _get_spectra(example: str):
+        """
+        Get neutral and selected spectra (with divergence) for a polyDFE example dataset.
+        """
+        from fastdfe.spectrum import parse_polydfe_sfs_config
+
+        sp = parse_polydfe_sfs_config(f'resources/polydfe/{example}/spectra/sfs.txt')
+
+        return sp['sfs_neut'], sp['sfs_sel'], sp['n_sites_div_neut'], sp['n_sites_div_sel']
+
+    def test_no_divergence_path_unchanged(self):
+        """
+        With the default include_divergence=True but no divergence data, divergence must not be
+        used and the result must be identical to explicitly disabling it.
+        """
+        from fastdfe.spectrum import parse_polydfe_sfs_config
+
+        sp = parse_polydfe_sfs_config('resources/polydfe/pendula/spectra/sfs.txt')
+
+        kwargs = dict(sfs_neut=sp['sfs_neut'], sfs_sel=sp['sfs_sel'], do_bootstrap=False, n_runs=3, seed=42)
+
+        inf_on = fd.BaseInference(include_divergence=True, **kwargs)
+        inf_off = fd.BaseInference(include_divergence=False, **kwargs)
+
+        # divergence is not used in either case (no divergence target size)
+        assert inf_on._use_divergence is False
+        assert inf_off._use_divergence is False
+        assert 'r_div' not in inf_on.param_names
+
+        inf_on.run()
+        inf_off.run()
+
+        # results are identical
+        self.assertEqual(inf_on.params_mle, inf_off.params_mle)
+        np.testing.assert_array_equal(inf_on.sfs_mle.polymorphic, inf_off.sfs_mle.polymorphic)
+
+    @pytest.mark.inference
+    def test_divergence_inference_runs_and_derives_r_div(self):
+        """
+        With divergence data, divergence is used; the divergence scale ``r_div`` is pinned by the
+        neutral divergence and derived in closed form (not an optimizer parameter), and both alpha
+        modes work.
+        """
+        neut, sel, nsd_neut, nsd_sel = self._get_spectra('example_1')
+
+        inf = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel, do_bootstrap=False, n_runs=5, seed=0,
+                               intervals_del=(-1.0e+8, -1.0e-5, 100), intervals_ben=(1.0e-5, 1.0e4, 100))
+
+        assert inf._use_divergence is True
+        # r_div is derived from the data, so it is never an inference parameter
+        assert 'r_div' not in inf.param_names
+
+        inf.run()
+
+        assert 'r_div' not in inf.params_mle
+        # the closed-form divergence scale (reproducing the observed neutral divergence) is sensible
+        r_div = neut.n_div / (neut.theta * nsd_neut)
+        assert np.isfinite(r_div) and r_div > 0
+        # both alpha estimators are available and finite
+        assert np.isfinite(inf.get_alpha())
+        assert np.isfinite(inf.get_alpha(use_divergence=False))
+
+    def test_dfe_alpha_matches_polydfe(self):
+        """
+        Feeding polyDFE's own fitted DFE parameters into fastDFE's (polymorphism-only) alpha must
+        reproduce polyDFE's reported alpha. This validates the shared fixation/divergence machinery
+        ``S / (1 - exp(-S))`` independent of optimizer differences.
+        """
+        import json
+
+        for example in self.examples:
+            config = f'{example}_C_full_anc_bootstrapped_100'
+            data = json.load(open(f'testing/cache/polydfe/{config}/serialized.json'))['summary']['data']
+            pm, alpha_polydfe = data['params_mle'], data['alpha']
+
+            neut, sel, nsd_neut, nsd_sel = self._get_spectra(example)
+            inf = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel, do_bootstrap=False, n_runs=1)
+
+            params = dict(S_d=pm['S_d'], b=pm['b'], p_b=pm['p_b'], S_b=pm['S_b'], eps=pm.get('eps', 0.0), h=0.5)
+            alpha_fastdfe = inf.get_alpha(params=params, use_divergence=False)
+
+            assert abs(alpha_fastdfe - alpha_polydfe) < 0.01, \
+                f'{example}: fastdfe {alpha_fastdfe} vs polydfe {alpha_polydfe}'
+
+    def test_alpha_divergence_matches_mk_formula(self):
+        """
+        The divergence-based alpha must equal polyDFE's McDonald-Kreitman style formula
+        ``1 - (L_sel/L_neut) * (D_neut/D_sel) * divDel``.
+        """
+        neut, sel, nsd_neut, nsd_sel = self._get_spectra('example_2')
+        inf = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel, do_bootstrap=False, n_runs=1)
+
+        params = dict(S_d=-2000.0, b=0.4, p_b=0.05, S_b=2.0, eps=0.0, h=0.5)
+
+        d = inf.discretization
+        y = inf.model._discretize(params, d.bins) * d.get_counts_fixed(0.5)
+        div_del = np.sum(y[d.s < 0])
+        expected = 1 - (nsd_sel / nsd_neut) * (neut.n_div / sel.n_div) * div_del
+
+        np.testing.assert_allclose(inf.get_alpha(params=params, use_divergence=True), expected, rtol=1e-12)
+
+    def test_divergence_alpha_generalizes_to_dominance(self):
+        """
+        The divergence flux and both alpha estimators must respond to the dominance coefficient h.
+        """
+        neut, sel, nsd_neut, nsd_sel = self._get_spectra('example_2')
+        inf = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel, do_bootstrap=False, n_runs=1)
+
+        base = dict(S_d=-2000.0, b=0.4, p_b=0.1, S_b=4.0, eps=0.0)
+
+        fluxes = [inf.discretization.get_divergence_flux(inf.model, dict(base, h=h)) for h in [0.1, 0.5, 0.9]]
+        alphas = [inf.get_alpha(params=dict(base, h=h), use_divergence=True) for h in [0.1, 0.5, 0.9]]
+
+        # strictly increasing in h (more dominant beneficial mutations fix more readily)
+        assert fluxes[0] < fluxes[1] < fluxes[2]
+        assert alphas[0] < alphas[1] < alphas[2]
+
+    def test_divergence_alpha_raises_without_div_data(self):
+        """
+        Requesting divergence-based alpha without divergence data raises a clear error.
+        """
+        from fastdfe.spectrum import parse_polydfe_sfs_config
+
+        sp = parse_polydfe_sfs_config('resources/polydfe/pendula/spectra/sfs.txt')
+        inf = fd.BaseInference(sfs_neut=sp['sfs_neut'], sfs_sel=sp['sfs_sel'], do_bootstrap=False, n_runs=1)
+        inf.run()
+
+        with self.assertRaises(ValueError):
+            inf.get_alpha(use_divergence=True)
+
+    @pytest.mark.inference
+    def test_divergence_bootstrap_alpha_is_finite(self):
+        """
+        Bootstrapping a divergence inference resamples divergence counts and produces finite
+        alpha estimates that bracket the point estimate.
+        """
+        neut, sel, nsd_neut, nsd_sel = self._get_spectra('example_1')
+
+        inf = fd.BaseInference(
+            sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel, do_bootstrap=True, n_bootstraps=10, n_runs=3, seed=0,
+            intervals_del=(-1.0e+8, -1.0e-5, 100), intervals_ben=(1.0e-5, 1.0e4, 100)
+        )
+        inf.run()
+
+        assert 'alpha' in inf.bootstraps
+        assert np.all(np.isfinite(inf.bootstraps['alpha']))
+
+    def test_omega_dfe_based_identities(self):
+        """
+        The DFE-based omega/omega_a must satisfy ``omega = divDel + divBen`` (the divergence flux),
+        ``omega_a = divBen`` and ``alpha = omega_a / omega``.
+        """
+        neut, sel, nsd_neut, nsd_sel = self._get_spectra('example_2')
+        inf = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel, do_bootstrap=False, n_runs=1)
+
+        params = dict(S_d=-2000.0, b=0.4, p_b=0.1, S_b=4.0, eps=0.0, h=0.5)
+
+        d = inf.discretization
+        y = inf.model._discretize(params, d.bins) * d.get_counts_fixed(0.5)
+
+        omega = inf.get_omega(params=params, use_divergence=False)
+        omega_a = inf.get_omega_a(params=params, use_divergence=False)
+        alpha = inf.get_alpha(params=params, use_divergence=False)
+
+        np.testing.assert_allclose(omega, np.sum(y), rtol=1e-12)
+        np.testing.assert_allclose(omega_a, np.sum(y[d.s > 0]), rtol=1e-12)
+        np.testing.assert_allclose(alpha, omega_a / omega, rtol=1e-12)
+
+    def test_omega_divergence_matches_mk_formula(self):
+        """
+        The divergence-based omega must equal the observed ``(D_sel/L_sel) / (D_neut/L_neut)`` and
+        omega_a must equal ``alpha * omega`` using the McDonald-Kreitman style estimators.
+        """
+        neut, sel, nsd_neut, nsd_sel = self._get_spectra('example_2')
+        inf = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel, do_bootstrap=False, n_runs=1)
+
+        params = dict(S_d=-2000.0, b=0.4, p_b=0.05, S_b=2.0, eps=0.0, h=0.5)
+
+        expected_omega = (sel.n_div / nsd_sel) / (neut.n_div / nsd_neut)
+        omega = inf.get_omega(params=params, use_divergence=True)
+        omega_a = inf.get_omega_a(params=params, use_divergence=True)
+        alpha = inf.get_alpha(params=params, use_divergence=True)
+
+        np.testing.assert_allclose(omega, expected_omega, rtol=1e-12)
+        np.testing.assert_allclose(omega_a, alpha * omega, rtol=1e-12)
+
+    def test_omega_raises_without_div_data(self):
+        """
+        Requesting divergence-based omega/omega_a without divergence data raises a clear error.
+        """
+        from fastdfe.spectrum import parse_polydfe_sfs_config
+
+        sp = parse_polydfe_sfs_config('resources/polydfe/pendula/spectra/sfs.txt')
+        inf = fd.BaseInference(sfs_neut=sp['sfs_neut'], sfs_sel=sp['sfs_sel'], do_bootstrap=False, n_runs=1)
+        inf.run()
+
+        with self.assertRaises(ValueError):
+            inf.get_omega(use_divergence=True)
+
+        with self.assertRaises(ValueError):
+            inf.get_omega_a(use_divergence=True)
+
+    @pytest.mark.inference
+    def test_divergence_bootstrap_includes_omega(self):
+        """
+        Bootstrapping adds finite omega and omega_a estimates alongside alpha.
+        """
+        neut, sel, nsd_neut, nsd_sel = self._get_spectra('example_1')
+
+        inf = fd.BaseInference(
+            sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel, do_bootstrap=True, n_bootstraps=10, n_runs=3, seed=0,
+            intervals_del=(-1.0e+8, -1.0e-5, 100), intervals_ben=(1.0e-5, 1.0e4, 100)
+        )
+        inf.run()
+
+        for key in ('alpha', 'omega', 'omega_a'):
+            assert key in inf.bootstraps
+            assert np.all(np.isfinite(inf.bootstraps[key]))
+
+    @pytest.mark.inference
+    def test_divergence_inference_serialization_round_trip(self):
+        """
+        A divergence inference must serialize and restore, retaining the divergence target sizes
+        and the divergence mode.
+        """
+        neut, sel, nsd_neut, nsd_sel = self._get_spectra('example_1')
+        inf = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel, do_bootstrap=False, n_runs=1, seed=0)
+        inf.run()
+
+        restored = fd.BaseInference.from_json(inf.to_json())
+
+        assert restored._use_divergence is True
+        assert restored.n_sites_div_sel == nsd_sel
+        np.testing.assert_allclose(restored.get_alpha(), inf.get_alpha())
+
+    def test_restore_legacy_inference_without_divergence_attrs(self):
+        """
+        Backward compatibility: an inference serialized before divergence support (lacking the
+        include_divergence / _use_divergence attributes) must restore via the class-level defaults
+        and keep working as a polymorphism-only inference.
+        """
+        inf = fd.BaseInference.from_json(
+            open('testing/cache/fastdfe/pendula_C_full_anc/serialized.json').read()
+        )
+
+        # class-level defaults kick in for the missing attributes
+        assert inf._use_divergence is False
+        assert np.isfinite(inf.get_alpha())
+
+    @staticmethod
+    def _get_full_config_with_divergence(example: str) -> 'fd.Config':
+        """
+        Load the cached full-model config for a polyDFE example and attach the divergence-bearing
+        spectra parsed from the polyDFE SFS resource.
+        """
+        from fastdfe.spectrum import parse_polydfe_sfs_config
+
+        config = fd.Config.from_file(f'testing/cache/configs/{example}_C_full_anc/config.yaml')
+        config.data['fixed_params']['all']['h'] = 0.5
+        # the toy example datasets converge in a few restarts; the default of 10 is overkill here
+        config.data['n_runs'] = 3
+
+        sp = parse_polydfe_sfs_config(f'resources/polydfe/{example}/spectra/sfs.txt')
+        config.data['sfs_neut'] = fd.Spectra.from_spectrum(sp['sfs_neut'])
+        config.data['sfs_sel'] = fd.Spectra.from_spectrum(sp['sfs_sel'])
+        config.data['n_sites_div_neut'] = {'all': sp['n_sites_div_neut']}
+        config.data['n_sites_div_sel'] = {'all': sp['n_sites_div_sel']}
+
+        return config
+
+    @pytest.mark.inference
+    def test_divergence_matches_polydfe_cached(self):
+        """
+        Validate fastDFE against polyDFE **offline** using precomputed polyDFE results (polyDFE
+        itself is far too slow to run per test — minutes per dataset). For each example dataset:
+
+        * polyDFE's divergence-based (McDonald-Kreitman) alpha is read from the cached
+          divergence run and compared to fastDFE's,
+        * the inferred binned DFEs are compared between the tools in both modes (divergence on/off),
+        * the per-bin shift caused by divergence is checked to point in the same direction in both
+          tools.
+
+        The polyDFE divergence cache is regenerated by ``snakemake/scripts/precompute_polydfe_divergence.py``.
+        """
+        # the discretization (linearized DFE -> SFS transform) is the expensive part and only
+        # depends on the sample size and intervals, which are identical across all examples and
+        # both modes, so we build it once and reuse it
+        discretization = None
+
+        for example in self.examples:
+            cache_div = f'testing/cache/polydfe/{example}_C_full_anc_divergence/serialized.json'
+            cache_nodiv = f'testing/cache/polydfe/{example}_C_full_anc_nodivergence/serialized.json'
+
+            if not (os.path.exists(cache_div) and os.path.exists(cache_nodiv)):
+                self.skipTest(f'Missing precomputed polyDFE divergence cache for {example}.')
+
+            poly_div = PolyDFE.from_file(cache_div)
+            poly_nodiv = PolyDFE.from_file(cache_nodiv)
+            poly_dfe_div = np.asarray(poly_div.get_discretized()[0])
+            poly_dfe_nodiv = np.asarray(poly_nodiv.get_discretized()[0])
+            alpha_polydfe = poly_div.get_alpha_divergence()  # cached, no R needed
+
+            def run(include_divergence):
+                config = self._get_full_config_with_divergence(example)
+                config.data['include_divergence'] = include_divergence
+                if discretization is not None:
+                    config.data['discretization'] = discretization
+                inf = fd.BaseInference.from_config(config)
+                inf.run()
+                return inf
+
+            inf_div = run(True)
+            discretization = inf_div.discretization
+            inf_nodiv = run(False)
+
+            fast_dfe_div = np.asarray(inf_div.get_discretized()[0])
+            fast_dfe_nodiv = np.asarray(inf_nodiv.get_discretized()[0])
+
+            # 1. divergence-based alpha matches polyDFE's MK estimate, and fastDFE's divergence-based
+            #    and polymorphism-based alphas agree with each other
+            assert abs(inf_div.get_alpha(use_divergence=True) - alpha_polydfe) < 0.1, \
+                f'{example}: MK alpha fastdfe vs polydfe'
+            assert abs(inf_div.get_alpha(use_divergence=True) -
+                       inf_div.get_alpha(use_divergence=False)) < 0.1, \
+                f'{example}: divergence vs polymorphism alpha'
+
+            # 2. binned DFEs agree between the tools in both modes
+            assert np.abs(fast_dfe_div - poly_dfe_div).sum() < 0.25, f'{example}: div DFE disagree'
+            assert np.abs(fast_dfe_nodiv - poly_dfe_nodiv).sum() < 0.25, f'{example}: nodiv DFE disagree'
+
+            # 3. divergence reshapes both DFEs in the same direction (when the shift is non-trivial)
+            shift_fast = fast_dfe_div - fast_dfe_nodiv
+            shift_poly = poly_dfe_div - poly_dfe_nodiv
+            if np.abs(shift_poly).sum() > 0.02:
+                cosine = float(shift_fast @ shift_poly /
+                               (np.linalg.norm(shift_fast) * np.linalg.norm(shift_poly)))
+                assert cosine > 0.7, f'{example}: divergence shift misaligned (cos={cosine})'
+
+
 class BaseInferenceTestCase(InferenceTestCase):
     """
     Test BaseInference.
@@ -173,6 +534,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         # make sure the likelihood is the maximum of the runs
         self.assertEqual(inf.likelihood, inf.runs.likelihood.max())
 
+    @pytest.mark.inference
     def test_run_inference_from_config_not_parallelized(self):
         """
         Run inference from config file.
@@ -186,6 +548,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         # make sure the likelihood is the maximum of the runs
         self.assertEqual(inf.likelihood, inf.runs.likelihood.max())
 
+    @pytest.mark.inference
     def test_seeded_inference_is_deterministic_non_parallelized(self):
         """
         Check that inference is deterministic when seeded and not parallelized.
@@ -208,6 +571,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         self.assertEqual(inf.params_mle, inf2.params_mle)
         assert_frame_equal(inf.bootstraps, inf2.bootstraps)
 
+    @pytest.mark.inference
     def test_seeded_inference_is_deterministic_parallelized(self):
         """
         Check that seeded inference is deterministic when parallelized.
@@ -230,6 +594,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         self.assertEqual(inference.params_mle, inference2.params_mle)
         assert_frame_equal(inference.bootstraps, inference2.bootstraps)
 
+    @pytest.mark.inference
     def test_compare_inference_with_log_scales_vs_lin_scales(self):
         """
         Compare inference with log scales vs linear scales.
@@ -289,6 +654,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         # standard deviation of bootstrapped likelihoods should be lower on log scales
         assert inference_log.bootstraps.likelihoods_std.mean() * 2 < inference_lin.bootstraps.likelihoods_std.mean()
 
+    @pytest.mark.inference
     def test_compare_inference_with_log_scales_vs_lin_scales_tutorial(self):
         """
         Compare inference with log scales vs linear scales.
@@ -411,6 +777,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inference.plot_all()
         inference.plot_bucket_sizes()
 
+    @pytest.mark.inference
     def test_visualize_inference_with_bootstraps(self):
         """
         Plot everything possible.
@@ -507,6 +874,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         # bootstrap
         inference.bootstrap(2)
 
+    @pytest.mark.inference
     def test_compare_nested_with_bootstrap(self):
         """
         Compare nested likelihoods.
@@ -643,6 +1011,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         inference.plot_nested_models()
 
+    @pytest.mark.inference
     def test_plot_nested_model_comparison_different_parametrizations(self):
         """
         Perform nested model comparison before having run the main inference.
@@ -1075,6 +1444,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         assert np.abs((inf_float.params_mle['S_d'] - inf_int.params_mle['S_d']) / inf_float.params_mle['S_d']) < 1e-2
         assert np.abs((inf_float.params_mle['b'] - inf_int.params_mle['b']) / inf_float.params_mle['b']) < 1e-2
 
+    @pytest.mark.inference
     @staticmethod
     def test_manuscript_example():
         """
@@ -1230,6 +1600,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         # make sure that the best likelihood per bootstrap is equal to the maximum over runs
         self.assertTrue(np.all(inf.bootstraps.likelihoods_runs.apply(max) == inf.bootstraps.likelihood))
 
+    @pytest.mark.slow
     def test_infer_dfe_with_fixed_h_low_memory_consumption(self):
         """
         Make sure memory consumption is low for default settings.
@@ -1253,6 +1624,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
             self.assertEqual(inf.params_mle['h'], h)
 
+    @pytest.mark.slow
     def test_infer_h(self):
         """
         Test inference of h parameter.
@@ -1278,6 +1650,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         self.assertGreater(inf.bootstraps.h.std(), 0)
 
+    @pytest.mark.slow
     def test_infer_h_custom_callback(self):
         """
         Test inference of h parameter.
@@ -1308,6 +1681,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         pass
 
+    @pytest.mark.inference
     def test_compare_nested_h_parameter(self):
         """
         Test nested model comparison when h is optimized in one model and fixed in the other.
@@ -1338,6 +1712,7 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         self.assertTrue(0 < p < 1)
 
+    @pytest.mark.inference
     def test_get_dfe_and_plot(self):
         """
         Test get DFE method.
@@ -1397,3 +1772,43 @@ class BaseInferenceTestCase(InferenceTestCase):
         result2 = fd.InferenceResult.from_file("scratch/inference_result.json")
 
         self.assertEqualObjects(result, result2)
+
+
+class SmokeTestCase(TestCase):
+    """
+    Fast smoke tests in the default (unit) tier. They exercise the optimizer end-to-end on tiny
+    inputs (coarse discretization, a single run, no bootstrap) to catch API/integration breakage
+    without asserting statistical accuracy — that lives in the ``inference`` and ``slow`` tiers.
+    """
+
+    sfs_neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+    sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+
+    def test_base_inference_smoke(self):
+        """A single tiny BaseInference fit runs and produces finite estimates."""
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1
+        )
+        inf.run()
+
+        self.assertTrue(np.isfinite(inf.likelihood))
+        self.assertTrue(np.isfinite(inf.get_alpha()))
+
+    def test_joint_inference_smoke(self):
+        """A single tiny JointInference fit runs across two types."""
+        inf = fd.JointInference(
+            sfs_neut=fd.Spectra(dict(a=list(self.sfs_neut), b=list(self.sfs_neut))),
+            sfs_sel=fd.Spectra(dict(a=list(self.sfs_sel), b=list(self.sfs_sel))),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1
+        )
+        inf.run()
+
+        self.assertTrue(np.isfinite(inf.likelihood))

@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 from matplotlib import pyplot as plt
 
 import fastdfe as fd
@@ -10,6 +11,7 @@ from fastdfe.parametrization import DiscreteParametrization, GammaDiscreteParame
 from testing import TestCase
 
 
+@pytest.mark.inference
 class ParametrizationTestCase(TestCase):
     """
     Test the parametrization classes.
@@ -539,3 +541,46 @@ class ParametrizationTestCase(TestCase):
         dfe2 = fd.DFE.from_file("scratch/gamma_exp_dfe.json")
 
         self.assertDictEqual(dfe.params, dfe2.params)
+
+
+class FastParametrizationTestCase(TestCase):
+    """
+    Fast-tier coverage of each DFE parametrization's math (pdf / cdf / discretize / normalize /
+    freeze) evaluated directly, with no inference.
+    """
+
+    @staticmethod
+    def _models():
+        return [
+            fd.GammaExpParametrization(),
+            DisplacedGammaParametrization(),
+            GammaDiscreteParametrization(),
+            DiscreteParametrization(),
+            DiscreteFractionalParametrization(),
+        ]
+
+    bins = np.array([-np.inf, -1e6, -1e3, -10, -1, 0, 1, 10, 1e3, 1e4, np.inf])
+
+    def test_pdf_cdf_discretize(self):
+        """Each model's pdf/cdf are finite and its discretized DFE integrates to ~1."""
+        S = np.array([-1000., -10., -1., 0., 1., 10.])
+
+        for model in self._models():
+            with self.subTest(model=type(model).__name__):
+                params = dict(model.x0)
+
+                self.assertTrue(len(model.param_names) > 0)
+                self.assertTrue(np.all(np.isfinite(model.get_pdf(**params)(S))))
+                self.assertTrue(np.all(np.isfinite(model.get_cdf(**params)(S))))
+
+                hist = model._discretize(params, self.bins, warn_mass=False)
+                self.assertAlmostEqual(hist.sum(), 1.0, places=2)
+
+                # parameter post-processing + DFE construction
+                model._normalize(dict(params))
+                self.assertIsInstance(model.freeze(params), fd.DFE)
+
+    def test_plot_discretized(self):
+        """The discretized-DFE plot renders for one model (covers the plotting path)."""
+        model = fd.GammaExpParametrization()
+        model.plot(params=dict(model.x0), file='scratch/fast_param_plot.png', show=False)

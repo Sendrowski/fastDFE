@@ -395,6 +395,58 @@ class PolyDFE(AbstractInference):
         # filter params
         return dict((k, params[k]) for k in self.get_bootstrap_param_names())
 
+    def get_alpha_divergence(self) -> float:
+        """
+        Get alpha from observed divergence counts using polyDFE's McDonald-Kreitman style
+        ``estimateAlpha`` (the ``div`` branch), i.e. ``1 - (L_sel/L_neut)*(D_neut/D_sel)*divDel``.
+
+        The divergence counts and target sizes are taken from the config's spectra (which must
+        carry a separate divergence target size via ``n_sites_div_neut`` / ``n_sites_div_sel``).
+        This requires polyDFE to have been run and an R environment with the postprocessing script,
+        and is the reference for validating :meth:`~fastdfe.base_inference.BaseInference.get_alpha`
+        with ``use_divergence=True``.
+
+        :return: Estimate for alpha based on divergence counts
+        """
+        # return the cached value if available, so the estimate round-trips through serialization
+        # and can be checked offline without re-running R
+        if self.summary.data.get('alpha_divergence') is not None:
+            return self.summary.data['alpha_divergence']
+
+        import rpy2.robjects as ro
+
+        sfs_neut = self.config.data['sfs_neut'].all
+        sfs_sel = self.config.data['sfs_sel'].all
+
+        nsd_neut = self.config.data.get('n_sites_div_neut')
+        nsd_sel = self.config.data.get('n_sites_div_sel')
+        n_sites_div_neut = sum(nsd_neut.values()) if nsd_neut else None
+        n_sites_div_sel = sum(nsd_sel.values()) if nsd_sel else None
+
+        if n_sites_div_neut is None or n_sites_div_sel is None:
+            raise ValueError(
+                "Cannot compute divergence-based alpha without divergence counts and a separate "
+                "divergence target size for both spectra."
+            )
+
+        # polyDFE's estimateAlpha expects a named vector div[c('length_sel', 'length_neut',
+        # 'obs_neut', 'obs_sel')]
+        div = ro.FloatVector([
+            float(n_sites_div_sel), float(n_sites_div_neut),
+            float(sfs_neut.n_div), float(sfs_sel.n_div)
+        ])
+        div.names = ro.StrVector(['length_sel', 'length_neut', 'obs_neut', 'obs_sel'])
+
+        ps = self.summary.get_postprocessing_wrapper()
+        parsed = ps.parseOutput(self.summary.output_file)[0]
+
+        alpha = float(ps.estimateAlpha(parsed, div=div)[0])
+
+        # cache so it survives serialization
+        self.summary.data['alpha_divergence'] = alpha
+
+        return alpha
+
     @property
     def params_mle(self) -> dict:
         """

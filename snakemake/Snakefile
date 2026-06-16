@@ -18,6 +18,20 @@ else:
     # this only works on Linux
     dev_env = 'envs/dev_with_polydfe.yaml'
 
+import platform as _platform
+
+
+def polydfe_binary() -> str:
+    """
+    Path to a runnable polyDFE binary. The bundled macOS binary is x86_64, so on Apple Silicon we
+    use the natively built arm64 binary (see rule ``build_polyDFE_binary_arm64``).
+    """
+    if is_macos and _platform.machine() == 'arm64':
+        return '../resources/polydfe/bin/polyDFE-2.0-macOS-arm64-bit'
+    if is_macos:
+        return '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit'
+    return 'polydfe'
+
 
 def extract_opt(str: str, name, default_value=None) -> str:
     """
@@ -293,6 +307,26 @@ if is_macos:
                 chmod +x {output}
             """
 
+    # the bundled macOS binary is x86_64; build polyDFE natively for Apple Silicon. Uses the
+    # *system* clang (which knows the macOS SDK) against conda's static GSL, and patches the one
+    # GSL >= 2 signature change (an added weights argument).
+    rule build_polyDFE_binary_arm64:
+        output:
+            "../resources/polydfe/bin/polyDFE-2.0-macOS-arm64-bit"
+        conda:
+            "envs/dev_with_polydfe_macos.yaml"
+        shell:
+            r"""
+                tmp=$(mktemp -d)
+                git clone --depth 1 https://github.com/paula-tataru/polyDFE.git $tmp
+                sed -i '' 's/gsl_multifit_fdfsolver_dif_df(x, &fdf, f, J)/gsl_multifit_fdfsolver_dif_df(x, NULL, \&fdf, f, J)/' $tmp/src/localoptim.c
+                (cd $tmp && /usr/bin/clang -O2 -frounding-math -I"$CONDA_PREFIX/include" -c src/*.c \
+                    && /usr/bin/clang -o polyDFE *.o "$CONDA_PREFIX/lib/libgsl.a" "$CONDA_PREFIX/lib/libgslcblas.a" -lm)
+                mkdir -p $(dirname {output})
+                cp $tmp/polyDFE {output}
+                chmod +x {output}
+            """
+
 # fetch the postprocessing script from the GitHub repository
 rule fetch_postprocessing_script_polyDFE:
     output:
@@ -366,6 +400,33 @@ rule modify_config_seeded:
     script:
         "scripts/modify_config.py"
 
+# enable / disable divergence counts in the likelihood. The example datasets carry divergence in
+# their SFS, so the `_divergence` / `_nodivergence` variants toggle whether polyDFE and fastDFE use
+# it (see `Config.create_polydfe_sfs_config` / `BaseInference.include_divergence`).
+rule modify_config_divergence:
+    input:
+        "results/configs/{config}/config.yaml"
+    output:
+        "results/configs/{config}_divergence/config.yaml"
+    params:
+        opts=lambda w: dict(include_divergence=True)
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/modify_config.py"
+
+rule modify_config_nodivergence:
+    input:
+        "results/configs/{config}/config.yaml"
+    output:
+        "results/configs/{config}_nodivergence/config.yaml"
+    params:
+        opts=lambda w: dict(include_divergence=False)
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/modify_config.py"
+
 # infer DFE from SFS
 rule infer_dfe:
     input:
@@ -388,7 +449,7 @@ rule infer_dfe_polyDFE:
         summary="results/polydfe/{config}/summary.json",
         serialized="results/polydfe/{config}/serialized.json"
     params:
-        bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
+        bin=polydfe_binary()
     conda:
         dev_env
     script:
@@ -404,7 +465,7 @@ rule infer_dfe_polyDFE_bootstrap:
         summary="results/polydfe/{config}/bootstraps/{i}/summary.json",
         serialized="results/polydfe/{config}/bootstraps/{i}/serialized.json"
     params:
-        bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
+        bin=polydfe_binary()
     conda:
         dev_env
     script:
@@ -521,6 +582,41 @@ rule renew_test_file_cache_polydfe:
         "../testing/polydfe/pendula_C_full_anc/serialized.json"
     output:
         touch("../testing/renew_cache_polydfe.txt")
+
+# precompute polyDFE inference *with divergence* for the example datasets and place the serialized
+# results (including the cached McDonald-Kreitman ``alpha_divergence``) directly into the test cache.
+# polyDFE is slow (minutes per dataset), so these are precomputed and checked offline by
+# ``DivergenceTestCase.test_divergence_matches_polydfe_cached``.
+rule renew_test_file_cache_polydfe_divergence:
+    input:
+        config['polydfe_postprocessing_source'],
+        polydfe_binary(),
+        sfs=expand("../resources/polydfe/{example}/spectra/sfs.txt",
+            example=['example_1', 'example_2', 'example_3']),
+        configs=expand("../testing/cache/configs/{example}_C_full_anc/config.yaml",
+            example=['example_1', 'example_2', 'example_3'])
+    output:
+        expand("../testing/cache/polydfe/{example}_C_full_anc_{mode}/serialized.json",
+            example=['example_1', 'example_2', 'example_3'],
+            mode=['divergence', 'nodivergence'])
+    conda:
+        dev_env
+    shell:
+        "cd .. && python snakemake/scripts/precompute_polydfe_divergence.py"
+
+# precompute the *empirical* alpha (true proportion of fixed beneficial substitutions, counted
+# directly from SLiM) for the s_b=1e-3 dominance family. This gives a real ground truth for
+# ``SLiMTestCase.test_divergence_alpha_against_slim_dominance`` instead of an analytical proxy.
+# Requires SLiM on PATH (conda-forge `slim`).
+rule renew_test_file_cache_empirical_alpha:
+    input:
+        "scripts/count_substitutions.slim"
+    output:
+        "../testing/cache/slim/empirical_alpha/s_b=1e-3_b=0.3_s_d=3e-2_p_b=0.05.json"
+    conda:
+        dev_env
+    shell:
+        "cd .. && python snakemake/scripts/precompute_empirical_alpha_slim.py"
 
 # renew test cache used for comparison
 rule renew_test_file_cache:
@@ -1199,7 +1295,7 @@ rule infer_dfe_hgdp_polydfe:
         summary="results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/{population}.summary.json",
         polydfe="results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/{population}.polydfe.txt"
     params:
-        bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
+        bin=polydfe_binary()
     conda:
         dev_env
     script:
@@ -1227,7 +1323,7 @@ rule infer_dfe_hgdp_polyDFE_bootstrap:
         summary="results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/bootstraps/{i}/{population}.summary.json",
         serialized="results/polydfe/hgdp/inference/{chr}/{opts}.n.{n}.config.{config}/bootstraps/{i}/{population}.serialized.json"
     params:
-        bin=lambda w: '../resources/polydfe/bin/polyDFE-2.0-macOS-64-bit' if is_macos else 'polydfe'
+        bin=polydfe_binary()
     conda:
         dev_env
     script:

@@ -552,6 +552,72 @@ class BiasedGCConversionFiltration(Filtration):
 
         return True
 
+
+class CpGFiltration(Filtration):
+    """
+    Filter out sites whose reference base is in a CpG dinucleotide context. CpG sites are hypermutable
+    (the cytosine is prone to deamination), so they are commonly excluded when inferring the DFE to
+    avoid mutation-rate heterogeneity. A site is in CpG context iff:
+
+    - the reference base is ``C`` and the next base on the same strand is ``G``, or
+    - the reference base is ``G`` and the previous base on the same strand is ``C``.
+
+    Like :class:`CodingSequenceFiltration`, this filtration requires a FASTA reference (passed to
+    :class:`~fastdfe.parser.Parser` or :class:`~fastdfe.filtration.Filterer`), which is used for the
+    ``±1`` base lookup.
+    """
+
+    def _setup(self, handler: MultiHandler):
+        """
+        Require a FASTA file on the parent handler.
+
+        :param handler: The handler.
+        """
+        # require FASTA file
+        handler._require_fasta(self.__class__.__name__)
+
+        super()._setup(handler)
+
+    @staticmethod
+    def _is_cpg(contig, pos: int, ref: str) -> bool:
+        """
+        Whether the reference base at ``pos`` (1-based) sits in a CpG dinucleotide context.
+
+        :param contig: The reference sequence record for the variant's contig.
+        :param pos: The 1-based position of the reference base.
+        :param ref: The reference base.
+        :return: Whether the site is in CpG context.
+        """
+        i = pos - 1  # 0-based index of the reference base
+
+        if ref == 'C' and i + 1 < len(contig):
+            return str(contig[i + 1]).upper() == 'G'
+
+        if ref == 'G' and i - 1 >= 0:
+            return str(contig[i - 1]).upper() == 'C'
+
+        return False
+
+    @_count_filtered
+    def filter_site(self, variant: Union['cyvcf2.Variant', DummyVariant]) -> bool:
+        """
+        Filter site by whether its reference base is in a CpG context.
+
+        :param variant: The variant to filter.
+        :return: ``True`` if the site should be kept (not CpG), ``False`` otherwise.
+        """
+        ref = (variant.REF or '').upper()
+
+        # only C/G reference bases can be in CpG context
+        if ref not in ('C', 'G'):
+            return True
+
+        # fetch the variant's contig from the handler's FASTA (cached across calls)
+        contig = self._handler.get_contig(self._handler.get_aliases(variant.CHROM))
+
+        return not self._is_cpg(contig, variant.POS, ref)
+
+
 class ContigFiltration(Filtration):
     """
     Filter out sites that are not on the specified contigs.
@@ -610,6 +676,7 @@ class Filterer(MultiHandler):
             vcf: str | Iterable['cyvcf2.Variant'],
             output: str,
             gff: str | None = None,
+            fasta: str | None = None,
             filtrations: List[Filtration] = [],
             info_ancestral: str = 'AA',
             max_sites: int = np.inf,
@@ -623,6 +690,8 @@ class Filterer(MultiHandler):
         :param vcf: The VCF file, possibly gzipped or a URL.
         :param output: The output file.
         :param gff: The GFF file, possibly gzipped or a URL. This argument is required for some filtrations.
+        :param fasta: The FASTA reference file, possibly gzipped or a URL. This argument is required for
+            filtrations that depend on the reference sequence (e.g. base context).
         :param filtrations: The filtrations.
         :param info_ancestral: The info field for the ancestral allele.
         :param max_sites: The maximum number of sites to process.
@@ -633,6 +702,7 @@ class Filterer(MultiHandler):
         super().__init__(
             vcf=vcf,
             gff=gff,
+            fasta=fasta,
             info_ancestral=info_ancestral,
             max_sites=max_sites,
             seed=seed,

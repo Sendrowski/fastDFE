@@ -46,6 +46,11 @@ polydfe = PolyDFE(config)
 
 summary = polydfe.run(out, binary=bin, wd=os.getcwd(), execute=execute)
 
+# if the spectra carry divergence counts, also compute and cache polyDFE's McDonald-Kreitman
+# style alpha (estimateAlpha with the `div` argument) so it can be compared offline
+if config.data['sfs_neut'].all.has_div_sites and config.data['sfs_sel'].all.has_div_sites:
+    polydfe.get_alpha_divergence()
+
 # save summary to file
 summary.to_file(out_summary)
 

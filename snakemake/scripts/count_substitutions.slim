@@ -1,0 +1,18 @@
+initialize() {
+    initializeSLiMModelType("WF");
+    initializeMutationRate(mu);
+    initializeMutationType("m1", h, "g", -2 * s_d, b);   // deleterious gamma
+    initializeMutationType("m2", h, "e", 2 * s_b);        // beneficial exponential
+    initializeGenomicElementType("g1", c(m1, m2), c(1 - p_b, p_b));
+    initializeGenomicElement(g1, 0, asInteger(L) - 1);
+    initializeRecombinationRate(r);
+}
+1 early() { sim.addSubpop("p1", N); }
+1:100000000 late() {
+    if (community.tick == asInteger(G)) {
+        nd = sum(sim.substitutions.mutationType == m1);
+        nb = sum(sim.substitutions.mutationType == m2);
+        catn("EMPIRICAL_RESULT del=" + nd + " ben=" + nb + " alpha=" + (nb / (nb + nd)));
+        sim.simulationFinished();
+    }
+}

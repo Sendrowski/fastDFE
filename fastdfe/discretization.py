@@ -844,6 +844,11 @@ class Discretization:
         """
         Get alpha, the proportion of beneficial non-synonymous substitutions.
 
+        This is the DFE-based (post-hoc) estimate that does not make use of observed divergence
+        counts. It corresponds to polyDFE's ``estimateAlpha`` when no divergence data is supplied:
+        ``alpha = divBen / (divDel + divBen)``, where ``divDel``/``divBen`` are the expected numbers
+        of deleterious/beneficial substitutions integrated over the DFE.
+
         :param model: DFE parametrization
         :param params: Parameters of the DFE
         :return: Estimated for alpha
@@ -851,6 +856,140 @@ class Discretization:
         y = model._discretize(params, self.bins) * self.get_counts_fixed(params.get('h', 0.5))
 
         return np.sum(y[self.s > 0]) / np.sum(y)
+
+    def get_divergence_flux(self, model: Parametrization, params: dict) -> float:
+        """
+        Get the expected number of selected substitutions per neutral substitution, integrated
+        over the DFE. This is ``divDel + divBen`` and equals 1 for a purely neutral DFE. It mirrors
+        polyDFE's per-site expected divergence relative to the neutral baseline, where the per
+        selection coefficient contribution is ``S / (1 - exp(-S))`` (see :meth:`get_counts_fixed`).
+
+        :param model: DFE parametrization
+        :param params: Parameters of the DFE
+        :return: Expected selected divergence relative to neutral divergence
+        """
+        return float(np.sum(model._discretize(params, self.bins) * self.get_counts_fixed(params.get('h', 0.5))))
+
+    def get_alpha_divergence(
+            self,
+            model: Parametrization,
+            params: dict,
+            sfs_neut: 'Spectrum',
+            sfs_sel: 'Spectrum',
+            n_sites_div_neut: float,
+            n_sites_div_sel: float
+    ) -> float:
+        """
+        Get alpha from observed divergence counts, mirroring polyDFE's McDonald-Kreitman style
+        ``estimateAlpha`` when divergence data is supplied::
+
+            alpha = 1 - (L_sel / L_neut) * (D_neut / D_sel) * divDel
+
+        where ``L`` are the mutational target sizes for divergence (``n_sites_div_neut`` / ``n_sites_div_sel``),
+        ``D`` are the observed divergence counts (:attr:`Spectrum.n_div`), and ``divDel`` is the
+        expected number of deleterious (and neutral) substitutions per neutral substitution,
+        integrated over the DFE.
+
+        :param model: DFE parametrization
+        :param params: Parameters of the DFE
+        :param sfs_neut: Neutral spectrum, carrying observed neutral divergence counts and target size
+        :param sfs_sel: Selected spectrum, carrying observed selected divergence counts and target size
+        :return: Estimate for alpha based on divergence counts
+        """
+        y = model._discretize(params, self.bins) * self.get_counts_fixed(params.get('h', 0.5))
+
+        # expected deleterious (and neutral) divergence relative to the neutral baseline
+        div_del = np.sum(y[self.s < 0])
+
+        return float(1 - (n_sites_div_sel / n_sites_div_neut) *
+                     (sfs_neut.n_div / sfs_sel.n_div) * div_del)
+
+    def get_omega(self, model: Parametrization, params: dict) -> float:
+        """
+        Get omega, the rate of non-synonymous over synonymous substitutions (dN/dS), integrated
+        over the DFE. This is the DFE-based (post-hoc) estimate that does not make use of observed
+        divergence counts. It equals the expected number of selected substitutions per neutral
+        substitution, i.e. ``divDel + divBen`` (cf. :meth:`get_divergence_flux`), and is 1 for a
+        purely neutral DFE.
+
+        :param model: DFE parametrization
+        :param params: Parameters of the DFE
+        :return: Estimate for omega (dN/dS)
+        """
+        y = model._discretize(params, self.bins) * self.get_counts_fixed(params.get('h', 0.5))
+
+        return float(np.sum(y))
+
+    def get_omega_a(self, model: Parametrization, params: dict) -> float:
+        """
+        Get omega_a, the rate of adaptive non-synonymous over synonymous substitutions
+        (adaptive dN/dS), integrated over the DFE. This is the DFE-based (post-hoc) estimate that
+        does not make use of observed divergence counts and equals ``alpha * omega``, i.e. the
+        expected number of beneficial substitutions per neutral substitution (``divBen``).
+
+        :param model: DFE parametrization
+        :param params: Parameters of the DFE
+        :return: Estimate for omega_a (adaptive dN/dS)
+        """
+        y = model._discretize(params, self.bins) * self.get_counts_fixed(params.get('h', 0.5))
+
+        return float(np.sum(y[self.s > 0]))
+
+    def get_omega_divergence(
+            self,
+            model: Parametrization,
+            params: dict,
+            sfs_neut: 'Spectrum',
+            sfs_sel: 'Spectrum',
+            n_sites_div_neut: float,
+            n_sites_div_sel: float
+    ) -> float:
+        """
+        Get omega (dN/dS) from observed divergence counts, mirroring polyDFE's McDonald-Kreitman
+        style estimate when divergence data is supplied::
+
+            omega = (D_sel / L_sel) / (D_neut / L_neut)
+
+        where ``L`` are the mutational target sizes for divergence (``n_sites_div_neut`` / ``n_sites_div_sel``)
+        and ``D`` are the observed divergence counts (:attr:`Spectrum.n_div`).
+
+        :param model: DFE parametrization
+        :param params: Parameters of the DFE
+        :param sfs_neut: Neutral spectrum, carrying observed neutral divergence counts and target size
+        :param sfs_sel: Selected spectrum, carrying observed selected divergence counts and target size
+        :return: Estimate for omega (dN/dS) based on divergence counts
+        """
+        return float((sfs_sel.n_div / n_sites_div_sel) /
+                     (sfs_neut.n_div / n_sites_div_neut))
+
+    def get_omega_a_divergence(
+            self,
+            model: Parametrization,
+            params: dict,
+            sfs_neut: 'Spectrum',
+            sfs_sel: 'Spectrum',
+            n_sites_div_neut: float,
+            n_sites_div_sel: float
+    ) -> float:
+        """
+        Get omega_a (adaptive dN/dS) from observed divergence counts, mirroring polyDFE's
+        McDonald-Kreitman style estimate when divergence data is supplied::
+
+            omega_a = alpha * omega
+
+        where ``alpha`` is the MK-style estimate (:meth:`get_alpha_divergence`) and ``omega`` the
+        observed dN/dS (:meth:`get_omega_divergence`).
+
+        :param model: DFE parametrization
+        :param params: Parameters of the DFE
+        :param sfs_neut: Neutral spectrum, carrying observed neutral divergence counts and target size
+        :param sfs_sel: Selected spectrum, carrying observed selected divergence counts and target size
+        :return: Estimate for omega_a (adaptive dN/dS) based on divergence counts
+        """
+        alpha = self.get_alpha_divergence(model, params, sfs_neut, sfs_sel, n_sites_div_neut, n_sites_div_sel)
+        omega = self.get_omega_divergence(model, params, sfs_neut, sfs_sel, n_sites_div_neut, n_sites_div_sel)
+
+        return float(alpha * omega)
 
     def get_interval_density(
             self,

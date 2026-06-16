@@ -89,6 +89,45 @@ class ConfigTestCase(TestCase):
         # compare original json representation and restored json representation
         testing.assert_equal(config.to_yaml(), Config.from_yaml(config.to_yaml()).to_yaml())
 
+    def test_divergence_config_round_trip(self):
+        """
+        Check that divergence target sizes and the include_divergence flag survive
+        serialization, and that the spectra payload itself is unchanged.
+        """
+        # example_1 carries divergence counts and a separate divergence target size
+        config = Config(polydfe_spectra_config="resources/polydfe/example_1/spectra/sfs.txt")
+
+        # divergence target sizes are stored on the config (keyed by the single 'all' type)
+        assert config.data['n_sites_div_sel']  # non-empty
+
+        out = "scratch/test_divergence_config_round_trip.yaml"
+        config.to_file(out)
+        config2 = Config.from_file(out)
+
+        testing.assert_equal(config2.data['include_divergence'], True)
+        testing.assert_equal(
+            config.data['n_sites_div_neut'],
+            config2.data['n_sites_div_neut']
+        )
+        testing.assert_equal(
+            config.data['n_sites_div_sel'],
+            config2.data['n_sites_div_sel']
+        )
+
+        # full YAML is stable under a second round-trip
+        testing.assert_equal(config.to_yaml(), Config.from_yaml(config.to_yaml()).to_yaml())
+
+    def test_legacy_config_without_divergence_keys_loads(self):
+        """
+        Backward compatibility: a config dict lacking include_divergence / n_sites_div
+        (i.e. serialized before divergence support) must load with safe defaults.
+        """
+        config = Config.from_file(self.config_file)
+
+        # legacy YAML configs have no such keys but must still default sensibly
+        testing.assert_equal(config.data['include_divergence'], True)
+        testing.assert_equal(config.data.get('n_sites_div_sel'), None)
+
     def test_recreate_config_from_inference(self):
         """
         Load config from file, create inference object and recreate config from inference object.

@@ -26,4 +26,4 @@ slurm/
 .coverage
 useful-commands.txt
 /resources/polydfe/postprocessing/script.R
-/resources/polydfe/bin/polyDFE-2.0-macOS-64-bit
+/resources/polydfe/bin/

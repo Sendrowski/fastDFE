@@ -339,6 +339,8 @@ class Visualization:
         # define new names for some parameters
         label_mapping = dict(
             alpha='α',
+            omega='ω',
+            omega_a='ω_a',
             eps='ε'
         )
 
@@ -352,8 +354,10 @@ class Visualization:
         # get index of parameter
         k = np.where(np.array(param_names) == key)[0][0]
 
-        # check parameter value and add minus sign if negative
-        if vals[k] >= 0:
+        # check parameter value and add minus sign if negative. ``vals`` may be indexed per
+        # parameter (one value per name) or, as in the boxplot, carry a different layout; guard
+        # against an out-of-range index and fall back to the plain label in that case.
+        if vals is None or k >= len(vals) or vals[k] >= 0:
             return '$' + label + '$'
 
         return '$-' + key + '$'

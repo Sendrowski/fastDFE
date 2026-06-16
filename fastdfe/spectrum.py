@@ -280,7 +280,7 @@ class Spectrum(Iterable):
             # resample polymorphic sites only
             polymorphic=rng.poisson(lam=self.polymorphic),
             n_sites=self.n_sites,
-            n_div=self.n_div
+            n_div=rng.poisson(self.n_div)
         )
 
     def is_folded(self) -> bool:
@@ -342,7 +342,7 @@ class Spectrum(Iterable):
             n_div: float
     ) -> 'Spectrum':
         """
-        Create Spectra from polyDFE specification which treats the number
+        Create Spectrum from polyDFE specification which treats the number
         of mutational target sites and the divergence counts separately.
 
         :param polymorphic: Polymorphic counts
@@ -976,7 +976,10 @@ class Spectra:
         :param spectra: Dictionary of spectrum objects indexed by type
         :return: Spectra object
         """
-        return Spectra.from_list([sfs.to_list() for sfs in spectra.values()], types=list(spectra.keys()))
+        return Spectra.from_list(
+            [sfs.to_list() for sfs in spectra.values()],
+            types=list(spectra.keys())
+        )
 
     @staticmethod
     def from_spectrum(sfs: Spectrum) -> 'Spectra':
@@ -1155,13 +1158,13 @@ class Spectra:
         return Spectra.from_dataframe(self.data.sort_index(axis=1))
 
 
-def parse_polydfe_sfs_config(file: str) -> Spectra:
+def parse_polydfe_sfs_config(file: str) -> dict:
     """
     Parse frequency spectra and mutational target site from
     polyDFE configuration file.
 
     :param file: File name
-    :return: Spectra object
+    :return: Dictionary
     """
     df = pd.read_csv(file, header=None, comment='#')
 
@@ -1180,9 +1183,8 @@ def parse_polydfe_sfs_config(file: str) -> Spectra:
 
     def to_spectrum(data: np.ndarray) -> Spectrum:
         """
-        Parse spectrum and number of mutational target sites.
-        We ignore the number of mutational target sites for divergence counts
-        but include the divergence counts for completeness of the SFS.
+        Parse spectrum, number of mutational target sites, and the optional
+        divergence counts together with their separate mutational target size.
 
         :param data: Spectrum data
         :return: Spectrum object
@@ -1200,19 +1202,24 @@ def parse_polydfe_sfs_config(file: str) -> Spectra:
         # parse optional divergence counts
         n_div = float(data_merged[n]) if n < data_merged.shape[0] else 0
 
-        return Spectrum.from_polydfe(polymorphic, n_sites=n_sites, n_div=n_div)
+        # parse optional number of mutational target sites for divergence counts
+        n_sites_div = float(data_merged[n + 1]) if n + 1 < data_merged.shape[0] else None
+
+        return Spectrum.from_polydfe(polymorphic, n_sites=n_sites, n_div=n_div), n_sites_div
 
     # iterate over spectra and merge them as we do not
     # support variable mutation rates
     data_neut = np.array([df.iloc[i][0].split() for i in range(1, n_neut + 1)], dtype=float)
-    sfs_neut = to_spectrum(data_neut)
+    sfs_neut, n_sites_div_neut = to_spectrum(data_neut)
 
     # iterate over spectra and merge them as we do not
     # support variable mutation rates
     data_sel = np.array([df.iloc[i][0].split() for i in range(n_neut + 1, n_neut + n_sel + 1)], dtype=float)
-    sfs_sel = to_spectrum(data_sel)
+    sfs_sel, n_sites_div_sel = to_spectrum(data_sel)
 
-    return Spectra.from_spectra(dict(
+    return dict(
         sfs_neut=sfs_neut,
-        sfs_sel=sfs_sel
-    ))
+        sfs_sel=sfs_sel,
+        n_sites_div_neut=n_sites_div_neut,
+        n_sites_div_sel=n_sites_div_sel
+    )

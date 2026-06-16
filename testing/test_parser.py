@@ -10,11 +10,13 @@ from unittest.mock import Mock
 from testing import TestCase
 
 
+@pytest.mark.slow
 class ParserTestCase(TestCase):
     """
     Test parser.
     """
 
+    @pytest.mark.slow
     @staticmethod
     def test_parse_sfs_compare_subsample_modes():
         """
@@ -385,6 +387,7 @@ class ParserTestCase(TestCase):
 
         self.assertEqual(np.round(sfs.all.data.sum()), 6)
 
+    @pytest.mark.slow
     def test_parse_betula_vcf_biallelic_infer_monomorphic_subset(self):
         """
         Parse a subset of the VCF file of Betula spp.
@@ -1332,3 +1335,116 @@ class ParserTestCase(TestCase):
 
             # mean relative difference much lower than threshold for most bins
             self.assertLess(np.abs((sfs_prob.all.data - sfs_fixed.all.data) / sfs_fixed.all.data).mean(), 0.12)
+
+
+class FastParserTestCase(TestCase):
+    """
+    Fast-tier parser coverage. Reuses the committed betula VCF but caps ``max_sites`` so only a
+    handful of records are read (the parse loop short-circuits), exercising the stratification and
+    SFS-assembly code paths in milliseconds rather than seconds.
+    """
+
+    vcf = 'resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz'
+    fasta = 'resources/genome/betula/genome.subset.20.fasta'
+
+    def _parse(self, stratifications, max_sites=200, **kwargs):
+        sfs = fd.Parser(
+            vcf=self.vcf,
+            n=20,
+            stratifications=stratifications,
+            max_sites=max_sites,
+            **kwargs
+        ).parse()
+
+        # parse() always returns a Spectra; some stratifications skip every site in a tiny slice
+        # (sparse INFO fields), which still exercises the parse/skip paths
+        self.assertIsInstance(sfs, fd.Spectra)
+        return sfs
+
+    def test_no_stratification(self):
+        """A bare parse (no stratification), both subsample modes, yields a full SFS."""
+        for sfs in (self._parse([]), self._parse([], subsample_mode='random', seed=1)):
+            self.assertEqual(sfs.all.n, 20)
+            self.assertGreater(sfs.all.data.sum(), 0)
+
+    def test_stratifications_vcf_only(self):
+        """Stratifications that read only the VCF / its INFO fields."""
+        for strat in [
+            fd.DegeneracyStratification(),
+            fd.TransitionTransversionStratification(),
+            fd.BaseTransitionStratification(),
+            fd.AncestralBaseStratification(),
+            fd.RandomStratification(n_bins=3, seed=42),
+            fd.ContigStratification(),
+            fd.ChunkedStratification(n_chunks=2),
+        ]:
+            with self.subTest(stratification=type(strat).__name__):
+                sfs = self._parse([strat])
+                if sfs.types:
+                    self.assertTrue(set(sfs.types).issubset(set(strat.get_types())))
+
+    def test_base_context_stratification_with_fasta(self):
+        """The FASTA-backed base-context stratification (tiny committed genome subset)."""
+        self._parse([fd.BaseContextStratification(fasta=self.fasta)])
+
+    def test_filtrations(self):
+        """Parse with VCF-only filtrations applied."""
+        self._parse([], filtrations=[fd.SNPFiltration()])
+        self._parse([], filtrations=[fd.SNPFiltration(), fd.PolyAllelicFiltration()])
+
+    def test_options(self):
+        """The random subsample mode with an explicit seed."""
+        self._parse([], subsample_mode='random', seed=3)
+
+    def test_inline_annotation_and_stratification(self):
+        """An inline degeneracy annotation + stratification during the parse (FASTA + GFF)."""
+        sfs = fd.Parser(
+            vcf='resources/genome/betula/all.subset.100000.vcf.gz',
+            fasta=self.fasta,
+            gff='resources/genome/betula/genome.gff.gz',
+            n=20,
+            max_sites=200,
+            annotations=[fd.DegeneracyAnnotation()],
+            stratifications=[fd.DegeneracyStratification()],
+        ).parse()
+
+        self.assertIsInstance(sfs, fd.Spectra)
+
+    def test_target_site_counter(self):
+        """
+        Sampling monomorphic target sites from the FASTA via TargetSiteCounter (the parser is fed a
+        SNP-only VCF and reconstructs the monomorphic counts from the reference). A small
+        ``n_samples`` keeps it in the millisecond range while still exercising the count/update path.
+        """
+        sfs = fd.Parser(
+            vcf=self.vcf,
+            fasta=self.fasta,
+            n=20,
+            max_sites=200,
+            filtrations=[fd.SNPFiltration()],
+            target_site_counter=fd.TargetSiteCounter(n_target_sites=100000, n_samples=200),
+        ).parse()
+
+        self.assertIsInstance(sfs, fd.Spectra)
+        # monomorphic counts were filled in from the reference, so the SFS is non-empty
+        self.assertGreater(sfs.all.data.sum(), 0)
+
+    def test_inline_synonymy_annotation_and_stratification(self):
+        """
+        Inline SynonymyAnnotation adds the ``Synonymy`` info tag on-the-fly, which
+        SynonymyStratification then reads to split neutral/selected — exercising the synonymy
+        stratification path without a pre-annotated (VEP/snpEff) VCF.
+        """
+        sfs = fd.Parser(
+            vcf='resources/genome/betula/all.subset.100000.vcf.gz',
+            fasta=self.fasta,
+            gff='resources/genome/betula/genome.gff.gz',
+            n=20,
+            max_sites=200,
+            annotations=[fd.SynonymyAnnotation()],
+            stratifications=[fd.SynonymyStratification()],
+        ).parse()
+
+        self.assertIsInstance(sfs, fd.Spectra)
+        if sfs.types:
+            self.assertTrue(set(sfs.types).issubset({'neutral', 'selected'}))

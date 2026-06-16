@@ -6,9 +6,11 @@ from pandas._testing import assert_frame_equal
 import fastdfe as fd
 from fastdfe import JointInference, Config, SharedParams, Covariate, Spectra
 from fastdfe.optimization import flatten_dict
+from testing import TestCase
 from testing.test_base_inference import InferenceTestCase
 
 
+@pytest.mark.inference
 class JointInferenceTestCase(InferenceTestCase):
     """
     Test the JointInference class.
@@ -863,3 +865,110 @@ class JointInferenceTestCase(InferenceTestCase):
             inf.joint_inferences['pubescens'].params_mle['h']
         )
 
+
+
+class FastJointInferenceTestCase(TestCase):
+    """
+    Fast-tier JointInference coverage: tiny two-type fits (coarse discretization, single run, no
+    bootstrap) exercising shared parameters, a covariate, the aggregate getters and the
+    serialization round-trip.
+    """
+
+    sfs_neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+    sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+
+    def _make(self, **kwargs):
+        kwargs.setdefault('do_bootstrap', False)
+        kwargs.setdefault('n_runs', 1)
+        kwargs.setdefault('parallelize', False)
+        return fd.JointInference(
+            sfs_neut=fd.Spectra(dict(a=list(self.sfs_neut), b=list(self.sfs_neut))),
+            sfs_sel=fd.Spectra(dict(a=list(self.sfs_sel), b=list(self.sfs_sel))),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            **kwargs
+        )
+
+    def test_covariate_lrt_and_plots(self):
+        """Covariate LRT (tiny bootstrap) plus the joint plots."""
+        inf = self._make(
+            covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6))],
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)),
+            do_bootstrap=True,
+            n_bootstraps=2,
+        )
+        self.assertLessEqual(inf.perform_lrt_covariates(), 1)
+
+        inf.plot_discretized(show=False)
+        inf.plot_inferred_parameters(show=False)
+        inf.plot_covariate(show=False)
+
+    def test_shared_lrt(self):
+        """Shared-parameter LRT path and shared-param introspection."""
+        inf = self._make(shared_params=[fd.SharedParams(types='all', params=['S_d'])])
+        inf.run()
+
+        self.assertEqual(inf.get_shared_param_names(), ['S_d'])
+        self.assertLessEqual(inf.perform_lrt_shared(), 1)
+
+    def test_no_covariates_lrt_raises(self):
+        """perform_lrt_covariates without covariates raises."""
+        inf = self._make()
+        inf.run()
+
+        with self.assertRaises(ValueError):
+            inf.perform_lrt_covariates()
+
+    def test_shared_params_and_covariate(self):
+        """A joint fit with a shared parameter and a covariate yields finite per-type estimates."""
+        inf = self._make(
+            shared_params=[fd.SharedParams(types='all', params=['b'])],
+            covariates=[fd.Covariate(param='S_d', values=dict(a=1.0, b=2.0))],
+        )
+        inf.run()
+
+        for t in inf.types:
+            self.assertTrue(np.isfinite(inf.marginal_inferences[t].get_alpha()))
+
+        self.assertTrue(np.isfinite(inf.likelihood))
+
+    def test_getters_and_serialization(self):
+        """Aggregate getters, spectra and a to_file/from_file round-trip."""
+        inf = self._make()
+        inf.run()
+
+        for getter in (inf.get_alpha, inf.get_omega, inf.get_omega_a):
+            self.assertEqual(set(getter()), set(inf.types))
+
+        out = 'scratch/fast_joint_inference.json'
+        inf.to_file(out)
+        inf2 = fd.JointInference.from_file(out)
+        self.assertEqual(set(inf2.types), set(inf.types))
+
+    def test_sfs_comparison_plot_residual_and_aggregate_none(self):
+        """SFS-comparison plot, the L2 residual, and the (undefined) aggregate omega/omega_a."""
+        inf = self._make()
+        inf.run()
+
+        # observed-vs-modelled SFS comparison, both the single-axes and the subplot layout
+        inf.plot_sfs_comparison(show=False)
+        inf.plot_sfs_comparison(sfs_types=['neutral', 'selected'], use_subplots=True, show=False)
+
+        self.assertTrue(np.isfinite(inf.get_residual(2)))
+
+        # there is no single aggregate omega / omega_a for a joint inference
+        self.assertIsNone(inf.omega)
+        self.assertIsNone(inf.omega_a)
+
+    def test_set_fixed_params_propagates_to_all_inferences(self):
+        """``_set_fixed_params`` expands over types and propagates to every sub-inference."""
+        inf = self._make()
+
+        inf._set_fixed_params(dict(all=dict(eps=0)))
+
+        # expanded to every concrete type
+        self.assertEqual(set(inf.fixed_params), set(inf.types))
+        for t in inf.types:
+            self.assertEqual(0, inf.fixed_params[t]['eps'])
+            self.assertEqual(0, inf.marginal_inferences[t].fixed_params['all']['eps'])
+            self.assertEqual(0, inf.joint_inferences[t].fixed_params['all']['eps'])

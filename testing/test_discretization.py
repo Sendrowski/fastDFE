@@ -12,6 +12,7 @@ from fastdfe.discretization import Discretization
 from testing import TestCase
 
 
+@pytest.mark.inference
 class DiscretizationTestCase(TestCase):
     """
     Test the Discretization class.
@@ -601,3 +602,69 @@ class DiscretizationTestCase(TestCase):
         plt.yscale("log")
         plt.ylim(1e-4, 1e5)
         plt.show()
+
+
+class FastDiscretizationTestCase(TestCase):
+    """
+    Fast-tier discretization coverage on tiny grids: the semidominant (h != 0.5) precompute, the
+    variable-h callback, and the non-linearized quad integration path.
+    """
+
+    @staticmethod
+    def _disc(intervals=15, **kwargs):
+        return Discretization(
+            n=8,
+            intervals_del=(-1.0e+8, -1.0e-5, intervals),
+            intervals_ben=(1.0e-5, 1.0e4, intervals),
+            **kwargs
+        )
+
+    def test_semidominant_dominance_grid(self):
+        """Dominance precompute and the per-h count tables (the h != 0.5 path)."""
+        d = self._disc(h=None, intervals_h=(0.0, 1.0, 5))
+        d.precompute()
+
+        np.testing.assert_array_equal(d.grid_h, [0.0, 0.25, 0.5, 0.75, 1.0])
+        self.assertTrue(np.all(np.isfinite(d.get_counts_semidominant())))
+
+        for h in (0.0, 0.25, 0.75, 1.0):
+            self.assertTrue(np.all(np.isfinite(d.get_counts(h=h))))
+
+    def test_h_callback(self):
+        """Variable-h callback path."""
+        d = self._disc(h=None, intervals_h=(0.0, 1.0, 5), h_callback=lambda h, S: np.full_like(S, 0.4))
+        d.precompute()
+
+        self.assertTrue(np.all(np.isfinite(d.get_counts(h=0.4))))
+
+    def test_quad_integration_mode(self):
+        """Non-linearized quad integration path."""
+        d = self._disc(integration_mode='quad', linearized=False)
+        model = GammaExpParametrization()
+
+        counts = d.model_selection_sfs(model, dict(model.x0))
+        self.assertTrue(np.all(np.isfinite(counts)))
+
+    def test_count_math_direct(self):
+        """Exercise the semidominant / dominant count math directly on small synthetic arrays."""
+        d = Discretization(n=8, linearized=True)
+        k = np.arange(1, d.n)
+
+        # these unregularized forms may overflow to inf at the extremes (hence the regularized
+        # variants); we call them for coverage rather than asserting finiteness
+        S = np.linspace(-100, -10000, 40)
+        I = np.ones((S.shape[0], k.shape[0]))
+        d.get_counts_semidominant_unregularized(S[:, None] * I, k[None, :] * I)
+        d.get_counts_semidominant_large_negative_S(S[:, None] * I, k[None, :] * I)
+
+        Sp = np.linspace(9e5, 1e6, 40)
+        Ip = np.ones((Sp.shape[0], k.shape[0]))
+        d.get_counts_semidominant_large_positive_S(Sp[:, None] * Ip, k[None, :] * Ip)
+
+        d.get_counts_semidominant_regularized(d.s, k[0] * np.ones_like(d.s))
+        d.get_counts_fixed_semidominant(d.s)
+        d.get_counts_fixed_semidominant_regularized(d.s)
+
+        # fixed-class counts at non-semidominant dominance (the dominant path)
+        for h in (0.3, 0.7):
+            self.assertGreater(len(d.get_counts_fixed(h=h)), 0)

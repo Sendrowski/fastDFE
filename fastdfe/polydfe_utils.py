@@ -47,7 +47,10 @@ class ParamMode:
 def create_sfs_config(
         file: str,
         sfs_neut: Spectrum,
-        sfs_sel: Spectrum
+        sfs_sel: Spectrum,
+        n_sites_div_neut: float = None,
+        n_sites_div_sel: float = None,
+        include_divergence: bool = None
 ):
     """
     Create a sfs config file for polyDFE.
@@ -55,19 +58,35 @@ def create_sfs_config(
     :param sfs_sel: Selected sfs
     :param sfs_neut: Neutral sfs
     :param file: Path to config file
+    :param n_sites_div_neut: Mutational target size for neutral divergence (the polyDFE ``L_div``
+        column). ``None`` means no divergence is written for the neutral spectrum.
+    :param n_sites_div_sel: Mutational target size for selected divergence.
+    :param include_divergence: Whether to also write divergence counts and their separate
+        mutational target size (the polyDFE ``D L_div`` columns). When ``None`` (the default),
+        divergence is written whenever both target sizes are given. Both spectra must agree, as
+        polyDFE requires all spectrum lines to have the same number of columns.
     """
+    have_sizes = n_sites_div_neut is not None and n_sites_div_sel is not None
+    if include_divergence is None:
+        include_divergence = have_sizes
+    else:
+        include_divergence = include_divergence and have_sizes
 
-    def write_line(f: TextIO, sfs: Spectrum, sep: str = '\t'):
+    def write_line(f: TextIO, sfs: Spectrum, n_sites_div: float, sep: str = '\t'):
         """
         Concatenate given array and write to stream.
 
         :param sfs: SFS
         :param f: File stream
+        :param n_sites_div: Mutational target size for the divergence counts of this spectrum.
         :param sep: separator
         """
         # SFS and number of mutational target sites
-        # we ignore divergence data here
         data = list(sfs.polymorphic) + [sfs.n_sites]
+
+        # optionally append the divergence count and its separate mutational target size
+        if include_divergence:
+            data += [sfs.n_div, n_sites_div]
 
         f.write(sep.join(map(str, data)) + os.linesep)
 
@@ -77,8 +96,8 @@ def create_sfs_config(
     with open(file, 'w') as fh:
         fh.write(' '.join(map(str, [m_neut, m_sel, sfs_sel.n])) + os.linesep)
 
-        write_line(fh, sfs_neut)
-        write_line(fh, sfs_sel)
+        write_line(fh, sfs_neut, n_sites_div_neut)
+        write_line(fh, sfs_sel, n_sites_div_sel)
 
 
 def parse_init_file(

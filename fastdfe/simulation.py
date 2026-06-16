@@ -7,7 +7,7 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2024-09-06"
 
 import logging
-from typing import Tuple, Literal, Sequence, Callable
+from typing import Tuple, Literal, Sequence, Callable, Optional
 
 import numpy as np
 from scipy.stats import hypergeom
@@ -57,6 +57,7 @@ class Simulation:
             h_callback: Callable[[np.ndarray], np.ndarray] = None,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
+            n_sites_div: float = None,
             discretization: Discretization = None,
             parallelize: bool = True
     ):
@@ -88,6 +89,13 @@ class Simulation:
             ``quad`` is not recommended.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
             ``scipy.integrate.quad`` in each call. ``False`` not recommended.
+        :param n_sites_div: Number of mutational target sites over which divergence is counted. When
+            given, the simulated SFS carry an expected fixed-derived (divergence) class -- the
+            expected number of substitutions ``theta * n_sites_div * flux`` (``flux = 1`` for neutral,
+            the selected-relative substitution rate otherwise; cf.
+            :meth:`~fastdfe.discretization.Discretization.get_divergence_flux`). When ``None`` (the
+            default) the fixed-derived class is zero. Note that this is the *true*
+            (population-level) divergence; it does not model finite-sample misattributed polymorphism.
         :param parallelize: Whether to parallelize computations
         """
         #: The DFE parametrization
@@ -122,6 +130,9 @@ class Simulation:
 
         #: Number of sites
         self.n_sites: float = self.sfs_neut.n_sites
+
+        #: Number of mutational target sites for divergence (``None`` -> no divergence class)
+        self.n_sites_div: Optional[float] = n_sites_div
 
         if discretization is None:
             # create discretization instance
@@ -163,7 +174,14 @@ class Simulation:
         # add contribution of demography and adjust polarization error
         counts_modelled = BaseInference._add_demography(self.sfs_neut, counts_modelled, eps=self.params['eps'])
 
-        self.sfs_sel = Spectrum([self.n_sites - sum(counts_modelled)] + list(counts_modelled) + [0])
+        # expected fixed-derived (divergence) class: the true number of substitutions,
+        # theta * L_div * flux (flux = selected substitutions per neutral substitution)
+        n_div = 0.0
+        if self.n_sites_div is not None:
+            flux = self.discretization.get_divergence_flux(self.model, self.params)
+            n_div = self.theta * self.n_sites_div * flux
+
+        self.sfs_sel = Spectrum([self.n_sites - sum(counts_modelled)] + list(counts_modelled) + [n_div])
 
         return self.sfs_sel
 
@@ -188,10 +206,18 @@ class Simulation:
         """
         Get the spectra used in the simulation.
 
-        :return: Tuple of neutral SFS and selected SFS
+        :return: Spectra with the neutral and selected SFS. When ``n_sites_div`` was given, both
+            carry their expected divergence (fixed-derived) class.
         """
+        sfs_neut = self.sfs_neut
+        if self.n_sites_div is not None:
+            # neutral divergence: theta * L_div (the neutral substitution flux is 1)
+            data = list(self.sfs_neut.data)
+            data[-1] = self.theta * self.n_sites_div
+            sfs_neut = Spectrum(data)
+
         return Spectra.from_spectra({
-            "neutral": self.sfs_neut,
+            "neutral": sfs_neut,
             "selected": self.sfs_sel
         })
 
@@ -202,6 +228,24 @@ class Simulation:
         :return: Proportion of adaptive substitutions
         """
         return self.discretization.get_alpha(self.model, self.params)
+
+    def get_omega(self) -> float:
+        """
+        Get omega, the rate of non-synonymous over synonymous substitutions (dN/dS), under the
+        specified DFE and parameters.
+
+        :return: Rate of non-synonymous over synonymous substitutions (dN/dS)
+        """
+        return self.discretization.get_omega(self.model, self.params)
+
+    def get_omega_a(self) -> float:
+        """
+        Get omega_a, the rate of adaptive non-synonymous over synonymous substitutions
+        (adaptive dN/dS), under the specified DFE and parameters.
+
+        :return: Rate of adaptive non-synonymous over synonymous substitutions (adaptive dN/dS)
+        """
+        return self.discretization.get_omega_a(self.model, self.params)
 
     @staticmethod
     def get_neutral_sfs(

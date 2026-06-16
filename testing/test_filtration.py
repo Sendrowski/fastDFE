@@ -397,6 +397,89 @@ class FiltrationTestCase(TestCase):
         assert count_sites(f.vcf) - f.n_filtered == count_sites(f.output)
 
     @staticmethod
+    def test_cpg_filtration_is_cpg():
+        """
+        Test CpG-context detection, including dinucleotide boundaries, on mocked reference bases.
+        """
+        is_cpg = fd.CpGFiltration._is_cpg
+
+        # CpG context (positions are 1-based): C followed by G, or G preceded by C
+        assert is_cpg("CG", 1, 'C') is True
+        assert is_cpg("CG", 2, 'G') is True
+        assert is_cpg("ACGT", 2, 'C') is True
+        assert is_cpg("ACGT", 3, 'G') is True
+
+        # not in CpG context
+        assert is_cpg("CA", 1, 'C') is False  # C not followed by G
+        assert is_cpg("AG", 2, 'G') is False  # G not preceded by C
+
+        # boundaries: no neighbouring base on the relevant side
+        assert is_cpg("ATC", 3, 'C') is False  # C at the last position (no next base)
+        assert is_cpg("GAT", 1, 'G') is False  # G at the first position (no previous base)
+
+    def test_cpg_filtration_filter_site_mocked(self):
+        """
+        Test that ``filter_site`` drops CpG sites using the contig from a mocked handler.
+        """
+        from types import SimpleNamespace
+
+        # contig (1-based): 1:G 2:A 3:C 4:G 5:T 6:C 7:G 8:C 9:A 10:G
+        handler = Mock()
+        handler.get_aliases.return_value = ['chr1']
+        handler.get_contig.return_value = "GACGTCGCAG"
+
+        f = fd.CpGFiltration()
+        f._handler = handler
+
+        def keep(pos, ref):
+            return f.filter_site(SimpleNamespace(CHROM='chr1', POS=pos, REF=ref))
+
+        # CpG sites are dropped (filter_site returns False)
+        assert keep(3, 'C') is False  # C followed by G
+        assert keep(4, 'G') is False  # G preceded by C
+        assert keep(6, 'C') is False
+        assert keep(7, 'G') is False
+
+        # kept (True)
+        assert keep(1, 'G') is True   # G at the first position (no previous base)
+        assert keep(8, 'C') is True   # C followed by A
+        assert keep(10, 'G') is True  # G preceded by A
+        assert keep(2, 'A') is True   # reference base is not C/G
+
+        # n_filtered counts only the dropped (CpG) sites
+        assert f.n_filtered == 4
+
+    def test_cpg_filtration_raises_error_if_no_fasta_given(self):
+        """
+        Test that the CpG filtration requires a FASTA.
+        """
+        with self.assertRaises(ValueError):
+            fd.Filterer(
+                vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+                output='scratch/test_cpg_filtration_no_fasta.vcf',
+                filtrations=[fd.CpGFiltration()],
+            ).filter()
+
+    @staticmethod
+    def test_cpg_filtration():
+        """
+        Test the CpG filtration end-to-end, obtaining the FASTA from the filterer.
+        """
+        f = fd.Filterer(
+            vcf="resources/genome/betula/biallelic.subset.10000.vcf.gz",
+            output='scratch/test_cpg_filtration.vcf',
+            fasta="resources/genome/betula/genome.fasta",
+            filtrations=[fd.CpGFiltration()],
+        )
+
+        f.filter()
+
+        assert f.n_filtered == 1123
+
+        # assert number of sites is consistent
+        assert count_sites(f.vcf) - f.n_filtered == count_sites(f.output)
+
+    @staticmethod
     def test_existing_outgroup_filtration():
         """
         Test the existing outgroup filtration.

@@ -89,6 +89,18 @@ class BaseInference(AbstractInference):
         h='lin'
     )
 
+    #: Whether divergence counts were requested. Declared at class scope (backward compatibility) so
+    #: that inference objects serialized before divergence support restore with sensible defaults.
+    include_divergence: bool = True
+
+    #: Whether divergence counts are actually used in the likelihood (requires divergence data).
+    _use_divergence: bool = False
+
+    #: Divergence target sizes (class-scope defaults for backward compatibility, so inference
+    #: objects serialized before divergence support restore with no divergence).
+    n_sites_div_neut: Optional[float] = None
+    n_sites_div_sel: Optional[float] = None
+
     #: Default options for the maximum likelihood optimization
     _default_opts_mle = dict(
         # ftol=1e-10,
@@ -126,6 +138,9 @@ class BaseInference(AbstractInference):
             discretization: Discretization = None,
             optimization: Optimization = None,
             locked: bool = False,
+            include_divergence: bool = True,
+            n_sites_div_neut: float = None,
+            n_sites_div_sel: float = None,
             **kwargs
     ):
         """
@@ -185,6 +200,23 @@ class BaseInference(AbstractInference):
         :param discretization: Discretization instance. Mainly intended for internal use.
         :param optimization: Optimization instance. Mainly intended for internal use.
         :param locked: Whether inferences can be run from the class itself. Used internally.
+        :param include_divergence: Whether to include divergence counts (fixed differences to an
+            outgroup) in the likelihood, like ``polydfe``. This only takes effect when both spectra
+            carry a divergence target size, i.e. when ``n_sites_div_neut`` and ``n_sites_div_sel``
+            are given; otherwise inference is based on polymorphism alone. The last entry of each SFS
+            is the divergence count. When active, the divergence scale (the unknown outgroup branch
+            length) is derived in closed form from the neutral divergence, and
+            :math:`\\alpha` can be estimated from the observed divergence (see :meth:`get_alpha`).
+            Defaults to ``True``. Note that, unlike
+            ``polydfe``, we do not model misattributed polymorphism (polymorphic sites that appear
+            fixed in a finite sample); we tried this but it did not improve agreement with ``polydfe``
+            or recovery of the true :math:`\\alpha` in ``SLiM`` simulations.
+        :param n_sites_div_neut: Number of mutational target sites over which neutral divergence was
+            counted. polyDFE allows this to differ from the polymorphism target size. Specifying it
+            (together with ``n_sites_div_sel``) opts the neutral divergence into the likelihood.
+        :param n_sites_div_sel: Number of mutational target sites over which selected divergence was
+            counted. Specifying it (together with ``n_sites_div_neut``) opts the selected divergence
+            into the likelihood.
         :param kwargs: Additional keyword arguments which are ignored.
         """
         super().__init__()
@@ -205,6 +237,14 @@ class BaseInference(AbstractInference):
             # assume we have Spectrum object
             self.sfs_sel: Spectrum = sfs_sel
 
+        #: Number of mutational target sites over which neutral divergence was counted. Owned by
+        #: the inference (not the spectra); specifying both this and ``n_sites_div_sel`` opts
+        #: divergence into the likelihood.
+        self.n_sites_div_neut: Optional[float] = n_sites_div_neut
+
+        #: Number of mutational target sites over which selected divergence was counted.
+        self.n_sites_div_sel: Optional[float] = n_sites_div_sel
+
         # check that we have monomorphic counts
         if self.sfs_neut.to_list()[0] == 0 or self.sfs_sel.to_list()[0] == 0:
             raise ValueError('Some of the provided SFS have zero ancestral monomorphic counts. '
@@ -217,6 +257,20 @@ class BaseInference(AbstractInference):
 
         if self.sfs_neut.n != self.sfs_sel.n:
             raise ValueError('The sample sizes of the neutral and selected SFS must be equal.')
+
+        #: Whether divergence counts were requested
+        self.include_divergence: bool = include_divergence
+
+        #: Whether divergence counts are actually used in the likelihood. Requires a divergence
+        #: target size for both the neutral and selected spectra.
+        self._use_divergence: bool = bool(
+            include_divergence and n_sites_div_neut is not None and n_sites_div_sel is not None
+        )
+
+        if self._use_divergence:
+            self._logger.info('Using divergence counts in the likelihood.')
+        elif include_divergence:
+            self._logger.info('No divergence counts provided, inferring from polymorphism only.')
 
         #: The DFE parametrization
         self.model: Parametrization = parametrization._from_string(model)
@@ -313,10 +367,12 @@ class BaseInference(AbstractInference):
         self.parallelize: bool = parallelize
 
         #: Parameter scales
-        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = self.model.scales | self._default_scales | scales
+        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = \
+            self.model.scales | self._default_scales | scales
 
         #: Parameter bounds
-        self.bounds: Dict[str, Tuple[float, float]] = self.model.bounds | self._default_bounds | bounds
+        self.bounds: Dict[str, Tuple[float, float]] = \
+            self.model.bounds | self._default_bounds | bounds
 
         if optimization is None:
             # create optimization instance
@@ -528,7 +584,10 @@ class BaseInference(AbstractInference):
             params=params,
             sfs_neut=self.sfs_neut,
             sfs_sel=self.sfs_sel,
-            folded=self.folded
+            folded=self.folded,
+            include_divergence=self._use_divergence,
+            n_sites_div_neut=self.n_sites_div_neut,
+            n_sites_div_sel=self.n_sites_div_sel
         ))
 
     def evaluate_likelihood(self, params: Dict[str, Dict[str, float]]) -> float:
@@ -821,12 +880,14 @@ class BaseInference(AbstractInference):
 
     def _add_alpha_to_bootstraps(self):
         """
-        Add estimates for alpha to the bootstraps.
+        Add estimates for alpha, omega and omega_a to the bootstraps.
         """
-        self._logger.debug('Computing estimates for alpha.')
+        self._logger.debug('Computing estimates for alpha, omega and omega_a.')
 
-        # add alpha estimates
+        # add alpha, omega and omega_a estimates
         self.bootstraps['alpha'] = self.bootstraps.apply(lambda r: self.get_alpha(dict(r)), axis=1)
+        self.bootstraps['omega'] = self.bootstraps.apply(lambda r: self.get_omega(dict(r)), axis=1)
+        self.bootstraps['omega_a'] = self.bootstraps.apply(lambda r: self.get_omega_a(dict(r)), axis=1)
 
     def _get_run_bootstrap_sample(self) -> Callable[[int], Tuple['scipy.optimize.OptimizeResult', dict, dict, int]]:
         """
@@ -845,6 +906,9 @@ class BaseInference(AbstractInference):
         n_retries = self.n_bootstrap_retries
         sfs_sel = self.sfs_sel
         sfs_neut = self.sfs_neut
+        use_divergence = self._use_divergence
+        n_sites_div_neut = self.n_sites_div_neut
+        n_sites_div_sel = self.n_sites_div_sel
         params_mle_all = dict(all=self.params_mle)
 
         def run_bootstrap_sample(seed: int):
@@ -875,7 +939,10 @@ class BaseInference(AbstractInference):
                         params=p,
                         sfs_neut=neut,
                         sfs_sel=sel,
-                        folded=folded
+                        folded=folded,
+                        include_divergence=use_divergence,
+                        n_sites_div_neut=n_sites_div_neut,
+                        n_sites_div_sel=n_sites_div_sel
                     )),
                     desc=f"{self.__class__.__name__}>Bootstrapping"
                 )
@@ -928,7 +995,10 @@ class BaseInference(AbstractInference):
             params: dict,
             sfs_neut: Spectrum,
             sfs_sel: Spectrum,
-            folded: bool
+            folded: bool,
+            include_divergence: bool = False,
+            n_sites_div_neut: float = None,
+            n_sites_div_sel: float = None
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Model the selected SFS from the given parameters.
@@ -939,6 +1009,8 @@ class BaseInference(AbstractInference):
         :param sfs_sel: Observed spectrum of selected sites.
         :param sfs_neut: Observed spectrum of neutral sites.
         :param folded: Whether the SFS are folded.
+        :param include_divergence: Whether to append modelled and observed divergence counts
+            (neutral and selected) so they enter the Poisson likelihood.
         :return: Array of modelled and observed counts
         """
         # obtain modelled selected SFS
@@ -957,7 +1029,67 @@ class BaseInference(AbstractInference):
         else:
             counts_observed = sfs_sel.polymorphic
 
+        # append divergence counts so they are covered by the same Poisson likelihood
+        if include_divergence:
+            div_modelled, div_observed = cls._model_divergence(
+                discretization, model, params, sfs_neut, sfs_sel, n_sites_div_neut, n_sites_div_sel)
+            counts_modelled = np.append(counts_modelled, div_modelled)
+            counts_observed = np.append(counts_observed, div_observed)
+
         return counts_modelled, counts_observed
+
+    @classmethod
+    def _model_divergence(
+            cls,
+            discretization: Discretization,
+            model: Parametrization,
+            params: dict,
+            sfs_neut: Spectrum,
+            sfs_sel: Spectrum,
+            n_sites_div_neut: float,
+            n_sites_div_sel: float
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Model the neutral and selected divergence counts from the given parameters.
+
+        The expected divergence counts mirror polyDFE's parameterization relative to the neutral
+        baseline, scaled by ``r_div`` (the unknown outgroup branch length / divergence-time scaling),
+        which is determined by the neutral divergence and derived in closed form (see below)::
+
+            E[D_neut] = theta * L_div_neut * r_div
+            E[D_sel]  = theta * L_div_sel  * r_div * flux
+
+        where ``theta`` is the (fixed) neutral mutation rate, ``L_div`` the mutational target size
+        for divergence (``n_sites_div_neut`` / ``n_sites_div_sel``), and ``flux`` the expected number
+        of selected substitutions per neutral substitution integrated over the DFE.
+
+        :param discretization: Discretization instance.
+        :param model: Parametrization instance.
+        :param params: Dictionary of parameters.
+        :param sfs_neut: Observed spectrum of neutral sites.
+        :param sfs_sel: Observed spectrum of selected sites.
+        :param n_sites_div_neut: Number of mutational target sites for neutral divergence.
+        :param n_sites_div_sel: Number of mutational target sites for selected divergence.
+        :return: Modelled and observed divergence counts as ``[neutral, selected]`` arrays.
+        """
+        theta = sfs_neut.theta
+
+        # ``r_div`` is the divergence scale that reproduces the observed neutral divergence exactly;
+        # because ``theta`` is fixed, it is fully determined by the neutral data (like ``theta``
+        # itself), so it is computed directly here.
+        r_div = sfs_neut.n_div / (theta * n_sites_div_neut)
+
+        # expected selected divergence relative to neutral, integrated over the DFE
+        flux = discretization.get_divergence_flux(model, params)
+
+        div_modelled = np.array([
+            theta * n_sites_div_neut * r_div,
+            theta * n_sites_div_sel * r_div * flux
+        ])
+
+        div_observed = np.array([sfs_neut.n_div, sfs_sel.n_div])
+
+        return div_modelled, div_observed
 
     @staticmethod
     def _adjust_polarization(counts: np.ndarray, eps: float) -> np.ndarray:
@@ -1647,16 +1779,102 @@ class BaseInference(AbstractInference):
             modelled=self.sfs_mle
         ))
 
-    def get_alpha(self, params: dict = None) -> float:
+    def get_alpha(self, params: dict = None, use_divergence: bool = None) -> float:
         """
         Get alpha, the proportion of beneficial non-synonymous substitutions.
 
         :param params: DFE Parameters to use for calculation.
+        :param use_divergence: Whether to estimate alpha from observed divergence counts using
+            polyDFE's McDonald-Kreitman style estimator (see
+            :meth:`~fastdfe.discretization.Discretization.get_alpha_divergence`), or from the DFE
+            alone (see :meth:`~fastdfe.discretization.Discretization.get_alpha`). When ``None``
+            (the default), this follows the inference mode (whether divergence counts are used in
+            the likelihood). Passing ``False`` explicitly always yields the polymorphism-only
+            estimate, which is useful for comparison.
         """
         if params is None:
             params = self.params_mle
 
+        if use_divergence is None:
+            use_divergence = self._use_divergence
+
+        if use_divergence:
+            if self.n_sites_div_neut is None or self.n_sites_div_sel is None:
+                raise ValueError(
+                    "Cannot compute divergence-based alpha without divergence counts and a "
+                    "separate divergence target size for both spectra."
+                )
+
+            return self.discretization.get_alpha_divergence(
+                self.model, params, self.sfs_neut, self.sfs_sel,
+                self.n_sites_div_neut, self.n_sites_div_sel)
+
         return self.discretization.get_alpha(self.model, params)
+
+    def get_omega(self, params: dict = None, use_divergence: bool = None) -> float:
+        """
+        Get omega, the rate of non-synonymous over synonymous substitutions (dN/dS).
+
+        :param params: DFE Parameters to use for calculation.
+        :param use_divergence: Whether to estimate omega from observed divergence counts using
+            polyDFE's McDonald-Kreitman style estimator (see
+            :meth:`~fastdfe.discretization.Discretization.get_omega_divergence`), or from the DFE
+            alone (see :meth:`~fastdfe.discretization.Discretization.get_omega`). When ``None``
+            (the default), this follows the inference mode (whether divergence counts are used in
+            the likelihood). Passing ``False`` explicitly always yields the polymorphism-only
+            estimate, which is useful for comparison.
+        """
+        if params is None:
+            params = self.params_mle
+
+        if use_divergence is None:
+            use_divergence = self._use_divergence
+
+        if use_divergence:
+            if self.n_sites_div_neut is None or self.n_sites_div_sel is None:
+                raise ValueError(
+                    "Cannot compute divergence-based omega without divergence counts and a "
+                    "separate divergence target size for both spectra."
+                )
+
+            return self.discretization.get_omega_divergence(
+                self.model, params, self.sfs_neut, self.sfs_sel,
+                self.n_sites_div_neut, self.n_sites_div_sel)
+
+        return self.discretization.get_omega(self.model, params)
+
+    def get_omega_a(self, params: dict = None, use_divergence: bool = None) -> float:
+        """
+        Get omega_a, the rate of adaptive non-synonymous over synonymous substitutions
+        (adaptive dN/dS), which equals ``alpha * omega``.
+
+        :param params: DFE Parameters to use for calculation.
+        :param use_divergence: Whether to estimate omega_a from observed divergence counts using
+            polyDFE's McDonald-Kreitman style estimator (see
+            :meth:`~fastdfe.discretization.Discretization.get_omega_a_divergence`), or from the DFE
+            alone (see :meth:`~fastdfe.discretization.Discretization.get_omega_a`). When ``None``
+            (the default), this follows the inference mode (whether divergence counts are used in
+            the likelihood). Passing ``False`` explicitly always yields the polymorphism-only
+            estimate, which is useful for comparison.
+        """
+        if params is None:
+            params = self.params_mle
+
+        if use_divergence is None:
+            use_divergence = self._use_divergence
+
+        if use_divergence:
+            if self.n_sites_div_neut is None or self.n_sites_div_sel is None:
+                raise ValueError(
+                    "Cannot compute divergence-based omega_a without divergence counts and a "
+                    "separate divergence target size for both spectra."
+                )
+
+            return self.discretization.get_omega_a_divergence(
+                self.model, params, self.sfs_neut, self.sfs_sel,
+                self.n_sites_div_neut, self.n_sites_div_sel)
+
+        return self.discretization.get_omega_a(self.model, params)
 
     @functools.cached_property
     def alpha(self) -> float:
@@ -1665,13 +1883,28 @@ class BaseInference(AbstractInference):
         """
         return self.get_alpha()
 
+    @functools.cached_property
+    def omega(self) -> float:
+        """
+        Cache omega, the rate of non-synonymous over synonymous substitutions (dN/dS).
+        """
+        return self.get_omega()
+
+    @functools.cached_property
+    def omega_a(self) -> float:
+        """
+        Cache omega_a, the rate of adaptive non-synonymous over synonymous substitutions
+        (adaptive dN/dS).
+        """
+        return self.get_omega_a()
+
     def get_bootstrap_params(self) -> Dict[str, float]:
         """
         Get the parameters to be included in the bootstraps.
 
         :return: Parameters to be included in the bootstraps.
         """
-        return self.params_mle | dict(alpha=self.alpha)
+        return self.params_mle | dict(alpha=self.alpha, omega=self.omega, omega_a=self.omega_a)
 
     def get_bootstrap_param_names(self) -> List[str]:
         """
@@ -1723,7 +1956,8 @@ class BaseInference(AbstractInference):
             fixed_params=self.fixed_params,
             do_bootstrap=self.do_bootstrap,
             n_bootstraps=self.n_bootstraps,
-            parallelize=self.parallelize
+            parallelize=self.parallelize,
+            include_divergence=self.include_divergence
         )
 
     @classmethod
@@ -1734,7 +1968,16 @@ class BaseInference(AbstractInference):
         :param config: Config object.
         :return: Inference object.
         """
-        return cls(**config.data)
+        data = dict(config.data)
+
+        # BaseInference operates on the combined ('all') spectrum, so collapse the per-type
+        # divergence target sizes (kept as a per-type dict in the config) to a single summed value
+        for key in ('n_sites_div_neut', 'n_sites_div_sel'):
+            value = data.get(key)
+            if isinstance(value, dict):
+                data[key] = sum(value.values()) if value else None
+
+        return cls(**data)
 
     @classmethod
     def from_config_file(cls, file: str, cache: bool = True) -> Self:

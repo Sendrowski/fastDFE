@@ -192,6 +192,21 @@ class SpectraTestCase(TestCase):
         testing.assert_equal(s.n_div, n_div)
         testing.assert_equal(s.n_sites, n_sites)
 
+    def test_parse_polydfe_reads_n_sites_div(self):
+        """
+        Test that the polyDFE SFS parser reads the separate divergence target size
+        (previously dropped) and that files without it yield None.
+        """
+        # example_1 carries the 'L_poly D L_div' divergence columns
+        with_div = spectrum.parse_polydfe_sfs_config('resources/polydfe/example_1/spectra/sfs.txt')
+        assert with_div['n_sites_div_neut'] > 0
+        assert with_div['n_sites_div_sel'] > 0
+
+        # pendula has no divergence column
+        without_div = spectrum.parse_polydfe_sfs_config('resources/polydfe/pendula/spectra/sfs.txt')
+        testing.assert_equal(without_div['n_sites_div_neut'], None)
+        testing.assert_equal(without_div['n_sites_div_sel'], None)
+
     @staticmethod
     def test_site_wise_wattersons_estimator_spectrum():
         """

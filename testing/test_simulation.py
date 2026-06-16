@@ -22,6 +22,7 @@ def expand(template, **wildcards):
     return [template.format(**dict(zip(keys, combo))) for combo in combinations]
 
 
+@pytest.mark.inference
 class SLiMTestCase(TestCase):
     """
     Test results against cached SLiM results.
@@ -140,7 +141,196 @@ class SLiMTestCase(TestCase):
 
             self.assertLess(diff, tol)
 
+    # SLiM configs carrying beneficial mutations (p_b > 0), whose fixed (n-)class therefore contains
+    # a non-trivial amount of selected divergence
+    configs_slim_divergence = expand(
+        "testing/cache/slim/n_replicate=1/n_chunks=40/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/"
+        "s_b={s_b}/b=0.4/s_d={s_d}/p_b={p_b}/n=20/unfolded/sfs.csv",
+        s_b=['1e-4', '1e-3'],
+        s_d=['1e0', '1e-1'],
+        p_b=['0.05', '0.01']
+    )
 
+    def test_divergence_alpha_against_slim(self):
+        """
+        Ground-truth test of the divergence machinery against SLiM, across all beneficial (p_b > 0)
+        full-DFE scenarios. The fixed (n-)class of the SLiM SFS *is* the divergence (substitutions),
+        and divergence shares the polymorphism target size here. We attach it as
+        the inference's ``n_sites_div_neut`` / ``n_sites_div_sel`` and infer the full DFE both with and without divergence.
+
+        We assert that (1) the divergence-based (McDonald-Kreitman) alpha recovers the alpha implied
+        by the true DFE for every scenario, (2) using divergence is at least as good as polymorphism
+        alone, and (3) for weak beneficial selection — where beneficial mutations barely segregate
+        and polymorphism alone cannot detect them — divergence recovers alpha while polymorphism
+        fails, i.e. divergence recovers the (beneficial) DFE substantially more precisely.
+        """
+        from fastdfe.spectrum import Spectrum
+
+        errors_div, errors_poly_weak, errors_div_weak = [], [], []
+
+        for file_path in self.configs_slim_divergence:
+            spectra = fd.Spectra.from_file(file_path)
+
+            params = {p: float(re.search(rf"\b{p}=([\d.e+-]+)", file_path).group(1))
+                      for p in ['s_b', 's_d', 'b', 'p_b', 'mu', 'n']}
+            Ne = spectra['neutral'].theta / (4 * params['mu'])
+            params['S_b'] = 4 * Ne * params['s_b']
+            params['S_d'] = -4 * Ne * params['s_d']
+
+            # ground-truth alpha implied by the known DFE
+            model = fd.GammaExpParametrization()
+            model.bounds['S_b'] = (1e-10, 100)
+            alpha_true = fd.Simulation(
+                params=params, sfs_neut=spectra['neutral'], model=model,
+                intervals_del=(-1.0e+8, -1.0e-5, 100), intervals_ben=(1.0e-5, 1.0e4, 100)
+            ).get_alpha()
+
+            kwargs = dict(
+                model=fd.GammaExpParametrization(),
+                fixed_params={'all': {'eps': 0, 'h': 0.5}},  # full DFE (infer p_b, S_b)
+                intervals_del=(-1.0e+8, -1.0e-5, 100), intervals_ben=(1.0e-5, 1.0e4, 100),
+                # the weak+rare-beneficial scenarios have a flat/multimodal likelihood on this coarse
+                # grid, so many restarts are needed to reliably reach the global optimum
+                do_bootstrap=False, n_runs=30, seed=0
+            )
+
+            # inference with divergence (the fixed class shares the polymorphism target size)
+            inf_div = fd.BaseInference(
+                sfs_neut=Spectrum(spectra['neutral'].data),
+                sfs_sel=Spectrum(spectra['selected'].data),
+                n_sites_div_neut=spectra['neutral'].n_sites,
+                n_sites_div_sel=spectra['selected'].n_sites,
+                **kwargs
+            )
+            inf_div.run()
+            alpha_div = inf_div.get_alpha(use_divergence=True)
+
+            # inference from polymorphism alone (no divergence target size)
+            inf_poly = fd.BaseInference(
+                sfs_neut=Spectrum(spectra['neutral'].data),
+                sfs_sel=Spectrum(spectra['selected'].data),
+                **kwargs
+            )
+            inf_poly.run()
+            alpha_poly = inf_poly.get_alpha(use_divergence=False)
+
+            err_div, err_poly = abs(alpha_div - alpha_true), abs(alpha_poly - alpha_true)
+
+            # (1) divergence recovers the true alpha
+            self.assertLess(err_div, 0.12, f"{params}: divergence alpha {alpha_div:.3f} vs true {alpha_true:.3f}")
+
+            # (2) using divergence is at least as good as polymorphism alone
+            self.assertLessEqual(err_div, err_poly + 0.05, f"{params}: divergence worse than polymorphism")
+
+            errors_div.append(err_div)
+            if params['s_b'] <= 1e-4:  # weak beneficial selection
+                errors_div_weak.append(err_div)
+                errors_poly_weak.append(err_poly)
+
+        # (3) for weak beneficial selection, polymorphism alone fails but divergence recovers alpha
+        assert errors_div_weak, "expected weak-beneficial SLiM scenarios"
+        self.assertLess(np.mean(errors_div_weak), 0.1)
+        self.assertGreater(np.mean(errors_poly_weak) - np.mean(errors_div_weak), 0.1)
+
+    def test_divergence_omega_against_slim(self):
+        """
+        Ground-truth test of omega (dN/dS) and omega_a (adaptive dN/dS) against SLiM, across all
+        beneficial (p_b > 0) full-DFE scenarios. The fixed (n-)class of the SLiM SFS *is* the
+        divergence (substitutions), sharing the polymorphism target size, so the observed dN/dS is
+        directly available. We assert that both the McDonald-Kreitman (divergence) estimate and the
+        DFE-integral estimate recover the omega/omega_a implied by the known true DFE.
+        """
+        from fastdfe.spectrum import Spectrum
+
+        for file_path in self.configs_slim_divergence:
+            spectra = fd.Spectra.from_file(file_path)
+
+            params = {p: float(re.search(rf"\b{p}=([\d.e+-]+)", file_path).group(1))
+                      for p in ['s_b', 's_d', 'b', 'p_b', 'mu', 'n']}
+            Ne = spectra['neutral'].theta / (4 * params['mu'])
+            params['S_b'] = 4 * Ne * params['s_b']
+            params['S_d'] = -4 * Ne * params['s_d']
+
+            # ground-truth omega/omega_a implied by the known DFE
+            model = fd.GammaExpParametrization()
+            model.bounds['S_b'] = (1e-10, 100)
+            sim = fd.Simulation(
+                params=params, sfs_neut=spectra['neutral'], model=model,
+                intervals_del=(-1.0e+8, -1.0e-5, 100), intervals_ben=(1.0e-5, 1.0e4, 100)
+            )
+            omega_true, omega_a_true = sim.get_omega(), sim.get_omega_a()
+
+            # infer the full DFE with divergence (the fixed class shares the polymorphism target size)
+            inf = fd.BaseInference(
+                sfs_neut=Spectrum(spectra['neutral'].data),
+                sfs_sel=Spectrum(spectra['selected'].data),
+                n_sites_div_neut=spectra['neutral'].n_sites,
+                n_sites_div_sel=spectra['selected'].n_sites,
+                model=fd.GammaExpParametrization(),
+                fixed_params={'all': {'eps': 0, 'h': 0.5}},
+                intervals_del=(-1.0e+8, -1.0e-5, 100), intervals_ben=(1.0e-5, 1.0e4, 100),
+                do_bootstrap=False, n_runs=3, seed=0
+            )
+            inf.run()
+
+            # both the observed (McDonald-Kreitman) and DFE-integral estimates recover the truth
+            for use_divergence in (True, False):
+                self.assertLess(
+                    abs(inf.get_omega(use_divergence=use_divergence) - omega_true), 0.05,
+                    f"{params}: omega (use_divergence={use_divergence}) "
+                    f"{inf.get_omega(use_divergence=use_divergence):.3f} vs true {omega_true:.3f}"
+                )
+                self.assertLess(
+                    abs(inf.get_omega_a(use_divergence=use_divergence) - omega_a_true), 0.05,
+                    f"{params}: omega_a (use_divergence={use_divergence}) "
+                    f"{inf.get_omega_a(use_divergence=use_divergence):.3f} vs true {omega_a_true:.3f}"
+                )
+
+    # empirical (substitution-count) alpha for the s_b=1e-3 dominance family, cached by
+    # snakemake/scripts/precompute_empirical_alpha_slim.py
+    empirical_alpha_cache = 'testing/cache/slim/empirical_alpha/s_b=1e-3_b=0.3_s_d=3e-2_p_b=0.05.json'
+
+    def test_divergence_alpha_against_slim_dominance(self):
+        """
+        Validate the divergence-based alpha against the *empirical* SLiM ground truth across
+        dominance coefficients. The empirical alpha is the actual proportion of fixed beneficial
+        substitutions counted directly from SLiM (see the cache above), rather than an analytical
+        proxy. The fully recessive case (h=0) is excluded as a known hard regime (recessive
+        beneficials are nearly invisible while rare, so the SFS/divergence carry little signal).
+        """
+        import json
+        from fastdfe.spectrum import Spectrum
+
+        cache = json.load(open(self.empirical_alpha_cache))
+        base = ('testing/cache/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/'
+                's_b=1e-3/b=0.3/s_d=3e-2/p_b=0.05/n=20')
+
+        for rec in cache['alpha'].values():
+            h, alpha_empirical = rec['h'], rec['alpha']
+            if h == 0.0:  # fully recessive: known hard regime
+                continue
+
+            spectra = fd.Spectra.from_file(f'{base}/dominance_{h}/unfolded/sfs.csv')
+            inf = fd.BaseInference(
+                sfs_neut=Spectrum(spectra['neutral'].data),
+                sfs_sel=Spectrum(spectra['selected'].data),
+                n_sites_div_neut=spectra['neutral'].n_sites,
+                n_sites_div_sel=spectra['selected'].n_sites,
+                model=fd.GammaExpParametrization(),
+                fixed_params={'all': {'eps': 0, 'h': h}},
+                intervals_del=(-1.0e+8, -1.0e-5, 100), intervals_ben=(1.0e-5, 1.0e4, 100),
+                do_bootstrap=False, n_runs=3, seed=0
+            )
+            inf.run()
+
+            self.assertLess(
+                abs(inf.get_alpha(use_divergence=True) - alpha_empirical), 0.1,
+                f'h={h}: divergence alpha {inf.get_alpha(use_divergence=True):.3f} vs '
+                f'empirical {alpha_empirical:.3f}'
+            )
+
+
+@pytest.mark.slow
 class SimulationTestCase(TestCase):
     """
     Test the Simulation class.
@@ -463,3 +653,94 @@ class SimulationTestCase(TestCase):
             sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=1e8, theta=1e-4),
             params=dict(S_d=-300, b=0.3, p_b=1, S_b=0.1, h=h)
         ).get_alpha(), 1, delta=1e-3)
+
+
+class SimulationSmokeTestCase(TestCase):
+    """
+    Fast (fast-tier) coverage of the analytic ``Simulation`` class on a tiny SFS with a coarse
+    discretization. The Wright-Fisher path is excluded from coverage and validated only in the
+    slow tier.
+    """
+
+    @staticmethod
+    def _make(params=None, **kwargs):
+        return fd.Simulation(
+            sfs_neut=fd.Simulation.get_neutral_sfs(n=10, n_sites=1e6, theta=1e-3),
+            params=params if params is not None else dict(S_d=-500, b=0.4, p_b=0.05, S_b=10),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            **kwargs
+        )
+
+    def test_run_and_summaries(self):
+        """run() plus the spectra and alpha/omega/omega_a summaries are finite."""
+        sim = self._make()
+        sfs_sel = sim.run()
+
+        self.assertEqual(sfs_sel.n, 10)
+        self.assertTrue(np.all(np.isfinite(sfs_sel.to_list())))
+
+        spectra = sim.get_spectra()
+        self.assertEqual(set(spectra.types), {'neutral', 'selected'})
+
+        for value in (sim.get_alpha(), sim.get_omega(), sim.get_omega_a()):
+            self.assertTrue(np.isfinite(value))
+
+    def test_get_wright_fisher_constructs(self):
+        """get_wright_fisher returns a configured object without running it."""
+        wf = self._make().get_wright_fisher(pop_size=100, generations=10)
+
+        self.assertEqual(wf.n_generations, 10)
+
+    def test_params_out_of_bounds_raises(self):
+        """Out-of-range eps / dominance and out-of-bounds DFE params are rejected."""
+        with self.assertRaises(ValueError):
+            self._make(params=dict(S_d=-500, b=0.4, p_b=0.05, S_b=10, eps=2.0))
+
+        with self.assertRaises(ValueError):
+            self._make(params=dict(S_d=-500, b=0.4, p_b=0.05, S_b=10, h=1.5))
+
+    def test_no_divergence_class_by_default(self):
+        """Without n_sites_div the fixed-derived class stays zero (backward compatible)."""
+        self.assertEqual(self._make().run().n_div, 0)
+
+    def test_divergence_class_matches_flux(self):
+        """
+        With n_sites_div the fixed-derived class equals the expected number of substitutions
+        theta * L_div * flux (selected) and theta * L_div (neutral, flux = 1).
+        """
+        L = 2e6
+        sim = self._make(n_sites_div=L)
+        sfs_sel = sim.run()
+
+        flux = sim.discretization.get_divergence_flux(sim.model, sim.params)
+        np.testing.assert_allclose(sfs_sel.n_div, sim.theta * L * flux, rtol=1e-9)
+        # the neutral spectrum carries theta * L_div (the neutral substitution flux is 1)
+        np.testing.assert_allclose(sim.get_spectra()['neutral'].n_div, sim.theta * L, rtol=1e-9)
+
+    def test_divergence_roundtrip_recovers_truth(self):
+        """
+        Feeding the simulated (clean, matched-model) divergence back into the divergence-based
+        estimators recovers the truth. ``omega`` matches exactly (both equal the total substitution
+        flux); ``alpha`` matches up to the near-neutral bin, where the MK and DFE estimators
+        partition the s=0 mass differently (there is no finite-sample misattribution here).
+        """
+        L = 2e6
+        sim = self._make(n_sites_div=L)
+        sim.run()
+        spectra = sim.get_spectra()
+
+        inf = fd.BaseInference(
+            sfs_neut=spectra['neutral'], sfs_sel=spectra['selected'],
+            n_sites_div_neut=L, n_sites_div_sel=L,
+            discretization=sim.discretization,                  # share -> exact agreement
+            fixed_params={'all': {'eps': 0, 'h': 0.5}}
+        )
+
+        true = dict(sim.params)
+        # the divergence-based omega equals the DFE omega exactly (both are the substitution flux)
+        np.testing.assert_allclose(inf.get_omega(params=true, use_divergence=True),
+                                   inf.get_omega(params=true, use_divergence=False), rtol=1e-9)
+        # the divergence-based alpha recovers the true alpha (near-neutral bin aside)
+        np.testing.assert_allclose(inf.get_alpha(params=true, use_divergence=True),
+                                   sim.get_alpha(), atol=5e-3)

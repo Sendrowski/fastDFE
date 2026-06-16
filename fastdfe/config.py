@@ -60,6 +60,9 @@ class Config:
             n_bootstraps: int = 100,
             n_bootstrap_retries: int = 2,
             parallelize: bool = True,
+            include_divergence: bool = True,
+            n_sites_div_neut: Dict[str, float] = None,
+            n_sites_div_sel: Dict[str, float] = None,
             **kwargs
     ):
         """
@@ -114,6 +117,17 @@ class Config:
             defined the number of retries per bootstrap sample when subsequent runs failed, but now it defines the
             total number of runs per bootstrap sample, taking the most likely one.
         :param parallelize: Whether to parallelize the optimization.
+        :param include_divergence: Whether to include divergence counts in the likelihood. This only
+            takes effect when the divergence target sizes are given via ``n_sites_div_neut`` and
+            ``n_sites_div_sel``; otherwise inference is based on polymorphism alone. Defaults to
+            ``True``.
+        :param n_sites_div_neut: Number of mutational target sites over which neutral divergence was
+            counted, keyed by type. Specifying it (with ``n_sites_div_sel``) opts neutral divergence
+            into the likelihood. Also used to round-trip divergence target sizes through
+            serialization.
+        :param n_sites_div_sel: Number of mutational target sites over which selected divergence was
+            counted, keyed by type. Specifying it (with ``n_sites_div_neut``) opts selected
+            divergence into the likelihood.
         :param kwargs: Additional keyword arguments which are ignored.
         """
 
@@ -142,7 +156,10 @@ class Config:
             n_bootstraps=n_bootstraps,
             n_bootstrap_retries=n_bootstrap_retries,
             parallelize=parallelize,
-            loss_type=loss_type
+            loss_type=loss_type,
+            include_divergence=include_divergence,
+            n_sites_div_neut=n_sites_div_neut,
+            n_sites_div_sel=n_sites_div_sel
         )
 
         # parse spectra file if specified
@@ -211,12 +228,15 @@ class Config:
 
         :param file: Path to the polyDFE config file.
         """
-        spectra = parse_polydfe_sfs_config(file)
+        parsed = parse_polydfe_sfs_config(file)
 
-        # merge into data dictionary
+        # merge into data dictionary. The parsed spectra have a single 'all' type, so the divergence
+        # target sizes are keyed accordingly (left as None when the file carries no divergence).
         self.data |= dict(
-            sfs_neut=Spectra.from_spectrum(spectra['sfs_neut']),
-            sfs_sel=Spectra.from_spectrum(spectra['sfs_sel'])
+            sfs_neut=Spectra.from_spectrum(parsed['sfs_neut']),
+            sfs_sel=Spectra.from_spectrum(parsed['sfs_sel']),
+            n_sites_div_neut={'all': parsed['n_sites_div_neut']} if parsed['n_sites_div_neut'] is not None else None,
+            n_sites_div_sel={'all': parsed['n_sites_div_sel']} if parsed['n_sites_div_sel'] is not None else None
         )
 
     def create_polydfe_sfs_config(self, file: str):
@@ -225,10 +245,18 @@ class Config:
 
         :param file: Path to the sfs config file to be created.
         """
+        nsd_neut = self.data.get('n_sites_div_neut')
+        nsd_sel = self.data.get('n_sites_div_sel')
+
         create_sfs_config(
             file=file,
             sfs_neut=self.data['sfs_neut'].all if isinstance(self.data['sfs_neut'], Spectra) else self.data['sfs_neut'],
-            sfs_sel=self.data['sfs_sel'].all if isinstance(self.data['sfs_sel'], Spectra) else self.data['sfs_sel']
+            sfs_sel=self.data['sfs_sel'].all if isinstance(self.data['sfs_sel'], Spectra) else self.data['sfs_sel'],
+            # collapse the per-type divergence target sizes to a single value for the combined SFS
+            n_sites_div_neut=sum(nsd_neut.values()) if nsd_neut else None,
+            n_sites_div_sel=sum(nsd_sel.values()) if nsd_sel else None,
+            # only write divergence to the polyDFE SFS when divergence is enabled for this config
+            include_divergence=self.data.get('include_divergence', True)
         )
 
     def to_dict(self) -> dict:
@@ -245,7 +273,7 @@ class Config:
 
         :return: JSON string
         """
-        return json.dumps(self.data, indent=4, cls=CustomEncoder)
+        return json.dumps(self.to_dict(), indent=4, cls=CustomEncoder)
 
     def to_yaml(self) -> str:
         """

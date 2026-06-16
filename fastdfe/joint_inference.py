@@ -73,7 +73,9 @@ class JointInference(BaseInference):
             self,
             sfs_neut: Spectra,
             sfs_sel: Spectra,
-            include_divergence: bool = None,
+            include_divergence: bool = True,
+            n_sites_div_neut: Dict[str, float] = None,
+            n_sites_div_sel: Dict[str, float] = None,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0.0, 1.0, 21),
@@ -109,7 +111,15 @@ class JointInference(BaseInference):
             the mutation rate.
         :param sfs_sel: Selected SFS. Note that we require monomorphic counts to be specified in order to infer
             the mutation rate.
-        :param include_divergence: Whether to include divergence in the likelihood
+        :param include_divergence: Whether to include divergence counts in the likelihood. Only takes
+            effect when the divergence target sizes are given via ``n_sites_div_neut`` and
+            ``n_sites_div_sel``; see :class:`~fastdfe.base_inference.BaseInference` for details.
+        :param n_sites_div_neut: Number of mutational target sites over which neutral divergence was
+            counted, keyed by type. Specifying it (with ``n_sites_div_sel``) opts neutral divergence
+            into the likelihood.
+        :param n_sites_div_sel: Number of mutational target sites over which selected divergence was
+            counted, keyed by type. Specifying it (with ``n_sites_div_neut``) opts selected
+            divergence into the likelihood.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced. Decreasing the number of intervals to ``100``
             provides nearly identical results while increasing speed, especially when precomputing across dominance
@@ -170,6 +180,16 @@ class JointInference(BaseInference):
 
         #: SFS types
         self.types: List[str] = sfs_neut.types
+
+        # divergence is owned by the inference, not the spectra. Keep the per-type target sizes for
+        # the per-type sub-inferences, and pass the summed (across types) sizes to the aggregate
+        # 'all' parent inference via ``**locals()`` below (kept on ``self`` so they don't leak into
+        # the ``**locals()`` call as unexpected scalar-typed kwargs).
+        self._n_sites_div_neut_types: Optional[Dict[str, float]] = n_sites_div_neut
+        self._n_sites_div_sel_types: Optional[Dict[str, float]] = n_sites_div_sel
+
+        n_sites_div_neut = sum(n_sites_div_neut.values()) if n_sites_div_neut else None
+        n_sites_div_sel = sum(n_sites_div_sel.values()) if n_sites_div_sel else None
 
         # initialize parent
         # the `self.folded` property will generalize nicely as we
@@ -257,6 +277,8 @@ class JointInference(BaseInference):
                 sfs_sel=sfs_sel,
                 discretization=self.discretization,
                 include_divergence=include_divergence,
+                n_sites_div_neut=self.n_sites_div_neut,
+                n_sites_div_sel=self.n_sites_div_sel,
                 model=model,
                 seed=seed,
                 x0=x0,
@@ -280,12 +302,20 @@ class JointInference(BaseInference):
         # check if the fixed parameters are compatible with the shared parameters
         self.check_no_shared_params_fixed()
 
+        #: Whether divergence counts were requested
+        self.include_divergence: bool = include_divergence
+
+        #: Whether divergence counts are actually used in the likelihood. We defer to the marginal
+        #: ``all`` inference which determines this from the (combined) spectra.
+        self._use_divergence: bool = self.marginal_inferences['all']._use_divergence
+
         #: parameter scales
         self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = \
             self.model.scales | self._default_scales | scales_cov | scales
 
         #: parameter bounds
-        self.bounds: Dict[str, Tuple[float, float]] = self.model.bounds | self._default_bounds | bounds | bounds_cov
+        self.bounds: Dict[str, Tuple[float, float]] = \
+            self.model.bounds | self._default_bounds | bounds | bounds_cov
 
         # create optimization instance for joint inference
         # take initial values and bounds from marginal inferences
@@ -314,6 +344,8 @@ class JointInference(BaseInference):
                 sfs_sel=sfs_sel[[t]],
                 discretization=self.discretization,
                 include_divergence=include_divergence,
+                n_sites_div_neut=self._n_sites_div_neut_types.get(t) if self._n_sites_div_neut_types else None,
+                n_sites_div_sel=self._n_sites_div_sel_types.get(t) if self._n_sites_div_sel_types else None,
                 model=model,
                 seed=seed,
                 x0=x0,
@@ -342,6 +374,8 @@ class JointInference(BaseInference):
                 sfs_sel=sfs_sel[[t]],
                 discretization=self.discretization,
                 include_divergence=include_divergence,
+                n_sites_div_neut=self._n_sites_div_neut_types.get(t) if self._n_sites_div_neut_types else None,
+                n_sites_div_sel=self._n_sites_div_sel_types.get(t) if self._n_sites_div_sel_types else None,
                 model=model,
                 seed=seed,
                 x0=x0,
@@ -440,6 +474,17 @@ class JointInference(BaseInference):
 
         # determine parameters with covariates that are not shared
         return list(set(params_with_covariates) - set(completely_shared))
+
+    @classmethod
+    def from_config(cls, config: 'Config') -> 'JointInference':
+        """
+        Load from config object. Unlike :meth:`BaseInference.from_config`, the per-type divergence
+        target sizes are passed through unchanged (JointInference expects them keyed by type).
+
+        :param config: Config object.
+        :return: JointInference object.
+        """
+        return cls(**config.data)
 
     def run(
             self,
@@ -619,7 +664,8 @@ class JointInference(BaseInference):
             params=correct_values(Covariate._apply(self.covariates, params, t), self.bounds, self.scales),
             sfs_neut=self.joint_inferences[t].sfs_neut,
             sfs_sel=self.joint_inferences[t].sfs_sel,
-            folded=self.folded
+            folded=self.folded,
+            include_divergence=self._use_divergence
         ))) for t, inf in self.joint_inferences.items())
 
     @BaseInference._run_if_required_wrapper
@@ -677,7 +723,8 @@ class JointInference(BaseInference):
             do_bootstrap=self.do_bootstrap,
             n_bootstraps=self.n_bootstraps,
             parallelize=self.parallelize,
-            n_runs=self.n_runs
+            n_runs=self.n_runs,
+            include_divergence=self.include_divergence
         )
 
     @BaseInference._run_if_required_wrapper
@@ -724,6 +771,7 @@ class JointInference(BaseInference):
         scales_default = self.scales
         bounds_default = self.bounds
         n_retries = self.n_bootstrap_retries
+        use_divergence = self._use_divergence
         sfs_neut = dict((t, self.marginal_inferences[t].sfs_neut) for t in self.types)
         sfs_sel = dict((t, self.marginal_inferences[t].sfs_sel) for t in self.types)
 
@@ -767,7 +815,8 @@ class JointInference(BaseInference):
                         params=correct_values(Covariate._apply(covariates, params, t), bounds_default, scales_default),
                         sfs_neut=spectra[t]['neut'],
                         sfs_sel=spectra[t]['sel'],
-                        folded=folded
+                        folded=folded,
+                        include_divergence=use_divergence
                     )) for t in types)
                 )
 
@@ -1311,6 +1360,26 @@ class JointInference(BaseInference):
         """
         return
 
+    @functools.cached_property
+    def omega(self) -> Optional[float]:
+        """
+        The is no single omega for the joint inference. Please refer
+        to the ``self.joint_inferences[t].omega``.
+
+        :return: None
+        """
+        return
+
+    @functools.cached_property
+    def omega_a(self) -> Optional[float]:
+        """
+        The is no single omega_a for the joint inference. Please refer
+        to the ``self.joint_inferences[t].omega_a``.
+
+        :return: None
+        """
+        return
+
     def _set_fixed_params(self, params: Dict[str, Dict[str, float]]):
         """
         Set fixed parameters.
@@ -1346,17 +1415,69 @@ class JointInference(BaseInference):
 
         return norm(counts_mle - counts_sel, k)
 
-    def get_alpha(self, params: dict = None) -> float:
+    def get_alpha(self, params: dict = None, use_divergence: bool = None) -> float:
         """
-        Get alpha, the proportion of beneficial non-synonymous substitutions.
+        Get alpha, the proportion of beneficial non-synonymous substitutions, for each type.
 
         :param params: DFE parameters to use for calculation of format `{type: {param: value}}`.
+        :param use_divergence: Whether to estimate alpha from observed divergence counts using
+            polyDFE's McDonald-Kreitman style estimator, or from the DFE alone. When ``None`` (the
+            default), this follows the inference mode. See :meth:`BaseInference.get_alpha`.
         """
         if params is None:
             params = self.params_mle
 
+        if use_divergence is None:
+            use_divergence = self._use_divergence
+
         alphas = {}
         for t in self.types:
-            alphas[t] = self.discretization.get_alpha(self.model, params[t])
+            # delegate to the per-type inference which carries the divergence counts and target sizes
+            alphas[t] = self.joint_inferences[t].get_alpha(params[t], use_divergence=use_divergence)
 
         return alphas
+
+    def get_omega(self, params: dict = None, use_divergence: bool = None) -> Dict[str, float]:
+        """
+        Get omega, the rate of non-synonymous over synonymous substitutions (dN/dS), for each type.
+
+        :param params: DFE parameters to use for calculation of format `{type: {param: value}}`.
+        :param use_divergence: Whether to estimate omega from observed divergence counts using
+            polyDFE's McDonald-Kreitman style estimator, or from the DFE alone. When ``None`` (the
+            default), this follows the inference mode. See :meth:`BaseInference.get_omega`.
+        """
+        if params is None:
+            params = self.params_mle
+
+        if use_divergence is None:
+            use_divergence = self._use_divergence
+
+        omegas = {}
+        for t in self.types:
+            # delegate to the per-type inference which carries the divergence counts and target sizes
+            omegas[t] = self.joint_inferences[t].get_omega(params[t], use_divergence=use_divergence)
+
+        return omegas
+
+    def get_omega_a(self, params: dict = None, use_divergence: bool = None) -> Dict[str, float]:
+        """
+        Get omega_a, the rate of adaptive non-synonymous over synonymous substitutions
+        (adaptive dN/dS), for each type.
+
+        :param params: DFE parameters to use for calculation of format `{type: {param: value}}`.
+        :param use_divergence: Whether to estimate omega_a from observed divergence counts using
+            polyDFE's McDonald-Kreitman style estimator, or from the DFE alone. When ``None`` (the
+            default), this follows the inference mode. See :meth:`BaseInference.get_omega_a`.
+        """
+        if params is None:
+            params = self.params_mle
+
+        if use_divergence is None:
+            use_divergence = self._use_divergence
+
+        omega_as = {}
+        for t in self.types:
+            # delegate to the per-type inference which carries the divergence counts and target sizes
+            omega_as[t] = self.joint_inferences[t].get_omega_a(params[t], use_divergence=use_divergence)
+
+        return omega_as

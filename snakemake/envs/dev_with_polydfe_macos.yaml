@@ -1,0 +1,44 @@
+# Environment for running polyDFE alongside fastDFE on macOS (incl. Apple Silicon / arm64).
+#
+# Unlike `dev_with_polydfe.yaml`, the conda `polydfe=2.0` package is Linux-only, so on macOS the
+# polyDFE binary has to be built from source. This env provides the build toolchain (a C compiler,
+# GNU Scientific Library and make) as well as the R / rpy2 runtime used by the wrapper's
+# postprocessing.
+#
+# One-off setup after creating the env (the prebuilt macOS binary in the polyDFE repo is x86_64 and
+# the conda compiler lacks a macOS SDK, so build natively with the *system* clang against conda's
+# static GSL):
+#
+#   git clone --depth 1 https://github.com/paula-tataru/polyDFE.git
+#   cd polyDFE
+#   # GSL >= 2 renamed an argument; pass NULL weights to keep the old behaviour
+#   sed -i '' 's/gsl_multifit_fdfsolver_dif_df(x, &fdf, f, J)/gsl_multifit_fdfsolver_dif_df(x, NULL, \&fdf, f, J)/' src/localoptim.c
+#   /usr/bin/clang -O2 -frounding-math -I"$CONDA_PREFIX/include" -c src/*.c
+#   /usr/bin/clang -o polyDFE *.o "$CONDA_PREFIX/lib/libgsl.a" "$CONDA_PREFIX/lib/libgslcblas.a" -lm
+#   cp polyDFE <repo>/resources/polydfe/bin/polyDFE-2.0-macOS-arm64-bit
+#   # postprocessing script (referenced as resources/polydfe/postprocessing/script.R)
+#   curl -L https://github.com/paula-tataru/polyDFE/raw/master/postprocessing.R \
+#        -o <repo>/resources/polydfe/postprocessing/script.R
+#
+# RJSONIO is only available via CRAN here and must be built with the system compiler:
+#   R_MAKEVARS_USER=<(printf 'CC=/usr/bin/clang\nCXX=/usr/bin/clang++\n') \
+#     Rscript -e 'install.packages("RJSONIO", repos="https://cloud.r-project.org")'
+name: dev-fastdfe-polydfe-macos
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - dadi
+  - r-base
+  - rpy2
+  # build toolchain for compiling polyDFE from source
+  - gsl
+  - make
+  - c-compiler
+  # forward simulator for empirical-alpha ground truth (substitution counts)
+  - slim
+  - pip
+  - pip:
+    - pytest
+    - pytest-xdist
+    - -r ../../requirements_testing.txt

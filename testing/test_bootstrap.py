@@ -1,10 +1,12 @@
 import numpy as np
+import pytest
 from scipy import stats
 
 from fastdfe.bootstrap import Bootstrap
 from testing import TestCase
 
 
+@pytest.mark.inference
 class BootstrapTestCase(TestCase):
     """
     Test the Bootstrap class.
@@ -124,3 +126,50 @@ class BootstrapTestCase(TestCase):
         bounds = Bootstrap.get_ci_bca([], 1, 0.05)
 
         self.assertEqual(bounds, [0, 0])
+
+
+class FastBootstrapTestCase(TestCase):
+    """
+    Fast-tier coverage of the Bootstrap confidence-interval utilities evaluated directly on
+    synthetic arrays, with no inference.
+    """
+
+    bs = np.sort(np.random.default_rng(0).normal(size=200))
+
+    def test_percentile_ci(self):
+        """Percentile CI brackets, and an out-of-range level is rejected."""
+        lo, hi = Bootstrap.get_ci_percentile(self.bs, 0.05)
+        self.assertLess(lo, hi)
+
+        with self.assertRaises(ValueError):
+            Bootstrap.get_ci_percentile(self.bs, 0.9)
+
+    def test_bca_ci(self):
+        """BCa CI brackets, and the empty-input guard returns [0, 0]."""
+        lo, hi = Bootstrap.get_ci_bca(self.bs, original=0.0, a=0.05)
+        self.assertLessEqual(lo, hi)
+
+        self.assertEqual(list(Bootstrap.get_ci_bca([], 0.0, 0.05)), [0, 0])
+
+    def test_bounds_from_quantile_nan(self):
+        """NaN quantiles short-circuit to [None, None]."""
+        self.assertEqual(
+            list(Bootstrap.get_bounds_from_quantile(self.bs, np.nan, 0.5, len(self.bs))),
+            [None, None]
+        )
+
+    def test_get_errors_all_modes(self):
+        """get_errors over both CI types and all point-estimate modes; unknown type raises."""
+        values = [0.0, 1.0, -1.0]
+        bs2d = np.random.default_rng(1).normal(loc=values, size=(50, 3))
+
+        for bootstrap_type in ('percentile', 'bca'):
+            for point_estimate in ('original', 'mean', 'median'):
+                center, errors, cis = Bootstrap.get_errors(
+                    values, bs2d, bootstrap_type=bootstrap_type, point_estimate=point_estimate
+                )
+                self.assertEqual(len(center), 3)
+                self.assertTrue(np.all(errors >= 0))
+
+        with self.assertRaises(NotImplementedError):
+            Bootstrap.get_errors(values, bs2d, bootstrap_type='nope')

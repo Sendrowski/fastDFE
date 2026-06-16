@@ -21,6 +21,7 @@ from fastdfe.io_handlers import count_sites, GFFHandler, get_called_bases, Dummy
 from testing import TestCase
 
 
+@pytest.mark.inference
 class AnnotationTestCase(TestCase):
     """
     Test the annotators.
@@ -887,6 +888,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         self.assertEqual(anc._ingroup_mask.sum(), 3)
 
+    @pytest.mark.slow
     def test_get_likelihood_outgroup_ancestral_allele_annotation(self):
         """
         Test the get_likelihood function.
@@ -1557,6 +1559,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         self.assertEqual(anc.n_target_sites, p.target_site_counter.n_target_sites)
 
+    @pytest.mark.slow
     @staticmethod
     def test_n_target_sites():
         """
@@ -1582,6 +1585,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         ann.annotate()
 
+    @pytest.mark.slow
     @staticmethod
     def test_priors_betula_dataset():
         """
@@ -1661,6 +1665,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         pass
 
+    @pytest.mark.slow
     def test_compare_with_est_sfs_betula(self):
         """
         Compare MLE params and site probabilities with EST-SFS using the betula dataset.
@@ -2942,6 +2947,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         self.assertGreater(np.diff(site_info.loc['p_major_ancestral'])[0], 0.5)
 
+    @pytest.mark.slow
     def test_compare_random_vs_probabilistic_subsampling(self):
         """
         Compare MLE params and ancestral allele probabilities with random vs. probabilistic subsampling.
@@ -3006,6 +3012,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         self.assertLess(mismatches, 6)
 
+    @pytest.mark.slow
     @staticmethod
     def test_plot_configs():
         """
@@ -3026,6 +3033,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         a.get_folded_spectra(groups=['major_base', 'minor_base']).plot()
         a.get_folded_spectra(groups=['major_base', 'minor_base', 'outgroup_bases']).plot()
 
+    @pytest.mark.slow
     def test_compare_folded_sfs_random_vs_probabilistic_subsampling(self):
         """
         Compare folded SFS random vs. probabilistic subsampling.
@@ -3051,6 +3059,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         # less for larger number of sites
         self.assertLess(np.abs(diff[~np.isnan(diff)]).max(), 0.25)
 
+    @pytest.mark.slow
     @staticmethod
     def test_get_folded_spectra_random_vs_probabilistic_subsampling():
         """
@@ -3148,6 +3157,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         np.testing.assert_array_equal(results[0], results[1])
 
+    @pytest.mark.slow
     @staticmethod
     def test_fixed_result():
         """
@@ -3211,6 +3221,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         sfs = p.parse()
 
+    @pytest.mark.slow
     def test_raises_warning_on_few_monomorphic_sites(self):
         """
         Test that a warning is raised when there are few monomorphic sites.
@@ -3237,6 +3248,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         with self.assertLogs(level='WARNING', logger=anc._logger):
             p.parse()
 
+    @pytest.mark.slow
     @staticmethod
     def test_compare_priors_random_vs_probabilistic_subsampling():
         """
@@ -3299,6 +3311,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
 
         self.assertLess(diff_ref_params.max(), 0.01)
 
+    @pytest.mark.slow
     def test_serialization_from_est_sfs(self):
         """
         Test serializing and deserializing an annotation using from_est_sfs.
@@ -3403,6 +3416,7 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         # make sure all probabilities are greater than 0.5
         self.assertGreater(min(probs), 0.5)
 
+    @pytest.mark.slow
     def test_n_samples_target_sites_argument(self):
         """
         Test that the n_samples_target_sites is properly extrapolated to n_target_sites
@@ -3438,3 +3452,183 @@ class MaximumLikelihoodAncestralAnnotationTestCase(TestCase):
         counts = np.array([list(v._monomorphic_samples.values()) for k, v in anc.items()]) / n_target_sites
 
         self.assertLessEqual(np.max(np.var(counts, axis=0)), 1e-4)
+
+
+class FastAnnotationTestCase(TestCase):
+    """
+    Fast-tier annotation coverage. Reuses the committed betula fixtures but caps ``max_sites`` so
+    the annotation loop short-circuits after a handful of records, exercising the annotation code
+    paths in well under a second rather than the multi-second real-data tests.
+    """
+
+    def test_degeneracy_annotation(self):
+        """Codon-degeneracy annotation (FASTA + GFF) over a tiny slice."""
+        ann = fd.Annotator(
+            vcf='resources/genome/betula/all.subset.100000.vcf.gz',
+            output='scratch/fast_degeneracy_annotation.vcf',
+            fasta='resources/genome/betula/genome.subset.20.fasta',
+            gff='resources/genome/betula/genome.gff.gz',
+            annotations=[fd.DegeneracyAnnotation()],
+            max_sites=200
+        )
+        ann.annotate()
+
+        self.assertGreater(count_sites(ann.output), 0)
+
+    def test_maximum_likelihood_ancestral_annotation(self):
+        """ML ancestral annotation (ESTSFS-style) over a tiny slice with a single run."""
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            exclude=["ERR2103731"],
+            n_runs=1,
+            n_ingroups=20,
+            model=fd.K2SubstitutionModel(),
+            prior=fd.KingmanPolarizationPrior(),
+            n_target_sites=200
+        )
+
+        sfs = fd.Parser(
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
+            n=10,
+            max_sites=200,
+            annotations=[anc]
+        ).parse()
+
+        self.assertEqual(sfs.all.n, 10)
+        self.assertGreater(sfs.all.data.sum(), 0)
+
+    def test_maximum_parsimony_annotation(self):
+        """Maximum-parsimony ancestral annotation (VCF only) over a tiny slice."""
+        ann = fd.Annotator(
+            vcf='resources/genome/betula/biallelic.polarized.subset.10000.vcf.gz',
+            output='scratch/fast_maximum_parsimony_annotation.vcf',
+            annotations=[fd.MaximumParsimonyAncestralAnnotation()],
+            max_sites=200
+        )
+        ann.annotate()
+
+        self.assertGreater(count_sites(ann.output), 0)
+
+    def test_synonymy_annotation(self):
+        """Synonymy annotation (FASTA + GFF) over a tiny slice."""
+        ann = fd.Annotator(
+            vcf='resources/genome/betula/biallelic.subset.10000.vcf.gz',
+            output='scratch/fast_synonymy_annotation.vcf',
+            fasta='resources/genome/betula/genome.subset.20.fasta',
+            gff='resources/genome/betula/genome.gff.gz',
+            annotations=[fd.SynonymyAnnotation()],
+            max_sites=200
+        )
+        ann.annotate()
+
+        self.assertGreater(count_sites(ann.output), 0)
+
+    def test_adhoc_ancestral_annotation(self):
+        """Ad-hoc (outgroup-majority) ancestral annotation over a tiny slice."""
+        anc = fd.annotation.AdHocAncestralAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_ingroups=5,
+            subsample_mode='random'
+        )
+        ann = fd.Annotator(
+            vcf='resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz',
+            output='scratch/fast_adhoc_annotation.vcf',
+            annotations=[anc],
+            max_sites=200
+        )
+        ann.annotate()
+
+        self.assertGreater(count_sites(ann.output), 0)
+
+    def test_ml_ancestral_adaptive_prior_jc_and_plot(self):
+        """ML ancestral with the adaptive prior + JC model, plus the likelihood plot."""
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            exclude=["ERR2103731"],
+            n_runs=1,
+            n_ingroups=20,
+            model=fd.JCSubstitutionModel(),
+            prior=fd.AdaptivePolarizationPrior(),
+            n_target_sites=200
+        )
+
+        fd.Parser(
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
+            n=10,
+            max_sites=200,
+            annotations=[anc]
+        ).parse()
+
+        anc.plot_likelihoods(show=False)
+
+    def test_ml_ancestral_no_prior_multi_run(self):
+        """ML ancestral with no prior and multiple runs."""
+        anc = fd.MaximumLikelihoodAncestralAnnotation(
+            outgroups=["ERR2103730"],
+            exclude=["ERR2103731"],
+            n_runs=2,
+            n_ingroups=20,
+            prior=None
+        )
+
+        fd.Parser(
+            vcf="resources/genome/betula/biallelic.with_outgroups.subset.10000.vcf.gz",
+            fasta="resources/genome/betula/genome.subset.20.fasta",
+            n=10,
+            max_sites=200,
+            annotations=[anc]
+        ).parse()
+
+    def test_adhoc_ancestral_probabilistic(self):
+        """Ad-hoc ancestral annotation with probabilistic subsampling."""
+        anc = fd.annotation.AdHocAncestralAnnotation(
+            outgroups=["ERR2103730", "ERR2103731"],
+            n_ingroups=5,
+            subsample_mode='probabilistic'
+        )
+        ann = fd.Annotator(
+            vcf='resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz',
+            output='scratch/fast_adhoc_probabilistic.vcf',
+            annotations=[anc],
+            max_sites=200
+        )
+        ann.annotate()
+
+        self.assertGreater(count_sites(ann.output), 0)
+
+    def test_ml_ancestral_from_est_sfs_and_serialization(self):
+        """from_est_sfs / to_est_sfs and the to_file / from_file / to_json round-trips."""
+        anc = fd.MaximumLikelihoodAncestralAnnotation.from_est_sfs(
+            file="resources/EST-SFS/test-data.txt",
+            model=fd.JCSubstitutionModel(),
+            n_runs=1,
+            prior=fd.KingmanPolarizationPrior(),
+            parallelize=False
+        )
+
+        anc.to_est_sfs("scratch/fast_anc_est_sfs.txt")
+
+        anc.to_file("scratch/fast_anc.json")
+        restored = fd.MaximumLikelihoodAncestralAnnotation.from_file("scratch/fast_anc.json")
+        self.assertIsInstance(restored, fd.MaximumLikelihoodAncestralAnnotation)
+
+        fd.MaximumLikelihoodAncestralAnnotation.from_json(anc.to_json())
+
+    def test_validation_errors(self):
+        """Construction-time validation of MLAncestral and the substitution models."""
+        # zero outgroups
+        with self.assertRaises(ValueError):
+            fd.MaximumLikelihoodAncestralAnnotation(outgroups=[], n_ingroups=10)
+
+        # negative substitution-model parameter bound
+        with self.assertRaises(ValueError):
+            fd.MaximumLikelihoodAncestralAnnotation(
+                outgroups=["A", "B"], n_ingroups=5,
+                model=fd.JCSubstitutionModel(bounds=dict(k=(-1, 1)))
+            )
+
+        # upper bound below lower bound
+        with self.assertRaises(ValueError):
+            fd.JCSubstitutionModel(bounds=dict(K=(10, 9)))
