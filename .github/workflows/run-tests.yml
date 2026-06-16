@@ -7,6 +7,8 @@ name: tests # Run tests on Linux
 
 on:
   push:
+    paths-ignore:
+      - 'docs/**'
   pull_request:
   schedule:
     - cron: "0 3 * * *"  # nightly full suite

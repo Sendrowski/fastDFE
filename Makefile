@@ -12,6 +12,11 @@
 
 PYTEST ?= pytest
 
+# Always run tests in parallel via pytest-xdist (declared in the dev/testing conda envs).
+# `-n auto` uses one worker per physical core; override e.g. `make test XDIST="-n 4"` or
+# disable with `make test XDIST=""` for a serial run (useful when debugging).
+XDIST ?= -n auto
+
 .PHONY: help test test-all test-full docs clean
 
 help:
@@ -21,16 +26,17 @@ help:
 	@echo "  make test-full  # entire suite incl. slow/nightly tier"
 	@echo "  make docs       # rebuild HTML docs from scratch (clean + html)"
 	@echo "  make clean      # remove the built docs"
+	@echo "  (all test targets run with xdist: XDIST='$(XDIST)'; set XDIST= to disable)"
 
 # --- tests (tiers defined in pytest.ini: fast / inference / slow) ---
 test:
-	$(PYTEST)
+	$(PYTEST) $(XDIST)
 
 test-all:
-	$(PYTEST) -m "not slow"
+	$(PYTEST) $(XDIST) -m "not slow"
 
 test-full:
-	$(PYTEST) -m "slow or not slow"
+	$(PYTEST) $(XDIST) -m "slow or not slow"
 
 # --- docs (Sphinx + myst-nb; notebooks are not executed, nb_execution_mode='off') ---
 # Full rebuild: wipe the build dir first so every page is regenerated from scratch.

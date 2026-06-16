@@ -3,6 +3,13 @@
 Changelog
 =========
 
+[1.3.0] - 2026-06-16
+^^^^^^^^^^^^^^^^^^^^
+- Added support for divergence counts in DFE inference (opt-in via :attr:`~fastdfe.base_inference.BaseInference.include_divergence`), yielding a McDonald–Kreitman-style :meth:`~fastdfe.base_inference.BaseInference.get_alpha` anchored to observed between-species divergence.
+- Added :meth:`~fastdfe.base_inference.BaseInference.get_omega` (the rate of non-synonymous over synonymous substitutions, dN/dS) and its adaptive component :meth:`~fastdfe.base_inference.BaseInference.get_omega_a`, which can also be estimated from divergence counts when available.
+- Also added divergence counts to the :class:`~fastdfe.simulation.Simulation` class.
+- Added :class:`~fastdfe.filtration.CpGFiltration` to exclude hypermutable sites in a CpG dinucleotide context (requires a FASTA reference).
+
 [1.2.2] - 2026-05-17
 ^^^^^^^^^^^^^^^^^^^^
 - Added support for ``numpy`` 2 and Python 3.13. Bumped minimum versions of ``scipy``, ``matplotlib``, ``pandas``, ``seaborn``, and ``biopython``.
