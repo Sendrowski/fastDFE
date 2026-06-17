@@ -1,10 +1,7 @@
-# Tiered test suite (see pytest.ini for the marker definitions):
-#   push (master) -> unit  tier  (fast, deterministic; target < 1 min)
-#   pull_request  -> unit + inference  (real optimization, bounded)
-#   schedule/manual -> everything, including slow (SLiM/polyDFE/h-grid validation)
-#
-# Dependencies are installed with uv (no conda); fastdfe and cyvcf2 ship wheels,
-# and dadi (used by a few spectrum tests) is pulled from PyPI.
+# Run the fast (unit) test suite with coverage on every push to master.
+# The unit tier is the pytest.ini default marker filter (-m "not inference and not slow");
+# the inference/slow tiers depend on local resources (genomes, SLiM, polyDFE) and are run
+# locally, not on CI. Dependencies are installed with uv (no conda).
 
 name: Run tests
 
@@ -12,12 +9,6 @@ on:
   push:
     branches: [master]
     paths-ignore: ['docs/**', '**.md', '**.rst']
-  pull_request:
-    branches: [master]
-    paths-ignore: ['docs/**', '**.md', '**.rst']
-  schedule:
-    - cron: "0 3 * * *"  # nightly full suite
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -36,16 +27,8 @@ jobs:
           enable-cache: true
       - name: Install fastdfe + test deps
         run: uv pip install --system -e ".[vcf]" pytest pytest-cov pytest-xdist pytest-sugar dadi
-      - name: Select test tier from the triggering event
-        id: tier
-        run: |
-          case "${{ github.event_name }}" in
-            push)         echo 'args=' >> "$GITHUB_OUTPUT" ;;                     # ini default: unit
-            pull_request) echo 'args=-m "not slow"' >> "$GITHUB_OUTPUT" ;;        # unit + inference
-            *)            echo 'args=-o addopts=' >> "$GITHUB_OUTPUT" ;;          # everything
-          esac
       - name: Run tests
-        run: pytest -n auto --cov fastdfe --cov-report=xml testing/ ${{ steps.tier.outputs.args }}
+        run: pytest -n auto --cov fastdfe --cov-report=xml testing/
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
