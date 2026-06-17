@@ -26,9 +26,6 @@ jobs:
         with:
           enable-cache: true
       - name: Install fastdfe + test deps
-        run: uv pip install --system -e ".[vcf]" pytest pytest-cov pytest-xdist pytest-sugar dadi
+        run: uv pip install --system -e ".[vcf]" pytest pytest-xdist pytest-sugar dadi
       - name: Run tests
-        run: pytest -n auto --cov fastdfe --cov-report=xml testing/
-      - uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+        run: pytest -n auto testing/

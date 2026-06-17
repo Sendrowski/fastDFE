@@ -24,6 +24,7 @@ slurm/
 .Rhistory
 .RData
 .coverage
+.coverage.*
 useful-commands.txt
 /resources/polydfe/postprocessing/script.R
 /resources/polydfe/bin/
