@@ -10,4 +10,5 @@ dependencies:
     - pytest-cov
     - pytest-sugar
     - pytest-pycharm
+    - pytest-timeout
     - -r requirements_testing.txt
