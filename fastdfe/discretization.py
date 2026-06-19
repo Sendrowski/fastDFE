@@ -64,6 +64,9 @@ class Discretization:
     #: Dominance coefficient callback, static to ensure backward compatibility
     h_callback: Callable[[float, np.ndarray], np.ndarray] = None
 
+    #: Cache for :meth:`get_counts_fixed` of shape (len(grid_h), n_intervals), static for backward compatibility
+    _counts_fixed: Optional[np.ndarray] = None
+
     def __init__(
             self,
             n: int,
@@ -166,6 +169,9 @@ class Discretization:
 
         # cache for DFE to SFS transformations of shape (n, len(grid_h), n_intervals)
         self._cache: np.ndarray = None
+
+        # cache for get_counts_fixed of shape (len(grid_h), n_intervals)
+        self._counts_fixed: Optional[np.ndarray] = None
 
     @staticmethod
     def default_h_callback(h: float, S: np.ndarray) -> np.ndarray:
@@ -363,14 +369,54 @@ class Discretization:
 
     def get_counts_fixed(self, h: float) -> np.ndarray:
         """
-        Get sojourn times as x -> 1 for fixed dominance coefficient.
+        Get sojourn times as x -> 1 for given dominance coefficient using precomputed values.
+        Interpolates linearly between precomputed values.
+
+        The result depends only on ``h`` and the fixed ``self.s`` bins (not on the DFE parameters),
+        so it is precomputed once and reused on every objective evaluation.
 
         :param h: Parameter h mapping dominance coefficients
         :return: Sojourn times as x -> 1
+        :raises ValueError: If ``h`` does not match the fixed ``self.h`` or is outside precomputed range.
         """
-        hs = self.map_h(h, self.s)
+        # check for attribute to ensure backwards compatibility
+        if not hasattr(self, "_counts_fixed") or self._counts_fixed is None:
+            self.precompute_fixed()
 
-        return self.get_counts_fixed_dominant(self.s, hs)
+        # return single precomputed value if h is fixed
+        if self.h is not None:
+
+            if not np.isclose(h, self.h):
+                raise ValueError(f'Dominance coefficient {h} does not match precomputed value {self.h}.')
+
+            return self._counts_fixed[0]
+
+        # get surrounding indices and weights
+        i, w = self.get_interpolation_weights(h)
+        j = np.arange(self.n_intervals)
+
+        # linear interpolation between h values
+        return (1.0 - w) * self._counts_fixed[i - 1, j] + w * self._counts_fixed[i, j]
+
+    def precompute_fixed(self, force: bool = False):
+        """
+        Precompute the sojourn times as x -> 1, possibly across dominance coefficients.
+
+        Builds an array of shape ``(len(grid_h), n_intervals)`` (or ``(1, n_intervals)`` for fixed
+        dominance) used by :meth:`get_counts_fixed`. The dominance dimension is sampled at constant
+        ``grid_h`` values. Called explicitly (e.g. before pickling to optimization workers) only when
+        the divergence flux is actually used, since :class:`Discretization` itself is agnostic to that.
+        """
+        if (hasattr(self, '_counts_fixed') and self._counts_fixed is not None) and not force:
+            return
+
+        if self.h is None:
+            self._counts_fixed = np.stack(
+                [self.get_counts_fixed_dominant(self.s, g) for g in self.grid_h],
+                axis=0
+            )
+        else:
+            self._counts_fixed = self.get_counts_fixed_dominant(self.s, self.map_h(self.h, self.s))[None, :]
 
     @staticmethod
     def _get_counts_dominant(
@@ -489,10 +535,20 @@ class Discretization:
 
         return self.default_h_callback(h, S)
 
-    def precompute(self, force: bool = False):
+    def precompute(self, force: bool = False, fixed: bool = False):
         """
         Precompute DFE to SFS transformation, possibly across dominance coefficients.
+
+        :param force: Recompute even if already cached.
+        :param fixed: Also precompute the fixed counts (divergence sojourn times) used by
+            :meth:`get_counts_fixed`. Caller-controlled because :class:`Discretization` is agnostic
+            to whether the divergence flux is used; passing ``True`` caches them before the
+            discretization is pickled to optimization workers.
         """
+        # build fixed counts (divergence flux) when requested, independently of the _cache guard
+        if fixed:
+            self.precompute_fixed(force=force)
+
         if (hasattr(self, '_cache') and self._cache is not None) and not force:
             return
 

@@ -281,7 +281,10 @@ class DivergenceTestCase(InferenceTestCase):
         The divergence flux and both alpha estimators must respond to the dominance coefficient h.
         """
         neut, sel, nsd_neut, nsd_sel = self._get_spectra('example_2')
-        inf = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel, do_bootstrap=False, n_runs=1)
+        # leave h free (not in fixed_params) so the discretization varies over dominance and can be
+        # evaluated across h; a fixed-h discretization would (by design) reject h != self.h
+        inf = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel,
+                               fixed_params=dict(all=dict(eps=0)), do_bootstrap=False, n_runs=1)
 
         base = dict(S_d=-2000.0, b=0.4, p_b=0.1, S_b=4.0, eps=0.0)
 
@@ -291,6 +294,25 @@ class DivergenceTestCase(InferenceTestCase):
         # strictly increasing in h (more dominant beneficial mutations fix more readily)
         assert fluxes[0] < fluxes[1] < fluxes[2]
         assert alphas[0] < alphas[1] < alphas[2]
+
+    @pytest.mark.inference
+    def test_divergence_precomputes_fixed_counts_before_workers(self):
+        """
+        run() must precompute the fixed-counts cache (before forking optimization workers) when
+        divergence is used, and leave it unbuilt for a polymorphism-only inference.
+        """
+        neut, sel, nsd_neut, nsd_sel = self._get_spectra('example_1')
+        opts = dict(intervals_del=(-1.0e+8, -1.0e-5, 100), intervals_ben=(1.0e-5, 1.0e4, 100),
+                    do_bootstrap=False, n_runs=1)
+
+        with_div = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut,
+                                    n_sites_div_sel=nsd_sel, **opts)
+        with_div.run()
+        self.assertIsNotNone(with_div.discretization._counts_fixed)
+
+        without_div = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, **opts)
+        without_div.run()
+        self.assertIsNone(without_div.discretization._counts_fixed)
 
     def test_divergence_alpha_raises_without_div_data(self):
         """

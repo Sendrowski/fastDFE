@@ -667,4 +667,77 @@ class FastDiscretizationTestCase(TestCase):
 
         # fixed-class counts at non-semidominant dominance (the dominant path)
         for h in (0.3, 0.7):
-            self.assertGreater(len(d.get_counts_fixed(h=h)), 0)
+            self.assertGreater(len(Discretization.get_counts_fixed_dominant(d.s, h)), 0)
+
+    def test_get_counts_fixed_fixed_h(self):
+        """
+        Regression test for fixed-dominance get_counts_fixed: the cached output for self.h must match
+        the direct computation and be built once and reused, and a query at a different dominance must
+        raise (a fixed-h discretization is only valid at self.h, mirroring get_counts).
+        """
+        for h_fixed in (0.5, 0.3):
+            d = self._disc(h=h_fixed)
+
+            expected = Discretization.get_counts_fixed_dominant(d.s, d.map_h(h_fixed, d.s))
+
+            self.assertIsNone(d._counts_fixed)
+            np.testing.assert_array_equal(d.get_counts_fixed(h_fixed), expected)
+
+            # cache built once and reused across calls (not recomputed)
+            cache = d._counts_fixed
+            self.assertEqual(cache.shape, (1, d.n_intervals))
+            d.get_counts_fixed(h_fixed)
+            self.assertIs(d._counts_fixed, cache)
+
+            # querying a dominance other than the fixed one raises, as for get_counts
+            with self.assertRaises(ValueError):
+                d.get_counts_fixed(h_fixed + 0.1)
+
+    def test_get_counts_fixed_variable_h_interpolation(self):
+        """
+        Regression test for variable-dominance get_counts_fixed: the precomputed grid is reused across
+        calls, queries at grid_h nodes recover the exact constant-dominance counts, and off-node
+        queries match an explicit interpolation of the same grid (mirroring get_counts).
+        """
+        d = self._disc(h=None, intervals_h=(0.0, 1.0, 5))
+
+        # grid is precomputed once and reused (same object) across calls
+        d.get_counts_fixed(0.3)
+        grid = d._counts_fixed
+        self.assertEqual(grid.shape, (d.grid_h.size, d.n_intervals))
+        d.get_counts_fixed(0.7)
+        self.assertIs(d._counts_fixed, grid)
+
+        # at grid_h nodes the interpolation must recover the exact constant-dominance counts
+        for g in d.grid_h:
+            expected = Discretization.get_counts_fixed_dominant(d.s, np.full_like(d.s, g))
+            np.testing.assert_allclose(d.get_counts_fixed(float(g)), expected, rtol=1e-12)
+
+        # off-node query must equal explicit per-bin interpolation of the precomputed grid
+        for h in (0.3, 0.55, 0.82):
+            i, w = d.get_interpolation_weights(h)
+            j = np.arange(d.n_intervals)
+            expected = (1.0 - w) * grid[i - 1, j] + w * grid[i, j]
+            np.testing.assert_array_equal(d.get_counts_fixed(h), expected)
+
+        # h outside the precomputed grid_h range raises, as for get_counts
+        with self.assertRaises(ValueError):
+            d.get_counts_fixed(1.5)
+
+    def test_precompute_fixed_flag(self):
+        """
+        precompute() is agnostic to the divergence flux: it builds the fixed-counts cache only when
+        called with fixed=True (so it is ready before pickling to workers), and leaves it untouched
+        otherwise. Covers the h=0.5 special case, other fixed h, and variable h.
+        """
+        for kwargs, n_h in [(dict(h=0.5), 1), (dict(h=0.3), 1), (dict(h=None, intervals_h=(0.0, 1.0, 5)), 5)]:
+            # without the flag the fixed-counts cache stays unbuilt
+            d = self._disc(**kwargs)
+            d.precompute()
+            self.assertIsNone(d._counts_fixed)
+
+            # with the flag it is precomputed eagerly with the expected shape
+            d = self._disc(**kwargs)
+            d.precompute(fixed=True)
+            self.assertIsNotNone(d._counts_fixed)
+            self.assertEqual(d._counts_fixed.shape, (n_h, d.n_intervals))

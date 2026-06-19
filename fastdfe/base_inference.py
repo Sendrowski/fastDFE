@@ -534,7 +534,7 @@ class BaseInference(AbstractInference):
                            ('in parallel.' if self.parallelize else 'sequentially.'))
 
         # precompute discretization
-        self.discretization.precompute()
+        self.discretization.precompute(fixed=self._use_divergence)
 
         # perform numerical minimization
         result, params_mle = self.optimization.run(
@@ -790,7 +790,7 @@ class BaseInference(AbstractInference):
         self.run_if_required()
 
         # precompute discretization if not done yet
-        self.discretization.precompute()
+        self.discretization.precompute(fixed=self._use_divergence)
 
         # update properties
         self.update_properties(
