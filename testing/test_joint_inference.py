@@ -932,6 +932,27 @@ class FastJointInferenceTestCase(TestCase):
 
         self.assertTrue(np.isfinite(inf.likelihood))
 
+    def test_compare_nested_models_keeps_h_fixed(self):
+        """
+        Regression: with a covariate the joint fixed params are expanded per type, so the fixed
+        dominance h must still be recovered (via _get_fixed_h) and kept fixed across the nested
+        models. Otherwise h is freed, the optimizer varies it, and the h=0.5 discretization raises.
+        """
+        inf = self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6))])
+
+        # h is fixed to 0.5 by default; the helper must recover it despite per-type expansion
+        self.assertNotIn('all', inf.fixed_params)
+        self.assertEqual(inf._get_fixed_h(), 0.5)
+
+        # the full nested-model comparison must run without freeing h (previously raised
+        # "Dominance coefficient ... does not match precomputed value 0.5.")
+        P, inferences = inf.compare_nested_models()
+
+        # h stays fixed at 0.5 in every nested sub-inference and type
+        for sub in inferences.values():
+            for t in sub.types:
+                self.assertEqual(sub.fixed_params[t].get('h'), 0.5)
+
     def test_getters_and_serialization(self):
         """Aggregate getters, spectra and a to_file/from_file round-trip."""
         inf = self._make()

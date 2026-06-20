@@ -1637,10 +1637,10 @@ class BaseInference(AbstractInference):
             no_anc=dict(eps=0),
             anc={}
         )
-        if 'all' in self.fixed_params and 'h' in self.fixed_params['all']:
-            submodels_h = dict(h=self.fixed_params['all']['h'])
-        else:
-            submodels_h = {}
+        # keep the dominance coefficient fixed across nested models if it is held fixed here; read it
+        # via a helper so the (per-type expanded) JointInference fixed params are handled correctly
+        fixed_h = self._get_fixed_h()
+        submodels_h = dict(h=fixed_h) if fixed_h is not None else {}
 
         # take outer product to get fixed parameters for each model
         inferences: Dict[str, BaseInference] = {}
@@ -2027,6 +2027,14 @@ class BaseInference(AbstractInference):
         self.fixed_params = expand_fixed(params, ['all'])
 
         self.optimization.set_fixed_params(self.fixed_params)
+
+    def _get_fixed_h(self) -> Optional[float]:
+        """
+        Get the dominance coefficient ``h`` if it is held fixed, else ``None``.
+
+        :return: Fixed value of ``h`` or ``None``.
+        """
+        return self.fixed_params.get('all', {}).get('h', None)
 
     def to_json(self) -> str:
         """

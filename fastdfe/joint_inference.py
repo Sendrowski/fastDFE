@@ -1400,6 +1400,17 @@ class JointInference(BaseInference):
         # propagate to optimization
         self.optimization.set_fixed_params(self.fixed_params)
 
+    def _get_fixed_h(self) -> Optional[float]:
+        """
+        Get the dominance coefficient ``h`` if it is held fixed across all types, else ``None``.
+
+        The joint fixed params are expanded per type, so collapse them to recover a common ``h``
+        (mirroring how :meth:`__init__` derives the discretization's dominance).
+
+        :return: Fixed value of ``h`` or ``None``.
+        """
+        return collapse_fixed(self.fixed_params, self.types)['all'].get('h', None)
+
         # check if the fixed parameters are compatible with the shared parameters
         self.check_no_shared_params_fixed()
 
