@@ -3,10 +3,15 @@
 Changelog
 =========
 
+[1.3.1] - 2026-06-20
+^^^^^^^^^^^^^^^^^^^^
+- Cached the divergence sojourn times, greatly speeding up DFE inference with :attr:`~fastdfe.base_inference.BaseInference.include_divergence`\ ``=True``.
+- Fixed the dominance coefficient ``h`` being freed during :meth:`JointInference.compare_nested_models() <fastdfe.base_inference.BaseInference.compare_nested_models>`.
+
 [1.3.0] - 2026-06-16
 ^^^^^^^^^^^^^^^^^^^^
-- Added support for divergence counts in DFE inference (opt-in via :attr:`~fastdfe.base_inference.BaseInference.include_divergence`), yielding a McDonald–Kreitman-style :meth:`~fastdfe.base_inference.BaseInference.get_alpha` anchored to observed between-species divergence.
-- Added :meth:`~fastdfe.base_inference.BaseInference.get_omega` (the rate of non-synonymous over synonymous substitutions, dN/dS) and its adaptive component :meth:`~fastdfe.base_inference.BaseInference.get_omega_a`, which can also be estimated from divergence counts when available.
+- Added support for divergence counts in DFE inference (opt-in via :attr:`BaseInference.include_divergence <fastdfe.base_inference.BaseInference.include_divergence>`), yielding a McDonald–Kreitman-style :meth:`BaseInference.get_alpha() <fastdfe.base_inference.BaseInference.get_alpha>` anchored to observed between-species divergence.
+- Added :meth:`BaseInference.get_omega() <fastdfe.base_inference.BaseInference.get_omega>` (the rate of non-synonymous over synonymous substitutions, dN/dS) and its adaptive component :meth:`BaseInference.get_omega_a() <fastdfe.base_inference.BaseInference.get_omega_a>`, which can also be estimated from divergence counts when available.
 - Also added divergence counts to the :class:`~fastdfe.simulation.Simulation` class.
 - Added :class:`~fastdfe.filtration.CpGFiltration` to exclude hypermutable sites in a CpG dinucleotide context (requires a FASTA reference).
 
