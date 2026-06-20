@@ -1,0 +1,5 @@
+name: gh-fastdfe
+channels:
+  - conda-forge
+dependencies:
+  - gh
