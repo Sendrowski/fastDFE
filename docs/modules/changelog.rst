@@ -3,6 +3,10 @@
 Changelog
 =========
 
+[1.3.3] - 2026-06-21
+^^^^^^^^^^^^^^^^^^^^
+- Fixed further compatibility issues with newer ``scipy`` versions affecting bootstrapping.
+
 [1.3.2] - 2026-06-21
 ^^^^^^^^^^^^^^^^^^^^
 - Fixed compatibility with newer ``scipy`` versions.

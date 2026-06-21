@@ -1058,20 +1058,25 @@ class Optimization:
                 bounds_packed[:, 1]
             )
 
-            result = minimize(
-                fun=self.get_loss_function(
-                    get_counts=get_counts,
-                    print_debug=debug_iterations
-                ),
-                x0=x0_packed,
-                method=self.method_mle,
-                bounds=bounds_packed,
-                options=self.opts_mle
-            )
-
-            # scipy >= 1.18 returns ``hess_inv`` as a LinearOperator carrying an array-namespace
-            # attribute that fails to (un)pickle ("KeyError: '_xp'")
-            result.pop('hess_inv', None)
+            try:
+                result = minimize(
+                    fun=self.get_loss_function(
+                        get_counts=get_counts,
+                        print_debug=debug_iterations
+                    ),
+                    x0=x0_packed,
+                    method=self.method_mle,
+                    bounds=bounds_packed,
+                    options=self.opts_mle
+                )
+            except ValueError as e:
+                # scipy >= 1.18 can reject an L-BFGS-B iterate that floating-point error places a
+                # negligible amount outside its bounds; treat it as a failed run rather than aborting
+                # the whole inference. Re-raise anything else.
+                if "violates bound constraints" not in str(e):
+                    raise
+                logger.debug(f"Discarding optimization run: {e}")
+                return OptimizeResult(x=x0_packed, fun=np.inf, success=False, message=str(e), nit=0, nfev=0)
 
             return result
 

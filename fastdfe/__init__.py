@@ -6,7 +6,7 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-03-10"
 
-__version__ = '1.3.2'
+__version__ = '1.3.3'
 
 import logging
 import sys
@@ -15,6 +15,52 @@ import jsonpickle
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+
+
+def _install_linear_operator_pickle_shim():
+    """
+    Work around ``scipy`` >= 1.18 raising ``KeyError: '_xp'`` when pickling a ``LinearOperator``
+    without the ``_xp`` attribute (e.g. jsonpickle-restored results or L-BFGS-B's ``hess_inv``), which
+    breaks bootstrapping. Wraps the (un)pickling hooks, falling back only on that error so it stays
+    transparent wherever they already work (older scipy, or a future release that fixes the bug).
+    """
+    try:
+        import scipy
+        from scipy.sparse.linalg import LinearOperator
+    except Exception:
+        return
+
+    # only the affected versions (>= 1.18); on later releases the wrappers stay transparent
+    try:
+        if tuple(int(p) for p in scipy.__version__.split('.')[:2]) < (1, 18):
+            return
+    except Exception:
+        return
+
+    if getattr(LinearOperator.__getstate__, '_fastdfe_shim', False):
+        return
+
+    orig_getstate = LinearOperator.__getstate__
+    orig_setstate = LinearOperator.__setstate__
+
+    def __getstate__(self):
+        try:
+            return orig_getstate(self)
+        except KeyError:
+            return self.__dict__.copy()
+
+    def __setstate__(self, state):
+        try:
+            return orig_setstate(self, state)
+        except KeyError:
+            self.__dict__.update(state)
+
+    __getstate__._fastdfe_shim = True
+    LinearOperator.__getstate__ = __getstate__
+    LinearOperator.__setstate__ = __setstate__
+
+
+_install_linear_operator_pickle_shim()
 
 from .json_handlers import DataframeHandler, SpectrumHandler, SpectraHandler, NumpyArrayHandler
 from .spectrum import Spectrum, Spectra

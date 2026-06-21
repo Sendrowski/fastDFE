@@ -789,10 +789,6 @@ class BaseInference(AbstractInference):
         # perform inference first if not done yet
         self.run_if_required()
 
-        # scipy >= 1.18 stores hess_inv as a LinearOperator that fails to pickle ("KeyError: '_xp'")
-        if self.result is not None:
-            self.result.pop('hess_inv', None)
-
         # precompute discretization if not done yet
         self.discretization.precompute(fixed=self._use_divergence)
 
