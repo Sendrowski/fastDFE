@@ -1050,16 +1050,30 @@ class Optimization:
             """
             logger.debug(f"Initial parameters: {x0}.")
 
-            return minimize(
+            # pack bounds and clip x0 into them: scaling/rounding can push a value marginally
+            bounds_packed = pack_params(scale_bounds(bounds, self.scales))
+            x0_packed = np.clip(
+                pack_params(self.scale_values(x0)),
+                bounds_packed[:, 0],
+                bounds_packed[:, 1]
+            )
+
+            result = minimize(
                 fun=self.get_loss_function(
                     get_counts=get_counts,
                     print_debug=debug_iterations
                 ),
-                x0=pack_params(self.scale_values(x0)),
+                x0=x0_packed,
                 method=self.method_mle,
-                bounds=pack_params(scale_bounds(bounds, self.scales)),
+                bounds=bounds_packed,
                 options=self.opts_mle
             )
+
+            # scipy >= 1.18 returns ``hess_inv`` as a LinearOperator carrying an array-namespace
+            # attribute that fails to (un)pickle ("KeyError: '_xp'")
+            result.pop('hess_inv', None)
+
+            return result
 
         # initial parameters for the samples
         initial_params = [self.x0] + [self.sample_x0(self.x0) for _ in range(int(self.n_runs) - 1)]

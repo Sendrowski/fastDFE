@@ -189,8 +189,7 @@ class SLiMTestCase(TestCase):
                 model=fd.GammaExpParametrization(),
                 fixed_params={'all': {'eps': 0, 'h': 0.5}},  # full DFE (infer p_b, S_b)
                 intervals_del=(-1.0e+8, -1.0e-5, 100), intervals_ben=(1.0e-5, 1.0e4, 100),
-                # the weak+rare-beneficial scenarios have a flat/multimodal likelihood on this coarse
-                # grid, so many restarts are needed to reliably reach the global optimum
+                x0={'all': {'S_d': -1000, 'b': 0.4, 'p_b': 0.01, 'S_b': 1}},
                 do_bootstrap=False, n_runs=30, seed=0
             )
 
