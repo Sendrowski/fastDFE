@@ -3,6 +3,10 @@
 Changelog
 =========
 
+[1.3.2] - 2026-06-21
+^^^^^^^^^^^^^^^^^^^^
+- Fixed compatibility with newer ``scipy`` versions.
+
 [1.3.1] - 2026-06-20
 ^^^^^^^^^^^^^^^^^^^^
 - Cached the divergence sojourn times, greatly speeding up DFE inference with :attr:`~fastdfe.base_inference.BaseInference.include_divergence`\ ``=True``.
