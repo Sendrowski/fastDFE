@@ -246,3 +246,49 @@ def test_kingman_polarization_prior_is_symmetric():
     assert np.all(np.isfinite(prior))
     # Kingman prior is symmetric across the SFS: p[i] + p[n - i] = 1
     assert np.isclose(prior[3] + prior[7], 1.0)
+
+
+# --------------------------------------------------------------------------- package helpers
+
+def test_linear_operator_pickle_shim_roundtrip():
+    import pickle
+    from scipy.sparse.linalg import aslinearoperator, LinearOperator
+    op = aslinearoperator(np.eye(3))
+    # reproduce the scipy >= 1.18 trigger: a LinearOperator lacking ``_xp``; the shim must
+    # let it (un)pickle instead of raising, which is what breaks bootstrapping otherwise
+    op.__dict__.pop('_xp', None)
+    restored = pickle.loads(pickle.dumps(op))
+    assert isinstance(restored, LinearOperator) and restored.shape == (3, 3)
+
+
+def test_linear_operator_pickle_shim_idempotent():
+    # re-installing must be a no-op (hits the already-installed / version guards)
+    fd._install_linear_operator_pickle_shim()
+    fd._install_linear_operator_pickle_shim()
+
+
+def test_linear_operator_pickle_shim_skips_old_scipy(monkeypatch):
+    import scipy
+    monkeypatch.setattr(scipy, '__version__', '1.16.0')
+    fd._install_linear_operator_pickle_shim()  # returns at the version guard, no error
+
+
+def test_linear_operator_pickle_shim_handles_unparseable_version(monkeypatch):
+    import scipy
+    monkeypatch.setattr(scipy, '__version__', 'not.a.version')
+    fd._install_linear_operator_pickle_shim()  # version parse fails -> guarded no-op
+
+
+def test_tqdm_logging_handler_emit(capsys):
+    import logging
+    handler = fd.TqdmLoggingHandler()
+    handler.emit(logging.LogRecord('fastdfe', logging.INFO, __file__, 1, 'hello', None, None))
+    # a record whose formatting raises routes through the error handler instead of propagating
+    handler.emit(logging.LogRecord('fastdfe', logging.INFO, __file__, 1, 'val=%d', ('x',), None))
+
+
+def test_colored_formatter_strips_package_and_wraps_color():
+    import logging
+    fmt = fd.ColoredFormatter('%(name)s:%(message)s')
+    out = fmt.format(logging.LogRecord('fastdfe.parser', logging.WARNING, __file__, 1, 'hi', None, None))
+    assert 'parser:hi' in out and out.startswith(fmt.colors['WARNING']) and out.endswith(fmt.reset)
