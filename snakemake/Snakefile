@@ -1074,11 +1074,11 @@ rule generate_requirements_poetry:
     shell:
         """
             poetry update
-            poetry export -f requirements.txt --without-hashes -o {output.base}
-            poetry export -f requirements.txt --without-hashes -o {output.base_snakemake}
-            poetry export --with dev -f requirements.txt --without-hashes -o {output.testing}
-            poetry export --with dev -f requirements.txt --without-hashes -o {output.testing_snakemake}
-            poetry export --with dev -f requirements.txt --without-hashes -o {output.docs}
+            poetry export --extras vcf -f requirements.txt --without-hashes -o {output.base}
+            poetry export --extras vcf -f requirements.txt --without-hashes -o {output.base_snakemake}
+            poetry export --with dev --extras vcf -f requirements.txt --without-hashes -o {output.testing}
+            poetry export --with dev --extras vcf -f requirements.txt --without-hashes -o {output.testing_snakemake}
+            poetry export --with dev --extras vcf -f requirements.txt --without-hashes -o {output.docs}
             mamba env update -f {input.dev}
             mamba env update -f {input.base}
         """
