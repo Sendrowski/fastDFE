@@ -1285,6 +1285,9 @@ class SiteInfo:
             first_node_ancestral: str = '.',
             rate_params: Dict[str, float] = None
     ):
+        """
+        Initialize the site information.
+        """
         #: Dictionary mapping number of major alleles to its probability of observation.
         self.n_major: Dict[int, float] = n_major
 
