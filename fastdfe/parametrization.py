@@ -1,5 +1,5 @@
 """
-DFE parametrizations.
+Parametric forms of the distribution of fitness effects (DFE).
 """
 
 __author__ = "Janek Sendrowski"

@@ -18,6 +18,17 @@ html[data-theme=light] .sig {
     background-color: rgb(243, 244, 245);
 }
 
+/* autosummary class/method tables: neutralise the row-hover highlight that
+   pydata-sphinx-theme >=0.15 applies to every ``.table`` element, by holding
+   each row at its own zebra colour so hovering is a no-op. */
+table.autosummary tbody tr:nth-child(odd):hover {
+    background-color: var(--pst-color-table-row-zebra-low-bg);
+}
+
+table.autosummary tbody tr:nth-child(2n):hover {
+    background-color: var(--pst-color-table-row-zebra-high-bg);
+}
+
 /* Make output cells scrollable */
 /* div.cell_output {
     max-height: 500px;

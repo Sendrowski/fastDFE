@@ -3,32 +3,30 @@
 DFE Inference
 -------------
 
+Classes for inferring the distribution of fitness effects (DFE) from site-frequency
+spectra, spanning single-type inference, joint inference across multiple types, and
+the shared-parameter and covariate machinery that links them.
+
+**Classes:**
+
+.. autosummary::
+   :nosignatures:
+
+   ~fastdfe.base_inference.BaseInference
+   ~fastdfe.joint_inference.JointInference
+   ~fastdfe.abstract_inference.Inference
+   ~fastdfe.base_inference.InferenceResult
+   ~fastdfe.optimization.SharedParams
+   ~fastdfe.optimization.Covariate
+
 .. autoclass:: fastdfe.base_inference.BaseInference
-   :inherited-members:
-   :undoc-members:
-   :show-inheritance:
 
 .. autoclass:: fastdfe.joint_inference.JointInference
-   :inherited-members:
-   :undoc-members:
-   :show-inheritance:
 
 .. autoclass:: fastdfe.abstract_inference.Inference
-   :inherited-members:
-   :undoc-members:
-   :show-inheritance:
 
 .. autoclass:: fastdfe.base_inference.InferenceResult
-   :inherited-members:
-   :undoc-members:
-   :show-inheritance:
 
 .. autoclass:: fastdfe.optimization.SharedParams
-   :inherited-members:
-   :undoc-members:
-   :show-inheritance:
 
 .. autoclass:: fastdfe.optimization.Covariate
-   :inherited-members:
-   :undoc-members:
-   :show-inheritance:
