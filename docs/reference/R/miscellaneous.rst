@@ -6,7 +6,7 @@ Miscellaneous
 Logging
 -------
 
-fastDFE uses the standard Python :mod:`logging` module for logging. By default, fastDFE logs to the console at the ``INFO`` level. You can change the logging level, to for example ``DEBUG`` as follows
+``fastdfe`` uses the standard Python :mod:`logging` module for logging. By default, ``fastdfe`` logs to the console at the ``INFO`` level. You can change the logging level, to for example ``DEBUG`` as follows
 
 .. code-block:: r
 
@@ -29,11 +29,11 @@ If you encounter an unexpected error, you might want to disable parallelization 
 Seeding
 -------
 
-fastDFE is seeded by default to ensure reproducibility (see ``seed`` in :class:`~fastdfe.base_inference.BaseInference`, :class:`~fastdfe.parser.Parser`, etc.). Randomness is required for various computational tasks, such as bootstrapping, choosing initial values for different optimization runs, and taking subsamples during VCF parsing.
+``fastdfe`` is seeded by default to ensure reproducibility (see ``seed`` in :class:`~fastdfe.base_inference.BaseInference`, :class:`~fastdfe.parser.Parser`, etc.). Randomness is required for various computational tasks, such as bootstrapping, choosing initial values for different optimization runs, and taking subsamples during VCF parsing.
 
 Object-Oriented Design
 ----------------------
-The fastDFE Python library is implemented using an object-oriented design which carries over to the R interface. This paradigm may be less familiar to R users. To aid comprehension, our documentation often demonstrates how methods are called on the class itself rather than on an instance. For example:
+The ``fastdfe`` Python library is implemented using an object-oriented design which carries over to the R interface. This paradigm may be less familiar to R users. To aid comprehension, our documentation often demonstrates how methods are called on the class itself rather than on an instance. For example:
 
 .. code-block:: r
 

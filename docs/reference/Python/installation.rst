@@ -15,7 +15,7 @@ To install the ``fastdfe`` package via pip:
 
 .. note::
 
-   The VCF handling is provided by the `sfsutils <https://github.com/Sendrowski/SFSUtils>`_ package and its optional
+   The VCF handling is provided by the ``sfsutils`` package (`repository <https://github.com/Sendrowski/SFSUtils>`_) and its optional
    ``cyvcf2`` dependency. To enable VCF support, install with the ``vcf`` extra (which pulls ``sfsutils[vcf]``):
 
    .. code-block:: bash

@@ -31,7 +31,7 @@ Features
 
 .. note::
 
-   The VCF-to-SFS parsing, stratification, filtering, and ancestral-allele/site-degeneracy annotation are provided by the standalone `sfsutils <https://github.com/Sendrowski/SFSUtils>`_ package (`documentation <https://sfsutils.readthedocs.io>`_). ``fastdfe`` depends on it and re-exports its classes (:class:`~fastdfe.parser.Parser`, :class:`~fastdfe.spectrum.Spectrum`, :class:`~fastdfe.annotation.Annotator`, ...), so they remain importable directly from ``fastdfe``.
+   The VCF-to-SFS parsing, stratification, filtering, and ancestral-allele/site-degeneracy annotation are provided by the standalone ``sfsutils`` package (`repository <https://github.com/Sendrowski/SFSUtils>`_, `documentation <https://sfsutils.readthedocs.io>`_). ``fastdfe`` depends on it and re-exports its classes (:class:`~fastdfe.parser.Parser`, :class:`~fastdfe.spectrum.Spectrum`, :class:`~fastdfe.annotation.Annotator`, ...), so they remain importable directly from ``fastdfe``.
 
 **Modeling**: robust utilities for fitting models to data and estimating DFE parameters:
 
@@ -58,7 +58,6 @@ Contents
    reference/Python/inference
    reference/Python/simulation
    reference/Python/parametrizations
-   reference/Python/spectra
    reference/Python/parser
    reference/Python/config
    reference/Python/miscellaneous
@@ -71,7 +70,6 @@ Contents
    reference/R/inference
    reference/R/simulation
    reference/R/parametrizations
-   reference/R/spectra
    reference/R/parser
    reference/R/config
    reference/R/miscellaneous
@@ -83,11 +81,7 @@ Contents
    modules/inference
    modules/simulation
    modules/parametrization
-   modules/spectrum
-   modules/spectra
-   modules/parser
-   modules/annotation
-   modules/filtration
+   modules/sfsutils
    modules/config
 
 .. toctree::
