@@ -1,18 +1,16 @@
 """
-Package-wide settings
+Backward-compatibility shim: this module moved to :mod:`sfsutils.settings`.
+
+Importing from ``fastdfe.settings`` still works, and jsonpickle can restore objects that
+were serialized with the old ``fastdfe.settings.*`` paths, because the classes are the very
+same objects re-exported from ``sfsutils.settings``.
 """
 
-__author__ = "Janek Sendrowski"
-__contact__ = "sendrowski.janek@gmail.com"
-__date__ = "2023-09-12"
+from sfsutils.settings import *  # noqa: F401,F403
+from sfsutils import settings as _module
 
 
-class Settings:
-    """
-    Class that holds package-wide settings
-    """
-    #: Whether to disable the progress bar.
-    disable_pbar = False
-
-    #: Whether to use parallel processing. Use ``None`` for local setting.
-    parallelize = None
+def __getattr__(name):
+    # delegate any remaining attribute (incl. private classes referenced in old
+    # serialized data) to the real sfsutils module
+    return getattr(_module, name)

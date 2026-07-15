@@ -29,8 +29,8 @@ from .config import Config
 from .discretization import Discretization
 from .optimization import Optimization, flatten_dict, pack_params, expand_fixed, unpack_shared
 from .parametrization import Parametrization, _from_string, DFE
-from .spectrum import Spectrum, Spectra
-from .spectrum import standard_kingman
+from sfsutils.spectrum import Spectrum, Spectra
+from sfsutils.spectrum import standard_kingman
 from .utils import Serializable
 
 # get logger

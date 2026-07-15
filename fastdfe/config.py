@@ -14,13 +14,13 @@ import numpy as np
 import yaml
 
 from .discretization import Discretization
-from .io_handlers import download_if_url
+from sfsutils.io_handlers import download_if_url
 from .json_handlers import CustomEncoder
 from .optimization import Covariate
 from .optimization import SharedParams, merge_dicts
 from .parametrization import Parametrization, _from_string, _to_string
 from .polydfe_utils import create_sfs_config, parse_init_file, create_init_file, models
-from .spectrum import Spectra, parse_polydfe_sfs_config, Spectrum
+from sfsutils.spectrum import Spectra, parse_polydfe_sfs_config, Spectrum
 
 logger = logging.getLogger('fastdfe').getChild('Config')
 

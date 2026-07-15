@@ -12,10 +12,10 @@ from fastdfe.parametrization import (
     _from_string, _to_string, DFE, GammaExpParametrization, DiscreteParametrization,
     DiscreteFractionalParametrization, GammaDiscreteParametrization, DisplacedGammaParametrization,
 )
-from fastdfe.spectrum import Spectrum, Spectra
+from sfsutils.spectrum import Spectrum, Spectra
 from fastdfe.discretization import Discretization
-from fastdfe.io_handlers import DummyVariant
-from fastdfe.annotation import (
+from sfsutils.io_handlers import DummyVariant
+from sfsutils.annotation import (
     DegeneracyAnnotation, MaximumLikelihoodAncestralAnnotation,
     JCSubstitutionModel, K2SubstitutionModel, KingmanPolarizationPrior,
 )
@@ -167,7 +167,7 @@ def test_existing_outgroup_keeps_dummy():
 # --------------------------------------------------------------------------- io_handlers
 
 def test_gff_remove_overlaps():
-    from fastdfe.io_handlers import GFFHandler
+    from sfsutils.io_handlers import GFFHandler
 
     # row 0 overlaps row 1 (next start 15 <= end 20); rows 1 and 2 do not overlap their successor
     df = pd.DataFrame({'start': [10, 15, 100], 'end': [20, 25, 120]})

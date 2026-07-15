@@ -28,8 +28,8 @@ from .optimization import Optimization, SharedParams, pack_shared, expand_shared
     Covariate, flatten_dict, merge_dicts, correct_values, parallelize as parallelize_func, expand_fixed, \
     collapse_fixed_to_mean, unpack_shared, collapse_fixed
 from .parametrization import Parametrization
-from .settings import Settings
-from .spectrum import Spectrum, Spectra
+from sfsutils import Settings
+from sfsutils.spectrum import Spectrum, Spectra
 
 # get logger
 logger = logging.getLogger('fastdfe')

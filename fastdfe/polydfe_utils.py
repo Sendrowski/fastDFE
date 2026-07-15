@@ -12,7 +12,7 @@ from typing import TextIO, List, Tuple
 
 import pandas as pd
 
-from .spectrum import Spectrum
+from sfsutils.spectrum import Spectrum
 
 # get logger
 logger = logging.getLogger('fastdfe').getChild('polydfe')

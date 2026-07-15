@@ -1,6 +1,6 @@
 import os
 
-from fastdfe.settings import Settings
+from sfsutils import Settings
 
 collect_ignore = ["test_polydfe_wrapper.py"]
 

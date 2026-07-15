@@ -17,7 +17,7 @@ from .base_inference import BaseInference
 from .discretization import Discretization
 from .parametrization import Parametrization, DFE
 from .parametrization import _from_string
-from .spectrum import Spectrum, Spectra
+from sfsutils.spectrum import Spectrum, Spectra
 
 logger = logging.getLogger('fastdfe')
 

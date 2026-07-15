@@ -6,7 +6,7 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-03-10"
 
-__version__ = '1.3.3'
+__version__ = '1.4.0'
 
 import logging
 import sys
@@ -62,14 +62,9 @@ def _install_linear_operator_pickle_shim():
 
 _install_linear_operator_pickle_shim()
 
-from .json_handlers import DataframeHandler, SpectrumHandler, SpectraHandler, NumpyArrayHandler
-from .spectrum import Spectrum, Spectra
-
-# register custom handles
-jsonpickle.handlers.registry.register(pd.DataFrame, DataframeHandler)
-jsonpickle.handlers.registry.register(Spectrum, SpectrumHandler)
-jsonpickle.handlers.registry.register(Spectra, SpectraHandler)
-jsonpickle.handlers.registry.register(np.ndarray, NumpyArrayHandler)
+# The Spectrum/Spectra/numpy/DataFrame jsonpickle handlers are registered by sfsutils
+# on import (SFS parsing/annotation/filtration now live there).
+from sfsutils import Spectrum, Spectra
 
 
 class TqdmLoggingHandler(logging.Handler):
@@ -166,24 +161,63 @@ from .parametrization import Parametrization, GammaExpParametrization, DiscreteP
     GammaDiscreteParametrization, DisplacedGammaParametrization, DiscreteFractionalParametrization, DFE
 from .discretization import Discretization
 from .config import Config
-from .settings import Settings
 from .abstract_inference import Inference
 from .base_inference import BaseInference, InferenceResult
 from .joint_inference import JointInference, SharedParams
 from .optimization import Covariate
 from .simulation import Simulation
-from .spectrum import Spectrum, Spectra
-from .parser import Parser, Stratification, BaseTransitionStratification, BaseContextStratification, \
-    DegeneracyStratification, TransitionTransversionStratification, AncestralBaseStratification, \
-    SynonymyStratification, VEPStratification, SnpEffStratification, ContigStratification, ChunkedStratification, \
-    RandomStratification, TargetSiteCounter
-from .io_handlers import VCFHandler, FASTAHandler, GFFHandler, FileHandler
-from .annotation import Annotator, Annotation, MaximumParsimonyAncestralAnnotation, SiteInfo, \
-    MaximumLikelihoodAncestralAnnotation, DegeneracyAnnotation, SynonymyAnnotation, SubstitutionModel, \
-    K2SubstitutionModel, JCSubstitutionModel, PolarizationPrior, KingmanPolarizationPrior, AdaptivePolarizationPrior
-from .filtration import Filterer, Filtration, SNPFiltration, PolyAllelicFiltration, CodingSequenceFiltration, \
-    SNVFiltration, DeviantOutgroupFiltration, AllFiltration, NoFiltration, BiasedGCConversionFiltration, \
-    ExistingOutgroupFiltration, ContigFiltration, CpGFiltration
+
+# SFS parsing, stratification, filtration, annotation, spectra and settings now live in
+# sfsutils; re-export them here so ``from fastdfe import Parser, Spectrum, ...`` keeps working.
+from sfsutils import (
+    Settings,
+    Spectrum,
+    Spectra,
+    Parser,
+    Stratification,
+    BaseTransitionStratification,
+    BaseContextStratification,
+    DegeneracyStratification,
+    TransitionTransversionStratification,
+    AncestralBaseStratification,
+    SynonymyStratification,
+    VEPStratification,
+    SnpEffStratification,
+    ContigStratification,
+    ChunkedStratification,
+    RandomStratification,
+    TargetSiteCounter,
+    VCFHandler,
+    FASTAHandler,
+    GFFHandler,
+    FileHandler,
+    Annotator,
+    Annotation,
+    MaximumParsimonyAncestralAnnotation,
+    SiteInfo,
+    MaximumLikelihoodAncestralAnnotation,
+    DegeneracyAnnotation,
+    SynonymyAnnotation,
+    SubstitutionModel,
+    K2SubstitutionModel,
+    JCSubstitutionModel,
+    PolarizationPrior,
+    KingmanPolarizationPrior,
+    AdaptivePolarizationPrior,
+    Filterer,
+    Filtration,
+    SNPFiltration,
+    PolyAllelicFiltration,
+    CodingSequenceFiltration,
+    SNVFiltration,
+    DeviantOutgroupFiltration,
+    AllFiltration,
+    NoFiltration,
+    BiasedGCConversionFiltration,
+    ExistingOutgroupFiltration,
+    ContigFiltration,
+    CpGFiltration,
+)
 
 __all__ = [
     'Parametrization',

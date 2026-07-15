@@ -179,7 +179,7 @@ class DivergenceTestCase(InferenceTestCase):
         """
         Get neutral and selected spectra (with divergence) for a polyDFE example dataset.
         """
-        from fastdfe.spectrum import parse_polydfe_sfs_config
+        from sfsutils.spectrum import parse_polydfe_sfs_config
 
         sp = parse_polydfe_sfs_config(f'resources/polydfe/{example}/spectra/sfs.txt')
 
@@ -190,7 +190,7 @@ class DivergenceTestCase(InferenceTestCase):
         With the default include_divergence=True but no divergence data, divergence must not be
         used and the result must be identical to explicitly disabling it.
         """
-        from fastdfe.spectrum import parse_polydfe_sfs_config
+        from sfsutils.spectrum import parse_polydfe_sfs_config
 
         sp = parse_polydfe_sfs_config('resources/polydfe/pendula/spectra/sfs.txt')
 
@@ -318,7 +318,7 @@ class DivergenceTestCase(InferenceTestCase):
         """
         Requesting divergence-based alpha without divergence data raises a clear error.
         """
-        from fastdfe.spectrum import parse_polydfe_sfs_config
+        from sfsutils.spectrum import parse_polydfe_sfs_config
 
         sp = parse_polydfe_sfs_config('resources/polydfe/pendula/spectra/sfs.txt')
         inf = fd.BaseInference(sfs_neut=sp['sfs_neut'], sfs_sel=sp['sfs_sel'], do_bootstrap=False, n_runs=1)
@@ -387,7 +387,7 @@ class DivergenceTestCase(InferenceTestCase):
         """
         Requesting divergence-based omega/omega_a without divergence data raises a clear error.
         """
-        from fastdfe.spectrum import parse_polydfe_sfs_config
+        from sfsutils.spectrum import parse_polydfe_sfs_config
 
         sp = parse_polydfe_sfs_config('resources/polydfe/pendula/spectra/sfs.txt')
         inf = fd.BaseInference(sfs_neut=sp['sfs_neut'], sfs_sel=sp['sfs_sel'], do_bootstrap=False, n_runs=1)
@@ -452,7 +452,7 @@ class DivergenceTestCase(InferenceTestCase):
         Load the cached full-model config for a polyDFE example and attach the divergence-bearing
         spectra parsed from the polyDFE SFS resource.
         """
-        from fastdfe.spectrum import parse_polydfe_sfs_config
+        from sfsutils.spectrum import parse_polydfe_sfs_config
 
         config = fd.Config.from_file(f'testing/cache/configs/{example}_C_full_anc/config.yaml')
         config.data['fixed_params']['all']['h'] = 0.5

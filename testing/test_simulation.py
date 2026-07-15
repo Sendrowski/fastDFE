@@ -164,7 +164,7 @@ class SLiMTestCase(TestCase):
         and polymorphism alone cannot detect them — divergence recovers alpha while polymorphism
         fails, i.e. divergence recovers the (beneficial) DFE substantially more precisely.
         """
-        from fastdfe.spectrum import Spectrum
+        from sfsutils.spectrum import Spectrum
 
         errors_div, errors_poly_weak, errors_div_weak = [], [], []
 
@@ -239,7 +239,7 @@ class SLiMTestCase(TestCase):
         directly available. We assert that both the McDonald-Kreitman (divergence) estimate and the
         DFE-integral estimate recover the omega/omega_a implied by the known true DFE.
         """
-        from fastdfe.spectrum import Spectrum
+        from sfsutils.spectrum import Spectrum
 
         for file_path in self.configs_slim_divergence:
             spectra = fd.Spectra.from_file(file_path)
@@ -298,7 +298,7 @@ class SLiMTestCase(TestCase):
         beneficials are nearly invisible while rare, so the SFS/divergence carry little signal).
         """
         import json
-        from fastdfe.spectrum import Spectrum
+        from sfsutils.spectrum import Spectrum
 
         cache = json.load(open(self.empirical_alpha_cache))
         base = ('testing/cache/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/'

@@ -7,7 +7,7 @@ import pytest
 
 import fastdfe as fd
 from fastdfe.polydfe import PolyDFEResult, PolyDFE
-from fastdfe.spectrum import parse_polydfe_sfs_config
+from sfsutils.spectrum import parse_polydfe_sfs_config
 from testing import TestCase
 
 
@@ -92,7 +92,7 @@ class PolyDFEWrapperTestCase(TestCase):
         Build a full-model config for a polyDFE example. When ``include_divergence`` is False the
         divergence target size is stripped so that neither polyDFE nor fastDFE uses divergence.
         """
-        from fastdfe.spectrum import Spectrum
+        from sfsutils.spectrum import Spectrum
 
         config = fd.Config.from_file(f'testing/cache/configs/{example}_C_full_anc/config.yaml')
         config.data['fixed_params']['all']['h'] = 0.5

@@ -21,7 +21,7 @@ from scipy.stats import loguniform, uniform
 from tqdm import tqdm
 
 from .likelihood import Likelihood
-from .settings import Settings
+from sfsutils import Settings
 
 # get logger
 logger = logging.getLogger('fastdfe').getChild('Optimization')
