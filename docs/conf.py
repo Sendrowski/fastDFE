@@ -41,6 +41,17 @@ bibtex_bibfiles = ['refs.bib']
 typehints_use_signature = True
 typehints_fully_qualified = False
 
+# Silence pre-existing, benign build warnings:
+# - unresolved ``plt`` forward refs in plot-method type annotations (matplotlib.pyplot
+#   is not in the documented modules' import namespace at autodoc time)
+# - the standalone ``example_*`` notebooks are intentionally not in any toctree
+# - legacy example notebooks declare the unknown ``ipython2`` Pygments lexer
+suppress_warnings = [
+    'sphinx_autodoc_typehints.forward_reference',
+    'toc.not_included',
+    'misc.highlighting_failure',
+]
+
 pygments_style = 'default'
 
 # disable notebook execution
