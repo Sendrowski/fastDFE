@@ -8,7 +8,7 @@ Introduction
 
 Motivation
 ----------
-The DFE is instrumental in understanding how natural selection shapes genetic variation. SFS-based methods for estimating the DFE condense population genetic variation by quantifying the number of alleles at specific frequencies, discarding details about which sites exhibited which frequencies. As a result, we obtain one DFE for all variants used. This approach provides limited information when considering a single DFE, but its utility significantly increases when comparing DFEs across multiple species, populations, or genomic regions. ``fastdfe`` improves upon the groundwork laid by ``polydfe``, overcoming its constraints such as extensive computational time and limited scalability :cite:`polydfe,polydfe2`. It is specifically designed to facilitate and encourage the joint inference of multiple DFEs at once. Given the importance of consistency when comparing DFEs from different datasets, it's essential to derive the SFS in a similar manner to ensure results are directly comparable. To aid this process, ``fastdfe`` includes a VCF parser, enabling the extraction of the necessary SFS input data from raw VCF files.
+The DFE is instrumental in understanding how natural selection shapes genetic variation. SFS-based methods for estimating the DFE condense population genetic variation by quantifying the number of alleles at specific frequencies, discarding details about which sites exhibited which frequencies. As a result, we obtain one DFE for all variants used. This approach provides limited information when considering a single DFE, but its utility significantly increases when comparing DFEs across multiple species, populations, or genomic regions. ``fastdfe`` improves upon the groundwork laid by ``polydfe``, overcoming its constraints such as extensive computational time and limited scalability :cite:`polydfe,polydfe2`. It is specifically designed to facilitate and encourage the joint inference of multiple DFEs at once. Given the importance of consistency when comparing DFEs from different datasets, it's essential to derive the SFS in a similar manner to ensure results are directly comparable. To aid this process, ``fastdfe`` supports the extraction of the necessary SFS input data directly from raw VCF files.
 
 How it works
 ------------
@@ -21,7 +21,7 @@ Features
 
 **Workflow**: streamlining the overall data preparation and inference process:
 
-- Built-in VCF-to-SFS parser, with support for versatile stratification, site annotation, and filtering
+- Supported VCF-to-SFS parsing, with versatile stratification, site annotation, and filtering
 - Site-degeneracy annotation
 - Ancestral-allele annotation with outgroups
 - Utilities to determine the number of mutational target sites when monomorphic sites are not present in the provided VCF file
