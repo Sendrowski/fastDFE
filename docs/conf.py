@@ -54,9 +54,13 @@ suppress_warnings = [
 ]
 
 # Resolve cross-references to the standalone sfsutils package (VCF parsing, spectra,
-# annotation, filtration) against its published documentation.
+# annotation, filtration) and to standard-library / scientific-stack types in
+# autodoc'd signatures against their published documentation.
 intersphinx_mapping = {
     'sfsutils': ('https://sfsutils.readthedocs.io/en/latest/', None),
+    'python': ('https://docs.python.org/3', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
+    'pandas': ('https://pandas.pydata.org/docs/', None),
 }
 
 pygments_style = 'default'
