@@ -24,6 +24,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
+    'sphinx.ext.intersphinx',
     'sphinx_autodoc_typehints',
     'sphinx_copybutton',
     'autodocsumm',  # per-class method-summary table at the top of each class
@@ -51,6 +52,12 @@ suppress_warnings = [
     'toc.not_included',
     'misc.highlighting_failure',
 ]
+
+# Resolve cross-references to the standalone sfsutils package (VCF parsing, spectra,
+# annotation, filtration) against its published documentation.
+intersphinx_mapping = {
+    'sfsutils': ('https://sfsutils.readthedocs.io/en/latest/', None),
+}
 
 pygments_style = 'default'
 

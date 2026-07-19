@@ -5,7 +5,7 @@ Changelog
 
 [1.4.0] - 2026-07-15
 ^^^^^^^^^^^^^^^^^^^^
-- Factored the VCF-to-SFS parsing, stratification, filtration and ancestral-allele/site-degeneracy annotation out into the standalone ``sfsutils`` package (`repository <https://github.com/Sendrowski/SFSUtils>`_). ``fastdfe`` now depends on it and re-exports the same names (:class:`~fastdfe.parser.Parser`, :class:`~fastdfe.spectrum.Spectrum`, :class:`~fastdfe.annotation.Annotator`, ...), so existing imports keep working. The ``vcf`` extra now pulls ``sfsutils[vcf]``.
+- Factored the VCF-to-SFS parsing, stratification, filtration and ancestral-allele/site-degeneracy annotation out into the standalone ``sfsutils`` package (`repository <https://github.com/Sendrowski/SFSUtils>`_). ``fastdfe`` now depends on it and re-exports the same names (:class:`~sfsutils.parser.Parser`, :class:`~sfsutils.spectrum.Spectrum`, :class:`~sfsutils.annotation.Annotator`, ...), so existing imports keep working. The ``vcf`` extra now pulls ``sfsutils[vcf]``.
 
 [1.3.3] - 2026-06-21
 ^^^^^^^^^^^^^^^^^^^^
@@ -25,12 +25,12 @@ Changelog
 - Added support for divergence counts in DFE inference (opt-in via :attr:`BaseInference.include_divergence <fastdfe.base_inference.BaseInference.include_divergence>`), yielding a McDonald–Kreitman-style :meth:`BaseInference.get_alpha() <fastdfe.base_inference.BaseInference.get_alpha>` anchored to observed between-species divergence.
 - Added :meth:`BaseInference.get_omega() <fastdfe.base_inference.BaseInference.get_omega>` (the rate of non-synonymous over synonymous substitutions, dN/dS) and its adaptive component :meth:`BaseInference.get_omega_a() <fastdfe.base_inference.BaseInference.get_omega_a>`, which can also be estimated from divergence counts when available.
 - Also added divergence counts to the :class:`~fastdfe.simulation.Simulation` class.
-- Added :class:`~fastdfe.filtration.CpGFiltration` to exclude hypermutable sites in a CpG dinucleotide context (requires a FASTA reference).
+- Added :class:`~sfsutils.filtration.CpGFiltration` to exclude hypermutable sites in a CpG dinucleotide context (requires a FASTA reference).
 
 [1.2.2] - 2026-05-17
 ^^^^^^^^^^^^^^^^^^^^
 - Added support for ``numpy`` 2 and Python 3.13. Bumped minimum versions of ``scipy``, ``matplotlib``, ``pandas``, ``seaborn``, and ``biopython``.
-- Added :meth:`~fastdfe.spectrum.Spectrum.scale_theta` and :meth:`~fastdfe.spectrum.Spectrum.get_neutral` methods to the ``Spectrum`` class.
+- Added :meth:`~sfsutils.spectrum.Spectrum.scale_theta` and :meth:`~sfsutils.spectrum.Spectrum.get_neutral` methods to the ``Spectrum`` class.
 - Fixed potential race condition when the same FASTA or GFF files are unzipped simultaneously.
 - Use approximate equality instead of strict identity when looking up precomputed values for the dominance coefficient ``h``.
 
