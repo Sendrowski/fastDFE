@@ -5,15 +5,15 @@ SFS & VCF handling
 
 Site-frequency spectra objects, VCF-to-SFS parsing, ancestral-allele and
 site-degeneracy annotation, and site filtration are provided by the standalone
-``sfsutils`` package (`repository <https://github.com/Sendrowski/SFSUtils>`_). ``fastdfe`` depends on it
+`sfsutils <https://sfsutils.readthedocs.io>`_ package. ``fastdfe`` depends on it
 and re-exports these classes, so they remain importable directly from ``fastdfe``
 (e.g. ``from fastdfe import Spectrum, Spectra, Parser, Annotator, Filterer``).
 
-The full API reference is hosted in the ``sfsutils`` `documentation
-<https://sfsutils.readthedocs.io>`_:
+The corresponding ``sfsutils`` API reference pages:
 
-- `Spectrum <https://sfsutils.readthedocs.io/en/latest/modules/spectrum.html>`_ — a single site-frequency spectrum, with folding, polarising, resampling, and plotting.
-- `Spectra <https://sfsutils.readthedocs.io/en/latest/modules/spectra.html>`_ — a named collection of spectra supporting grouped operations and joint visualisation.
-- `Parser <https://sfsutils.readthedocs.io/en/latest/modules/parser.html>`_ — parsing spectra from VCF files, with support for versatile stratification.
-- `Annotator <https://sfsutils.readthedocs.io/en/latest/modules/annotation.html>`_ — ancestral-allele and site-degeneracy / synonymy annotation of VCF sites.
-- `Filterer <https://sfsutils.readthedocs.io/en/latest/modules/filtration.html>`_ — filtering VCF sites prior to parsing.
+- `Spectrum classes <https://sfsutils.readthedocs.io/en/latest/modules/spectrum.html>`_ — the ``Spectrum`` and ``Spectra`` site-frequency spectra, with folding, polarising, resampling, and visualisation.
+- `Parsing <https://sfsutils.readthedocs.io/en/latest/modules/parser.html>`_ — the ``Parser`` for extracting spectra from VCF files.
+- `Site stratification <https://sfsutils.readthedocs.io/en/latest/modules/stratification.html>`_ — stratifying sites into separate spectra, e.g. by degeneracy or base context.
+- `Site annotation <https://sfsutils.readthedocs.io/en/latest/modules/annotation.html>`_ — the ``Annotator`` for ancestral-allele and site-degeneracy / synonymy annotation.
+- `Site filtration <https://sfsutils.readthedocs.io/en/latest/modules/filtration.html>`_ — the ``Filterer`` for excluding sites prior to parsing.
+- `Input and output <https://sfsutils.readthedocs.io/en/latest/modules/io.html>`_ — reading VCF, FASTA and GFF sources and serialising results.
