@@ -63,6 +63,14 @@ intersphinx_mapping = {
     'pandas': ('https://pandas.pydata.org/docs/', None),
 }
 
+# reST cannot nest an inline literal inside a hyperlink, so the sfsutils package
+# name is rendered as a monospace link to its docs via a raw-HTML substitution.
+rst_prolog = """
+.. |sfsutils| raw:: html
+
+   <a class="reference external" href="https://sfsutils.readthedocs.io"><code class="docutils literal notranslate"><span class="pre">sfsutils</span></code></a>
+"""
+
 pygments_style = 'default'
 
 # disable notebook execution

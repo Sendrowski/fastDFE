@@ -31,7 +31,7 @@ Features
 
 .. note::
 
-   The VCF-to-SFS parsing, stratification, filtering, and ancestral-allele/site-degeneracy annotation are provided by the standalone `sfsutils <https://sfsutils.readthedocs.io>`_ package. ``fastdfe`` depends on it and re-exports its classes (:class:`~sfsutils.parser.Parser`, :class:`~sfsutils.spectrum.Spectrum`, :class:`~sfsutils.annotation.Annotator`, ...), so they remain importable directly from ``fastdfe``.
+   The VCF-to-SFS parsing, stratification, filtering, and ancestral-allele/site-degeneracy annotation are provided by the standalone |sfsutils| package. ``fastdfe`` depends on it and re-exports its classes (:class:`~sfsutils.parser.Parser`, :class:`~sfsutils.spectrum.Spectrum`, :class:`~sfsutils.annotation.Annotator`, ...), so they remain importable directly from ``fastdfe``.
 
 **Modeling**: robust utilities for fitting models to data and estimating DFE parameters:
 

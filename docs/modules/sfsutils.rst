@@ -5,11 +5,11 @@ SFS & VCF handling
 
 Site-frequency spectra objects, VCF-to-SFS parsing, ancestral-allele and
 site-degeneracy annotation, and site filtration are provided by the standalone
-`sfsutils <https://sfsutils.readthedocs.io>`_ package. ``fastdfe`` depends on it
+|sfsutils| package. ``fastdfe`` depends on it
 and re-exports these classes, so they remain importable directly from ``fastdfe``
 (e.g. ``from fastdfe import Spectrum, Spectra, Parser, Annotator, Filterer``).
 
-The corresponding ``sfsutils`` API reference pages:
+The corresponding |sfsutils| API reference pages:
 
 - `Spectrum classes <https://sfsutils.readthedocs.io/en/latest/modules/spectrum.html>`_ — the :class:`~sfsutils.spectrum.Spectrum` and :class:`~sfsutils.spectrum.Spectra` site-frequency spectra, with folding, polarising, resampling, and visualisation.
 - `Parsing <https://sfsutils.readthedocs.io/en/latest/modules/parser.html>`_ — the :class:`~sfsutils.parser.Parser` for extracting spectra from VCF files.

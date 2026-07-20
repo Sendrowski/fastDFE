@@ -5,7 +5,7 @@ Changelog
 
 [1.4.0] - 2026-07-15
 ^^^^^^^^^^^^^^^^^^^^
-- Factored the VCF-to-SFS parsing, stratification, filtration and ancestral-allele/site-degeneracy annotation out into the standalone `sfsutils <https://sfsutils.readthedocs.io>`_ package. ``fastdfe`` now depends on it and re-exports the same names (:class:`~sfsutils.parser.Parser`, :class:`~sfsutils.spectrum.Spectrum`, :class:`~sfsutils.annotation.Annotator`, ...), so existing imports keep working. The ``vcf`` extra now pulls ``sfsutils[vcf]``.
+- Factored the VCF-to-SFS parsing, stratification, filtration and ancestral-allele/site-degeneracy annotation out into the standalone |sfsutils| package. ``fastdfe`` now depends on it and re-exports the same names (:class:`~sfsutils.parser.Parser`, :class:`~sfsutils.spectrum.Spectrum`, :class:`~sfsutils.annotation.Annotator`, ...), so existing imports keep working. The ``vcf`` extra now pulls ``sfsutils[vcf]``.
 
 [1.3.3] - 2026-06-21
 ^^^^^^^^^^^^^^^^^^^^
