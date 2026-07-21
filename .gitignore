@@ -20,9 +20,22 @@ out/
 slurm/
 .env
 *.sqlite
+# R (session state, RStudio, and R CMD build/check artifacts)
 .Rproj.user/
 .Rhistory
+.Rapp.history
 .RData
+.RDataTmp
+.Ruserdata
+.Renviron
+*-Ex.R
+/*.tar.gz
+/*.Rcheck/
+
+# reference-notebook output artifacts written into the repo root when the notebooks run
+/genome.*.vcf.gz
+/serialized.json
+/summary.json
 .coverage
 .coverage.*
 useful-commands.txt
