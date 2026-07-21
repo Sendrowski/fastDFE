@@ -1,5 +1,20 @@
 if (getRversion() >= "2.15.1") utils::globalVariables(c(".data"))
 
+# ggplot2 theme placing the legend inside the panel (top-right) over a semi-transparent
+# background, so it stays within the figure on narrow plots instead of being pushed off the side
+.legend_inside <- function() {
+  ggplot2::theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.98, 0.98),
+    legend.justification = c(1, 1),
+    legend.title = ggplot2::element_blank(),
+    legend.background = ggplot2::element_rect(
+      fill = grDevices::adjustcolor("white", alpha.f = 0.6), colour = NA
+    ),
+    legend.key = ggplot2::element_rect(fill = NA, colour = NA)
+  )
+}
+
 # vector of required packages
 required_packages <- c("reticulate", "ggplot2", "cowplot", "pheatmap", "RColorBrewer", "scales")
 
@@ -217,9 +232,9 @@ load_fastdfe <- function(install = FALSE) {
                                       position = ggplot2::position_dodge(0.9))
     }
     
-    # add legend on the right if labels were provided
-    if (!is.null(labels)) p <- p + ggplot2::theme(legend.position = "right")
-    
+    # show the legend inside the panel (top-right) so it stays visible on narrow figures
+    if (!is.null(labels)) p <- p + .legend_inside()
+
     # display plot if 'show' is TRUE
     if (show) print(p)
     
@@ -307,8 +322,8 @@ load_fastdfe <- function(install = FALSE) {
                                       position = ggplot2::position_dodge(0.9))
     }
     
-    # add legend on the right if labels were provided
-    if (legend) p <- p + ggplot2::theme(legend.position = "right")
+    # show the legend inside the panel (top-right) so it stays visible on narrow figures
+    if (legend) p <- p + .legend_inside()
     
     if (scale == "log") {
       p <- p + ggplot2::scale_y_continuous(
@@ -446,7 +461,10 @@ load_fastdfe <- function(install = FALSE) {
       ggplot2::theme(panel.grid.major = ggplot2::element_blank(), 
                      panel.grid.minor = ggplot2::element_blank()) + 
       ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, .1)))
-    
+
+    # show the legend inside the panel (top-right) when several spectra are overlaid
+    if (length(spectra) > 1) p <- p + .legend_inside()
+
     if (log_scale) {
       p <- p + ggplot2::scale_y_log10()
     }
@@ -551,6 +569,12 @@ load_fastdfe <- function(install = FALSE) {
       dev.off()
     }
   }
-  
+
+  # fastDFE re-exports sfsutils' Spectrum/Spectra, whose `plot()` calls sfsutils'
+  # Visualization.plot_spectra (a different class than fastdfe's). Route it through the same ggplot
+  # override so spectra render as ggplot in R instead of falling through to matplotlib.
+  viz_sfs <- reticulate::import("sfsutils")$visualization$Visualization
+  viz_sfs$plot_spectra <- viz$plot_spectra
+
   return(fd)
 }
