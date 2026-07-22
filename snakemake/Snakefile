@@ -1061,13 +1061,13 @@ rule annotate_snpeff_sapiens:
 # generate a requirements.txt using poetry
 rule generate_requirements_poetry:
     input:
-        base="workflow/envs/base.yaml",
-        dev="workflow/envs/dev.yaml"
+        base="snakemake/envs/base.yaml",
+        dev="snakemake/envs/dev.yaml"
     output:
-        base="workflow/envs/requirements.txt",
-        base_snakemake="workflow/.snakemake/conda/requirements.txt",
-        testing="workflow/envs/requirements_testing.txt",
-        testing_snakemake="workflow/.snakemake/conda/requirements_testing.txt",
+        base="snakemake/envs/requirements.txt",
+        base_snakemake="snakemake/.snakemake/conda/requirements.txt",
+        testing="snakemake/envs/requirements_testing.txt",
+        testing_snakemake="snakemake/.snakemake/conda/requirements_testing.txt",
         docs="docs/requirements.txt"
     conda:
         "envs/build.yaml"
