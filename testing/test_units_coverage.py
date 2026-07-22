@@ -2,6 +2,10 @@
 Fast unit tests that exercise pure-logic branches across the library to keep the unit-tier
 coverage high without invoking the (resource-heavy) parsing/annotation or full inference paths.
 All tests here must stay fast and deterministic (no VCF/genome/SLiM/polyDFE, no real optimization).
+
+Spectrum/Spectra, filtration, GFF/IO and annotation (degeneracy, substitution models, polarization
+priors) live in sfsutils since the 1.4.0 factor-out and are tested in its own suite, so they are not
+covered here.
 """
 import numpy as np
 import pandas as pd
@@ -12,17 +16,11 @@ from fastdfe.parametrization import (
     _from_string, _to_string, DFE, GammaExpParametrization, DiscreteParametrization,
     DiscreteFractionalParametrization, GammaDiscreteParametrization, DisplacedGammaParametrization,
 )
-from sfsutils.spectrum import Spectrum, Spectra
 from fastdfe.discretization import Discretization
-from sfsutils.io_handlers import DummyVariant
-from sfsutils.annotation import (
-    DegeneracyAnnotation, MaximumLikelihoodAncestralAnnotation,
-    JCSubstitutionModel, K2SubstitutionModel, KingmanPolarizationPrior,
-)
 from fastdfe import optimization as opt
 
 
-# --------------------------------------------------------------------------- parametrization
+# --------------------------------------------------------------------------- parametrization / DFE
 
 def test_from_to_string_roundtrip():
     m = GammaExpParametrization()
@@ -68,48 +66,6 @@ def test_dfe_bootstrap_dfes_and_discretize():
     assert centers2 is not None and errors2 is not None
 
 
-# --------------------------------------------------------------------------- spectrum
-
-def test_spectrum_to_numpy():
-    data = [10, 4, 3, 2, 1]
-    np.testing.assert_array_equal(Spectrum(data).to_numpy(), np.array(data))
-
-
-def test_spectrum_subsample_invalid_mode_raises():
-    with pytest.raises(ValueError):
-        Spectrum([10, 4, 3, 2, 1]).subsample(3, mode='nonsense')
-
-
-def test_get_neutral_r_length_validation():
-    # wrong length r
-    with pytest.raises(ValueError):
-        Spectrum.get_neutral(theta=1e-3, n_sites=1e4, n=5, r=[1.0, 1.0])
-    # valid r of length n - 1
-    sfs = Spectrum.get_neutral(theta=1e-3, n_sites=1e4, n=5, r=[1.0, 1.0, 1.0, 1.0])
-    assert sfs.n == 5
-
-
-def test_spectra_dunder_and_helpers():
-    s = Spectra.from_dict({'a': [10, 2, 1], 'b': [8, 3, 1]})
-
-    # __setitem__ and __iter__
-    s['c'] = Spectrum([5, 1, 1])
-    assert set(iter(s)) == {'a', 'b', 'c'}
-
-    # get_empty -> all zeros, same shape
-    empty = s.get_empty()
-    assert empty.n_sites.sum() == 0
-
-    # combine
-    combined = s.combine(Spectra.from_dict({'d': [7, 2, 1]}))
-    assert 'd' in combined.to_dict()
-
-    # print and resample (smoke + structural)
-    s.print()
-    resampled = s.resample(seed=42)
-    assert set(resampled.to_dict()) == set(s.to_dict())
-
-
 # --------------------------------------------------------------------------- optimization scaling
 
 # symlog uses bounds[0] as the (positive) linear threshold and bounds[1] as the boundary;
@@ -135,49 +91,6 @@ def test_unscale_bound(scale, bounds):
     assert lo < hi
 
 
-# --------------------------------------------------------------------------- filtration dummy branches
-
-def _dummy():
-    return DummyVariant(ref='A', pos=1, chrom='chr1')
-
-
-def test_all_and_no_filtration_on_dummy():
-    assert fd.AllFiltration().filter_site(_dummy()) is False
-    assert fd.NoFiltration().filter_site(_dummy()) is True
-
-
-def test_snp_filtration_dummy_branch():
-    # a dummy (mono-allelic) variant is not an SNP, so SNPFiltration drops it
-    assert fd.SNPFiltration().filter_site(_dummy()) is False
-
-
-def test_deviant_outgroup_retain_monomorphic_semantics():
-    # with retain_monomorphic, a mono-allelic (dummy) site is kept; without, it is dropped
-    keep = fd.DeviantOutgroupFiltration(outgroups=['o1'], retain_monomorphic=True)
-    assert keep.filter_site(_dummy()) is True
-    drop = fd.DeviantOutgroupFiltration(outgroups=['o1'], retain_monomorphic=False)
-    assert drop.filter_site(_dummy()) is False
-
-
-def test_existing_outgroup_keeps_dummy():
-    # ExistingOutgroupFiltration only checks outgroup presence; dummy (mono-allelic) sites are kept
-    assert fd.ExistingOutgroupFiltration(outgroups=['o1']).filter_site(_dummy()) is True
-
-
-# --------------------------------------------------------------------------- io_handlers
-
-def test_gff_remove_overlaps():
-    from sfsutils.io_handlers import GFFHandler
-
-    # row 0 overlaps row 1 (next start 15 <= end 20); rows 1 and 2 do not overlap their successor
-    df = pd.DataFrame({'start': [10, 15, 100], 'end': [20, 25, 120]})
-    result = GFFHandler.remove_overlaps(df.copy())
-
-    # the overlapping coding sequence (row 0) is dropped, the helper column is cleaned up
-    assert result['start'].tolist() == [15, 100]
-    assert 'overlap' not in result.columns
-
-
 # --------------------------------------------------------------------------- discretization eq/hash
 
 def _tiny_disc(**kw):
@@ -197,55 +110,6 @@ def test_discretization_eq_and_hash():
     assert hash(d1) == hash(d2)
     assert d1 != _tiny_disc(h=0.0)
     assert d1 != 'not a discretization'
-
-
-# --------------------------------------------------------------------------- annotation components
-
-def test_codon_degeneracy_matches_genetic_code():
-    # Valine GTx: 1st/2nd positions non-degenerate, 3rd position 4-fold (all synonymous)
-    assert DegeneracyAnnotation._get_degeneracy('GTT', 0) == 0
-    assert DegeneracyAnnotation._get_degeneracy('GTT', 2) == 4
-    # Phenylalanine TTT: 3rd position 2-fold (TTT/TTC=Phe, TTA/TTG=Leu)
-    assert DegeneracyAnnotation._get_degeneracy('TTT', 2) == 2
-
-
-def test_degeneracy_table_is_complete():
-    table = DegeneracyAnnotation._get_degeneracy_table()
-    assert len(table) == 64
-    assert table['GTT'] == '004'                       # Val codon degeneracies
-    assert set(''.join(table.values())) <= {'0', '2', '4'}
-
-
-def test_get_base_string_index_mapping():
-    cls = MaximumLikelihoodAncestralAnnotation
-    np.testing.assert_array_equal(cls.get_base_string(np.array([0, 1, 2, 3])),
-                                  np.array(['A', 'C', 'G', 'T']))
-    # an invalid index (-1) maps to the '.' placeholder
-    np.testing.assert_array_equal(cls.get_base_string(np.array([0, -1])), np.array(['A', '.']))
-    assert cls.get_base_string(np.array([])).size == 0
-
-
-def test_jc_substitution_model():
-    m = JCSubstitutionModel()
-    # one rate per branch: 2 * n_outgroups - 1 branches
-    assert set(m.get_bounds(2)) == {'K0', 'K1', 'K2'}
-    assert m.get_bound('K') == (1e-5, 10)
-    # for a small branch rate, staying on the same base is more probable than changing
-    p_same = m._get_prob(0, 0, 0, {'K0': 0.5})
-    p_diff = m._get_prob(0, 1, 0, {'K0': 0.5})
-    assert 0 <= p_diff < p_same <= 1
-
-
-def test_k2_model_has_transition_transversion_ratio():
-    assert 'k' in K2SubstitutionModel().bounds
-
-
-def test_kingman_polarization_prior_is_symmetric():
-    prior = KingmanPolarizationPrior()._get_prior(configs=pd.DataFrame(), n_ingroups=10)
-    assert len(prior) == 11
-    assert np.all(np.isfinite(prior))
-    # Kingman prior is symmetric across the SFS: p[i] + p[n - i] = 1
-    assert np.isclose(prior[3] + prior[7], 1.0)
 
 
 # --------------------------------------------------------------------------- package helpers
