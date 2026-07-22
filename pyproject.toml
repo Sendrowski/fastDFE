@@ -7,7 +7,7 @@ license = "GPL-3.0-or-later"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.14"
+python = ">=3.11,<3.14"
 typing-extensions = "^4.5.0"
 matplotlib = "^3.9"
 seaborn = "^0.13.2"
@@ -22,15 +22,16 @@ biopython = "^1.84"
 requests = ">=2.28"
 scipy = "^1.13"
 
-# SFS parsing, stratification, filtration and annotation live in sfsutils.
-# The `vcf` extra pulls sfsutils[vcf] (cyvcf2) for VCF support.
-sfsutils = [
+# SFS parsing, stratification, filtration and annotation live in sfsutils, published on PyPI as
+# `sfsutils-popgen` (the `sfsutils` name is an unrelated package); it is imported as `sfsutils`.
+# The `vcf` extra pulls sfsutils-popgen[vcf] (cyvcf2) for VCF support.
+sfsutils-popgen = [
     { version = "^1.0.0" },
     { version = "^1.0.0", extras = ["vcf"], optional = true },
 ]
 
 [tool.poetry.extras]
-vcf = ["sfsutils"]
+vcf = ["sfsutils-popgen"]
 
 [tool.poetry.group.dev.dependencies]
 urllib3 = "^2.5.0"
