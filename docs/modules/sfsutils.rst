@@ -7,7 +7,7 @@ Site-frequency spectra objects, VCF-to-SFS parsing, ancestral-allele and
 site-degeneracy annotation, and site filtration are provided by the standalone
 |sfsutils| package. ``fastdfe`` depends on it
 and re-exports these classes, so they remain importable directly from ``fastdfe``
-(e.g. ``from fastdfe import Spectrum, Spectra, Parser, Annotator, Filterer, Settings``).
+(e.g. ``from fastdfe import Spectrum, Spectra, Parser, Annotator, Filterer``).
 
 The corresponding |sfsutils| API reference pages:
 
@@ -17,4 +17,3 @@ The corresponding |sfsutils| API reference pages:
 - `Site annotation <https://sfsutils.readthedocs.io/en/latest/modules/annotation.html>`_ — the :class:`~sfsutils.annotation.Annotator` for ancestral-allele and site-degeneracy / synonymy annotation.
 - `Site filtration <https://sfsutils.readthedocs.io/en/latest/modules/filtration.html>`_ — the :class:`~sfsutils.filtration.Filterer` for excluding sites prior to parsing.
 - `Input and output <https://sfsutils.readthedocs.io/en/latest/modules/io.html>`_ — reading VCF, FASTA and GFF sources and serialising results.
-- `Settings <https://sfsutils.readthedocs.io/en/latest/modules/settings.html>`_ — the :class:`~sfsutils.settings.Settings` package-wide defaults, e.g. :attr:`~sfsutils.settings.Settings.parallelize` and :attr:`~sfsutils.settings.Settings.disable_pbar` (set as ``fastdfe.Settings.parallelize = False``).

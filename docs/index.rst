@@ -83,6 +83,7 @@ Contents
    modules/parametrization
    modules/sfsutils
    modules/config
+   modules/settings
 
 .. toctree::
    :caption: Miscellaneous
