@@ -81,13 +81,16 @@ install_fastdfe <- function(version = NULL, force = FALSE, silent = FALSE, pytho
   
   # Check if fastdfe is installed or if force is TRUE
   if (force || !fastdfe_is_installed()) {
+    # py_install has no 'force'/'version'/'ignore_installed' arguments; drive a forced
+    # reinstall through pip instead (--force-reinstall) and pin the version via the
+    # versioned package spec built above
+    pip_options <- if (force) c("--force-reinstall", "--no-deps") else character(0)
     reticulate::py_install(
-      package_name, 
+      package_name,
       method = "conda",
       pip = TRUE,
-      python_version = python_version,
-      version = version, 
-      ignore_installed = TRUE
+      pip_options = pip_options,
+      python_version = python_version
    )
   } else {
     if (!silent) {
