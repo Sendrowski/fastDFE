@@ -3,9 +3,15 @@
 Changelog
 =========
 
+[1.4.1] - 2026-07-24
+^^^^^^^^^^^^^^^^^^^^
+- Fixed |sfsutils| being declared only under the ``vcf`` extra in 1.4.0, which left a plain ``pip install fastdfe`` unimportable. It is now an unconditional dependency, and the ``vcf`` extra requires :mod:`cyvcf2 <cyvcf2.cyvcf2>` directly.
+- Exposed the remaining |sfsutils| input backends as extras of the same names: ``zarr`` (:mod:`zarr`, for VCF-Zarr stores) and ``arg`` (:mod:`tskit`, for tree sequences).
+- Dropped the direct dependencies on ``biopython`` and ``requests``, which are no longer used by ``fastdfe`` itself and are installed with |sfsutils|.
+
 [1.4.0] - 2026-07-22
 ^^^^^^^^^^^^^^^^^^^^
-- Factored the VCF-to-SFS parsing, stratification, filtration and ancestral-allele/site-degeneracy annotation out into the standalone |sfsutils| package. ``fastdfe`` now depends on it and re-exports the same names (:class:`~sfsutils.parser.Parser`, :class:`~sfsutils.spectrum.Spectrum`, :class:`~sfsutils.annotation.Annotator`, ...), so existing imports keep working. The ``vcf`` extra now pulls ``sfsutils[vcf]``.
+- Factored the VCF-to-SFS parsing, stratification, filtration and ancestral-allele/site-degeneracy annotation out into the standalone |sfsutils| package. ``fastdfe`` now depends on it and re-exports the same names (:class:`~sfsutils.parser.Parser`, :class:`~sfsutils.spectrum.Spectrum`, :class:`~sfsutils.annotation.Annotator`, ...), so existing imports keep working. The ``vcf`` extra pulls ``cyvcf2``.
 
 [1.3.3] - 2026-06-21
 ^^^^^^^^^^^^^^^^^^^^

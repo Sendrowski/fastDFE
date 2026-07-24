@@ -11,16 +11,19 @@ To install the ``fastdfe`` package via pip:
 
    pip install fastdfe
 
-``fastdfe`` is compatible with Python 3.10 through 3.12.
+``fastdfe`` is compatible with Python 3.11 through 3.13.
 
 .. note::
 
-   The VCF handling is provided by the |sfsutils| package and its optional
-   ``cyvcf2`` dependency. To enable VCF support, install with the ``vcf`` extra (which pulls ``sfsutils[vcf]``):
+   The SFS parsing is provided by the |sfsutils| package, whose input backends are optional
+   extras that ``fastdfe`` exposes under the same names: ``vcf`` (the :mod:`cyvcf2 <cyvcf2.cyvcf2>`
+   dependency, for VCF files), ``zarr`` (the :mod:`zarr` dependency, for VCF-Zarr stores) and ``arg``
+   (the :mod:`tskit` dependency, for tree sequences / ARGs). Install the ones you need, for example
+   all of them:
 
    .. code-block:: bash
 
-      pip install fastdfe[vcf]
+      pip install fastdfe[vcf,zarr,arg]
 
 Conda
 ^^^^^
@@ -33,12 +36,13 @@ As of version 1.1.12, ``fastdfe`` is also available on **conda-forge**. To insta
 
 .. note::
 
-   If you want to use the VCF utilities in ``fastdfe`` via **conda**, you also need to install ``cyvcf2``, which is hosted on **bioconda**.
-   Be sure to add the required channels:
+   The optional input backends are not pulled in automatically via conda. :mod:`zarr` and
+   :mod:`tskit` are on **conda-forge**, while ``cyvcf2`` (for VCF handling) is on **bioconda**,
+   so add both channels:
 
    .. code-block:: bash
 
-      mamba create -n fastdfe -c conda-forge -c bioconda fastdfe cyvcf2
+      mamba create -n fastdfe -c conda-forge -c bioconda fastdfe cyvcf2 zarr tskit
 
 Alternatively, to ensure reproducibility, you can create a file ``environment.yml``:
 
@@ -51,6 +55,8 @@ Alternatively, to ensure reproducibility, you can create a file ``environment.ym
   dependencies:
     - fastdfe
     - cyvcf2
+    - zarr
+    - tskit
 
 Then run the following commands to create and activate the environment:
 

@@ -15,7 +15,7 @@ project = 'fastDFE'
 year = datetime.datetime.now().year
 copyright = f'{year}, Janek Sendrowski'
 author = 'Janek Sendrowski'
-release = '1.4.0'
+release = '1.4.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -61,6 +61,9 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'numpy': ('https://numpy.org/doc/stable/', None),
     'pandas': ('https://pandas.pydata.org/docs/', None),
+    'tskit': ('https://tskit.dev/tskit/docs/stable', None),
+    'zarr': ('https://zarr.readthedocs.io/en/stable', None),
+    'cyvcf2': ('https://brentp.github.io/cyvcf2', None),
 }
 
 # reST cannot nest an inline literal inside a hyperlink, so the sfsutils package

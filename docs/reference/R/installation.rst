@@ -21,16 +21,17 @@ The ``fastdfe`` R package serves as a wrapper around the Python library but re-i
 
    install_fastdfe()
 
-``fastdfe`` is compatible with Python 3.10 through 3.12.
+``fastdfe`` is compatible with Python 3.11 through 3.13.
 
 .. note::
 
-   As of ``fastdfe`` version 1.1.12, the ``cyvcf2`` dependency, which is required for VCF handling, is optional.
-   To enable VCF support, run the following command in R **before** calling ``install_fastdfe()``:
+   The input backends are optional extras: ``vcf`` for VCF files, ``zarr`` for VCF-Zarr stores and
+   ``arg`` for tree sequences. To enable them, run the following command in R **before** calling
+   ``install_fastdfe()``:
 
    .. code-block:: r
 
-      reticulate::py_install("fastdfe[vcf]", pip = TRUE)
+      reticulate::py_install("fastdfe[vcf,zarr,arg]", pip = TRUE)
 
 Alternatively, you can also follow the instructions in the `Python installation guide <../Python/installation.html>`_ to install the Python package.
 

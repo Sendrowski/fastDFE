@@ -14,6 +14,29 @@ permissions:
   contents: read
 
 jobs:
+  # Import the package from a plain, extra-less install of the built wheel. The test job below
+  # installs ".[vcf]", so it cannot catch a runtime dependency that is only reachable through an
+  # extra; that is how 1.4.0 shipped with sfsutils-popgen behind the vcf marker and no importable
+  # base install.
+  import:
+    name: import bare install on ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Build wheel
+        run: uv build --wheel
+      - name: Install wheel without extras and import
+        run: |
+          uv venv /tmp/bare
+          uv pip install --python /tmp/bare/bin/python dist/*.whl
+          /tmp/bare/bin/python -c "import fastdfe; print(fastdfe.__version__)"
+
   test:
     name: run tests on ubuntu
     runs-on: ubuntu-latest
