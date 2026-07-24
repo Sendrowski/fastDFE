@@ -56,25 +56,35 @@ fastdfe_is_installed <- function() {
 #'
 #' @param version A character string specifying the version of the `fastdfe` module
 #'        to install. Default is `NULL` which will install the latest version.
-#' @param force Logical, if `TRUE` it will force the reinstallation of the `fastdfe` module 
+#' @param extras A character vector of optional input backends to install alongside the module:
+#'        `'vcf'` for VCF files, `'zarr'` for VCF-Zarr stores and `'arg'` for tree sequences.
+#'        Default is `c("vcf")`; pass `NULL` to install none of them.
+#' @param force Logical, if `TRUE` it will force the reinstallation of the `fastdfe` module
 #'        even if it's already available. Default is `FALSE`.
-#' @param silent Logical, if `TRUE` it will suppress the message about `fastdfe` being 
+#' @param silent Logical, if `TRUE` it will suppress the message about `fastdfe` being
 #'        already installed. Default is `FALSE`.
+#' @param python_version A character string specifying the Python version reticulate
+#'        should provision the environment with. Default is `'3.11'`.
 #'
 #' @return Invisible `NULL`.
-#' 
+#'
 #' @examples
 #' \dontrun{
-#' install_fastdfe()  # Installs the latest version of fastdfe
+#' install_fastdfe()  # Installs the latest version of fastdfe with the vcf backend
 #' install_fastdfe("1.2.1")  # Installs version 1.2.1 of fastdfe
+#' install_fastdfe(extras = c("vcf", "zarr", "arg"))  # Installs all input backends
+#' install_fastdfe(extras = NULL)  # Installs without any of the optional backends
 #' install_fastdfe(force = TRUE)  # Reinstalls the fastdfe module
 #' }
-#' 
+#'
 #' @export
-install_fastdfe <- function(version = NULL, force = FALSE, silent = FALSE, python_version = '3.11') {
-  
-  # Create the package string with the version if specified
+install_fastdfe <- function(version = NULL, extras = c("vcf"), force = FALSE, silent = FALSE, python_version = '3.11') {
+
+  # Create the package string with the extras and version if specified
   package_name <- "fastdfe"
+  if (length(extras) > 0) {
+    package_name <- paste0(package_name, "[", paste(extras, collapse = ","), "]")
+  }
   if (!is.null(version)) {
     package_name <- paste0(package_name, "==", version)
   }
@@ -569,11 +579,12 @@ load_fastdfe <- function(install = FALSE) {
     }
   }
 
-  # fastDFE re-exports sfsutils' Spectrum/Spectra, whose `plot()` calls sfsutils'
-  # Visualization.plot_spectra (a different class than fastdfe's). Route it through the same ggplot
-  # override so spectra render as ggplot in R instead of falling through to matplotlib.
+  # fastDFE re-exports sfsutils' spectra and annotations, which plot through sfsutils'
+  # Visualization rather than fastdfe's. Route its two plotting methods through the same ggplot
+  # overrides so they render as ggplot in R instead of falling through to matplotlib.
   viz_sfs <- reticulate::import("sfsutils")$visualization$Visualization
   viz_sfs$plot_spectra <- viz$plot_spectra
+  viz_sfs$plot_scatter <- viz$plot_scatter
 
   return(fd)
 }

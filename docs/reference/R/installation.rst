@@ -26,12 +26,11 @@ The ``fastdfe`` R package serves as a wrapper around the Python library but re-i
 .. note::
 
    The input backends are optional extras: ``vcf`` for VCF files, ``zarr`` for VCF-Zarr stores and
-   ``arg`` for tree sequences. To enable them, run the following command in R **before** calling
-   ``install_fastdfe()``:
+   ``arg`` for tree sequences. Only ``vcf`` is installed by default; pass ``extras`` to change that:
 
    .. code-block:: r
 
-      reticulate::py_install("fastdfe[vcf,zarr,arg]", pip = TRUE)
+      install_fastdfe(extras = c("vcf", "zarr", "arg"))
 
 Alternatively, you can also follow the instructions in the `Python installation guide <../Python/installation.html>`_ to install the Python package.
 
