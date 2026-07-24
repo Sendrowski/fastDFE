@@ -103,6 +103,5 @@ def test_settings_is_shared_and_toggles():
 
 
 def test_sfsutils_version_is_compatible():
-    """fastdfe 1.4.0 requires sfsutils >= 1.0.0."""
     parts = tuple(int(x) for x in sfsutils.__version__.split(".")[:2])
     assert parts >= (1, 0), f"sfsutils {sfsutils.__version__} is older than the required 1.0.0"
