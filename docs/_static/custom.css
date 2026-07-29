@@ -35,3 +35,21 @@ table.autosummary tbody tr:nth-child(2n):hover {
     overflow: auto;
 }
  */
+
+/* pydata-sphinx-theme >=0.17 highlights the entire heading of the section jumped to;
+   the ``dt`` highlight on the individual API entries already marks the target. */
+.bd-article :target > :is(h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5) {
+    background-color: transparent !important;
+}
+
+/* The page TOC lists class names as inline literals. The theme colours the link itself
+   but pins any nested ``code`` to the muted default, so an active entry never lights up. */
+.toc-entry a.nav-link.active > code,
+.toc-entry a.nav-link[aria-current="true"] > code {
+    color: var(--pst-color-primary);
+}
+
+.toc-entry a.nav-link:hover > code,
+.toc-entry a.nav-link:active > code {
+    color: var(--pst-color-link-hover);
+}

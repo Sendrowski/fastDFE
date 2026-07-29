@@ -101,6 +101,10 @@ autodoc_default_options = {
 
 add_module_names = False
 
+# Keep every attribute and method out of the page TOC; the theme unfolds such nested
+# entries as soon as their class scrolls into view. Classes carry their own headings.
+toc_object_entries = False
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
