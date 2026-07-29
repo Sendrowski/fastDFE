@@ -19,32 +19,14 @@ the shared-parameter and covariate machinery that links them.
    ~fastdfe.optimization.SharedParams
    ~fastdfe.optimization.Covariate
 
-``BaseInference``
-~~~~~~~~~~~~~~~~~
-
 .. autoclass:: fastdfe.base_inference.BaseInference
-
-``JointInference``
-~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: fastdfe.joint_inference.JointInference
 
-``Inference``
-~~~~~~~~~~~~~
-
 .. autoclass:: fastdfe.abstract_inference.Inference
-
-``InferenceResult``
-~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: fastdfe.base_inference.InferenceResult
 
-``SharedParams``
-~~~~~~~~~~~~~~~~
-
 .. autoclass:: fastdfe.optimization.SharedParams
-
-``Covariate``
-~~~~~~~~~~~~~
 
 .. autoclass:: fastdfe.optimization.Covariate

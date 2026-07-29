@@ -101,15 +101,16 @@ autodoc_default_options = {
 
 add_module_names = False
 
-# Keep every attribute and method out of the page TOC; the theme unfolds such nested
-# entries as soon as their class scrolls into view. Classes carry their own headings.
-toc_object_entries = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_book_theme'
 html_theme_options = {
+    # sphinx-book-theme puts the search in the primary sidebar and clears this in its
+    # theme.conf, but pydata only honours that when the key is set here, so it re-adds a
+    # second search field to the header. Clear it explicitly.
+    'navbar_persistent': [],
     'search_bar_text': 'Search...',
     'repository_url': 'https://github.com/Sendrowski/fastdfe',
     'repository_branch': 'master',

@@ -53,3 +53,10 @@ table.autosummary tbody tr:nth-child(2n):hover {
 .toc-entry a.nav-link:active > code {
     color: var(--pst-color-link-hover);
 }
+
+/* pydata-sphinx-theme nests every documented attribute and method under its class in the
+   page TOC and unfolds them as soon as that class scrolls into view. Keep the TOC to one
+   entry per class. */
+.bd-toc nav.page-toc .nav .nav {
+    display: none !important;
+}
