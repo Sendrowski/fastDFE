@@ -15,7 +15,7 @@ To install the ``fastdfe`` package via pip:
 
 .. note::
 
-   The SFS parsing is provided by the |sfsutils| package, whose input backends are optional
+   The SFS parsing is provided by the :mod:`sfsutils` package, whose input backends are optional
    extras that ``fastdfe`` exposes under the same names: ``vcf`` (the :mod:`cyvcf2 <cyvcf2.cyvcf2>`
    dependency, for VCF files), ``zarr`` (the :mod:`zarr` dependency, for VCF-Zarr stores) and ``arg``
    (the :mod:`tskit` dependency, for tree sequences / ARGs). Install the ones you need, for example
