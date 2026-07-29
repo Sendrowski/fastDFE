@@ -4,17 +4,30 @@
 \alias{install_fastdfe}
 \title{Install the \code{fastdfe} Python module}
 \usage{
-install_fastdfe(version = NULL, force = FALSE, silent = FALSE)
+install_fastdfe(
+  version = NULL,
+  extras = c("vcf"),
+  force = FALSE,
+  silent = FALSE,
+  python_version = "3.11"
+)
 }
 \arguments{
 \item{version}{A character string specifying the version of the \code{fastdfe} module
 to install. Default is \code{NULL} which will install the latest version.}
+
+\item{extras}{A character vector of optional input backends to install alongside the module:
+\code{'vcf'} for VCF files, \code{'zarr'} for VCF-Zarr stores and \code{'arg'} for tree sequences.
+Default is \code{c("vcf")}; pass \code{NULL} to install none of them.}
 
 \item{force}{Logical, if \code{TRUE} it will force the reinstallation of the \code{fastdfe} module
 even if it's already available. Default is \code{FALSE}.}
 
 \item{silent}{Logical, if \code{TRUE} it will suppress the message about \code{fastdfe} being
 already installed. Default is \code{FALSE}.}
+
+\item{python_version}{A character string specifying the Python version reticulate
+should provision the environment with. Default is \code{'3.11'}.}
 }
 \value{
 Invisible \code{NULL}.
@@ -27,8 +40,10 @@ message when the module is already installed.
 }
 \examples{
 \dontrun{
-install_fastdfe()  # Installs the latest version of fastdfe
-install_fastdfe("1.0.0")  # Installs version 1.0.0 of fastdfe
+install_fastdfe()  # Installs the latest version of fastdfe with the vcf backend
+install_fastdfe("1.2.1")  # Installs version 1.2.1 of fastdfe
+install_fastdfe(extras = c("vcf", "zarr", "arg"))  # Installs all input backends
+install_fastdfe(extras = NULL)  # Installs without any of the optional backends
 install_fastdfe(force = TRUE)  # Reinstalls the fastdfe module
 }
 

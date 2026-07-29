@@ -47,11 +47,9 @@ Features
 - Visualization of DFE, nested model p-values, inferred parameters, and their confidence intervals and more
 - Support for both Python and R
 
-Contents
---------
-
 .. toctree::
    :caption: Python Reference
+   :hidden:
 
    reference/Python/installation
    reference/Python/quickstart
@@ -64,6 +62,7 @@ Contents
 
 .. toctree::
    :caption: R Reference
+   :hidden:
 
    reference/R/installation
    reference/R/quickstart
@@ -77,6 +76,7 @@ Contents
 .. toctree::
    :caption: API Reference
    :maxdepth: 1
+   :hidden:
 
    modules/inference
    modules/simulation
@@ -88,6 +88,7 @@ Contents
 .. toctree::
    :caption: Miscellaneous
    :maxdepth: 1
+   :hidden:
 
    modules/citing
    modules/changelog
