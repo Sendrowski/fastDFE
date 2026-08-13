@@ -15,29 +15,30 @@ Once the installation is successfully completed, initiate the package within you
 
    library(fastdfe)
 
-The ``fastdfe`` R package serves as a wrapper around the Python library but re-implements visualization through ggplot2. Because of this, the Python package must be installed separately. This can be accomplished with:
+The ``fastdfe`` R package serves as a wrapper around the Python library but re-implements visualization through ggplot2. Loading the R package declares the Python requirement, which reticulate resolves into a suitable environment the first time the module is loaded:
 
 .. code-block:: r
 
-   install_fastdfe()
+   fd <- load_fastdfe()
 
 ``fastdfe`` is compatible with Python 3.11 through 3.13.
 
 .. note::
 
    The input backends are optional extras: ``vcf`` for VCF files, ``zarr`` for VCF-Zarr stores and
-   ``arg`` for tree sequences. Only ``vcf`` is installed by default; pass ``extras`` to change that:
+   ``arg`` for tree sequences. Only ``vcf`` is declared by default. Additional backends are declared by calling
+   ``install_fastdfe()`` before the module is loaded:
 
    .. code-block:: r
 
       install_fastdfe(extras = c("vcf", "zarr", "arg"))
+      fd <- load_fastdfe()
 
-Alternatively, you can also follow the instructions in the `Python installation guide <../Python/installation.html>`_ to install the Python package.
-
-After installing the Python package, the ``fastdfe`` wrapper module can be loaded into your R environment using the following command:
+To use an existing Python installation instead, follow the `Python installation guide <../Python/installation.html>`_ and select the environment before loading the module:
 
 .. code-block:: r
 
-   fastdfe <- load_fastdfe()
+   reticulate::use_condaenv("~/miniforge3/envs/fastdfe", required = TRUE)
+   fd <- load_fastdfe()
 
 See the R package documentation for more information on the available functions.

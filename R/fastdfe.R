@@ -39,30 +39,58 @@ for(package in required_packages){
 #' 
 #' @export
 fastdfe_is_installed <- function() {
-  
+
+  # An unbound session reports FALSE without touching Python, leaving the interpreter
+  # for the declared requirements to select at the version they ask for
+  if (!reticulate::py_available(initialize = FALSE)) {
+    return(FALSE)
+  }
+
   # Check if fastdfe is installed
   installed <- reticulate::py_module_available("fastdfe")
-  
+
   return(installed)
 }
 
 
-#' Install the `fastdfe` Python module
+# Requirement string for the Python distribution, carrying the optional input backends
+# and a pinned version where one is given
+py_requirement <- function(version = NULL, extras = c("vcf")) {
+
+  spec <- "fastdfe"
+
+  if (length(extras) > 0) {
+    spec <- paste0(spec, "[", paste(extras, collapse = ","), "]")
+  }
+
+  if (!is.null(version)) {
+    spec <- paste0(spec, "==", version)
+  }
+
+  spec
+}
+
+
+.onLoad <- function(libname, pkgname) {
+  reticulate::py_require(py_requirement(), python_version = "3.11")
+}
+
+
+#' Declare the `fastdfe` Python module requirement
 #'
-#' This function checks if the `fastdfe` Python module is available.
-#' If not, or if the `force` argument is TRUE, it installs it via pip.
-#' If the `silent` argument is set to TRUE, the function will not output a 
-#' message when the module is already installed.
+#' Loading the package declares `fastdfe` with the `vcf` backend. This function declares
+#' a different set of backends, or a pinned version.
+#' The requirement is resolved when Python is first initialised, at which point
+#' reticulate provisions an environment satisfying it.
 #'
 #' @param version A character string specifying the version of the `fastdfe` module
-#'        to install. Default is `NULL` which will install the latest version.
-#' @param extras A character vector of optional input backends to install alongside the module:
+#'        to require. Default is `NULL` which resolves to the latest version.
+#' @param extras A character vector of optional input backends to require alongside the module:
 #'        `'vcf'` for VCF files, `'zarr'` for VCF-Zarr stores and `'arg'` for tree sequences.
-#'        Default is `c("vcf")`; pass `NULL` to install none of them.
-#' @param force Logical, if `TRUE` it will force the reinstallation of the `fastdfe` module
-#'        even if it's already available. Default is `FALSE`.
-#' @param silent Logical, if `TRUE` it will suppress the message about `fastdfe` being
-#'        already installed. Default is `FALSE`.
+#'        Default is `c("vcf")`; pass `NULL` to require none of them.
+#' @param force Logical, has no effect. Default is `FALSE`.
+#' @param silent Logical, if `TRUE` it will suppress the message naming the declared
+#'        requirement. Default is `FALSE`.
 #' @param python_version A character string specifying the Python version reticulate
 #'        should provision the environment with. Default is `'3.11'`.
 #'
@@ -70,40 +98,26 @@ fastdfe_is_installed <- function() {
 #'
 #' @examples
 #' \dontrun{
-#' install_fastdfe()  # Installs the latest version of fastdfe with the vcf backend
-#' install_fastdfe("1.2.1")  # Installs version 1.2.1 of fastdfe
-#' install_fastdfe(extras = c("vcf", "zarr", "arg"))  # Installs all input backends
-#' install_fastdfe(extras = NULL)  # Installs without any of the optional backends
-#' install_fastdfe(force = TRUE)  # Reinstalls the fastdfe module
+#' install_fastdfe()  # Requires the latest version of fastdfe with the vcf backend
+#' install_fastdfe(extras = c("vcf", "zarr", "arg"))  # Requires all input backends
+#' install_fastdfe(extras = NULL)  # Requires none of the optional backends
 #' }
 #'
 #' @export
 install_fastdfe <- function(version = NULL, extras = c("vcf"), force = FALSE, silent = FALSE, python_version = '3.11') {
 
-  # Create the package string with the extras and version if specified
-  package_name <- "fastdfe"
-  if (length(extras) > 0) {
-    package_name <- paste0(package_name, "[", paste(extras, collapse = ","), "]")
+  if (force) {
+    warning("'force' has no effect.", call. = FALSE)
   }
-  if (!is.null(version)) {
-    package_name <- paste0(package_name, "==", version)
+
+  spec <- py_requirement(version, extras)
+
+  reticulate::py_require(spec, python_version = python_version)
+
+  if (!silent) {
+    message("Declared Python requirement '", spec, "' on Python ", python_version, ".")
   }
-  
-  # Check if fastdfe is installed or if force is TRUE
-  if (force || !fastdfe_is_installed()) {
-    reticulate::py_install(
-      package_name,
-      method = "conda",
-      pip = TRUE,
-      ignore_installed = force,
-      python_version = python_version
-    )
-  } else {
-    if (!silent) {
-      message("The 'fastdfe' Python module is already installed.")
-    }
-  }
-  
+
   invisible(NULL)
 }
 

@@ -13,9 +13,9 @@ Imports:
     cowplot,
     ggplot2,
     pheatmap,
-    reticulate,
+    reticulate (>= 1.41.0),
     grDevices
 Suggests:
     testthat
 URL: https://fastdfe.readthedocs.io
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0
