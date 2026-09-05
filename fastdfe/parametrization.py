@@ -1067,7 +1067,7 @@ class DFE(Serializable):
         :param bins: Intervals to use for discretization.
         :param warn_mass: Whether to warn if mass is lost during discretization.
         :param confidence_intervals: Whether to compute confidence intervals.
-        :param ci_level: Confidence interval level (e.g., 0.05 for 95% CI).
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap confidence intervals ('percentile' or 'bca').
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :return: Center values and (optionally) errors for each bin.
@@ -1114,7 +1114,7 @@ class DFE(Serializable):
         :param title: Title of the plot.
         :param ax: Axes to use for the plot.
         :param confidence_intervals: Whether to plot confidence intervals.
-        :param ci_level: Confidence interval level (e.g., 0.05 for 95% CI).
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap confidence intervals ('percentile' or 'bca').
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :param kwargs_legend: Additional keyword arguments for the legend.
@@ -1171,7 +1171,7 @@ class DFE(Serializable):
         :param title: Title of the plot.
         :param ax: Axes to use for the plot.
         :param confidence_intervals: Whether to plot confidence intervals.
-        :param ci_level: Confidence interval level (e.g., 0.05 for 95% CI).
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap confidence intervals ('percentile' or 'bca').
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :param kwargs_legend: Additional keyword arguments for the legend.

@@ -49,7 +49,7 @@ class Inference:
         :param inferences: List of inference objects.
         :param intervals: Intervals over ``(-inf, inf)`` to use for discretization.
         :param confidence_intervals: Whether to plot confidence intervals.
-        :param ci_level: Confidence level for confidence intervals.
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap to use for confidence intervals.
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :param file: Path to file to save the plot to.
@@ -121,7 +121,7 @@ class Inference:
         :param inferences: List of inference objects.
         :param intervals: Intervals to use for discretization.
         :param confidence_intervals: Whether to plot confidence intervals.
-        :param ci_level: Confidence level for confidence intervals.
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap to use for confidence intervals.
         :param file: Path to file to save the plot to.
         :param show: Whether to show the plot.
@@ -181,7 +181,7 @@ class Inference:
         :param labels: Unique labels for the DFEs.
         :param scale: y-scale of the plot.
         :param confidence_intervals: Whether to plot confidence intervals.
-        :param ci_level: Confidence level for confidence intervals.
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap to use for confidence intervals.
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :param file: Path to file to save the plot to.
@@ -283,7 +283,7 @@ class Inference:
         """
         Get errors and values for MLE params of inferences.
 
-        :param ci_level: Confidence level for confidence intervals.
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param confidence_intervals: Whether to compute confidence intervals.
         :param inferences: List of inference objects.
         :param labels: Labels for the inferences.
@@ -330,7 +330,7 @@ class Inference:
         :param inferences: List of inference objects.
         :param labels: Labels for the DFEs.
         :param bootstrap_type: Type of bootstrap to use
-        :param ci_level: Confidence interval level
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param confidence_intervals: Whether to compute confidence intervals
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
@@ -379,7 +379,7 @@ class Inference:
         :param params: Parameters of the model
         :param bootstraps: Bootstrapped samples
         :param model: DFE parametrization
-        :param ci_level: Confidence interval level
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
         :param bootstrap_type: Type of bootstrap
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
@@ -460,7 +460,7 @@ class AbstractInference(Serializable, ABC):
 
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bins.
         :param confidence_intervals: Whether to return confidence intervals
-        :param ci_level: Confidence interval level
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :return: Array of values and array of deviations
@@ -497,7 +497,7 @@ class AbstractInference(Serializable, ABC):
         :param show: Whether to show the plot
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
         :param confidence_intervals: Whether to plot confidence intervals
-        :param ci_level: Confidence interval level
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :param title: Title of the plot

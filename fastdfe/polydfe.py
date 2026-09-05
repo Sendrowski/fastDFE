@@ -349,7 +349,7 @@ class PolyDFE(AbstractInference):
 
         :param scale: Scale of the y-axis
         :param confidence_intervals: Whether to show confidence intervals
-        :param ci_level: Confidence interval level
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap
         :param legend: Show legend
         :param ax: Axes to plot on. Only for Python visualization backend.

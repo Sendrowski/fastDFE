@@ -1172,7 +1172,7 @@ class BaseInference(AbstractInference):
 
         :param title: Plot title.
         :param bootstrap_type: Type of bootstrap to use for confidence intervals.
-        :param ci_level: Confidence level for confidence intervals.
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param confidence_intervals: Whether to plot confidence intervals.
         :param file: File to save plot to.
         :param show: Whether to show plot.
@@ -1375,7 +1375,7 @@ class BaseInference(AbstractInference):
         """
         Get statistics for the discretized DFE.
 
-        :param ci_level: Confidence interval level.
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
         :param bootstrap_type: Type of bootstrap to use.
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
@@ -1412,7 +1412,7 @@ class BaseInference(AbstractInference):
         :param title: Plot title.
         :param confidence_intervals: Whether to show confidence intervals.
         :param bootstrap_type: Type of bootstrap to use.
-        :param ci_level: Confidence level for the confidence intervals.
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param file: File to save plot to.
         :param show: Whether to show plot.
         :param ax: Axes to plot on. Only for Python visualization backend.

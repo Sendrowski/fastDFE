@@ -1042,7 +1042,7 @@ class JointInference(BaseInference):
         :param show_marginals: Whether to also show marginal inferences
         :param bootstrap_type: Type of bootstrap
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
-        :param ci_level: Confidence level
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param confidence_intervals: Whether to plot confidence intervals
         :param file: File to save plot to
         :param show: Whether to show plot
@@ -1158,7 +1158,7 @@ class JointInference(BaseInference):
         :param labels: Labels for types
         :param title: Title of plot
         :param bootstrap_type: Type of bootstrap
-        :param ci_level: Confidence level
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param confidence_intervals: Whether to plot confidence intervals
         :param file: File to save plot to
         :param show: Whether to show plot
@@ -1195,7 +1195,7 @@ class JointInference(BaseInference):
         :param labels: Labels for types
         :param title: Title of plot
         :param bootstrap_type: Type of bootstrap
-        :param ci_level: Confidence level
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param confidence_intervals: Whether to plot confidence intervals
         :param file: File to save plot to
         :param show: Whether to show plot
@@ -1256,7 +1256,7 @@ class JointInference(BaseInference):
         :param bootstrap_type: Bootstrap type.
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :param show_types: Whether to show types on second x-axis.
-        :param ci_level: Confidence level.
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param xlabel: X-axis label.
         :param ylabel: Y-axis label, defaults to the covariate parameter name.
         :param ax: Axes to plot on. Only for Python visualization backend.
@@ -1317,7 +1317,7 @@ class JointInference(BaseInference):
 
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bins.
         :param confidence_intervals: Whether to return confidence intervals
-        :param ci_level: Confidence interval level
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :return: Dictionary of array of values and array of errors indexed by inference type
