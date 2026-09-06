@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: If you use this software, please cite the article below.
+title: fastDFE
+authors:
+  - family-names: Sendrowski
+    given-names: Janek
+  - family-names: Bataillon
+    given-names: Thomas
+repository-code: https://github.com/Sendrowski/fastDFE
+preferred-citation:
+  type: article
+  title: "fastDFE: fast and flexible inference of the distribution of fitness effects"
+  authors:
+    - family-names: Sendrowski
+      given-names: Janek
+    - family-names: Bataillon
+      given-names: Thomas
+  journal: Molecular Biology and Evolution
+  publisher:
+    name: Oxford University Press
+  year: 2024
+  month: 4
+  start: msae070
+  issn: 1537-1719
+  doi: 10.1093/molbev/msae070
