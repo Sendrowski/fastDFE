@@ -29,7 +29,7 @@ except NameError:
     intervals_ben = (1.0e-5, 1.0e4, 100)
     out = "scratch/compare_dfe_accuracy.png"
 
-fig, ax = plt.subplots(2, 2, figsize=(10.5, 6), sharex=True, sharey=True)
+fig, ax = plt.subplots(2, 2, figsize=(9.45, 5.94), sharex=True, sharey=True)
 
 plt.rcParams['xtick.labelsize'] = 9
 plt.rcParams["axes.prop_cycle"] = plt.cycler(color=plt.cm.viridis(np.linspace(0.15, 1, n_dfes + 1)))
@@ -40,6 +40,13 @@ params = [dict(S_d=-300, b=0.3, p_b=0, S_b=1), dict(S_d=-300, b=0.3, p_b=0.05, S
 def sci(x):
     base, exp = f"{x:e}".split("e")
     return f"{int(np.round(float(base)))}e{int(exp)}"
+
+
+def set_title(a, title, param):
+    """Panel title with the simulated DFE parameters on a line beneath."""
+    subtitle = ', '.join([f'${k}={v}$' for k, v in param.items() if k in ['S_d', 'b', 'p_b', 'S_b']])
+    a.set_title(title, fontsize=16.7, pad=24)
+    a.text(0.5, 1.02, subtitle, transform=a.transAxes, ha="center", va="bottom", fontsize=13.7)
 
 
 for i, param in enumerate(params):
@@ -77,16 +84,15 @@ for i, param in enumerate(params):
         spectra[n] = inf.get_spectra()[['neutral', 'selected']]
         dfes[n] = inf.get_dfe()
 
-    param_str = ', '.join([f'{k}={v}' for k, v in param.items() if k in ['S_d', 'b', 'p_b', 'S_b']])
     fd.DFE.plot_many(
         [sim.dfe] + list(dfes.values()),
         labels=np.arange(len(dfes) + 1).astype(str),
         point_estimate='mean',
         # intervals=[-np.inf, -100, -10, -1, 1, np.inf],
         ax=ax[i, 0],
-        title=f"SFS sample sizes $({param_str})$",
         show=False
     )
+    set_title(ax[i, 0], "SFS sample sizes", param)
 
     labels = (["true DFE"] +
               [f"n={n},{'':<{3 - int(np.log10(n))}}#SNP={sci(spectra[n].all.n_polymorphic)}" for n in dfes.keys()])
@@ -125,16 +131,15 @@ for i, param in enumerate(params):
         spectra[n_snps] = inf.get_spectra()[['neutral', 'selected']]
         dfes[n_snps] = inf.get_dfe()
 
-    param_str = ', '.join([f'{k}={v}' for k, v in param.items() if k in ['S_d', 'b', 'p_b', 'S_b']])
     fd.DFE.plot_many(
         [sim.dfe] + list(dfes.values()),
         labels=np.arange(len(dfes) + 1).astype(str),
         point_estimate='mean',
         # intervals=[-np.inf, -100, -10, -1, 1, np.inf],
         ax=ax[i, 1],
-        title=f"Number of SNPs $({param_str})$",
         show=False
     )
+    set_title(ax[i, 1], "Number of SNPs", param)
 
     labels = ["true DFE"] + [f"n={n_fixed}, #SNP={sci(spectra[theta].all.n_polymorphic)}" for theta in dfes.keys()]
     ax[i, 1].legend(ax[i, 1].get_legend_handles_labels()[0], labels, prop={"family": "monospace", "size": 8})
