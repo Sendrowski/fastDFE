@@ -29,7 +29,7 @@ except NameError:
     intervals_ben = (1.0e-5, 1.0e4, 100)
     out = "scratch/compare_dfe_accuracy.png"
 
-fig, ax = plt.subplots(2, 2, figsize=(10.5, 6))
+fig, ax = plt.subplots(2, 2, figsize=(10.5, 6), sharex=True, sharey=True)
 
 plt.rcParams['xtick.labelsize'] = 9
 plt.rcParams["axes.prop_cycle"] = plt.cycler(color=plt.cm.viridis(np.linspace(0.15, 1, n_dfes + 1)))
@@ -138,6 +138,10 @@ for i, param in enumerate(params):
 
     labels = ["true DFE"] + [f"n={n_fixed}, #SNP={sci(spectra[theta].all.n_polymorphic)}" for theta in dfes.keys()]
     ax[i, 1].legend(ax[i, 1].get_legend_handles_labels()[0], labels, prop={"family": "monospace", "size": 8})
+
+for a in ax.flat:
+    a.label_outer()
+    a.yaxis.label.set_fontsize(13)
 
 plt.tight_layout()
 fig.savefig(out, dpi=200)

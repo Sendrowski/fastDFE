@@ -95,6 +95,7 @@ ax[0, 0].set_title(
     f'Selected SFS $({", ".join([f"{k}={v}" for k, v in sims[hs[0]].params.items() if k in ["S_d", "b", "p_b"]])})$'
 )
 ax[0, 0].legend_.remove()
+ax[0, 0].set_ylabel("count")
 
 bars = ax[0, 0].patches
 offset = 0
@@ -198,6 +199,9 @@ sm.set_array([])
 
 cbar = fig.colorbar(sm, cax=cax)
 cbar.ax.set_ylabel("h", rotation=0, labelpad=0, va='center', fontsize=13)
+
+for a in ax.flat:
+    a.yaxis.label.set_fontsize(12)
 
 plt.tight_layout(pad=0.8)
 
