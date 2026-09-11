@@ -3,7 +3,6 @@ Combine DFE plots.
 """
 import re
 import sys
-from pathlib import Path
 
 import numpy as np
 from matplotlib.container import BarContainer
@@ -27,7 +26,7 @@ except NameError:
         "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/reduction_4/unfolded/summary.json",
         "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/bottleneck_20/unfolded/summary.json",
         "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/substructure_0.0001/unfolded/summary.json",
-        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/dominance_0.3/unfolded/summary.semidominant.json"
+        "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/dominance_0.2/unfolded/summary.semidominant.json"
     ]
     labels = [
         "constant",
@@ -53,7 +52,7 @@ def extract_params(path: str) -> dict:
             params[key] = float(m.group(1))
     return params
 
-fig, ax = plt.subplots(3, 2, figsize=(7, 4.5), sharex=True, dpi=400)
+fig, ax = plt.subplots(3, 2, figsize=(7, 4.5), sharex=True, sharey=True, dpi=400)
 ax = ax.flatten()
 
 for i, f in enumerate(files):
@@ -69,9 +68,6 @@ for i, f in enumerate(files):
         S_b=4 * Ne * params["s_b"],
         N_e=Ne
     ))
-
-    params_slim = dfe_slim.params.copy()
-    params_fd = {k: v for k, v in result.dfe.params.items() if k in params_slim}
 
     fd.DFE.plot_many(
         [dfe_slim, result.dfe],
@@ -108,12 +104,24 @@ for i, f in enumerate(files):
                 if patch is not None and hasattr(patch, "set_hatch"):
                     patch.set_hatch("")
 
-fig.tight_layout(pad=0.05)
+handles, legend_labels = ax[0].get_legend_handles_labels()
 for x in ax:
+    x.legend_.remove()
+
+for x in ax[1::2]:
     x.set_ylabel("")
+
+for x in ax[0::2]:
+    x.set_ylabel("fraction", fontsize=10)
 
 for x in ax[:4]:
     x.set_xlabel("")
+
+fig.tight_layout(pad=0.05, h_pad=1.5, w_pad=1.5, rect=(0, 0.3 / 4.5, 1, 1))
+
+center = (ax[0].get_position().x0 + ax[1].get_position().x1) / 2
+fig.legend(handles, legend_labels, loc="lower center", ncol=len(handles), frameon=True, fontsize=11,
+           bbox_to_anchor=(center, 0))
 
 fig.savefig(out, dpi=300)
 
