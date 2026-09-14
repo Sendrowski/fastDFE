@@ -3,19 +3,19 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import datetime
 import sys
 
 sys.path.append('..')
+
+from fastdfe import __version__
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'fastDFE'
-year = datetime.datetime.now().year
-copyright = f'{year}, Janek Sendrowski'
 author = 'Janek Sendrowski'
-release = '1.4.1'
+release = __version__
+html_show_copyright = False
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
