@@ -1967,6 +1967,49 @@ rule combine_inferred_dfe_plots_different_sample_sizes:
         "scripts/combine_plots.py"
 
 # plot DFE collage comparing SLiM and fastDFE
+# Inferred against simulated DFE for the strongly deleterious parameter set under each
+# demographic scenario, with the recessive (h = 0.2) run inferred assuming semidominance.
+rule plot_dfes_demographies:
+    input:
+        [f"results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/"
+         f"s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/{d}/unfolded/summary.json"
+         for d in ("constant", "expansion_4", "reduction_4", "bottleneck_20", "substructure_0.0001")] +
+        ["results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/r=1e-7/N=1e3/"
+         "s_b=1e-3/b=0.3/s_d=3e-1/p_b=0.00/n=20/dominance_0.2/unfolded/summary.semidominant.json"]
+    output:
+        "results/graphs/collage/slim/n_replicate=1/g=1e4/N=1e3/r=1e-7/n=20/demographies.pdf"
+    params:
+        labels=["constant", "expansion", "reduction", "bottleneck", "substructure", "recessiveness"]
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/plot_dfes_demographies.py"
+
+# Simulated DFEs under a recessive dominance coefficient beside the DFEs inferred assuming
+# semidominance and with the simulated coefficient, one row per simulated DFE.
+rule plot_dfe_collage_slim_dominance:
+    input:
+        inferred=lambda w: expand(
+            "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/"
+            "r=1e-7/N=1e3/{dfe_params}/n=20/{{demography}}/{{folded}}/summary.json",
+            dfe_params=collage_params,
+        ),
+        semidominant=lambda w: expand(
+            "results/slim/n_replicate=1/n_chunks=100/g=1e4/L=1e7/mu=1e-8/"
+            "r=1e-7/N=1e3/{dfe_params}/n=20/{{demography}}/{{folded}}/summary.semidominant.json",
+            dfe_params=collage_params,
+        )
+    output:
+        "results/graphs/collage/slim/n_replicate=1/g=1e4/N=1e3/r=1e-7/n=20/{demography}/{folded}/dfe_dominance.pdf"
+    wildcard_constraints:
+        demography=r"dominance_[0-9.]+"
+    params:
+        h=lambda w: float(w.demography.split("_")[1])
+    conda:
+        "envs/base.yaml"
+    script:
+        "scripts/plot_dfe_collage_dominance.py"
+
 rule plot_dfe_collage_slim_fastdfe:
     input:
         lambda w: expand(
@@ -1975,7 +2018,7 @@ rule plot_dfe_collage_slim_fastdfe:
             dfe_params=collage_params,
         )
     output:
-        "results/graphs/collage/slim/n_replicate=1/g=1e4/N=1e3/r=1e-7/n=20/{demography}/{folded}/dfe_collage.png"
+        "results/graphs/collage/slim/n_replicate=1/g=1e4/N=1e3/r=1e-7/n=20/{demography}/{folded}/dfe_collage.pdf"
     params:
         labels=[
             "Strongly deleterious",
@@ -2011,7 +2054,7 @@ rule plot_spectra:
 # compare DFE across different SFS sample sizes and number of SNPs
 rule compare_dfe_sample_sizes:
     output:
-        "results/graphs/simulation/sample_size_comparison.png"
+        "results/graphs/simulation/sample_size_comparison.pdf"
     conda:
         "envs/base.yaml"
     script:
@@ -2020,7 +2063,7 @@ rule compare_dfe_sample_sizes:
 # infer dominance coefficient from simulated data
 rule infer_dominance_simulation:
     output:
-        "results/graphs/simulation/inferred_dominance_{n}.png"
+        "results/graphs/simulation/inferred_dominance_{n}.pdf"
     params:
         n=lambda w: int(w.n)
     conda:
