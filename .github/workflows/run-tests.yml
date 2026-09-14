@@ -3,7 +3,7 @@
 # the inference/slow tiers depend on local resources (genomes, SLiM, polyDFE) and are run
 # locally, not on CI. Dependencies are installed with uv (no conda).
 
-name: Run tests
+name: tests
 
 on:
   push:
