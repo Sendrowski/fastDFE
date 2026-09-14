@@ -109,7 +109,8 @@ html_theme_options = {
     'repository_branch': 'master',
     'use_repository_button': True,
     'use_edit_page_button': False,
-    'use_issues_button': False
+    'use_issues_button': False,
+    'use_download_button': False
 }
 html_static_path = ['_static']
 html_css_files = ["custom.css"]
