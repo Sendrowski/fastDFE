@@ -1,0 +1,17 @@
+INFO:Annotator: Start annotating
+INFO:Annotator: Loading VCF file
+INFO:FileHandler: Using cached file at <tmp>/a3b0e449a317.all.with_outgroups.subset.10000.vcf.gz
+INFO:Annotator: Loading VCF file
+INFO:FileHandler: Using cached file at <tmp>/a3b0e449a317.all.with_outgroups.subset.10000.vcf.gz
+INFO:MaximumLikelihoodAncestralAnnotation: Subsampling 10 ingroup haplotypes probabilistically from 378 individuals in total.
+INFO:MaximumLikelihoodAncestralAnnotation: Using 1 outgroup samples (ERR2103730).
+INFO:FileHandler: Using cached file at <tmp>/a3b0e449a317.all.with_outgroups.subset.10000.vcf.gz
+Annotator>Counting sites: 10000it [--:--, --it/s]
+MaximumLikelihoodAncestralAnnotation>Parsing sites: 100%|██████████| 10000/10000 [--:--<--:--, --it/s]
+INFO:MaximumLikelihoodAncestralAnnotation: Included 6689 sites for the inference (1027 polymorphic, 5662 monomorphic).
+WARNING:MaximumLikelihoodAncestralAnnotation: The number of monomorphic sites is unusually low. Please note that including monomorphic sites is necessary to obtain realistic branch rate estimates.
+WARNING:MaximumLikelihoodAncestralAnnotation: If your dataset does not contain any monomorphic sites, consider using the `n_target_sites` argument.
+MaximumLikelihoodAncestralAnnotation>Optimizing rates: 100%|██████████| 10/10 [--:--<--:--, --it/s]
+Annotator>Processing sites: 100%|██████████| 10000/10000 [--:--<--:--, --it/s]
+INFO:MaximumLikelihoodAncestralAnnotation: Annotated 10000 sites.
+INFO:MaximumLikelihoodAncestralAnnotation: There were 195 mismatches between the most likely ancestral allele and the ad-hoc ancestral allele annotation.

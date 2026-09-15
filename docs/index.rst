@@ -48,30 +48,18 @@ Features
 - Support for both Python and R
 
 .. toctree::
-   :caption: Python Reference
+   :caption: User Guide
+   :maxdepth: 2
    :hidden:
 
-   reference/Python/installation
-   reference/Python/quickstart
-   reference/Python/inference
-   reference/Python/simulation
-   reference/Python/parametrizations
-   reference/Python/parser
-   reference/Python/config
-   reference/Python/miscellaneous
-
-.. toctree::
-   :caption: R Reference
-   :hidden:
-
-   reference/R/installation
-   reference/R/quickstart
-   reference/R/inference
-   reference/R/simulation
-   reference/R/parametrizations
-   reference/R/parser
-   reference/R/config
-   reference/R/miscellaneous
+   reference/installation
+   reference/quickstart
+   reference/inference
+   reference/simulation
+   reference/parametrizations
+   reference/parser
+   reference/config
+   reference/miscellaneous
 
 .. toctree::
    :caption: API Reference

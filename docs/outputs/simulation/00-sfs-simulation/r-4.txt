@@ -1,0 +1,8 @@
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:Discretization: Precomputing semidominant DFE-SFS transformation using midpoint integration.
+Discretization>Precomputing: 100%|██████████| 19/19 [--:--<--:--, --it/s]
+INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
+BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
+INFO:BaseInference: Inference results: {all.S_d: -300 ± 0.00083, all.b: 0.3 ± 2.4e-07, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -69.67 ± 3e-10} (best_run ± std_across_runs)
+BaseInference>Bootstrapping (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
+INFO:BaseInference: Bootstrap summary: {all.S_d: -294.9 ± 49, all.b: 0.3031 ± 0.014, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -79.41 ± 3, i_best_run: 0.58 ± 0.5, likelihoods_std: 1.996e-10 ± 2.3e-10} (mean ± std)

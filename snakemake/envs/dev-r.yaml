@@ -22,9 +22,7 @@ dependencies:
   - r-reticulate
   - r-ggplot2
   - r-cowplot
-  - r-pheatmap
   - r-scales
-  - r-rcolorbrewer
   - rpy2
   - r-irkernel
   - r-usethis

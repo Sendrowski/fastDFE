@@ -1,8 +1,15 @@
-# fastdfe env as in docs
-name: fastdfe
+name: docs-fastdfe
 channels:
   - conda-forge
-  - bioconda
 dependencies:
-  - fastdfe
-  - cyvcf2
+  - python=3.11
+  - ipykernel
+  - nbconvert
+  - r-base
+  - r-reticulate>=1.41
+  - r-ggplot2>=3.5
+  - r-cowplot
+  - r-scales
+  - r-irkernel
+  - r-ragg
+  - pip

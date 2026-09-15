@@ -3,8 +3,3 @@
 export(fastdfe_is_installed)
 export(install_fastdfe)
 export(load_fastdfe)
-importFrom(grDevices,
-  colorRampPalette,
-  dev.off,
-  pdf
-)

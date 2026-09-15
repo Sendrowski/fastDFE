@@ -29,6 +29,7 @@ extensions = [
     'sphinx_copybutton',
     'autodocsumm',  # per-class method-summary table at the top of each class
     'myst_nb',
+    'sphinx_design',
     'sphinxcontrib.bibtex',
     'sphinx_book_theme'
 ]
@@ -42,15 +43,10 @@ bibtex_bibfiles = ['refs.bib']
 typehints_use_signature = True
 typehints_fully_qualified = False
 
-# Silence pre-existing, benign build warnings:
-# - unresolved ``plt`` forward refs in plot-method type annotations (matplotlib.pyplot
-#   is not in the documented modules' import namespace at autodoc time)
-# - the standalone ``example_*`` notebooks are intentionally not in any toctree
-# - legacy example notebooks declare the unknown ``ipython2`` Pygments lexer
+# Silence unresolved ``plt`` forward refs in plot-method type annotations (matplotlib.pyplot
+# is not in the documented modules' import namespace at autodoc time)
 suppress_warnings = [
     'sphinx_autodoc_typehints.forward_reference',
-    'toc.not_included',
-    'misc.highlighting_failure',
 ]
 
 # Resolve cross-references to the standalone sfsutils package (VCF parsing, spectra,
@@ -72,8 +68,13 @@ pygments_style = 'default'
 # disable notebook execution
 nb_execution_mode = 'off'
 
+# merge consecutive stdout/stderr chunks from one cell into a single output block
+nb_merge_streams = True
+
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+# 'jupyter_execute' is a myst-nb build artifact. 'source' holds the User Guide sources, which docs/split_page.py and
+# docs/merge_notebooks.py turn into the pages.
+exclude_patterns = ['_build', 'jupyter_execute', 'outputs', 'source', 'Thumbs.db', '.DS_Store']
 
 autodoc_default_options = {
     'members': True,
@@ -114,5 +115,6 @@ html_theme_options = {
 }
 html_static_path = ['_static']
 html_css_files = ["custom.css"]
+html_js_files = ["language-tabs.js"]
 html_logo = "logo.png"
 html_favicon = "favicon.ico"

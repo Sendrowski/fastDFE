@@ -1920,7 +1920,9 @@ class BaseInference(AbstractInference):
 
         :return: List of parameter names.
         """
-        return list(set(flatten_dict(self.get_x0())) - set(flatten_dict(self.fixed_params)))
+        fixed = flatten_dict(self.fixed_params)
+
+        return [name for name in flatten_dict(self.get_x0()) if name not in fixed]
 
     def get_n_optimized(self) -> int:
         """

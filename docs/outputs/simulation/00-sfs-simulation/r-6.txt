@@ -1,0 +1,3 @@
+INFO:Simulation: Simulating SFS under selection using parameters: S_d=-300, b=0.3, p_b=0, S_b=1, h=0.3, eps=0
+INFO:Discretization: Precomputing DFE-SFS transformation for fixed h=0.3.
+Discretization>Precomputing: 100%|██████████| 3819/3819 [--:--<--:--, --it/s]

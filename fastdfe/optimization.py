@@ -285,10 +285,8 @@ def collapse_fixed_to_mean(
     """
     out = {"all": dict(expanded_params.get("all", {}))}
 
-    # collect params appearing in any type
-    params = set()
-    for t in types:
-        params |= expanded_params.get(t, {}).keys()
+    # collect params appearing in any type, in order of appearance
+    params = dict.fromkeys(p for t in types for p in expanded_params.get(t, {}))
 
     for p in params:
         vals = [expanded_params[t][p] for t in types if p in expanded_params.get(t, {})]
@@ -312,17 +310,14 @@ def collapse_fixed(
     out = {k: dict(v) for k, v in expanded_params.items()}
     out.setdefault("all", {})
 
-    # find params present in *every* type with identical value
-    common = None
-    for t in types:
-        d = expanded_params.get(t, {})
-        keys = set(d.keys())
-        common = keys if common is None else (common & keys)
+    # find params present in *every* type with identical value, in the order of the first type
+    common = [p for p in expanded_params.get(types[0], {}) if all(p in expanded_params.get(t, {}) for t in types)] \
+        if types else []
 
     if not common:
         return out
 
-    for p in list(common):
+    for p in common:
         vals = [expanded_params[t][p] for t in types]
         if all(v == vals[0] for v in vals):
             out["all"][p] = vals[0]
@@ -1021,7 +1016,7 @@ class Optimization:
         flattened = flatten_dict(self.x0)
 
         # determine parameter names of parameters to be optimized
-        optimized_param_names = list(set(flattened) - set(self.fixed_params))
+        optimized_param_names = [name for name in flattened if name not in self.fixed_params]
 
         # issue debug messages
         logger.debug(f'Performing optimization on {len(flattened)} parameters: {list(flattened.keys())}.')

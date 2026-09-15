@@ -473,7 +473,7 @@ class JointInference(BaseInference):
         params_with_covariates = [cov.param for cov in covariates]
 
         # determine parameters with covariates that are not shared
-        return list(set(params_with_covariates) - set(completely_shared))
+        return list(dict.fromkeys(p for p in params_with_covariates if p not in completely_shared))
 
     @classmethod
     def from_config(cls, config: 'Config') -> 'JointInference':

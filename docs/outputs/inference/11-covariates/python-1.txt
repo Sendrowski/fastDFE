@@ -1,0 +1,11 @@
+INFO:Parser: Using stratification: [neutral, selected].[A, C, G, T].
+INFO:Parser: Loading VCF file
+INFO:FileHandler: Using cached file at <tmp>/011b01ee5cec.all.polarized.deg.subset.200000.vcf.gz
+INFO:FileHandler: Using cached file at <tmp>/011b01ee5cec.all.polarized.deg.subset.200000.vcf.gz
+Parser>Counting sites: 200000it [--:--, --it/s]
+Parser>Processing sites: 100%|██████████| 200000/200000 [--:--<--:--, --it/s]
+INFO:PolyAllelicFiltration: Filtered out 0 sites.
+INFO:DegeneracyStratification: Number of sites with valid type: 64083
+INFO:AncestralBaseStratification: Number of sites with valid type: 64083
+INFO:Parser: Skipped 983 sites without ancestral allele information.
+INFO:Parser: Included 64083 out of 200000 sites in total from the input.

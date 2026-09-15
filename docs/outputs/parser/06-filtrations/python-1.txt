@@ -1,0 +1,8 @@
+INFO:Filterer: Start filtering
+INFO:Filterer: Loading VCF file
+INFO:FileHandler: Using cached file at <tmp>/7a41c74709e8.biallelic.subset.10000.vcf.gz
+INFO:FileHandler: Using cached file at <tmp>/7a41c74709e8.biallelic.subset.10000.vcf.gz
+Filterer>Counting sites: 10000it [--:--, --it/s]
+Filterer>Processing sites: 100%|██████████| 10000/10000 [--:--<--:--, --it/s]
+INFO:BiasedGCConversionFiltration: Filtered out 7903 sites.
+INFO:Filterer: Filtered out 7903 of 10000 sites in total.

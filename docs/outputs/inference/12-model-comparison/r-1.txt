@@ -1,0 +1,49 @@
+INFO:JointInference: No divergence counts provided, inferring from polymorphism only.
+INFO:JointInference: Using shared parameters [SharedParams(params=['S_d'], types=['A', 'C', 'G', 'T'])].
+INFO:JointInference: Including covariates: {}.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:JointInference: Running joint inference without covariates.
+INFO:JointInference: Running marginal inference for type 'all'.
+INFO:Discretization: Precomputing semidominant DFE-SFS transformation using midpoint integration.
+Discretization>Precomputing: 100%|██████████| 9/9 [--:--<--:--, --it/s]
+INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
+BaseInference>Performing inference: 100%|██████████| 50/50 [--:--<--:--, --it/s]
+WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
+INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 6.1e+03, all.b: 0.1069 ± 0.0008, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -26.61 ± 0.017} (best_run ± std_across_runs)
+INFO:JointInference: Running marginal inferences for types ['A', 'C', 'G', 'T'].
+INFO:JointInference: Running marginal inference for type 'A'.
+INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
+BaseInference>Performing inference: 100%|██████████| 50/50 [--:--<--:--, --it/s]
+WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
+WARNING:BaseInference: The L1 residual comparing the modelled and observed SFS is rather large: `norm(sfs_modelled - sfs_observed, 1) / sfs_observed` = 0.200. This may indicate that the model does not fit the data well.
+INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 0, all.b: 0.0857 ± 2.8e-08, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -22.72 ± 4.8e-11} (best_run ± std_across_runs)
+INFO:JointInference: Running marginal inference for type 'C'.
+INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
+BaseInference>Performing inference: 100%|██████████| 50/50 [--:--<--:--, --it/s]
+WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
+INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 2.7e+03, all.b: 0.1219 ± 0.00035, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -19.47 ± 0.0001} (best_run ± std_across_runs)
+INFO:JointInference: Running marginal inference for type 'G'.
+INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
+BaseInference>Performing inference: 100%|██████████| 50/50 [--:--<--:--, --it/s]
+WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
+INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 9.9e+03, all.b: 0.1221 ± 0.0018, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -18.88 ± 0.0095} (best_run ± std_across_runs)
+INFO:JointInference: Running marginal inference for type 'T'.
+INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
+BaseInference>Performing inference: 100%|██████████| 50/50 [--:--<--:--, --it/s]
+WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
+INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 6.3e+03, all.b: 0.1079 ± 0.00081, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -18.44 ± 0.0027} (best_run ± std_across_runs)
+INFO:JointInference: Running joint inference for types ['A', 'C', 'G', 'T'].
+INFO:Optimization: Optimizing 5 parameters: [A.b, C.b, G.b, T.b, A:C:G:T.S_d].
+JointInference>Performing joint inference: 100%|██████████| 50/50 [--:--<--:--, --it/s]
+WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {A:C:G:T.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
+INFO:JointInference: Inference results: {A.b: 0.0857 ± 0.00053, A.p_b: 0 ± 0, A.S_b: 1 ± 0, A.eps: 0 ± 0, A.h: 0.5 ± 0, C.b: 0.1219 ± 0.00083, C.p_b: 0 ± 0, C.S_b: 1 ± 0, C.eps: 0 ± 0, C.h: 0.5 ± 0, G.b: 0.1221 ± 0.0011, G.p_b: 0 ± 0, G.S_b: 1 ± 0, G.eps: 0 ± 0, G.h: 0.5 ± 0, T.b: 0.1079 ± 0.00099, T.p_b: 0 ± 0, T.S_b: 1 ± 0, T.eps: 0 ± 0, T.h: 0.5 ± 0, A:C:G:T.S_d: -1e+05 ± 6.7e+03, likelihood: -79.5 ± 0.019} (best_run ± std_across_runs)
+WARNING:BaseInference: The L1 residual comparing the modelled and observed SFS is rather large: `norm(sfs_modelled - sfs_observed, 1) / sfs_observed` = 0.200. This may indicate that the model does not fit the data well.
+INFO:JointInference: Simple model likelihood: -79.50114061684002, Complex model likelihood: -79.50114061684008, Total degrees of freedom: 1, Parameters at boundary: 0.

@@ -3,12 +3,13 @@
 #   make test-all    fast + inference tier, i.e. what runs on PRs (pytest -m "not slow")
 #   make test-full   the entire suite incl. the slow/nightly tier
 #   make docs        rebuild the HTML docs from scratch (clean + html)
+#   make notebooks   execute the User Guide sources, merge the pages and write their outputs to docs/outputs
 #   make clean       remove the built docs
 #
 # The three test tiers (fast / inference / slow) are defined in pytest.ini; `make test`
 # uses the default marker filter there, while the other targets override it. Tests are
 # meant to run in the `dev-fastdfe` conda env. The data/precompute pipeline lives under
-# snakemake/ and is driven directly via snakemake, not from here.
+# snakemake/ and is driven directly via snakemake.
 
 PYTEST ?= pytest
 
@@ -17,7 +18,7 @@ PYTEST ?= pytest
 # disable with `make test XDIST=""` for a serial run (useful when debugging).
 XDIST ?= -n auto
 
-.PHONY: help test test-all test-full docs clean
+.PHONY: help test test-all test-full docs notebooks clean
 
 help:
 	@echo "Targets:"
@@ -25,6 +26,7 @@ help:
 	@echo "  make test-all   # fast + inference (PR tier): pytest -m 'not slow'"
 	@echo "  make test-full  # entire suite incl. slow/nightly tier"
 	@echo "  make docs       # rebuild HTML docs from scratch (clean + html)"
+	@echo "  make notebooks  # execute the User Guide sources, merge the pages and write their outputs"
 	@echo "  make clean      # remove the built docs"
 	@echo "  (all test targets run with xdist: XDIST='$(XDIST)'; set XDIST= to disable)"
 
@@ -44,6 +46,11 @@ docs:
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	@echo "Docs built -> docs/_build/html/index.html"
+
+# execute the User Guide sources in their conda env, as many notebooks at a time as there are cores, merge the pages and
+# write their displayed outputs to docs/outputs
+notebooks:
+	snakemake -s snakemake/Snakefile --use-conda --cores all --scheduler greedy doc_pages
 
 clean:
 	$(MAKE) -C docs clean

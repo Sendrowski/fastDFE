@@ -1,0 +1,6 @@
+BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
+WARNING:Optimization: The MLE estimate is close to the upper bound for {all.S_b: (0.0001, 100, 100)} and lower bound for {all.p_b: (0, 0.0043298919, 0.5)} [(lower, value, upper)], but this might be nothing to worry about.
+BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
+WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.p_b: (0, 0, 0.5)} [(lower, value, upper)], but this might be nothing to worry about.
+BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
+BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]

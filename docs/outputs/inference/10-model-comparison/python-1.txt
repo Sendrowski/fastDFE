@@ -1,0 +1,1 @@
+INFO:JointInference: Simple model likelihood: -79.46473650022295, Complex model likelihood: -79.24744560939877, Total degrees of freedom: 1, Parameters at boundary: 0.

@@ -1,0 +1,41 @@
+INFO:JointInference: No divergence counts provided, inferring from polymorphism only.
+INFO:JointInference: Using shared parameters [SharedParams(params=['S_d'], types=['pendula', 'pubescens'])].
+INFO:JointInference: Including covariates: {}.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:JointInference: Running marginal inference for type 'all'.
+INFO:Discretization: Precomputing semidominant DFE-SFS transformation using midpoint integration.
+Discretization>Precomputing: 100%|██████████| 9/9 [--:--<--:--, --it/s]
+INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
+BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
+WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
+INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 0, all.b: 0.1066 ± 2.1e-09, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -45.09 ± 5.3e-12} (best_run ± std_across_runs)
+INFO:JointInference: Running marginal inferences for types ['pendula', 'pubescens'].
+INFO:JointInference: Running marginal inference for type 'pendula'.
+INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
+BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
+INFO:BaseInference: Inference results: {all.S_d: -3.389e+04 ± 3.2, all.b: 0.1305 ± 1.3e-06, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -35.44 ± 2.8e-09} (best_run ± std_across_runs)
+INFO:JointInference: Running marginal inference for type 'pubescens'.
+INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
+BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
+WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
+INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 0, all.b: 0.1035 ± 1.6e-09, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -43.81 ± 4.5e-12} (best_run ± std_across_runs)
+INFO:JointInference: Running joint inference for types ['pendula', 'pubescens'].
+INFO:Optimization: Optimizing 3 parameters: [pendula.b, pubescens.b, pendula:pubescens.S_d].
+JointInference>Performing joint inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
+WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {pendula:pubescens.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
+INFO:JointInference: Inference results: {pendula.b: 0.1168 ± 5.6e-09, pendula.p_b: 0 ± 0, pendula.S_b: 1 ± 0, pendula.eps: 0 ± 0, pendula.h: 0.5 ± 0, pubescens.b: 0.1035 ± 7.5e-09, pubescens.p_b: 0 ± 0, pubescens.S_b: 1 ± 0, pubescens.eps: 0 ± 0, pubescens.h: 0.5 ± 0, pendula:pubescens.S_d: -1e+05 ± 0, likelihood: -79.46 ± 7.7e-11} (best_run ± std_across_runs)
+INFO:JointInference: Bootstrapping type 'all'.
+BaseInference>Bootstrapping 'all' (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
+INFO:BaseInference: Bootstrap summary: {all.S_d: -7.935e+04 ± 3e+04, all.b: 0.1105 ± 0.0073, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -53.76 ± 5.9, i_best_run: 0.53 ± 0.5, likelihoods_std: 3.636 ± 21} (mean ± std)
+INFO:JointInference: Bootstrapping type 'pendula'.
+BaseInference>Bootstrapping 'pendula' (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
+INFO:BaseInference: Bootstrap summary: {all.S_d: -5.021e+04 ± 4.1e+04, all.b: 0.1354 ± 0.021, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -42.74 ± 4.9, i_best_run: 0.46 ± 0.5, likelihoods_std: 0.2563 ± 2.3} (mean ± std)
+INFO:JointInference: Bootstrapping type 'pubescens'.
+BaseInference>Bootstrapping 'pubescens' (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
+INFO:BaseInference: Bootstrap summary: {all.S_d: -9.105e+04 ± 2.1e+04, all.b: 0.1048 ± 0.005, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -52.64 ± 6.7, i_best_run: 0.4 ± 0.49, likelihoods_std: 0.6082 ± 6} (mean ± std)
+JointInference>Bootstrapping joint inference (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
+INFO:JointInference: Bootstrap summary: {pendula.b: 0.1213 ± 0.0088, pendula.p_b: 0 ± 0, pendula.S_b: 1 ± 0, pendula.eps: 0 ± 0, pendula.h: 0.5 ± 0, pendula.S_d: -8.33e+04 ± 2.9e+04, pubescens.b: 0.1068 ± 0.007, pubescens.p_b: 0 ± 0, pubescens.S_b: 1 ± 0, pubescens.eps: 0 ± 0, pubescens.h: 0.5 ± 0, pubescens.S_d: -8.33e+04 ± 2.9e+04, likelihood: -96.19 ± 9.6, i_best_run: 0.59 ± 0.49, likelihoods_std: 0.01092 ± 0.078} (mean ± std)

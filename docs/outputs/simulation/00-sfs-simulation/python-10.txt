@@ -1,0 +1,8 @@
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:Discretization: Precomputing DFE-SFS transformation across dominance coefficients (grid size: 21).
+Discretization>Precomputing: 100%|██████████| 8379/8379 [--:--<--:--, --it/s]
+INFO:Optimization: Optimizing 3 parameters: [all.S_d, all.b, all.h].
+BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
+INFO:BaseInference: Inference results: {all.S_d: -298.5 ± 0.024, all.b: 0.3005 ± 3.2e-06, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.3015 ± 1.9e-05, likelihood: -70.56 ± 2e-08} (best_run ± std_across_runs)
+BaseInference>Bootstrapping (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
+INFO:BaseInference: Bootstrap summary: {all.S_d: -2626 ± 1e+04, all.b: 0.2849 ± 0.045, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.2804 ± 0.19, likelihood: -79.97 ± 3.2, i_best_run: 0.55 ± 0.5, likelihoods_std: 1.274 ± 12} (mean ± std)

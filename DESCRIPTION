@@ -8,11 +8,9 @@ License: file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Imports:
-    RColorBrewer,
     scales,
     cowplot,
     ggplot2,
-    pheatmap,
     reticulate (>= 1.41.0),
     grDevices
 Suggests:

@@ -1,0 +1,9 @@
+INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
+INFO:Discretization: Precomputing semidominant DFE-SFS transformation using midpoint integration.
+Discretization>Precomputing: 100%|██████████| 9/9 [--:--<--:--, --it/s]
+INFO:Optimization: Optimizing 4 parameters: [all.S_d, all.b, all.p_b, all.S_b].
+BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
+WARNING:Optimization: The MLE estimate is close to the upper bound for {all.S_b: (0.0001, 100, 100)} and lower bound for {all.p_b: (0, 0.0043678413, 0.5)} [(lower, value, upper)], but this might be nothing to worry about.
+INFO:BaseInference: Inference results: {all.S_d: -9823 ± 4.3e+03, all.b: 0.1549 ± 0.13, all.p_b: 0.004368 ± 0.091, all.S_b: 100 ± 52, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -34.73 ± 0.24} (best_run ± std_across_runs)
+BaseInference>Bootstrapping (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
+INFO:BaseInference: Bootstrap summary: {all.S_d: -2.365e+04 ± 3.6e+04, all.b: 0.6986 ± 2, all.p_b: 0.05515 ± 0.079, all.S_b: 52.34 ± 49, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -40.62 ± 4.5, i_best_run: 0.41 ± 0.49, likelihoods_std: 0.3548 ± 0.64} (mean ± std)

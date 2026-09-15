@@ -132,6 +132,7 @@ wildcard_constraints:
     n=r'\d+',
     i=r'\d+',
     folded='folded|unfolded',
+    page=r'[^/.]+',
 
 hominidae = [
     'bonobo',
@@ -2079,3 +2080,119 @@ rule compare_speed_parallelization:
         "envs/base.yaml"
     script:
         "scripts/compare_speed_parallelization.py"
+
+from pathlib import Path
+
+# User Guide pages, each written as one source (docs/source/{page}.md) holding the prose and the code of both languages
+doc_pages = [p.stem for p in Path("docs/source").glob("*.md")]
+
+# resolution of the User Guide figures in dots per inch
+DOCS_FIGURE_DPI = 300
+
+# split a User Guide source into its Python and R notebooks
+rule split_page:
+    input:
+        "docs/source/{page}.md"
+    output:
+        python="results/docs/Python/{page}.ipynb",
+        r="results/docs/R/{page}.ipynb"
+    params:
+        dpi=DOCS_FIGURE_DPI
+    conda:
+        "envs/docs.yaml"
+    script:
+        "../docs/split_page.py"
+
+# install the repository's Python package with the VCF backend into the User Guide env in editable mode
+rule install_python_package:
+    input:
+        "pyproject.toml",
+        [str(p) for p in Path("fastdfe").rglob("*.py")]
+    output:
+        touch("results/docs/Python/fastdfe.installed")
+    conda:
+        "envs/docs.yaml"
+    shell:
+        "python -m pip install -e '.[vcf]' > /dev/null"
+
+# install the repository's R package into the User Guide env and register its R kernel inside that env
+rule install_r_package:
+    input:
+        "DESCRIPTION",
+        "NAMESPACE",
+        [str(p) for p in Path("R").glob("*.R")]
+    output:
+        touch("results/docs/R/fastdfe.installed")
+    conda:
+        "envs/docs.yaml"
+    shell:
+        """
+        R CMD INSTALL --no-docs . > /dev/null
+        Rscript -e 'IRkernel::installspec(name = "ir-fastdfe", displayname = "R (fastdfe)", user = FALSE,
+                                          prefix = Sys.getenv("CONDA_PREFIX"))'
+        """
+
+# execute the Python notebook of a page, collapsing the stored stream frames
+rule execute_python_page:
+    input:
+        notebook="results/docs/Python/{page}.ipynb",
+        python_installed="results/docs/Python/fastdfe.installed"
+    output:
+        "results/docs/Python/{page}.executed.ipynb"
+    conda:
+        "envs/docs.yaml"
+    shell:
+        """
+        jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 \
+            --output {wildcards.page}.executed.ipynb {input.notebook}
+        python docs/coalesce_streams.py {output}
+        """
+
+# execute the R notebook of a page on the Python interpreter of the same env, collapsing the stored stream frames
+rule execute_r_page:
+    input:
+        notebook="results/docs/R/{page}.ipynb",
+        python_installed="results/docs/Python/fastdfe.installed",
+        r_installed="results/docs/R/fastdfe.installed"
+    output:
+        "results/docs/R/{page}.executed.ipynb"
+    conda:
+        "envs/docs.yaml"
+    shell:
+        """
+        export RETICULATE_PYTHON="$CONDA_PREFIX/bin/python"
+        jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 \
+            --output {wildcards.page}.executed.ipynb {input.notebook}
+        python docs/coalesce_streams.py {output}
+        """
+
+# merge the executed Python and R notebooks of a page into the User Guide page with language tabs
+rule merge_page:
+    input:
+        python="results/docs/Python/{page}.executed.ipynb",
+        r="results/docs/R/{page}.executed.ipynb"
+    output:
+        "docs/reference/{page}.ipynb"
+    params:
+        dpi=DOCS_FIGURE_DPI
+    conda:
+        "envs/docs.yaml"
+    script:
+        "../docs/merge_notebooks.py"
+
+# write the outputs displayed from the executed notebook of a page in one language to docs/outputs/{page}
+rule extract_page_outputs:
+    input:
+        "results/docs/{language}/{page}.executed.ipynb"
+    output:
+        touch("results/docs/{language}/{page}.outputs.written")
+    conda:
+        "envs/docs.yaml"
+    script:
+        "../docs/extract_outputs.py"
+
+# build all User Guide pages from their sources and write their outputs
+rule doc_pages:
+    input:
+        expand("docs/reference/{page}.ipynb", page=doc_pages),
+        expand("results/docs/{language}/{page}.outputs.written", language=["Python", "R"], page=doc_pages)
