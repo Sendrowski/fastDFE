@@ -2103,18 +2103,6 @@ rule split_page:
     script:
         "../docs/split_page.py"
 
-# install the repository's Python package with the VCF backend into the User Guide env in editable mode
-rule install_python_package:
-    input:
-        "pyproject.toml",
-        [str(p) for p in Path("fastdfe").rglob("*.py")]
-    output:
-        touch("results/docs/Python/fastdfe.installed")
-    conda:
-        "envs/docs.yaml"
-    shell:
-        "python -m pip install -e '.[vcf]' > /dev/null"
-
 # install the repository's R package into the User Guide env and register its R kernel inside that env
 rule install_r_package:
     input:
@@ -2136,7 +2124,6 @@ rule install_r_package:
 rule execute_python_page:
     input:
         notebook="results/docs/Python/{page}.ipynb",
-        python_installed="results/docs/Python/fastdfe.installed"
     output:
         "results/docs/Python/{page}.executed.ipynb"
     conda:
@@ -2152,7 +2139,6 @@ rule execute_python_page:
 rule execute_r_page:
     input:
         notebook="results/docs/R/{page}.ipynb",
-        python_installed="results/docs/Python/fastdfe.installed",
         r_installed="results/docs/R/fastdfe.installed"
     output:
         "results/docs/R/{page}.executed.ipynb"

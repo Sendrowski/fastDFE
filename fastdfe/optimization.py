@@ -1221,9 +1221,11 @@ class Optimization:
 
         :param bounds: Tuple of lower and upper bounds
         :param scale: Scaling of the parameter.
-        :param random_state: Random state or seed
+        :param random_state: Random generator or seed
         :return: Sampled value
         """
+        if not isinstance(random_state, Generator):
+            random_state = np.random.default_rng(random_state)
 
         def flip(bounds: Tuple[float, float]) -> Tuple[float, float]:
             """
@@ -1234,7 +1236,7 @@ class Optimization:
             """
             return -bounds[1], -bounds[0]
 
-        def symlog_rvs(lower: float, upper: float, random_state: int | Generator = None) -> float:
+        def symlog_rvs(lower: float, upper: float, random_state: Generator) -> float:
             """
             Sample from a symmetric log-uniform distribution.
 
@@ -1246,7 +1248,7 @@ class Optimization:
             val = loguniform.rvs(lower, upper, random_state=random_state)
 
             # flip sign with 50% probability
-            return val if uniform.rvs() < 0.5 else -val
+            return val if uniform.rvs(random_state=random_state) < 0.5 else -val
 
         # dictionary of scaling functions
         scaling_functions = {

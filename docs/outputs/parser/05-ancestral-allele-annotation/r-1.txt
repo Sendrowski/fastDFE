@@ -1,17 +1,7 @@
-INFO:Annotator: Start annotating
-INFO:Annotator: Loading VCF file
-INFO:FileHandler: Using cached file at <tmp>/a3b0e449a317.all.with_outgroups.subset.10000.vcf.gz
-INFO:Annotator: Loading VCF file
-INFO:FileHandler: Using cached file at <tmp>/a3b0e449a317.all.with_outgroups.subset.10000.vcf.gz
-INFO:MaximumLikelihoodAncestralAnnotation: Subsampling 10 ingroup haplotypes probabilistically from 378 individuals in total.
-INFO:MaximumLikelihoodAncestralAnnotation: Using 1 outgroup samples (ERR2103730).
-INFO:FileHandler: Using cached file at <tmp>/a3b0e449a317.all.with_outgroups.subset.10000.vcf.gz
-Annotator>Counting sites: 10000it [--:--, --it/s]
-MaximumLikelihoodAncestralAnnotation>Parsing sites: 100%|██████████| 10000/10000 [--:--<--:--, --it/s]
-INFO:MaximumLikelihoodAncestralAnnotation: Included 6689 sites for the inference (1027 polymorphic, 5662 monomorphic).
-WARNING:MaximumLikelihoodAncestralAnnotation: The number of monomorphic sites is unusually low. Please note that including monomorphic sites is necessary to obtain realistic branch rate estimates.
-WARNING:MaximumLikelihoodAncestralAnnotation: If your dataset does not contain any monomorphic sites, consider using the `n_target_sites` argument.
-MaximumLikelihoodAncestralAnnotation>Optimizing rates: 100%|██████████| 10/10 [--:--<--:--, --it/s]
-Annotator>Processing sites: 100%|██████████| 10000/10000 [--:--<--:--, --it/s]
-INFO:MaximumLikelihoodAncestralAnnotation: Annotated 10000 sites.
-INFO:MaximumLikelihoodAncestralAnnotation: There were 195 mismatches between the most likely ancestral allele and the ad-hoc ancestral allele annotation.
+INFO:ancestree.CyVCF2Source: Reading variants from https://github.com/Sendrowski/fastDFE/blob/dev/resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz?raw=true (758 haplotype samples)
+WARNING:ancestree.CyVCF2Source: Unphased heterozygous calls are present, so each one's alleles are assigned to haplotypes at random per site (phase_seed=0). Reading the written order instead would make the first haplotype the reference carrier throughout, which the genealogy estimators read as a clade. Phase the data to recover the linkage, or pass phased=True to take the file's order as given.
+INFO:ancestree.LocalTreeInference: Inferring local trees from genotypes (42 samples, window=8snp)
+LocalTreeInference: 1 segments [--:--, --segments/s]
+WARNING:ancestree.LocalTreeInference: 9808 site(s) are monomorphic within the ingroup and were reported at the ingroup MRCA, where the ingroup's own allele is the answer.
+INFO:ancestree.LocalTreeInference: Focal node: reported at the ingroup_mrca
+INFO:ancestree.VCFWriter: Wrote 9,975 annotated sites to genome.aa.vcf.gz

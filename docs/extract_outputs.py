@@ -34,8 +34,10 @@ ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
 # elapsed time, and remaining time where the total is known, of a progress bar
 PROGRESS_TIME = re.compile(r"(?<=\[)\d+(?::\d+)+(?:<(?:\d+(?::\d+)+|\?))?(?=,)")
 
-# rate of a progress bar, with the spaces it is padded with
-PROGRESS_RATE = re.compile(r"[ \t]*[\d.?]+(?= ?(?:it/s|s/it)\b)")
+# rate of a progress bar, with the spaces it is padded with. tqdm writes <unit>/s above one iteration
+# per second and s/<unit> below, so the direction depends on how fast the run happened to be. The
+# unit names what the bar counts and is kept
+PROGRESS_RATE = re.compile(r"[ \t]*[\d.?]+ ?(?:([a-z]+)/s|s/ ?([a-z]+))\b")
 
 # temporary directory of this machine, which executes the notebooks, and names of temporary files created in it
 TEMP_DIR = re.compile(re.escape(tempfile.gettempdir()))
@@ -78,7 +80,7 @@ def output_file(data: dict) -> tuple[str, bytes]:
     text = TEMP_FILE.sub("tmp--------", TEMP_DIR.sub("<tmp>", text))
     text = PROGRESS_TIME.sub(lambda m: re.sub(r"[\d?]+", "--", m[0]), text)
 
-    text = PROGRESS_RATE.sub(" --", text)
+    text = PROGRESS_RATE.sub(lambda m: f" --{m[1] or m[2]}/s", text)
 
     # a stream ends with a line break or not depending on when it was flushed
     return "txt", (text.rstrip("\n") + "\n").encode()

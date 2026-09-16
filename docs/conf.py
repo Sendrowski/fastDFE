@@ -54,6 +54,7 @@ suppress_warnings = [
 # autodoc'd signatures against their published documentation.
 intersphinx_mapping = {
     'sfsutils': ('https://sfsutils.readthedocs.io/en/latest/', None),
+    'ancestree': ('https://ancestree.readthedocs.io/en/latest', None),
     'python': ('https://docs.python.org/3', None),
     'numpy': ('https://numpy.org/doc/stable/', None),
     'pandas': ('https://pandas.pydata.org/docs/', None),

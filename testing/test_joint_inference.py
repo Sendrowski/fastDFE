@@ -1,3 +1,10 @@
+import json
+import os
+import subprocess
+import sys
+import textwrap
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -993,3 +1000,110 @@ class FastJointInferenceTestCase(TestCase):
             self.assertEqual(0, inf.fixed_params[t]['eps'])
             self.assertEqual(0, inf.marginal_inferences[t].fixed_params['all']['eps'])
             self.assertEqual(0, inf.joint_inferences[t].fixed_params['all']['eps'])
+
+    #: Script running a seeded covariate joint inference and printing its run table, bootstraps and MLE
+    covariate_script = textwrap.dedent("""
+        import json
+        import fastdfe as fd
+
+        fd.Settings.parallelize = False
+        fd.Settings.disable_pbar = True
+
+        sfs_neut = [177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]
+        sfs_sel = [797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]
+
+        inf = fd.JointInference(
+            sfs_neut=fd.Spectra(dict(a=sfs_neut, b=sfs_neut)),
+            sfs_sel=fd.Spectra(dict(a=sfs_sel, b=sfs_sel)),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6))],
+            n_runs=4,
+            n_bootstraps=2,
+            parallelize=False
+        )
+        inf.run()
+
+        print(json.dumps(dict(
+            runs=inf.runs.drop(columns='result').to_csv(),
+            bootstraps=inf.bootstraps.to_csv(),
+            params_mle=repr(inf.params_mle)
+        )))
+    """)
+
+    def test_covariate_inference_independent_of_global_numpy_rng(self):
+        """
+        Regression: a seeded covariate joint inference must not depend on the global numpy RNG state.
+        ``Optimization.sample_value`` drew the sign of a ``symlog``-scaled parameter, which covariates are by
+        default, via ``uniform.rvs()`` without a random state, i.e. from the unseeded global numpy RNG. The
+        best run was unaffected, but the initial values of the other runs, the std across runs and the
+        bootstrap replicates changed between otherwise identical sessions.
+        """
+        results = []
+
+        for global_seed in (0, 1):
+            np.random.seed(global_seed)
+
+            inf = self._make(
+                covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6))],
+                n_runs=4,
+                do_bootstrap=True,
+                n_bootstraps=2
+            )
+            inf.run()
+            results.append(inf)
+
+        assert_frame_equal(results[0].runs, results[1].runs)
+        assert_frame_equal(results[0].bootstraps, results[1].bootstraps)
+        self.assertEqual(results[0].params_mle, results[1].params_mle)
+
+    @pytest.mark.inference
+    def test_covariate_inference_identical_across_processes(self):
+        """
+        Regression: a seeded covariate joint inference must give identical run tables, bootstrap replicates
+        and MLE parameters in fresh processes with different ``PYTHONHASHSEED`` values. Each fresh process
+        starts the global numpy RNG from OS entropy, and set iteration over strings follows the hash seed,
+        so either source leaking into initial values or parameter packing makes regenerated outputs differ.
+        """
+        outputs = []
+
+        for hash_seed in ('0', '1'):
+            result = subprocess.run(
+                [sys.executable, '-c', self.covariate_script],
+                cwd=Path(__file__).parents[1],
+                env=os.environ | dict(PYTHONHASHSEED=hash_seed, MPLBACKEND='Agg'),
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            outputs.append(json.loads(result.stdout.strip().splitlines()[-1]))
+
+        self.assertEqual(outputs[0], outputs[1])
+
+    @pytest.mark.inference
+    def test_hatch_styles_identical_across_hash_seeds(self):
+        """
+        Regression: ``Visualization.get_hatch`` indexed hatch styles by the position of a label prefix in a
+        set of prefixes, so whether the marginal or the joint bars were drawn with ``/`` or ``\\`` depended
+        on ``PYTHONHASHSEED`` and plots of joint inferences differed between otherwise identical sessions.
+        """
+        script = (
+            "from fastdfe.visualization import Visualization\n"
+            "labels = ['marginal.all', 'marginal.a', 'marginal.b', 'joint.a', 'joint.b', 'other.a']\n"
+            "print([Visualization.get_hatch(i, labels) for i in range(len(labels))])\n"
+        )
+
+        outputs = set()
+
+        for hash_seed in ('0', '1', '2', '3'):
+            result = subprocess.run(
+                [sys.executable, '-c', script],
+                cwd=Path(__file__).parents[1],
+                env=os.environ | dict(PYTHONHASHSEED=hash_seed, MPLBACKEND='Agg'),
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            outputs.add(result.stdout.strip().splitlines()[-1])
+
+        self.assertEqual(1, len(outputs))

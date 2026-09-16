@@ -554,12 +554,12 @@ class Visualization:
         if labels is None or len(labels) < 1 or '.' not in labels[i]:
             return
 
-        # determine unique prefixes
-        prefixes = set([label.split('.')[0] for label in labels if '.' in label])
+        # unique prefixes in order of first appearance
+        prefixes = list(dict.fromkeys(label.split('.')[0] for label in labels if '.' in label))
         hatch_styles = ['/////', '\\\\\\\\\\', '***', 'ooo', 'xxx', '...']
 
         prefix = labels[i].split('.')[0]
-        prefix_index = list(prefixes).index(prefix)
+        prefix_index = prefixes.index(prefix)
 
         return hatch_styles[prefix_index % len(hatch_styles)]
 
