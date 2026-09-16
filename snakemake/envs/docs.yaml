@@ -15,3 +15,5 @@ dependencies:
   - pip
   - pip:
       - -e ../..[vcf]
+      # PyPI-only, absent from conda-forge
+      - sphinx-paramlinks>=0.6

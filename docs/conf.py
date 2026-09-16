@@ -27,6 +27,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx_autodoc_typehints',
     'sphinx_copybutton',
+    'sphinx_paramlinks',  # anchors on :param: entries, so arguments are linkable
     'autodocsumm',  # per-class method-summary table at the top of each class
     'myst_nb',
     'sphinx_design',
