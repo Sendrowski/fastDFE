@@ -27,7 +27,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from notebook_outputs import displayed_outputs, tags
+from notebook_outputs import displayed_outputs, mask_text, tags
 
 ROOT = Path(__file__).parent.parent
 
@@ -115,6 +115,10 @@ def carrier_outputs(cell: dict, key_prefix: str, dpi: int) -> tuple[list, list]:
     for data, metadata in displayed_outputs(cell):
         # the PDF rendering of a figure is written to docs/outputs only
         data = {k: v for k, v in data.items() if k != "application/pdf"}
+
+        # the carrier is committed with the page, so the timings of this run must not reach it
+        if "text/plain" in data:
+            data = dict(data, **{"text/plain": mask_text("".join(data["text/plain"]))})
 
         key = f"{key_prefix}-{len(keys)}"
         keys.append(key)

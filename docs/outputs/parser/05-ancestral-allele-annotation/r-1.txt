@@ -1,7 +1,0 @@
-INFO:ancestree.CyVCF2Source: Reading variants from https://github.com/Sendrowski/fastDFE/blob/dev/resources/genome/betula/all.with_outgroups.subset.10000.vcf.gz?raw=true (758 haplotype samples)
-WARNING:ancestree.CyVCF2Source: Unphased heterozygous calls are present, so each one's alleles are assigned to haplotypes at random per site (phase_seed=0). Reading the written order instead would make the first haplotype the reference carrier throughout, which the genealogy estimators read as a clade. Phase the data to recover the linkage, or pass phased=True to take the file's order as given.
-INFO:ancestree.LocalTreeInference: Inferring local trees from genotypes (42 samples, window=8snp)
-LocalTreeInference: 1 segments [--:--, --segments/s]
-WARNING:ancestree.LocalTreeInference: 9808 site(s) are monomorphic within the ingroup and were reported at the ingroup MRCA, where the ingroup's own allele is the answer.
-INFO:ancestree.LocalTreeInference: Focal node: reported at the ingroup_mrca
-INFO:ancestree.VCFWriter: Wrote 9,975 annotated sites to genome.aa.vcf.gz

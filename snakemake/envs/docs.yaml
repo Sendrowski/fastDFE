@@ -15,5 +15,3 @@ dependencies:
   - pip
   - pip:
       - -e ../..[vcf]
-      # the inference behind the ancestral allele example in the User Guide
-      - ancestree-popgen[vcf]
