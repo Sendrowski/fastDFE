@@ -612,7 +612,7 @@ The test is not significant, indicating that the simpler model of sharing the pa
 parser = fd.Parser(
     n=10,
     source="https://github.com/Sendrowski/fastDFE/"
-           "blob/dev/resources/genome/betula/"
+           "blob/master/resources/genome/betula/"
            "all.polarized.deg.subset.200000.vcf.gz?raw=true",
     stratifications=[fd.DegeneracyStratification(), fd.AncestralBaseStratification()]
 )
@@ -627,7 +627,7 @@ parser <- fd$Parser(
   n = 10,
   source = paste0(
     "https://github.com/Sendrowski/fastDFE/",
-    "blob/dev/resources/genome/betula/",
+    "blob/master/resources/genome/betula/",
     "all.polarized.deg.subset.200000.vcf.gz?raw=true"
   ),
   stratifications = list(fd$DegeneracyStratification(), fd$AncestralBaseStratification())
