@@ -23,3 +23,21 @@ preferred-citation:
   start: msae070
   issn: 1537-1719
   doi: 10.1093/molbev/msae070
+references:
+  - type: article
+    title: "Comparison of the Distribution of Fitness Effects Across Primates"
+    authors:
+      - family-names: Sendrowski
+        given-names: Janek
+      - family-names: Pedersen
+        given-names: Bjarke M.
+      - family-names: Bergman
+        given-names: Juraj
+      - family-names: Pankratov
+        given-names: Vasili
+      - family-names: Bataillon
+        given-names: Thomas
+    journal: Genetics
+    year: 2026
+    start: iyag252
+    doi: 10.1093/genetics/iyag252

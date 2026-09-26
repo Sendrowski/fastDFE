@@ -7,6 +7,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Downloads](https://static.pepy.tech/badge/fastdfe)](https://pepy.tech/project/fastdfe)
 [![DOI](https://img.shields.io/badge/DOI-10.1093/molbev/msae070-blue)](https://doi.org/10.1093/molbev/msae070)
+[![DOI](https://img.shields.io/badge/DOI-10.1093/genetics/iyag252-blue)](https://doi.org/10.1093/genetics/iyag252)
 
 ``fastdfe`` is a package for fast, flexible, and hierarchical inference of the distribution of fitness effects (DFE) from site frequency spectra (SFS).
 

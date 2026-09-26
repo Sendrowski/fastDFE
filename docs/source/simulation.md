@@ -102,7 +102,7 @@ stopifnot(abs(inf$params_mle$S_d / -300 - 1) < 0.01, abs(inf$params_mle$b / 0.3 
 ```
 
 +++
-The DFE is recovered closely, which is expected given the simplicity of the DFE parametrization and the lack of demographic complications.
+The DFE is recovered closely, which is expected given the simplicity of the DFE parametrization and the lack of demographic complications. The accuracy of ``fastdfe`` under more realistic conditions, including strong demographic distortions, population substructure, background selection, dominance and small sample sizes, is assessed with ``SLiM`` forward simulations in Appendix C of {cite}`primatedfe`.
 
 +++
 We may want to see how the expected SFS changes as we vary the degree of dominance. Here, we run a second simulation with the same parameters except that we set `h=0.3` so that mutations are partially recessive.

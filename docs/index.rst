@@ -4,7 +4,7 @@ Introduction
 ============
 ``fastdfe`` is a software package designed for estimating the distribution of fitness effects (DFE) from site-frequency spectra (SFS). Building upon the foundation laid by ``polydfe`` :cite:`polydfe`, ``fastdfe`` addresses the limitations of its predecessor by providing a faster, more flexible, and user-friendly approach to DFE inference.
 
-``fastdfe`` is implemented in Python but also offers compatibility with R through the reticulate package, ensuring a smooth integration with existing workflows. In the R wrapper, visualizations have been reimplemented for a consistent user experience. The package is thoroughly documented and tested against ``polydfe`` and ``SLiM``.
+``fastdfe`` is implemented in Python but also offers compatibility with R through the reticulate package, ensuring a smooth integration with existing workflows. In the R wrapper, visualizations have been reimplemented for a consistent user experience. The package is thoroughly documented and tested against ``polydfe`` and ``SLiM``. Additional validation with ``SLiM`` forward simulations under strong demographic distortions, population substructure, background selection, dominance and small sample sizes is presented in Appendix C of :cite:`primatedfe`.
 
 Motivation
 ----------
