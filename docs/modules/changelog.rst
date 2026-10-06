@@ -5,7 +5,7 @@ Changelog
 
 [1.4.1] - 2026-07-24
 ^^^^^^^^^^^^^^^^^^^^
-- Fixed :mod:`sfsutils` being declared only under the ``vcf`` extra in 1.4.0, which left a plain ``pip install fastdfe`` unimportable. It is now an unconditional dependency, and the ``vcf`` extra requires :mod:`cyvcf2 <cyvcf2.cyvcf2>` directly.
+- Fixed :mod:`sfsutils` being declared only under the ``vcf`` extra in 1.4.0, which left a plain ``pip install fastdfe`` unimportable. It is now an unconditional dependency, and the ``vcf`` extra requires ``cyvcf2`` directly.
 - Exposed the remaining :mod:`sfsutils` input backends as extras of the same names: ``zarr`` (:mod:`zarr`, for VCF-Zarr stores) and ``arg`` (:mod:`tskit`, for tree sequences).
 - Dropped the direct dependencies on ``biopython`` and ``requests``, which are no longer used by ``fastdfe`` itself and are installed with :mod:`sfsutils`.
 
@@ -28,7 +28,7 @@ Changelog
 
 [1.3.0] - 2026-06-16
 ^^^^^^^^^^^^^^^^^^^^
-- Added support for divergence counts in DFE inference (opt-in via :attr:`BaseInference.include_divergence <fastdfe.base_inference.BaseInference.include_divergence>`), yielding a McDonald–Kreitman-style :meth:`BaseInference.get_alpha() <fastdfe.base_inference.BaseInference.get_alpha>` anchored to observed between-species divergence.
+- Added support for divergence counts in DFE inference (divergence enters the likelihood when ``n_sites_div_neut`` and ``n_sites_div_sel`` are passed, see :attr:`BaseInference.include_divergence <fastdfe.base_inference.BaseInference.include_divergence>`), yielding a McDonald–Kreitman-style :meth:`BaseInference.get_alpha() <fastdfe.base_inference.BaseInference.get_alpha>` anchored to observed between-species divergence.
 - Added :meth:`BaseInference.get_omega() <fastdfe.base_inference.BaseInference.get_omega>` (the rate of non-synonymous over synonymous substitutions, dN/dS) and its adaptive component :meth:`BaseInference.get_omega_a() <fastdfe.base_inference.BaseInference.get_omega_a>`, which can also be estimated from divergence counts when available.
 - Also added divergence counts to the :class:`~fastdfe.simulation.Simulation` class.
 - Added :class:`~sfsutils.filtration.CpGFiltration` to exclude hypermutable sites in a CpG dinucleotide context (requires a FASTA reference).
@@ -115,7 +115,7 @@ Changelog
 [1.1.2] - 2023-11-27
 ^^^^^^^^^^^^^^^^^^^^
 - Improved bootstrapping
-- Set ``allow_divergence`` flag to false by default which as it has the potential to bias the SFS
+- Set ``allow_divergence`` flag to false by default as it has the potential to bias the SFS
 
 [1.1.1] - 2023-11-21
 ^^^^^^^^^^^^^^^^^^^^

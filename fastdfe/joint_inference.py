@@ -144,7 +144,8 @@ class JointInference(BaseInference):
             ``scipy.integrate.quad`` in each call. ``False`` not recommended.
         :param model: DFE parametrization
         :param seed: Random seed. Use ``None`` for no seed.
-        :param x0: Dictionary of initial values in the form ``{type: {param: value}}``
+        :param x0: Dictionary of initial values in the form ``{'all': {param: value}}``, used for the marginal
+            inferences. The joint inference starts from the marginal estimates.
         :param bounds: Bounds for the optimization in the form ``{param: (lower, upper)}``
         :param scales: Scales for the optimization in the form ``{param: scale}``
         :param loss_type: Loss type
@@ -157,6 +158,7 @@ class JointInference(BaseInference):
             By default, the ancestral misidentification rate ``eps`` is fixed to zero, ``h`` to 0.5, and the DFE
             parameters are fixed so that only the deleterious component of the DFE is estimated.
         :param shared_params: List of shared parameters
+        :param covariates: List of covariates. Parameters with a covariate are shared across all types.
         :param do_bootstrap: Whether to perform bootstrapping
         :param n_bootstraps: Number of bootstraps
         :param n_bootstrap_retries: Number of optimization runs for each bootstrap sample. This parameter previously
@@ -167,7 +169,7 @@ class JointInference(BaseInference):
             SFS appear to be folded.
         :param discretization: Discretization instance. Mainly intended for internal use.
         :param optimization: Optimization instance. Mainly intended for internal use.
-        :param locked: Whether inferences can be run from the class itself. Used internally.
+        :param locked: Whether running the inference from this object is disallowed. Used internally.
         :param kwargs: Additional keyword arguments which are ignored.
         """
         if sfs_neut.has_dots() or sfs_sel.has_dots():
@@ -674,6 +676,7 @@ class JointInference(BaseInference):
         """
         Run joint inference without covariates. Note that the result of this function is cached.
 
+        :param do_bootstrap: Whether to bootstrap the inference without covariates.
         :return: Joint inference instance devoid of covariates.
         """
         config = self.create_config()
@@ -739,6 +742,7 @@ class JointInference(BaseInference):
 
         :param do_bootstrap: Whether to bootstrap.
         :return: Likelihood ratio test p-value.
+        :raises ValueError: If no covariates were specified.
         """
         if len(self.covariates) == 0:
             raise ValueError('No covariates were specified.')
@@ -756,8 +760,8 @@ class JointInference(BaseInference):
         """
         Get function which runs a single bootstrap sample.
 
-        :return: Static function which runs a single bootstrap sample, taking an optional seed and returning the
-            optimization result of best run, MLE parameters, the best x0, and its index.
+        :return: Static function which runs a single bootstrap sample, taking a seed and returning, for each of
+            the ``n_bootstrap_retries`` runs, a tuple of optimization result, MLE parameters and initial values.
         """
         optimization = self.optimization
         discretization = self.discretization
@@ -777,11 +781,13 @@ class JointInference(BaseInference):
 
         def run_bootstrap_sample(seed: int) -> Tuple['scipy.optimize.OptimizeResult', dict, dict, int]:
             """
-            Resample the observed selected SFS and rerun the optimization procedure.
-            We take the MLE params as initial params here.
+            Resample the neutral and selected SFS of every type and rerun the optimization procedure.
+            The first run starts at the MLE, subsequent runs start at initial values sampled within
+            the parameter bounds.
             We make this function static to improve performance when parallelizing.
 
-            :return: :return: Optimization result of best run, MLE parameters, and best x0.
+            :param seed: Seed for the random number generator.
+            :return: List of tuples of optimization result, MLE parameters and initial values, one entry per run.
             """
             results = []
             x0 = params_mle_raw
@@ -951,8 +957,8 @@ class JointInference(BaseInference):
         This provides information about the goodness of fit achieved by the parameter sharing.
         Low p-values indicate that parameter sharing is not justified, i.e., that the marginal
         inferences provide a significantly better fit to the data. Note that it is more difficult to properly
-        optimize the joint likelihood, which makes this test conservative, i.e., the reported p-value
-        may be larger than what it should be.
+        optimize the joint likelihood, which inflates the test statistic, i.e., the reported p-value
+        may be smaller than what it should be.
 
         :param do_bootstrap: Whether to perform bootstrapping.
         :return: p-value
@@ -979,9 +985,11 @@ class JointInference(BaseInference):
         Get all inference objects as dictionary.
 
         :param types: Types to include
-        :param labels: Labels for types
+        :param labels: Labels used as keys, one per returned inference, i.e. the marginal inferences
+            including type ``all`` followed by the joint inferences.
         :param show_marginals: Whether to also show marginal inferences
         :return: Dictionary of base inference objects indexed by type and joint vs marginal subtypes
+        :raises ValueError: If the number of labels does not match the number of inferences.
         """
 
         def get(infs: Dict[str, BaseInference], prefix: str) -> Dict[str, BaseInference]:
@@ -1036,7 +1044,8 @@ class JointInference(BaseInference):
         """
         Plot discretized DFE comparing the different types.
 
-        :param labels: Labels for types
+        :param labels: Labels, one per plotted inference, in the order of
+            :meth:`JointInference.get_inferences() <fastdfe.joint_inference.JointInference.get_inferences>`.
         :param title: Title of plot
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
         :param show_marginals: Whether to also show marginal inferences
@@ -1047,7 +1056,8 @@ class JointInference(BaseInference):
         :param file: File to save plot to
         :param show: Whether to show plot
         :param ax: Axes to plot on. Only for Python visualization backend.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python
+            visualization backend.
         :return: Axes object
         """
         labels, inferences = zip(*self.get_inferences(labels=labels, show_marginals=show_marginals).items())
@@ -1074,7 +1084,7 @@ class JointInference(BaseInference):
 
         :param types: Types to plot
         :param file: File to save plot to
-        :param labels: Labels for types.
+        :param labels: Labels, one per plotted spectrum, i.e. one per inference and entry of ``sfs_types``.
         :param colors: Colors for types. Only for Python visualization backend.
         :param sfs_types: Types of SFS to plot
         :param show: Whether to show plot
@@ -1082,7 +1092,8 @@ class JointInference(BaseInference):
         :param title: Plot title
         :param use_subplots: Whether to use subplots. Only for Python visualization backend.
         :param show_monomorphic: Whether to show monomorphic counts
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python
+            visualization backend.
         :return: Axes object
         """
         from .visualization import Visualization
@@ -1145,7 +1156,8 @@ class JointInference(BaseInference):
             ax: 'plt.Axes' = None
     ) -> 'plt.Axes':
         """
-        Plot discretized DFE. The special constants ``np.inf`` and ``-np.inf`` are also valid interval bounds.
+        Plot the continuous DFE of the different types. The special constants ``np.inf`` and ``-np.inf`` are also
+        valid interval bounds.
         By default, the PDF is plotted as is. Due to the logarithmic scale on
         the x-axis, we may get a wrong intuition on how the mass is distributed,
         however. To get a better intuition, we can optionally scale the density
@@ -1155,7 +1167,8 @@ class JointInference(BaseInference):
 
         :param scale_density: Whether to scale the density by the x-axis interval size
         :param scale: y-scale
-        :param labels: Labels for types
+        :param labels: Labels, one per plotted inference, in the order of
+            :meth:`JointInference.get_inferences() <fastdfe.joint_inference.JointInference.get_inferences>`.
         :param title: Title of plot
         :param bootstrap_type: Type of bootstrap
         :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
@@ -1163,7 +1176,8 @@ class JointInference(BaseInference):
         :param file: File to save plot to
         :param show: Whether to show plot
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python
+            visualization backend.
         :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object
         """
@@ -1190,9 +1204,10 @@ class JointInference(BaseInference):
             **kwargs: List[str]
     ) -> 'plt.Axes':
         """
-        Plot discretized DFE comparing the different types.
+        Plot the inferred parameters of the different types.
 
-        :param labels: Labels for types
+        :param labels: Labels, one per plotted inference, in the order of
+            :meth:`JointInference.get_inferences() <fastdfe.joint_inference.JointInference.get_inferences>`.
         :param title: Title of plot
         :param bootstrap_type: Type of bootstrap
         :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
@@ -1201,7 +1216,8 @@ class JointInference(BaseInference):
         :param show: Whether to show plot
         :param ax: Axes to plot on. Only for Python visualization backend.
         :param scale: y-scale
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python
+            visualization backend.
         :return: Axes object
         """
         labels, inferences = zip(*self.get_inferences(labels=labels).items())
@@ -1218,9 +1234,10 @@ class JointInference(BaseInference):
             **kwargs: List[str]
     ) -> 'plt.Axes':
         """
-        Plot discretized DFE comparing the different types.
+        Plot the bootstrap distributions of the inferred parameters of the different types as boxplots.
 
-        :param labels: Labels for types
+        :param labels: Labels, one per plotted inference, in the order of
+            :meth:`JointInference.get_inferences() <fastdfe.joint_inference.JointInference.get_inferences>`.
         :param title: Title of plot
         :param file: File to save plot to
         :param show: Whether to show plot
@@ -1261,6 +1278,7 @@ class JointInference(BaseInference):
         :param ylabel: Y-axis label, defaults to the covariate parameter name.
         :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object.
+        :raises ValueError: If the covariate with the given index does not exist.
         """
         from .visualization import Visualization
 
@@ -1320,7 +1338,8 @@ class JointInference(BaseInference):
         :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
-        :return: Dictionary of array of values and array of errors indexed by inference type
+        :return: Dictionary of values and dictionary of errors, both indexed by inference label
+            (``marginal.<type>`` and ``joint.<type>``).
         """
         return Inference.get_discretized(
             inferences=list(self.get_inferences().values()),
@@ -1353,7 +1372,7 @@ class JointInference(BaseInference):
     @functools.cached_property
     def alpha(self) -> Optional[float]:
         """
-        The is no single alpha for the joint inference. Please refer
+        There is no single alpha for the joint inference. Please refer
         to the ``self.joint_inferences[t].alpha``.
 
         :return: None
@@ -1363,7 +1382,7 @@ class JointInference(BaseInference):
     @functools.cached_property
     def omega(self) -> Optional[float]:
         """
-        The is no single omega for the joint inference. Please refer
+        There is no single omega for the joint inference. Please refer
         to the ``self.joint_inferences[t].omega``.
 
         :return: None
@@ -1373,7 +1392,7 @@ class JointInference(BaseInference):
     @functools.cached_property
     def omega_a(self) -> Optional[float]:
         """
-        The is no single omega_a for the joint inference. Please refer
+        There is no single omega_a for the joint inference. Please refer
         to the ``self.joint_inferences[t].omega_a``.
 
         :return: None
@@ -1419,7 +1438,8 @@ class JointInference(BaseInference):
         Residual of joint inference. We calculate the residual over the jointly inferred SFS for all types.
 
         :param k: Order of the norm
-        :return: L2 residual
+        :return: Norm of order ``k`` of the difference between modelled and observed polymorphic counts,
+            concatenated over types.
         """
         counts_mle = np.array([inf.sfs_mle.polymorphic for inf in self.joint_inferences.values()]).flatten()
         counts_sel = np.array([inf.sfs_sel.polymorphic for inf in self.joint_inferences.values()]).flatten()
@@ -1434,6 +1454,7 @@ class JointInference(BaseInference):
         :param use_divergence: Whether to estimate alpha from observed divergence counts using
             polyDFE's McDonald-Kreitman style estimator, or from the DFE alone. When ``None`` (the
             default), this follows the inference mode. See :meth:`BaseInference.get_alpha`.
+        :return: Dictionary of alpha indexed by type.
         """
         if params is None:
             params = self.params_mle
@@ -1456,6 +1477,7 @@ class JointInference(BaseInference):
         :param use_divergence: Whether to estimate omega from observed divergence counts using
             polyDFE's McDonald-Kreitman style estimator, or from the DFE alone. When ``None`` (the
             default), this follows the inference mode. See :meth:`BaseInference.get_omega`.
+        :return: Dictionary of omega indexed by type.
         """
         if params is None:
             params = self.params_mle
@@ -1479,6 +1501,7 @@ class JointInference(BaseInference):
         :param use_divergence: Whether to estimate omega_a from observed divergence counts using
             polyDFE's McDonald-Kreitman style estimator, or from the DFE alone. When ``None`` (the
             default), this follows the inference mode. See :meth:`BaseInference.get_omega_a`.
+        :return: Dictionary of omega_a indexed by type.
         """
         if params is None:
             params = self.params_mle

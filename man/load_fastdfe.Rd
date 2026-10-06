@@ -16,8 +16,7 @@ This reference can be used to access 'fastdfe' functionalities.
 \description{
 This function imports the Python package 'fastdfe' using the reticulate package
 and then configures it to work seamlessly with R, overriding some of the default
-visualization functions with custom R-based ones. This function also ensures
-that required R libraries are loaded for visualization.
+visualization functions with custom R-based ones.
 }
 \examples{
 \dontrun{

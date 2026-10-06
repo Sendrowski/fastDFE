@@ -55,8 +55,8 @@ class Parametrization(Serializable, ABC):
     """
     Base class for DFE parametrizations.
 
-    Note that :func:`get_pdf` is not required to be implemented, provided that the
-    linearized mode of fastDFE is used (which is highly recommended).
+    Note that :meth:`Parametrization.get_pdf() <fastdfe.parametrization.Parametrization.get_pdf>` is only
+    evaluated when ``linearized=False``, but every subclass is required to define it.
     """
 
     #: Default initial parameters
@@ -107,6 +107,7 @@ class Parametrization(Serializable, ABC):
         """
         Make func accept scalar values.
 
+        :param func: Function that accepts an array of selection coefficients
         :return: Function that accepts scalars
         """
 
@@ -139,7 +140,7 @@ class Parametrization(Serializable, ABC):
     @abstractmethod
     def get_cdf(self, **kwargs) -> Callable[[np.ndarray], np.ndarray]:
         """
-        Get probability distribution function of DFE.
+        Get cumulative distribution function of DFE.
 
         :return: Function that accepts an array of selection coefficients and returns their cumulative probability
         """
@@ -241,7 +242,7 @@ class GammaExpParametrization(Parametrization):
     We have the following probability density function:
 
     .. math::
-        \phi(S; S_d, b, p_b, S_b) = (1 - p_b) f_\Gamma(-S; S_d, b) \cdot \mathbf{1}_{\{S < 0\}} +
+        \phi(S; S_d, b, p_b, S_b) = (1 - p_b) f_\Gamma(-S; -S_d, b) \cdot \mathbf{1}_{\{S < 0\}} +
         p_b f_e(S; S_b) \cdot \mathbf{1}_{\{S \geq 0\}}
 
     where:
@@ -400,7 +401,8 @@ class DisplacedGammaParametrization(Parametrization):
 
     .. warning::
         This model does not allow for a purely deleterious sub-parametrization, so
-        :meth:`Inference.compare_nested_models` won't work as expected.
+        :meth:`BaseInference.compare_nested_models() <fastdfe.base_inference.BaseInference.compare_nested_models>`
+        will not work as expected.
 
     """
 
@@ -436,6 +438,9 @@ class DisplacedGammaParametrization(Parametrization):
         """
         Get PDF.
 
+        :param S_mean: Mean of the DFE
+        :param b: Shape of the gamma distribution
+        :param S_max: Maximum value of S
         :return: Function that accepts an array of selection coefficients and returns their probability density
         """
 
@@ -462,6 +467,9 @@ class DisplacedGammaParametrization(Parametrization):
         """
         Get CDF.
 
+        :param S_mean: Mean of the DFE
+        :param b: Shape of the gamma distribution
+        :param S_max: Maximum value of S
         :return: Function that accepts an array of selection coefficients and returns their cumulative probability
         """
 
@@ -494,7 +502,7 @@ class GammaDiscreteParametrization(Parametrization):
     We have the following probability density function:
 
     .. math::
-        \phi(S; S_d, b, p_b, S_b) = (1 - p_b) f_{\Gamma}(S; S_d, b) \cdot \mathbf{1}_{\{S < 0\}} +
+        \phi(S; S_d, b, p_b, S_b) = (1 - p_b) f_{\Gamma}(-S; -S_d, b) \cdot \mathbf{1}_{\{S < 0\}} +
         p_b \cdot S_b \cdot \mathbf{1}_{\{0 \leq S \leq 1 / S_b\}}
 
     where:
@@ -502,8 +510,9 @@ class GammaDiscreteParametrization(Parametrization):
     * :math:`S_d` is the mean of the DFE for :math:`S < 0`
     * :math:`b` is the shape of the gamma distribution
     * :math:`p_b` is the probability that :math:`S \geq 0`
-    * :math:`S_b` is the shared selection coefficient of all positively selected mutations up to :math:`1/S_b`
+    * :math:`S_b` is the reciprocal of the upper limit of the uniform density on :math:`0 \leq S \leq 1/S_b`
     * :math:`f_\Gamma(x; m, b)` is the density of the gamma distribution with mean :math:`m` and shape :math:`b`
+    * :math:`\mathbf{1}_{\{A\}}` denotes the indicator function, which is 1 if :math:`A` is true, and 0 otherwise.
 
     This parametrization is similar to :class:`GammaExpParametrization`, but uses a constant mass for positive
     selection coefficients. The results should be rather similar in most cases. Note that all :math:`S` parameters
@@ -551,7 +560,7 @@ class GammaDiscreteParametrization(Parametrization):
         :param S_d: Mean of the DFE for S < 0
         :param b: Shape of the gamma distribution
         :param p_b: Probability that S > 0
-        :param S_b: Shared selection coefficient of all positively selected mutations up to S_b
+        :param S_b: Reciprocal of the upper limit of the uniform density on 0 <= S <= 1 / S_b
         :return: Function that accepts an array of selection coefficients and returns their probability density
         """
 
@@ -585,7 +594,7 @@ class GammaDiscreteParametrization(Parametrization):
         :param S_d: Mean of the DFE for S < 0
         :param b: Shape of the gamma distribution
         :param p_b: Probability that S > 0
-        :param S_b: Shared selection coefficient of all positively selected mutations up to S_b
+        :param S_b: Reciprocal of the upper limit of the uniform density on 0 <= S <= 1 / S_b
         :return: Function that accepts an array of selection coefficients and returns their cumulative probability
         """
 
@@ -692,8 +701,8 @@ class DiscreteParametrization(Parametrization):
 
     def _normalize(self, params: dict) -> dict:
         """
-        Add params for boundaries and normalize so that
-        the parameters sum up to 1.
+        Normalize the non-fixed parameters so that
+        they sum up to 1.
 
         :param params: Parameter values
         :return: Dict of normalized values plus remaining parameters
@@ -791,12 +800,14 @@ class DiscreteParametrization(Parametrization):
 class DiscreteFractionalParametrization(Parametrization):
     r"""
     Same model as :class:`DiscreteParametrization`, but re-parametrized by
-    :math:`\hat{S}_1, \hat{S}_2, \dots, \hat{S}_{k-1}`, so that the mass in the ith interval :math:`S_i`
-    is determined by the sum of masses to the left, i.e.
+    :math:`\hat{S}_1, \hat{S}_2, \dots, \hat{S}_{k-1}`, so that the mass :math:`S_i` in interval :math:`i`
+    is the fraction :math:`\hat{S}_i` of the mass not assigned to the intervals to its left, i.e.
 
-    :math:`S_i = \hat{S}_i \sum_{j<i} S_j, i = 1, \dots, k - 1`,
+    :math:`S_i = \hat{S}_i \left(1 - \sum_{j<i} S_j\right), i = 1, \dots, k - 1`,
 
-    :math:`S_k = 1 - \sum_{j=1}^{k-1} S_j`.
+    :math:`S_k = 1 - \sum_{j=1}^{k-1} S_j`,
+
+    where :math:`k` is the number of intervals.
 
     This parametrization has the advantage of not imposing a shape on the DFE. For a reasonably fine parametrization,
     the number of parameters is larger than those of the other models, however. It is more easily optimized than
@@ -859,7 +870,7 @@ class DiscreteFractionalParametrization(Parametrization):
 
     def to_nominal(self, params: Dict[str, float]) -> Dict[str, float]:
         """
-        Convert representation of fraction of total mass to the left
+        Convert representation of fractions of the mass not assigned to the left
         to representation of fractions which sum to 1.
 
         :param params: Parameter values S1, S2, ..., Sk
@@ -883,8 +894,9 @@ class DiscreteFractionalParametrization(Parametrization):
 
     def to_fractional(self, params: Dict[str, float]) -> Dict[str, float]:
         """
-        Invert the to_nominal operation: Convert representation of fractions which sum to 1
-        back to representation of fraction of total mass to the left.
+        Invert :meth:`DiscreteFractionalParametrization.to_nominal()
+        <fastdfe.parametrization.DiscreteFractionalParametrization.to_nominal>`: Convert representation of
+        fractions which sum to 1 back to representation of fractions of the mass not assigned to the left.
 
         :param params: Converted parameters (nominal space)
         :return: Original parameters (parameter space)

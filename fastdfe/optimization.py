@@ -46,7 +46,7 @@ def parallelize(
     :param desc: Description for progress bar
     :param dtype: Data type of the returned array
     :param wrap_array: Whether to wrap the result in a numpy array
-    :return: List of results
+    :return: Array of results, or a list if ``wrap_array`` is ``False``
     """
     n = len(data)
 
@@ -203,7 +203,7 @@ def pack_shared(
 def unpack_shared(params: dict) -> dict:
     """
     Unpack shared parameters. Here we extract shared parameters from joint-type keys
-    and add them tp the targeted types.
+    and add them to the targeted types.
 
     :param params: Dictionary of parameters
     :return: Unpacked dictionary
@@ -246,7 +246,7 @@ def expand_fixed(
         types: List[str]
 ) -> Dict[str, Dict[str, float]]:
     """
-    Expand 'all' type for shared parameters.
+    Expand 'all' type for fixed parameters.
 
     :param fixed_params: Dictionary of fixed parameters indexed by type and parameter
     :param types: List of types
@@ -484,7 +484,8 @@ def scale_bound(bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlo
     :param bounds: The bound to convert
     :param scale: The scale to convert to
     :return: The converted bound
-    :raises ValueError: if the scale is unknown
+    :raises ValueError: if the scale is unknown, if the bounds span zero on the log scale,
+        or if a bound is not positive on the symlog scale
     """
     if scale == 'lin':
         return bounds
@@ -550,7 +551,8 @@ def scale_bounds(
     :param bounds: Flattened dictionary of bounds to convert index by type and parameter
     :param scales: Dictionary of scales indexed by parameter
     :return: The converted bounds
-    :raises ValueError: if the scale is unknown
+    :raises ValueError: if the scale is unknown, if the bounds span zero on the log scale,
+        or if a bound is not positive on the symlog scale
     """
     scaled_bounds = {}
 
@@ -618,7 +620,8 @@ def unscale_value(scaled_value: float, bounds: Tuple[float, float], scale: Liter
 def perturb_value(value: float, bounds: Tuple[float, float], rng: np.random.Generator) -> float:
     """
     Perturb a value within the given bounds using a normal distribution with mean at the value
-    and standard deviation equal to the value.
+    and standard deviation twice the absolute value, or a tenth of the bound range for a value
+    of zero. The result is clipped to the bounds.
 
     :param value: The value to perturb.
     :param bounds: The bounds to perturb within.
@@ -666,7 +669,7 @@ def unscale_values(
 
     :param params: Nested dictionary of parameters indexed by type and parameter
     :param scales: Dictionary of scales indexed by parameter name
-    :param bounds: Dictionary of scales indexed by parameter name
+    :param bounds: Dictionary of bounds indexed by parameter name
     :return: Nested dictionary of unscaled parameters indexed by type and parameter
     """
     unscaled = {}
@@ -696,7 +699,7 @@ def check_bounds(
         scale: Literal['lin', 'log'] = 'lin'
 ) -> Tuple[Dict[str, Tuple[float, float, float]], Dict[str, Tuple[float, float, float]]]:
     """
-    Issue warnings if the passed parameters are close to the specified bounds.
+    Determine which parameters are close to the specified bounds.
 
     :param bounds: The bounds to check against.
     :param params: The parameters to check.
@@ -830,8 +833,7 @@ class Covariate:
 
     def __post_init__(self):
         """
-        Cast bounds to tuple and check if an inverse_callback is provided
-        when a custom callback is specified.
+        Cast bounds to tuple.
         """
         self.bounds = tuple(self.bounds)
 
@@ -840,7 +842,7 @@ class Covariate:
         Apply the custom or default callback to modify the given parameters.
 
         :param covariate: The value of the covariate.
-        :param type: The type of the relationship.
+        :param type: The SFS type whose covariate value is used.
         :param params: The input parameters.
         :return: Modified parameters.
         """
@@ -855,7 +857,7 @@ class Covariate:
         with the given covariate.
 
         :param covariate: The value of the covariate.
-        :param type: The type of the relationship.
+        :param type: The SFS type whose covariate value is used.
         :param params: The input parameters.
         :return: Modified parameters.
         """
@@ -919,6 +921,7 @@ class Optimization:
         :param fixed_params: Dictionary of fixed parameters
         :param scales: Dictionary of scales
         :param param_names: List of parameter names
+        :param seed: Seed for the random number generator used to sample initial values
         """
         #: Parameter bounds
         self.bounds: Dict[str, Tuple[float, float]] = bounds
@@ -989,7 +992,8 @@ class Optimization:
         :param print_info: Whether to print information about the bounds
         :param pbar: Whether to show a progress bar
         :param desc: Description for the progress bar
-        :return: The optimization result and the likelihoods
+        :return: The optimization result of the best run and the MLE parameters in the form
+            ``{type: {param: value}}``
         """
         from scipy.optimize import minimize, OptimizeResult
 
@@ -1215,7 +1219,7 @@ class Optimization:
     ) -> float:
         """
         Sample a value between given bounds using the given scaling.
-        This function works for positive, negative, and mixed bounds.
+        Bounds spanning zero are supported on the linear scale only.
         Note that when ``scale == 'symlog'``, ``bounds[0]`` defines the linear threshold and
         the actual bounds are ``(-bounds[1], bounds[1])``.
 
@@ -1223,6 +1227,8 @@ class Optimization:
         :param scale: Scaling of the parameter.
         :param random_state: Random generator or seed
         :return: Sampled value
+        :raises ValueError: if the scale is unknown, if the bounds span zero on the log scale,
+            or if the lower bound is negative on the symlog scale
         """
         if not isinstance(random_state, Generator):
             random_state = np.random.default_rng(random_state)
@@ -1282,11 +1288,11 @@ class Optimization:
 
     def check_bounds(self, params: Dict[str, float], percentile: float = 1) -> None:
         """
-        Check if the given parameters are within the bounds.
+        Log a warning for parameters close to their bounds.
 
         :param params: Parameters
-        :param percentile: Percentile of the bounds to check
-        :return: Whether the parameters are within the bounds
+        :param percentile: Distance from a bound, in percent of the scaled bound range, below which
+            a parameter is reported
         """
         # we scale the bounds to obtain more sensible warnings
         bounds = scale_bounds(self.bounds, self.scales)
@@ -1335,10 +1341,11 @@ class Optimization:
 
     def get_bounds(self, x0: Dict[str, float]) -> Dict[str, Tuple[float, float]]:
         """
-        Get a nested dictionary of bounds the same structure as the given initial values.
+        Get a flattened dictionary of bounds with the keys of the given initial values.
+        Fixed parameters receive the degenerate bound ``(value, value)``.
 
         :param x0: Flattened dictionary of initial values
-        :return: A dictionary of initial values
+        :return: Flattened dictionary of bounds
         """
         bounds = {}
 
@@ -1368,7 +1375,8 @@ class Optimization:
     ) -> Dict[str, Dict[str, float]]:
         """
         Perturb values within the given bounds using a normal distribution with mean at the value
-        and standard deviation equal to the value.
+        and standard deviation twice the absolute value, or a tenth of the bound range for a value
+        of zero. The results are clipped to the bounds.
 
         :param params: Nested dictionary of parameters indexed by type and parameter
         :param bounds: Dictionary of bounds indexed by parameter name

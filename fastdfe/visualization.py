@@ -37,7 +37,7 @@ class Visualization:
         """
         Scale default figure size.
 
-        :return: Factor to scale default figure size by
+        :param factor: Factor to scale default figure size by
         """
         plt.rcParams["figure.figsize"] = list(factor * np.array(plt.rcParams["figure.figsize"]))
 
@@ -112,8 +112,8 @@ class Visualization:
         """
         Get string representation for given interval.
 
-        :param left: Right interval boundary
-        :param right: Left interval boundary
+        :param left: Left interval boundary
+        :param right: Right interval boundary
         :return: String representation of interval
 
         """
@@ -159,13 +159,14 @@ class Visualization:
         :param interval_labels: Labels for the intervals (which are the same for all types)
         :param labels: Labels for the different types of DFEs
         :param title: Title of the plot
-        :param values: Array of values of size ``intervals.shape[0] - 1``, containing the discretized DFE for each type
-        :param errors: Array of errors of size ``intervals.shape[0] - 1``, containing the discretized DFE for each type
+        :param values: Sequence with one array of size ``intervals.shape[0] - 1`` per type, containing the discretized DFE
+        :param errors: Sequence with one entry per type, each ``None`` or an array of shape
+            ``(2, intervals.shape[0] - 1)`` holding the lower and upper deviations from ``values``
         :param file: File path to save plot to
         :param show: Whether to show plot
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
         :param ax: Axes to plot on.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`.
+        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``.
         :return: Axes
         """
         # number of intervals
@@ -258,7 +259,8 @@ class Visualization:
         :param show: Whether to show plot
         :param scale_density: Whether to scale the density by the bin size
         :param ax: Axes to plot on.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`.
+        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``.
+        :param kwargs: Additional arguments which are ignored
         :return: Axes
         """
         from .discretization import Discretization
@@ -310,7 +312,7 @@ class Visualization:
         """
         Adjust x-ticks to show bin values.
 
-        :return: Array of selection coefficients
+        :param s: Array of selection coefficients indexed by the x-tick positions
         """
 
         n_bins = len(s) - 1
@@ -379,19 +381,22 @@ class Visualization:
     ) -> plt.Axes:
         """
         Visualize the inferred parameters and their confidence intervals.
-        using a bar plot. Note that there problems with parameters that span 0 (which is usually note the case).
+        using a bar plot. Note that there are problems with parameters that span 0 (which is usually not the case).
 
         :param labels: Unique labels for the DFEs
-        :param param_names: Labels for the parameters
-        :param scale: Whether to use a linear or log scale
+        :param param_names: Names of the parameters
+        :param scale: ``'lin'`` for a linear y-axis, ``'log'`` or ``'symlog'`` for a symmetric log scale with
+            linear threshold 1e-3
         :param title: Title of the plot
         :param legend: Whether to show the legend
-        :param errors: Dictionary of errors with the parameter in the same order as ``labels``
-        :param values: Dictionary of parameter values with the parameter in the same order as ``labels``
+        :param errors: Dictionary with one array of shape ``(2, len(param_names))`` holding the lower and upper
+            deviations, or ``None``, per DFE, ordered as ``values``
+        :param values: Dictionary with one array of parameter values per DFE, with the entries in the same order as
+            ``labels`` and the parameters in the same order as ``param_names``
         :param file: File path to save plot to
         :param show: Whether to show plot
         :param ax: Axes to plot on.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`.
+        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``.
         :return: Axes
         """
         labels = list(labels)
@@ -583,7 +588,6 @@ class Visualization:
 
         :param show_monomorphic: Whether to show monomorphic site counts
         :param n_ticks: Number of x-ticks to use
-        :param ax: Axes to plot on.
         :param ax: Axes to plot on. Only for Python visualization backend and if ``use_subplots`` is ``False``.
         :param title: Title of plot
         :param spectra: List of lists of spectra or a 2D array in which each row is a spectrum in the
@@ -594,7 +598,7 @@ class Visualization:
         :param use_subplots: Whether to use subplots
         :param file: File to save plot to
         :param show: Whether to show the plot
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`.
+        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``.
         :return: Axes
         """
         if len(spectra) == 0:
@@ -1017,7 +1021,6 @@ class Visualization:
         :param ylabel: Y-axis label.
         :param labels: Labels for the different types
         :param errors: The errors on the MLE parameter values.
-        :param labels: Labels for the different types
         :param file: File to save plot to
         :param show: Whether to show plot
         :param title: Title of plot

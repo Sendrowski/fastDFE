@@ -111,7 +111,8 @@ class PolyDFEResult:
         """
         Get alpha, the proportion of beneficial non-synonymous substitutions.
 
-        :return: Parsed output from polyDFE
+        :param parsed_output: Parsed output from polyDFE
+        :return: Estimate for alpha
         """
         return self.get_postprocessing_wrapper().estimateAlpha(parsed_output)[0]
 
@@ -140,7 +141,7 @@ class PolyDFEResult:
         """
         Save object to file.
 
-        :return: File path to save to
+        :param file: File path to save to
         """
         with open(file, 'w') as fh:
             fh.write(self.to_json())
@@ -198,7 +199,7 @@ class PolyDFE(AbstractInference):
     @classmethod
     def from_config_file(cls, file: str) -> Self:
         """
-        Load from config object.
+        Load from config file.
 
         :param file: Config file path, possibly URL.
         :return: Inference object.
@@ -309,7 +310,7 @@ class PolyDFE(AbstractInference):
 
     def add_bootstraps(self, bootstraps: 'List[PolyDFE]'):
         """
-        Add bootstraps samples.
+        Add bootstrap samples.
 
         :param bootstraps: List of bootstrap samples
         """
@@ -351,10 +352,8 @@ class PolyDFE(AbstractInference):
         :param confidence_intervals: Whether to show confidence intervals
         :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap
-        :param legend: Show legend
-        :param ax: Axes to plot on. Only for Python visualization backend.
+        :param legend: Ignored, a legend is drawn only for more than one inference
         :param title: Title of the plot
-        :param show: Show the plot
         :param file: File to save the plot to
         :param show: Show the plot
         :param ax: Axes to plot on. Only for Python visualization backend.
@@ -400,13 +399,14 @@ class PolyDFE(AbstractInference):
         Get alpha from observed divergence counts using polyDFE's McDonald-Kreitman style
         ``estimateAlpha`` (the ``div`` branch), i.e. ``1 - (L_sel/L_neut)*(D_neut/D_sel)*divDel``.
 
-        The divergence counts and target sizes are taken from the config's spectra (which must
-        carry a separate divergence target size via ``n_sites_div_neut`` / ``n_sites_div_sel``).
+        The divergence counts are taken from the config's spectra and the divergence target sizes
+        from the config entries ``n_sites_div_neut`` / ``n_sites_div_sel``, summed over types.
         This requires polyDFE to have been run and an R environment with the postprocessing script,
         and is the reference for validating :meth:`~fastdfe.base_inference.BaseInference.get_alpha`
         with ``use_divergence=True``.
 
         :return: Estimate for alpha based on divergence counts
+        :raises ValueError: If either divergence target size is missing from the config
         """
         # return the cached value if available, so the estimate round-trips through serialization
         # and can be checked offline without re-running R
@@ -459,7 +459,7 @@ class PolyDFE(AbstractInference):
     @params_mle.setter
     def params_mle(self, value):
         """
-        Set the maximum likelihood estimate of the parameters.
+        Ignored, the value is read from the polyDFE summary.
 
         :param value: Dict of parameters
         """
@@ -478,7 +478,7 @@ class PolyDFE(AbstractInference):
     @model.setter
     def model(self, value):
         """
-        Set the DFE parametrization.
+        Ignored, the value is read from the config.
 
         :param value: Parametrization
         """

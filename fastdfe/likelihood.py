@@ -66,7 +66,7 @@ class Likelihood:
     @staticmethod
     def log_factorial_stirling(n: np.ndarray | float) -> np.ndarray | float:
         """
-        Use Stirling's approximation for values larger than n_threshold.
+        Approximate log(n!) with Stirling's formula including the 1 + 1 / (12 n) correction term.
         https://en.wikipedia.org/wiki/Stirling%27s_approximation
 
         :param n: n

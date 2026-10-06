@@ -59,7 +59,8 @@ def create_sfs_config(
     :param sfs_neut: Neutral sfs
     :param file: Path to config file
     :param n_sites_div_neut: Mutational target size for neutral divergence (the polyDFE ``L_div``
-        column). ``None`` means no divergence is written for the neutral spectrum.
+        column). If either target size is ``None``, no divergence is written for either spectrum,
+        regardless of ``include_divergence``.
     :param n_sites_div_sel: Mutational target size for selected divergence.
     :param include_divergence: Whether to also write divergence counts and their separate
         mutational target size (the polyDFE ``D L_div`` columns). When ``None`` (the default),
@@ -118,7 +119,7 @@ def parse_init_file(
     :param file: Path to init file
     :param id: Init id
     :param ignore: List of parameters to ignore
-    :return Dictionary of fixed parameters and dictionary of initial values
+    :return: Dictionary of fixed parameters and dictionary of initial values
     """
     logger.info('Parsing init file.')
 

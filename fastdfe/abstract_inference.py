@@ -56,9 +56,9 @@ class Inference:
         :param show: Whether to show the plot.
         :param title: Title of the plot.
         :param labels: Labels for the DFEs.
-        :param kwargs: Additional arguments for the plot.
+        :param kwargs: Additional arguments which are ignored.
         :param ax: Axes to plot on. Only for Python visualization backend.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python visualization backend.
         :return: Axes of the plot.
         """
         from .visualization import Visualization
@@ -130,7 +130,7 @@ class Inference:
         :param scale: y-scale of the plot.
         :param scale_density: Whether to scale the density by the x-axis interval size.
         :param ax: Axes to plot on. Only for Python visualization backend.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python visualization backend.
         :param kwargs: Additional arguments for the plot.
         :return: Axes of the plot.
         """
@@ -174,7 +174,7 @@ class Inference:
 
     ) -> 'plt.Axes':
         """
-        Visualize several discretized DFEs given by the list of inference objects.
+        Visualize the inferred parameters of several inference objects.
         Note that the DFE parametrization needs to be the same for all inference objects.
 
         :param inferences: List of inference objects.
@@ -189,7 +189,7 @@ class Inference:
         :param title: Title of the plot.
         :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes of the plot.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python visualization backend.
         :param kwargs: Additional arguments which are ignored.
         :raises ValueError: If no inference objects are given.
         """
@@ -236,7 +236,7 @@ class Inference:
             **kwargs
     ) -> 'plt.Axes':
         """
-        Visualize several discretized DFEs given by the list of inference objects.
+        Visualize the bootstrap distributions of the inferred parameters of several inference objects as boxplots.
         Note that the DFE parametrization needs to be the same for all inference objects.
 
         :param inferences: List of inference objects.
@@ -244,7 +244,7 @@ class Inference:
         :param file: Path to file to save the plot to.
         :param show: Whether to show the plot.
         :param title: Title of the plot.
-        :param kwargs: Additional arguments for the plot.
+        :param kwargs: Additional arguments which are ignored.
         :return: Axes of the plot.
         :raises ValueError: If no inference objects are given or no bootstraps are found.
         """
@@ -502,7 +502,7 @@ class AbstractInference(Serializable, ABC):
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :param title: Title of the plot
         :param ax: Axes to plot on. Only for Python visualization backend.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python visualization backend.
         :return: Axes
         """
         return Inference.plot_discretized(

@@ -72,7 +72,6 @@ nb_execution_mode = 'off'
 # merge consecutive stdout/stderr chunks from one cell into a single output block
 nb_merge_streams = True
 
-templates_path = ['_templates']
 # 'jupyter_execute' is a myst-nb build artifact. 'source' holds the User Guide sources, which docs/split_page.py and
 # docs/merge_notebooks.py turn into the pages.
 exclude_patterns = ['_build', 'jupyter_execute', 'outputs', 'source', 'Thumbs.db', '.DS_Store']

@@ -89,16 +89,18 @@ class Discretization:
         :param h: Parameter h mapping dominance coefficients if not varying, else ``None``. When ``None``, dominance
             coefficients are precomputed across ``intervals_h`` and interpolated as needed. Otherwise, only the fixed
             value is precomputed.
+        :param h_callback: Callback ``(h, S)`` returning the dominance coefficient for each population-scaled
+            selection coefficient ``S``. By default, the constant ``h`` is returned for every ``S``.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
-        selection coefficients. The intervals will be log10-spaced. Decreasing the number of intervals to ``100``
+            selection coefficients. The intervals will be log10-spaced. Decreasing the number of intervals to ``100``
             provides nearly identical results while increasing speed, especially when precomputing across dominance
             coefficients.
         :param intervals_ben: ``(start, stop, n_interval)`` for beneficial population-scaled
-        selection coefficients. The intervals will be log10-spaced. Decreasing the number of intervals to ``100``
+            selection coefficients. The intervals will be log10-spaced. Decreasing the number of intervals to ``100``
             provides nearly identical results while increasing speed, especially when precomputing across dominance
             coefficients.
-        :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
-            This is only used when inferring dominance coefficients. Values of ``h`` between the edges will be
+        :param intervals_h: ``(start, stop, n_points)`` for the linearly spaced grid of dominance coefficients.
+            This is only used when inferring dominance coefficients. Values of ``h`` between the grid points will be
             interpolated linearly.
         :param n_outer: Number of grid points for outer integrals when computing allele counts for varying
             dominance coefficients.
@@ -106,7 +108,8 @@ class Discretization:
             dominance coefficients.
         :param s_chunk_size: Chunk size for S values when precomputing across dominance coefficients.
             This controls memory usage vs. speed trade-off.
-        :param integration_mode : 'midpoint' or 'quad' for midpoint integration or Scipy's quad method.
+        :param integration_mode: ``'midpoint'`` for the trapezoidal rule over the bin edges or ``'quad'`` for
+            Scipy's quad method.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
             `scipy.integrate.quad` in each call.
         :param parallelize: Whether to parallelize the computation of the discretization.
@@ -250,8 +253,8 @@ class Discretization:
         Allele frequency sojourn times semidominance using high-precision arithmetic which is not supported
         on all platforms.
 
-        :param S: Selection coefficient
         :param x: Allele frequency
+        :param S: Selection coefficient
         :return: Allele frequency sojourn time
         """
         return ((1 - np.exp(-S * (1 - x), dtype=np.float128)) /
@@ -260,7 +263,9 @@ class Discretization:
     @staticmethod
     def get_counts_high_precision_regularized(x, S: float | int | np.ndarray):
         """
-        As H(x, S) but replacing with the limits close to the limit points.
+        As :meth:`Discretization.get_counts_high_precision()
+        <fastdfe.discretization.Discretization.get_counts_high_precision>` but using the limit ``1 / x`` for ``S``
+        close to zero.
         Note that this function is not used in practice.
 
         :param x: Allele frequency
@@ -300,7 +305,9 @@ class Discretization:
     @staticmethod
     def get_counts_fixed_semidominant_regularized(S: float | int | np.ndarray) -> float | int | np.ndarray:
         """
-        As :func:`H_fixed` but replacing with the limits close to the limit points.
+        As :meth:`Discretization.get_counts_fixed_semidominant()
+        <fastdfe.discretization.Discretization.get_counts_fixed_semidominant>` but replacing with the limits close
+        to the limit points.
 
         :param S: Selection coefficient
         :return: Sojourn time as x -> 1
@@ -340,7 +347,7 @@ class Discretization:
             pow_cluster: int = 4
     ) -> np.ndarray:
         """
-        Allele frequency sojourn times under selection with specific dominance coefficients
+        Sojourn times as x -> 1 under selection with specific dominance coefficients.
 
         :param S: Selection coefficients.
         :param h: Dominance coefficients associated with selection coefficients or single dominance coefficient.
@@ -524,7 +531,7 @@ class Discretization:
 
     def map_h(self, h: float, S: np.ndarray) -> np.ndarray:
         """
-        Map dominance coefficients using the default mapping.
+        Map dominance coefficients using ``h_callback``, or the constant default mapping if it is ``None``.
 
         :param h: Dominance coefficient
         :param S: Population-scaled selection coefficients
@@ -576,8 +583,8 @@ class Discretization:
         Interpolates linearly between precomputed values.
 
         :param h: Parameter h mapping dominance coefficients
-        :return: Matrix of size (n_intervals, n)
-        :raises ValueError: If ``h`` is outside precomputed range.
+        :return: Matrix of shape (n - 1, n_intervals), rows indexed by allele count k = 1, ..., n - 1
+        :raises ValueError: If ``h`` does not match the fixed ``self.h`` or is outside precomputed range.
         """
         # check for attribute to ensure backwards compatibility
         if not hasattr(self, "_cache") or self._cache is None:
@@ -625,10 +632,10 @@ class Discretization:
 
     def get_counts_semidominant_midpoint(self) -> np.ndarray:
         """
-        Precompute linearized integral using midpoint integration.
+        Precompute linearized integral using the trapezoidal rule over the bin edges.
         Consider parallelizing this.
 
-        :return: Matrix of size (n_intervals, n)
+        :return: Matrix of shape (n - 1, n_intervals), rows indexed by allele count k = 1, ..., n - 1
         """
         logger.info('Precomputing semidominant DFE-SFS transformation using midpoint integration.')
 
@@ -663,7 +670,7 @@ class Discretization:
         """
         Precompute linearized integral using Scipy's quad method.
 
-        :return: Matrix of size (n_intervals, n)
+        :return: Matrix of shape (n - 1, n_intervals), rows indexed by allele count k = 1, ..., n - 1
         """
         logger.info('Precomputing semidominant DFE-SFS transformation using scipy.integrate.quad.')
 
@@ -696,7 +703,7 @@ class Discretization:
         """
         Get uncached linearized DFE to SFS transformation for ``h = 0.5`` using special formulae.
 
-        :return: Matrix of size (n_intervals, n)
+        :return: Matrix of shape (n - 1, n_intervals), rows indexed by allele count k = 1, ..., n - 1
         :raises NotImplementedError: If integration mode is not supported.
         """
         # precompute linearized transformation.
@@ -712,7 +719,7 @@ class Discretization:
         """
         Get DFE to SFS transformation for different dominance coefficients.
 
-        :return: Matrix of size (n_intervals, len(grid_h), n)
+        :return: Array of shape (n - 1, len(grid_h), n_intervals), or (n - 1, 1, n_intervals) for fixed dominance
         """
         K = np.arange(1, self.n)
 
@@ -768,7 +775,8 @@ class Discretization:
             k: float | np.ndarray
     ) -> np.ndarray | float:
         """
-        Limit of get_allele_count for large negative S.
+        Limit of :meth:`Discretization.get_counts_semidominant_unregularized()
+        <fastdfe.discretization.Discretization.get_counts_semidominant_unregularized>` for large negative S.
 
         :param S: Population-scaled selection coefficient
         :param k: Allele count
@@ -782,7 +790,8 @@ class Discretization:
             k: float | np.ndarray
     ) -> np.ndarray | float:
         """
-        Limit of get_allele_count for large positive S.
+        Limit of :meth:`Discretization.get_counts_semidominant_unregularized()
+        <fastdfe.discretization.Discretization.get_counts_semidominant_unregularized>` for large positive S.
 
         :param S: Population-scaled selection coefficient
         :param k: Allele count
@@ -810,13 +819,14 @@ class Discretization:
 
     def get_counts_semidominant_regularized(self, S: float | np.ndarray, k: float | np.ndarray) -> float | np.ndarray:
         """
-        As :meth:`get_counts_semidominant` but using the respective limits
+        As :meth:`Discretization.get_counts_semidominant_unregularized()
+        <fastdfe.discretization.Discretization.get_counts_semidominant_unregularized>` but using the respective limits
         for ``S`` close to zero and ``S`` very negative.
         Note that ``S`` and ``k`` need to have the same shape.
 
         :param S: Population-scaled selection coefficient
         :param k: Allele count
-        :return: Number of counts in frequency class ``P(k)`
+        :return: Number of counts in frequency class ``P(k)``
         """
         # make it accept scalars for S
         if isinstance(S, (float, int)):
@@ -907,7 +917,7 @@ class Discretization:
 
         :param model: DFE parametrization
         :param params: Parameters of the DFE
-        :return: Estimated for alpha
+        :return: Estimate for alpha
         """
         y = model._discretize(params, self.bins) * self.get_counts_fixed(params.get('h', 0.5))
 
@@ -948,8 +958,10 @@ class Discretization:
 
         :param model: DFE parametrization
         :param params: Parameters of the DFE
-        :param sfs_neut: Neutral spectrum, carrying observed neutral divergence counts and target size
-        :param sfs_sel: Selected spectrum, carrying observed selected divergence counts and target size
+        :param sfs_neut: Neutral spectrum, carrying observed neutral divergence counts
+        :param sfs_sel: Selected spectrum, carrying observed selected divergence counts
+        :param n_sites_div_neut: Neutral mutational target size for divergence
+        :param n_sites_div_sel: Selected mutational target size for divergence
         :return: Estimate for alpha based on divergence counts
         """
         y = model._discretize(params, self.bins) * self.get_counts_fixed(params.get('h', 0.5))
@@ -1011,8 +1023,10 @@ class Discretization:
 
         :param model: DFE parametrization
         :param params: Parameters of the DFE
-        :param sfs_neut: Neutral spectrum, carrying observed neutral divergence counts and target size
-        :param sfs_sel: Selected spectrum, carrying observed selected divergence counts and target size
+        :param sfs_neut: Neutral spectrum, carrying observed neutral divergence counts
+        :param sfs_sel: Selected spectrum, carrying observed selected divergence counts
+        :param n_sites_div_neut: Neutral mutational target size for divergence
+        :param n_sites_div_sel: Selected mutational target size for divergence
         :return: Estimate for omega (dN/dS) based on divergence counts
         """
         return float((sfs_sel.n_div / n_sites_div_sel) /
@@ -1038,8 +1052,10 @@ class Discretization:
 
         :param model: DFE parametrization
         :param params: Parameters of the DFE
-        :param sfs_neut: Neutral spectrum, carrying observed neutral divergence counts and target size
-        :param sfs_sel: Selected spectrum, carrying observed selected divergence counts and target size
+        :param sfs_neut: Neutral spectrum, carrying observed neutral divergence counts
+        :param sfs_sel: Selected spectrum, carrying observed selected divergence counts
+        :param n_sites_div_neut: Neutral mutational target size for divergence
+        :param n_sites_div_sel: Selected mutational target size for divergence
         :return: Estimate for omega_a (adaptive dN/dS) based on divergence counts
         """
         alpha = self.get_alpha_divergence(model, params, sfs_neut, sfs_sel, n_sites_div_neut, n_sites_div_sel)
@@ -1052,10 +1068,10 @@ class Discretization:
             inter: Sequence = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf])
     ) -> np.ndarray:
         """
-        Get interval density.
+        Get the number of grid midpoints lying strictly inside each of the given intervals.
 
-        :param inter: Intervals
-        :return: Interval density
+        :param inter: Interval edges
+        :return: Number of grid midpoints per interval
         """
         return np.array([np.sum((inter[i - 1] < self.s) & (self.s < inter[i])) for i in range(1, len(inter))])
 

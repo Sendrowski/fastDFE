@@ -30,7 +30,7 @@ class Bootstrap:
         :param a1: Lower quantile
         :param a2: Upper quantile
         :param n: Number of data points
-        :return: lower bound and upper bound
+        :return: lower bound and upper bound, ``[None, None]`` if ``a1`` or ``a2`` is NaN
         """
         if np.isnan(a1) or np.isnan(a2):
             return [None, None]
@@ -45,6 +45,7 @@ class Bootstrap:
         :param bootstraps: List of bootstraps
         :param a: Tail probability per side, so 0.05 yields a 90% interval.
         :return: lower bound and upper bound
+        :raises ValueError: If ``a`` is outside ``[0, 0.5]``.
         """
         if not 0 <= a <= 0.5:
             raise ValueError('Tail probability must be between 0 and 0.5.')
@@ -55,12 +56,14 @@ class Bootstrap:
     def get_ci_bca(bootstraps: Sequence, original: float, a: float) -> Tuple[float, float]:
         """
         Get the confidence interval spanning the a to 1 - a quantiles using the BCa method.
-        cf. An Introduction to the Bootstrap, Bradley Efron, Robert J. Tibshirani, section 14.2.
+        cf. An Introduction to the Bootstrap, Bradley Efron, Robert J. Tibshirani, section 14.3.
+        The acceleration is estimated from the jackknife of the variance of the bootstrap replicates.
 
         :param bootstraps: List of bootstraps
         :param original: Original value
         :param a: Tail probability per side, so 0.05 yields a 90% interval.
-        :return: lower bound and upper bound
+        :return: lower bound and upper bound, ``[0, 0]`` if no bootstraps are given and ``[None, None]`` if the
+            adjusted quantiles are NaN
         """
         if len(bootstraps) == 0:
             return [0, 0]
@@ -100,6 +103,7 @@ class Bootstrap:
         :param bootstrap_type: The bootstrap type.
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :return: Center values, errors around center, and confidence intervals.
+        :raises NotImplementedError: If ``bootstrap_type`` is neither ``'percentile'`` nor ``'bca'``.
         """
         # number of values
         n_values = len(values)

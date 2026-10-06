@@ -39,7 +39,7 @@ logger = logging.getLogger('fastdfe')
 
 class BaseInference(AbstractInference):
     """
-    Base inference class for inferring the SFS given one neutral and one selected SFS.
+    Base inference class for inferring the DFE given one neutral and one selected SFS.
     Note that BaseInference is by default seeded.
 
     Example usage:
@@ -147,11 +147,11 @@ class BaseInference(AbstractInference):
         Create BaseInference instance.
 
         :param sfs_neut: The neutral SFS. Note that we require monomorphic counts to be specified in order to infer
-            the mutation rate. If a :class:`~fastdfe.spectrum.Spectra` object with more than one SFS is provided, the
-            ``all`` attribute will be used.
+            the mutation rate. If a :class:`~sfsutils.spectrum.Spectra` object with more than one SFS is provided,
+            the ``all`` attribute will be used.
         :param sfs_sel: The selected SFS. Note that we require monomorphic counts to be specified in order to infer
-            the mutation rate. If a :class:`~fastdfe.spectrum.Spectra` object with more than one SFS is provided, the
-            ``all`` attribute will be used.
+            the mutation rate. If a :class:`~sfsutils.spectrum.Spectra` object with more than one SFS is provided,
+            the ``all`` attribute will be used.
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced. Decreasing the number of intervals to ``100``
             provides nearly identical results while increasing speed, especially when precomputing across dominance
@@ -174,7 +174,8 @@ class BaseInference(AbstractInference):
             ``quad`` is not recommended.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
             ``scipy.integrate.quad`` in each call. ``False`` not recommended.
-        :param model: Instance of DFEParametrization which parametrized the DFE
+        :param model: DFE parametrization, given as a :class:`~fastdfe.parametrization.Parametrization` instance
+            or as the name of its class.
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{'all': {param: value}}``
         :param bounds: Bounds for the optimization in the form ``{param: (lower, upper)}``
@@ -193,13 +194,12 @@ class BaseInference(AbstractInference):
         :param n_bootstrap_retries: Number of optimization runs for each bootstrap sample. This parameter previously
             defined the number of retries per bootstrap sample when subsequent runs failed, but now it defines the
             total number of runs per bootstrap sample, taking the most likely one.
-        :param pbar: Whether to show a progress bar.
         :param parallelize: Whether to parallelize computations.
         :param folded: Whether the SFS are folded. If not specified, the SFS will be folded if both of the given
             SFS appear to be folded.
         :param discretization: Discretization instance. Mainly intended for internal use.
         :param optimization: Optimization instance. Mainly intended for internal use.
-        :param locked: Whether inferences can be run from the class itself. Used internally.
+        :param locked: Whether running inferences from this object is disallowed. Used internally.
         :param include_divergence: Whether to include divergence counts (fixed differences to an
             outgroup) in the likelihood, like ``polydfe``. This only takes effect when both spectra
             carry a divergence target size, i.e. when ``n_sites_div_neut`` and ``n_sites_div_sel``
@@ -426,7 +426,7 @@ class BaseInference(AbstractInference):
         #: Total execution time in seconds
         self.execution_time: float = 0
 
-        #: Whether inferences can be run from the class itself
+        #: Whether running inferences from this object is disallowed
         self.locked: bool = locked
 
     def get_fixed_param_names(self) -> List[str]:
@@ -468,7 +468,7 @@ class BaseInference(AbstractInference):
 
         :param args: Arguments.
         :param kwargs: Keyword arguments.
-        :return: DFE parametrization and modelled SFS.
+        :return: Modelled SFS if the inference was run, else ``None``.
         """
         if self.execution_time == 0:
             self._logger.debug('Inference needs to be run first, triggering run.')
@@ -595,7 +595,7 @@ class BaseInference(AbstractInference):
         Evaluate likelihood function at given parameters.
 
         :param params: Parameters indexed by type and parameter name.
-        :return: The likelihood.
+        :return: The log-likelihood, or the negative L2 residual if the loss type is ``L2``.
         """
         x0_cached = self.optimization.x0
         self.optimization.x0 = params
@@ -644,13 +644,13 @@ class BaseInference(AbstractInference):
         Residual of the modelled and observed SFS.
 
         :param k: Order of the norm
-        :return: L2 residual
+        :return: Norm of order ``k`` of the difference between the modelled and observed polymorphic counts.
         """
         return norm(self.sfs_mle.polymorphic - self.sfs_sel.polymorphic, k)
 
     def _check_L2_residual(self):
         """
-        Check L2 residual.
+        Warn if the L1 residual relative to the number of polymorphic selected sites exceeds 0.1.
         """
         ratio = self.get_residual(1) / self.sfs_sel.n_polymorphic
 
@@ -736,7 +736,7 @@ class BaseInference(AbstractInference):
         :param parallelize: Whether to parallelize the bootstrap. Defaults to :attr:`parallelize`.
         :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples and
             the original likelihood. This is not statistically valid but can stabilize maximum likelihood estimate
-            subject optimization noise.
+            subject to optimization noise.
         :param n_retries: Number of optimization runs for each bootstrap sample. Defaults to
             :attr:`n_bootstrap_retries`.
         :param pbar: Whether to show a progress bar.
@@ -776,7 +776,7 @@ class BaseInference(AbstractInference):
         :param parallelize: Whether to parallelize the bootstrap. Defaults to :attr:`parallelize`.
         :param update_likelihood: Whether to update the likelihood to be the mean of the bootstrap samples and
             the original likelihood. This is not statistically valid but can stabilize maximum likelihood estimate
-            subject optimization noise.
+            subject to optimization noise.
         :param n_retries: Number of optimization runs for each bootstrap sample. Defaults to
             :attr:`n_bootstrap_retries`.
         :param pbar: Whether to show a progress bar.
@@ -893,8 +893,8 @@ class BaseInference(AbstractInference):
         """
         Get function which runs a single bootstrap sample.
 
-        :return: Static function which runs a single bootstrap sample, taking an optional seed and returning the
-            optimization result of best run, MLE parameters, the best x0, and its index.
+        :return: Static function which runs a single bootstrap sample, taking a seed and returning, for each
+            optimization run, a tuple of the optimization result, the MLE parameters and the initial values used.
         """
 
         optimization = self.optimization
@@ -914,7 +914,8 @@ class BaseInference(AbstractInference):
         def run_bootstrap_sample(seed: int):
             """
             Resample the selected and neutral SFS and rerun optimization.
-            Initial point is the MLE; each retry perturbs x0.
+            The first run starts at the MLE, subsequent runs start at initial values sampled within the
+            parameter bounds.
             """
             results = []
             x0 = params_mle_all
@@ -963,7 +964,7 @@ class BaseInference(AbstractInference):
 
     def get_scales_linear(self) -> Dict[str, Literal['lin']]:
         """
-        Get linear scales for all parameters. We do this for the bootstraps as x0 should be close to MLE.
+        Get linear scales for all parameters.
 
         :return: Dictionary of scales.
         """
@@ -971,7 +972,7 @@ class BaseInference(AbstractInference):
 
     def get_bounds_linear(self) -> Dict[str, Tuple[float, float]]:
         """
-        Get linear bounds for all parameters. We do this for the bootstraps as x0 should be close to MLE.
+        Get linear bounds for all parameters.
 
         :return: Dictionary of bounds.
         """
@@ -1011,7 +1012,9 @@ class BaseInference(AbstractInference):
         :param folded: Whether the SFS are folded.
         :param include_divergence: Whether to append modelled and observed divergence counts
             (neutral and selected) so they enter the Poisson likelihood.
-        :return: Array of modelled and observed counts
+        :param n_sites_div_neut: Number of mutational target sites for neutral divergence.
+        :param n_sites_div_sel: Number of mutational target sites for selected divergence.
+        :return: Arrays of modelled and observed counts.
         """
         # obtain modelled selected SFS
         counts_modelled = discretization.model_selection_sfs(model, params)
@@ -1501,7 +1504,7 @@ class BaseInference(AbstractInference):
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Perform a likelihood ratio test (LRT) with correction for boundary constraints as described in
-        Molenberghs et Verbeke (2007) (https://doi.org/10.2307/1403361).
+        Molenberghs and Verbeke (2007) (https://doi.org/10.1198/000313007X171322).
 
         :param ll_simple: Log-likelihood of the simple model.
         :param ll_complex: Log-likelihood of the complex model.
@@ -1537,7 +1540,7 @@ class BaseInference(AbstractInference):
     def lrt(self, ll_simple: float, ll_complex: float, df: int, m: int = 0) -> float:
         """
         Perform a likelihood ratio test (LRT) with correction for boundary constraints as described in
-        Molenberghs et Verbeke (2007) (https://doi.org/10.2307/1403361).
+        Molenberghs and Verbeke (2007) (https://doi.org/10.1198/000313007X171322).
 
         :param ll_simple: Log-likelihood of the simple model.
         :param ll_complex: Log-likelihood of the complex model.
@@ -1551,7 +1554,7 @@ class BaseInference(AbstractInference):
 
     def _is_nested(self, complex: 'BaseInference') -> bool:
         """
-        Check if the given model is nested within the current model.
+        Check if the current model is nested within the given, more complex model.
         The given model's fixed parameters need to be a proper subset of this model's fixed parameters.
 
         :param complex: More complex model.
@@ -1608,7 +1611,7 @@ class BaseInference(AbstractInference):
         Low p-values indicate that the more complex model provides a significantly better fit.
 
         :param complex: More complex model.
-        :return: p-value or None if the models are not nested.
+        :return: p-value.
         :raises ValueError: If the inference objects are not nested.
         """
         df, m = self._get_df_nested(complex)
@@ -1791,6 +1794,8 @@ class BaseInference(AbstractInference):
             (the default), this follows the inference mode (whether divergence counts are used in
             the likelihood). Passing ``False`` explicitly always yields the polymorphism-only
             estimate, which is useful for comparison.
+        :return: Estimate of alpha.
+        :raises ValueError: If ``use_divergence`` is ``True`` and no divergence target sizes were specified.
         """
         if params is None:
             params = self.params_mle
@@ -1823,6 +1828,8 @@ class BaseInference(AbstractInference):
             (the default), this follows the inference mode (whether divergence counts are used in
             the likelihood). Passing ``False`` explicitly always yields the polymorphism-only
             estimate, which is useful for comparison.
+        :return: Estimate of omega.
+        :raises ValueError: If ``use_divergence`` is ``True`` and no divergence target sizes were specified.
         """
         if params is None:
             params = self.params_mle
@@ -1856,6 +1863,8 @@ class BaseInference(AbstractInference):
             (the default), this follows the inference mode (whether divergence counts are used in
             the likelihood). Passing ``False`` explicitly always yields the polymorphism-only
             estimate, which is useful for comparison.
+        :return: Estimate of omega_a.
+        :raises ValueError: If ``use_divergence`` is ``True`` and no divergence target sizes were specified.
         """
         if params is None:
             params = self.params_mle
@@ -1908,9 +1917,9 @@ class BaseInference(AbstractInference):
 
     def get_bootstrap_param_names(self) -> List[str]:
         """
-        Get the parameters to be included in the bootstraps.
+        Get the names of the parameters to be included in the bootstraps.
 
-        :return: Parameters to be included in the bootstraps.
+        :return: Names of the parameters to be included in the bootstraps.
         """
         return list(self.get_bootstrap_params().keys())
 

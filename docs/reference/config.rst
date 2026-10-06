@@ -48,6 +48,7 @@ A configuration file typically looks as follows, and reflects the parameters of 
     fixed_params:
       all:
         eps: 0
+        h: 0.5
     # The initial values. This is not very important
     # as fastDFE is fast and usually runs the numerical
     # optimization multiple times for different initial values
@@ -77,7 +78,7 @@ A configuration file typically looks as follows, and reflects the parameters of 
     parallelize: true
     # The seed for the random number generator which is
     # used for sampling the bootstraps and changing the
-    # initial values among other this. Fixing the seed
+    # initial values among other things. Fixing the seed
     # guarantees deterministic behaviour
     seed: 0
     # The neutral SFS for the different types. Here we just
@@ -135,7 +136,7 @@ A configuration file can also be created from an existing inference object:
 JSON files
 ----------
 
-Configuration files can also be written in JSON and loaded with :meth:`Config.from_json() <fastdfe.config.Config.from_json>`. A JSON configuration file typically looks as follows:
+Configuration files can also be written in JSON. :meth:`Config.from_file() <fastdfe.config.Config.from_file>` reads JSON files, and :meth:`Config.from_json() <fastdfe.config.Config.from_json>` takes the JSON string. A JSON configuration file typically looks as follows:
 
 .. code-block:: json
 
@@ -143,7 +144,8 @@ Configuration files can also be written in JSON and loaded with :meth:`Config.fr
       "model": "GammaExpParametrization",
       "fixed_params": {
         "all": {
-          "eps": 0
+          "eps": 0,
+          "h": 0.5
         }
       },
       "x0": {
@@ -208,9 +210,10 @@ A more involved configuration file, configuring a joint inference with a number 
         params:
           - b
     fixed_params:
-      # eps is fixed for all types
+      # eps and h are fixed for all types
       all:
         eps: 0
+        h: 0.5
       # S_b is fixed for pubescens
       pubescens:
         S_b: 90

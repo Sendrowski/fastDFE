@@ -192,7 +192,8 @@ class Config:
         This will define the initial parameters and
         which ones will be held fixed during the optimization.
 
-        :param type: Type of parameters to parse for.
+        :param type: Type under which the initial values are stored. Fixed parameters are always stored
+            under ``all``.
         :param id: ID of the init file.
         :param file: Path to the init file.
         """
@@ -210,7 +211,7 @@ class Config:
         Create an init file for polyDFE.
 
         :param type: Type to use for the init file.
-        :param n: SFS samples size.
+        :param n: SFS sample size.
         :param file: Path to the init file to be created.
         """
         create_init_file(
@@ -297,6 +298,7 @@ class Config:
         """
         Load config from dictionary.
 
+        :param data: Dictionary representation of config.
         :return: Config object.
         """
         # recreate spectra objects
@@ -345,7 +347,7 @@ class Config:
         """
         Load object from file.
 
-        :param file: Path to file, possibly gzipped or a URL.
+        :param file: Path to file, possibly a URL.
         :param cache: Whether to use the cache if available.
         :return: Config object.
         """

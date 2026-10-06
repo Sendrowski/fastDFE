@@ -137,7 +137,8 @@ if (getRversion() >= "2.15.1") utils::globalVariables(c(".data"))
 #' This function uses the reticulate package to verify if the `fastdfe` Python 
 #' module is currently installed. 
 #'
-#' @return Logical `TRUE` if the `fastdfe` Python module is installed, otherwise `FALSE`.
+#' @return Logical `TRUE` if Python is initialised and the `fastdfe` Python module is available in it,
+#'         otherwise `FALSE`, including in a session in which Python has not been initialised.
 #'
 #' @examples
 #' \dontrun{
@@ -265,12 +266,12 @@ load_fastdfe <- function(install = FALSE) {
   # 
   # Plot discretized DFEs using a bar plot
   #
-  # @param values List or numeric vector. Array of values of 
-  #               size `length(intervals) - 1`, containing the 
-  #               discretized DFE for each type.
-  # @param errors List or numeric vector. Array of errors of 
-  #               size `length(intervals) - 1`, containing the 
-  #               discretized DFE for each type. Default is `NULL`.
+  # @param values List with one numeric vector of size
+  #               `length(intervals) - 1` per type, containing the
+  #               discretized DFE.
+  # @param errors List with one entry per type, each `NULL` or a matrix
+  #               with 2 rows and `length(intervals) - 1` columns holding the
+  #               lower and upper deviations from `values`. Default is `NULL`.
   # @param labels List or character vector. Labels for the different types 
   #               of DFEs. Default is `NULL`.
   # @param file Character. File path to save plot to. Default is `NULL`.
@@ -344,12 +345,14 @@ load_fastdfe <- function(install = FALSE) {
 
 
   # Visualize the inferred parameters and their confidence intervals
-  # using a bar plot. Note that there problems with parameters that span 0 (which is usually not the case).
+  # using a bar plot. Note that there are problems with parameters that span 0 (which is usually not the case).
   #
-  # @param values List of numeric vectors. Dictionary of parameter values with the parameter in the same order as `labels`.
+  # @param values List with one numeric vector of parameter values per DFE, with the entries in the same order as
+  #               `labels` and the parameters in the same order as `param_names`.
   # @param labels List or character vector. Unique labels for the DFEs.
-  # @param param_names List or character vector. Labels for the parameters.
-  # @param errors List of numeric vectors. Dictionary of errors with the parameter in the same order as `labels`.
+  # @param param_names List or character vector. Names of the parameters.
+  # @param errors List with one matrix per DFE, with 2 rows and `length(param_names)` columns holding the lower and
+  #               upper deviations, ordered as `values`. Default is `NULL`.
   # @param file Character. File path to save plot to. Default is `NULL`.
   # @param show Logical. Whether to show plot. Default is `TRUE`.
   # @param title Character. Title of the plot. Default is 'parameter estimates'.

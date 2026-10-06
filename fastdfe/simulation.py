@@ -65,7 +65,9 @@ class Simulation:
         Create a simulation object.
 
         :param sfs_neut: Neutral SFS. This sfs is informative on the population sample size, population mutation rate,
-            the number of sites, and demography. :func:`get_neutral_sfs` can be used to obtain a neutral SFS.
+            the number of sites, and demography.
+            :meth:`Simulation.get_neutral_sfs() <fastdfe.simulation.Simulation.get_neutral_sfs>` can be used to
+            obtain a neutral SFS.
         :param params: Parameters of the DFE parametrization (see model) in addition to ancestral misidentification
             params ``eps`` and dominance ``h``. By default, `eps=0`, `h=0.5`, the default parameters of ``model``
             will be used.
@@ -80,11 +82,8 @@ class Simulation:
         :param h_callback: A function mapping the scalar parameter ``h`` and the array of selection
             coefficients ``S`` to dominance coefficients of the same shape, allowing models where ``h``
             depends on ``S``. The default is ``lambda h, S: np.full_like(S, h)``, keeping ``h`` constant.
-            Expected allele counts for a given dominance value are obtained by linear interpolation
-            between precomputed values in ``intervals_h``. The inferred parameter is still named ``h``,
-            even if transformed by ``h_callback``, and its bounds, scales, and initial values can be set
-            via ``bounds``, ``scales``, and ``x0``. The fitness of heterozygotes and mutation homozygotes is defined as
-            ``1 + 2hs`` and ``1 + 2s``, respectively.
+            The parameter ``h`` is taken from ``params``. The fitness of heterozygotes and mutation homozygotes
+            is defined as ``1 + 2hs`` and ``1 + 2s``, respectively.
         :param integration_mode: Integration mode when computing expected SFS under semidominance.
             ``quad`` is not recommended.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
@@ -96,6 +95,9 @@ class Simulation:
             :meth:`~fastdfe.discretization.Discretization.get_divergence_flux`). When ``None`` (the
             default) the fixed-derived class is zero. Note that this is the *true*
             (population-level) divergence; it does not model finite-sample misattributed polymorphism.
+        :param discretization: Precomputed :class:`~fastdfe.discretization.Discretization` instance. When given,
+            ``intervals_del``, ``intervals_ben``, ``h_callback``, ``integration_mode``, ``linearized`` and
+            ``parallelize`` are ignored.
         :param parallelize: Whether to parallelize computations
         """
         #: The DFE parametrization
@@ -259,7 +261,7 @@ class Simulation:
 
         :param theta: Population mutation rate
         :param n_sites: Number of total sites
-        :param n: Number of frequency classes
+        :param n: Sample size, giving ``n + 1`` frequency classes
         :param r: Nuisance parameters that account for demography. An array of length ``n-1`` whose elements are
             multiplied element-wise with the polymorphic counts of the Kingman SFS. By default, no demography effects
             are considered which is equivalent to ``r = [1] * (n-1)``. Note that non-default values of ``r`` will also
@@ -340,7 +342,9 @@ class WrightFisherSimulation:  # pragma: no cover
             ``model`` will be used.
         :param model: DFE parametrization model
         :param sfs_neut: Neutral SFS. This sfs is informative on the population sample size, population mutation rate,
-            the number of sites, and demography. :func:`get_neutral_sfs` can be used to obtain a neutral SFS.
+            the number of sites, and demography.
+            :meth:`Simulation.get_neutral_sfs() <fastdfe.simulation.Simulation.get_neutral_sfs>` can be used to
+            obtain a neutral SFS.
         :param pop_size: Effective population size
         :param n_generations: Number of generations to simulate
         :param n_sites: Number of sites in the simulated SFS. If not provided, the number of sites in ``sfs_neut`` will

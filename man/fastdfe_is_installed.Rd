@@ -7,7 +7,8 @@
 fastdfe_is_installed()
 }
 \value{
-Logical \code{TRUE} if the \code{fastdfe} Python module is installed, otherwise \code{FALSE}.
+Logical \code{TRUE} if Python is initialised and the \code{fastdfe} Python module is available in it,
+otherwise \code{FALSE}, including in a session in which Python has not been initialised.
 }
 \description{
 This function uses the reticulate package to verify if the \code{fastdfe} Python
@@ -15,7 +16,7 @@ module is currently installed.
 }
 \examples{
 \dontrun{
-is_installed()  # Returns TRUE or FALSE based on the installation status of fastdfe
+fastdfe_is_installed()  # Returns TRUE or FALSE based on the installation status of fastdfe
 }
 
 }
