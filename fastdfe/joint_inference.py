@@ -10,7 +10,7 @@ import copy
 import functools
 import logging
 import time
-from typing import List, Dict, Tuple, Literal, Optional, cast, Callable
+from typing import List, Dict, Tuple, Literal, Optional, cast, Callable, TYPE_CHECKING
 
 import jsonpickle
 import multiprocess as mp
@@ -30,6 +30,9 @@ from .optimization import Optimization, SharedParams, pack_shared, expand_shared
 from .parametrization import Parametrization
 from sfsutils import Settings
 from sfsutils.spectrum import Spectrum, Spectra
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -141,7 +144,7 @@ class JointInference(BaseInference):
         :param integration_mode: Integration mode when computing expected SFS under semidominance.
             ``quad`` is not recommended.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
-            ``scipy.integrate.quad`` in each call. ``False`` not recommended.
+            :func:`scipy.integrate.quad` in each call. ``False`` not recommended.
         :param model: DFE parametrization
         :param seed: Random seed. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{'all': {param: value}}``, used for the marginal
@@ -150,7 +153,7 @@ class JointInference(BaseInference):
         :param scales: Scales for the optimization in the form ``{param: scale}``
         :param loss_type: Loss type
         :param opts_mle: Options for the optimization
-        :param method_mle: Method to use for optimization. See ``scipy.optimize.minimize`` for available methods.
+        :param method_mle: Method to use for optimization. See :func:`scipy.optimize.minimize` for available methods.
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
@@ -1056,8 +1059,8 @@ class JointInference(BaseInference):
         :param file: File to save plot to
         :param show: Whether to show plot
         :param ax: Axes to plot on. Only for Python visualization backend.
-        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python
-            visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
+            Only for Python visualization backend.
         :return: Axes object
         """
         labels, inferences = zip(*self.get_inferences(labels=labels, show_marginals=show_marginals).items())
@@ -1092,8 +1095,8 @@ class JointInference(BaseInference):
         :param title: Plot title
         :param use_subplots: Whether to use subplots. Only for Python visualization backend.
         :param show_monomorphic: Whether to show monomorphic counts
-        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python
-            visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
+            Only for Python visualization backend.
         :return: Axes object
         """
         from .visualization import Visualization
@@ -1176,8 +1179,8 @@ class JointInference(BaseInference):
         :param file: File to save plot to
         :param show: Whether to show plot
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
-        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python
-            visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
+            Only for Python visualization backend.
         :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object
         """
@@ -1216,8 +1219,8 @@ class JointInference(BaseInference):
         :param show: Whether to show plot
         :param ax: Axes to plot on. Only for Python visualization backend.
         :param scale: y-scale
-        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python
-            visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
+            Only for Python visualization backend.
         :return: Axes object
         """
         labels, inferences = zip(*self.get_inferences(labels=labels).items())

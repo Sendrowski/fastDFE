@@ -8,7 +8,7 @@ __date__ = "2023-03-12"
 
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Optional, Literal, Tuple, Dict, Sequence
+from typing import List, Optional, Literal, Tuple, Dict, Sequence, TYPE_CHECKING
 
 import jsonpickle
 import numpy as np
@@ -18,6 +18,9 @@ from typing_extensions import Self
 from .bootstrap import Bootstrap
 from .parametrization import Parametrization, _from_string
 from .utils import Serializable
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
 
 logger = logging.getLogger("fastdfe")
 
@@ -58,7 +61,8 @@ class Inference:
         :param labels: Labels for the DFEs.
         :param kwargs: Additional arguments which are ignored.
         :param ax: Axes to plot on. Only for Python visualization backend.
-        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
+            Only for Python visualization backend.
         :return: Axes of the plot.
         """
         from .visualization import Visualization
@@ -130,7 +134,8 @@ class Inference:
         :param scale: y-scale of the plot.
         :param scale_density: Whether to scale the density by the x-axis interval size.
         :param ax: Axes to plot on. Only for Python visualization backend.
-        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
+            Only for Python visualization backend.
         :param kwargs: Additional arguments for the plot.
         :return: Axes of the plot.
         """
@@ -189,7 +194,8 @@ class Inference:
         :param title: Title of the plot.
         :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes of the plot.
-        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
+            Only for Python visualization backend.
         :param kwargs: Additional arguments which are ignored.
         :raises ValueError: If no inference objects are given.
         """
@@ -502,7 +508,8 @@ class AbstractInference(Serializable, ABC):
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :param title: Title of the plot
         :param ax: Axes to plot on. Only for Python visualization backend.
-        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
+            Only for Python visualization backend.
         :return: Axes
         """
         return Inference.plot_discretized(

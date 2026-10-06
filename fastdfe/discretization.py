@@ -109,9 +109,9 @@ class Discretization:
         :param s_chunk_size: Chunk size for S values when precomputing across dominance coefficients.
             This controls memory usage vs. speed trade-off.
         :param integration_mode: ``'midpoint'`` for the trapezoidal rule over the bin edges or ``'quad'`` for
-            Scipy's quad method.
+            :func:`scipy.integrate.quad`.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
-            `scipy.integrate.quad` in each call.
+            :func:`scipy.integrate.quad` in each call.
         :param parallelize: Whether to parallelize the computation of the discretization.
         """
         # make sure lower bounds are lower than upper bounds
@@ -668,7 +668,7 @@ class Discretization:
 
     def get_counts_semidominant_quad(self) -> np.ndarray:
         """
-        Precompute linearized integral using Scipy's quad method.
+        Precompute linearized integral using :func:`scipy.integrate.quad`.
 
         :return: Matrix of shape (n - 1, n_intervals), rows indexed by allele count k = 1, ..., n - 1
         """
@@ -888,7 +888,7 @@ class Discretization:
 
             def integrate(k: int) -> float:
                 """
-                Integrate over DFE using scipy's quad.
+                Integrate over DFE using :func:`scipy.integrate.quad`.
                 Here we use the PDF.
                 """
 

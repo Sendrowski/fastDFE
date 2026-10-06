@@ -10,13 +10,16 @@ import logging
 import warnings
 from abc import abstractmethod, ABC
 from functools import wraps
-from typing import Callable, List, Union, Dict, Tuple, Literal, Sequence, Optional
+from typing import Callable, List, Union, Dict, Tuple, Literal, Sequence, Optional, TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 from scipy.stats import gamma, expon
 
 from fastdfe.utils import Serializable
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
 
 # get logger
 logger = logging.getLogger('fastdfe')

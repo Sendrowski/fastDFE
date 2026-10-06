@@ -166,7 +166,7 @@ class Visualization:
         :param show: Whether to show plot
         :param intervals: Array of interval boundaries over ``(-inf, inf)`` yielding ``intervals.shape[0] - 1`` bars.
         :param ax: Axes to plot on.
-        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
         :return: Axes
         """
         # number of intervals
@@ -259,7 +259,7 @@ class Visualization:
         :param show: Whether to show plot
         :param scale_density: Whether to scale the density by the bin size
         :param ax: Axes to plot on.
-        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
         :param kwargs: Additional arguments which are ignored
         :return: Axes
         """
@@ -396,7 +396,7 @@ class Visualization:
         :param file: File path to save plot to
         :param show: Whether to show plot
         :param ax: Axes to plot on.
-        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
         :return: Axes
         """
         labels = list(labels)
@@ -598,7 +598,7 @@ class Visualization:
         :param use_subplots: Whether to use subplots
         :param file: File to save plot to
         :param show: Whether to show the plot
-        :param kwargs_legend: Keyword arguments passed to ``matplotlib.axes.Axes.legend``.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
         :return: Axes
         """
         if len(spectra) == 0:

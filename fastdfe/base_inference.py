@@ -12,7 +12,7 @@ import itertools
 import logging
 import time
 from math import comb
-from typing import List, Optional, Dict, Literal, cast, Tuple, Sequence, Callable
+from typing import List, Optional, Dict, Literal, cast, Tuple, Sequence, Callable, TYPE_CHECKING
 
 import jsonpickle
 import multiprocess as mp
@@ -32,6 +32,9 @@ from .parametrization import Parametrization, _from_string, DFE
 from sfsutils.spectrum import Spectrum, Spectra
 from sfsutils.spectrum import standard_kingman
 from .utils import Serializable
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
 
 # get logger
 logger = logging.getLogger('fastdfe')
@@ -173,7 +176,7 @@ class BaseInference(AbstractInference):
         :param integration_mode: Integration mode when computing expected SFS under semidominance.
             ``quad`` is not recommended.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
-            ``scipy.integrate.quad`` in each call. ``False`` not recommended.
+            :func:`scipy.integrate.quad` in each call. ``False`` not recommended.
         :param model: DFE parametrization, given as a :class:`~fastdfe.parametrization.Parametrization` instance
             or as the name of its class.
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
@@ -182,7 +185,7 @@ class BaseInference(AbstractInference):
         :param scales: Scales for the optimization in the form ``{param: scale}``
         :param loss_type: Type of loss function to use for optimization.
         :param opts_mle: Options for the optimization.
-        :param method_mle: Method to use for optimization. See ``scipy.optimize.minimize`` for available methods.
+        :param method_mle: Method to use for optimization. See :func:`scipy.optimize.minimize` for available methods.
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.
@@ -1182,7 +1185,8 @@ class BaseInference(AbstractInference):
         :param scale: y-scale
         :param scale_density: Whether to scale the density by the x-axis interval size
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
+            Only for Python visualization backend.
         :param ax: Axes to plot on. Only for Python visualization backend.
         :return: Axes object
         """
@@ -1302,7 +1306,8 @@ class BaseInference(AbstractInference):
         :param title: Plot title
         :param use_subplots: Whether to use subplots. Only for Python visualization backend.
         :param show_monomorphic: Whether to show monomorphic counts
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
+            Only for Python visualization backend.
         :return: Axes object
         """
         from .visualization import Visualization
@@ -1419,7 +1424,8 @@ class BaseInference(AbstractInference):
         :param file: File to save plot to.
         :param show: Whether to show plot.
         :param ax: Axes to plot on. Only for Python visualization backend.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
+            Only for Python visualization backend.
         :return: Axes object
         """
         return Inference.plot_inferred_parameters(

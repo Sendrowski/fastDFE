@@ -44,12 +44,6 @@ bibtex_bibfiles = ['refs.bib']
 typehints_use_signature = True
 typehints_fully_qualified = False
 
-# Silence unresolved ``plt`` forward refs in plot-method type annotations (matplotlib.pyplot
-# is not in the documented modules' import namespace at autodoc time)
-suppress_warnings = [
-    'sphinx_autodoc_typehints.forward_reference',
-]
-
 # Resolve cross-references to the standalone sfsutils package (VCF parsing, spectra,
 # annotation, filtration) and to standard-library / scientific-stack types in
 # autodoc'd signatures against their published documentation.
@@ -61,6 +55,8 @@ intersphinx_mapping = {
     'tskit': ('https://tskit.dev/tskit/docs/stable', None),
     'zarr': ('https://zarr.readthedocs.io/en/stable', None),
     'cyvcf2': ('https://brentp.github.io/cyvcf2', None),
+    'matplotlib': ('https://matplotlib.org/stable/', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/', None),
 }
 
 

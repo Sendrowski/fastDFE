@@ -115,7 +115,7 @@ def unflatten_dict(d: dict, separator='.'):
 def unpack_params(x: np.ndarray, original: Dict[str, dict | tuple | float]) -> Dict[str, dict | tuple | float]:
     """
     Unpack params from numpy array. This is the inverse of pack_params and is used
-    as scipy.optimize.minimize only accepts numpy arrays as parameters.
+    as :func:`scipy.optimize.minimize` only accepts numpy arrays as parameters.
 
     :param x: Numpy array
     :param original: Original dictionary
@@ -128,7 +128,7 @@ def unpack_params(x: np.ndarray, original: Dict[str, dict | tuple | float]) -> D
 
 def pack_params(params: Dict[str, dict | tuple | float]) -> np.ndarray:
     """
-    Pack params into numpy array. This is used as scipy.optimize.minimize only accepts
+    Pack params into numpy array. This is used as :func:`scipy.optimize.minimize` only accepts
     numpy arrays as parameters. This is the inverse of unpack_params.
 
     :param params: Dictionary to pack

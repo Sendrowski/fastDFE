@@ -12,7 +12,7 @@ import logging
 import subprocess
 import tempfile
 import time
-from typing import Callable, List, Optional, Literal, Dict
+from typing import Callable, List, Optional, Literal, Dict, TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -23,6 +23,9 @@ from .abstract_inference import AbstractInference, Inference
 from .config import Config
 from .parametrization import _from_string, Parametrization, DiscreteParametrization
 from .polydfe_utils import create_sfs_config, models
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
 
 # get logger
 logger = logging.getLogger('fastdfe').getChild('PolydfeWrapper')
@@ -357,7 +360,8 @@ class PolyDFE(AbstractInference):
         :param file: File to save the plot to
         :param show: Show the plot
         :param ax: Axes to plot on. Only for Python visualization backend.
-        :param kwargs_legend: Keyword arguments passed to :meth:`plt.legend`. Only for Python visualization backend.
+        :param kwargs_legend: Keyword arguments passed to :meth:`Axes.legend() <matplotlib.axes.Axes.legend>`.
+            Only for Python visualization backend.
         :return: Axes object
         """
         return Inference.plot_inferred_parameters(
