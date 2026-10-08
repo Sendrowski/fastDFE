@@ -120,7 +120,7 @@ class BaseInference(AbstractInference):
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0.0, 1.0, 21),
-            h_callback: Callable[[np.ndarray], np.ndarray] = None,
+            h_callback: Callable[[float, np.ndarray], np.ndarray] = None,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -892,7 +892,7 @@ class BaseInference(AbstractInference):
         self.bootstraps['omega'] = self.bootstraps.apply(lambda r: self.get_omega(dict(r)), axis=1)
         self.bootstraps['omega_a'] = self.bootstraps.apply(lambda r: self.get_omega_a(dict(r)), axis=1)
 
-    def _get_run_bootstrap_sample(self) -> Callable[[int], Tuple['scipy.optimize.OptimizeResult', dict, dict, int]]:
+    def _get_run_bootstrap_sample(self) -> Callable[[int], List[Tuple['scipy.optimize.OptimizeResult', dict, dict]]]:
         """
         Get function which runs a single bootstrap sample.
 
@@ -914,7 +914,7 @@ class BaseInference(AbstractInference):
         n_sites_div_sel = self.n_sites_div_sel
         params_mle_all = dict(all=self.params_mle)
 
-        def run_bootstrap_sample(seed: int):
+        def run_bootstrap_sample(seed: int) -> List[Tuple['scipy.optimize.OptimizeResult', dict, dict]]:
             """
             Resample the selected and neutral SFS and rerun optimization.
             The first run starts at the MLE, subsequent runs start at initial values sampled within the
@@ -1379,7 +1379,7 @@ class BaseInference(AbstractInference):
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
             point_estimate: Literal['original', 'mean', 'median'] = 'mean'
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Get statistics for the discretized DFE.
 

@@ -41,7 +41,7 @@ class Config:
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0.0, 1.0, 21),
-            h_callback: Callable[[np.ndarray], np.ndarray] = None,
+            h_callback: Callable[[float, np.ndarray], np.ndarray] = None,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',

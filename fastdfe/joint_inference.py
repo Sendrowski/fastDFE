@@ -86,7 +86,7 @@ class JointInference(BaseInference):
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0.0, 1.0, 21),
-            h_callback: Callable[[np.ndarray], np.ndarray] = None,
+            h_callback: Callable[[float, np.ndarray], np.ndarray] = None,
             integration_mode: Literal['midpoint', 'quad'] = 'midpoint',
             linearized: bool = True,
             model: Parametrization | str = 'GammaExpParametrization',
@@ -768,7 +768,7 @@ class JointInference(BaseInference):
 
         return self.lrt(simple.likelihood, self.likelihood, len(self.covariates))
 
-    def _get_run_bootstrap_sample(self) -> Callable[[int], Tuple['scipy.optimize.OptimizeResult', dict, dict, int]]:
+    def _get_run_bootstrap_sample(self) -> Callable[[int], List[Tuple['scipy.optimize.OptimizeResult', dict, dict]]]:
         """
         Get function which runs a single bootstrap sample.
 
@@ -791,7 +791,7 @@ class JointInference(BaseInference):
         sfs_neut = dict((t, self.marginal_inferences[t].sfs_neut) for t in self.types)
         sfs_sel = dict((t, self.marginal_inferences[t].sfs_sel) for t in self.types)
 
-        def run_bootstrap_sample(seed: int) -> Tuple['scipy.optimize.OptimizeResult', dict, dict, int]:
+        def run_bootstrap_sample(seed: int) -> List[Tuple['scipy.optimize.OptimizeResult', dict, dict]]:
             """
             Resample the neutral and selected SFS of every type and rerun the optimization procedure.
             The first run starts at the MLE, subsequent runs start at initial values sampled within
@@ -1341,7 +1341,7 @@ class JointInference(BaseInference):
             ci_level: float = 0.05,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
             point_estimate: Literal['original', 'mean', 'median'] = 'mean'
-    ) -> Dict[str, Tuple[np.ndarray, np.ndarray]]:
+    ) -> Tuple[Dict[str, np.ndarray], Dict[str, Optional[np.ndarray]]]:
         """
         Get discretized DFEs.
 
@@ -1458,7 +1458,7 @@ class JointInference(BaseInference):
 
         return norm(counts_mle - counts_sel, k)
 
-    def get_alpha(self, params: dict = None, use_divergence: bool = None) -> float:
+    def get_alpha(self, params: dict = None, use_divergence: bool = None) -> Dict[str, float]:
         """
         Get alpha, the proportion of beneficial non-synonymous substitutions, for each type.
 
