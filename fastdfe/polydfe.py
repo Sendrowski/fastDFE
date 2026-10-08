@@ -344,7 +344,6 @@ class PolyDFE(AbstractInference):
             show: bool = True,
             title: str = 'parameter estimates',
             scale: Literal['lin', 'log', 'symlog'] = 'log',
-            legend: bool = True,
             ax: 'plt.Axes' = None,
             kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
     ) -> 'plt.Axes':
@@ -355,7 +354,6 @@ class PolyDFE(AbstractInference):
         :param confidence_intervals: Whether to show confidence intervals
         :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap
-        :param legend: Ignored, a legend is drawn only for more than one inference
         :param title: Title of the plot
         :param file: File to save the plot to
         :param show: Show the plot
@@ -373,7 +371,6 @@ class PolyDFE(AbstractInference):
             file=file,
             show=show,
             title=title,
-            legend=legend,
             scale=scale,
             ax=ax,
             kwargs_legend=kwargs_legend
