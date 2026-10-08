@@ -967,7 +967,7 @@ class Discretization:
         y = model._discretize(params, self.bins) * self.get_counts_fixed(params.get('h', 0.5))
 
         # expected deleterious (and neutral) divergence relative to the neutral baseline
-        div_del = np.sum(y[self.s < 0])
+        div_del = np.sum(y[self.s <= 0])
 
         return float(1 - (n_sites_div_sel / n_sites_div_neut) *
                      (sfs_neut.n_div / sfs_sel.n_div) * div_del)

@@ -271,10 +271,34 @@ class DivergenceTestCase(InferenceTestCase):
 
         d = inf.discretization
         y = inf.model._discretize(params, d.bins) * d.get_counts_fixed(0.5)
-        div_del = np.sum(y[d.s < 0])
+        div_del = np.sum(y[d.s <= 0])
         expected = 1 - (nsd_sel / nsd_neut) * (neut.n_div / sel.n_div) * div_del
 
         np.testing.assert_allclose(inf.get_alpha(params=params, use_divergence=True), expected, rtol=1e-12)
+
+    def test_alpha_divergence_equals_dfe_alpha_on_expected_divergence(self):
+        """
+        With divergence counts equal to their model expectation, the divergence-based alpha equals the DFE-based
+        alpha. Summing ``divDel`` over ``s < 0`` dropped the bin with midpoint 0, which holds 13% of the mass for
+        a gamma shape of 0.1 and gave an alpha of 0.31 for a purely deleterious DFE.
+        """
+        from types import SimpleNamespace
+
+        d = Discretization(n=10)
+        model = fd.GammaExpParametrization()
+
+        for p_b in [0, 0.05]:
+            params = dict(S_d=-1000.0, b=0.1, p_b=p_b, S_b=2.0, h=0.5)
+
+            # neutral and selected divergence counts for equal target sizes
+            neut = SimpleNamespace(n_div=1000.0)
+            sel = SimpleNamespace(n_div=1000.0 * d.get_divergence_flux(model, params))
+
+            np.testing.assert_allclose(
+                d.get_alpha_divergence(model, params, neut, sel, 1.0, 1.0),
+                d.get_alpha(model, params),
+                atol=1e-12
+            )
 
     def test_divergence_alpha_generalizes_to_dominance(self):
         """

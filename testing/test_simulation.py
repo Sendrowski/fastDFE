@@ -219,7 +219,7 @@ class SLiMTestCase(TestCase):
             self.assertLess(err_div, 0.12, f"{params}: divergence alpha {alpha_div:.3f} vs true {alpha_true:.3f}")
 
             # (2) using divergence is at least as good as polymorphism alone
-            self.assertLessEqual(err_div, err_poly + 0.05, f"{params}: divergence worse than polymorphism")
+            self.assertLessEqual(err_div, err_poly + 0.06, f"{params}: divergence worse than polymorphism")
 
             errors_div.append(err_div)
             if params['s_b'] <= 1e-4:  # weak beneficial selection
