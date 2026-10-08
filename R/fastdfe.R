@@ -357,7 +357,7 @@ load_fastdfe <- function(install = FALSE) {
   # @param show Logical. Whether to show plot. Default is `TRUE`.
   # @param title Character. Title of the plot. Default is 'parameter estimates'.
   # @param legend Logical. Whether to show the legend. Default is `TRUE`.
-  # @param scale Character. Whether to use a linear or log scale. Default is 'log'.
+  # @param scale Character. Scale of the y-axis, 'lin', 'log' or 'symlog'. Default is 'log'.
   # @param ... Additional arguments which are ignored
   #
   # @return A ggplot object.
@@ -391,10 +391,17 @@ load_fastdfe <- function(install = FALSE) {
       group = factor(rep(labels, each = n_params), levels = unique(labels))
     )
 
-    # error bars of the absolute values, not extending below zero
+    # error bars of the absolute values, not extending below zero. The lower and upper deviations
+    # swap for negative parameters.
     if (!is.null(errors) && !is.null(errors[[1]])) {
-      df$ymin <- pmax(unlist(lapply(seq_len(n_types), function(i) abs(values[[i]]) - errors[[i]][1, ])), 0)
-      df$ymax <- unlist(lapply(seq_len(n_types), function(i) abs(values[[i]]) + errors[[i]][2, ]))
+      df$ymin <- pmax(unlist(lapply(seq_len(n_types), function(i) {
+        v <- unlist(values[[i]])
+        abs(v) - ifelse(v >= 0, errors[[i]][1, ], errors[[i]][2, ])
+      })), 0)
+      df$ymax <- unlist(lapply(seq_len(n_types), function(i) {
+        v <- unlist(values[[i]])
+        abs(v) + ifelse(v >= 0, errors[[i]][2, ], errors[[i]][1, ])
+      }))
     }
 
     p <- ggplot2::ggplot(df, ggplot2::aes(x = factor(.data$x), y = .data$y, fill = .data$group)) +
@@ -409,8 +416,8 @@ load_fastdfe <- function(install = FALSE) {
     if (legend) p <- p + .legend_inside()
 
     # symmetric log scale with linear threshold 1e-3, so that bars start at zero
-    p <- p + .scale_y(if (scale == "log") "symlog" else "lin", expand = ggplot2::expansion(mult = c(0, 0.05)),
-                      linthresh = 1e-3)
+    p <- p + .scale_y(if (scale %in% c("log", "symlog")) "symlog" else "lin",
+                      expand = ggplot2::expansion(mult = c(0, 0.05)), linthresh = 1e-3)
 
     suppressWarnings(.show_and_save(p, show, file))
   }
