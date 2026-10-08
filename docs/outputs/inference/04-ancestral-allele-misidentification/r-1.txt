@@ -1,9 +1,8 @@
 INFO:BaseInference: No divergence counts provided, inferring from polymorphism only.
 INFO:Discretization: Precomputing semidominant DFE-SFS transformation using midpoint integration.
-Discretization>Precomputing: 100%|██████████| 9/9 [--:--<--:--, --it/s]
 INFO:Optimization: Optimizing 5 parameters: [all.S_d, all.b, all.p_b, all.S_b, all.eps].
 BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
 WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.p_b: (0, 0, 0.5)} [(lower, value, upper)], but this might be nothing to worry about.
-INFO:BaseInference: Inference results: {all.S_d: -1.064e+04 ± 3.6e+03, all.b: 0.1508 ± 0.0035, all.p_b: 0 ± 0.0016, all.S_b: 0.0001676 ± 0.051, all.eps: 0.006854 ± 0.00084, all.h: 0.5 ± 0, likelihood: -34.63 ± 0.052} (best_run ± std_across_runs)
+INFO:BaseInference: Inference results: {all.S_d: -1.064e+04 ± 3.6e+03, all.b: 0.1508 ± 0.0038, all.p_b: 0 ± 0.0032, all.S_b: 0.0001671 ± 0.051, all.eps: 0.006854 ± 0.00083, all.h: 0.5 ± 0, likelihood: -34.63 ± 0.052} (best_run ± std_across_runs)
 BaseInference>Bootstrapping (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
-INFO:BaseInference: Bootstrap summary: {all.S_d: -2.243e+04 ± 3.5e+04, all.b: 0.9818 ± 2.5, all.p_b: 0.0696 ± 0.093, all.S_b: 0.01632 ± 0.094, all.eps: 0.006245 ± 0.0071, all.h: 0.5 ± 0, likelihood: -40.12 ± 4.6, i_best_run: 0.63 ± 0.49, likelihoods_std: 0.02054 ± 0.1} (mean ± std)
+INFO:BaseInference: Bootstrap summary: {all.S_d: -2.234e+04 ± 3.5e+04, all.b: 0.9819 ± 2.5, all.p_b: 0.06981 ± 0.092, all.S_b: 0.01783 ± 0.094, all.eps: 0.006242 ± 0.0071, all.h: 0.5 ± 0, likelihood: -40.12 ± 4.6, i_best_run: 0.55 ± 0.5, likelihoods_std: 0.04743 ± 0.3} (mean ± std)

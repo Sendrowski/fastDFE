@@ -1,4 +1,4 @@
-alpha (with divergence):   0.5940325
-alpha (polymorphism only): 0.5940308
+alpha (with divergence):   0.5940486
+alpha (polymorphism only): 0.5940461
 omega:   0.4786325
-omega_a: 0.2843232
+omega_a: 0.284331

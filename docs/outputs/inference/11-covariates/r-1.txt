@@ -1,8 +1,6 @@
 INFO:Parser: Using stratification: [neutral, selected].[A, C, G, T].
 INFO:Parser: Loading VCF file
-INFO:FileHandler: Downloading file from https://github.com/Sendrowski/fastDFE/blob/master/resources/genome/betula/all.polarized.deg.subset.200000.vcf.gz?raw=true
-Parser>Downloading file: 100%|██████████| 101M/101M [--:--<--:--, 24.9MB/s]
-INFO:FileHandler: Cached file at <tmp>/616b7fc393e9.all.polarized.deg.subset.200000.vcf.gz
+INFO:FileHandler: Using cached file at <tmp>/616b7fc393e9.all.polarized.deg.subset.200000.vcf.gz
 INFO:FileHandler: Using cached file at <tmp>/616b7fc393e9.all.polarized.deg.subset.200000.vcf.gz
 Parser>Counting sites: 200000it [--:--, --it/s]
 Parser>Processing sites: 100%|██████████| 200000/200000 [--:--<--:--, --it/s]
