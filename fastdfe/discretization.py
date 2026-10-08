@@ -428,7 +428,7 @@ class Discretization:
     @staticmethod
     def _get_counts_dominant(
             n: int,
-            k: int,
+            k: int | np.ndarray,
             h: float | np.ndarray,
             S: np.ndarray,
             n_outer: int = 1000,
@@ -439,26 +439,27 @@ class Discretization:
         Allele frequency sojourn times under selection with specific dominance coefficients.
 
         :param n: Sample size.
-        :param k: Allele count.
+        :param k: Allele count or array of allele counts.
         :param h: Dominance coefficients associated with selection coefficients or single dominance coefficient.
         :param S: Selection coefficients.
         :param n_outer: Grid size for outer integral over allele frequencies for binomial sampling.
         :param n_inner: Grid size for inner integrals over allele frequencies.
         :param pow_cluster: Power for clustering grid points towards 0.
 
-        :return: Array of shape (len(S),) with allele counts.
+        :return: Array of allele counts of shape (len(S),) for a single allele count, else (len(k), len(S)).
         """
         h = np.full_like(S, h) if np.isscalar(h) else np.asarray(h)
         S = np.asarray(S)
+        K = [int(i) for i in np.atleast_1d(k)]
 
         # x-grid
         x = np.linspace(0, 1, n_outer) ** pow_cluster  # (n_outer,)
 
-        # binomial term
-        binom = comb(n, k) * x ** (k - 1) * (1 - x) ** (n - k - 1)  # (n_outer,)
+        # binomial term, the only factor that depends on the allele count
+        binom = [comb(n, i) * x ** (i - 1) * (1 - x) ** (n - i - 1) for i in K]  # (K, n_outer)
 
         # result array
-        y = np.empty(S.size, dtype=float)  # (P,)
+        y = np.empty((len(K), S.size), dtype=float)  # (K, P)
 
         is_deleterious = S <= 0
         if is_deleterious.any():
@@ -493,9 +494,10 @@ class Discretization:
 
             ratio = norm_q / norm0  # (n_outer, P1)
 
-            integrand = binom[:, None] * exponent_main * ratio  # (n_outer, P1)
+            for i in range(len(K)):
+                integrand = binom[i][:, None] * exponent_main * ratio  # (n_outer, P1)
 
-            y[is_deleterious] = trapezoid(integrand, x, axis=0)  # (P1,)
+                y[i, is_deleterious] = trapezoid(integrand, x, axis=0)  # (P1,)
 
         if (~is_deleterious).any():
             S_pos = S[~is_deleterious]  # (P2,)
@@ -523,11 +525,12 @@ class Discretization:
             c = trapezoid(np.exp(term), xx, axis=2)  # (n_outer, P2)
             del term, xx
 
-            integrand = binom[:, None] * c / norm0[None, :]  # (n_outer, P2)
+            for i in range(len(K)):
+                integrand = binom[i][:, None] * c / norm0[None, :]  # (n_outer, P2)
 
-            y[~is_deleterious] = trapezoid(integrand, x, axis=0)  # (P2,)
+                y[i, ~is_deleterious] = trapezoid(integrand, x, axis=0)  # (P2,)
 
-        return y
+        return y[0] if np.isscalar(k) else y
 
     def map_h(self, h: float, S: np.ndarray) -> np.ndarray:
         """
@@ -733,30 +736,29 @@ class Discretization:
 
         def compute_slice(args):
             """
-            Compute allele counts for given (i, j, c).
+            Compute allele counts of all frequency classes for given (j, c).
 
-            :param args: Tuple of (i, j, c) where i is allele count index, j is dominance index, c is S-chunk index
+            :param args: Tuple of (j, c) where j is dominance index, c is S-chunk index
             """
-            i, j, c = args
+            j, c = args
 
-            return [self._get_counts_dominant(
+            return self._get_counts_dominant(
                 n=self.n,
-                k=K[i],
+                k=K,
                 S=S_chunks[c],
                 h=np.full_like(S_chunks[c], self.grid_h[j]) if self.h is None else h_mapped_chunks[c],
                 n_outer=self.n_outer,
                 n_inner=self.n_inner
-            )]
+            )
 
-        ijc = list(product(
-            range(self.n - 1),
+        jc = list(product(
             range(n_h),
             range(n_chunks)
         ))
 
         P = parallelize_func(
             func=compute_slice,
-            data=ijc,
+            data=jc,
             parallelize=self.parallelize,
             desc=f"{self.__class__.__name__}>Precomputing",
             dtype=float,

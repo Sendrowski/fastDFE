@@ -632,6 +632,19 @@ class FastDiscretizationTestCase(TestCase):
             **kwargs
         )
 
+    def test_counts_dominant_for_all_allele_counts_equal_single_counts(self):
+        """
+        ``_get_counts_dominant`` evaluated for all allele counts at once equals its evaluation for each allele
+        count separately.
+        """
+        d = self._disc(h=0.3)
+
+        together = Discretization._get_counts_dominant(n=d.n, k=np.arange(1, d.n), S=d.bins, h=0.3)
+        single = [Discretization._get_counts_dominant(n=d.n, k=k, S=d.bins, h=0.3) for k in range(1, d.n)]
+
+        self.assertEqual(together.shape, (d.n - 1, len(d.bins)))
+        np.testing.assert_array_equal(together, np.array(single))
+
     def test_semidominant_dominance_grid(self):
         """Dominance precompute and the per-h count tables (the h != 0.5 path)."""
         d = self._disc(h=None, intervals_h=(0.0, 1.0, 5))
