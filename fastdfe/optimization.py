@@ -1242,6 +1242,17 @@ class Optimization:
             """
             return -bounds[1], -bounds[0]
 
+        def lin_rvs(lower: float, upper: float, random_state: Generator) -> float:
+            """
+            Sample from a uniform distribution.
+
+            :param lower: Lower bound
+            :param upper: Upper bound
+            :param random_state: Random state
+            :return: Sampled value
+            """
+            return uniform.rvs(lower, upper - lower, random_state=random_state)
+
         def symlog_rvs(lower: float, upper: float, random_state: Generator) -> float:
             """
             Sample from a symmetric log-uniform distribution.
@@ -1258,7 +1269,7 @@ class Optimization:
 
         # dictionary of scaling functions
         scaling_functions = {
-            'lin': uniform.rvs,
+            'lin': lin_rvs,
             'log': loguniform.rvs,
             'symlog': symlog_rvs
         }
@@ -1281,7 +1292,7 @@ class Optimization:
             bounds = flip(bounds)
 
         # sample a value using the appropriate scaling function
-        sample = scaling_functions[scale](bounds[0], bounds[1] - bounds[0], random_state=random_state)
+        sample = scaling_functions[scale](bounds[0], bounds[1], random_state=random_state)
 
         # return the sampled value, flipping back if necessary
         return -sample if flipped else sample

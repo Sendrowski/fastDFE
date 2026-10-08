@@ -181,6 +181,26 @@ class OptimizationTestCase(TestCase):
         with self.assertRaises(ValueError):
             Optimization.sample_value(bounds, scale)
 
+    def test_log_scales_cover_the_bounds(self):
+        """
+        Samples on the log and symlog scales reach the upper bound. Passing ``upper - lower`` as the upper limit
+        confined bounds ``(1, 3)`` to ``[1, 2]`` and raised for bounds with ``upper < 2 * lower``.
+        """
+        rng = np.random.default_rng(0)
+
+        for bounds in [(1, 3), (10, 15)]:
+            x = np.array([Optimization.sample_value(bounds, 'log', rng) for _ in range(2000)])
+
+            self.assertGreaterEqual(x.min(), bounds[0])
+            self.assertLessEqual(x.max(), bounds[1])
+            self.assertGreater(x.max(), bounds[1] - 0.05 * (bounds[1] - bounds[0]))
+
+        x = np.abs([Optimization.sample_value((0.6, 1.0), 'symlog', rng) for _ in range(2000)])
+
+        self.assertGreaterEqual(x.min(), 0.6)
+        self.assertLessEqual(x.max(), 1.0)
+        self.assertGreater(x.max(), 0.98)
+
     def test_correct_values_no_changes(self):
         """
         Test that values are not changed when they are within bounds.
