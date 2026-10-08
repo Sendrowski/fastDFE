@@ -140,6 +140,28 @@ class ConfigTestCase(TestCase):
         # because of the default specific to Inference.
         self.assert_config_equal(config, config2, ['bounds', 'scales', 'opts_mle', 'sfs_neut', 'sfs_sel', 'x0'])
 
+    def test_from_dict_leaves_argument_unchanged(self):
+        """
+        ``Config.from_dict`` does not modify the passed dictionary, which can then be loaded again.
+        """
+        import copy
+        import json
+
+        data = json.loads(Config(
+            shared_params=[SharedParams(types=['a', 'b'], params=['S_d'])],
+            covariates=[Covariate(param='S_d', values=dict(a=1, b=2))]
+        ).to_json())
+        original = copy.deepcopy(data)
+
+        Config.from_dict(data)
+
+        self.assertEqual(data, original)
+
+        config = Config.from_dict(data)
+
+        self.assertIsInstance(config.data['shared_params'][0], SharedParams)
+        self.assertIsInstance(config.data['covariates'][0], Covariate)
+
     def test_restore_shared_params(self):
         """
         Test whether shared params can be properly restored from file.

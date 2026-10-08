@@ -301,6 +301,8 @@ class Config:
         :param data: Dictionary representation of config.
         :return: Config object.
         """
+        data = dict(data)
+
         # recreate spectra objects
         for sfs in ['sfs_neut', 'sfs_sel']:
             if sfs in data and data[sfs] is not None:
