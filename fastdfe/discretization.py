@@ -170,7 +170,7 @@ class Discretization:
         # the number of intervals
         self.n_intervals: int = self.s.shape[0]
 
-        # cache for DFE to SFS transformations of shape (n, len(grid_h), n_intervals)
+        # cache for DFE to SFS transformations of shape (n - 1, len(grid_h), n_intervals)
         self._cache: np.ndarray = None
 
         # cache for get_counts_fixed of shape (len(grid_h), n_intervals)

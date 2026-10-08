@@ -886,7 +886,9 @@ class JointInference(BaseInference):
             pbar_title: str = 'Bootstrapping joint inference'
     ) -> Optional[pd.DataFrame]:
         """
-        Perform the parametric bootstrap both for the marginal and joint inferences.
+        Perform the parametric bootstrap both for the marginal and joint inferences. Replicates are obtained by
+        resampling the neutral and selected SFS of each type from independent Poisson distributions with the
+        observed counts as means.
 
         :param n_samples: Number of bootstrap samples. Defaults to :attr:`n_bootstraps`.
         :param parallelize: Whether to parallelize the bootstrap. Defaults to :attr:`parallelize`.

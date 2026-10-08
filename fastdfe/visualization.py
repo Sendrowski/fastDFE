@@ -159,7 +159,8 @@ class Visualization:
         :param interval_labels: Labels for the intervals (which are the same for all types)
         :param labels: Labels for the different types of DFEs
         :param title: Title of the plot
-        :param values: Sequence with one array of size ``intervals.shape[0] - 1`` per type, containing the discretized DFE
+        :param values: Sequence with one array of size ``intervals.shape[0] - 1`` per type, containing the
+            discretized DFE
         :param errors: Sequence with one entry per type, each ``None`` or an array of shape
             ``(2, intervals.shape[0] - 1)`` holding the lower and upper deviations from ``values``
         :param file: File path to save plot to

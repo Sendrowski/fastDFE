@@ -403,7 +403,7 @@ class BaseInference(AbstractInference):
 
             if not fixed_dele.issubset(fixed):
                 self._logger.warning("You are estimating the full DFE, but the SFS are folded. "
-                                     "This is not recommend as the folded SFS contains little information "
+                                     "This is not recommended as the folded SFS contains little information "
                                      "on beneficial mutations.")
 
         if set(x0) - {'all'}:
@@ -737,7 +737,8 @@ class BaseInference(AbstractInference):
             pbar_title: str = 'Bootstrapping'
     ) -> pd.DataFrame:
         """
-        Perform the parametric bootstrap.
+        Perform the parametric bootstrap. Replicates are obtained by resampling the neutral and selected SFS from
+        independent Poisson distributions with the observed counts as means.
 
         :param n_samples: Number of bootstrap samples. Defaults to :attr:`n_bootstraps`.
         :param parallelize: Whether to parallelize the bootstrap. Defaults to :attr:`parallelize`.
@@ -777,7 +778,8 @@ class BaseInference(AbstractInference):
             pbar_title: str = 'Bootstrapping',
     ) -> pd.DataFrame:
         """
-        Perform the parametric bootstrap.
+        Perform the parametric bootstrap. Replicates are obtained by resampling the neutral and selected SFS from
+        independent Poisson distributions with the observed counts as means.
 
         :param n_samples: Number of bootstrap samples. Defaults to :attr:`n_bootstraps`.
         :param parallelize: Whether to parallelize the bootstrap. Defaults to :attr:`parallelize`.

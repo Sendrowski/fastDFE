@@ -306,7 +306,7 @@ class PolyDFE(AbstractInference):
             # file name of resampled SFS config
             sfs_config_file = tmp.name + '_1'
 
-            # use exiting config as template and load init and SFS file
+            # use existing config as template and load init and SFS file
             config = copy.deepcopy(self.config)
             config.parse_polydfe_sfs_config(sfs_config_file)
             config.data['x0'] = dict(all=self.summary.data['params_mle'])

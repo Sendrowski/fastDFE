@@ -562,7 +562,7 @@ class GammaDiscreteParametrization(Parametrization):
 
         :param S_d: Mean of the DFE for S < 0
         :param b: Shape of the gamma distribution
-        :param p_b: Probability that S > 0
+        :param p_b: Probability that S >= 0
         :param S_b: Reciprocal of the upper limit of the uniform density on 0 <= S <= 1 / S_b
         :return: Function that accepts an array of selection coefficients and returns their probability density
         """
@@ -596,7 +596,7 @@ class GammaDiscreteParametrization(Parametrization):
 
         :param S_d: Mean of the DFE for S < 0
         :param b: Shape of the gamma distribution
-        :param p_b: Probability that S > 0
+        :param p_b: Probability that S >= 0
         :param S_b: Reciprocal of the upper limit of the uniform density on 0 <= S <= 1 / S_b
         :return: Function that accepts an array of selection coefficients and returns their cumulative probability
         """
