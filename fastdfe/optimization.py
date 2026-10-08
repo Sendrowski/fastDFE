@@ -232,11 +232,11 @@ def expand_shared(params: List['SharedParams'], types: List[str], names: List[st
 
     for x in params:
         # expand 'all' type
-        types = types if x.types == 'all' else x.types
-        params = names if x.params == 'all' else x.params
-
         # noinspection PyTypeChecker
-        expanded.append(SharedParams(types=types, params=params))
+        expanded.append(SharedParams(
+            types=types if x.types == 'all' else x.types,
+            params=names if x.params == 'all' else x.params
+        ))
 
     return expanded
 

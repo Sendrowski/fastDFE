@@ -7,7 +7,7 @@ from numpy import testing
 
 from fastdfe.optimization import pack_params, unpack_params, flatten_dict, unflatten_dict, filter_dict, Optimization, \
     merge_dicts, correct_values, to_symlog, from_symlog, scale_bound, scale_value, unscale_value, unscale_bound, \
-    check_bounds, perturb_value, collapse_fixed_to_mean, collapse_fixed
+    check_bounds, perturb_value, collapse_fixed_to_mean, collapse_fixed, expand_shared, SharedParams
 from testing import TestCase
 
 
@@ -180,6 +180,20 @@ class OptimizationTestCase(TestCase):
         scale = 'log'
         with self.assertRaises(ValueError):
             Optimization.sample_value(bounds, scale)
+
+    def test_expand_shared_all_follows_explicit_types(self):
+        """
+        An entry with ``types='all'`` expands to every type when it follows an entry naming explicit types.
+        Reassigning the ``types`` argument inside the loop made it inherit the preceding entry's types.
+        """
+        expanded = expand_shared(
+            [SharedParams(types=['a', 'b'], params=['p']), SharedParams()],
+            types=['a', 'b', 'c'],
+            names=['p', 'q']
+        )
+
+        self.assertEqual(expanded[0], SharedParams(types=['a', 'b'], params=['p']))
+        self.assertEqual(expanded[1], SharedParams(types=['a', 'b', 'c'], params=['p', 'q']))
 
     def test_log_scales_cover_the_bounds(self):
         """
