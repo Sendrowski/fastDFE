@@ -156,3 +156,30 @@ def test_colored_formatter_strips_package_and_wraps_color():
     fmt = fd.ColoredFormatter('%(name)s:%(message)s')
     out = fmt.format(logging.LogRecord('fastdfe.parser', logging.WARNING, __file__, 1, 'hi', None, None))
     assert 'parser:hi' in out and out.startswith(fmt.colors['WARNING']) and out.endswith(fmt.reset)
+
+
+def test_name_to_label_keeps_mapped_label_for_negative_values():
+    """
+    A negative value prefixes the mapped label with a minus sign. The raw parameter name was returned,
+    dropping the Greek letter.
+    """
+    from fastdfe.visualization import Visualization
+
+    assert Visualization.name_to_label('alpha', ['alpha'], [0.5]) == '$α$'
+    assert Visualization.name_to_label('alpha', ['alpha'], [-0.5]) == '$-α$'
+    assert Visualization.name_to_label('S_d', ['S_d'], [-10]) == '$-S_d$'
+
+
+def test_plot_scatter_symlog_scale():
+    """
+    ``plot_scatter`` uses a symmetric log axis for both ``log`` and ``symlog``, and a linear one for ``lin``.
+    """
+    import matplotlib.pyplot as plt
+    from fastdfe.visualization import Visualization
+
+    for scale, expected in [('lin', 'linear'), ('log', 'symlog'), ('symlog', 'symlog')]:
+        _, ax = plt.subplots()
+        Visualization.plot_scatter(values=[-1.0, 2.0, 3.0], file=None, show=False, ax=ax, scale=scale)
+
+        assert ax.get_yscale() == expected
+        plt.close('all')

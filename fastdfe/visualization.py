@@ -233,7 +233,7 @@ class Visualization:
             file: str = None,
             show: bool = True,
             title: str = 'continuous DFE',
-            scale: Literal['log', 'linear'] = 'lin',
+            scale: Literal['lin', 'log'] = 'lin',
             ylim: float = 1e-2,
             scale_density: bool = False,
             kwargs_legend: dict = dict(prop=dict(size=8)),
@@ -362,7 +362,7 @@ class Visualization:
         if vals is None or k >= len(vals) or vals[k] >= 0:
             return '$' + label + '$'
 
-        return '$-' + key + '$'
+        return '$-' + label + '$'
 
     @staticmethod
     @clear_show_save
@@ -810,7 +810,7 @@ class Visualization:
         # set title
         ax.set_title(title)
 
-        if scale == 'log':
+        if scale in ['log', 'symlog']:
             ax.set_yscale('symlog')
 
         return ax
