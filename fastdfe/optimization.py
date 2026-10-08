@@ -1136,6 +1136,12 @@ class Optimization:
         :param print_debug: Whether to print debug messages
         :return: The loss function
         """
+        # flattened keys of self.x0 with the bounds and scale of each parameter
+        keys = list(flatten_dict(self.x0).keys())
+        conversions = [(self.bounds[get_basename(key)], self.scales[get_basename(key)]) for key in keys]
+
+        # observed counts of the previous evaluation and the logarithm of their factorial
+        cached = dict(counts_observed=None, log_factorial=None)
 
         def loss(x: np.ndarray) -> float:
             """
@@ -1144,11 +1150,10 @@ class Optimization:
             :param x: Parameters
             :return: The loss
             """
-            # unpack parameters into dictionary using the keys of self.x0
-            params = unpack_params(x, self.x0)
-
-            # unscale parameters
-            params = unscale_values(params, self.bounds, self.scales)
+            # unscale parameters and unpack them into a dictionary with the structure of self.x0
+            params = unflatten_dict({
+                key: unscale_value(value, bounds, scale) for key, value, (bounds, scale) in zip(keys, x, conversions)
+            })
 
             # Model SFS from parameters.
             # Here the order of types does not matter.
@@ -1164,26 +1169,30 @@ class Optimization:
             # reshape and merge
             counts_modelled, counts_observed = np.stack(counts, axis=1).reshape(2, -1)
 
+            # the observed counts usually stay the same between evaluations
+            if cached['counts_observed'] is None or not np.array_equal(cached['counts_observed'], counts_observed):
+                cached.update(counts_observed=counts_observed, log_factorial=Likelihood.log_factorial(counts_observed))
+
             # use independent Poisson likelihoods
-            LL = Likelihood.log_poisson(mu=counts_modelled, k=counts_observed)
+            LL = Likelihood.log_poisson(mu=counts_modelled, k=counts_observed, log_factorial=cached['log_factorial'])
 
             # combine likelihoods
             ll = np.sum(LL)
 
-            # compute L2 norm
-            L2 = norm(counts_modelled - counts_observed, 2)
+            # whether to log information on the iteration
+            log_iteration = print_debug and logger.isEnabledFor(logging.DEBUG)
 
-            # information on iteration
-            iter_info = flatten_dict(params) | dict(likelihood=ll, L2=L2)
+            # compute L2 norm if needed
+            L2 = norm(counts_modelled - counts_observed, 2) if log_iteration or self.loss_type != 'likelihood' else None
 
-            # log likelihood
             if print_debug:
                 # check likelihood
                 if np.isnan(ll):
                     raise ValueError('Oh boy, likelihood is nan. This is no good...')
 
                 # log variables
-                logger.debug(iter_info)
+                if log_iteration:
+                    logger.debug(flatten_dict(params) | dict(likelihood=ll, L2=L2))
 
             # return appropriate loss
             return dict(L2=L2, likelihood=-ll)[self.loss_type]

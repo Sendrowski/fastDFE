@@ -50,18 +50,22 @@ class Likelihood:
         return poisson.pmf(k, mu)
 
     @staticmethod
-    def log_poisson(mu: np.ndarray, k: np.ndarray) -> np.ndarray:
+    def log_poisson(mu: np.ndarray, k: np.ndarray, log_factorial: np.ndarray = None) -> np.ndarray:
         """
         Compute log(Poisson(mu, k)).
 
         :param mu: Mean of Poisson distribution
         :param k: Number of events
+        :param log_factorial: Precomputed log(k!), computed from ``k`` if not given
         :return: log(Poisson(mu, k))
         """
         # add epsilon to zero counts
         mu = Likelihood.add_epsilon(mu)
 
-        return k * np.log(mu) - mu - Likelihood.log_factorial(k)
+        if log_factorial is None:
+            log_factorial = Likelihood.log_factorial(k)
+
+        return k * np.log(mu) - mu - log_factorial
 
     @staticmethod
     def log_factorial_stirling(n: np.ndarray | float) -> np.ndarray | float:

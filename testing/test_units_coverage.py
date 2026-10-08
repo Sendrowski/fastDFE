@@ -194,3 +194,35 @@ def test_plot_scatter_symlog_scale():
 
         assert ax.get_yscale() == expected
         plt.close('all')
+
+
+def test_loss_function_follows_changing_observed_counts():
+    """
+    The loss function reuses the logarithm of the factorial of the observed counts between evaluations and
+    recomputes it when the observed counts change.
+    """
+    from fastdfe.likelihood import Likelihood
+
+    inf = fd.BaseInference(
+        sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+        sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+    )
+    optimization = inf.optimization
+    optimization.x0 = inf.x0
+    x = opt.pack_params(opt.scale_values(optimization.x0, optimization.bounds, optimization.scales))
+
+    modelled = np.array([4.0, 3.0, 2.5])
+    observed = [np.array([5.0, 3.0, 2.0]), np.array([7.0, 1.0, 4.0])]
+    current = dict(i=0)
+
+    loss = optimization.get_loss_function(dict(all=lambda params: np.array([modelled, observed[current['i']]])))
+
+    for i in [0, 0, 1, 1, 0]:
+        current['i'] = i
+
+        assert loss(x) == -np.sum(Likelihood.log_poisson(mu=modelled, k=observed[i]))
+
+    np.testing.assert_array_equal(
+        Likelihood.log_poisson(mu=modelled, k=observed[0], log_factorial=Likelihood.log_factorial(observed[0])),
+        Likelihood.log_poisson(mu=modelled, k=observed[0])
+    )
