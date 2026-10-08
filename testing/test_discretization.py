@@ -652,6 +652,19 @@ class FastDiscretizationTestCase(TestCase):
             **kwargs
         )
 
+    def test_trapezoid_weights_reproduce_trapezoidal_rule(self):
+        """
+        The weighted sum with ``_get_trapezoid_weights`` equals the trapezoidal rule on a non-uniform grid.
+        """
+        from scipy.integrate import trapezoid
+
+        x = np.linspace(0, 1, 50)[None, :] ** np.array([[1.0], [2.0], [5.0]])
+        y = np.exp(-3 * x) * (1 + x ** 2)
+
+        np.testing.assert_allclose(
+            (Discretization._get_trapezoid_weights(x) * y).sum(axis=1), trapezoid(y, x, axis=1), rtol=1e-14, atol=0
+        )
+
     def test_counts_dominant_for_all_allele_counts_equal_single_counts(self):
         """
         ``_get_counts_dominant`` evaluated for all allele counts at once equals its evaluation for each allele

@@ -376,6 +376,23 @@ class Discretization:
             self._counts_fixed = self.get_counts_fixed_dominant(self.s, self.map_h(self.h, self.s))[None, :]
 
     @staticmethod
+    def _get_trapezoid_weights(x: np.ndarray) -> np.ndarray:
+        """
+        Get the weights of the trapezoidal rule along the last axis, so that the integral of ``y`` over ``x`` is
+        the sum of ``weights * y`` along that axis.
+
+        :param x: Grid points, increasing along the last axis.
+        :return: Weights of the same shape as ``x``.
+        """
+        spacing = np.diff(x, axis=-1) / 2
+
+        weights = np.zeros_like(x)
+        weights[..., :-1] += spacing
+        weights[..., 1:] += spacing
+
+        return weights
+
+    @staticmethod
     def _get_counts_dominant(
             n: int,
             k: int | np.ndarray,
@@ -415,22 +432,21 @@ class Discretization:
         if is_deleterious.any():
             S_neg = S[is_deleterious]  # (P1,)
             h_neg = h[is_deleterious]  # (P1,)
-            p1 = S_neg.size
 
             t = np.linspace(0, 1, n_inner)  # (n_inner,)
 
             # q-grid from x to 1
-            xx = x[:, None, None] + (1 - x)[:, None, None] * t[None, None, :]
-            xx = np.broadcast_to(xx, (n_outer, p1, n_inner))  # (n_outer, P1, n_inner)
+            xx = x[:, None, None] + (1 - x)[:, None, None] * t[None, None, :]  # (n_outer, 1, n_inner)
 
             H3 = h_neg[None, :, None]  # (1, P1, 1)
             SN3 = S_neg[None, :, None]  # (1, P1, 1)
 
             exponent = -2 * SN3 * H3 * xx - SN3 * (1 - 2 * H3) * xx ** 2  # (n_outer, P1, n_inner)
 
-            max_exp = exponent.max(axis=2, keepdims=True)  # (n_outer, P1, 1)
+            exponent -= exponent.max(axis=2, keepdims=True)
 
-            norm_q = trapezoid(np.exp(exponent - max_exp), xx, axis=2)  # (n_outer, P1)
+            norm_q = np.exp(exponent, out=exponent) @ Discretization._get_trapezoid_weights(xx[:, 0, :])[:, :, None]
+            norm_q = norm_q[:, :, 0]  # (n_outer, P1)
             del exponent, xx
             norm0 = norm_q[0]  # (P1,)
 
@@ -452,7 +468,6 @@ class Discretization:
         if (~is_deleterious).any():
             S_pos = S[~is_deleterious]  # (P2,)
             h_pos = h[~is_deleterious]  # (P2,)
-            p2 = S_pos.size
 
             xx0 = np.linspace(0, 1, n_inner) ** pow_cluster  # (n_inner,)
 
@@ -464,15 +479,15 @@ class Discretization:
             norm0 = trapezoid(np.exp(exponent0), xx0, axis=1)  # (P2,)
 
             t = np.linspace(0, 1, n_inner) ** 5  # (n_inner,)
-            xx = x[:, None, None] + (1 - x)[:, None, None] * t[None, None, :]
-            xx = np.broadcast_to(xx, (n_outer, p2, n_inner))  # (n_outer, P2, n_inner)
+            xx = x[:, None, None] + (1 - x)[:, None, None] * t[None, None, :]  # (n_outer, 1, n_inner)
 
             X = x[:, None, None]  # (n_outer, 1, 1)
             H3b = h_pos[None, :, None]  # (1, P2, 1)
             SP3b = S_pos[None, :, None]  # (1, P2, 1)
 
             term = SP3b * (X - xx) * ((1 - 2 * H3b) * (X + xx) + 2 * H3b)  # (n_outer, P2, n_inner)
-            c = trapezoid(np.exp(term), xx, axis=2)  # (n_outer, P2)
+            c = np.exp(term, out=term) @ Discretization._get_trapezoid_weights(xx[:, 0, :])[:, :, None]
+            c = c[:, :, 0]  # (n_outer, P2)
             del term, xx
 
             for i in range(len(K)):
