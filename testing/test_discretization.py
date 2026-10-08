@@ -532,6 +532,19 @@ class DiscretizationTestCase(TestCase):
         diff = np.abs(y1 - y2) / (y2 + 1e-10)
         self.assertLess(diff.max(), 0.001)
 
+    def test_counts_fixed_semidominant_regularized_scalar(self):
+        """
+        Scalars take the same limits as arrays. The scalar branch evaluated the unregularized expression,
+        which returned NaN at ``S = 0``.
+        """
+        f = fd.discretization.Discretization.get_counts_fixed_semidominant_regularized
+
+        for S in [0.0, 0, -1000.0, -1.0, 2.5]:
+            self.assertEqual(f(S), f(np.array([S], dtype=float))[0])
+
+        self.assertEqual(f(0.0), 1)
+        self.assertEqual(f(-1000.0), 0)
+
     def test_fixed_counts_varying_h(self):
         """
         Test Discretization.get_counts_fixed_dominant with varying h.

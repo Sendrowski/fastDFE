@@ -314,7 +314,7 @@ class Discretization:
         """
         # make it accept scalars
         if isinstance(S, (float, int)):
-            return Discretization.get_counts_fixed_semidominant(np.array([S]))[0]
+            return Discretization.get_counts_fixed_semidominant_regularized(np.array([S], dtype=float))[0]
 
         # else S is an array
         y = np.zeros_like(S)
