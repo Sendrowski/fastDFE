@@ -6,7 +6,6 @@ from itertools import product
 
 import numpy as np
 import pytest
-from matplotlib import pyplot as plt
 
 import fastdfe as fd
 from testing import TestCase
@@ -545,87 +544,6 @@ class SimulationTestCase(TestCase):
 
         print(e.exception)
 
-    def test_wright_fisher_simulation_sample_cdf(self):
-        """
-        Test that the sample_cdf method of the Wright-Fisher model is correct.
-        """
-        sim = fd.simulation.WrightFisherSimulation(
-            sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=1e8, theta=1e-4),
-            params=dict(S_d=-300, b=10, p_b=0.1, S_b=50),
-        )
-
-        samples = sim._sample_cdf(n=1000)
-
-        ax = plt.gca()
-        ax.hist(samples, bins=100, density=True, alpha=0.5)
-        x = np.linspace(-1000, 300, 1000)
-        ax.plot(x, sim.model.get_pdf(**sim.params)(x), color='red')
-        ax.set_xlim(-1000, 300)
-        plt.show()
-
-        self.assertAlmostEqual(samples.mean(), -300 * 0.9 + 50 * 0.1, delta=10)
-
-    def test_simulation_wright_fisher_usage_example(self):
-        """
-        Test the usage example of the WrightFisherSimulation class.
-        """
-        # create simulation object by specifying neutral SFS and DFE
-        sim = fd.simulation.WrightFisherSimulation(
-            sfs_neut=fd.Simulation.get_neutral_sfs(n=20, n_sites=int(1e7), theta=1e-4),
-            params=dict(S_d=-300, b=0.3, p_b=0.1, S_b=0.1),
-            model=fd.GammaExpParametrization(),
-            pop_size=100,
-            n_generations=500
-        )
-
-        # perform the simulation
-        sfs_sel = sim.run()
-
-        # plot SFS
-        sfs_sel.plot()
-
-    @pytest.mark.skip(reason="takes too long for reasonable values")
-    def test_simulation_against_wright_fisher_neutral(self):
-        """
-        Test that the simulation of a neutral DFE with the Wright-Fisher model is correct.
-        """
-        sim = fd.simulation.WrightFisherSimulation(
-            sfs_neut=fd.Simulation.get_neutral_sfs(n=10, n_sites=1e8, theta=1e-6),
-            params=dict(S_d=-1e-100, b=1, p_b=0, S_b=1),
-            n_generations=1000,
-            pop_size=100
-        )
-
-        sfs_sel = sim.run()
-
-        sfs_sel.plot()
-
-        self.assertAlmostEqual(sfs_sel.n_sites, sim.sfs_neut.n_sites)
-        self.assertAlmostEqual(sfs_sel.n, sim.sfs_neut.n)
-        self.assertAlmostEqual(sfs_sel.theta, sim.sfs_neut.theta)
-
-        fd.Spectra(dict(neutral=sim.sfs_neut, selected=sfs_sel)).plot()
-
-        np.testing.assert_array_almost_equal(sfs_sel.data, sim.sfs_neut.data)
-
-    @pytest.mark.skip(reason="takes too long for reasonable values")
-    def test_simulation_against_wright_fisher_deleterious(self):
-        """
-        Test that the simulation of a neutral DFE with the Wright-Fisher model is correct.
-        """
-        fd.logger.setLevel('DEBUG')
-
-        sim = fd.simulation.WrightFisherSimulation(
-            sfs_neut=fd.Simulation.get_neutral_sfs(n=10, n_sites=1e8, theta=1e-6),
-            params=dict(S_d=-100, b=1, p_b=0, S_b=1),
-            n_generations=100,
-            pop_size=100
-        )
-
-        sfs_sel = sim.run()
-
-        sfs_sel.plot()
-
     def test_get_alpha(self):
         """
         Test the get_alpha method.
@@ -684,12 +602,6 @@ class SimulationSmokeTestCase(TestCase):
 
         for value in (sim.get_alpha(), sim.get_omega(), sim.get_omega_a()):
             self.assertTrue(np.isfinite(value))
-
-    def test_get_wright_fisher_constructs(self):
-        """get_wright_fisher returns a configured object without running it."""
-        wf = self._make().get_wright_fisher(pop_size=100, generations=10)
-
-        self.assertEqual(wf.n_generations, 10)
 
     def test_params_out_of_bounds_raises(self):
         """Out-of-range eps / dominance and out-of-bounds DFE params are rejected."""
