@@ -1093,14 +1093,14 @@ class Optimization:
             flat = flatten_dict(params)
             flat['likelihood'] = -res.fun
             flat['success'] = res.success
-            flat['result'] = str(str)
+            flat['result'] = str(res)
             flat['x0'] = str(flatten_dict(initial_params[i]))
             records.append(flat)
 
         # store runs as DataFrame
         self.runs = pd.DataFrame(records)
 
-        # get result with the lowest likelihood
+        # get result with the highest likelihood
         result = results[np.argmax(self.runs.likelihood)]
 
         # unpack MLE params array into a dictionary
