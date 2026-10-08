@@ -14,6 +14,7 @@ dependencies:
   - pip:
     - pytest
     - pytest-xdist
+    - pytest-timeout
     - pytest-cov
     - pytest-sugar
     - pytest-pycharm

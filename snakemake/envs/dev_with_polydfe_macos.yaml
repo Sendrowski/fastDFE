@@ -41,4 +41,5 @@ dependencies:
   - pip:
     - pytest
     - pytest-xdist
+    - pytest-timeout
     - -r ../../requirements_testing.txt

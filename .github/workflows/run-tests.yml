@@ -26,6 +26,6 @@ jobs:
         with:
           enable-cache: true
       - name: Install fastdfe + test deps
-        run: uv pip install --system -e ".[vcf]" pytest pytest-xdist pytest-sugar dadi
+        run: uv pip install --system -e ".[vcf]" pytest pytest-xdist pytest-timeout pytest-sugar dadi
       - name: Run tests
         run: pytest -n auto testing/
