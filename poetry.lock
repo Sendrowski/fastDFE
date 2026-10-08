@@ -1669,27 +1669,6 @@ files = [
 ]
 
 [[package]]
-name = "mpmath"
-version = "1.4.1"
-description = "Python library for arbitrary-precision floating-point arithmetic"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "mpmath-1.4.1-py3-none-any.whl", hash = "sha256:dc4f0ea2304480d4a9a48a94c1020571558ade522b44a6912efac63a586e140f"},
-    {file = "mpmath-1.4.1.tar.gz", hash = "sha256:efd6d1b75f09d69524a67609949812668b28e81ecbfe0ab449ced8c13e92642e"},
-]
-
-[package.extras]
-ci = ["diff_cover", "pytest-xdist"]
-develop = ["build", "flake518 (>=1.5)", "mpmath[tests]", "pytest-cov (>=7)", "wheel"]
-docs = ["matplotlib", "sphinx", "sphinxcontrib-autoprogram"]
-gmp = ["python-gmp"]
-gmpy = ["mpmath[gmpy2]"]
-gmpy2 = ["gmpy2 (>=2.3)"]
-tests = ["hypothesis", "ipython", "matplotlib", "numpy", "packaging", "pexpect", "pytest (>=6)", "pytest-timeout"]
-
-[[package]]
 name = "multiprocess"
 version = "0.70.19"
 description = "better multiprocessing and multithreading in Python"
@@ -3704,4 +3683,4 @@ zarr = ["zarr"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "850fa2275a42f2243a490089d48f1834a4422f31678cb9216aeca506c7fd78a5"
+content-hash = "77abf21c331e82196dd02d714815ff19932b491f152baf4194a05d52f34da84f"

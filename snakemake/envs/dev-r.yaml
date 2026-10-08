@@ -12,7 +12,6 @@ dependencies:
   - multiprocess
   - pyyaml
   - tqdm
-  - mpmath
   - biopython
   - requests
   - scipy
