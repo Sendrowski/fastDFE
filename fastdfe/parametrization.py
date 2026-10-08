@@ -14,6 +14,7 @@ from typing import Callable, List, Union, Dict, Tuple, Literal, Sequence, Option
 
 import numpy as np
 import pandas as pd
+from scipy.special import gammainc, expm1
 from scipy.stats import gamma, expon
 
 from fastdfe.utils import Serializable
@@ -365,7 +366,7 @@ class GammaExpParametrization(Parametrization):
             negative = S < 0
 
             # positive S
-            x[negative] = (1 - p_b) - ((1 - p_b) * gamma.cdf(-S[negative], b, scale=-S_d / b))
+            x[negative] = (1 - p_b) - ((1 - p_b) * gammainc(b, -S[negative] / (-S_d / b)))
 
             # Allow for S_b = 0 when p_b = 0 as well
             # which would produce an error otherwise.
@@ -373,7 +374,7 @@ class GammaExpParametrization(Parametrization):
                 x[~negative] = 1
             else:
                 # non-negative S
-                x[~negative] = (1 - p_b) + p_b * expon.cdf(S[~negative], scale=S_b)
+                x[~negative] = (1 - p_b) + p_b * -expm1(-(S[~negative] / S_b))
 
             return x
 

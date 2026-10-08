@@ -549,6 +549,28 @@ class FastParametrizationTestCase(TestCase):
     freeze) evaluated directly, with no inference.
     """
 
+    def test_gamma_exp_cdf_equals_scipy_stats_distributions(self):
+        """
+        The CDF of ``GammaExpParametrization``, which calls ``scipy.special`` directly, equals the mixture of
+        the ``scipy.stats`` gamma and exponential distributions for parameters within the bounds.
+        """
+        from scipy.stats import gamma, expon
+
+        rng = np.random.default_rng(0)
+        S = np.concatenate([-np.logspace(8, -5, 200), [0], np.logspace(-5, 4, 200)])
+
+        for _ in range(200):
+            S_d, b, S_b = -10 ** rng.uniform(-2, 5), 10 ** rng.uniform(-2, 1), 10 ** rng.uniform(-4, 2)
+            p_b = rng.uniform(0, 0.5)
+
+            expected = np.where(
+                S < 0,
+                (1 - p_b) - (1 - p_b) * gamma.cdf(-S, b, scale=-S_d / b),
+                (1 - p_b) + p_b * expon.cdf(S, scale=S_b)
+            )
+
+            np.testing.assert_array_equal(GammaExpParametrization.get_cdf(S_d=S_d, b=b, p_b=p_b, S_b=S_b)(S), expected)
+
     def test_dfe_discretize_normalizes_and_honours_warn_mass(self):
         """
         ``DFE.discretize`` returns a histogram summing to 1 and honours ``warn_mass`` with and without bootstraps.
