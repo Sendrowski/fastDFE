@@ -930,6 +930,32 @@ class FastJointInferenceTestCase(TestCase):
         self.assertTrue(inf2._use_divergence)
         self.assertTrue(all(i._use_divergence for i in inf2.joint_inferences.values()))
 
+    def test_x0_per_type_seeds_marginal_inference(self):
+        """
+        Initial values given under a type seed the marginal inference of that type, the other types start from the
+        pooled estimates. Keys other than ``all`` were ignored.
+        """
+        inf = self._make(x0=dict(a=dict(S_d=-777.0)))
+        inf.run()
+
+        pooled = inf.marginal_inferences['all'].params_mle
+
+        self.assertEqual(inf.marginal_inferences['a'].x0['all']['S_d'], -777.0)
+        self.assertEqual(inf.marginal_inferences['a'].x0['all']['b'], pooled['b'])
+        self.assertEqual(inf.marginal_inferences['b'].x0['all'], pooled)
+
+        # the per-type initial values survive the config round-trip
+        self.assertEqual(inf.create_config().data['x0']['a'], dict(S_d=-777.0))
+        self.assertEqual(fd.JointInference.from_config(inf.create_config())._x0_types, dict(a=dict(S_d=-777.0)))
+
+    def test_x0_unknown_keys_raise(self):
+        """Keys of ``x0`` other than ``all`` and the types are rejected."""
+        with self.assertRaises(ValueError):
+            self._make(x0=dict(c=dict(S_d=-777.0)))
+
+        with self.assertRaises(ValueError):
+            fd.BaseInference(sfs_neut=self.sfs_neut, sfs_sel=self.sfs_sel, x0=dict(a=dict(S_d=-777.0)))
+
     def test_run_returns_modelled_spectra(self):
         """run() returns the modelled SFS of the joint inference for each type."""
         inf = self._make()

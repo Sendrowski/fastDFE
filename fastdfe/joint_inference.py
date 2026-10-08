@@ -72,6 +72,9 @@ class JointInference(BaseInference):
 
     """
 
+    #: Initial values of the marginal inferences keyed by type (class-scope default for backward compatibility)
+    _x0_types: Optional[Dict[str, Dict[str, float]]] = None
+
     #: Divergence target sizes keyed by type (class-scope defaults for backward compatibility)
     _n_sites_div_neut_types: Optional[Dict[str, float]] = None
     _n_sites_div_sel_types: Optional[Dict[str, float]] = None
@@ -151,8 +154,10 @@ class JointInference(BaseInference):
             :func:`scipy.integrate.quad` in each call. ``False`` not recommended.
         :param model: DFE parametrization
         :param seed: Random seed. Use ``None`` for no seed.
-        :param x0: Dictionary of initial values in the form ``{'all': {param: value}}``, used for the marginal
-            inferences. The joint inference starts from the marginal estimates.
+        :param x0: Dictionary of initial values in the form ``{type: {param: value}}``. The entry ``all`` holds the
+            initial values of the inference on the spectra pooled over all types. The marginal inference of a type
+            starts from the pooled estimates, with the parameters given under that type taking precedence. The joint
+            inference starts from the marginal estimates.
         :param bounds: Bounds for the optimization in the form ``{param: (lower, upper)}``
         :param scales: Scales for the optimization in the form ``{param: scale}``
         :param loss_type: Loss type
@@ -178,6 +183,7 @@ class JointInference(BaseInference):
         :param optimization: Optimization instance. Mainly intended for internal use.
         :param locked: Whether running the inference from this object is disallowed. Used internally.
         :param kwargs: Additional keyword arguments which are ignored.
+        :raises ValueError: If ``x0`` contains a key that is neither ``all`` nor a type.
         """
         if sfs_neut.has_dots() or sfs_sel.has_dots():
             raise ValueError('Type names cannot contain dots are not allowed as they are used internally.'
@@ -189,6 +195,16 @@ class JointInference(BaseInference):
 
         #: SFS types
         self.types: List[str] = sfs_neut.types
+
+        if set(x0) - set(self.types) - {'all'}:
+            raise ValueError(f"Unknown types in x0: {sorted(set(x0) - set(self.types) - {'all'})}. "
+                             f"Valid keys are 'all' and the types {self.types}.")
+
+        #: Initial values of the marginal inferences keyed by type
+        self._x0_types: Optional[Dict[str, Dict[str, float]]] = {t: v for t, v in x0.items() if t != 'all'}
+
+        # the parent and the marginal inferences are constructed with the initial values of the pooled inference
+        x0 = dict(all=x0['all']) if 'all' in x0 else {}
 
         # divergence is owned by the inference, not the spectra. Keep the per-type target sizes for
         # the per-type sub-inferences, and pass the summed (across types) sizes to the aggregate
@@ -539,10 +555,10 @@ class JointInference(BaseInference):
         # run for 'all' type
         run_marginal(('all', self.marginal_inferences['all']))
 
-        # update initial values of marginal inferences
-        # with MLE estimate of 'all' type
-        for inf in self.marginal_inferences.values():
-            inf.x0 = dict(all=self.marginal_inferences['all'].params_mle)
+        # update initial values of marginal inferences with MLE estimate
+        # of 'all' type, overridden by the initial values given for the type
+        for t, inf in self.marginal_inferences.items():
+            inf.x0 = dict(all=self.marginal_inferences['all'].params_mle | (self._x0_types or {}).get(t, {}))
 
         # skip marginal inference if only one type was specified
         if len(self.types) == 1:
@@ -726,7 +742,7 @@ class JointInference(BaseInference):
             seed=self.seed,
             opts_mle=self.optimization.opts_mle,
             method_mle=self.optimization.method_mle,
-            x0=self.x0,
+            x0=self.x0 | (self._x0_types or {}),
             bounds=self.bounds,
             scales=self.scales,
             loss_type=self.optimization.loss_type,

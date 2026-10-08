@@ -406,6 +406,10 @@ class BaseInference(AbstractInference):
                                      "This is not recommend as the folded SFS contains little information "
                                      "on beneficial mutations.")
 
+        if set(x0) - {'all'}:
+            raise ValueError(f"Initial values need to be of the form {{'all': {{param: value}}}}, "
+                             f"but found the keys {sorted(x0)}.")
+
         #: Initial values
         self.x0: Dict[str, Dict[str, float]] = dict(
             all=self.model.x0 | self._default_x0 | (x0['all'] if 'all' in x0 else {})
