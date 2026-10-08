@@ -377,7 +377,8 @@ class Inference:
             ci_level: float = 0.05,
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
-            point_estimate: Literal['original', 'mean', 'median'] = 'mean'
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean',
+            warn_mass: bool = True
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Compute errors and confidence interval for a discretized DFE.
@@ -389,14 +390,18 @@ class Inference:
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
         :param bootstrap_type: Type of bootstrap
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
+        :param warn_mass: Whether to warn if the CDF does not evaluate to 0 and 1 at the outer interval boundaries.
         :return: Center values, errors around center, and confidence intervals.
         """
         # discretize MLE DFE
-        values = Inference.compute_histogram(model, params, intervals)
+        values = Inference.compute_histogram(model, params, intervals, warn_mass=warn_mass)
 
         # calculate bootstrapped histograms
         # get discretized DFE per bootstrap sample
-        bs = np.array([Inference.compute_histogram(model, dict(r), intervals) for _, r in bootstraps.iterrows()])
+        bs = np.array([
+            Inference.compute_histogram(model, dict(r), intervals, warn_mass=warn_mass)
+            for _, r in bootstraps.iterrows()
+        ])
 
         return Bootstrap.get_errors(
             values=values,
@@ -410,7 +415,8 @@ class Inference:
     def compute_histogram(
             model: Parametrization | str,
             params: dict,
-            intervals: np.ndarray
+            intervals: np.ndarray,
+            warn_mass: bool = True
     ) -> np.ndarray:
         """
         Discretize the DFE given a DFE parametrization and its parameter values.
@@ -418,10 +424,11 @@ class Inference:
         :param model: DFE parametrization
         :param params: Parameters of the model
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
-        :return: Discretized DFE
+        :param warn_mass: Whether to warn if the CDF does not evaluate to 0 and 1 at the outer interval boundaries.
+        :return: Discretized DFE, normalized to sum to 1
         """
         # discrete DFE
-        y = _from_string(model)._discretize(params, intervals)
+        y = _from_string(model)._discretize(params, intervals, warn_mass=warn_mass)
 
         # return normalized histogram
         return y / y.sum()

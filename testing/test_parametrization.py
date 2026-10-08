@@ -549,6 +549,29 @@ class FastParametrizationTestCase(TestCase):
     freeze) evaluated directly, with no inference.
     """
 
+    def test_dfe_discretize_normalizes_and_honours_warn_mass(self):
+        """
+        ``DFE.discretize`` returns a histogram summing to 1 and honours ``warn_mass`` with and without bootstraps.
+        Without bootstraps the histogram was not normalized, and with bootstraps ``warn_mass=False`` was ignored.
+        """
+        import pandas as pd
+
+        params = dict(S_d=-300.0, b=0.3, p_b=0.05, S_b=1.0)
+        bootstraps = pd.DataFrame([params, dict(params, S_d=-400.0), dict(params, b=0.35)])
+
+        # bins that miss the mass below -100 and above 0
+        bins = np.array([-100.0, -10.0, -1.0, 0.0])
+
+        for dfe in [fd.DFE(params=params, model=GammaExpParametrization()),
+                    fd.DFE(params=params, model=GammaExpParametrization(), bootstraps=bootstraps)]:
+            with self.assertNoLogs('fastdfe', level='WARNING'):
+                values, _ = dfe.discretize(bins, warn_mass=False)
+
+            self.assertAlmostEqual(values.sum(), 1)
+
+            with self.assertLogs('fastdfe', level='WARNING'):
+                dfe.discretize(bins, warn_mass=True)
+
     @staticmethod
     def _models():
         return [

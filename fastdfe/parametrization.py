@@ -1080,18 +1080,18 @@ class DFE(Serializable):
         Discretize the DFE with optional bootstrap confidence intervals.
 
         :param bins: Intervals to use for discretization.
-        :param warn_mass: Whether to warn if mass is lost during discretization.
+        :param warn_mass: Whether to warn if the CDF does not evaluate to 0 and 1 at the outer bin edges.
         :param confidence_intervals: Whether to compute confidence intervals.
         :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap confidence intervals ('percentile' or 'bca').
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
-        :return: Center values and (optionally) errors for each bin.
+        :return: Center values, normalized to sum to 1, and (optionally) errors for each bin.
         """
         from .abstract_inference import Inference
 
         # no bootstraps -> plain histogram
         if not confidence_intervals or self.bootstraps is None:
-            return self.model._discretize(self.params, bins, warn_mass=warn_mass), None
+            return Inference.compute_histogram(self.model, self.params, bins, warn_mass=warn_mass), None
 
         return Inference.get_stats_discretized(
             params=self.params,
@@ -1100,7 +1100,8 @@ class DFE(Serializable):
             ci_level=ci_level,
             intervals=bins,
             bootstrap_type=bootstrap_type,
-            point_estimate=point_estimate
+            point_estimate=point_estimate,
+            warn_mass=warn_mass
         )[:2]
 
     @staticmethod
