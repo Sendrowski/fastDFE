@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "fastdfe"
 version = "1.4.1"
-description = "Fast and flexible inference of the distribution of fitness effects (DFE), VCF-SFS parsing with ancestral allele and site-degeneracy annotation."
+description = "Fast and flexible inference of the distribution of fitness effects (DFE)."
 authors = ["Janek Sendrowski <sendrowski.janek@gmail.com>"]
 license = "GPL-3.0-or-later"
 readme = "README.md"
