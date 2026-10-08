@@ -35,9 +35,6 @@ class PolyDFEResult:
     """
     Class for parsing polyDFE output.
     """
-    # default postprocessing source
-    default_postprocessing_source = '../resources/polydfe/postprocessing/script.R'
-
     # mapping of polyDFE params to new name
     param_mapping = dict(
         eps_an='eps'
@@ -47,15 +44,20 @@ class PolyDFEResult:
             self,
             output_file: str,
             additional_data: dict = {},
-            postprocessing_source: str = default_postprocessing_source
+            postprocessing_source: str = None
     ):
         """
         Create summary object.
 
         :param output_file: Path to polyDFE output file
         :param additional_data: Additional data to add to summary
-        :param postprocessing_source: Path to polyDFE postprocessing script
+        :param postprocessing_source: Path to the R postprocessing script distributed with polyDFE
+        :raises ValueError: If ``postprocessing_source`` is not given
         """
+        if postprocessing_source is None:
+            raise ValueError('The path to the R postprocessing script distributed with polyDFE '
+                             'needs to be specified via `postprocessing_source`.')
+
         self.output_file = output_file
         self.postprocessing_source = postprocessing_source
 
@@ -215,12 +217,12 @@ class PolyDFE(AbstractInference):
             binary: str = 'polydfe',
             wd: str = None,
             execute: Callable = None,
-            postprocessing_source: str = PolyDFEResult.default_postprocessing_source
+            postprocessing_source: str = None
     ) -> PolyDFEResult:
         """
         Run polyDFE.
 
-        :param postprocessing_source: polyDFE postprocessing source
+        :param postprocessing_source: Path to the R postprocessing script distributed with polyDFE
         :param execute: Function for executing shell commands
         :param wd: Working directory
         :param binary: polyDFE binary

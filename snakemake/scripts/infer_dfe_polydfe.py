@@ -44,7 +44,8 @@ config = Config.from_file(config_file)
 
 polydfe = PolyDFE(config)
 
-summary = polydfe.run(out, binary=bin, wd=os.getcwd(), execute=execute)
+summary = polydfe.run(out, binary=bin, wd=os.getcwd(), execute=execute,
+                      postprocessing_source='../resources/polydfe/postprocessing/script.R')
 
 # if the spectra carry divergence counts, also compute and cache polyDFE's McDonald-Kreitman
 # style alpha (estimateAlpha with the `div` argument) so it can be compared offline
