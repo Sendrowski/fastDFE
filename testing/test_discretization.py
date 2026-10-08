@@ -3,7 +3,6 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 from matplotlib import pyplot as plt
-from scipy.special import hyp1f1
 from tqdm import tqdm
 
 import fastdfe as fd
@@ -144,21 +143,43 @@ class DiscretizationTestCase(TestCase):
 
         assert diff < 1e-15
 
-    def test_hyp1f1_mpmath_vs_scipy(self):
+    def test_counts_semidominant_against_high_precision_reference(self):
         """
-        Compare mpmath and scipy's implementation of the confluent hypergeometric function.
+        The semidominant allele counts agree with reference values computed at 50 significant digits, for
+        selection coefficients from strongly deleterious over effectively neutral to strongly beneficial.
+        The reference is n / (k (n - k)) * (1 - M(n - k, n, -S)) / (1 - exp(-S)) with Kummer's function M.
         """
-        s = np.linspace(-500, 500, 1000)
-        k = np.arange(1, self.n)
-        I = np.ones((s.shape[0], k.shape[0]))
+        reference = [
+            (-5000.0, 1, 0.0039856488037967034),
+            (-5000.0, 19, 6.7133754108574433e-54),
+            (-300.0, 7, 1.9325786875465436e-10),
+            (-12.5, 10, 0.00094486525347699026),
+            (-1.0, 3, 0.30733197694090028),
+            (-0.1, 18, 0.053203680366147924),
+            (-0.05, 2, 0.49880233713311099),
+            (-0.001, 10, 0.099976190476664941),
+            (-1e-06, 5, 0.19999997619047439),
+            (-1e-08, 19, 0.052631578709273183),
+            (1e-08, 1, 1.0000000002380952),
+            (1e-06, 12, 0.083333357142857864),
+            (0.001, 19, 0.052655391717774278),
+            (0.05, 10, 0.10119041688598975),
+            (0.1, 1, 1.0023483346181453),
+            (1.0, 17, 0.084824885804197763),
+            (12.5, 4, 0.31247140415466225),
+            (300.0, 10, 0.1999999999999916),
+            (5000.0, 1, 1.0526315789473684),
+            (5000.0, 19, 1.0486459301435717),
+            (1000000.0, 10, 0.2),
+        ]
+        d = Discretization(n=20)
 
-        S = s[:, None] * I
-        K = k[None, :] * I
+        S, k, expected = (np.array(x, dtype=float) for x in zip(*reference))
 
-        y_scipy = hyp1f1(K, self.n, S)
-        y_mpmath = Discretization.hyp1f1(K, self.n, S)
+        np.testing.assert_allclose(d.get_counts_semidominant_regularized(S, k), expected, rtol=1e-12, atol=0)
 
-        assert self.diff_rel_max_abs(y_scipy, y_mpmath) < 1e-11
+        # scalars are accepted as well
+        self.assertAlmostEqual(d.get_counts_semidominant_unregularized(1.0, 17), 0.084824885804197763, places=14)
 
     def test_allele_counts_large_positive_S(self):
         """
@@ -177,8 +198,7 @@ class DiscretizationTestCase(TestCase):
 
         diff = self.diff_rel_max_abs(c1, c2)
 
-        # still relatively large, but we can now evaluate large S
-        # using mpmath
+        # the limit is approached slowly
         assert diff < 1e-4
 
     def test_plot_allele_count_regularized(self):

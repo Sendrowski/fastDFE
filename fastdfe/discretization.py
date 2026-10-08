@@ -7,47 +7,19 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-02-26"
 
 import logging
-from functools import wraps
 from itertools import product
 from math import comb
 from typing import Literal, Sequence, Tuple, Optional, Callable
 
-import mpmath as mp
 import numpy as np
 from scipy.integrate import quad, trapezoid
+from scipy.special import hyp1f1
 
 from .optimization import parallelize as parallelize_func
 from .parametrization import Parametrization
 
 # configure logger
 logger = logging.getLogger('fastdfe').getChild('Discretization')
-
-
-def to_float(func):
-    """
-    Decorator to convert the return value of a function to float.
-
-    :param func: Function to be decorated
-    :return: Wrapper function
-    """
-
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> float | np.ndarray:
-        """
-        Wrapper function.
-
-        :param args: Positional arguments
-        :param kwargs: Keyword arguments
-        :return: Converted result
-        """
-        result = func(*args, **kwargs)
-
-        if isinstance(result, np.ndarray):
-            return result.astype(float)
-        else:
-            return float(result)
-
-    return wrapper
 
 
 class Discretization:
@@ -186,28 +158,6 @@ class Discretization:
         :return: Mapped dominance coefficients
         """
         return np.full_like(S, h)
-
-    @staticmethod
-    def exp(x: float | np.ndarray) -> float | np.ndarray:
-        """
-        Vectorized version of mpmath's exp function.
-
-        :param x: Exponent
-        :return: Result
-        """
-        return np.vectorize(mp.exp)(x)
-
-    @staticmethod
-    def hyp1f1(a: float | np.ndarray, b: float | np.ndarray, z: float | np.ndarray) -> float | np.ndarray:
-        """
-        Vectorized version of mpmath's hyp1f1 function.
-
-        :param a: First parameter
-        :param b: Second parameter
-        :param z: Third parameter
-        :return: Result
-        """
-        return np.vectorize(mp.hyp1f1)(a, b, z)
 
     @staticmethod
     def get_midpoints_and_spacing(bins: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -636,7 +586,6 @@ class Discretization:
     def get_counts_semidominant_midpoint(self) -> np.ndarray:
         """
         Precompute linearized integral using the trapezoidal rule over the bin edges.
-        Consider parallelizing this.
 
         :return: Matrix of shape (n - 1, n_intervals), rows indexed by allele count k = 1, ..., n - 1
         """
@@ -648,23 +597,8 @@ class Discretization:
         K = np.arange(1, self.n)[:, None] * I
         S = self.bins[None, :] * I
 
-        def compute_slice(i: int) -> np.ndarray:
-            """
-            Compute allele counts of a given multiplicity.
-
-            :param i: Multiplicity
-            :return: Discretized counts
-            """
-            return self.get_counts_semidominant_regularized(S[i], K[i])
-
         # retrieve allele counts
-        P = parallelize_func(
-            func=compute_slice,
-            data=np.arange(self.n - 1),
-            parallelize=self.parallelize,
-            desc=f"{self.__class__.__name__}>Precomputing",
-            dtype=float
-        )
+        P = np.array([self.get_counts_semidominant_regularized(S[i], K[i]) for i in range(self.n - 1)])
 
         # take midpoint and multiply by interval size
         return (P[:, :-1] + P[:, 1:]) / 2 * self.interval_sizes
@@ -770,7 +704,6 @@ class Discretization:
 
         return (P[:, :, :-1] + P[:, :, 1:]) / 2 * self.interval_sizes
 
-    @to_float
     def get_counts_semidominant_large_negative_S(
             self,
             S: float | np.ndarray,
@@ -784,7 +717,7 @@ class Discretization:
         :param k: Allele count
         :return: Number of counts in frequency class P(k)
         """
-        return self.n / (k * (self.n - k)) * self.hyp1f1(k, self.n, S)
+        return self.n / (k * (self.n - k)) * hyp1f1(k, self.n, S)
 
     def get_counts_semidominant_large_positive_S(
             self,
@@ -801,7 +734,6 @@ class Discretization:
         """
         return self.n / (k * (self.n - k))
 
-    @to_float
     def get_counts_semidominant_unregularized(
             self,
             S: float | np.ndarray,
@@ -813,11 +745,50 @@ class Discretization:
         Binomial sampling is included here.
         See appendix of https://pubmed.ncbi.nlm.nih.gov/31975166
 
+        With sample size :math:`n` and Kummer's confluent hypergeometric function :math:`M(a, b, z)`,
+        the number of counts is
+
+        .. math::
+            \\frac{n}{k (n - k)} \\frac{1 - e^{-S} M(k, n, S)}{1 - e^{-S}},
+
+        where :math:`e^{-S} M(k, n, S) = M(n - k, n, -S)` by Kummer's transformation. The expression is evaluated
+        in a form that does not overflow for large :math:`|S|` and does not cancel for small :math:`|S|`.
+
         :param S: Population-scaled selection coefficient
         :param k: Allele count
         :return: Number of counts in frequency class P(k)
         """
-        return (self.n / (k * (self.n - k))) * ((1 - self.exp(-S) * self.hyp1f1(k, self.n, S)) / (1 - self.exp(-S)))
+        scalar = np.ndim(S) == 0 and np.ndim(k) == 0
+        S, k = np.broadcast_arrays(np.atleast_1d(np.asarray(S, dtype=float)), np.atleast_1d(np.asarray(k, dtype=float)))
+        n = self.n
+
+        numerator = np.empty(S.shape)
+        denominator = np.empty(S.shape)
+
+        # (1 - M(n - k, n, -S)) / (1 - e^{-S})
+        positive = S >= 0.1
+        numerator[positive] = 1 - hyp1f1(n - k[positive], n, -S[positive])
+        denominator[positive] = -np.expm1(-S[positive])
+
+        # (M(k, n, S) - e^S) / (1 - e^S)
+        negative = S <= -0.1
+        numerator[negative] = hyp1f1(k[negative], n, S[negative]) - np.exp(S[negative])
+        denominator[negative] = -np.expm1(S[negative])
+
+        # power series of 1 - M(n - k, n, -S), whose terms decay faster than 0.1^j / j!
+        small = ~(positive | negative)
+        term = np.ones(int(small.sum()))
+        series = np.zeros_like(term)
+        for j in range(1, 16):
+            term = term * (n - k[small] + j - 1) / (n + j - 1) * -S[small] / j
+            series += term
+
+        numerator[small] = -series
+        denominator[small] = -np.expm1(-S[small])
+
+        y = n / (k * (n - k)) * numerator / denominator
+
+        return float(y[0]) if scalar else y
 
     def get_counts_semidominant_regularized(self, S: float | np.ndarray, k: float | np.ndarray) -> float | np.ndarray:
         """
