@@ -910,6 +910,18 @@ class FastJointInferenceTestCase(TestCase):
         inf.plot_inferred_parameters(show=False)
         inf.plot_covariate(show=False)
 
+    def test_run_returns_modelled_spectra(self):
+        """run() returns the modelled SFS of the joint inference for each type."""
+        inf = self._make()
+        sfs = inf.run()
+
+        self.assertIsInstance(sfs, fd.Spectra)
+        self.assertIs(sfs, inf.sfs_mle)
+        self.assertEqual(sorted(sfs.types), ['a', 'b'])
+
+        for t in ['a', 'b']:
+            np.testing.assert_array_equal(sfs[t].polymorphic, inf.joint_inferences[t].sfs_mle.polymorphic)
+
     def test_shared_lrt(self):
         """Shared-parameter LRT path and shared-param introspection."""
         inf = self._make(shared_params=[fd.SharedParams(types='all', params=['S_d'])])

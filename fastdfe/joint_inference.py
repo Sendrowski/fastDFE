@@ -494,12 +494,12 @@ class JointInference(BaseInference):
     def run(
             self,
             **kwargs
-    ) -> Spectrum:
+    ) -> Spectra:
         """
         Run inference.
 
         :param kwargs: Additional keyword arguments
-        :return: Modelled SFS.
+        :return: Modelled SFS of the joint inference for each type.
         """
 
         # run marginal optimization
@@ -568,11 +568,11 @@ class JointInference(BaseInference):
         """
         return dict((t, inf) for t, inf in self.marginal_inferences.items() if t != 'all')
 
-    def _run_joint(self) -> Spectrum:
+    def _run_joint(self) -> Spectra:
         """
         Run joint optimization.
 
-        :return: Modelled SFS.
+        :return: Modelled SFS of the joint inference for each type.
         """
         # issue notice
         self._logger.info(f'Running joint inference for types {self.types}.')
@@ -628,6 +628,9 @@ class JointInference(BaseInference):
 
         # assign MLE params
         self.params_mle = params_mle
+
+        # assign modelled SFS for each type
+        self.sfs_mle = Spectra.from_spectra({t: inf.sfs_mle for t, inf in self.joint_inferences.items()})
 
         # assign joint likelihood
         self.likelihood = -self.result.fun
