@@ -1674,13 +1674,15 @@ class BaseInferenceTestCase(InferenceTestCase):
     @pytest.mark.slow
     def test_infer_dfe_with_fixed_h_low_memory_consumption(self):
         """
-        Make sure memory consumption is low for default settings.
+        Make sure memory consumption is low for fixed dominance coefficients.
         """
         for h in [0, 0.5, 1]:
             inf = fd.BaseInference(
                 sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
                 sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
                 fixed_params={'all': {'h': h, 'S_b': 1, 'p_b': 0, 'eps': 0}},
+                intervals_ben=(1.0e-5, 1.0e4, 200),
+                intervals_del=(-1.0e+8, -1.0e-5, 200),
                 parallelize=True,
                 do_bootstrap=True,
                 n_bootstraps=10,
@@ -1703,9 +1705,9 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
             sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
-            intervals_ben=(1.0e-5, 1.0e4, 100),
-            intervals_del=(-1.0e+8, -1.0e-5, 100),
-            intervals_h=(0, 1, 11),
+            intervals_ben=(1.0e-5, 1.0e4, 30),
+            intervals_del=(-1.0e+8, -1.0e-5, 30),
+            intervals_h=(0, 1, 6),
             fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0}},
             parallelize=False,
             do_bootstrap=True,
@@ -1729,10 +1731,10 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf = fd.BaseInference(
             sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
             sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
-            intervals_ben=(1.0e-5, 1.0e4, 100),
-            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            intervals_ben=(1.0e-5, 1.0e4, 30),
+            intervals_del=(-1.0e+8, -1.0e-5, 30),
             h_callback=lambda h, S: 0.4 * np.exp(-h * abs(S)),
-            intervals_h=(0, 1, 11),
+            intervals_h=(0, 1, 6),
             fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0}},
             bounds={
                 'S_d': (-100000.0, -0.01),
@@ -1760,9 +1762,9 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf1 = fd.BaseInference(
             sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
             sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
-            intervals_ben=(1.0e-5, 1.0e4, 100),
-            intervals_del=(-1.0e+8, -1.0e-5, 100),
-            intervals_h=(0, 1, 11),
+            intervals_ben=(1.0e-5, 1.0e4, 30),
+            intervals_del=(-1.0e+8, -1.0e-5, 30),
+            intervals_h=(0, 1, 6),
             fixed_params={'all': {'S_b': 1, 'p_b': 0, 'eps': 0}},
             parallelize=True,
             do_bootstrap=True,

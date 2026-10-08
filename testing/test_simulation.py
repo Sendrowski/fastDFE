@@ -81,13 +81,69 @@ class SLiMTestCase(TestCase):
         n=[20]
     )
 
+    @staticmethod
+    def _dominance(file_path: str):
+        """
+        Dominance coefficient encoded in the path of a SLiM result, ``None`` for semidominant and
+        dominance-function simulations.
+        """
+        match = re.search(r"dominance_([\d.]+)/", file_path)
+
+        return float(match.group(1)) if match else None
+
     def test_compare_against_slim(self):
         """
-        Test parameters of inferred DFE against ground-truth from SLiM simulations.
+        Test the modelled SFS against SLiM simulations with semidominant mutations.
         """
+        self._compare_against_slim([f for f in self.configs_slim if 'dominance_' not in f])
+
+    def test_compare_against_slim_dominance_low(self):
+        """
+        Test the modelled SFS against SLiM simulations with dominance coefficients from 0.1 to 0.5 for a
+        sample size of 20.
+        """
+        self._compare_against_slim(
+            [f for f in self.configs_slim if 0 < (self._dominance(f) or 0) <= 0.5 and '/n=20/' in f]
+        )
+
+    def test_compare_against_slim_dominance_high(self):
+        """
+        Test the modelled SFS against SLiM simulations with dominance coefficients from 0.6 to 1 for a
+        sample size of 20.
+        """
+        self._compare_against_slim(
+            [f for f in self.configs_slim if (self._dominance(f) or 0) > 0.5 and '/n=20/' in f]
+        )
+
+    def _compare_against_slim_dominance_n100(self, h: float):
+        """
+        Test the modelled SFS against SLiM simulations with the given dominance coefficient for a sample size
+        of 100.
+
+        :param h: Dominance coefficient
+        """
+        self._compare_against_slim([f for f in self.configs_slim if self._dominance(f) == h and '/n=100/' in f])
+
+    def test_compare_against_slim_recessive_and_dominance_function(self):
+        """
+        Test the modelled SFS against SLiM simulations with fully recessive mutations and with dominance
+        depending on the selection coefficient.
+        """
+        self._compare_against_slim(
+            [f for f in self.configs_slim if self._dominance(f) == 0 or 'dominance_function_' in f]
+        )
+
+    def _compare_against_slim(self, configs):
+        """
+        Compare the modelled selected SFS against the SLiM result of each of the given configurations.
+
+        :param configs: Paths to the SLiM spectra
+        """
+        self.assertGreater(len(configs), 0)
+
         cached = {}
 
-        for file_path in self.configs_slim:
+        for file_path in configs:
             spectra = fd.Spectra.from_file(file_path)
 
             params = {}
@@ -288,13 +344,30 @@ class SLiMTestCase(TestCase):
     # snakemake/scripts/precompute_empirical_alpha_slim.py
     empirical_alpha_cache = 'testing/cache/slim/empirical_alpha/s_b=1e-3_b=0.3_s_d=3e-2_p_b=0.05.json'
 
-    def test_divergence_alpha_against_slim_dominance(self):
+    def test_divergence_alpha_against_slim_dominance_low(self):
+        """
+        Validate the divergence-based alpha against the empirical SLiM ground truth for dominance
+        coefficients from 0.1 to 0.5, see :meth:`_divergence_alpha_against_slim_dominance`.
+        """
+        self._divergence_alpha_against_slim_dominance(0, 0.5)
+
+    def test_divergence_alpha_against_slim_dominance_high(self):
+        """
+        Validate the divergence-based alpha against the empirical SLiM ground truth for dominance
+        coefficients from 0.6 to 1, see :meth:`_divergence_alpha_against_slim_dominance`.
+        """
+        self._divergence_alpha_against_slim_dominance(0.5, 1)
+
+    def _divergence_alpha_against_slim_dominance(self, h_min: float, h_max: float):
         """
         Validate the divergence-based alpha against the *empirical* SLiM ground truth across
         dominance coefficients. The empirical alpha is the actual proportion of fixed beneficial
         substitutions counted directly from SLiM (see the cache above), rather than an analytical
         proxy. The fully recessive case (h=0) is excluded as a known hard regime (recessive
         beneficials are nearly invisible while rare, so the SFS/divergence carry little signal).
+
+        :param h_min: Exclusive lower limit of the dominance coefficients to test
+        :param h_max: Inclusive upper limit of the dominance coefficients to test
         """
         import json
         from sfsutils.spectrum import Spectrum
@@ -305,7 +378,7 @@ class SLiMTestCase(TestCase):
 
         for rec in cache['alpha'].values():
             h, alpha_empirical = rec['h'], rec['alpha']
-            if h == 0.0:  # fully recessive: known hard regime
+            if not h_min < h <= h_max:
                 continue
 
             spectra = fd.Spectra.from_file(f'{base}/dominance_{h}/unfolded/sfs.csv')
@@ -326,6 +399,15 @@ class SLiMTestCase(TestCase):
                 f'h={h}: divergence alpha {inf.get_alpha(use_divergence=True):.3f} vs '
                 f'empirical {alpha_empirical:.3f}'
             )
+
+
+# one test per dominance coefficient for a sample size of 100, whose discretization is the expensive part
+for _h in np.round(np.linspace(0.1, 1, 10), 1):
+    setattr(
+        SLiMTestCase,
+        f"test_compare_against_slim_dominance_n100_h{_h}".replace('.', '_'),
+        lambda self, h=float(_h): self._compare_against_slim_dominance_n100(h)
+    )
 
 
 @pytest.mark.slow

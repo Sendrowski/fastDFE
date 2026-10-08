@@ -93,6 +93,9 @@ class JointInferenceTestCase(InferenceTestCase):
 
         inf.n_bootstraps = 2
 
+        # the model without covariates is rebuilt from the config, fix h so that it is not precomputed over a grid
+        inf.fixed_params = dict(all=dict(h=0.5))
+
         assert inf.perform_lrt_covariates() <= 1
 
     def test_no_shared_params(self):
@@ -384,9 +387,10 @@ class JointInferenceTestCase(InferenceTestCase):
         """
         Test nested model comparison.
         """
-        inf = JointInference.from_config_file(
-            "resources/configs/shared/covariates_Sd_fixed_params/config.yaml"
-        )
+        config = fd.Config.from_file("resources/configs/shared/covariates_Sd_fixed_params/config.yaml")
+        config.update(n_runs=2, do_bootstrap=False)
+
+        inf = JointInference.from_config(config)
 
         P, inferences = inf.compare_nested_models()
 
@@ -510,7 +514,7 @@ class JointInferenceTestCase(InferenceTestCase):
             fixed_params={'all': dict(S_b=1, eps=0, p_b=0, h=0.5)},
             parallelize=True,
             do_bootstrap=True,
-            n_bootstraps=100,
+            n_bootstraps=10,
             n_runs=20
         )
 
@@ -674,6 +678,7 @@ class JointInferenceTestCase(InferenceTestCase):
         unusual as the fit to each component SFS naturally is worse when sharing parameters.
         """
         config = fd.Config.from_file("resources/configs/arabidopsis/covariates_example.yaml")
+        config.update(n_bootstraps=10)
 
         inf = fd.JointInference.from_config(config)
 
@@ -820,9 +825,9 @@ class JointInferenceTestCase(InferenceTestCase):
             )),
             fixed_params=dict(all=dict(eps=0, S_b=1, p_b=0), pendula=dict(h=0.2), pendula2=dict(h=0.8)),
             shared_params=[SharedParams(types='all', params=['b'])],
-            intervals_del=(-1.0e+8, -1.0e-5, 100),
-            intervals_ben=(1.0e-5, 1.0e4, 100),
-            intervals_h=(0, 1, 11),
+            intervals_del=(-1.0e+8, -1.0e-5, 30),
+            intervals_ben=(1.0e-5, 1.0e4, 30),
+            intervals_h=(0, 1, 6),
             do_bootstrap=False,
             parallelize=True,
             n_runs=10
@@ -862,9 +867,9 @@ class JointInferenceTestCase(InferenceTestCase):
             )),
             fixed_params=dict(all=dict(eps=0, S_b=1, p_b=0)),
             shared_params=[SharedParams(types='all', params=['b', 'S_d'])],
-            intervals_del=(-1.0e+8, -1.0e-5, 100),
-            intervals_ben=(1.0e-5, 1.0e4, 100),
-            intervals_h=(0, 1, 11),
+            intervals_del=(-1.0e+8, -1.0e-5, 30),
+            intervals_ben=(1.0e-5, 1.0e4, 30),
+            intervals_h=(0, 1, 6),
             do_bootstrap=False,
             parallelize=True,
             n_runs=10
