@@ -919,6 +919,7 @@ class BaseInference(AbstractInference):
         n_sites_div_neut = self.n_sites_div_neut
         n_sites_div_sel = self.n_sites_div_sel
         params_mle_all = dict(all=self.params_mle)
+        desc = f"{self.__class__.__name__}>Bootstrapping"
 
         def run_bootstrap_sample(seed: int) -> List[Tuple['scipy.optimize.OptimizeResult', dict, dict]]:
             """
@@ -954,7 +955,7 @@ class BaseInference(AbstractInference):
                         n_sites_div_neut=n_sites_div_neut,
                         n_sites_div_sel=n_sites_div_sel
                     )),
-                    desc=f"{self.__class__.__name__}>Bootstrapping"
+                    desc=desc
                 )
 
                 # unpack shared + normalize

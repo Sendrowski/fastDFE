@@ -967,6 +967,17 @@ class FastJointInferenceTestCase(TestCase):
         with self.assertRaises(ValueError):
             fd.BaseInference(sfs_neut=self.sfs_neut, sfs_sel=self.sfs_sel, x0=dict(a=dict(S_d=-777.0)))
 
+    def test_bootstrap_sample_runner_does_not_capture_the_inference(self):
+        """
+        The function sent to the workers for each bootstrap sample holds no reference to the inference object.
+        Capturing it serialized the whole inference, bootstrap tables included, once per sample.
+        """
+        inf = self._make()
+        inf.run()
+
+        for runner in [inf._get_run_bootstrap_sample(), inf.marginal_inferences['all']._get_run_bootstrap_sample()]:
+            self.assertNotIn('self', runner.__code__.co_freevars)
+
     def test_run_returns_modelled_spectra(self):
         """run() returns the modelled SFS of the joint inference for each type."""
         inf = self._make()

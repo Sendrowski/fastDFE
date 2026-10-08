@@ -806,6 +806,7 @@ class JointInference(BaseInference):
         use_divergence = self._use_divergence
         sfs_neut = dict((t, self.marginal_inferences[t].sfs_neut) for t in self.types)
         sfs_sel = dict((t, self.marginal_inferences[t].sfs_sel) for t in self.types)
+        desc = f"{self.__class__.__name__}>Bootstrapping joint inference"
 
         def run_bootstrap_sample(seed: int) -> List[Tuple['scipy.optimize.OptimizeResult', dict, dict]]:
             """
@@ -842,7 +843,7 @@ class JointInference(BaseInference):
                     n_runs=1,
                     debug_iterations=False,
                     print_info=False,
-                    desc=f"{self.__class__.__name__}>Bootstrapping joint inference",
+                    desc=desc,
                     get_counts=dict((t, lambda params, t=t: BaseInference._model_sfs(
                         discretization=discretization,
                         model=model,
@@ -870,7 +871,7 @@ class JointInference(BaseInference):
 
                 results += [(result, params_mle, x0)]
 
-                x0 = self.optimization.sample_x0(params_mle_raw, random_state=rng)
+                x0 = optimization.sample_x0(params_mle_raw, random_state=rng)
 
             return results
 
