@@ -276,6 +276,21 @@ class DivergenceTestCase(InferenceTestCase):
 
         np.testing.assert_allclose(inf.get_alpha(params=params, use_divergence=True), expected, rtol=1e-12)
 
+    def test_create_config_preserves_divergence_target_sizes(self):
+        """
+        An inference recreated from its config uses divergence with the same target sizes. The config
+        carried ``include_divergence`` only, so the recreated inference ran on polymorphism alone.
+        """
+        neut, sel, nsd_neut, nsd_sel = self._get_spectra('example_2')
+        inf = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel,
+                               do_bootstrap=False, n_runs=1)
+
+        inf2 = fd.BaseInference.from_config(inf.create_config())
+
+        assert inf2._use_divergence is True
+        assert inf2.n_sites_div_neut == nsd_neut
+        assert inf2.n_sites_div_sel == nsd_sel
+
     def test_alpha_divergence_equals_dfe_alpha_on_expected_divergence(self):
         """
         With divergence counts equal to their model expectation, the divergence-based alpha equals the DFE-based

@@ -72,6 +72,10 @@ class JointInference(BaseInference):
 
     """
 
+    #: Divergence target sizes keyed by type (class-scope defaults for backward compatibility)
+    _n_sites_div_neut_types: Optional[Dict[str, float]] = None
+    _n_sites_div_sel_types: Optional[Dict[str, float]] = None
+
     def __init__(
             self,
             sfs_neut: Spectra,
@@ -733,7 +737,9 @@ class JointInference(BaseInference):
             n_bootstraps=self.n_bootstraps,
             parallelize=self.parallelize,
             n_runs=self.n_runs,
-            include_divergence=self.include_divergence
+            include_divergence=self.include_divergence,
+            n_sites_div_neut=self._n_sites_div_neut_types,
+            n_sites_div_sel=self._n_sites_div_sel_types
         )
 
     @BaseInference._run_if_required_wrapper

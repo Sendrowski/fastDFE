@@ -1974,7 +1974,9 @@ class BaseInference(AbstractInference):
             do_bootstrap=self.do_bootstrap,
             n_bootstraps=self.n_bootstraps,
             parallelize=self.parallelize,
-            include_divergence=self.include_divergence
+            include_divergence=self.include_divergence,
+            n_sites_div_neut=None if self.n_sites_div_neut is None else dict(all=self.n_sites_div_neut),
+            n_sites_div_sel=None if self.n_sites_div_sel is None else dict(all=self.n_sites_div_sel)
         )
 
     @classmethod

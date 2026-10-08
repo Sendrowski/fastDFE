@@ -910,6 +910,26 @@ class FastJointInferenceTestCase(TestCase):
         inf.plot_inferred_parameters(show=False)
         inf.plot_covariate(show=False)
 
+    def test_create_config_preserves_divergence_target_sizes(self):
+        """
+        A joint inference recreated from its config, as done for the model without covariates, uses divergence
+        with the same per-type target sizes.
+        """
+        nsd_neut = dict(a=self.sfs_neut.n_sites, b=self.sfs_neut.n_sites)
+        nsd_sel = dict(a=self.sfs_sel.n_sites, b=self.sfs_sel.n_sites)
+        inf = self._make(n_sites_div_neut=nsd_neut, n_sites_div_sel=nsd_sel)
+
+        config = inf.create_config()
+
+        self.assertEqual(config.data['n_sites_div_neut'], nsd_neut)
+        self.assertEqual(config.data['n_sites_div_sel'], nsd_sel)
+
+        inf2 = fd.JointInference.from_config(config)
+
+        self.assertTrue(inf._use_divergence)
+        self.assertTrue(inf2._use_divergence)
+        self.assertTrue(all(i._use_divergence for i in inf2.joint_inferences.values()))
+
     def test_run_returns_modelled_spectra(self):
         """run() returns the modelled SFS of the joint inference for each type."""
         inf = self._make()
