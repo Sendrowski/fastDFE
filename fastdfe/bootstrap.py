@@ -55,9 +55,10 @@ class Bootstrap:
     @staticmethod
     def get_ci_bca(bootstraps: Sequence, original: float, a: float) -> Tuple[float, float]:
         """
-        Get the confidence interval spanning the a to 1 - a quantiles using the BCa method.
-        cf. An Introduction to the Bootstrap, Bradley Efron, Robert J. Tibshirani, section 14.3.
-        The acceleration is estimated from the jackknife of the variance of the bootstrap replicates.
+        Get the bias-corrected confidence interval spanning the a to 1 - a quantiles, i.e. the BCa interval with
+        the acceleration set to zero, cf. An Introduction to the Bootstrap, Bradley Efron, Robert J. Tibshirani,
+        section 14.3. The bias correction is the standard normal quantile of the fraction of bootstraps below the
+        original value.
 
         :param bootstraps: List of bootstraps
         :param original: Original value
@@ -71,17 +72,12 @@ class Bootstrap:
         n = len(bootstraps)
         data = np.sort(np.array(bootstraps))
 
-        theta_hat_i = np.array([np.var(np.delete(data, i)) for i in range(n)])
-        theta_hat = sum(theta_hat_i) / n
-
-        a_hat = sum((theta_hat - theta_hat_i) ** 3) / (6 * (sum((theta_hat - theta_hat_i) ** 2)) ** (3 / 2))
-
         # we add epsilon here to avoid getting -inf when sum(data < original) / n is 0
         z0_hat = normal.ppf(sum(data < original) / n + np.finfo(float).eps)
         z_a = normal.ppf(a)
 
-        a1 = normal.cdf(z0_hat + (z0_hat + z_a) / (1 - a_hat * (z0_hat + z_a)))
-        a2 = normal.cdf(z0_hat + (z0_hat - z_a) / (1 - a_hat * (z0_hat - z_a)))
+        a1 = normal.cdf(2 * z0_hat + z_a)
+        a2 = normal.cdf(2 * z0_hat - z_a)
 
         return Bootstrap.get_bounds_from_quantile(data, a1, a2, n)
 

@@ -144,6 +144,19 @@ class FastBootstrapTestCase(TestCase):
         with self.assertRaises(ValueError):
             Bootstrap.get_ci_percentile(self.bs, 0.9)
 
+    def test_bca_ci_equals_percentile_ci_without_bias(self):
+        """
+        With the original value at the median of the bootstraps the bias correction vanishes, and as the
+        acceleration is zero the interval equals the percentile interval. The acceleration was a heuristic
+        computed from leave-one-out variances of the bootstraps, which shifted the bounds.
+        """
+        bs = np.random.default_rng(0).lognormal(size=1001)
+
+        self.assertEqual(
+            list(Bootstrap.get_ci_bca(bs, original=float(np.median(bs)) + 1e-12, a=0.05)),
+            list(Bootstrap.get_ci_percentile(bs, 0.05))
+        )
+
     def test_bca_ci(self):
         """BCa CI brackets, and the empty-input guard returns [0, 0]."""
         lo, hi = Bootstrap.get_ci_bca(self.bs, original=0.0, a=0.05)
