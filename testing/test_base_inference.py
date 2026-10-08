@@ -1459,6 +1459,16 @@ class BaseInferenceTestCase(InferenceTestCase):
 
         print(context.exception)
 
+    def test_selected_sfs_without_polymorphic_counts_raises_error(self):
+        """
+        A selected spectrum without polymorphic counts is rejected. The guard tested the neutral spectrum twice.
+        """
+        with self.assertRaises(ValueError):
+            fd.BaseInference(
+                sfs_neut=fd.Spectrum([1000, 4, 2, 1, 5]),
+                sfs_sel=fd.Spectrum([1000, 0, 0, 0, 5])
+            )
+
     @staticmethod
     def test_spectra_with_fractional_counts():
         """

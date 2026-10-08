@@ -254,7 +254,7 @@ class BaseInference(AbstractInference):
                              'Note that we require monomorphic counts in order to infer the mutation rate.')
 
         # check that we have polymorphic counts
-        if self.sfs_neut.n_polymorphic == 0 or self.sfs_neut.n_polymorphic == 0:
+        if self.sfs_neut.n_polymorphic == 0 or self.sfs_sel.n_polymorphic == 0:
             raise ValueError('Some of the provided SFS have zero polymorphic counts. '
                              'Note that we require polymorphic counts in order to infer the DFE.')
 
