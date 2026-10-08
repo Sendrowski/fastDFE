@@ -491,7 +491,8 @@ class JointInferenceTestCase(InferenceTestCase):
     @pytest.mark.slow
     def test_covariates_strong_correlation(self):
         """
-        Check that strong correlation between covariates is detected as significant.
+        Check that strong correlation between covariates is detected as significant. The covariate is
+        optimized on the linear scale, as the default symlog scale misses the optimum for these data.
         """
         # parse SFS
         spectra = Spectra.from_file("resources/SFS/betula/pendula/degeneracy_ref_base_tutorial.csv")
@@ -500,7 +501,12 @@ class JointInferenceTestCase(InferenceTestCase):
         inf = JointInference(
             sfs_neut=spectra[['neutral.*']].merge_groups(1),
             sfs_sel=spectra[['selected.*']].merge_groups(1),
-            covariates=[Covariate(param='S_d', values=dict(A=-100000, C=-2045, T=-60504, G=-5024))],
+            covariates=[Covariate(
+                param='S_d',
+                values=dict(A=-100000, C=-2045, T=-60504, G=-5024),
+                bounds=(-1e4, 1e4),
+                bounds_scale='lin'
+            )],
             fixed_params={'all': dict(S_b=1, eps=0, p_b=0, h=0.5)},
             parallelize=True,
             do_bootstrap=True,
