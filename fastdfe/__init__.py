@@ -283,5 +283,4 @@ __all__ = [
     'ExistingOutgroupFiltration',
     'ContigFiltration',
     'CpGFiltration',
-    'Filterer',
 ]

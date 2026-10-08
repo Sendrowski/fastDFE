@@ -1442,9 +1442,6 @@ class JointInference(BaseInference):
         """
         return collapse_fixed(self.fixed_params, self.types)['all'].get('h', None)
 
-        # check if the fixed parameters are compatible with the shared parameters
-        self.check_no_shared_params_fixed()
-
     def get_residual(self, k: int) -> float:
         """
         Residual of joint inference. We calculate the residual over the jointly inferred SFS for all types.
