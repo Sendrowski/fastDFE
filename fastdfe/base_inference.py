@@ -503,7 +503,7 @@ class BaseInference(AbstractInference):
             :param kwargs: Keyword arguments
             :return: Function output
             """
-            self.run_if_required(*args, **kwargs)
+            self.run_if_required()
 
             return func(self, *args, **kwargs)
 

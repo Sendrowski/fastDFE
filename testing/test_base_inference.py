@@ -1891,6 +1891,35 @@ class SmokeTestCase(TestCase):
         self.assertEqual(len(inf.bootstraps), 3)
         self.assertEqual((inf.alpha, inf.omega, inf.omega_a), cached)
 
+    def test_arguments_of_method_triggering_run_do_not_reach_run(self):
+        """
+        A method that runs the inference when required runs it with the settings of the inference. Its own
+        arguments were forwarded to ``run``, so that ``plot_nested_models`` disabled the bootstrap of the
+        inference and a positional plot argument was taken as ``do_bootstrap``.
+        """
+        def make(do_bootstrap: bool) -> fd.BaseInference:
+            return fd.BaseInference(
+                sfs_neut=self.sfs_neut,
+                sfs_sel=self.sfs_sel,
+                intervals_del=(-1.0e+8, -1.0e-5, 20),
+                intervals_ben=(1.0e-5, 1.0e4, 20),
+                do_bootstrap=do_bootstrap,
+                n_bootstraps=2,
+                n_runs=1,
+                parallelize=False
+            )
+
+        inf = make(True)
+        inf.plot_nested_models(show=False)
+
+        self.assertIs(inf.do_bootstrap, True)
+        self.assertEqual(len(inf.bootstraps), 2)
+
+        inf = make(False)
+        inf.plot_inferred_parameters(True, show=False)
+
+        self.assertIs(inf.do_bootstrap, False)
+
     def test_refit_recomputes_nested_models(self):
         """
         ``compare_nested_models`` caches its result. After the inference is refitted, here on other data, a
