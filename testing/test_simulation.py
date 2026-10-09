@@ -657,8 +657,7 @@ class SimulationTestCase(TestCase):
 class SimulationSmokeTestCase(TestCase):
     """
     Fast (fast-tier) coverage of the analytic ``Simulation`` class on a tiny SFS with a coarse
-    discretization. The Wright-Fisher path is excluded from coverage and validated only in the
-    slow tier.
+    discretization.
     """
 
     @staticmethod
