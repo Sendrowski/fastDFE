@@ -78,6 +78,31 @@ class DiscretizationTestCase(TestCase):
 
         assert diff < 5e-3
 
+    def test_sfs_counts_not_linearized_on_wide_grid(self):
+        """
+        Without linearization the SFS is integrated bin by bin and agrees with the linearized SFS on a grid
+        spanning the default range. A single integration over the whole range missed the mass around zero
+        and returned an SFS of essentially zero.
+        """
+        model = GammaExpParametrization()
+        params = dict(S_d=-300, b=0.3, p_b=0.1, S_b=2, h=0.5)
+
+        opts = dict(
+            n=10,
+            intervals_del=(-1.0e+8, -1.0e-5, 100),
+            intervals_ben=(1.0e-5, 1.0e4, 100),
+            parallelize=False
+        )
+
+        with self.assertLogs('fastdfe', level='WARNING') as logs:
+            sfs_adhoc = Discretization(**opts, linearized=False).model_selection_sfs(model, params)
+
+        self.assertIn('deprecated', logs.output[0])
+
+        sfs_cached = Discretization(**opts, linearized=True).model_selection_sfs(model, params)
+
+        np.testing.assert_allclose(sfs_adhoc, sfs_cached, rtol=5e-3)
+
     def test_sfs_counts_linearized_vs_quad(self):
         """
         Compare precomputed linearization using scipy's quad with ad hoc integration.

@@ -85,7 +85,8 @@ class Simulation:
         :param integration_mode: Integration mode when computing expected SFS under semidominance.
             ``quad`` is not recommended.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
-            :func:`scipy.integrate.quad` in each call. ``False`` not recommended.
+            :func:`scipy.integrate.quad` in each call. ``False`` is slow, intended for validation only and
+            deprecated.
         :param n_sites_div: Number of mutational target sites over which divergence is counted. When
             given, the simulated SFS carry an expected fixed-derived (divergence) class -- the
             expected number of substitutions ``theta * n_sites_div * flux`` (``flux = 1`` for neutral,

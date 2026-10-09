@@ -97,7 +97,8 @@ class Config:
         :param integration_mode: Integration mode when computing expected SFS under semidominance.
             ``quad`` is not recommended.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
-            :func:`scipy.integrate.quad` in each call. ``False`` not recommended.
+            :func:`scipy.integrate.quad` in each call. ``False`` is slow, intended for validation only and
+            deprecated.
         :param model: Parametrization of the DFE.
         :param seed: Seed for the random number generator. Use ``None`` for no seed.
         :param x0: Dictionary of initial values in the form ``{type: {param: value}}``

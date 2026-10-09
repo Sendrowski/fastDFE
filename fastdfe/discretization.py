@@ -86,7 +86,8 @@ class Discretization:
         :param integration_mode: ``'midpoint'`` for the trapezoidal rule over the bin edges or ``'quad'`` for
             :func:`scipy.integrate.quad`.
         :param linearized: Whether to discretize and cache the linearized integral mapping DFE to SFS or use
-            :func:`scipy.integrate.quad` in each call.
+            :func:`scipy.integrate.quad` in each call. ``False`` is slow, intended for validation only and
+            deprecated.
         :param parallelize: Whether to parallelize the computation of the discretization.
         """
         # make sure lower bounds are lower than upper bounds
@@ -123,6 +124,12 @@ class Discretization:
 
         self.integration_mode: Literal['midpoint', 'quad'] = integration_mode
         self.linearized: bool = linearized
+
+        if not linearized:
+            logger.warning(
+                "The option linearized=False is slow and intended for validation only. "
+                "It is deprecated and will be removed in a future version."
+            )
         self.parallelize: bool = parallelize
 
         # define bins, midpoints and step size
@@ -886,12 +893,11 @@ class Discretization:
                 def integrate_dfe(s: float) -> float:
                     """
                     Integrate over DFE for fixed k.
-                    Note that this produces too small results for low s,
-                    but we don't make use of it in production code anyway.
                     """
                     return self.get_counts_semidominant_regularized(s, k) * dfe_pdf(s)
 
-                return quad(integrate_dfe, self.bins[0], self.bins[-1])[0]
+                # integrate over each bin, as the integrand is concentrated around zero
+                return sum(quad(integrate_dfe, a, b)[0] for a, b in zip(self.bins[:-1], self.bins[1:]))
 
             counts_modelled = np.array([integrate(k) for k in range(1, self.n)])
 
