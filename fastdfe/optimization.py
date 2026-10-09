@@ -446,18 +446,17 @@ def evaluate_counts(get_counts: dict, params: dict):
 
 def to_symlog(x: float, linthresh: float = 1e-5) -> float:
     """
-    Convert a value to the symlog scale.
+    Convert a value to the symlog scale, which is linear within ``[-linthresh, linthresh]``, where it maps to
+    ``[-1, 1]``, and logarithmic outside. The transformation is continuous and strictly increasing.
 
     :param x: The input value on the original scale.
     :param linthresh: The positive value that determines the range within which the
         symlog scale is linear. Must be greater than 0.
     :return: The value on the symlog scale.
     """
-    sign = np.sign(x)
-    abs_x = np.abs(x)
-    log_x = np.log10(abs_x + linthresh) - np.log10(linthresh)
+    ratio = np.abs(x) / linthresh
 
-    return sign * (abs_x / linthresh if abs_x <= linthresh else log_x)
+    return np.sign(x) * (ratio if ratio <= 1 else 1 + np.log10(ratio))
 
 
 def from_symlog(y: float, linthresh: float = 1e-5) -> float:
@@ -469,11 +468,9 @@ def from_symlog(y: float, linthresh: float = 1e-5) -> float:
         symlog scale is linear. Must be greater than 0.
     :return: The value on the original scale.
     """
-    sign = np.sign(y)
     abs_y = np.abs(y)
-    exp_y = np.power(10, abs_y + np.log10(linthresh)) - linthresh
 
-    return sign * (abs_y * linthresh if abs_y <= 1 else exp_y)
+    return np.sign(y) * linthresh * (abs_y if abs_y <= 1 else np.power(10, abs_y - 1))
 
 
 def scale_bound(bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']):

@@ -266,6 +266,27 @@ class OptimizationTestCase(TestCase):
         plt.plot(y)
         plt.show()
 
+    def test_symlog_scale_around_linear_threshold(self):
+        """
+        The symlog scale is continuous and strictly increasing across the linear threshold, and every value is
+        recovered by the inverse. The transformation dropped from 1 to ``log10(2)`` at the threshold, so values
+        in ``(linthresh, 9 * linthresh)`` were mapped back below the threshold.
+        """
+        linthresh = 1e-4
+        x = np.concatenate([-np.logspace(2, -8, 201), [0], np.logspace(-8, 2, 201)])
+
+        y = np.array([to_symlog(v, linthresh) for v in x])
+
+        self.assert_strictly_increasing(y)
+        testing.assert_allclose([from_symlog(v, linthresh) for v in y], x, rtol=1e-12)
+
+        # continuous at the threshold, which maps to 1
+        self.assertEqual(to_symlog(linthresh, linthresh), 1)
+        self.assertAlmostEqual(to_symlog(linthresh * (1 + 1e-9), linthresh), 1, places=8)
+        self.assertAlmostEqual(from_symlog(1 + 1e-9, linthresh) / linthresh, 1, places=8)
+
+        testing.assert_allclose(unscale_value(scale_value(5e-4, (1e-4, 1e4), 'symlog'), (1e-4, 1e4), 'symlog'), 5e-4)
+
     def assert_strictly_increasing(self, y: np.ndarray):
         """
         Check that the sequence is strictly increasing.
@@ -289,7 +310,8 @@ class OptimizationTestCase(TestCase):
             (-1, 1)
         )
 
-        symlog_bounds = (-2.0043213737826426, 2.0043213737826426)
+        # the linear threshold of 0.1 maps to 1 and the two decades above it add 2
+        symlog_bounds = (-3, 3)
         bounds = (0.1, 10)
         testing.assert_almost_equal(
             scale_bound(bounds, 'symlog'),
