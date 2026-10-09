@@ -10,6 +10,7 @@ __author__ = "Janek Sendrowski"
 __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-02-26"
 
+import inspect
 import json
 import logging
 
@@ -51,15 +52,28 @@ class CustomEncoder(json.JSONEncoder):
             return int(obj)
 
         if isinstance(obj, Parametrization):
-            return type(obj).__name__
+            name = type(obj).__name__
+
+            # include the intervals of a discrete parametrization if they differ from the default
+            if hasattr(obj, 'intervals'):
+                intervals = obj.intervals[1:-1]
+
+                if not np.array_equal(intervals, inspect.signature(type(obj)).parameters['intervals'].default):
+                    return dict(name=name, intervals=intervals)
+
+            return name
 
         if isinstance(obj, SharedParams):
             return obj.__dict__
 
         if isinstance(obj, Covariate):
-            # Only include 'param' and 'values' to avoid cluttering
-            # the config file.
-            return dict(param=obj.param, values=obj.values)
+            # include the remaining settings only if they differ from the default,
+            # to avoid cluttering the config file
+            settings = dict((k, getattr(obj, k)) for k in ('bounds', 'x0', 'bounds_scale'))
+
+            return dict(param=obj.param, values=obj.values) | dict(
+                (k, v) for k, v in settings.items() if v != getattr(Covariate, k)
+            )
 
         # there were serialization problems with this object
         if isinstance(obj, LbfgsInvHessProduct):

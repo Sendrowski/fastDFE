@@ -217,6 +217,36 @@ class ConfigTestCase(TestCase):
 
         self.assert_config_equal(config, config2)
 
+    def test_restore_custom_intervals_and_covariate_settings(self):
+        """
+        A config written to JSON or YAML keeps the intervals of a discrete parametrization and the bounds,
+        initial value and scale of a covariate where they differ from the defaults. Only the class name and
+        the covariate values were stored, so both were restored with their defaults.
+        """
+        import json
+        from fastdfe import DiscreteFractionalParametrization
+
+        config = Config(
+            model=DiscreteFractionalParametrization(intervals=np.array([-100000, -100, -1, 0, 1, 1000])),
+            covariates=[Covariate(param='S_d', values=dict(a=1, b=2), bounds=(1e-2, 10), x0=3.0, bounds_scale='lin')]
+        )
+
+        for restored in (Config.from_json(config.to_json()), Config.from_yaml(config.to_yaml())):
+            model, cov = restored.data['model'], restored.data['covariates'][0]
+
+            self.assertIsInstance(model, DiscreteFractionalParametrization)
+            np.testing.assert_array_equal(model.intervals, config.data['model'].intervals)
+            self.assertEqual(model.param_names, config.data['model'].param_names)
+            self.assertEqual((cov.bounds, cov.x0, cov.bounds_scale), ((1e-2, 10), 3.0, 'lin'))
+
+        # the defaults are written as before
+        default = json.loads(Config(
+            model=DiscreteFractionalParametrization(), covariates=[Covariate(param='S_d', values=dict(a=1, b=2))]
+        ).to_json())
+
+        self.assertEqual(default['model'], 'DiscreteFractionalParametrization')
+        self.assertEqual(default['covariates'], [dict(param='S_d', values=dict(a=1, b=2))])
+
     def test_restore_covariates(self):
         """
         Test whether covariates can be properly restored from file.

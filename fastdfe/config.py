@@ -18,6 +18,7 @@ from sfsutils.io_handlers import download_if_url
 from .json_handlers import CustomEncoder
 from .optimization import Covariate
 from .optimization import SharedParams, merge_dicts
+from . import parametrization
 from .parametrization import Parametrization, _from_string, _to_string
 from .polydfe_utils import create_sfs_config, parse_init_file, create_init_file, models
 from sfsutils.spectrum import Spectra, parse_polydfe_sfs_config, Spectrum
@@ -317,6 +318,11 @@ class Config:
         for sfs in ['sfs_neut', 'sfs_sel']:
             if sfs in data and data[sfs] is not None:
                 data[sfs] = Spectra.from_dict(data=data[sfs])
+
+        # recreate a parametrization stored with its intervals
+        if isinstance(data.get('model'), dict):
+            model = dict(data['model'])
+            data['model'] = getattr(parametrization, model.pop('name'))(**model)
 
         # recreate SharedParams objects
         if 'shared_params' in data and data['shared_params'] is not None:
