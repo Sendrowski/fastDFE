@@ -627,6 +627,12 @@ class BaseInference(AbstractInference):
         self.params_mle = params_mle
         self.likelihood = -result.fun
 
+        # discard the bootstraps and cached summaries of a previous result
+        self.bootstraps = None
+        self.bootstrap_results = None
+        for name in ('alpha', 'omega', 'omega_a'):
+            self.__dict__.pop(name, None)
+
         # get SFS for MLE parameters
         counts_mle, _ = self._model_sfs(
             params=params_mle,

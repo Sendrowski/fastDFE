@@ -962,6 +962,19 @@ class FastJointInferenceTestCase(TestCase):
         self.assertAlmostEqual(inf.likelihood, marginal, places=3)
         self.assertEqual(len(inf.bootstraps), 2)
 
+    def test_rerun_discards_bootstraps(self):
+        """A joint inference rerun without bootstrapping does not keep the bootstraps of the previous run."""
+        inf = self._make(shared_params=[fd.SharedParams(types='all', params=['S_d'])], do_bootstrap=True, n_bootstraps=2)
+        inf.run()
+
+        self.assertEqual(len(inf.bootstraps), 2)
+
+        inf.do_bootstrap = False
+        inf.run()
+
+        self.assertIsNone(inf.bootstraps)
+        self.assertTrue(all(i.bootstraps is None for i in inf.joint_inferences.values()))
+
     def test_x0_per_type_seeds_marginal_inference(self):
         """
         Initial values given under a type seed the marginal inference of that type, the other types start from the

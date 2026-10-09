@@ -1857,6 +1857,42 @@ class SmokeTestCase(TestCase):
     sfs_neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
     sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
 
+    def test_nested_models_do_not_inherit_bootstraps_and_cached_summaries(self):
+        """
+        The inferences returned by ``compare_nested_models`` are refitted copies of the parent. They carry
+        neither its bootstraps nor its cached alpha, omega and omega_a, which were kept across the refit.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=True,
+            n_bootstraps=3,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        # fill the caches of the parent
+        cached = inf.alpha, inf.omega, inf.omega_a
+
+        _, inferences = inf.compare_nested_models()
+
+        for sub in inferences.values():
+            self.assertIsNone(sub.bootstraps)
+            self.assertEqual(sub.alpha, sub.get_alpha())
+            self.assertEqual(sub.omega, sub.get_omega())
+            self.assertEqual(sub.omega_a, sub.get_omega_a())
+
+        # the full model has beneficial mutations, the deleterious parent has none
+        self.assertEqual(cached[0], 0)
+        self.assertGreater(inferences['full.no_anc'].alpha, 0)
+
+        # the parent keeps its own results
+        self.assertEqual(len(inf.bootstraps), 3)
+        self.assertEqual((inf.alpha, inf.omega, inf.omega_a), cached)
+
     def test_base_inference_smoke(self):
         """A single tiny BaseInference fit runs and produces finite estimates."""
         inf = fd.BaseInference(

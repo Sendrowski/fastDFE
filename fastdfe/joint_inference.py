@@ -649,6 +649,10 @@ class JointInference(BaseInference):
         # assign MLE params
         self.params_mle = params_mle
 
+        # discard the bootstraps of a previous result
+        self.bootstraps = None
+        self.bootstrap_results = None
+
         # assign modelled SFS for each type
         self.sfs_mle = Spectra.from_spectra({t: inf.sfs_mle for t, inf in self.joint_inferences.items()})
 
