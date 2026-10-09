@@ -181,7 +181,9 @@ class Simulation:
             flux = self.discretization.get_divergence_flux(self.model, self.params)
             n_div = self.theta * self.n_sites_div * flux
 
-        self.sfs_sel = Spectrum([self.n_sites - sum(counts_modelled)] + list(counts_modelled) + [n_div])
+        n_monomorphic = max(self.n_sites - sum(counts_modelled) - n_div, 0)
+
+        self.sfs_sel = Spectrum([n_monomorphic] + list(counts_modelled) + [n_div])
 
         return self.sfs_sel
 
@@ -207,13 +209,14 @@ class Simulation:
         Get the spectra used in the simulation.
 
         :return: Spectra with the neutral and selected SFS. When ``n_sites_div`` was given, both
-            carry their expected divergence (fixed-derived) class.
+            carry their expected divergence (fixed-derived) class, which is part of the total number of sites.
         """
         sfs_neut = self.sfs_neut
         if self.n_sites_div is not None:
             # neutral divergence: theta * L_div (the neutral substitution flux is 1)
             data = list(self.sfs_neut.data)
             data[-1] = self.theta * self.n_sites_div
+            data[0] = max(self.n_sites - sum(data[1:]), 0)
             sfs_neut = Spectrum(data)
 
         return Spectra.from_spectra({

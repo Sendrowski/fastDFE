@@ -729,6 +729,42 @@ class SimulationSmokeTestCase(TestCase):
         # the neutral spectrum carries theta * L_div (the neutral substitution flux is 1)
         np.testing.assert_allclose(sim.get_spectra()['neutral'].n_div, sim.theta * L, rtol=1e-9)
 
+    def test_divergence_class_is_part_of_number_of_sites(self):
+        """
+        With ``n_sites_div``, the simulated spectra keep the number of sites and the mutation rate of the
+        simulation, so the expected selected SFS at the true parameters equals the simulated one. The
+        divergence class was added on top of the sites, which lowered the neutral mutation rate and biased the
+        inferred DFE for large ``n_sites_div``.
+        """
+        sim = self._make(n_sites_div=50 * 1e6)
+        sim.run()
+        spectra = sim.get_spectra()
+        neut, sel = spectra['neutral'], spectra['selected']
+
+        self.assertAlmostEqual(neut.n_sites / sim.n_sites, 1, places=12)
+        self.assertAlmostEqual(sel.n_sites / sim.n_sites, 1, places=12)
+        self.assertAlmostEqual(neut.theta / sim.theta, 1, places=12)
+        self.assertGreater(neut.n_div / neut.n_sites, 0.01)
+
+        modelled, observed = fd.BaseInference._model_sfs(
+            discretization=sim.discretization,
+            model=sim.model,
+            params=sim.params,
+            sfs_neut=neut,
+            sfs_sel=sel,
+            folded=False
+        )
+
+        np.testing.assert_allclose(modelled, observed, rtol=1e-10)
+
+        # the monomorphic class is capped at zero when there are more substitutions than sites
+        sim = self._make(n_sites_div=1e12)
+        sim.run()
+
+        spectra = sim.get_spectra()
+
+        self.assertEqual([spectra[t].data[0] for t in ('neutral', 'selected')], [0, 0])
+
     def test_divergence_roundtrip_recovers_truth(self):
         """
         Feeding the simulated (clean, matched-model) divergence back into the divergence-based
