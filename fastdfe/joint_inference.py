@@ -693,7 +693,9 @@ class JointInference(BaseInference):
             sfs_neut=self.joint_inferences[t].sfs_neut,
             sfs_sel=self.joint_inferences[t].sfs_sel,
             folded=self.folded,
-            include_divergence=self._use_divergence
+            include_divergence=self._use_divergence,
+            n_sites_div_neut=self.joint_inferences[t].n_sites_div_neut,
+            n_sites_div_sel=self.joint_inferences[t].n_sites_div_sel
         ))) for t, inf in self.joint_inferences.items())
 
     @BaseInference._run_if_required_wrapper
@@ -806,6 +808,8 @@ class JointInference(BaseInference):
         use_divergence = self._use_divergence
         sfs_neut = dict((t, self.marginal_inferences[t].sfs_neut) for t in self.types)
         sfs_sel = dict((t, self.marginal_inferences[t].sfs_sel) for t in self.types)
+        n_sites_div_neut = dict((t, self.joint_inferences[t].n_sites_div_neut) for t in self.types)
+        n_sites_div_sel = dict((t, self.joint_inferences[t].n_sites_div_sel) for t in self.types)
         desc = f"{self.__class__.__name__}>Bootstrapping joint inference"
 
         def run_bootstrap_sample(seed: int) -> List[Tuple['scipy.optimize.OptimizeResult', dict, dict]]:
@@ -851,7 +855,9 @@ class JointInference(BaseInference):
                         sfs_neut=spectra[t]['neut'],
                         sfs_sel=spectra[t]['sel'],
                         folded=folded,
-                        include_divergence=use_divergence
+                        include_divergence=use_divergence,
+                        n_sites_div_neut=n_sites_div_neut[t],
+                        n_sites_div_sel=n_sites_div_sel[t]
                     )) for t in types)
                 )
 

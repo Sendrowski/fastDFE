@@ -941,6 +941,27 @@ class FastJointInferenceTestCase(TestCase):
         self.assertTrue(inf2._use_divergence)
         self.assertTrue(all(i._use_divergence for i in inf2.joint_inferences.values()))
 
+    def test_joint_likelihood_with_divergence_equals_sum_of_marginals(self):
+        """
+        With divergence counts in the likelihood and no shared parameters, the joint likelihood equals the sum
+        of the marginal likelihoods, and the joint bootstrap runs. The joint likelihood did not receive the
+        divergence target sizes and raised a TypeError.
+        """
+        inf = self._make(
+            n_sites_div_neut=dict(a=self.sfs_neut.n_sites, b=self.sfs_neut.n_sites),
+            n_sites_div_sel=dict(a=self.sfs_sel.n_sites, b=self.sfs_sel.n_sites),
+            shared_params=[],
+            do_bootstrap=True,
+            n_bootstraps=2
+        )
+        inf.run()
+
+        marginal = sum(m.likelihood for t, m in inf.marginal_inferences.items() if t != 'all')
+
+        self.assertTrue(inf._use_divergence)
+        self.assertAlmostEqual(inf.likelihood, marginal, places=3)
+        self.assertEqual(len(inf.bootstraps), 2)
+
     def test_x0_per_type_seeds_marginal_inference(self):
         """
         Initial values given under a type seed the marginal inference of that type, the other types start from the
