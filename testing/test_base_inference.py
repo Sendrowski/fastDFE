@@ -1891,6 +1891,28 @@ class SmokeTestCase(TestCase):
         self.assertEqual(len(inf.bootstraps), 3)
         self.assertEqual((inf.alpha, inf.omega, inf.omega_a), cached)
 
+    def test_bootstrap_without_samples_raises(self):
+        """
+        A bootstrap of zero samples raises a ``ValueError`` naming the cause. It failed with an ``IndexError``
+        from inside the collection of the results.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_bootstraps=7,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        with self.assertRaises(ValueError):
+            inf.bootstrap(n_samples=0)
+
+        self.assertEqual(inf.n_bootstraps, 7)
+
     def test_plot_on_given_axes_leaves_other_panels_untouched(self):
         """
         A plot given ``ax`` labels the ticks of these axes and returns them. The tick labels were set on the

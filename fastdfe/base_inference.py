@@ -811,6 +811,7 @@ class BaseInference(AbstractInference):
         :param pbar: Whether to show a progress bar.
         :param pbar_title: Title for the progress bar.
         :return: Dataframe with bootstrap results.
+        :raises ValueError: If ``n_samples`` is not positive.
         """
         # check if locked
         self.raise_if_locked()
@@ -820,6 +821,9 @@ class BaseInference(AbstractInference):
 
         # precompute discretization if not done yet
         self.discretization.precompute(fixed=self._use_divergence)
+
+        if n_samples is not None and n_samples < 1:
+            raise ValueError(f'The number of bootstrap samples must be positive, got {n_samples}.')
 
         # update properties
         self.update_properties(
