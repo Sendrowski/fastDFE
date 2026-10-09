@@ -1017,7 +1017,7 @@ class JointInference(BaseInference):
         may be smaller than what it should be.
 
         :param do_bootstrap: Whether to perform bootstrapping.
-        :return: p-value
+        :return: p-value, NaN if the joint model has no fewer free parameters than the marginal models
         """
         if do_bootstrap:
             self.bootstrap_if_required()
@@ -1028,6 +1028,14 @@ class JointInference(BaseInference):
         # determine number of parameters, fixed parameters cancel out
         n_marginal = np.sum([len(inf.params_mle) for inf in self.marginals_without_all().values()])
         n_joint = len(flatten_dict(self.get_x0()))
+
+        if n_marginal <= n_joint:
+            self._logger.warning(
+                "The joint model has %d free parameters and the marginal models %d, "
+                "so the likelihood ratio test is not defined.", n_joint, n_marginal
+            )
+
+            return np.nan
 
         return self.lrt(ll_simple=self.likelihood, ll_complex=ll_marginal, df=n_marginal - n_joint)
 

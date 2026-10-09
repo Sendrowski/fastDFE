@@ -970,6 +970,33 @@ class FastJointInferenceTestCase(TestCase):
                 bs.omega, (bs.n_div_sel / joint.n_sites_div_sel) / (bs.n_div_neut / joint.n_sites_div_neut), rtol=1e-12
             )
 
+    def test_lrt_shared_without_degrees_of_freedom(self):
+        """
+        With two types and a covariate on the shared parameter, the joint model has as many free parameters as
+        the marginal models, so the test of sharing is not defined. It returned a p-value of 0, which reads as
+        strong evidence against sharing.
+        """
+        inf = self._make(
+            covariates=[fd.Covariate(param='S_d', values=dict(a=1, b=2))],
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5))
+        )
+        inf.run()
+
+        with self.assertLogs('fastdfe', level='WARNING') as logs:
+            p = inf.perform_lrt_shared()
+
+        self.assertTrue(np.isnan(p))
+        self.assertIn('not defined', logs.output[0])
+
+        # sharing without a covariate leaves one degree of freedom
+        shared = self._make(
+            shared_params=[fd.SharedParams(types='all', params=['S_d'])],
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5))
+        )
+        shared.run()
+
+        self.assertTrue(0 <= shared.perform_lrt_shared() <= 1)
+
     def test_fixed_dominance_overridden_for_one_type(self):
         """
         A dominance coefficient fixed for all types can be fixed at another value for one type. The
