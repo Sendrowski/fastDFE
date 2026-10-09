@@ -219,9 +219,11 @@ class Config:
         :param n: SFS sample size.
         :param file: Path to the init file to be created.
         """
+        fixed_params = self.data['fixed_params'] or {}
+
         create_init_file(
             file=file,
-            fixed_params=list(self.data['fixed_params'][type].keys()) if type in self.data['fixed_params'] else [],
+            fixed_params=list(fixed_params[type].keys()) if type in fixed_params else [],
             x0=self.data['x0'][type] if type in self.data['x0'] else {},
             dfe_params=_from_string(self.data['model']).param_names,
             n=n

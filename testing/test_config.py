@@ -142,6 +142,25 @@ class ConfigTestCase(TestCase):
             config, config2, ['bounds', 'scales', 'opts_mle', 'sfs_neut', 'sfs_sel', 'x0', 'folded']
         )
 
+    def test_create_polydfe_init_file_without_fixed_params(self):
+        """
+        A polyDFE init file can be created from a config without fixed parameters, which is the default. The
+        default ``fixed_params=None`` raised a ``TypeError``.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            default, empty = f'{tmp}/default', f'{tmp}/empty'
+
+            Config().create_polydfe_init_file(default, n=5)
+            Config(fixed_params={}).create_polydfe_init_file(empty, n=5)
+
+            with open(default) as a, open(empty) as b:
+                content = a.read()
+
+                self.assertTrue(content.strip())
+                self.assertEqual(content, b.read())
+
     def test_parsed_init_file_does_not_leak_into_other_configs(self):
         """
         The initial values parsed from a polyDFE init file are stored on that config alone. They were written
