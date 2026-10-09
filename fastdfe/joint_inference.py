@@ -20,14 +20,14 @@ from numpy.linalg import norm
 from tqdm import tqdm
 
 from .abstract_inference import Inference
-from .base_inference import BaseInference
+from .base_inference import BaseInference, InferenceResult
 from .bootstrap import Bootstrap
 from .config import Config
 from .discretization import Discretization
 from .optimization import Optimization, SharedParams, pack_shared, expand_shared, \
     Covariate, flatten_dict, merge_dicts, correct_values, parallelize as parallelize_func, expand_fixed, \
     collapse_fixed_to_mean, unpack_shared, collapse_fixed
-from .parametrization import Parametrization
+from .parametrization import Parametrization, DFE
 from sfsutils import Settings
 from sfsutils.spectrum import Spectrum, Spectra
 
@@ -1423,6 +1423,40 @@ class JointInference(BaseInference):
         """
         # using make_ref=True resulted in weird behaviour when unserializing.
         return jsonpickle.encode(self, indent=4, warn=True, make_refs=False)
+
+    def get_dfe(self) -> Dict[str, DFE]:
+        """
+        Return the inferred DFE of each type.
+
+        :return: Dictionary of frozen DFE objects indexed by type.
+        """
+        self.run_if_required()
+
+        return dict((t, inf.get_dfe()) for t, inf in self.joint_inferences.items())
+
+    def get_spectra(self) -> Spectra:
+        """
+        Return the neutral, selected and modelled SFS of each type.
+
+        :return: Spectra object with types ``<type>.neutral``, ``<type>.selected`` and ``<type>.modelled``.
+        """
+        self.run_if_required()
+
+        spectra = dict((t, inf.get_spectra()) for t, inf in self.joint_inferences.items())
+
+        return Spectra.from_spectra(dict(
+            (f'{t}.{name}', sfs[name]) for t, sfs in spectra.items() for name in sfs.types
+        ))
+
+    def get_summary(self) -> Dict[str, InferenceResult]:
+        """
+        Get the summary of each type.
+
+        :return: Dictionary of inference results indexed by type.
+        """
+        self.run_if_required()
+
+        return dict((t, inf.get_summary()) for t, inf in self.joint_inferences.items())
 
     @functools.cached_property
     def alpha(self) -> Optional[float]:

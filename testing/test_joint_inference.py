@@ -970,6 +970,35 @@ class FastJointInferenceTestCase(TestCase):
                 bs.omega, (bs.n_div_sel / joint.n_sites_div_sel) / (bs.n_div_neut / joint.n_sites_div_neut), rtol=1e-12
             )
 
+    def test_dfe_spectra_and_summary_per_type(self):
+        """
+        ``get_dfe`` and ``get_summary`` return one entry per type and ``get_spectra`` the neutral, selected and
+        modelled SFS of each type. The inherited methods assumed a single type and raised.
+        """
+        inf = self._make(shared_params=[fd.SharedParams(types='all', params=['b'])])
+        inf.run()
+
+        spectra = inf.get_spectra()
+
+        self.assertEqual(
+            spectra.types, [f'{t}.{name}' for t in ('a', 'b') for name in ('neutral', 'selected', 'modelled')]
+        )
+        np.testing.assert_array_equal(spectra['b.modelled'].data, inf.sfs_mle['b'].data)
+        np.testing.assert_array_equal(spectra['a.selected'].data, inf.joint_inferences['a'].sfs_sel.data)
+
+        dfes = inf.get_dfe()
+
+        self.assertEqual(list(dfes), ['a', 'b'])
+        self.assertEqual(dfes['a'].params, inf.joint_inferences['a'].params_mle)
+
+        summaries = inf.get_summary()
+
+        self.assertEqual(list(summaries), ['a', 'b'])
+        self.assertEqual(summaries['b'].spectra.types, ['neutral', 'selected', 'modelled'])
+
+        # the summaries can be serialized
+        self.assertIn('modelled', summaries['a'].to_json())
+
     def test_model_without_covariates_keeps_folding(self):
         """
         The model without covariates used by the covariate LRT is fitted to folded spectra when the joint
