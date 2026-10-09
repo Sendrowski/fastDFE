@@ -277,6 +277,7 @@ class Discretization:
             return Discretization.get_counts_fixed_semidominant_regularized(np.array([S], dtype=float))[0]
 
         # else S is an array
+        S = np.asarray(S, dtype=float)
         y = np.zeros_like(S)
 
         # S close to zero
@@ -315,8 +316,8 @@ class Discretization:
         :param pow_cluster: Power for clustering grid points towards 0.
         :return: Array of shape (len(S),) with sojourn times as x -> 1.
         """
+        S = np.asarray(S, dtype=float)
         h = np.full_like(S, h) if np.isscalar(h) else np.asarray(h)
-        S = np.asarray(S)
 
         x = np.linspace(0, 1, n_bins) ** pow_cluster  # (n_bins,)
 
@@ -425,8 +426,8 @@ class Discretization:
 
         :return: Array of allele counts of shape (len(S),) for a single allele count, else (len(k), len(S)).
         """
+        S = np.asarray(S, dtype=float)
         h = np.full_like(S, h) if np.isscalar(h) else np.asarray(h)
-        S = np.asarray(S)
         K = [int(i) for i in np.atleast_1d(k)]
 
         # x-grid

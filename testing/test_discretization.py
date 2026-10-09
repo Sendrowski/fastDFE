@@ -721,6 +721,26 @@ class FastDiscretizationTestCase(TestCase):
 
         self.assertTrue(np.all(np.isfinite(d.get_counts(h=0.4))))
 
+    def test_static_counts_accept_integer_selection_coefficients(self):
+        """
+        The static count functions return the same values for integer and float selection coefficients. The
+        result, and a scalar ``h``, took the integer dtype of the array and were truncated.
+        """
+        S = np.array([-10, -1, 1, 10])
+
+        np.testing.assert_array_equal(
+            Discretization.get_counts_fixed_semidominant_regularized(S),
+            Discretization.get_counts_fixed_semidominant_regularized(S.astype(float))
+        )
+        np.testing.assert_array_equal(
+            Discretization.get_counts_fixed_dominant(S, 0.3),
+            Discretization.get_counts_fixed_dominant(S.astype(float), 0.3)
+        )
+        np.testing.assert_array_equal(
+            Discretization._get_counts_dominant(n=6, k=2, h=0.3, S=S, n_outer=200, n_inner=50),
+            Discretization._get_counts_dominant(n=6, k=2, h=0.3, S=S.astype(float), n_outer=200, n_inner=50)
+        )
+
     def test_quad_integration_mode_keeps_bin_containing_zero(self):
         """
         With ``integration_mode='quad'`` the bin containing ``S = 0`` holds the integral of the expected counts
