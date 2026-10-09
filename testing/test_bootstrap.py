@@ -13,18 +13,26 @@ class BootstrapTestCase(TestCase):
     """
 
     def test_ci_percentile(self):
+        """
+        The percentile interval leaves as many bootstraps below its lower bound as above its upper bound, here
+        5 of 100 on each side. The upper bound was one position higher, leaving 4 above.
+        """
         x = np.arange(100)
 
         cis = Bootstrap.get_ci_percentile(x, 0.05)
 
-        assert cis == (5, 95)
+        assert cis == (5, 94)
+        assert np.sum(x < cis[0]) == np.sum(x > cis[1]) == 5
+
+        # the bounds do not cross for a tail probability of one half
+        assert Bootstrap.get_ci_percentile(x, 0.5) == (50, 50)
 
     def test_ci_bca(self):
         x = np.arange(100)
 
         cis = Bootstrap.get_ci_bca(x, 50, 0.05)
 
-        assert cis == (5, 95)
+        assert cis == (5, 94)
 
     @staticmethod
     def get_cis(ci_level, values):
