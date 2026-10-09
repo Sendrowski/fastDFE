@@ -5,4 +5,4 @@ BaseInference>Performing inference: 100%|██████████| 10/10 [
 WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.p_b: (0, 0.0044970244, 0.5)} [(lower, value, upper)], but this might be nothing to worry about.
 INFO:BaseInference: Inference results: {all.S_d: -1.06e+04 ± 2.8e+04, all.b: 0.1545 ± 3.1, all.p_b: 0.004497 ± 0.13, all.S_b: 63.2 ± 27, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -45.75 ± 1.6e+02} (best_run ± std_across_runs)
 BaseInference>Bootstrapping (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
-INFO:BaseInference: Bootstrap summary: {all.S_d: -2.351e+04 ± 3.3e+04, all.b: 0.1684 ± 0.038, all.p_b: 0.008249 ± 0.0087, all.S_b: 66.57 ± 36, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -52.07 ± 5, i_best_run: 0.56 ± 0.5, likelihoods_std: 6.107 ± 29} (mean ± std)
+INFO:BaseInference: Bootstrap summary: {all.S_d: -2.351e+04 ± 3.3e+04, all.b: 0.1684 ± 0.038, all.p_b: 0.008249 ± 0.0087, all.S_b: 66.57 ± 36, all.eps: 0 ± 0, all.h: 0.5 ± 0, all.n_div_neut: 6492 ± 84, all.n_div_sel: 1.399e+04 ± 1.2e+02, likelihood: -52.07 ± 5, i_best_run: 0.56 ± 0.5, likelihoods_std: 6.107 ± 29} (mean ± std)
