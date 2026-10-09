@@ -962,6 +962,14 @@ class FastJointInferenceTestCase(TestCase):
         self.assertAlmostEqual(inf.likelihood, marginal, places=3)
         self.assertEqual(len(inf.bootstraps), 2)
 
+        # the bootstrapped divergence estimates of each type use the divergence counts of the sample
+        for joint in inf.joint_inferences.values():
+            bs = joint.bootstraps
+
+            np.testing.assert_allclose(
+                bs.omega, (bs.n_div_sel / joint.n_sites_div_sel) / (bs.n_div_neut / joint.n_sites_div_neut), rtol=1e-12
+            )
+
     def test_rerun_recomputes_model_without_covariates(self):
         """
         ``run_joint_without_covariates`` caches its result. After the joint inference is rerun, a further call

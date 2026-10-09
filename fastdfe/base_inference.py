@@ -852,6 +852,10 @@ class BaseInference(AbstractInference):
         # dataframe of MLE estimates
         self.bootstraps = pd.DataFrame([flatten_dict(r) for r in result[:, 1]])
 
+        # divergence counts of each sample
+        if self._use_divergence:
+            self.bootstraps = self.bootstraps.join(pd.DataFrame([flatten_dict(r) for r in result[:, 3]]))
+
         # assign additional info to bootstraps
         self.bootstraps['likelihood'] = [-r.fun for r in result[:, 0]]
         self.bootstraps['success'] = [r.success for r in result[:, 0]]
@@ -900,17 +904,32 @@ class BaseInference(AbstractInference):
         """
         self._logger.debug('Computing estimates for alpha, omega and omega_a.')
 
-        # add alpha, omega and omega_a estimates
-        self.bootstraps['alpha'] = self.bootstraps.apply(lambda r: self.get_alpha(dict(r)), axis=1)
-        self.bootstraps['omega'] = self.bootstraps.apply(lambda r: self.get_omega(dict(r)), axis=1)
-        self.bootstraps['omega_a'] = self.bootstraps.apply(lambda r: self.get_omega_a(dict(r)), axis=1)
+        if self._use_divergence:
+            d = self.discretization
+            estimators = dict(
+                alpha=d.get_alpha_divergence, omega=d.get_omega_divergence, omega_a=d.get_omega_a_divergence
+            )
 
-    def _get_run_bootstrap_sample(self) -> Callable[[int], List[Tuple['scipy.optimize.OptimizeResult', dict, dict]]]:
+            # divergence-based estimates from the divergence counts of each sample
+            for name, estimator in estimators.items():
+                self.bootstraps[name] = self.bootstraps.apply(lambda r: estimator(
+                    self.model, dict(r), r['n_div_neut'], r['n_div_sel'], self.n_sites_div_neut, self.n_sites_div_sel
+                ), axis=1)
+        else:
+            estimators = dict(alpha=self.get_alpha, omega=self.get_omega, omega_a=self.get_omega_a)
+
+            for name, estimator in estimators.items():
+                self.bootstraps[name] = self.bootstraps.apply(lambda r: estimator(dict(r)), axis=1)
+
+    def _get_run_bootstrap_sample(
+            self
+    ) -> Callable[[int], List[Tuple['scipy.optimize.OptimizeResult', dict, dict, dict]]]:
         """
         Get function which runs a single bootstrap sample.
 
         :return: Static function which runs a single bootstrap sample, taking a seed and returning, for each
-            optimization run, a tuple of the optimization result, the MLE parameters and the initial values used.
+            optimization run, a tuple of the optimization result, the MLE parameters, the initial values used and
+            the divergence counts of the sample.
         """
 
         optimization = self.optimization
@@ -928,7 +947,7 @@ class BaseInference(AbstractInference):
         params_mle_all = dict(all=self.params_mle)
         desc = f"{self.__class__.__name__}>Bootstrapping"
 
-        def run_bootstrap_sample(seed: int) -> List[Tuple['scipy.optimize.OptimizeResult', dict, dict]]:
+        def run_bootstrap_sample(seed: int) -> List[Tuple['scipy.optimize.OptimizeResult', dict, dict, dict]]:
             """
             Resample the selected and neutral SFS and rerun optimization.
             The first run starts at the MLE, subsequent runs start at initial values sampled within the
@@ -941,6 +960,9 @@ class BaseInference(AbstractInference):
             # resample once
             sel = sfs_sel.resample(seed=rng)
             neut = sfs_neut.resample(seed=rng)
+
+            # divergence counts of the sample
+            n_div = dict(all=dict(n_div_neut=neut.n_div, n_div_sel=sel.n_div))
 
             for _ in range(max(n_retries, 1)):
                 # run optimizer
@@ -971,7 +993,7 @@ class BaseInference(AbstractInference):
                 # normalize MLE estimates
                 params_mle['all'] = model._normalize(params_mle['all'])
 
-                results += [(result, params_mle, x0)]
+                results += [(result, params_mle, x0, n_div)]
 
                 x0 = optimization.sample_x0(params_mle_all, random_state=rng)
 
@@ -1831,7 +1853,7 @@ class BaseInference(AbstractInference):
                 )
 
             return self.discretization.get_alpha_divergence(
-                self.model, params, self.sfs_neut, self.sfs_sel,
+                self.model, params, self.sfs_neut.n_div, self.sfs_sel.n_div,
                 self.n_sites_div_neut, self.n_sites_div_sel)
 
         return self.discretization.get_alpha(self.model, params)
@@ -1865,7 +1887,7 @@ class BaseInference(AbstractInference):
                 )
 
             return self.discretization.get_omega_divergence(
-                self.model, params, self.sfs_neut, self.sfs_sel,
+                self.model, params, self.sfs_neut.n_div, self.sfs_sel.n_div,
                 self.n_sites_div_neut, self.n_sites_div_sel)
 
         return self.discretization.get_omega(self.model, params)
@@ -1900,7 +1922,7 @@ class BaseInference(AbstractInference):
                 )
 
             return self.discretization.get_omega_a_divergence(
-                self.model, params, self.sfs_neut, self.sfs_sel,
+                self.model, params, self.sfs_neut.n_div, self.sfs_sel.n_div,
                 self.n_sites_div_neut, self.n_sites_div_sel)
 
         return self.discretization.get_omega_a(self.model, params)

@@ -297,8 +297,6 @@ class DivergenceTestCase(InferenceTestCase):
         alpha. Summing ``divDel`` over ``s < 0`` dropped the bin with midpoint 0, which holds 13% of the mass for
         a gamma shape of 0.1 and gave an alpha of 0.31 for a purely deleterious DFE.
         """
-        from types import SimpleNamespace
-
         d = Discretization(n=10)
         model = fd.GammaExpParametrization()
 
@@ -306,11 +304,11 @@ class DivergenceTestCase(InferenceTestCase):
             params = dict(S_d=-1000.0, b=0.1, p_b=p_b, S_b=2.0, h=0.5)
 
             # neutral and selected divergence counts for equal target sizes
-            neut = SimpleNamespace(n_div=1000.0)
-            sel = SimpleNamespace(n_div=1000.0 * d.get_divergence_flux(model, params))
+            n_div_neut = 1000.0
+            n_div_sel = 1000.0 * d.get_divergence_flux(model, params)
 
             np.testing.assert_allclose(
-                d.get_alpha_divergence(model, params, neut, sel, 1.0, 1.0),
+                d.get_alpha_divergence(model, params, n_div_neut, n_div_sel, 1.0, 1.0),
                 d.get_alpha(model, params),
                 atol=1e-12
             )
@@ -1922,6 +1920,41 @@ class SmokeTestCase(TestCase):
 
         self.assertIsNot(first['full.anc'], second['full.anc'])
         self.assertNotAlmostEqual(first['full.anc'].likelihood, second['full.anc'].likelihood, places=1)
+
+    def test_bootstrapped_divergence_estimates_use_resampled_divergence_counts(self):
+        """
+        With divergence in the likelihood, alpha, omega and omega_a of each bootstrap sample are computed from
+        the divergence counts of that sample. They were computed from the observed counts, which made the
+        bootstrapped omega constant.
+        """
+        n_sites_div_neut, n_sites_div_sel = float(self.sfs_neut.n_sites), float(self.sfs_sel.n_sites)
+
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            n_sites_div_neut=n_sites_div_neut,
+            n_sites_div_sel=n_sites_div_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=True,
+            n_bootstraps=5,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        bs = inf.bootstraps
+
+        # omega is the ratio of the divergence counts per target site
+        np.testing.assert_allclose(
+            bs.omega, (bs.n_div_sel / n_sites_div_sel) / (bs.n_div_neut / n_sites_div_neut), rtol=1e-12
+        )
+        self.assertGreater(bs.omega.nunique(), 1)
+
+        for _, row in bs.iterrows():
+            self.assertAlmostEqual(row.alpha, inf.discretization.get_alpha_divergence(
+                inf.model, dict(row), row.n_div_neut, row.n_div_sel, n_sites_div_neut, n_sites_div_sel
+            ))
 
     def test_base_inference_smoke(self):
         """A single tiny BaseInference fit runs and produces finite estimates."""

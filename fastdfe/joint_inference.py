@@ -792,12 +792,15 @@ class JointInference(BaseInference):
 
         return self.lrt(simple.likelihood, self.likelihood, len(self.covariates))
 
-    def _get_run_bootstrap_sample(self) -> Callable[[int], List[Tuple['scipy.optimize.OptimizeResult', dict, dict]]]:
+    def _get_run_bootstrap_sample(
+            self
+    ) -> Callable[[int], List[Tuple['scipy.optimize.OptimizeResult', dict, dict, dict]]]:
         """
         Get function which runs a single bootstrap sample.
 
         :return: Static function which runs a single bootstrap sample, taking a seed and returning, for each of
-            the ``n_bootstrap_retries`` runs, a tuple of optimization result, MLE parameters and initial values.
+            the ``n_bootstrap_retries`` runs, a tuple of optimization result, MLE parameters, initial values and
+            the divergence counts of the sample.
         """
         optimization = self.optimization
         discretization = self.discretization
@@ -818,7 +821,7 @@ class JointInference(BaseInference):
         n_sites_div_sel = dict((t, self.joint_inferences[t].n_sites_div_sel) for t in self.types)
         desc = f"{self.__class__.__name__}>Bootstrapping joint inference"
 
-        def run_bootstrap_sample(seed: int) -> List[Tuple['scipy.optimize.OptimizeResult', dict, dict]]:
+        def run_bootstrap_sample(seed: int) -> List[Tuple['scipy.optimize.OptimizeResult', dict, dict, dict]]:
             """
             Resample the neutral and selected SFS of every type and rerun the optimization procedure.
             The first run starts at the MLE, subsequent runs start at initial values sampled within
@@ -826,7 +829,8 @@ class JointInference(BaseInference):
             We make this function static to improve performance when parallelizing.
 
             :param seed: Seed for the random number generator.
-            :return: List of tuples of optimization result, MLE parameters and initial values, one entry per run.
+            :return: List of tuples of optimization result, MLE parameters, initial values and divergence counts
+                of the sample, one entry per run.
             """
             results = []
             x0 = params_mle_raw
@@ -839,6 +843,9 @@ class JointInference(BaseInference):
                     neut=sfs_neut[t].resample(seed=rng),
                     sel=sfs_sel[t].resample(seed=rng)
                 )
+
+            # divergence counts of the sample
+            n_div = dict((t, dict(n_div_neut=s['neut'].n_div, n_div_sel=s['sel'].n_div)) for t, s in spectra.items())
 
             # run `n_retries` times
             for _ in range(max(n_retries, 1)):
@@ -881,7 +888,7 @@ class JointInference(BaseInference):
                         scales=scales_default
                     )
 
-                results += [(result, params_mle, x0)]
+                results += [(result, params_mle, x0, n_div)]
 
                 x0 = optimization.sample_x0(params_mle_raw, random_state=rng)
 
