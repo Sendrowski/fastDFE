@@ -952,8 +952,9 @@ class JointInference(BaseInference):
 
         # assign bootstrap parameters to joint inference objects
         for t, inf in self.joint_inferences.items():
-            # filter for columns belonging to the current type
-            inf.bootstraps = self.bootstraps.filter(regex=f'{t}\\..*').rename(columns=lambda x: x.split('.')[-1])
+            # select the columns belonging to the current type
+            columns = [c for c in self.bootstraps.columns if c.startswith(f'{t}.')]
+            inf.bootstraps = self.bootstraps[columns].rename(columns=lambda c: c.removeprefix(f'{t}.'))
 
             # add estimates for alpha to the bootstraps
             inf._add_alpha_to_bootstraps()

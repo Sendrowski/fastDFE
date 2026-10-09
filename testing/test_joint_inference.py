@@ -970,6 +970,32 @@ class FastJointInferenceTestCase(TestCase):
                 bs.omega, (bs.n_div_sel / joint.n_sites_div_sel) / (bs.n_div_neut / joint.n_sites_div_neut), rtol=1e-12
             )
 
+    def test_bootstrap_type_name_contained_in_another(self):
+        """
+        The bootstraps of a type hold the columns of that type only, also when its name is contained in the name
+        of another type. The columns were selected by an unanchored pattern, which assigned the columns of
+        ``noncoding`` to ``coding`` as well and made the bootstrap fail.
+        """
+        sfs_sel = list(self.sfs_sel)
+
+        inf = fd.JointInference(
+            sfs_neut=fd.Spectra(dict(coding=list(self.sfs_neut), noncoding=list(self.sfs_neut))),
+            sfs_sel=fd.Spectra(dict(coding=sfs_sel, noncoding=sfs_sel[:1] + [2 * sfs_sel[1]] + sfs_sel[2:])),
+            shared_params=[fd.SharedParams(types='all', params=['b'])],
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=True,
+            n_bootstraps=2,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        for t, joint in inf.joint_inferences.items():
+            self.assertFalse(joint.bootstraps.columns.duplicated().any())
+            np.testing.assert_array_equal(joint.bootstraps['S_d'], inf.bootstraps[f'{t}.S_d'])
+
     def test_rerun_recomputes_model_without_covariates(self):
         """
         ``run_joint_without_covariates`` caches its result. After the joint inference is rerun, a further call
