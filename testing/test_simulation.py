@@ -93,9 +93,10 @@ class SLiMTestCase(TestCase):
 
     def test_compare_against_slim(self):
         """
-        Test the modelled SFS against SLiM simulations with semidominant mutations.
+        Test the modelled SFS against SLiM simulations with semidominant mutations, for unfolded and folded
+        spectra.
         """
-        self._compare_against_slim([f for f in self.configs_slim if 'dominance_' not in f])
+        self._compare_against_slim([f for f in self.configs_slim if 'dominance_' not in f], tol=0.1)
 
     def test_compare_against_slim_dominance_low(self):
         """
@@ -133,11 +134,12 @@ class SLiMTestCase(TestCase):
             [f for f in self.configs_slim if self._dominance(f) == 0 or 'dominance_function_' in f]
         )
 
-    def _compare_against_slim(self, configs):
+    def _compare_against_slim(self, configs, tol: float = 0.16):
         """
         Compare the modelled selected SFS against the SLiM result of each of the given configurations.
 
         :param configs: Paths to the SLiM spectra
+        :param tol: Largest accepted root mean squared relative difference
         """
         self.assertGreater(len(configs), 0)
 
@@ -187,7 +189,6 @@ class SLiMTestCase(TestCase):
 
             # compute root mean squared error
             diff = np.sqrt((diff_rel ** 2).mean())
-            tol = 0.16  # 0.125 with default discretization bins
 
             if diff < tol:
                 fd.logger.info(f"{diff:.3f} < {tol} for {params}")

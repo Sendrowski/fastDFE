@@ -1198,6 +1198,12 @@ class BaseInference(AbstractInference):
         # Note that the nuisance parameters naturally are sensitive to a large
         # sampling variance in the neutral SFS.
         # However, DFE inference on `wiggly` spectra is not advisable anyway.
+        if sfs_neut.is_folded():
+            # the distortion of two allele counts folded together is not identifiable,
+            # so both take the ratio of their summed counts
+            neutral_observed = neutral_observed + neutral_observed[::-1]
+            neutral_modelled = neutral_modelled + neutral_modelled[::-1]
+
         r = neutral_observed / neutral_modelled
 
         # adjust for demography and polarization error

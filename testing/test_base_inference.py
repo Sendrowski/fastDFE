@@ -1891,6 +1891,47 @@ class SmokeTestCase(TestCase):
         self.assertEqual(len(inf.bootstraps), 3)
         self.assertEqual((inf.alpha, inf.omega, inf.omega_a), cached)
 
+    def test_folded_spectra_recover_simulated_dfe(self):
+        """
+        An inference on folded spectra recovers the DFE the spectra were simulated under. The modelled count
+        of a folded class contained the lower of the two allele counts only, scaled by the folded neutral
+        count, which biased the fit also under a standard neutral SFS.
+        """
+        opts = dict(intervals_del=(-1.0e+8, -1.0e-5, 30), intervals_ben=(1.0e-5, 1.0e4, 30))
+        truth = dict(S_d=-300, b=0.3, p_b=0, S_b=1)
+
+        sim = fd.Simulation(
+            sfs_neut=fd.Simulation.get_neutral_sfs(n=12, n_sites=1e7, theta=1e-3), params=dict(truth), **opts
+        )
+        sim.run()
+
+        inf = fd.BaseInference(
+            sfs_neut=sim.sfs_neut.fold(),
+            sfs_sel=sim.sfs_sel.fold(),
+            discretization=sim.discretization,
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)),
+            do_bootstrap=False,
+            n_runs=3,
+            parallelize=False
+        )
+        inf.run()
+
+        self.assertTrue(inf.folded)
+        self.assertAlmostEqual(inf.params_mle['S_d'] / truth['S_d'], 1, places=2)
+        self.assertAlmostEqual(inf.params_mle['b'] / truth['b'], 1, places=2)
+
+        # the modelled folded SFS at the true parameters equals the folded simulated SFS
+        modelled, observed = fd.BaseInference._model_sfs(
+            discretization=sim.discretization,
+            model=sim.model,
+            params=sim.params,
+            sfs_neut=sim.sfs_neut.fold(),
+            sfs_sel=sim.sfs_sel.fold(),
+            folded=True
+        )
+
+        np.testing.assert_allclose(modelled[:6], observed[:6], rtol=1e-10)
+
     def test_bootstrap_without_samples_raises(self):
         """
         A bootstrap of zero samples raises a ``ValueError`` naming the cause. It failed with an ``IndexError``

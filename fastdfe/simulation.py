@@ -175,6 +175,10 @@ class Simulation:
         # add contribution of demography and adjust polarization error
         counts_modelled = BaseInference._add_demography(self.sfs_neut, counts_modelled, eps=self.params['eps'])
 
+        # a folded neutral SFS yields a folded selected SFS
+        if self.sfs_neut.is_folded():
+            counts_modelled = Spectrum.from_polymorphic(counts_modelled).fold().polymorphic
+
         # expected fixed-derived (divergence) class: the true number of substitutions,
         # theta * L_div * flux (flux = selected substitutions per neutral substitution)
         n_div = 0.0
