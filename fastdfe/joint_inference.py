@@ -514,14 +514,17 @@ class JointInference(BaseInference):
 
     def run(
             self,
+            do_bootstrap: bool = None,
             **kwargs
     ) -> Spectra:
         """
         Run inference.
 
+        :param do_bootstrap: Whether to perform bootstrapping. Defaults to :attr:`do_bootstrap`.
         :param kwargs: Additional keyword arguments
         :return: Modelled SFS of the joint inference for each type.
         """
+        self.update_properties(do_bootstrap=do_bootstrap)
 
         # run marginal optimization
         self._run_marginal()

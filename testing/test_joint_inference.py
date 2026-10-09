@@ -970,6 +970,22 @@ class FastJointInferenceTestCase(TestCase):
                 bs.omega, (bs.n_div_sel / joint.n_sites_div_sel) / (bs.n_div_neut / joint.n_sites_div_neut), rtol=1e-12
             )
 
+    def test_run_takes_do_bootstrap(self):
+        """
+        ``run`` applies its ``do_bootstrap`` argument, as ``BaseInference.run`` does. The argument was ignored,
+        so an inference constructed with ``do_bootstrap=True`` was bootstrapped regardless.
+        """
+        inf = self._make(
+            shared_params=[fd.SharedParams(types='all', params=['S_d'])], do_bootstrap=True, n_bootstraps=2
+        )
+        inf.run(do_bootstrap=False)
+
+        self.assertIsNone(inf.bootstraps)
+
+        inf.run(do_bootstrap=True)
+
+        self.assertEqual(len(inf.bootstraps), 2)
+
     def test_lrt_shared_without_degrees_of_freedom(self):
         """
         With two types and a covariate on the shared parameter, the joint model has as many free parameters as
