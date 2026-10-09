@@ -145,12 +145,12 @@ class Config:
             integration_mode=integration_mode,
             linearized=linearized,
             seed=seed,
-            opts_mle=opts_mle,
+            opts_mle=dict(opts_mle),
             method_mle=method_mle,
             n_runs=n_runs,
-            x0=x0,
-            bounds=bounds,
-            scales=scales,
+            x0=dict(x0),
+            bounds=dict(bounds),
+            scales=dict(scales),
             fixed_params=fixed_params,
             shared_params=shared_params,
             covariates=covariates,
@@ -209,7 +209,7 @@ class Config:
             self.data['fixed_params'] if isinstance(self.data['fixed_params'], dict) else {},
             dict(all=fixed_params)
         )
-        self.data['x0'] |= {type: x0}
+        self.data['x0'] = self.data['x0'] | {type: x0}
 
     def create_polydfe_init_file(self, file: str, n: int, type: str = 'all'):
         """

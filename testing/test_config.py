@@ -142,6 +142,23 @@ class ConfigTestCase(TestCase):
             config, config2, ['bounds', 'scales', 'opts_mle', 'sfs_neut', 'sfs_sel', 'x0', 'folded']
         )
 
+    def test_parsed_init_file_does_not_leak_into_other_configs(self):
+        """
+        The initial values parsed from a polyDFE init file are stored on that config alone. They were written
+        into the default ``x0`` dictionary shared by all configs created without initial values.
+        """
+        before = Config()
+
+        parsed = Config(polydfe_init_file='resources/polydfe/init/C.full_anc_init')
+
+        self.assertIn('all', parsed.data['x0'])
+        self.assertEqual(before.data['x0'], {})
+        self.assertEqual(Config().data['x0'], {})
+
+        # the dictionaries of two configs are distinct objects
+        for key in ('x0', 'bounds', 'scales', 'opts_mle'):
+            self.assertIsNot(Config().data[key], Config().data[key])
+
     def test_from_dict_leaves_argument_unchanged(self):
         """
         ``Config.from_dict`` does not modify the passed dictionary, which can then be loaded again.
