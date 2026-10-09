@@ -144,6 +144,17 @@ class FastBootstrapTestCase(TestCase):
         with self.assertRaises(ValueError):
             Bootstrap.get_ci_percentile(self.bs, 0.9)
 
+    def test_bca_ci_with_nearly_all_bootstraps_below_original(self):
+        """
+        The bias-corrected interval stays within the bootstraps when nearly all of them lie below the original
+        value. The adjusted lower quantile then rounds to the number of bootstraps, which was used as an index
+        and raised an ``IndexError``.
+        """
+        data = np.arange(100.)
+
+        self.assertEqual(tuple(Bootstrap.get_ci_bca(data, 98.5, 0.05)), (99, 99))
+        self.assertEqual(tuple(Bootstrap.get_ci_bca(data, 0.5, 0.05)), (0, 0))
+
     def test_bca_ci_equals_percentile_ci_without_bias(self):
         """
         With the original value at the median of the bootstraps the bias correction vanishes, and as the

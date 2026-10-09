@@ -35,7 +35,9 @@ class Bootstrap:
         if np.isnan(a1) or np.isnan(a2):
             return [None, None]
 
-        return data[max(round(a1 * n), 0)], data[min(round(a2 * n), n - 1)]
+        i1, i2 = (min(max(round(q * n), 0), n - 1) for q in (a1, a2))
+
+        return data[i1], data[i2]
 
     @staticmethod
     def get_ci_percentile(bootstraps: Sequence, a: float) -> Tuple[float, float]:
