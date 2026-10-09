@@ -649,9 +649,11 @@ class JointInference(BaseInference):
         # assign MLE params
         self.params_mle = params_mle
 
-        # discard the bootstraps of a previous result
+        # discard the bootstraps and cached models of a previous result
         self.bootstraps = None
         self.bootstrap_results = None
+        BaseInference.compare_nested_models.cache_clear()
+        JointInference.run_joint_without_covariates.cache_clear()
 
         # assign modelled SFS for each type
         self.sfs_mle = Spectra.from_spectra({t: inf.sfs_mle for t, inf in self.joint_inferences.items()})
@@ -702,8 +704,8 @@ class JointInference(BaseInference):
             n_sites_div_sel=self.joint_inferences[t].n_sites_div_sel
         ))) for t, inf in self.joint_inferences.items())
 
-    @BaseInference._run_if_required_wrapper
     @functools.lru_cache
+    @BaseInference._run_if_required_wrapper
     def run_joint_without_covariates(self, do_bootstrap: bool = True) -> 'JointInference':
         """
         Run joint inference without covariates. Note that the result of this function is cached.

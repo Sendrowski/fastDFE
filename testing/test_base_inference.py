@@ -1893,6 +1893,36 @@ class SmokeTestCase(TestCase):
         self.assertEqual(len(inf.bootstraps), 3)
         self.assertEqual((inf.alpha, inf.omega, inf.omega_a), cached)
 
+    def test_refit_recomputes_nested_models(self):
+        """
+        ``compare_nested_models`` caches its result. After the inference is refitted, here on other data, a
+        further call recomputes the nested models instead of returning those of the previous fit.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        _, first = inf.compare_nested_models()
+        _, cached = inf.compare_nested_models()
+
+        self.assertIs(first['full.anc'], cached['full.anc'])
+
+        data = list(self.sfs_sel.data)
+        inf.sfs_sel = fd.Spectrum([data[0], 2 * data[1], 2 * data[2]] + data[3:])
+        inf.run()
+
+        _, second = inf.compare_nested_models()
+
+        self.assertIsNot(first['full.anc'], second['full.anc'])
+        self.assertNotAlmostEqual(first['full.anc'].likelihood, second['full.anc'].likelihood, places=1)
+
     def test_base_inference_smoke(self):
         """A single tiny BaseInference fit runs and produces finite estimates."""
         inf = fd.BaseInference(

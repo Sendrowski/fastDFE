@@ -962,6 +962,29 @@ class FastJointInferenceTestCase(TestCase):
         self.assertAlmostEqual(inf.likelihood, marginal, places=3)
         self.assertEqual(len(inf.bootstraps), 2)
 
+    def test_rerun_recomputes_model_without_covariates(self):
+        """
+        ``run_joint_without_covariates`` caches its result. After the joint inference is rerun, a further call
+        recomputes the model without covariates instead of returning that of the previous run.
+        """
+        inf = self._make(
+            covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6))],
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5))
+        )
+        inf.run()
+
+        first = inf.run_joint_without_covariates(do_bootstrap=False)
+
+        self.assertIs(first, inf.run_joint_without_covariates(do_bootstrap=False))
+
+        inf.n_runs = 2
+        inf.run()
+
+        second = inf.run_joint_without_covariates(do_bootstrap=False)
+
+        self.assertIsNot(first, second)
+        self.assertEqual(second.n_runs, 2)
+
     def test_rerun_discards_bootstraps(self):
         """A joint inference rerun without bootstrapping does not keep the bootstraps of the previous run."""
         inf = self._make(shared_params=[fd.SharedParams(types='all', params=['S_d'])], do_bootstrap=True, n_bootstraps=2)

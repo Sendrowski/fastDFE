@@ -627,11 +627,12 @@ class BaseInference(AbstractInference):
         self.params_mle = params_mle
         self.likelihood = -result.fun
 
-        # discard the bootstraps and cached summaries of a previous result
+        # discard the bootstraps, cached summaries and cached nested models of a previous result
         self.bootstraps = None
         self.bootstrap_results = None
         for name in ('alpha', 'omega', 'omega_a'):
             self.__dict__.pop(name, None)
+        BaseInference.compare_nested_models.cache_clear()
 
         # get SFS for MLE parameters
         counts_mle, _ = self._model_sfs(
@@ -1641,8 +1642,8 @@ class BaseInference(AbstractInference):
 
         return self.lrt(self.likelihood, complex.likelihood, df, m)
 
-    @_run_if_required_wrapper
     @functools.lru_cache
+    @_run_if_required_wrapper
     def compare_nested_models(self, do_bootstrap: bool = False) -> Tuple[np.ndarray, Dict[str, 'BaseInference']]:
         """
         Compare the various nested versions of the specified
