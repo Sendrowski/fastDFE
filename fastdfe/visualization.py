@@ -78,20 +78,22 @@ class Visualization:
             # show by default here
             return Visualization.show_and_save(
                 file=kwargs['file'] if 'file' in kwargs else None,
-                show=kwargs['show'] if 'show' in kwargs else True
+                show=kwargs['show'] if 'show' in kwargs else True,
+                ax=kwargs['ax']
             )
 
         return wrapper
 
     @staticmethod
-    def show_and_save(file: str = None, show: bool = True, pad: float = 1.08) -> plt.Axes:
+    def show_and_save(file: str = None, show: bool = True, pad: float = 1.08, ax: plt.Axes = None) -> plt.Axes:
         """
         Show and save plot.
 
         :param file: File path to save plot to
         :param show: Whether to show plot
         :param pad: Padding for tight layout
-        :return: Axes
+        :param ax: Axes that were plotted on
+        :return: The given axes, or the current axes if none were given
 
         """
         plt.tight_layout(pad=pad)
@@ -104,8 +106,7 @@ class Visualization:
         if show and not plt.isinteractive():
             plt.show()
 
-        # return current axes
-        return plt.gca()
+        return plt.gca() if ax is None else ax
 
     @staticmethod
     def interval_to_string(left: float, right: float) -> str:
@@ -290,7 +291,7 @@ class Visualization:
                 )
 
         # customize x-ticks
-        Visualization.adjust_ticks_show_s(bins)
+        Visualization.adjust_ticks_show_s(bins, ax)
 
         # use log scale if specified
         if scale == 'log':
@@ -309,15 +310,15 @@ class Visualization:
         return ax
 
     @staticmethod
-    def adjust_ticks_show_s(s: np.ndarray):
+    def adjust_ticks_show_s(s: np.ndarray, ax: plt.Axes):
         """
         Adjust x-ticks to show bin values.
 
         :param s: Array of selection coefficients indexed by the x-tick positions
+        :param ax: Axes whose x-ticks are adjusted
         """
 
         n_bins = len(s) - 1
-        ax = plt.gca()
 
         ticks = ax.get_xticks()
         ticks_new = ["{:.0e}".format(s[int(l)]) if 0 <= int(l) < n_bins else None for l in ticks]
@@ -691,7 +692,7 @@ class Visualization:
             ax.legend(**kwargs_legend)
 
         # show and save plot
-        return Visualization.show_and_save(file, show)
+        return Visualization.show_and_save(file, show, ax=ax)
 
     @staticmethod
     def darken_edge_colors(bars: BarContainer):
@@ -742,7 +743,7 @@ class Visualization:
         ax.plot(np.arange(len(s)), model.get_pdf(**params)(s))
 
         # customize x-ticks
-        Visualization.adjust_ticks_show_s(s)
+        Visualization.adjust_ticks_show_s(s, ax)
 
         # remove x-margins
         ax.margins(x=0)
@@ -773,7 +774,7 @@ class Visualization:
         ax.plot(np.arange(len(s)), model.get_cdf(**params)(s))
 
         # customize x-ticks
-        Visualization.adjust_ticks_show_s(s)
+        Visualization.adjust_ticks_show_s(s, ax)
 
         # remove x-margins
         ax.margins(x=0)
@@ -847,7 +848,7 @@ class Visualization:
         ax.set_title(title)
 
         # customize x-ticks
-        Visualization.adjust_ticks_show_s(bins)
+        Visualization.adjust_ticks_show_s(bins, ax)
 
         # remove x-margins
         ax.set_xmargin(0)

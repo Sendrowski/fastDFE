@@ -1891,6 +1891,38 @@ class SmokeTestCase(TestCase):
         self.assertEqual(len(inf.bootstraps), 3)
         self.assertEqual((inf.alpha, inf.omega, inf.omega_a), cached)
 
+    def test_plot_on_given_axes_leaves_other_panels_untouched(self):
+        """
+        A plot given ``ax`` labels the ticks of these axes and returns them. The tick labels were set on the
+        current axes, which after ``plt.subplots`` is the last panel, and the current axes were returned.
+        """
+        import matplotlib.pyplot as plt
+
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        fig, (left, middle, right) = plt.subplots(1, 3)
+        right.plot([0, 1], [0, 1])
+
+        self.assertIs(inf.plot_continuous(ax=left, show=False), left)
+        self.assertIs(inf.plot_sfs_comparison(ax=middle, show=False), middle)
+
+        fig.canvas.draw()
+
+        # the target panel shows selection coefficients, the other panel its own values
+        self.assertIn('-1e+08', [t.get_text() for t in left.get_xticklabels()])
+        self.assertNotIn('-1e+08', [t.get_text() for t in right.get_xticklabels()])
+
+        plt.close(fig)
+
     def test_folded_inference_on_unfolded_spectra_compares_folded_spectra(self):
         """
         With ``folded=True`` on unfolded spectra, the residual and the SFS comparison plot use the folded
