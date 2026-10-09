@@ -446,6 +446,23 @@ class ParametrizationTestCase(TestCase):
 
         Visualization.plot_cdf(model, model.x0, s=np.linspace(-100, 100, 1000))
 
+    def test_to_fractional_with_all_mass_in_leading_bins(self):
+        """
+        ``to_fractional`` inverts ``to_nominal`` also when the leading bins hold all the mass, as for a purely
+        deleterious DFE. The remaining fractions were computed as ``0 / 0`` and raised a ``ZeroDivisionError``.
+        """
+        model = DiscreteFractionalParametrization()
+
+        nominal = dict(S1=0.25, S2=0.25, S3=0.25, S4=0.25, S5=0.0, S6=0.0)
+        fractional = model.to_fractional(nominal)
+
+        self.assertTrue(all(0 <= v <= 1 for v in fractional.values()))
+
+        restored = model.to_nominal(fractional)
+
+        for key, value in nominal.items():
+            self.assertAlmostEqual(restored[key], value)
+
     def test_to_nominal_to_fractional_are_inverse_functions(self):
         """
         Test that to_nominal and to_fractional are inverse functions.

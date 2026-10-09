@@ -913,8 +913,8 @@ class DiscreteFractionalParametrization(Parametrization):
 
         # Iterate over parameters
         for p in self.params[1:-2]:
-            # Calculate original parameter value
-            converted[p] = params[p] / (1 - mass)
+            # fraction of the mass not assigned to the left, zero if there is none
+            converted[p] = params[p] / (1 - mass) if mass < 1 else 0.0
 
             # update cumulative sum
             mass += params[p]
