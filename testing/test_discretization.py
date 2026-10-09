@@ -721,6 +721,29 @@ class FastDiscretizationTestCase(TestCase):
 
         self.assertTrue(np.all(np.isfinite(d.get_counts(h=0.4))))
 
+    def test_quad_integration_mode_keeps_bin_containing_zero(self):
+        """
+        With ``integration_mode='quad'`` the bin containing ``S = 0`` holds the integral of the expected counts
+        over that bin, which is ``width / k`` as the counts tend to ``1 / k`` at zero. The entry was overwritten
+        by the mean of the two much narrower neighbouring bins, which lowered the modelled SFS for DFEs with
+        mass around zero.
+        """
+        opts = dict(n=8, intervals_del=(-1.0e+8, -1.0e-5, 30), intervals_ben=(1.0e-5, 1.0e4, 30), parallelize=False)
+        quad, midpoint = Discretization(**opts, integration_mode='quad'), Discretization(**opts)
+
+        i_zero = np.where((quad.bins[:-1] < 0) & (quad.bins[1:] >= 0))[0][0]
+        width = quad.bins[i_zero + 1] - quad.bins[i_zero]
+
+        np.testing.assert_allclose(quad.get_counts(0.5)[:, i_zero], width / np.arange(1, 8), rtol=1e-6)
+
+        # a DFE with much of its mass around zero
+        model = GammaExpParametrization()
+        params = dict(S_d=-1000, b=0.1, p_b=0, S_b=1, h=0.5)
+
+        np.testing.assert_allclose(
+            quad.model_selection_sfs(model, params), midpoint.model_selection_sfs(model, params), rtol=0.05
+        )
+
     def test_quad_integration_mode(self):
         """Non-linearized quad integration path."""
         d = self._disc(integration_mode='quad', linearized=False)

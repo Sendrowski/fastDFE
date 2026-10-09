@@ -649,16 +649,6 @@ class Discretization:
                 P[i, j] = quad(lambda s: (self.get_counts_semidominant_regularized(
                     s, j + 1)), self.bins[i], self.bins[i + 1])[0]
 
-        # For GammaExpParametrization, there is a discontinuity at 0
-        # which can cause problems integrating it using quadrature.
-        # We remove this discontinuity here by taking the average value
-        # of the adjacent bins.
-        # Find bin that contains 0.
-        i_zero = np.where((self.bins[:-1] < 0) & (self.bins[1:] >= 0))[0][0]
-
-        # take average of adjacent bins
-        P[i_zero] = (P[i_zero - 1] + P[i_zero + 1]) / 2
-
         return P.T
 
     def get_counts_semidominant(self) -> np.ndarray:
