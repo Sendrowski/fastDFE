@@ -277,7 +277,7 @@ class JointInference(BaseInference):
             #: Discretization instance
             self.discretization: Discretization = Discretization(
                 n=self.n,
-                h=collapse_fixed(fixed_params, self.types)['all'].get('h', None),
+                h=collapse_fixed(self.fixed_params, self.types)['all'].get('h', None),
                 intervals_del=intervals_del,
                 intervals_ben=intervals_ben,
                 intervals_h=intervals_h,

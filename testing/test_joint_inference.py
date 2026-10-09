@@ -970,6 +970,25 @@ class FastJointInferenceTestCase(TestCase):
                 bs.omega, (bs.n_div_sel / joint.n_sites_div_sel) / (bs.n_div_neut / joint.n_sites_div_neut), rtol=1e-12
             )
 
+    def test_fixed_dominance_overridden_for_one_type(self):
+        """
+        A dominance coefficient fixed for all types can be fixed at another value for one type. The
+        discretization was precomputed for the value given under ``all`` alone, so the run raised.
+        """
+        inf = self._make(
+            fixed_params=dict(all=dict(eps=0, h=0.5, S_b=1, p_b=0), a=dict(h=0.3)),
+            shared_params=[fd.SharedParams(types='all', params=['S_d'])],
+            intervals_h=(0, 1, 6)
+        )
+        inf.run()
+
+        self.assertIsNone(inf.discretization.h)
+        self.assertEqual(inf.params_mle['a']['h'], 0.3)
+        self.assertEqual(inf.params_mle['b']['h'], 0.5)
+
+        # a value common to all types is still precomputed alone
+        self.assertEqual(self._make(fixed_params=dict(all=dict(eps=0, h=0.5, S_b=1, p_b=0))).discretization.h, 0.5)
+
     def test_dfe_spectra_and_summary_per_type(self):
         """
         ``get_dfe`` and ``get_summary`` return one entry per type and ``get_spectra`` the neutral, selected and
