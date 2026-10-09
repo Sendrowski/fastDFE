@@ -36,6 +36,9 @@ class Discretization:
     #: Dominance coefficient callback, static to ensure backward compatibility
     h_callback: Callable[[float, np.ndarray], np.ndarray] = None
 
+    #: Interval bounds for discretizing dominance coefficients, static to ensure backward compatibility
+    intervals_h: Tuple[float, float, int] = (0.0, 1.0, 21)
+
     #: Cache for :meth:`get_counts_fixed` of shape (len(grid_h), n_intervals), static for backward compatibility
     _counts_fixed: Optional[np.ndarray] = None
 

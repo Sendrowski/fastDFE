@@ -63,6 +63,7 @@ class Config:
             include_divergence: bool = True,
             n_sites_div_neut: Dict[str, float] = None,
             n_sites_div_sel: Dict[str, float] = None,
+            folded: bool = None,
             **kwargs
     ):
         """
@@ -128,6 +129,8 @@ class Config:
         :param n_sites_div_sel: Number of mutational target sites over which selected divergence was
             counted, keyed by type. Specifying it (with ``n_sites_div_neut``) opts selected
             divergence into the likelihood.
+        :param folded: Whether the SFS are folded. If not specified, the SFS will be folded if both of the given
+            SFS appear to be folded.
         :param kwargs: Additional keyword arguments which are ignored.
         """
 
@@ -159,7 +162,8 @@ class Config:
             loss_type=loss_type,
             include_divergence=include_divergence,
             n_sites_div_neut=n_sites_div_neut,
-            n_sites_div_sel=n_sites_div_sel
+            n_sites_div_sel=n_sites_div_sel,
+            folded=folded
         )
 
         # parse spectra file if specified
@@ -274,6 +278,9 @@ class Config:
 
         :return: JSON string
         """
+        if self.data.get('h_callback') is not None:
+            logger.warning("The dominance callback 'h_callback' cannot be serialized and is omitted.")
+
         return json.dumps(self.to_dict(), indent=4, cls=CustomEncoder)
 
     def to_yaml(self) -> str:

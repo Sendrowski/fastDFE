@@ -136,9 +136,11 @@ class ConfigTestCase(TestCase):
 
         config2 = BaseInference.from_config(config).create_config()
 
-        # 'bounds' and 'opts_mle' will be different
+        # 'bounds', 'opts_mle' and 'folded' will be different
         # because of the default specific to Inference.
-        self.assert_config_equal(config, config2, ['bounds', 'scales', 'opts_mle', 'sfs_neut', 'sfs_sel', 'x0'])
+        self.assert_config_equal(
+            config, config2, ['bounds', 'scales', 'opts_mle', 'sfs_neut', 'sfs_sel', 'x0', 'folded']
+        )
 
     def test_from_dict_leaves_argument_unchanged(self):
         """

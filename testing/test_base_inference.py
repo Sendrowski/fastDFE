@@ -1891,6 +1891,42 @@ class SmokeTestCase(TestCase):
         self.assertEqual(len(inf.bootstraps), 3)
         self.assertEqual((inf.alpha, inf.omega, inf.omega_a), cached)
 
+    def test_config_carries_folding_dominance_and_bootstrap_runs(self):
+        """
+        An inference restored from its config keeps ``folded``, ``intervals_h``, ``h_callback`` and
+        ``n_bootstrap_retries``. These were not passed to the config, so the restored inference used the
+        defaults. A config written to JSON omits the callback, which has no JSON representation.
+        """
+        def h_callback(h: float, S: np.ndarray) -> np.ndarray:
+            return np.full_like(S, h)
+
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            intervals_h=(0.0, 1.0, 5),
+            h_callback=h_callback,
+            folded=True,
+            n_bootstrap_retries=5,
+            parallelize=False
+        )
+
+        config = inf.create_config()
+        restored = fd.BaseInference.from_config(config)
+
+        self.assertIs(restored.folded, True)
+        self.assertEqual(restored.n_bootstrap_retries, 5)
+        self.assertEqual(restored.discretization.intervals_h, (0.0, 1.0, 5))
+        self.assertIs(restored.discretization.h_callback, h_callback)
+
+        from_json = fd.BaseInference.from_config(fd.Config.from_json(config.to_json()))
+
+        self.assertIs(from_json.folded, True)
+        self.assertEqual(from_json.n_bootstrap_retries, 5)
+        self.assertEqual(from_json.discretization.intervals_h, (0.0, 1.0, 5))
+        self.assertIsNone(from_json.discretization.h_callback)
+
     def test_arguments_of_method_triggering_run_do_not_reach_run(self):
         """
         A method that runs the inference when required runs it with the settings of the inference. Its own

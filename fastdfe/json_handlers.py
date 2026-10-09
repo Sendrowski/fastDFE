@@ -65,4 +65,8 @@ class CustomEncoder(json.JSONEncoder):
         if isinstance(obj, LbfgsInvHessProduct):
             return str(obj)
 
+        # functions have no JSON representation
+        if callable(obj):
+            return None
+
         return json.JSONEncoder.default(self, obj)

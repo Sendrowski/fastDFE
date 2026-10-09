@@ -970,6 +970,28 @@ class FastJointInferenceTestCase(TestCase):
                 bs.omega, (bs.n_div_sel / joint.n_sites_div_sel) / (bs.n_div_neut / joint.n_sites_div_neut), rtol=1e-12
             )
 
+    def test_model_without_covariates_keeps_folding(self):
+        """
+        The model without covariates used by the covariate LRT is fitted to folded spectra when the joint
+        inference is. Its config lacked ``folded``, so with ``folded=True`` on unfolded spectra the two
+        likelihoods were computed on different data. Both types hold the same spectra here, so the covariate
+        cannot improve the fit.
+        """
+        inf = self._make(
+            covariates=[fd.Covariate(param='S_d', values=dict(a=1, b=2))],
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)),
+            folded=True,
+            n_bootstrap_retries=5,
+            n_runs=2
+        )
+        inf.run()
+
+        simple = inf.run_joint_without_covariates(do_bootstrap=False)
+
+        self.assertIs(simple.folded, True)
+        self.assertEqual(simple.n_bootstrap_retries, 5)
+        self.assertAlmostEqual(simple.likelihood, inf.likelihood, places=2)
+
     def test_bootstrap_type_name_contained_in_another(self):
         """
         The bootstraps of a type hold the columns of that type only, also when its name is contained in the name
