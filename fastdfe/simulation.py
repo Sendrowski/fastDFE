@@ -102,7 +102,7 @@ class Simulation:
         self.model: Parametrization = _from_string(model)
 
         #: Parameters for the DFE parametrization
-        self.params: dict = self.model.x0 if params is None else params
+        self.params: dict = dict(self.model.x0 if params is None else params)
 
         if 'eps' not in self.params:
             self.params['eps'] = 0

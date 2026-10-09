@@ -671,6 +671,24 @@ class SimulationSmokeTestCase(TestCase):
             **kwargs
         )
 
+    def test_default_parameters_do_not_modify_parametrization(self):
+        """
+        A simulation adds ``eps`` and ``h`` to its own copy of the parameters. It added them to the dictionary
+        it was given, which with the default parameters is the class-level ``x0`` of the parametrization, so
+        every parametrization created afterwards listed ``eps`` and ``h`` among its parameter names.
+        """
+        sfs_neut = fd.Simulation.get_neutral_sfs(n=10, n_sites=1e6, theta=1e-3)
+        param_names = fd.GammaExpParametrization().param_names
+        params = dict(S_d=-300, b=0.3, p_b=0.1, S_b=2)
+
+        sim = fd.Simulation(sfs_neut=sfs_neut)
+        fd.Simulation(sfs_neut=sfs_neut, params=params)
+
+        self.assertEqual(sim.params, fd.GammaExpParametrization.x0 | dict(eps=0, h=0.5))
+        self.assertEqual(fd.GammaExpParametrization().param_names, param_names)
+        self.assertNotIn('eps', fd.GammaExpParametrization.x0)
+        self.assertEqual(params, dict(S_d=-300, b=0.3, p_b=0.1, S_b=2))
+
     def test_run_and_summaries(self):
         """run() plus the spectra and alpha/omega/omega_a summaries are finite."""
         sim = self._make()
