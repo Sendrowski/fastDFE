@@ -391,17 +391,24 @@ load_fastdfe <- function(install = FALSE) {
       group = factor(rep(labels, each = n_params), levels = unique(labels))
     )
 
-    # error bars of the absolute values, not extending below zero. The lower and upper deviations
-    # swap for negative parameters.
-    if (!is.null(errors) && !is.null(errors[[1]])) {
-      df$ymin <- pmax(unlist(lapply(seq_len(n_types), function(i) {
+    # error bars of the absolute values, not extending below zero, for the types that have errors. The lower
+    # and upper deviations swap for negative parameters.
+    has_errors <- vapply(seq_len(n_types), function(i) !is.null(errors) && !is.null(errors[[i]]), logical(1))
+
+    if (any(has_errors)) {
+      bounds <- lapply(seq_len(n_types), function(i) {
+        if (!has_errors[i]) return(matrix(NA_real_, nrow = 2, ncol = n_params))
+
         v <- unlist(values[[i]])
-        abs(v) - ifelse(v >= 0, errors[[i]][1, ], errors[[i]][2, ])
-      })), 0)
-      df$ymax <- unlist(lapply(seq_len(n_types), function(i) {
-        v <- unlist(values[[i]])
-        abs(v) + ifelse(v >= 0, errors[[i]][2, ], errors[[i]][1, ])
-      }))
+
+        rbind(
+          pmax(abs(v) - ifelse(v >= 0, errors[[i]][1, ], errors[[i]][2, ]), 0),
+          abs(v) + ifelse(v >= 0, errors[[i]][2, ], errors[[i]][1, ])
+        )
+      })
+
+      df$ymin <- unlist(lapply(bounds, function(b) b[1, ]))
+      df$ymax <- unlist(lapply(bounds, function(b) b[2, ]))
     }
 
     p <- ggplot2::ggplot(df, ggplot2::aes(x = factor(.data$x), y = .data$y, fill = .data$group)) +
