@@ -970,6 +970,28 @@ class FastJointInferenceTestCase(TestCase):
                 bs.omega, (bs.n_div_sel / joint.n_sites_div_sel) / (bs.n_div_neut / joint.n_sites_div_neut), rtol=1e-12
             )
 
+    def test_type_name_with_regex_characters(self):
+        """
+        Type names are taken literally. A name such as ``a+b`` was used as a pattern when selecting the spectra
+        of the type, matched nothing and raised an ``IndexError``.
+        """
+        inf = fd.JointInference(
+            sfs_neut=fd.Spectra({'a+b': list(self.sfs_neut), 'c': list(self.sfs_neut)}),
+            sfs_sel=fd.Spectra({'a+b': list(self.sfs_sel), 'c': list(self.sfs_sel)}),
+            shared_params=[fd.SharedParams(types='all', params=['b'])],
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=True,
+            n_bootstraps=2,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        self.assertEqual(list(inf.joint_inferences), ['a+b', 'c'])
+        np.testing.assert_array_equal(inf.joint_inferences['a+b'].sfs_sel.data, self.sfs_sel.data)
+        self.assertEqual(len(inf.joint_inferences['a+b'].bootstraps), 2)
+
     def test_run_takes_do_bootstrap(self):
         """
         ``run`` applies its ``do_bootstrap`` argument, as ``BaseInference.run`` does. The argument was ignored,

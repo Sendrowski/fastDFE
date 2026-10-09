@@ -9,6 +9,7 @@ __date__ = "2023-02-26"
 import copy
 import functools
 import logging
+import re
 import time
 from typing import List, Dict, Tuple, Literal, Optional, cast, Callable, TYPE_CHECKING
 
@@ -366,8 +367,8 @@ class JointInference(BaseInference):
         for t in sfs_neut.types:
             self.marginal_inferences[t] = BaseInference(
                 # pass subtypes
-                sfs_neut=sfs_neut[[t]],
-                sfs_sel=sfs_sel[[t]],
+                sfs_neut=sfs_neut[[re.escape(t)]],
+                sfs_sel=sfs_sel[[re.escape(t)]],
                 discretization=self.discretization,
                 include_divergence=include_divergence,
                 n_sites_div_neut=self._n_sites_div_neut_types.get(t) if self._n_sites_div_neut_types else None,
@@ -396,8 +397,8 @@ class JointInference(BaseInference):
         for t in sfs_neut.types:
             self.joint_inferences[t] = BaseInference(
                 # pass subtypes
-                sfs_neut=sfs_neut[[t]],
-                sfs_sel=sfs_sel[[t]],
+                sfs_neut=sfs_neut[[re.escape(t)]],
+                sfs_sel=sfs_sel[[re.escape(t)]],
                 discretization=self.discretization,
                 include_divergence=include_divergence,
                 n_sites_div_neut=self._n_sites_div_neut_types.get(t) if self._n_sites_div_neut_types else None,
