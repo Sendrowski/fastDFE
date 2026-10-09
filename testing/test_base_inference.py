@@ -1913,6 +1913,32 @@ class SmokeTestCase(TestCase):
 
         self.assertEqual(inf.n_bootstraps, 7)
 
+    def test_plot_inferred_parameters_takes_point_estimate(self):
+        """
+        ``BaseInference.plot_inferred_parameters`` plots the requested point estimate. The argument was
+        accepted and ignored, so the mean of the bootstraps was always shown.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=True,
+            n_bootstraps=5,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        def heights(point_estimate: str) -> list:
+            ax = inf.plot_inferred_parameters(show=False, point_estimate=point_estimate)
+
+            return [p.get_height() for p in ax.patches]
+
+        self.assertIn(abs(inf.params_mle['S_d']), heights('original'))
+        self.assertIn(abs(inf.bootstraps['S_d'].mean()), heights('mean'))
+        self.assertNotEqual(heights('original'), heights('mean'))
+
     def test_plot_on_given_axes_leaves_other_panels_untouched(self):
         """
         A plot given ``ax`` labels the ticks of these axes and returns them. The tick labels were set on the

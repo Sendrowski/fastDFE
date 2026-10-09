@@ -1466,11 +1466,14 @@ class BaseInference(AbstractInference):
             scale: Literal['lin', 'log', 'symlog'] = 'log',
             ax: 'plt.Axes' = None,
             kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean',
             **kwargs
     ) -> 'plt.Axes':
         """
         Visualize the inferred parameters and their confidence intervals.
 
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point
+            estimate.
         :param scale: y-scale of the plot.
         :param title: Plot title.
         :param confidence_intervals: Whether to show confidence intervals.
@@ -1495,6 +1498,7 @@ class BaseInference(AbstractInference):
             scale=scale,
             ax=ax,
             kwargs_legend=kwargs_legend,
+            point_estimate=point_estimate
         )
 
     @_run_if_required_wrapper
