@@ -869,10 +869,6 @@ class BaseInference(AbstractInference):
         # dataframe of MLE estimates
         self.bootstraps = pd.DataFrame([flatten_dict(r) for r in result[:, 1]])
 
-        # divergence counts of each sample
-        if self._use_divergence:
-            self.bootstraps = self.bootstraps.join(pd.DataFrame([flatten_dict(r) for r in result[:, 3]]))
-
         # assign additional info to bootstraps
         self.bootstraps['likelihood'] = [-r.fun for r in result[:, 0]]
         self.bootstraps['success'] = [r.success for r in result[:, 0]]
@@ -894,6 +890,10 @@ class BaseInference(AbstractInference):
                 self.bootstraps.select_dtypes("number").std().fillna(0)
             )
         )
+
+        # divergence counts of each sample
+        if self._use_divergence:
+            self.bootstraps = self.bootstraps.join(pd.DataFrame([flatten_dict(r) for r in result[:, 3]]))
 
         # issue warning if some runs did not finish successfully
         if n_success < n_bootstraps:

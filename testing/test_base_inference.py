@@ -1939,6 +1939,33 @@ class SmokeTestCase(TestCase):
         self.assertIn(abs(inf.bootstraps['S_d'].mean()), heights('mean'))
         self.assertNotEqual(heights('original'), heights('mean'))
 
+    def test_bootstrap_summary_lists_parameters_only(self):
+        """
+        The bootstrap summary that is logged covers the parameters and not the divergence counts of the
+        bootstrap samples, which the bootstrap table also holds.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            n_sites_div_neut=float(self.sfs_neut.n_sites),
+            n_sites_div_sel=float(self.sfs_sel.n_sites),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=True,
+            n_bootstraps=2,
+            n_runs=1,
+            parallelize=False
+        )
+
+        with self.assertLogs('fastdfe', level='INFO') as logs:
+            inf.run()
+
+        summary = [m for m in logs.output if 'Bootstrap summary' in m]
+
+        self.assertEqual(len(summary), 1)
+        self.assertNotIn('n_div', summary[0])
+        self.assertIn('n_div_neut', inf.bootstraps)
+
     def test_plot_on_given_axes_leaves_other_panels_untouched(self):
         """
         A plot given ``ax`` labels the ticks of these axes and returns them. The tick labels were set on the
