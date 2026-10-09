@@ -1966,6 +1966,50 @@ class SmokeTestCase(TestCase):
         self.assertNotIn('n_div', summary[0])
         self.assertIn('n_div_neut', inf.bootstraps)
 
+    def test_plot_on_used_axes_of_another_figure(self):
+        """
+        A plot can be added to axes that already hold a plot and belong to a figure other than the current one.
+        Layout and saving act on the figure of these axes. They acted on the current figure, so the file held
+        the wrong figure.
+        """
+        import tempfile
+
+        import matplotlib.image
+        import matplotlib.pyplot as plt
+
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        fig, ax = plt.subplots(figsize=(4, 3))
+        ax.plot([1, 9], [0, 1000], color='black')
+
+        # a larger figure becomes the current one
+        other = plt.figure(figsize=(8, 2))
+
+        with tempfile.TemporaryDirectory() as tmp:
+            file = f'{tmp}/plot.png'
+
+            self.assertIs(inf.plot_sfs_comparison(ax=ax, show=False, file=file), ax)
+
+            height, width = matplotlib.image.imread(file).shape[:2]
+
+        # the line drawn before is kept next to the bars, and the saved image has the shape of the given figure
+        self.assertEqual(len(ax.lines), 1)
+        self.assertGreater(len(ax.patches), 0)
+        self.assertLess(width / height, 2)
+        self.assertEqual(len(other.axes), 0)
+
+        plt.close(fig)
+        plt.close(other)
+
     def test_plot_on_given_axes_leaves_other_panels_untouched(self):
         """
         A plot given ``ax`` labels the ticks of these axes and returns them. The tick labels were set on the

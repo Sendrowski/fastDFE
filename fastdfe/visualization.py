@@ -71,9 +71,6 @@ class Visualization:
             # execute function
             func(*args, **kwargs)
 
-            # make layout tight
-            plt.tight_layout()
-
             # show or save
             # show by default here
             return Visualization.show_and_save(
@@ -96,11 +93,13 @@ class Visualization:
         :return: The given axes, or the current axes if none were given
 
         """
-        plt.tight_layout(pad=pad)
+        fig = plt.gcf() if ax is None else ax.figure
+
+        fig.tight_layout(pad=pad)
 
         # save figure if file path given
         if file is not None:
-            plt.savefig(file, dpi=200, bbox_inches='tight', pad_inches=0.1)
+            fig.savefig(file, dpi=200, bbox_inches='tight', pad_inches=0.1)
 
         # show figure if specified and if not in interactive mode
         if show and not plt.isinteractive():
@@ -913,7 +912,7 @@ class Visualization:
 
         # make the cbar have the same height as the heatmap
         cbar_ax = make_axes_locatable(ax).new_horizontal(size="4%", pad=0.15)
-        plt.gcf().add_axes(cbar_ax)
+        ax.figure.add_axes(cbar_ax)
 
         # default color map
         if cmap is None:
