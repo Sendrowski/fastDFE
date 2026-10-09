@@ -74,8 +74,9 @@ class Bootstrap:
         n = len(bootstraps)
         data = np.sort(np.array(bootstraps))
 
-        # we add epsilon here to avoid getting -inf when sum(data < original) / n is 0
-        z0_hat = normal.ppf(sum(data < original) / n + np.finfo(float).eps)
+        # keep the fraction within (0, 1), where the quantile is finite
+        eps = np.finfo(float).eps
+        z0_hat = normal.ppf(np.clip(sum(data < original) / n, eps, 1 - eps))
         z_a = normal.ppf(a)
 
         a1 = normal.cdf(2 * z0_hat + z_a)

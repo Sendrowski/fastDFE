@@ -144,6 +144,16 @@ class FastBootstrapTestCase(TestCase):
         with self.assertRaises(ValueError):
             Bootstrap.get_ci_percentile(self.bs, 0.9)
 
+    def test_bca_ci_with_all_or_no_bootstraps_below_original(self):
+        """
+        The bias-corrected interval collapses onto the largest bootstrap when all bootstraps lie below the
+        original value, mirroring the smallest bootstrap when none do. The first case returned ``[None, None]``.
+        """
+        data = np.arange(100.)
+
+        self.assertEqual(tuple(Bootstrap.get_ci_bca(data, 100.0, 0.05)), (99, 99))
+        self.assertEqual(tuple(Bootstrap.get_ci_bca(data, -1.0, 0.05)), (0, 0))
+
     def test_bca_ci_with_nearly_all_bootstraps_below_original(self):
         """
         The bias-corrected interval stays within the bootstraps when nearly all of them lie below the original
