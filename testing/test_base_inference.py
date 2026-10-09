@@ -1891,6 +1891,37 @@ class SmokeTestCase(TestCase):
         self.assertEqual(len(inf.bootstraps), 3)
         self.assertEqual((inf.alpha, inf.omega, inf.omega_a), cached)
 
+    def test_folded_inference_on_unfolded_spectra_compares_folded_spectra(self):
+        """
+        With ``folded=True`` on unfolded spectra, the residual and the SFS comparison plot use the folded
+        observed SFS, as the likelihood does. They used the unfolded one against the folded modelled SFS, which
+        inflated the residual and logged a warning about a poor fit.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)),
+            folded=True,
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        with self.assertNoLogs('fastdfe', level='WARNING'):
+            inf.run()
+
+        folded = self.sfs_sel.fold().polymorphic
+
+        self.assertAlmostEqual(inf.L2_residual, np.linalg.norm(inf.sfs_mle.polymorphic - folded, 2))
+        self.assertLess(inf.get_residual(1) / self.sfs_sel.n_polymorphic, 0.1)
+
+        ax = inf.plot_sfs_comparison(show=False)
+        heights = sorted(p.get_height() for p in ax.patches)
+
+        np.testing.assert_allclose(heights[-1], max(folded.max(), inf.sfs_mle.polymorphic.max()))
+
     def test_config_carries_folding_dominance_and_bootstrap_runs(self):
         """
         An inference restored from its config keeps ``folded``, ``intervals_h``, ``h_callback`` and

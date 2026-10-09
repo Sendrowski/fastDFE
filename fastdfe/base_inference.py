@@ -658,9 +658,21 @@ class BaseInference(AbstractInference):
         Residual of the modelled and observed SFS.
 
         :param k: Order of the norm
-        :return: Norm of order ``k`` of the difference between the modelled and observed polymorphic counts.
+        :return: Norm of order ``k`` of the difference between the modelled and observed polymorphic counts,
+            both folded if the inference is.
         """
-        return norm(self.sfs_mle.polymorphic - self.sfs_sel.polymorphic, k)
+        return norm(self.sfs_mle.polymorphic - self._get_observed_spectra()['selected'].polymorphic, k)
+
+    def _get_observed_spectra(self) -> Dict[str, Spectrum]:
+        """
+        Get the observed spectra as they enter the likelihood.
+
+        :return: Neutral and selected SFS indexed by ``neutral`` and ``selected``, folded if the inference is.
+        """
+        if self.folded:
+            return dict(neutral=self.sfs_neut.fold(), selected=self.sfs_sel.fold())
+
+        return dict(neutral=self.sfs_neut, selected=self.sfs_sel)
 
     def _check_L2_residual(self):
         """
@@ -1351,11 +1363,13 @@ class BaseInference(AbstractInference):
         if 'modelled' in sfs_types:
             self.run_if_required()
 
+        observed = self._get_observed_spectra()
+
         mapping = dict(
-            observed=self.sfs_sel,
-            selected=self.sfs_sel,
+            observed=observed['selected'],
+            selected=observed['selected'],
             modelled=self.sfs_mle,
-            neutral=self.sfs_neut
+            neutral=observed['neutral']
         )
 
         return Visualization.plot_spectra(
