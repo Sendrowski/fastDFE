@@ -202,7 +202,12 @@ class Config:
             under ``all``.
         :param id: ID of the init file.
         :param file: Path to the init file.
+        :raises NotImplementedError: For the discrete model D of polyDFE.
         """
+        if models.get(_to_string(self.data['model'])) == 'D':
+            raise NotImplementedError('polyDFE init files of model D, which hold a selection coefficient and a '
+                                      'probability for each class, are not supported.')
+
         fixed_params, x0 = parse_init_file(_from_string(self.data['model']).param_names, file, id)
 
         # merge with existing config, polyDFE being semidominant
@@ -219,7 +224,12 @@ class Config:
         :param type: Type to use for the init file.
         :param n: SFS sample size.
         :param file: Path to the init file to be created.
+        :raises NotImplementedError: For the discrete model D of polyDFE.
         """
+        if models.get(_to_string(self.data['model'])) == 'D':
+            raise NotImplementedError('polyDFE init files of model D, which hold a selection coefficient and a '
+                                      'probability for each class, are not supported.')
+
         fixed_params = (self.data['fixed_params'] or {}).get(type, {})
 
         create_init_file(

@@ -25,9 +25,9 @@ except ModuleNotFoundError:
     # testing
     testing = True
     spectra_file = 'resources/polydfe/pubescens/spectra/sfs.txt'
-    init_file = 'resources/polydfe/init/D.full_init'
+    init_file = 'resources/polydfe/init/C.full_init'
     do_bootstrap = None
-    model = 'DiscreteParametrization'
+    model = 'GammaExpParametrization'
     out = 'scratch/config.yaml'
 
 import fastdfe as fd

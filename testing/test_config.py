@@ -372,6 +372,17 @@ fixed_params:
         self.assertEqual(config.data['x0'], dict(all=dict(S_d=-1e3, b=0.4)))
         self.assertEqual(config.data['fixed_params'], dict(all=dict(eps=0, S_b=1.0)))
 
+    def test_polydfe_init_file_of_model_d_is_not_supported(self):
+        """
+        Init files of the discrete polyDFE model D raise a ``NotImplementedError``. They hold three values per
+        class, which were read as the two values per parameter of the other models.
+        """
+        with self.assertRaises(NotImplementedError):
+            Config(polydfe_init_file="resources/polydfe/init/D.full_init", model='DiscreteParametrization')
+
+        with self.assertRaises(NotImplementedError):
+            Config(model='DiscreteParametrization').create_polydfe_init_file('scratch/model_d_init.txt', n=5)
+
     def test_restore_covariates(self):
         """
         Test whether covariates can be properly restored from file.
