@@ -488,7 +488,8 @@ class Visualization:
         plt.close()
 
         # create a subplot with number of parameters axes
-        fig, axs = plt.subplots(len(param_names), 1, figsize=(6, 1.4 * len(param_names)))
+        fig, axs = plt.subplots(len(param_names), 1, figsize=(6, 1.4 * len(param_names)), squeeze=False)
+        axs = axs[:, 0]
 
         axs[0].set_title(title)
 

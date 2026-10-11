@@ -221,6 +221,16 @@ def test_plot_continuous_leaves_out_unbounded_intervals():
     np.testing.assert_allclose(density[1:3], [0.2 / 9, 0.1 / 2])
     plt.close('all')
 
+def test_boxplot_of_a_single_parameter():
+    """The boxplot of inferred parameters can be drawn for a single parameter, which raised a ``TypeError``."""
+    import matplotlib.pyplot as plt
+    from fastdfe.visualization import Visualization
+
+    values = dict(a=pd.DataFrame(dict(b=[0.1, 0.2, 0.3])), c=pd.DataFrame(dict(b=[0.2, 0.3, 0.4])))
+
+    Visualization.plot_inferred_parameters_boxplot(values=values, param_names=['b'], show=False)
+    plt.close('all')
+
 def test_plot_scatter_symlog_scale():
     """
     ``plot_scatter`` uses a symmetric log axis for both ``log`` and ``symlog``, and a linear one for ``lin``.
