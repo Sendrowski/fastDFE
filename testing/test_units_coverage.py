@@ -282,6 +282,29 @@ def test_adjust_ticks_show_s_labels_positions_of_s_only():
     assert [label.get_text() for label in ax.get_xticklabels()] == ['-1e+02', '-1e+01', '-1e+00', '1e+00']
     plt.close('all')
 
+def test_parameter_plot_labels_do_not_depend_on_order_of_types():
+    """
+    A parameter that is negative for any type is labelled with a minus sign, whatever the order of the types.
+    The sign was taken from the last type only.
+    """
+    import matplotlib.pyplot as plt
+    from fastdfe.visualization import Visualization
+
+    values = dict(a=[-10.0, 0.3, 0.2], b=[-20.0, 0.4, -0.1])
+
+    labels = []
+    for order in [['a', 'b'], ['b', 'a']]:
+        _, ax = plt.subplots()
+        Visualization.plot_inferred_parameters(
+            ax=ax, values={t: values[t] for t in order}, errors={t: None for t in order}, labels=order,
+            param_names=['S_d', 'b', 'alpha'], show=False
+        )
+        labels.append([label.get_text() for label in ax.get_xticklabels()])
+        plt.close('all')
+
+    assert labels[0] == labels[1]
+    assert [label.startswith('$-') for label in labels[0]] == [True, False, True]
+
 def test_plot_scatter_symlog_scale():
     """
     ``plot_scatter`` uses a symmetric log axis for both ``log`` and ``symlog``, and a linear one for ``lin``.

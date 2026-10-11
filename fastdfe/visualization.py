@@ -414,13 +414,14 @@ class Visualization:
         # number of parameters
         n_params = len(param_names)
 
+        # absolute values are plotted, with a minus sign before the names of parameters that are negative for any type
+        negative = np.any(np.array(list(values.values()), dtype=float) < 0, axis=0)
+        xlabels = [Visualization.name_to_label(key, param_names, np.where(negative, -1, 1)) for key in param_names]
+
         # iterate over types
         for i, vals, errs in zip(range(n_types), values.values(), errors.values()):
 
             x = np.arange(n_params) + i * width
-
-            # get labels for parameters
-            xlabels = np.array([Visualization.name_to_label(key, param_names, vals) for key in param_names])
 
             # flip errors for negative parameters
             if errs is not None:
