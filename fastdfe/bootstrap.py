@@ -7,6 +7,7 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-02-26"
 
 import logging
+import math
 from typing import Literal, Sequence, Tuple
 
 import numpy as np
@@ -35,8 +36,12 @@ class Bootstrap:
         if np.isnan(a1) or np.isnan(a2):
             return [None, None]
 
-        # as many values lie below the lower bound as a1 * n, and above the upper bound as (1 - a2) * n
-        i1, i2 = (min(max(i, 0), n - 1) for i in (round(a1 * n), round(a2 * n) - 1))
+        # as many values lie below the lower bound as a1 * n, and above the upper bound as (1 - a2) * n. Halves are
+        # rounded towards the centre in both tails, after removing the rounding error of the products
+        i1 = math.floor(round(a1 * n, 9) + 0.5)
+        i2 = math.ceil(round(a2 * n, 9) - 0.5) - 1
+
+        i1, i2 = (min(max(i, 0), n - 1) for i in (i1, i2))
 
         return data[i1], data[max(i1, i2)]
 

@@ -102,6 +102,28 @@ class BootstrapTestCase(TestCase):
         np.random.seed(42)
         self.compare_cis(np.random.normal(0, 2, size=100000))
 
+    def test_interval_leaves_equally_many_bootstraps_outside_both_bounds(self):
+        """
+        The percentile interval leaves equally many bootstraps outside its two bounds, and the bias-corrected
+        interval equals it when half of the bootstraps lie below the original value. For a tail holding a
+        half-integer number of bootstraps, the two tails differed by one, and so did the two intervals.
+        """
+        for n in [5, 10, 15, 20, 25, 40, 100]:
+            for a in [0.025, 0.05, 0.1, 0.25]:
+                data = np.arange(n, dtype=float)
+
+                lower, upper = Bootstrap.get_ci_percentile(data, a)
+
+                self.assertEqual(np.sum(data < lower), np.sum(data > upper), (n, a))
+                self.assertLessEqual(abs(np.sum(data < lower) - a * n), 0.5)
+
+                # the interval of the negated bootstraps is the negated interval
+                self.assertEqual(Bootstrap.get_ci_percentile(-data, a), (-upper, -lower))
+
+                # with half of the bootstraps below the original value there is no bias to correct
+                if n % 2 == 0:
+                    self.assertEqual(tuple(Bootstrap.get_ci_bca(data, n / 2 - 0.5, a)), (lower, upper), (n, a))
+
     def test_get_bounds_from_quantile_is_nan_return_nones(self):
         """
         Test get_bounds_from_quantile when data is nan.
