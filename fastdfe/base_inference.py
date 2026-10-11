@@ -298,8 +298,14 @@ class BaseInference(AbstractInference):
         if fixed_params is None:
             fixed_params = {'all': {'eps': 0, 'h': 0.5} | self.model.submodels['dele']}
 
-        if not 'all' in fixed_params:
-            fixed_params['all'] = {}
+        # a joint inference also takes fixed parameters per type
+        types = ['all'] + list(getattr(self, 'types', []))
+
+        if set(fixed_params) - set(types) or not all(isinstance(v, dict) for v in fixed_params.values()):
+            raise ValueError(f"Fixed parameters need to be of the form {{type: {{param: value}}}} for the types "
+                             f"{types}, but found the keys {sorted(fixed_params)}.")
+
+        fixed_params = {'all': {}} | fixed_params
 
         # expand 'all' type
         #: Fixed parameters

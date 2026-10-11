@@ -268,8 +268,7 @@ class JointInference(BaseInference):
         if fixed_params is None:
             fixed_params = {'all': {'eps': 0, 'h': 0.5} | self.model.submodels['dele']}
 
-        if not 'all' in fixed_params:
-            fixed_params['all'] = {}
+        fixed_params = {'all': {}} | fixed_params
 
         #: fixed parameters with expanded 'all' type
         self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, self.types)

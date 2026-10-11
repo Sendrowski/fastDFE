@@ -961,6 +961,19 @@ class FastJointInferenceTestCase(TestCase):
             self.assertNotAlmostEqual(sub.params_mle['b']['b'], 0.3, places=3)
             self.assertNotIn('b', sub.marginal_inferences['all'].fixed_params['all'])
 
+    def test_fixed_params_of_unknown_type_raise(self):
+        """Fixed parameters that are not keyed by 'all' or a type raise an error and are left unchanged."""
+        with self.assertRaises(ValueError):
+            self._make(fixed_params=dict(eps=0, h=0.5))
+
+        with self.assertRaises(ValueError):
+            self._make(fixed_params=dict(all=dict(h=0.5), c=dict(eps=0)))
+
+        fixed_params = dict(a=dict(eps=0))
+        self._make(fixed_params=fixed_params)
+
+        self.assertEqual(fixed_params, dict(a=dict(eps=0)))
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

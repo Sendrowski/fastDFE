@@ -2307,6 +2307,24 @@ class SmokeTestCase(TestCase):
         self.assertTrue(np.equal(before, None).any())
         np.testing.assert_array_equal(before, after)
 
+    def test_fixed_params_without_type_level_raise(self):
+        """
+        Fixed parameters given as ``{param: value}`` raise an error. They were accepted and fixed nothing, and
+        the dictionary passed was modified.
+        """
+        kwargs = dict(sfs_neut=self.sfs_neut, sfs_sel=self.sfs_sel, do_bootstrap=False)
+
+        with self.assertRaises(ValueError):
+            fd.BaseInference(fixed_params=dict(eps=0, h=0.5), **kwargs)
+
+        with self.assertRaises(ValueError):
+            fd.BaseInference(fixed_params=dict(pendula=dict(eps=0)), **kwargs)
+
+        fixed_params = dict(all=dict(eps=0, h=0.5))
+        fd.BaseInference(fixed_params=fixed_params, **kwargs)
+
+        self.assertEqual(fixed_params, dict(all=dict(eps=0, h=0.5)))
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
