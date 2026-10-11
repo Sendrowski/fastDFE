@@ -324,14 +324,11 @@ class Visualization:
         :param s: Array of selection coefficients indexed by the x-tick positions
         :param ax: Axes whose x-ticks are adjusted
         """
-
-        n_bins = len(s) - 1
-
-        ticks = ax.get_xticks()
-        ticks_new = ["{:.0e}".format(s[int(l)]) if 0 <= int(l) < n_bins else None for l in ticks]
+        # keep the ticks that lie on a position of s
+        ticks = [int(tick) for tick in ax.get_xticks() if float(tick).is_integer() and 0 <= tick < len(s)]
 
         ax.set_xticks(ticks)
-        ax.set_xticklabels(ticks_new)
+        ax.set_xticklabels(["{:.0e}".format(s[tick]) for tick in ticks])
 
     @staticmethod
     def name_to_label(

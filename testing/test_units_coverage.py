@@ -262,6 +262,26 @@ def test_plot_helpers_accept_positional_axes_file_and_show(tmp_path):
     assert (tmp_path / 'scatter.png').exists()
     plt.close('all')
 
+def test_adjust_ticks_show_s_labels_positions_of_s_only():
+    """
+    The ticks showing selection coefficients are placed on positions of ``s`` only, the last one included.
+    Ticks between two positions repeated the label of the lower one, and the last position had no label.
+    """
+    import matplotlib.pyplot as plt
+    from fastdfe.visualization import Visualization
+
+    s = np.array([-100.0, -10.0, -1.0, 1.0])
+
+    _, ax = plt.subplots()
+    ax.plot(np.arange(4), np.ones(4))
+    ax.set_xticks([-0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5])
+
+    Visualization.adjust_ticks_show_s(s, ax)
+
+    assert list(ax.get_xticks()) == [0, 1, 2, 3]
+    assert [label.get_text() for label in ax.get_xticklabels()] == ['-1e+02', '-1e+01', '-1e+00', '1e+00']
+    plt.close('all')
+
 def test_plot_scatter_symlog_scale():
     """
     ``plot_scatter`` uses a symmetric log axis for both ``log`` and ``symlog``, and a linear one for ``lin``.
