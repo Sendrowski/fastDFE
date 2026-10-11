@@ -20,6 +20,26 @@ class ParametrizationTestCase(TestCase):
 
     config_file = "testing/cache/configs/pendula_C_full_anc/config.yaml"
 
+    def test_cdf_and_pdf_accept_numpy_scalars_and_arrays_of_any_shape(self):
+        """
+        The CDF and PDF of every parametrization accept NumPy scalars and arrays of any shape. The discrete
+        CDFs failed on everything but Python numbers and 1-d arrays.
+        """
+        from fastdfe import GammaExpParametrization, DiscreteFractionalParametrization
+
+        grid = np.array([[-200.0, -5.0, -0.5], [0.5, 5.0, 2000.0]])
+
+        for model in [GammaExpParametrization(), DiscreteFractionalParametrization(), DiscreteParametrization()]:
+            for get in [model.get_cdf, model.get_pdf]:
+                func = get(**model.x0)
+                expected = np.array([func(float(S)) for S in grid.ravel()])
+
+                np.testing.assert_array_equal(func(grid), expected.reshape(grid.shape))
+                np.testing.assert_array_equal(func(grid.ravel()), expected)
+
+                for scalar in [np.float32(-5), np.int64(-5), np.array(-5.0)]:
+                    self.assertAlmostEqual(func(scalar), func(-5.0), places=6)
+
     def test_gamma_density_is_zero_at_minus_infinity(self):
         """
         The gamma-based densities are zero at ``S = -inf``. They were undefined there for a shape above 1.

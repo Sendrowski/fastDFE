@@ -125,7 +125,7 @@ class Parametrization(Serializable, ABC):
             :param kwargs: Keyword arguments
             :return: Output of func
             """
-            if isinstance(S, (int, float)):
+            if np.ndim(S) == 0:
                 return func(np.array([S]), *args, **kwargs)[0]
             else:
                 return func(S, *args, **kwargs)
@@ -789,7 +789,7 @@ class DiscreteParametrization(Parametrization):
             cum = np.cumsum([values[self.params[i]] for i in range(self.k)])
 
             # obtain bin indices
-            i = np.sum(self.intervals[:, None] <= S[None, :], axis=0) - 1
+            i = np.searchsorted(self.intervals, S, side='right') - 1
 
             # make sure we don't go out of bounds which can happen if S is np.inf
             i[i >= self.k] = self.k - 1
@@ -993,7 +993,7 @@ class DiscreteFractionalParametrization(Parametrization):
             cum = np.cumsum([values[self.params[i]] for i in range(self.k)])
 
             # obtain bin indices
-            i = np.sum(self.intervals[:, None] <= S[None, :], axis=0) - 1
+            i = np.searchsorted(self.intervals, S, side='right') - 1
 
             # make sure we don't go out of bounds which can happen if S is np.inf
             i[i >= self.k] = self.k - 1
