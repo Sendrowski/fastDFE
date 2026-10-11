@@ -1233,6 +1233,25 @@ class FastJointInferenceTestCase(TestCase):
         self.assertAlmostEqual(inf.evaluate_likelihood(inf.params_mle), inf.likelihood, places=6)
         self.assertAlmostEqual(inf.evaluate_likelihood(inf.params_mle_raw), inf.likelihood, places=6)
 
+    def test_marginal_bootstraps_are_independent_across_types(self):
+        """
+        The marginal inferences of the types resample their spectra independently, also when the types hold the
+        same data. They shared one seed, so their bootstraps were drawn from the same random numbers.
+        """
+        inf = self._make(do_bootstrap=True, n_bootstraps=3)
+        inf.run()
+
+        a, b = [inf.marginal_inferences[t] for t in ['a', 'b']]
+
+        self.assertNotEqual(a.seed, b.seed)
+        self.assertFalse(np.allclose(a.bootstraps.likelihood, b.bootstraps.likelihood))
+
+        # the same seed gives the same result
+        again = self._make(do_bootstrap=True, n_bootstraps=3)
+        again.run()
+
+        np.testing.assert_array_equal(again.marginal_inferences['a'].bootstraps.likelihood, a.bootstraps.likelihood)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

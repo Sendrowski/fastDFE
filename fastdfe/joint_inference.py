@@ -311,6 +311,11 @@ class JointInference(BaseInference):
         # collapse fixed parameters
         fixed_collapsed = collapse_fixed_to_mean(self.fixed_params, self.types)
 
+        # a seed of its own for the marginal inference of each type, whose bootstraps are thus independent
+        seeds = {}
+        if seed is not None:
+            seeds = dict(zip(self.types, np.random.SeedSequence(seed).generate_state(len(self.types)).tolist()))
+
         # include 'all' type with infers the DFE for all spectra added together
         #: Dictionary of marginal inferences indexed by type
         self.marginal_inferences: Dict[str, BaseInference] = dict(
@@ -394,7 +399,7 @@ class JointInference(BaseInference):
                 n_sites_div_neut=self._n_sites_div_neut_types.get(t) if self._n_sites_div_neut_types else None,
                 n_sites_div_sel=self._n_sites_div_sel_types.get(t) if self._n_sites_div_sel_types else None,
                 model=model,
-                seed=seed,
+                seed=seeds.get(t),
                 x0=x0,
                 bounds=bounds,
                 scales=scales,
