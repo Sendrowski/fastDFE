@@ -2282,6 +2282,30 @@ class SmokeTestCase(TestCase):
                 inf.model, dict(row), row.n_div_neut, row.n_div_sel, n_sites_div_neut, n_sites_div_sel
             ))
 
+    def test_nested_models_keep_other_fixed_parameters(self):
+        """
+        The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
+        fixed shape was optimized in every nested model.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            fixed_params=dict(all=dict(b=0.3, h=0.5, eps=0, p_b=0, S_b=1)),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        _, inferences = inf.compare_nested_models()
+
+        for sub in inferences.values():
+            self.assertAlmostEqual(sub.params_mle['b'], 0.3, places=10)
+
+        # the nested model with the fixed parameters of the inference reproduces its fit
+        self.assertAlmostEqual(inferences['dele.no_anc'].likelihood, inf.likelihood, places=3)
+
     def test_base_inference_smoke(self):
         """A single tiny BaseInference fit runs and produces finite estimates."""
         inf = fd.BaseInference(

@@ -950,6 +950,17 @@ class FastJointInferenceTestCase(TestCase):
             self.assertEqual(marginal.params_mle['p_b'], 0)
             self.assertEqual(marginal.params_mle['eps'], 0)
 
+    def test_nested_models_keep_fixed_parameters_of_a_type(self):
+        """The nested models keep a parameter that is fixed for one type only."""
+        inf = self._make(fixed_params=dict(all=dict(h=0.5), a=dict(b=0.3)))
+
+        _, inferences = inf.compare_nested_models()
+
+        for sub in inferences.values():
+            self.assertAlmostEqual(sub.params_mle['a']['b'], 0.3, places=10)
+            self.assertNotAlmostEqual(sub.params_mle['b']['b'], 0.3, places=3)
+            self.assertNotIn('b', sub.marginal_inferences['all'].fixed_params['all'])
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
@@ -1301,14 +1312,13 @@ class FastJointInferenceTestCase(TestCase):
     def test_compare_nested_models_keeps_h_fixed(self):
         """
         Regression: with a covariate the joint fixed params are expanded per type, so the fixed
-        dominance h must still be recovered (via _get_fixed_h) and kept fixed across the nested
-        models. Otherwise h is freed, the optimizer varies it, and the h=0.5 discretization raises.
+        dominance h must still be kept fixed across the nested models. Otherwise h is freed, the
+        optimizer varies it, and the h=0.5 discretization raises.
         """
         inf = self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6))])
 
-        # h is fixed to 0.5 by default; the helper must recover it despite per-type expansion
+        # h is fixed to 0.5 by default, per type
         self.assertNotIn('all', inf.fixed_params)
-        self.assertEqual(inf._get_fixed_h(), 0.5)
 
         # the full nested-model comparison must run without freeing h (previously raised
         # "Dominance coefficient ... does not match precomputed value 0.5.")

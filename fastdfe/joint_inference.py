@@ -1507,11 +1507,11 @@ class JointInference(BaseInference):
 
         :param params: Fixed parameters
         """
-        # set for 'all' type
-        self.marginal_inferences['all']._set_fixed_params(params)
-
         # expand types
         self.fixed_params = expand_fixed(params, self.types)
+
+        # set for 'all' type
+        self.marginal_inferences['all']._set_fixed_params(collapse_fixed_to_mean(self.fixed_params, self.types))
 
         for cov in self.covariates.values():
             if any(cov.param in self.fixed_params[t] for t in self.types):
@@ -1534,17 +1534,6 @@ class JointInference(BaseInference):
 
         # propagate to optimization
         self.optimization.set_fixed_params(self.fixed_params)
-
-    def _get_fixed_h(self) -> Optional[float]:
-        """
-        Get the dominance coefficient ``h`` if it is held fixed across all types, else ``None``.
-
-        The joint fixed params are expanded per type, so collapse them to recover a common ``h``
-        (mirroring how :meth:`__init__` derives the discretization's dominance).
-
-        :return: Fixed value of ``h`` or ``None``.
-        """
-        return collapse_fixed(self.fixed_params, self.types)['all'].get('h', None)
 
     def get_residual(self, k: int) -> float:
         """
