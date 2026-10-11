@@ -1475,6 +1475,37 @@ class JointInference(BaseInference):
             point_estimate=point_estimate
         )
 
+    def get_stats_discretized(
+            self,
+            ci_level: float = 0.05,
+            intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
+            bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean'
+    ) -> Dict[str, Tuple[np.ndarray, np.ndarray, np.ndarray]]:
+        """
+        Get statistics for the discretized DFEs.
+
+        :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
+        :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
+        :param bootstrap_type: Type of bootstrap to use.
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
+        :return: Center values, errors around center, and confidence intervals, keyed by inference label
+            (``marginal.<type>`` and ``joint.<type>``).
+        """
+        return {
+            label: inf.get_stats_discretized(ci_level, intervals, bootstrap_type, point_estimate)
+            for label, inf in self.get_inferences().items()
+        }
+
+    def plot_bucket_sizes(self, *args, **kwargs):
+        """
+        Not available for a joint inference, whose discretization is shared by its inferences.
+
+        :raises NotImplementedError: Always.
+        """
+        raise NotImplementedError("The bucket sizes can be plotted for one inference, such as "
+                                  "``marginal_inferences['all']``.")
+
     def get_bootstrap_params(self) -> Dict[str, float]:
         """
         Get bootstrap parameters.

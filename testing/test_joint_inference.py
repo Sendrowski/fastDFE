@@ -1179,6 +1179,27 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(len(heights['original']), len(heights['mean']))
         self.assertFalse(np.allclose(heights['original'], heights['mean']))
 
+    def test_stats_discretized_and_bucket_sizes(self):
+        """
+        The statistics of the discretized DFE are returned per inference, and the plot of bucket sizes, which
+        belongs to a single inference, raises a ``NotImplementedError``. Both failed with a ``TypeError``.
+        """
+        inf = self._make(shared_params=[fd.SharedParams(params=['S_d'])], do_bootstrap=True, n_bootstraps=3)
+        inf.run()
+
+        stats = inf.get_stats_discretized()
+
+        self.assertEqual(set(stats), set(inf.get_inferences()))
+
+        for center, errors, ci in stats.values():
+            self.assertEqual(center.shape, (6,))
+            self.assertAlmostEqual(center.sum(), 1, places=6)
+
+        with self.assertRaises(NotImplementedError):
+            inf.plot_bucket_sizes(show=False)
+
+        inf.marginal_inferences['all'].plot_bucket_sizes(show=False)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
