@@ -535,6 +535,10 @@ class Discretization:
             to whether the divergence flux is used; passing ``True`` caches them before the
             discretization is pickled to optimization workers.
         """
+        # map the dominance coefficient anew when recomputing
+        if force and self.h is not None:
+            self.h_mapped = self.map_h(self.h, self.bins)
+
         # build fixed counts (divergence flux) when requested, independently of the _cache guard
         if fixed:
             self.precompute_fixed(force=force)

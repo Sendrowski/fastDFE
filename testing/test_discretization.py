@@ -92,6 +92,25 @@ class DiscretizationTestCase(TestCase):
         self.assertIsNone(d.h_callback)
         np.testing.assert_array_equal(restored.map_h(0.3, d.s), np.full_like(d.s, 0.3))
 
+    def test_forced_precompute_uses_current_h(self):
+        """
+        A forced recomputation after ``h`` was changed uses the new value for the SFS counts as well as for
+        the fixed counts. The SFS counts were recomputed for the previous value.
+        """
+        kwargs = dict(n=6, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5), parallelize=False)
+
+        d = Discretization(h=0.5, **kwargs)
+        d.precompute(fixed=True)
+
+        d.h = 0.2
+        d.precompute(force=True, fixed=True)
+
+        expected = Discretization(h=0.2, **kwargs)
+        expected.precompute(fixed=True)
+
+        np.testing.assert_array_equal(d._cache, expected._cache)
+        np.testing.assert_array_equal(d._counts_fixed, expected._counts_fixed)
+
     def test_dfe_to_sfs_linearization_midpoint_vs_quad(self):
         """
         Check for discrepancies between the linearized DFE to SFS
