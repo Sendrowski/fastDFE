@@ -935,8 +935,8 @@ class DiscreteFractionalParametrization(Parametrization):
             # update cumulative sum
             mass += params[p]
 
-        # last parameter is simply what's left
-        converted[self.params[-2]] = 1 - mass
+        # the last interval holds what is left and has no parameter
+        converted.pop(self.params[-2], None)
 
         return converted
 

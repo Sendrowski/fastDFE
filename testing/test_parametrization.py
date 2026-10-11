@@ -54,6 +54,17 @@ class ParametrizationTestCase(TestCase):
 
             cls(intervals=[-10, 0, 10])
 
+    def test_fractional_initial_values_hold_parameters_only(self):
+        """
+        The initial values of the fractional parametrization hold its parameters only. They also held the
+        mass of the last interval, which is not a parameter.
+        """
+        from fastdfe import DiscreteFractionalParametrization
+
+        model = DiscreteFractionalParametrization()
+
+        self.assertEqual(sorted(model.x0), sorted(model.param_names))
+
     def test_gamma_density_is_zero_at_minus_infinity(self):
         """
         The gamma-based densities are zero at ``S = -inf``. They were undefined there for a shape above 1.
@@ -521,7 +532,6 @@ class ParametrizationTestCase(TestCase):
         p = DiscreteFractionalParametrization()
 
         observed = p.to_fractional(p.to_nominal(params))
-        observed.pop('S6')
 
         assert observed == params
 
