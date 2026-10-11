@@ -2461,6 +2461,32 @@ class SmokeTestCase(TestCase):
         self.assertEqual(list(inf.bootstraps.i_best_run), [1, 0])
         self.assertEqual(list(inf.bootstraps.likelihood), [-40, -50])
 
+    def test_bootstrap_sample_without_divergence_counts_gives_non_finite_estimates(self):
+        """
+        A bootstrap sample whose divergence count is zero has non-finite divergence-based estimates, as the
+        original data would. It raised a ``ZeroDivisionError``, which discarded the bootstraps.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            n_sites_div_neut=float(self.sfs_neut.n_sites),
+            n_sites_div_sel=float(self.sfs_sel.n_sites),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=True,
+            n_bootstraps=2,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        inf.bootstraps.loc[0, 'n_div_sel'] = 0
+        inf._add_alpha_to_bootstraps()
+
+        self.assertFalse(np.isfinite(inf.bootstraps.alpha[0]))
+        self.assertEqual(inf.bootstraps.omega[0], 0)
+        self.assertTrue(np.isfinite(inf.bootstraps.alpha[1]))
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

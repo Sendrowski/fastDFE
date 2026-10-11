@@ -956,11 +956,13 @@ class BaseInference(AbstractInference):
                 alpha=d.get_alpha_divergence, omega=d.get_omega_divergence, omega_a=d.get_omega_a_divergence
             )
 
-            # divergence-based estimates from the divergence counts of each sample
-            for name, estimator in estimators.items():
-                self.bootstraps[name] = self.bootstraps.apply(lambda r: estimator(
-                    self.model, dict(r), r['n_div_neut'], r['n_div_sel'], self.n_sites_div_neut, self.n_sites_div_sel
-                ), axis=1)
+            # divergence-based estimates from the divergence counts of each sample, non-finite for a count of zero
+            with np.errstate(divide='ignore', invalid='ignore'):
+                for name, estimator in estimators.items():
+                    self.bootstraps[name] = self.bootstraps.apply(lambda r: estimator(
+                        self.model, dict(r), np.float64(r['n_div_neut']), np.float64(r['n_div_sel']),
+                        self.n_sites_div_neut, self.n_sites_div_sel
+                    ), axis=1)
         else:
             estimators = dict(alpha=self.get_alpha, omega=self.get_omega, omega_a=self.get_omega_a)
 
