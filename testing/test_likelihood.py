@@ -20,7 +20,8 @@ class LikelihoodTestCase(TestCase):
         expected = np.log(factorial(x))
         observed = Likelihood.log_factorial_stirling(x)
 
-        self.assertTrue(np.linalg.norm(expected - observed, ord=1) > 1e-05)
+        # the error of the approximation is about 1 / (288 * x ** 2)
+        self.assertTrue(np.all(np.abs(observed - expected) < 1 / (200 * x ** 2)))
 
     def test_log_poisson(self):
         """
