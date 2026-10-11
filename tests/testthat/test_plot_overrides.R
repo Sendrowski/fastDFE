@@ -49,4 +49,15 @@ if (fastdfe_is_installed()) {
     expect_no_error(viz$plot_inferred_parameters(values, labels = c("a", "b"), param_names = c("S_d", "b"),
                                                  show = FALSE))
   })
+
+  test_that("the nested-model plot accepts the name of a colour map or a vector of colours", {
+    P <- matrix(c(0.2, 0.5, 1e-5, 0.9), nrow = 2)
+
+    for (cmap in list("viridis", "inferno", c("white", "red"))) {
+      # the colours are resolved when the plot is built
+      expect_no_error(ggplot2::ggplot_build(
+        viz$plot_nested_models(P, labels_x = c("a", "b"), labels_y = c("a", "b"), cmap = cmap, show = FALSE)
+      ))
+    }
+  })
 }

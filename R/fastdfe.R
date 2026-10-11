@@ -578,7 +578,8 @@ load_fastdfe <- function(install = FALSE) {
   # @param labels_y Labels for y-axis
   # @param file File to save plot to
   # @param show Whether to show plot
-  # @param cmap Colormap to use
+  # @param cmap Name of a viridis colour map ('viridis', 'inferno', 'magma', 'plasma', 'cividis', 'rocket',
+  #             'mako', 'turbo') or vector of colours for the gradient
   # @param title Title of plot
   # @param vmin Minimum value for colorbar
   # @param vmax Maximum value for colorbar
@@ -620,6 +621,9 @@ load_fastdfe <- function(install = FALSE) {
     fill_scale <- if (is.null(cmap)) {
       ggplot2::scale_fill_viridis_c(option = "inferno", begin = 0.3, trans = "log10",
                                     limits = c(vmin, vmax), name = "p-value")
+    } else if (length(cmap) == 1 && cmap %in% c("viridis", "inferno", "magma", "plasma", "cividis", "rocket",
+                                                 "mako", "turbo")) {
+      ggplot2::scale_fill_viridis_c(option = cmap, trans = "log10", limits = c(vmin, vmax), name = "p-value")
     } else {
       ggplot2::scale_fill_gradientn(colours = cmap, trans = "log10", limits = c(vmin, vmax), name = "p-value")
     }
