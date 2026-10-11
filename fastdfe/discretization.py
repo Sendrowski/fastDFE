@@ -277,7 +277,7 @@ class Discretization:
         :return: Sojourn time as x -> 1
         """
         # make it accept scalars
-        if isinstance(S, (float, int)):
+        if np.ndim(S) == 0:
             return Discretization.get_counts_fixed_semidominant_regularized(np.array([S], dtype=float))[0]
 
         # else S is an array
@@ -822,8 +822,8 @@ class Discretization:
         :return: Number of counts in frequency class ``P(k)``
         """
         # make it accept scalars for S
-        if isinstance(S, (float, int)):
-            return self.get_counts_semidominant_regularized(np.array([S]), np.array([k]))[0]
+        if np.ndim(S) == 0:
+            return self.get_counts_semidominant_regularized(np.array([S], dtype=float), np.array([k]))[0]
 
         # else S is an array
         y = np.zeros_like(S, dtype=float)

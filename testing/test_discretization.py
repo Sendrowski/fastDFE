@@ -62,6 +62,22 @@ class DiscretizationTestCase(TestCase):
 
         Discretization(n=10, intervals_del=(-1e4, -1e-5, 10), intervals_ben=(1e-5, 1e4, 10))
 
+    def test_regularized_counts_accept_numpy_scalars(self):
+        """
+        The regularized count functions accept NumPy scalars of any type. Types that are not Python numbers
+        raised a ``TypeError`` or gave an array.
+        """
+        d = Discretization(n=10)
+
+        for S in [np.int64(-5), np.float32(-5), np.array(-5.0), -5]:
+            self.assertAlmostEqual(d.get_counts_semidominant_regularized(S, 3),
+                                   d.get_counts_semidominant_regularized(-5.0, 3), places=12)
+
+            fixed = Discretization.get_counts_fixed_semidominant_regularized(S)
+
+            self.assertEqual(np.ndim(fixed), 0)
+            self.assertAlmostEqual(fixed, Discretization.get_counts_fixed_semidominant_regularized(-5.0), places=12)
+
     def test_dfe_to_sfs_linearization_midpoint_vs_quad(self):
         """
         Check for discrepancies between the linearized DFE to SFS
