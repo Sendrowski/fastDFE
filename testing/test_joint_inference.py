@@ -1161,6 +1161,24 @@ class FastJointInferenceTestCase(TestCase):
         with self.assertRaises(ValueError):
             self._make(shared_params=[fd.SharedParams(params=['S_d', 'eps'])])
 
+    def test_plot_inferred_parameters_applies_point_estimate(self):
+        """
+        The parameter plot of a joint inference shows the requested point estimate. The argument was not
+        passed on, so the mean of the bootstraps was always shown.
+        """
+        inf = self._make(shared_params=[fd.SharedParams(params=['S_d'])], do_bootstrap=True, n_bootstraps=3)
+        inf.run()
+
+        heights = {
+            point_estimate: [bar.get_height() for bar in inf.plot_inferred_parameters(
+                show=False, point_estimate=point_estimate, scale='lin'
+            ).patches]
+            for point_estimate in ['original', 'mean']
+        }
+
+        self.assertEqual(len(heights['original']), len(heights['mean']))
+        self.assertFalse(np.allclose(heights['original'], heights['mean']))
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

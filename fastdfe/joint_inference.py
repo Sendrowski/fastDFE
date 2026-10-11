@@ -1313,6 +1313,7 @@ class JointInference(BaseInference):
             file: str = None,
             confidence_intervals: bool = True,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean',
             ci_level: float = 0.05,
             show: bool = True,
             title: str = 'inferred parameters',
@@ -1329,6 +1330,8 @@ class JointInference(BaseInference):
             :meth:`JointInference.get_inferences() <fastdfe.joint_inference.JointInference.get_inferences>`.
         :param title: Title of plot
         :param bootstrap_type: Type of bootstrap
+        :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point
+            estimate.
         :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param confidence_intervals: Whether to plot confidence intervals
         :param file: File to save plot to
