@@ -679,6 +679,9 @@ class DiscreteParametrization(Parametrization):
             'has better optimization properties.'
         )
 
+        if not np.all(np.isfinite(intervals)) or np.any(np.diff(intervals) <= 0):
+            raise ValueError('The intervals need to be finite and strictly increasing.')
+
         #: Intervals
         self.intervals: np.ndarray = np.concatenate(([-np.inf], intervals, [np.inf]))
 
@@ -846,6 +849,9 @@ class DiscreteFractionalParametrization(Parametrization):
         :param x0: Custom initial parameters merging with defaults
         """
         super().__init__()
+
+        if not np.all(np.isfinite(intervals)) or np.any(np.diff(intervals) <= 0):
+            raise ValueError('The intervals need to be finite and strictly increasing.')
 
         #: Intervals
         self.intervals: np.ndarray = np.concatenate(([-np.inf], intervals, [np.inf]))

@@ -40,6 +40,20 @@ class ParametrizationTestCase(TestCase):
                 for scalar in [np.float32(-5), np.int64(-5), np.array(-5.0)]:
                     self.assertAlmostEqual(func(scalar), func(-5.0), places=6)
 
+    def test_discrete_intervals_need_to_be_finite_and_increasing(self):
+        """
+        The discrete parametrizations reject interval boundaries that are infinite or not increasing. Infinite
+        boundaries were accepted, which gave bins of infinite width holding mass.
+        """
+        from fastdfe import DiscreteFractionalParametrization
+
+        for cls in [DiscreteFractionalParametrization, DiscreteParametrization]:
+            for intervals in [[-np.inf, -10, 0, 10], [-10, 0, 10, np.inf], [-10, 0, 0, 10], [0, -10, 10]]:
+                with self.assertRaises(ValueError):
+                    cls(intervals=intervals)
+
+            cls(intervals=[-10, 0, 10])
+
     def test_gamma_density_is_zero_at_minus_infinity(self):
         """
         The gamma-based densities are zero at ``S = -inf``. They were undefined there for a shape above 1.
