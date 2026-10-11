@@ -43,6 +43,25 @@ class DiscretizationTestCase(TestCase):
         """
         return np.max(np.abs(self.diff_rel(a, b)))
 
+    def test_interval_bounds_of_wrong_sign_or_order_raise(self):
+        """
+        The grid rejects bounds of the wrong sign or order, and a grid of ``h`` with fewer than two points.
+        Only the order of the bounds was checked, so the other cases gave reversed or undefined bins.
+        """
+        for kwargs in [
+            dict(intervals_del=(1e-5, 1e4, 10)),
+            dict(intervals_del=(-1e4, 0, 10)),
+            dict(intervals_del=(-1e-5, -1e4, 10)),
+            dict(intervals_ben=(-1e4, -1e-5, 10)),
+            dict(intervals_ben=(0, 1e4, 10)),
+            dict(h=None, intervals_h=(0, 1, 1)),
+            dict(h=None, intervals_h=(0.5, 0.5, 3)),
+        ]:
+            with self.assertRaises(ValueError):
+                Discretization(n=10, **kwargs)
+
+        Discretization(n=10, intervals_del=(-1e4, -1e-5, 10), intervals_ben=(1e-5, 1e4, 10))
+
     def test_dfe_to_sfs_linearization_midpoint_vs_quad(self):
         """
         Check for discrepancies between the linearized DFE to SFS

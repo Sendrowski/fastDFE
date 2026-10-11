@@ -90,9 +90,13 @@ class Discretization:
             deprecated.
         :param parallelize: Whether to parallelize the computation of the discretization.
         """
-        # make sure lower bounds are lower than upper bounds
-        if not intervals_del[0] < intervals_del[1] or not intervals_ben[0] < intervals_ben[1]:
-            raise Exception('Lower intervals bounds must be lower than upper bounds.')
+        # make sure the bounds are ordered and of the right sign
+        if not intervals_del[0] < intervals_del[1] < 0 or not 0 < intervals_ben[0] < intervals_ben[1]:
+            raise ValueError('The interval bounds need to satisfy start < stop < 0 for intervals_del and '
+                             '0 < start < stop for intervals_ben.')
+
+        if h is None and not (intervals_h[0] < intervals_h[1] and int(intervals_h[2]) >= 2):
+            raise ValueError('intervals_h needs to satisfy start < stop and hold at least two points.')
 
         # make sure |S| is not too large
         if intervals_del[0] < -1e10 or intervals_ben[1] > 1e10:
