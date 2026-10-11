@@ -654,6 +654,9 @@ class DiscreteParametrization(Parametrization):
     confidence intervals for this parametrization, and the optimization procedure may well be less efficient as
     we have to re-normalize the parameters to make sure they sum up to 1. Note that all :math:`S` parameters are
     population-scaled selection coefficients, i.e. :math:`S = 4N_es`.
+
+    .. deprecated:: 1.2.0
+        Use :class:`DiscreteFractionalParametrization`, which has better optimization properties.
     """
 
     def __init__(
