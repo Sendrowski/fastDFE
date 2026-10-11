@@ -1424,6 +1424,8 @@ class JointInference(BaseInference):
         :return: Dictionary of values and dictionary of errors, both indexed by inference label
             (``marginal.<type>`` and ``joint.<type>``).
         """
+        self.run_if_required()
+
         return Inference.get_discretized(
             inferences=list(self.get_inferences().values()),
             labels=list(self.get_inferences().keys()),
@@ -1575,6 +1577,7 @@ class JointInference(BaseInference):
         :return: Dictionary of alpha indexed by type.
         """
         if params is None:
+            self.run_if_required()
             params = self.params_mle
 
         if use_divergence is None:
@@ -1598,6 +1601,7 @@ class JointInference(BaseInference):
         :return: Dictionary of omega indexed by type.
         """
         if params is None:
+            self.run_if_required()
             params = self.params_mle
 
         if use_divergence is None:
@@ -1622,6 +1626,7 @@ class JointInference(BaseInference):
         :return: Dictionary of omega_a indexed by type.
         """
         if params is None:
+            self.run_if_required()
             params = self.params_mle
 
         if use_divergence is None:

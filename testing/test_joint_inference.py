@@ -1019,6 +1019,20 @@ class FastJointInferenceTestCase(TestCase):
 
         self.assertEqual(tqdm.call_count, 0)
 
+    def test_accessors_run_the_inference_if_required(self):
+        """The accessors of results trigger the run of a joint inference that was not run yet."""
+        for accessor in [
+            lambda inf: inf.get_discretized(confidence_intervals=False),
+            lambda inf: inf.get_alpha(),
+            lambda inf: inf.get_omega(),
+            lambda inf: inf.get_omega_a(),
+        ]:
+            inf = self._make()
+
+            accessor(inf)
+
+            self.assertIsNotNone(inf.params_mle)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

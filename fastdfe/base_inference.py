@@ -1470,6 +1470,7 @@ class BaseInference(AbstractInference):
         self.plot_interval_density(show=show)
         self.plot_likelihoods(show=show)
 
+    @_run_if_required_wrapper
     def get_stats_discretized(
             self,
             ci_level: float = 0.05,
@@ -1870,12 +1871,19 @@ class BaseInference(AbstractInference):
             bootstraps=self.bootstraps
         )
 
+    @functools.wraps(AbstractInference.get_discretized)
+    @_run_if_required_wrapper
+    def get_discretized(self, *args, **kwargs):
+        return super().get_discretized(*args, **kwargs)
+
     def get_spectra(self) -> Spectra:
         """
         Return a Spectra object containing the neutral, selected and modelled SFS.
 
         :return: Spectra object with types ``neutral``, ``selected``, and ``modelled``.
         """
+        self.run_if_required()
+
         return Spectra.from_spectra(dict(
             neutral=self.sfs_neut,
             selected=self.sfs_sel,
@@ -1898,6 +1906,7 @@ class BaseInference(AbstractInference):
         :raises ValueError: If ``use_divergence`` is ``True`` and no divergence target sizes were specified.
         """
         if params is None:
+            self.run_if_required()
             params = self.params_mle
 
         if use_divergence is None:
@@ -1932,6 +1941,7 @@ class BaseInference(AbstractInference):
         :raises ValueError: If ``use_divergence`` is ``True`` and no divergence target sizes were specified.
         """
         if params is None:
+            self.run_if_required()
             params = self.params_mle
 
         if use_divergence is None:
@@ -1967,6 +1977,7 @@ class BaseInference(AbstractInference):
         :raises ValueError: If ``use_divergence`` is ``True`` and no divergence target sizes were specified.
         """
         if params is None:
+            self.run_if_required()
             params = self.params_mle
 
         if use_divergence is None:
@@ -2013,6 +2024,8 @@ class BaseInference(AbstractInference):
 
         :return: Parameters to be included in the bootstraps.
         """
+        self.run_if_required()
+
         return self.params_mle | dict(alpha=self.alpha, omega=self.omega, omega_a=self.omega_a)
 
     def get_bootstrap_param_names(self) -> List[str]:

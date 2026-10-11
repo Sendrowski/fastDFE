@@ -2396,6 +2396,37 @@ class SmokeTestCase(TestCase):
         self.assertEqual(len(inf.bootstraps), 2)
         self.assertTrue(inf.do_bootstrap)
 
+    def test_accessors_run_the_inference_if_required(self):
+        """
+        The accessors of results trigger the run of an inference that was not run yet, as the plots and
+        ``get_dfe`` do. They failed on the missing results.
+        """
+        accessors = [
+            lambda inf: inf.get_spectra(),
+            lambda inf: inf.get_discretized(confidence_intervals=False),
+            lambda inf: inf.get_alpha(),
+            lambda inf: inf.get_omega(),
+            lambda inf: inf.get_omega_a(),
+            lambda inf: inf.alpha,
+            lambda inf: inf.get_bootstrap_params(),
+            lambda inf: inf.get_bootstrap_param_names(),
+        ]
+
+        for accessor in accessors:
+            inf = fd.BaseInference(
+                sfs_neut=self.sfs_neut,
+                sfs_sel=self.sfs_sel,
+                intervals_del=(-1.0e+8, -1.0e-5, 20),
+                intervals_ben=(1.0e-5, 1.0e4, 20),
+                do_bootstrap=False,
+                n_runs=1,
+                parallelize=False
+            )
+
+            accessor(inf)
+
+            self.assertIsNotNone(inf.params_mle)
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
