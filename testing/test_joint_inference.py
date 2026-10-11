@@ -936,6 +936,20 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(inferences['dele.anc']._get_df_nested(inferences['full.anc']), (2, 1))
         self.assertEqual(inferences['dele.no_anc']._get_df_nested(inferences['full.anc']), (3, 2))
 
+    def test_nested_models_refit_marginal_inferences(self):
+        """
+        The marginal inferences of a nested joint model are fitted under its fixed parameters. They kept the
+        fits of the parent model.
+        """
+        inf = self._make(fixed_params=dict(all=dict(h=0.5)), shared_params=[fd.SharedParams(params=['S_d'])])
+        inf.run()
+
+        _, inferences = inf.compare_nested_models()
+
+        for marginal in inferences['dele.no_anc'].marginal_inferences.values():
+            self.assertEqual(marginal.params_mle['p_b'], 0)
+            self.assertEqual(marginal.params_mle['eps'], 0)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

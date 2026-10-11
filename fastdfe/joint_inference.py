@@ -1528,6 +1528,10 @@ class JointInference(BaseInference):
             self.marginal_inferences[t]._set_fixed_params(dict(all=self.fixed_params[t]))
             self.joint_inferences[t]._set_fixed_params(dict(all=self.fixed_params[t]))
 
+        # have the marginal inferences run again
+        for inf in self.marginal_inferences.values():
+            inf.execution_time = 0
+
         # propagate to optimization
         self.optimization.set_fixed_params(self.fixed_params)
 
