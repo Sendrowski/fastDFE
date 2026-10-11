@@ -334,6 +334,22 @@ class ConfigTestCase(TestCase):
         with self.assertNoLogs('fastdfe', level='WARNING'):
             Config(covariates=[Covariate(param='S_d', values=dict(a=1, b=2))]).to_json()
 
+    def test_from_dict_accepts_to_dict(self):
+        """
+        A config can be recreated from its own dictionary. The dictionary holds the spectra, shared
+        parameters and covariates as objects, which ``from_dict`` did not accept.
+        """
+        from fastdfe import Spectra
+
+        config = Config(
+            sfs_neut=Spectra(dict(a=[100, 5, 3, 2], b=[100, 4, 3, 1])),
+            sfs_sel=Spectra(dict(a=[400, 6, 2, 1], b=[400, 5, 2, 1])),
+            shared_params=[SharedParams(params=['S_d'], types=['a', 'b'])],
+            covariates=[Covariate(param='S_d', values=dict(a=1, b=2))]
+        )
+
+        self.assertEqual(Config.from_dict(config.to_dict()).to_json(), config.to_json())
+
     def test_restore_covariates(self):
         """
         Test whether covariates can be properly restored from file.

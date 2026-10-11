@@ -310,7 +310,7 @@ class Config:
     @staticmethod
     def from_dict(data: dict) -> 'Config':
         """
-        Load config from dictionary.
+        Load config from dictionary, as returned by :meth:`to_dict` or decoded from JSON or YAML.
 
         :param data: Dictionary representation of config.
         :return: Config object.
@@ -319,7 +319,7 @@ class Config:
 
         # recreate spectra objects
         for sfs in ['sfs_neut', 'sfs_sel']:
-            if sfs in data and data[sfs] is not None:
+            if sfs in data and data[sfs] is not None and not isinstance(data[sfs], Spectra):
                 data[sfs] = Spectra.from_dict(data=data[sfs])
 
         # recreate a parametrization stored with its intervals
@@ -329,11 +329,13 @@ class Config:
 
         # recreate SharedParams objects
         if 'shared_params' in data and data['shared_params'] is not None:
-            data['shared_params'] = [SharedParams(**p) for p in data['shared_params']]
+            data['shared_params'] = [
+                p if isinstance(p, SharedParams) else SharedParams(**p) for p in data['shared_params']
+            ]
 
         # recreate Covariate objects
         if 'covariates' in data and data['covariates'] is not None:
-            data['covariates'] = [Covariate(**c) for c in data['covariates']]
+            data['covariates'] = [c if isinstance(c, Covariate) else Covariate(**c) for c in data['covariates']]
 
         # cast to tuple of (float, float, int)
         # useful when restoring from YAML file
