@@ -1109,6 +1109,26 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(inf.bounds['c0'], (-5, 5))
         self.assertEqual(inf.scales['c0'], 'lin')
 
+    def test_initial_values_before_run_keep_parameters_of_other_types(self):
+        """
+        Before the run, the initial values of a type keep the parameters that other types share among
+        themselves. All types held the same dictionary, so sharing a parameter among some types removed it
+        from the others, and the number of optimized parameters was too low.
+        """
+        types = ['a', 'b', 'c']
+
+        inf = fd.JointInference(
+            sfs_neut=fd.Spectra({t: list(self.sfs_neut) for t in types}),
+            sfs_sel=fd.Spectra({t: list(self.sfs_sel) for t in types}),
+            shared_params=[fd.SharedParams(params=['b'], types=['a', 'b'])],
+            do_bootstrap=False
+        )
+
+        self.assertIn('b', inf.get_x0()['c'])
+        self.assertEqual(
+            sorted(inf.get_optimized_param_names()), ['a.S_d', 'a:b.b', 'b.S_d', 'c.S_d', 'c.b']
+        )
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

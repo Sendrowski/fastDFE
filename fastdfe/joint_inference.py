@@ -1024,7 +1024,7 @@ class JointInference(BaseInference):
             if inf.params_mle is not None:
                 x0[t] = inf.params_mle
             else:
-                x0[t] = self.marginal_inferences['all'].x0['all']
+                x0[t] = dict(self.marginal_inferences['all'].x0['all'])
 
         # get shared parameters from last inference and merge
         # with parameters for type 'all'
