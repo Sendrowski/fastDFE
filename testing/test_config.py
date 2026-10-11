@@ -145,6 +145,23 @@ class ConfigTestCase(TestCase):
         # the recreated config holds the model object
         self.assertEqual(type(config2.data['model']).__name__, config.data['model'])
 
+    def test_create_polydfe_init_file_writes_fixed_values(self):
+        """
+        A polyDFE init file holds a fixed parameter at its fixed value. The initial value was written, so
+        polyDFE fixed ``p_b`` at the initial 0.05 where the config fixes it at 0.
+        """
+        from fastdfe.polydfe_utils import parse_init_file
+
+        out_file = "scratch/test_create_polydfe_init_file_writes_fixed_values.txt"
+
+        config = Config(fixed_params=dict(all=dict(p_b=0, S_b=1)), x0=dict(all=dict(S_d=-100, b=0.2, p_b=0.05, S_b=5)))
+        config.create_polydfe_init_file(out_file, n=5)
+
+        fixed_params, x0 = parse_init_file(['S_d', 'b', 'p_b', 'S_b'], out_file)
+
+        self.assertEqual(fixed_params, dict(p_b=0, S_b=1))
+        self.assertEqual((x0['S_d'], x0['b']), (-100, 0.2))
+
     def test_create_polydfe_init_file_without_fixed_params(self):
         """
         A polyDFE init file can be created from a config without fixed parameters, which is the default. The
