@@ -139,8 +139,11 @@ class ConfigTestCase(TestCase):
         # 'bounds', 'opts_mle' and 'folded' will be different
         # because of the default specific to Inference.
         self.assert_config_equal(
-            config, config2, ['bounds', 'scales', 'opts_mle', 'sfs_neut', 'sfs_sel', 'x0', 'folded']
+            config, config2, ['bounds', 'scales', 'opts_mle', 'sfs_neut', 'sfs_sel', 'x0', 'folded', 'model']
         )
+
+        # the recreated config holds the model object
+        self.assertEqual(type(config2.data['model']).__name__, config.data['model'])
 
     def test_create_polydfe_init_file_without_fixed_params(self):
         """
@@ -246,6 +249,29 @@ class ConfigTestCase(TestCase):
 
         self.assertEqual(default['model'], 'DiscreteFractionalParametrization')
         self.assertEqual(default['covariates'], [dict(param='S_d', values=dict(a=1, b=2))])
+
+    def test_recreate_config_keeps_custom_intervals_of_model(self):
+        """
+        The config of a base inference restores a discrete parametrization with its intervals, in memory and
+        from file. The config held the class name only, which restored the default intervals.
+        """
+        from fastdfe import DiscreteFractionalParametrization, Spectrum
+
+        inf = BaseInference(
+            sfs_neut=Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            model=DiscreteFractionalParametrization(intervals=[-1000, -10, 0, 10]),
+            do_bootstrap=False
+        )
+
+        out_file = "scratch/test_recreate_config_keeps_custom_intervals_of_model.yaml"
+        inf.create_config().to_file(out_file)
+
+        for config in [inf.create_config(), Config.from_file(out_file)]:
+            restored = BaseInference.from_config(config)
+
+            np.testing.assert_array_equal(restored.model.intervals, inf.model.intervals)
+            self.assertEqual(restored.model.param_names, inf.model.param_names)
 
     def test_restore_covariates(self):
         """

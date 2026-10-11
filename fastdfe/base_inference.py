@@ -2033,7 +2033,7 @@ class BaseInference(AbstractInference):
             n_bootstrap_retries=self.n_bootstrap_retries,
             integration_mode=self.discretization.integration_mode,
             linearized=self.discretization.linearized,
-            model=self.model.__class__.__name__,
+            model=self.model,
             seed=self.seed,
             x0=self.x0,
             bounds=self.bounds,
