@@ -125,6 +125,25 @@ class DiscretizationTestCase(TestCase):
 
         self.assertEqual(alpha, 0)
 
+    def test_dominance_coefficients_outside_unit_interval_raise(self):
+        """
+        Dominance coefficients outside [0, 1] raise an error, whether fixed, on the grid of ``h`` or given by a
+        callback. The counts were wrong for ``h > 1`` and could overflow for ``h < 0``.
+        """
+        kwargs = dict(n=6, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5))
+
+        for invalid in [
+            dict(h=1.5),
+            dict(h=-0.1),
+            dict(h=None, intervals_h=(0, 1.5, 3)),
+            dict(h=0.5, h_callback=lambda h, S: np.where(S < 0, 2 * h + 0.5, h)),
+        ]:
+            with self.assertRaises(ValueError):
+                Discretization(**kwargs, **invalid)
+
+        Discretization(h=1.0, **kwargs)
+        Discretization(h=None, intervals_h=(0, 1, 3), h_callback=lambda h, S: np.where(S < 0, h, 0.5), **kwargs)
+
     def test_dfe_to_sfs_linearization_midpoint_vs_quad(self):
         """
         Check for discrepancies between the linearized DFE to SFS
@@ -533,7 +552,7 @@ class DiscretizationTestCase(TestCase):
             n=10,
             h=None,
             h_callback=lambda k, S: np.full_like(S, k - 0.1),
-            intervals_h=(0.0, 1.0, 6),
+            intervals_h=(0.1, 1.0, 10),
             intervals_ben=(1.0e-5, 1.0e4, 100),
             intervals_del=(-1e8, -1.0e-5, 100),
         )
