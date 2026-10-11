@@ -2352,6 +2352,25 @@ class SmokeTestCase(TestCase):
         with self.assertNoLogs('fastdfe', level='WARNING'):
             fd.BaseInference(**kwargs).to_json()
 
+    def test_empty_neutral_frequency_class_warns(self):
+        """
+        A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty
+        only if both of its allele counts are.
+        """
+        neutral = list(self.sfs_neut)
+        neutral[7] = 0
+
+        kwargs = dict(sfs_sel=self.sfs_sel, do_bootstrap=False)
+
+        with self.assertLogs('fastdfe', level='WARNING') as logs:
+            fd.BaseInference(sfs_neut=fd.Spectrum(neutral), **kwargs)
+
+        self.assertTrue(any('empty frequency classes' in message for message in logs.output))
+
+        with self.assertNoLogs('fastdfe', level='WARNING'):
+            fd.BaseInference(sfs_neut=fd.Spectrum(neutral), folded=True, **kwargs)
+            fd.BaseInference(sfs_neut=self.sfs_neut, **kwargs)
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

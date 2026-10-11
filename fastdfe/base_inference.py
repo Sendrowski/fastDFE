@@ -285,6 +285,14 @@ class BaseInference(AbstractInference):
         else:
             self.folded = folded
 
+        # neutral counts per frequency class, the two allele counts of a folded class taken together
+        counts = self.sfs_neut.polymorphic + (self.sfs_neut.polymorphic[::-1] if self.folded else 0)
+
+        if (counts == 0).any():
+            self._logger.warning('The neutral SFS has empty frequency classes, in which the modelled selected '
+                                 'counts are zero. This distorts the likelihood if selected sites are observed '
+                                 'in these classes, in particular when comparing models that differ in eps.')
+
         #: Sample size
         self.n: int = sfs_neut.n
 
