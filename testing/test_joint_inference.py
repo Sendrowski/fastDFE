@@ -907,6 +907,45 @@ class FastJointInferenceTestCase(TestCase):
             **kwargs
         )
 
+    def test_nested_models_fix_shared_parameters(self):
+        """
+        The nested models of a joint inference hold shared parameters at their fixed values. Shared
+        parameters stayed free, so every nested model was fitted as the full one, and a shared parameter
+        was counted once per type in the degrees of freedom.
+        """
+        inf = self._make(
+            fixed_params=dict(all=dict(h=0.5)),
+            shared_params=[fd.SharedParams(params=['S_b', 'p_b', 'eps'], types='all')]
+        )
+
+        _, inferences = inf.compare_nested_models()
+
+        for name, sub in inferences.items():
+            for t in sub.types:
+                if name.startswith('dele'):
+                    self.assertEqual(sub.params_mle[t]['p_b'], 0)
+                    self.assertEqual(sub.params_mle[t]['S_b'], 1)
+
+                if name.endswith('no_anc'):
+                    self.assertEqual(sub.params_mle[t]['eps'], 0)
+
+        self.assertLess(inferences['dele.no_anc'].likelihood, inferences['full.anc'].likelihood - 1)
+
+        # eps, and p_b and S_b, are one parameter each, of which eps = 0 and p_b = 0 lie on a bound
+        self.assertEqual(inferences['full.no_anc']._get_df_nested(inferences['full.anc']), (1, 1))
+        self.assertEqual(inferences['dele.anc']._get_df_nested(inferences['full.anc']), (2, 1))
+        self.assertEqual(inferences['dele.no_anc']._get_df_nested(inferences['full.anc']), (3, 2))
+
+    def test_nested_models_reject_fixed_covariate_parameter(self):
+        """A nested model cannot hold a parameter fixed that has a covariate."""
+        inf = self._make(
+            covariates=[fd.Covariate(param='p_b', values=dict(a=0.3, b=0.6))],
+            fixed_params=dict(all=dict(h=0.5, eps=0))
+        )
+
+        with self.assertRaises(ValueError):
+            inf.compare_nested_models()
+
     def test_covariate_lrt_and_plots(self):
         """Covariate LRT (tiny bootstrap) plus the joint plots."""
         inf = self._make(

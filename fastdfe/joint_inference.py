@@ -1513,6 +1513,16 @@ class JointInference(BaseInference):
         # expand types
         self.fixed_params = expand_fixed(params, self.types)
 
+        for cov in self.covariates.values():
+            if any(cov.param in self.fixed_params[t] for t in self.types):
+                raise ValueError(f"Parameter '{cov.param}' has a covariate and cannot be held fixed.")
+
+        # a parameter that is held fixed is not shared
+        self.shared_params = [
+            SharedParams(types=s.types, params=free) for s in self.shared_params
+            if (free := [p for p in s.params if not any(p in self.fixed_params[t] for t in s.types)])
+        ]
+
         # propagate to inference objects
         for t in self.types:
             self.marginal_inferences[t]._set_fixed_params(dict(all=self.fixed_params[t]))

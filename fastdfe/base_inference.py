@@ -1664,20 +1664,14 @@ class BaseInference(AbstractInference):
         if not self._is_nested(complex):
             raise ValueError('Models are not nested.')
 
-        # optimization holds the flattened dictionary
-        fixed_complex = set(complex.optimization.fixed_params.keys())
-        fixed_simple = set(self.optimization.fixed_params.keys())
+        # parameters optimized in the complex model only, a shared parameter being named 'type1:type2.param'
+        fixed = set(complex.get_optimized_param_names()) - set(self.get_optimized_param_names())
 
-        # fixed parameters
-        fixed = fixed_simple - fixed_complex
-        fixed_params = self.optimization.fixed_params
-
-        # parameter bounds
-        bounds = self.optimization.bounds
-
-        # number of parameters at bounds
-        m = sum([fixed_params[p] == bounds[p.split('.')[1]][0] or
-                 fixed_params[p] == bounds[p.split('.')[1]][1] for p in fixed])
+        # number of parameters at bounds, the value being that of the first type sharing the parameter
+        m = 0
+        for name in fixed:
+            types, param = name.split('.')
+            m += self.optimization.fixed_params[f"{types.split(':')[0]}.{param}"] in self.optimization.bounds[param]
 
         # degrees of freedom
         df = len(fixed)
