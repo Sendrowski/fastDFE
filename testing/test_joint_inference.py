@@ -1095,6 +1095,20 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(started_from, [0.3])
         self.assertEqual(len(inf.bootstraps), 2)
 
+    def test_bounds_given_for_covariate_take_precedence(self):
+        """
+        Bounds given to the inference for a covariate replace those of the covariate, as the scales do. The
+        bounds of the covariate took precedence, so the given ones were ignored.
+        """
+        inf = self._make(
+            covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6))],
+            bounds=dict(c0=(-5, 5)),
+            scales=dict(c0='lin')
+        )
+
+        self.assertEqual(inf.bounds['c0'], (-5, 5))
+        self.assertEqual(inf.scales['c0'], 'lin')
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

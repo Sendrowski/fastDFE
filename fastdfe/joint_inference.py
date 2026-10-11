@@ -352,7 +352,7 @@ class JointInference(BaseInference):
 
         #: parameter bounds
         self.bounds: Dict[str, Tuple[float, float]] = \
-            self.model.bounds | self._default_bounds | bounds | bounds_cov
+            self.model.bounds | self._default_bounds | bounds_cov | bounds
 
         # create optimization instance for joint inference
         # take initial values and bounds from marginal inferences
