@@ -614,26 +614,6 @@ def unscale_value(scaled_value: float, bounds: Tuple[float, float], scale: Liter
     raise ValueError(f'Unknown scale {scale}.')
 
 
-def perturb_value(value: float, bounds: Tuple[float, float], rng: np.random.Generator) -> float:
-    """
-    Perturb a value within the given bounds using a normal distribution with mean at the value
-    and standard deviation twice the absolute value, or a tenth of the bound range for a value
-    of zero. The result is clipped to the bounds.
-
-    :param value: The value to perturb.
-    :param bounds: The bounds to perturb within.
-    :param rng: The random number generator to use.
-    :return: The perturbed value.
-    """
-    std = 2 * abs(value) if value != 0 else 0.1 * abs(bounds[1] - bounds[0])
-    perturbed = rng.normal(loc=value, scale=std)
-
-    # ensure within bounds
-    perturbed = max(bounds[0], min(bounds[1], perturbed))
-
-    return perturbed
-
-
 def scale_values(
         params: Dict[str, Dict[str, float]],
         bounds: Dict[str, Tuple[float, float]],
@@ -1413,28 +1393,3 @@ class Optimization:
         :param fixed_params: Dictionary of fixed parameters
         """
         self.fixed_params = flatten_dict(fixed_params)
-
-    @staticmethod
-    def perturb_params(
-            params: Dict[str, Dict[str, float]],
-            bounds: Dict[str, Tuple[float, float]],
-            seed: Optional[int] = None,
-    ) -> Dict[str, Dict[str, float]]:
-        """
-        Perturb values within the given bounds using a normal distribution with mean at the value
-        and standard deviation twice the absolute value, or a tenth of the bound range for a value
-        of zero. The results are clipped to the bounds.
-
-        :param params: Nested dictionary of parameters indexed by type and parameter
-        :param bounds: Dictionary of bounds indexed by parameter name
-        :param seed: Seed for the random number generator
-        :return: Nested dictionary of perturbed parameters indexed by type and parameter
-        """
-        rng = np.random.default_rng(seed)
-        perturbed = {}
-
-        for key, value in flatten_dict(params).items():
-            # perturb value
-            perturbed[key] = perturb_value(value, bounds[get_basename(key)], rng)
-
-        return unflatten_dict(perturbed)
