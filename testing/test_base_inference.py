@@ -2652,6 +2652,34 @@ class SmokeTestCase(TestCase):
 
         fd.BaseInference(fixed_params=dict(all=inf.params_mle), **kwargs)
 
+    def test_fixed_parameter_on_symlog_scale_is_held_fixed(self):
+        """
+        A fixed parameter on the symlog scale is held at its value, also at zero. Its bound was read as a
+        linear threshold and an upper bound, which left it free around zero and raised an error for zero.
+        """
+        kwargs = dict(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        for eps in [0.05, 0]:
+            fixed_params = dict(all=dict(eps=eps, h=0.5, p_b=0, S_b=1))
+
+            lin = fd.BaseInference(fixed_params=fixed_params, **kwargs)
+            symlog = fd.BaseInference(
+                fixed_params=fixed_params, scales=dict(eps='symlog'), bounds=dict(eps=(1e-3, 0.15)), **kwargs
+            )
+
+            lin.run()
+            symlog.run()
+
+            self.assertAlmostEqual(symlog.likelihood, lin.likelihood, places=4)
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

@@ -1046,8 +1046,15 @@ class Optimization:
             """
             logger.debug(f"Initial parameters: {x0}.")
 
+            # scale the bounds, a fixed parameter being held at its scaled value
+            bounds_scaled = {
+                key: (scale_value(bound[0], self.bounds[get_basename(key)], self.scales[get_basename(key)]),) * 2
+                if key in self.fixed_params else scale_bound(bound, self.scales[get_basename(key)])
+                for key, bound in bounds.items()
+            }
+
             # pack bounds and clip x0 into them: scaling/rounding can push a value marginally
-            bounds_packed = pack_params(scale_bounds(bounds, self.scales))
+            bounds_packed = pack_params(bounds_scaled)
             x0_packed = np.clip(
                 pack_params(self.scale_values(x0)),
                 bounds_packed[:, 0],
