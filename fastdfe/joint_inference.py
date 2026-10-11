@@ -519,26 +519,30 @@ class JointInference(BaseInference):
     def run(
             self,
             do_bootstrap: bool = None,
+            pbar: bool = None,
             **kwargs
     ) -> Spectra:
         """
         Run inference.
 
         :param do_bootstrap: Whether to perform bootstrapping. Defaults to :attr:`do_bootstrap`.
+        :param pbar: Whether to show a progress bar.
         :param kwargs: Additional keyword arguments
         :return: Modelled SFS of the joint inference for each type.
         """
         self.update_properties(do_bootstrap=do_bootstrap)
 
         # run marginal optimization
-        self._run_marginal()
+        self._run_marginal(pbar=pbar)
 
         # run joint optimization
-        return self._run_joint()
+        return self._run_joint(pbar=pbar)
 
-    def _run_marginal(self):
+    def _run_marginal(self, pbar: bool = None):
         """
         Run marginal optimization.
+
+        :param pbar: Whether to show a progress bar.
 
         :return: Dict of marginal inferences indexed by type.
         """
@@ -555,7 +559,8 @@ class JointInference(BaseInference):
             self._logger.info(f"Running marginal inference for type '{data[0]}'.")
 
             data[1].run_if_required(
-                do_bootstrap=False
+                do_bootstrap=False,
+                pbar=pbar
             )
 
             return data
@@ -596,10 +601,11 @@ class JointInference(BaseInference):
         """
         return dict((t, inf) for t, inf in self.marginal_inferences.items() if t != 'all')
 
-    def _run_joint(self) -> Spectra:
+    def _run_joint(self, pbar: bool = None) -> Spectra:
         """
         Run joint optimization.
 
+        :param pbar: Whether to show a progress bar.
         :return: Modelled SFS of the joint inference for each type.
         """
         # issue notice
@@ -620,6 +626,7 @@ class JointInference(BaseInference):
             bounds=self.bounds,
             n_runs=self.n_runs,
             get_counts=self.get_counts(),
+            pbar=pbar,
             desc=f'{self.__class__.__name__}>Performing joint inference'
         )
 
@@ -680,7 +687,7 @@ class JointInference(BaseInference):
 
         # perform bootstrap if configured
         if self.do_bootstrap:
-            self.bootstrap()
+            self.bootstrap(pbar=pbar is not False)
 
         return self.sfs_mle
 
@@ -949,6 +956,7 @@ class JointInference(BaseInference):
                 parallelize=self.parallelize,
                 n_retries=self.n_bootstrap_retries,
                 update_likelihood=update_likelihood,
+                pbar=pbar,
                 pbar_title=f"Bootstrapping '{t}'"
             )
 

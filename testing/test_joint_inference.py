@@ -1007,6 +1007,18 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(len(heights), 36)
         self.assertEqual(np.count_nonzero(heights), 20)
 
+    def test_run_without_progress_bar_shows_none(self):
+        """``pbar=False`` reaches every optimization and bootstrap that a joint run performs."""
+        from unittest import mock
+        from fastdfe import optimization
+
+        inf = self._make(shared_params=[fd.SharedParams(params=['S_d'])], do_bootstrap=True, n_bootstraps=2)
+
+        with mock.patch.object(optimization, 'tqdm', wraps=optimization.tqdm) as tqdm:
+            inf.run(pbar=False)
+
+        self.assertEqual(tqdm.call_count, 0)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

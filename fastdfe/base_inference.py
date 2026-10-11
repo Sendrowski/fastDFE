@@ -551,7 +551,7 @@ class BaseInference(AbstractInference):
 
         # perform bootstrap if configured
         if self.do_bootstrap:
-            self.bootstrap()
+            self.bootstrap(pbar=pbar is not False)
 
         return self.sfs_mle
 
