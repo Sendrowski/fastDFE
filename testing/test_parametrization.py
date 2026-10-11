@@ -20,6 +20,22 @@ class ParametrizationTestCase(TestCase):
 
     config_file = "testing/cache/configs/pendula_C_full_anc/config.yaml"
 
+    def test_gamma_density_is_zero_at_minus_infinity(self):
+        """
+        The gamma-based densities are zero at ``S = -inf``. They were undefined there for a shape above 1.
+        """
+        from fastdfe import GammaExpParametrization, GammaDiscreteParametrization, DisplacedGammaParametrization
+
+        S = np.array([-np.inf, -10.0, 0.5])
+
+        for model in [GammaExpParametrization(), GammaDiscreteParametrization(), DisplacedGammaParametrization()]:
+            for b in [0.5, 2.0]:
+                density = model.get_pdf(**model.x0 | dict(b=b))(S)
+
+                self.assertEqual(density[0], 0)
+                self.assertTrue(np.isfinite(density).all())
+                self.assertGreater(density[1], 0)
+
     def test_compare_exact_vs_empirical_cdf_gamma_exp(self):
         """
         Compare exact vs empirical CDF for GammaExpParametrization.

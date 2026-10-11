@@ -327,7 +327,10 @@ class GammaExpParametrization(Parametrization):
             negative = S < 0
 
             # positive S
-            x[negative] = (1 - p_b) * gamma.pdf(-S[negative], b, scale=-S_d / b)
+            # the density is zero at S = -inf
+            finite = negative & np.isfinite(S)
+
+            x[finite] = (1 - p_b) * gamma.pdf(-S[finite], b, scale=-S_d / b)
 
             # Allow for S_b == 0 when p_b == 0 as well
             # which would produce an error otherwise.
@@ -460,7 +463,11 @@ class DisplacedGammaParametrization(Parametrization):
 
             # calculate the probability density for S <= S_max
             is_lower = S <= S_max
-            x[is_lower] = gamma.pdf(S_max - S[is_lower], b, scale=max(S_max - S_mean, 1e-16) / b)
+
+            # the density is zero at S = -inf
+            finite = is_lower & np.isfinite(S)
+
+            x[finite] = gamma.pdf(S_max - S[finite], b, scale=max(S_max - S_mean, 1e-16) / b)
 
             return x
 
@@ -579,7 +586,10 @@ class GammaDiscreteParametrization(Parametrization):
             x = np.zeros_like(S, dtype=float)
 
             negative = S < 0
-            x[negative] = (1 - p_b) * gamma.pdf(-S[negative], b, scale=-S_d / b)
+            # the density is zero at S = -inf
+            finite = negative & np.isfinite(S)
+
+            x[finite] = (1 - p_b) * gamma.pdf(-S[finite], b, scale=-S_d / b)
 
             equal_to_S_b = (0 <= S) & (S <= 1 / S_b)
             x[equal_to_S_b] = p_b * S_b
