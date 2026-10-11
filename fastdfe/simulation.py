@@ -66,9 +66,11 @@ class Simulation:
             the number of sites, and demography.
             :meth:`Simulation.get_neutral_sfs() <fastdfe.simulation.Simulation.get_neutral_sfs>` can be used to
             obtain a neutral SFS.
-        :param params: Parameters of the DFE parametrization (see model) in addition to ancestral misidentification
-            params ``eps`` and dominance ``h``. By default, `eps=0`, `h=0.5`, the default parameters of ``model``
-            will be used.
+        :param params: Parameters of the DFE parametrization (see model) in addition to ``eps`` and dominance ``h``.
+            By default, `eps=0`, `h=0.5`, the default parameters of ``model`` will be used. ``eps`` is the
+            ancestral-misidentification parameter of the inference model, which enters through the nuisance
+            parameters of the given neutral SFS. The simulated selected SFS thus differs from the one simulated
+            for ``eps=0`` with :meth:`Spectrum.misidentify() <sfsutils.spectrum.Spectrum.misidentify>` applied.
         :param model: DFE parametrization model
         :param intervals_del: ``(start, stop, n_interval)`` for deleterious population-scaled
             selection coefficients. The intervals will be log10-spaced. Decreasing the number of intervals to ``100``
