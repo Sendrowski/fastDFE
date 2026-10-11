@@ -32,4 +32,21 @@ if (fastdfe_is_installed()) {
     expect_equal(nrow(from_matrix), 6)
     expect_equal(from_matrix$ymax, from_list$ymax)
   })
+
+  test_that("discretized DFEs with the same label are drawn side by side", {
+    values <- list(c(0.5, 0.5), c(0.3, 0.7))
+
+    p <- viz$plot_discretized(values, labels = c("a", "a"), intervals = c(-Inf, 0, Inf), show = FALSE)
+    bars <- ggplot2::layer_data(p)
+
+    expect_equal(nrow(bars), 4)
+    expect_equal(length(unique(bars$xmin)), 4)
+  })
+
+  test_that("the parameter plot accepts a parameter that is not a number", {
+    values <- list(a = list(S_d = -10, b = NaN), b = list(S_d = -20, b = 0.3))
+
+    expect_no_error(viz$plot_inferred_parameters(values, labels = c("a", "b"), param_names = c("S_d", "b"),
+                                                 show = FALSE))
+  })
 }

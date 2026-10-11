@@ -306,7 +306,7 @@ load_fastdfe <- function(install = FALSE) {
     df <- data.frame(
       x = rep(seq_len(n_intervals), n_dfes),
       y = unlist(values),
-      group = factor(rep(labels, each = n_intervals), levels = labels)
+      group = factor(rep(seq_len(n_dfes), each = n_intervals))
     )
 
     # error bars of the DFEs that have errors
@@ -331,7 +331,10 @@ load_fastdfe <- function(install = FALSE) {
 
     p <- ggplot2::ggplot(df, ggplot2::aes(x = factor(.data$x), y = .data$y, fill = .data$group)) +
       ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge(), show.legend = n_dfes > 1) +
-      .scale_fill_tab10(labels, .group_index(labels)) +
+      ggplot2::scale_fill_manual(
+        values = stats::setNames(.tab10[(.group_index(labels) - 1) %% length(.tab10) + 1], seq_len(n_dfes)),
+        labels = labels
+      ) +
       ggplot2::scale_x_discrete(labels = interval_labels, expand = ggplot2::expansion(mult = c(0, 0))) +
       ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.05))) +
       ggplot2::labs(x = "S", y = "fraction", title = title) +
@@ -382,7 +385,7 @@ load_fastdfe <- function(install = FALSE) {
     labels <- if (is.null(labels)) as.character(seq_len(n_types)) else as.character(unlist(labels))
 
     # absolute values are plotted, with a minus sign before the names of parameters that are negative for any type
-    negative <- Reduce(`|`, lapply(values, function(x) unlist(x) < 0))
+    negative <- Reduce(`|`, lapply(values, function(x) !is.na(unlist(x)) & unlist(x) < 0))
     param_names <- ifelse(negative, paste0("-", param_names), param_names)
 
     df <- data.frame(
