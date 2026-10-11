@@ -31,9 +31,9 @@ class Bootstrap:
         :param a1: Lower quantile
         :param a2: Upper quantile
         :param n: Number of data points
-        :return: lower bound and upper bound, ``[None, None]`` if ``a1`` or ``a2`` is NaN
+        :return: lower bound and upper bound, ``[None, None]`` if there are no data or ``a1`` or ``a2`` is NaN
         """
-        if np.isnan(a1) or np.isnan(a2):
+        if n == 0 or np.isnan(a1) or np.isnan(a2):
             return [None, None]
 
         # as many values lie below the lower bound as a1 * n, and above the upper bound as (1 - a2) * n. Halves are
@@ -71,13 +71,14 @@ class Bootstrap:
         :param bootstraps: List of bootstraps
         :param original: Original value
         :param a: Tail probability per side, so 0.05 yields a 90% interval.
-        :return: lower bound and upper bound, ``[0, 0]`` if no bootstraps are given and ``[None, None]`` if the
-            adjusted quantiles are NaN
+        :return: lower bound and upper bound, ``[None, None]`` if no bootstraps are given or the adjusted
+            quantiles are NaN
         """
-        if len(bootstraps) == 0:
-            return [0, 0]
-
         n = len(bootstraps)
+
+        if n == 0:
+            return [None, None]
+
         data = np.sort(np.array(bootstraps))
 
         # keep the fraction within (0, 1), where the quantile is finite
@@ -127,19 +128,18 @@ class Bootstrap:
 
         elif bootstrap_type == 'bca':
             cis = np.array([Bootstrap.get_ci_bca(bs[:, i], values[i], ci_level) for i in range(n_values)]).T
-
-            # raise warning if some confidence intervals could not be determined
-            if np.sum(np.equal(cis, None)) > 0:
-                logger.warning('Some confidence intervals could not be computed.')
-
-                # set undefined confidence intervals to values
-                mask = np.equal(cis, None)
-                for j in range(cis.shape[1]):
-                    if mask[:, j].any():
-                        cis[mask[:, j], j] = values[j]
-
         else:
             raise NotImplementedError(f"Bootstrap type {bootstrap_type} not supported.")
+
+        # raise warning if some confidence intervals could not be determined
+        if np.sum(np.equal(cis, None)) > 0:
+            logger.warning('Some confidence intervals could not be computed.')
+
+            # set undefined confidence intervals to values
+            mask = np.equal(cis, None)
+            for j in range(cis.shape[1]):
+                if mask[:, j].any():
+                    cis[mask[:, j], j] = values[j]
 
         # determine error relative to center
         errors = np.array([center - cis[0], cis[1] - center])

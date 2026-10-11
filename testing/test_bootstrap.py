@@ -149,13 +149,19 @@ class BootstrapTestCase(TestCase):
         with self.assertRaises(NotImplementedError):
             Bootstrap.get_errors([1, 2, 3], np.array([[1, 2, 3]]), bootstrap_type='invalid')
 
-    def test_get_ci_bca_no_data_return_zeros(self):
+    def test_intervals_without_bootstraps_are_undefined(self):
         """
-        Test get_ci_bca when bootstraps is empty.
+        Without bootstraps both intervals are undefined, and the errors are zero around the original values.
+        The percentile interval raised an ``IndexError``, and the bias-corrected one was ``[0, 0]``.
         """
-        bounds = Bootstrap.get_ci_bca([], 1, 0.05)
+        self.assertEqual(Bootstrap.get_ci_bca([], 1, 0.05), [None, None])
+        self.assertEqual(Bootstrap.get_ci_percentile([], 0.05), [None, None])
 
-        self.assertEqual(bounds, [0, 0])
+        for bootstrap_type in ['percentile', 'bca']:
+            center, errors, cis = Bootstrap.get_errors([1.0, 2.0], np.empty((0, 2)), bootstrap_type=bootstrap_type)
+
+            np.testing.assert_array_equal(errors, np.zeros((2, 2)))
+            np.testing.assert_array_equal(cis, [[1.0, 2.0], [1.0, 2.0]])
 
 
 class FastBootstrapTestCase(TestCase):
@@ -209,11 +215,9 @@ class FastBootstrapTestCase(TestCase):
         )
 
     def test_bca_ci(self):
-        """BCa CI brackets, and the empty-input guard returns [0, 0]."""
+        """BCa CI brackets."""
         lo, hi = Bootstrap.get_ci_bca(self.bs, original=0.0, a=0.05)
         self.assertLessEqual(lo, hi)
-
-        self.assertEqual(list(Bootstrap.get_ci_bca([], 0.0, 0.05)), [0, 0])
 
     def test_bounds_from_quantile_nan(self):
         """NaN quantiles short-circuit to [None, None]."""
