@@ -1521,6 +1521,12 @@ class JointInference(BaseInference):
 
         :return: JSON string
         """
+        # only functions defined at module level are restored
+        for cov in self.covariates.values():
+            if cov.callback is not None and '<' in cov.callback.__qualname__:
+                self._logger.warning(f"The callback of the covariate on '{cov.param}' is a lambda or local function, "
+                                     f"which cannot be serialized, and is omitted.")
+
         return BaseInference.to_json(self)
 
     def get_dfe(self) -> Dict[str, DFE]:

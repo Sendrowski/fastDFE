@@ -1200,6 +1200,23 @@ class FastJointInferenceTestCase(TestCase):
 
         inf.marginal_inferences['all'].plot_bucket_sizes(show=False)
 
+    def test_serializing_lambda_covariate_callback_warns(self):
+        """
+        Serializing a joint inference whose covariate callback is a lambda logs a warning, as the callback is
+        not restored. It was dropped without notice, so the restored inference used the default covariate.
+        """
+        callback = lambda covariate, type, params: fd.Covariate.apply_default(covariate, type, params)
+
+        inf = self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6), callback=callback)])
+
+        with self.assertLogs('fastdfe', level='WARNING') as logs:
+            inf.to_json()
+
+        self.assertTrue(any('covariate' in message for message in logs.output))
+
+        with self.assertNoLogs('fastdfe', level='WARNING'):
+            self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6))]).to_json()
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
