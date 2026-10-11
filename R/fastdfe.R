@@ -491,6 +491,11 @@ load_fastdfe <- function(install = FALSE) {
     show = TRUE,
     ...
   ) {
+    # spectra given as the rows of a matrix
+    if (is.matrix(spectra)) {
+      spectra <- lapply(seq_len(nrow(spectra)), function(i) spectra[i, ])
+    }
+
     if (length(spectra) == 0) {
       warning('No spectra to plot.')
       return(NULL)

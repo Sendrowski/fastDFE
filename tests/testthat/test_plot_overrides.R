@@ -22,4 +22,14 @@ if (fastdfe_is_installed()) {
     expect_equal(scale_of("symlog"), scale_of("log"))
     expect_false(scale_of("symlog") == scale_of("lin"))
   })
+
+  test_that("spectra can be passed as the rows of a matrix", {
+    spectra <- rbind(c(100, 5, 3, 2, 0), c(100, 4, 2, 1, 0))
+
+    from_matrix <- ggplot2::layer_data(viz$plot_spectra(spectra, show = FALSE))
+    from_list <- ggplot2::layer_data(viz$plot_spectra(list(spectra[1, ], spectra[2, ]), show = FALSE))
+
+    expect_equal(nrow(from_matrix), 6)
+    expect_equal(from_matrix$ymax, from_list$ymax)
+  })
 }
