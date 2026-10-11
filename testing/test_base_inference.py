@@ -2582,6 +2582,33 @@ class SmokeTestCase(TestCase):
         fd.BaseInference(sfs_neut=self.sfs_neut, sfs_sel=self.sfs_sel, **kwargs)
         fd.BaseInference(sfs_neut=self.sfs_neut.fold(), sfs_sel=self.sfs_sel.fold(), do_bootstrap=False)
 
+    def test_bounds_of_h_default_to_its_grid(self):
+        """
+        Without a dominance callback, the bounds of ``h`` default to the range of ``intervals_h``. They
+        defaulted to (0, 1), so a narrower grid failed as soon as the optimizer left it.
+        """
+        kwargs = dict(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            intervals_h=(0.2, 0.6, 3),
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1)),
+            do_bootstrap=False,
+            n_runs=2,
+            parallelize=False
+        )
+
+        inf = fd.BaseInference(**kwargs)
+        inf.run()
+
+        self.assertEqual(inf.bounds['h'], (0.2, 0.6))
+        self.assertTrue(0.2 <= inf.params_mle['h'] <= 0.6)
+
+        # bounds given for h and a fixed h are left alone
+        self.assertEqual(fd.BaseInference(**kwargs | dict(bounds=dict(h=(0.3, 0.5)))).bounds['h'], (0.3, 0.5))
+        self.assertEqual(fd.BaseInference(**kwargs | dict(fixed_params=dict(all=dict(h=0.5)))).bounds['h'], (0, 1))
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

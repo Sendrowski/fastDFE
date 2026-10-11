@@ -355,9 +355,14 @@ class JointInference(BaseInference):
         self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = \
             self.model.scales | self._default_scales | scales_cov | scales
 
+        # the dominance coefficient stays within its precomputed grid unless a callback maps it
+        bounds_h = {}
+        if self.discretization.h is None and self.discretization.h_callback is None:
+            bounds_h = dict(h=tuple(sorted(self.discretization.intervals_h[:2])))
+
         #: parameter bounds
         self.bounds: Dict[str, Tuple[float, float]] = \
-            self.model.bounds | self._default_bounds | bounds_cov | bounds
+            self.model.bounds | self._default_bounds | bounds_h | bounds_cov | bounds
 
         # create optimization instance for joint inference
         # take initial values and bounds from marginal inferences
