@@ -75,11 +75,11 @@ class BootstrapTestCase(TestCase):
         _, errors_perc, cis_perc = Bootstrap.get_errors([original], np.array([values]).T, ci_level, 'percentile')
         _, errors_bca, cis_bca = Bootstrap.get_errors([original], np.array([values]).T, ci_level, 'bca')
 
-        assert np.abs(lower_bound - cis_perc[0][0]) / lower_bound < 0.005
-        assert np.abs(upper_bound - cis_perc[1][0]) / upper_bound < 0.005
+        assert np.abs(lower_bound - cis_perc[0][0]) / np.abs(lower_bound) < 0.005
+        assert np.abs(upper_bound - cis_perc[1][0]) / np.abs(upper_bound) < 0.005
 
-        assert np.abs(lower_bound - cis_bca[0][0]) / lower_bound < 0.005
-        assert np.abs(upper_bound - cis_bca[1][0]) / upper_bound < 0.005
+        assert np.abs(lower_bound - cis_bca[0][0]) / np.abs(lower_bound) < 0.005
+        assert np.abs(upper_bound - cis_bca[1][0]) / np.abs(upper_bound) < 0.005
 
     def test_get_errors_percentile_positive(self):
         """
