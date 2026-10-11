@@ -974,6 +974,18 @@ class FastJointInferenceTestCase(TestCase):
 
         self.assertEqual(fixed_params, dict(a=dict(eps=0)))
 
+    def test_divergence_target_sizes_not_matching_types_raise(self):
+        """
+        Divergence target sizes that lack a type or name an unknown one raise an error. A missing type
+        failed during the optimization, and the value of an unknown key was added to the pooled size.
+        """
+        for sizes in [dict(a=1e5), dict(a=1e5, b=1e5, c=1e5), {}]:
+            with self.assertRaises(ValueError):
+                self._make(n_sites_div_neut=sizes, n_sites_div_sel=dict(a=1e5, b=1e5))
+
+            with self.assertRaises(ValueError):
+                self._make(n_sites_div_neut=dict(a=1e5, b=1e5), n_sites_div_sel=sizes)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

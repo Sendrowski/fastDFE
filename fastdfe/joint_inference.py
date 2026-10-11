@@ -202,6 +202,11 @@ class JointInference(BaseInference):
             raise ValueError(f"Unknown types in x0: {sorted(set(x0) - set(self.types) - {'all'})}. "
                              f"Valid keys are 'all' and the types {self.types}.")
 
+        for name, sizes in dict(n_sites_div_neut=n_sites_div_neut, n_sites_div_sel=n_sites_div_sel).items():
+            if sizes is not None and set(sizes) != set(self.types):
+                raise ValueError(f"{name} needs a value for each of the types {self.types}, "
+                                 f"but found the keys {sorted(sizes)}.")
+
         #: Initial values of the marginal inferences keyed by type
         self._x0_types: Optional[Dict[str, Dict[str, float]]] = {t: v for t, v in x0.items() if t != 'all'}
 
@@ -215,8 +220,8 @@ class JointInference(BaseInference):
         self._n_sites_div_neut_types: Optional[Dict[str, float]] = n_sites_div_neut
         self._n_sites_div_sel_types: Optional[Dict[str, float]] = n_sites_div_sel
 
-        n_sites_div_neut = sum(n_sites_div_neut.values()) if n_sites_div_neut else None
-        n_sites_div_sel = sum(n_sites_div_sel.values()) if n_sites_div_sel else None
+        n_sites_div_neut = sum(n_sites_div_neut.values()) if n_sites_div_neut is not None else None
+        n_sites_div_sel = sum(n_sites_div_sel.values()) if n_sites_div_sel is not None else None
 
         # initialize parent
         # the `self.folded` property will generalize nicely as we
