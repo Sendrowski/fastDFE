@@ -1885,15 +1885,11 @@ class BaseInference(AbstractInference):
         """
         Return a Spectra object containing the neutral, selected and modelled SFS.
 
-        :return: Spectra object with types ``neutral``, ``selected``, and ``modelled``.
+        :return: Spectra object with types ``neutral``, ``selected``, and ``modelled``, folded if the inference is.
         """
         self.run_if_required()
 
-        return Spectra.from_spectra(dict(
-            neutral=self.sfs_neut,
-            selected=self.sfs_sel,
-            modelled=self.sfs_mle
-        ))
+        return Spectra.from_spectra(self._get_observed_spectra() | dict(modelled=self.sfs_mle))
 
     def get_alpha(self, params: dict = None, use_divergence: bool = None) -> float:
         """

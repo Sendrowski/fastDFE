@@ -2487,6 +2487,29 @@ class SmokeTestCase(TestCase):
         self.assertEqual(inf.bootstraps.omega[0], 0)
         self.assertTrue(np.isfinite(inf.bootstraps.alpha[1]))
 
+    def test_get_spectra_of_folded_inference_on_unfolded_spectra_is_folded(self):
+        """
+        The observed spectra returned for a folded inference are folded like the modelled SFS. With
+        ``folded=True`` on unfolded spectra they were returned unfolded.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            folded=True,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        spectra = inf.get_spectra()
+
+        for t in ['neutral', 'selected', 'modelled']:
+            self.assertEqual(np.count_nonzero(spectra[t].polymorphic[5:]), 0)
+
+        np.testing.assert_array_equal(spectra['selected'].data, self.sfs_sel.fold().data)
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
