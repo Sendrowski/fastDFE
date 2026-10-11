@@ -111,6 +111,20 @@ class DiscretizationTestCase(TestCase):
         np.testing.assert_array_equal(d._cache, expected._cache)
         np.testing.assert_array_equal(d._counts_fixed, expected._counts_fixed)
 
+    def test_alpha_of_strongly_deleterious_dfe_is_zero(self):
+        """
+        Alpha is 0 for a DFE without beneficial mutations whose mass lies where the fixation probability
+        vanishes. It was undefined, as no substitutions are expected at all.
+        """
+        from fastdfe import GammaExpParametrization
+
+        d = Discretization(n=10, h=0.5, intervals_del=(-1e8, -1e-5, 50), intervals_ben=(1e-5, 1e4, 50))
+
+        with np.errstate(invalid='raise', divide='raise'):
+            alpha = d.get_alpha(GammaExpParametrization(), dict(S_d=-1e7, b=10, p_b=0, S_b=1, h=0.5))
+
+        self.assertEqual(alpha, 0)
+
     def test_dfe_to_sfs_linearization_midpoint_vs_quad(self):
         """
         Check for discrepancies between the linearized DFE to SFS

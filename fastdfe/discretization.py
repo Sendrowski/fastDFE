@@ -917,7 +917,10 @@ class Discretization:
         """
         y = model._discretize(params, self.bins) * self.get_counts_fixed(params.get('h', 0.5))
 
-        return np.sum(y[self.s > 0]) / np.sum(y)
+        total = np.sum(y)
+
+        # no substitutions at all are taken to be non-adaptive
+        return float(np.sum(y[self.s > 0]) / total) if total > 0 else 0.0
 
     def get_divergence_flux(self, model: Parametrization, params: dict) -> float:
         """
