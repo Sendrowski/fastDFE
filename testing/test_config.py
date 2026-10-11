@@ -273,6 +273,24 @@ class ConfigTestCase(TestCase):
             np.testing.assert_array_equal(restored.model.intervals, inf.model.intervals)
             self.assertEqual(restored.model.param_names, inf.model.param_names)
 
+    def test_restore_custom_bounds_scales_and_x0_of_model(self):
+        """
+        A config written to JSON or YAML keeps the bounds, scales and initial values given to its
+        parametrization. They were dropped, so the restored model used the defaults.
+        """
+        from fastdfe import GammaExpParametrization, DiscreteFractionalParametrization
+
+        for model in [
+            GammaExpParametrization(bounds=dict(S_d=(-1e4, -50)), scales=dict(b='log'), x0=dict(b=0.5)),
+            DiscreteFractionalParametrization(intervals=[-1000, -10, 0, 10], x0=dict(S1=0.3))
+        ]:
+            config = Config(model=model)
+
+            for restored in (Config.from_json(config.to_json()), Config.from_yaml(config.to_yaml())):
+                self.assertEqual({k: tuple(v) for k, v in restored.data['model'].bounds.items()}, model.bounds)
+                self.assertEqual(restored.data['model'].scales, model.scales)
+                self.assertEqual(restored.data['model'].x0, model.x0)
+
     def test_restore_covariates(self):
         """
         Test whether covariates can be properly restored from file.

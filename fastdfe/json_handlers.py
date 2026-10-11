@@ -52,16 +52,23 @@ class CustomEncoder(json.JSONEncoder):
             return int(obj)
 
         if isinstance(obj, Parametrization):
-            name = type(obj).__name__
+            settings = {}
 
             # include the intervals of a discrete parametrization if they differ from the default
             if hasattr(obj, 'intervals'):
                 intervals = obj.intervals[1:-1]
 
                 if not np.array_equal(intervals, inspect.signature(type(obj)).parameters['intervals'].default):
-                    return dict(name=name, intervals=intervals)
+                    settings['intervals'] = intervals
 
-            return name
+            # include the bounds, scales and initial values that differ from the default
+            default = type(obj)(**settings)
+
+            for key in ('bounds', 'scales', 'x0'):
+                if custom := {k: v for k, v in getattr(obj, key).items() if getattr(default, key)[k] != v}:
+                    settings[key] = custom
+
+            return dict(name=type(obj).__name__, **settings) if settings else type(obj).__name__
 
         if isinstance(obj, SharedParams):
             return obj.__dict__
