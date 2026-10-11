@@ -535,10 +535,11 @@ load_fastdfe <- function(install = FALSE) {
     )
     df$xmax <- df$xmin + width
 
-    # on the log scale, bars rise from the power of ten below the smallest positive count, which is the bottom of the axis
+    # on the log scale, bars rise from the power of ten strictly below the smallest positive count, which is the
+    # bottom of the axis
     if (log_scale) {
       df <- df[df$y > 0, ]
-      df$ymin <- 10^floor(log10(min(df$y)))
+      df$ymin <- 10^(ceiling(log10(min(df$y))) - 1)
     } else {
       df$ymin <- 0
     }
