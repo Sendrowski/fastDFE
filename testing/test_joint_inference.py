@@ -1045,6 +1045,18 @@ class FastJointInferenceTestCase(TestCase):
                 do_bootstrap=False
             )
 
+    def test_type_name_with_colon_raises(self):
+        """
+        A type name containing a colon raises an error, as colons join the types that share a parameter. Such
+        an inference failed with a ``KeyError`` during the joint optimization.
+        """
+        with self.assertRaises(ValueError):
+            fd.JointInference(
+                sfs_neut=fd.Spectra({'a:1': list(self.sfs_neut), 'b': list(self.sfs_neut)}),
+                sfs_sel=fd.Spectra({'a:1': list(self.sfs_sel), 'b': list(self.sfs_sel)}),
+                do_bootstrap=False
+            )
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
