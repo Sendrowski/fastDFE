@@ -930,6 +930,33 @@ class FastDiscretizationTestCase(TestCase):
         for h in (0.3, 0.7):
             self.assertGreater(len(Discretization.get_counts_fixed_dominant(d.s, h)), 0)
 
+    def test_dominance_kernel_against_adaptive_quadrature(self):
+        """
+        The kernel for general dominance agrees with an independent nested adaptive quadrature for recessive
+        and dominant mutations. Its grids did not resolve frequencies near 1, which gave errors of up to 12% at
+        these points. The reference values ``(h, S, k, count)`` for a sample size of 20 are those printed by
+        ``testing/dominance_kernel_reference.py``.
+        """
+        reference = [
+            (0.0, -300.0, 1, 6.144719943940e-01),
+            (0.0, -300.0, 19, 3.499138090986e-18),
+            (0.0, -30.0, 10, 1.815493087146e-03),
+            (0.0, 1000.0, 10, 7.512626019609e-03),
+            (0.1, -300.0, 1, 2.391775444750e-01),
+            (0.1, -300.0, 19, 1.166342085385e-21),
+            (0.1, 10.0, 5, 1.607090129533e-01),
+            (0.9, -30.0, 10, 1.225280294279e-07),
+            (0.9, 1000.0, 19, 6.530589551951e+00),
+            (1.0, -300.0, 1, 3.241199766573e-02),
+            (1.0, 100.0, 15, 1.419766757077e+00),
+            (1.0, 1000.0, 19, 2.126919773479e+01),
+        ]
+
+        for h, S, k, expected in reference:
+            observed = Discretization._get_counts_dominant(20, k, h, np.array([S]))[0]
+
+            np.testing.assert_allclose(observed, expected, rtol=3e-3, err_msg=f"h={h}, S={S}, k={k}")
+
     def test_get_counts_fixed_fixed_h(self):
         """
         Regression test for fixed-dominance get_counts_fixed: the cached output for self.h must match
