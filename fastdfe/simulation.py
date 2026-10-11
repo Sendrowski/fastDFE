@@ -176,7 +176,7 @@ class Simulation:
         counts_modelled = BaseInference._add_demography(self.sfs_neut, counts_modelled, eps=self.params['eps'])
 
         # a folded neutral SFS yields a folded selected SFS
-        if self.sfs_neut.is_folded():
+        if BaseInference._is_folded(self.sfs_neut):
             counts_modelled = Spectrum.from_polymorphic(counts_modelled).fold().polymorphic
 
         # expected fixed-derived (divergence) class: the true number of substitutions,

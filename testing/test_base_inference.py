@@ -1891,6 +1891,44 @@ class SmokeTestCase(TestCase):
         self.assertEqual(len(inf.bootstraps), 3)
         self.assertEqual((inf.alpha, inf.omega, inf.omega_a), cached)
 
+    def test_folded_spectra_with_divergence_recover_simulated_dfe(self):
+        """
+        Folded spectra that carry a divergence count are treated as folded. They were taken for unfolded, as the
+        divergence count occupies the last entry, which biased the fit and the simulated folded SFS.
+        """
+        opts = dict(intervals_del=(-1.0e+8, -1.0e-5, 30), intervals_ben=(1.0e-5, 1.0e4, 30))
+        truth = dict(S_d=-300, b=0.3, p_b=0, S_b=1)
+        neutral = fd.Simulation.get_neutral_sfs(n=12, n_sites=1e7, theta=1e-3)
+
+        sim = fd.Simulation(sfs_neut=neutral.fold(), params=dict(truth), n_sites_div=2e6, **opts)
+        sim.run()
+
+        spectra = sim.get_spectra()
+
+        self.assertGreater(spectra['neutral'].n_div, 0)
+
+        # the simulated polymorphic counts equal those simulated from the unfolded neutral SFS and folded
+        unfolded = fd.Simulation(sfs_neut=neutral, params=dict(truth), **opts).run()
+
+        np.testing.assert_allclose(spectra['selected'].polymorphic, unfolded.fold().polymorphic, rtol=1e-10)
+
+        inf = fd.BaseInference(
+            sfs_neut=spectra['neutral'],
+            sfs_sel=spectra['selected'],
+            n_sites_div_neut=2e6,
+            n_sites_div_sel=2e6,
+            discretization=sim.discretization,
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)),
+            do_bootstrap=False,
+            n_runs=3,
+            parallelize=False
+        )
+        inf.run()
+
+        self.assertTrue(inf.folded)
+        self.assertAlmostEqual(inf.params_mle['S_d'] / truth['S_d'], 1, places=2)
+        self.assertAlmostEqual(inf.params_mle['b'] / truth['b'], 1, places=2)
+
     def test_folded_spectra_recover_simulated_dfe(self):
         """
         An inference on folded spectra recovers the DFE the spectra were simulated under. The modelled count

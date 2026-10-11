@@ -281,7 +281,7 @@ class BaseInference(AbstractInference):
 
         if folded is None:
             #: Whether the SFS are folded
-            self.folded: bool = self.sfs_sel.is_folded() and self.sfs_neut.is_folded()
+            self.folded: bool = self._is_folded(self.sfs_sel) and self._is_folded(self.sfs_neut)
         else:
             self.folded = folded
 
@@ -1162,6 +1162,16 @@ class BaseInference(AbstractInference):
         """
         return (1 - eps) * counts + eps * counts[::-1]
 
+    @staticmethod
+    def _is_folded(sfs: Spectrum) -> bool:
+        """
+        Check whether the polymorphic classes of a spectrum are folded. The divergence count is not considered.
+
+        :param sfs: The spectrum.
+        :return: Whether the polymorphic classes are folded.
+        """
+        return Spectrum.from_polymorphic(sfs.polymorphic).is_folded()
+
     @classmethod
     def _add_demography(
             cls,
@@ -1198,7 +1208,7 @@ class BaseInference(AbstractInference):
         # Note that the nuisance parameters naturally are sensitive to a large
         # sampling variance in the neutral SFS.
         # However, DFE inference on `wiggly` spectra is not advisable anyway.
-        if sfs_neut.is_folded():
+        if cls._is_folded(sfs_neut):
             # the distortion of two allele counts folded together is not identifiable,
             # so both take the ratio of their summed counts
             neutral_observed = neutral_observed + neutral_observed[::-1]
