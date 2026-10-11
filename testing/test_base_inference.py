@@ -2510,6 +2510,21 @@ class SmokeTestCase(TestCase):
 
         np.testing.assert_array_equal(spectra['selected'].data, self.sfs_sel.fold().data)
 
+    def test_get_stats_discretized_without_bootstraps_raises(self):
+        """Without bootstraps, the statistics of the discretized DFE raise a ``ValueError``."""
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        with self.assertRaises(ValueError):
+            inf.get_stats_discretized()
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

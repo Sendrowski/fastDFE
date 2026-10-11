@@ -1491,7 +1491,11 @@ class BaseInference(AbstractInference):
         :param bootstrap_type: Type of bootstrap to use.
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
         :return: Center values, errors around center, and confidence intervals.
+        :raises ValueError: If the inference has no bootstraps.
         """
+        if self.bootstraps is None:
+            raise ValueError('The statistics require bootstraps, which the inference does not have.')
+
         return Inference.get_stats_discretized(
             params=self.params_mle,
             bootstraps=self.bootstraps,
