@@ -947,6 +947,9 @@ class JointInference(BaseInference):
         :param pbar_title: Title for the progress bar.
         :return: DataFrame with bootstrap samples
         """
+        if n_samples is not None and n_samples < 1:
+            raise ValueError(f'The number of bootstrap samples must be positive, got {n_samples}.')
+
         # update properties
         self.update_properties(
             n_bootstraps=n_samples,

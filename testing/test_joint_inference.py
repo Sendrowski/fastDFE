@@ -1057,6 +1057,20 @@ class FastJointInferenceTestCase(TestCase):
                 do_bootstrap=False
             )
 
+    def test_rejected_number_of_bootstraps_is_not_stored(self):
+        """
+        A rejected number of bootstrap samples leaves the stored number unchanged. It was stored before the
+        check, so every later bootstrap without an explicit number failed as well.
+        """
+        inf = self._make(n_bootstraps=2)
+        inf.run()
+
+        with self.assertRaises(ValueError):
+            inf.bootstrap(n_samples=0)
+
+        self.assertEqual(inf.n_bootstraps, 2)
+        self.assertEqual(len(inf.bootstrap()), 2)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
