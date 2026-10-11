@@ -12,4 +12,14 @@ if (fastdfe_is_installed()) {
     expect_equal(nrow(bars), 3)
     expect_true(all(bars$ymax > bars$ymin))
   })
+
+  test_that("the scatter plot uses a symmetric log axis for 'symlog' as for 'log'", {
+    scale_of <- function(scale) {
+      p <- viz$plot_scatter(values = c(-1, 2, 3), scale = scale, show = FALSE)
+      p$scales$get_scales("y")$trans$name
+    }
+
+    expect_equal(scale_of("symlog"), scale_of("log"))
+    expect_false(scale_of("symlog") == scale_of("lin"))
+  })
 }

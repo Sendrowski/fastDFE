@@ -436,8 +436,8 @@ load_fastdfe <- function(install = FALSE) {
   # @param file Character. File path to save plot to. Default is NULL.
   # @param show Logical. Whether to show plot. Default is TRUE.
   # @param title Character. Title of plot.
-  # @param scale Character. Scale of y-axis. One of 'lin', 'log', where 'log' is a symmetric log scale.
-  #              Default is 'lin'.
+  # @param scale Character. Scale of y-axis. One of 'lin', 'log', 'symlog', where 'log' and 'symlog' are a
+  #              symmetric log scale. Default is 'lin'.
   # @param ylabel Character. Label of the y-axis. Default is 'lnl'.
   # @param ... Additional arguments which are ignored.
   #
@@ -455,7 +455,7 @@ load_fastdfe <- function(install = FALSE) {
 
     p <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y)) +
       ggplot2::geom_point(colour = .tab10[1], size = 2) +
-      .scale_y(if (scale == 'log') 'symlog' else 'lin') +
+      .scale_y(if (scale %in% c('log', 'symlog')) 'symlog' else 'lin') +
       ggplot2::labs(x = NULL, y = ylabel, title = title) +
       .plot_theme()
 
