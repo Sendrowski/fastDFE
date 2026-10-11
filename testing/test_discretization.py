@@ -78,6 +78,20 @@ class DiscretizationTestCase(TestCase):
             self.assertEqual(np.ndim(fixed), 0)
             self.assertAlmostEqual(fixed, Discretization.get_counts_fixed_semidominant_regularized(-5.0), places=12)
 
+    def test_default_discretization_can_be_pickled(self):
+        """
+        A discretization constructed with its defaults can be pickled. Its default dominance callback was a
+        lambda, which the standard library cannot pickle.
+        """
+        import pickle
+
+        d = Discretization(n=10, intervals_del=(-1e4, -1e-5, 10), intervals_ben=(1e-5, 1e4, 10))
+
+        restored = pickle.loads(pickle.dumps(d))
+
+        self.assertIsNone(d.h_callback)
+        np.testing.assert_array_equal(restored.map_h(0.3, d.s), np.full_like(d.s, 0.3))
+
     def test_dfe_to_sfs_linearization_midpoint_vs_quad(self):
         """
         Check for discrepancies between the linearized DFE to SFS

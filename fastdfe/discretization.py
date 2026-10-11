@@ -46,7 +46,7 @@ class Discretization:
             self,
             n: int,
             h: Optional[float] = 0.5,
-            h_callback: Callable[[float, np.ndarray], np.ndarray] = lambda h, S: np.full_like(S, h),
+            h_callback: Callable[[float, np.ndarray], np.ndarray] = None,
             intervals_del: Tuple[float, float, int] = (-1.0e+8, -1.0e-5, 1000),
             intervals_ben: Tuple[float, float, int] = (1.0e-5, 1.0e4, 1000),
             intervals_h: Tuple[float, float, int] = (0.0, 1.0, 21),
