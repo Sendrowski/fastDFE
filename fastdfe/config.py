@@ -343,6 +343,22 @@ class Config:
             if key in data:
                 data[key] = (float(data[key][0]), float(data[key][1]), int(data[key][2]))
 
+        def number(value):
+            """
+            Cast a number that YAML read as a string, such as ``1e-2``.
+
+            :param value: Value
+            :return: The value, as a float if it was a string
+            """
+            return float(value) if isinstance(value, str) else value
+
+        if data.get('bounds'):
+            data['bounds'] = {k: tuple(number(b) for b in v) for k, v in data['bounds'].items()}
+
+        for key in ['x0', 'fixed_params']:
+            if data.get(key):
+                data[key] = {t: {p: number(v) for p, v in params.items()} for t, params in data[key].items()}
+
         return Config(**data)
 
     @staticmethod

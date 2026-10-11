@@ -350,6 +350,28 @@ class ConfigTestCase(TestCase):
 
         self.assertEqual(Config.from_dict(config.to_dict()).to_json(), config.to_json())
 
+    def test_yaml_numbers_without_decimal_point_are_cast(self):
+        """
+        Bounds, initial values and fixed parameters written in a YAML file as ``1e-2`` or ``-1e5`` are read
+        as numbers. YAML reads these forms as strings, which failed when the inference was run.
+        """
+        config = Config.from_yaml("""
+bounds:
+  S_d: [-1e5, -1e-2]
+x0:
+  all:
+    S_d: -1e3
+    b: 0.4
+fixed_params:
+  all:
+    eps: 0
+    S_b: 1e0
+""")
+
+        self.assertEqual(config.data['bounds'], dict(S_d=(-1e5, -1e-2)))
+        self.assertEqual(config.data['x0'], dict(all=dict(S_d=-1e3, b=0.4)))
+        self.assertEqual(config.data['fixed_params'], dict(all=dict(eps=0, S_b=1.0)))
+
     def test_restore_covariates(self):
         """
         Test whether covariates can be properly restored from file.
