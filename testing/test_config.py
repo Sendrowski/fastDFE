@@ -41,9 +41,16 @@ class ConfigTestCase(TestCase):
         # recreate sfs config file
         config.create_polydfe_sfs_config(out_file)
 
-        # compare both files
-        # there were some rounding errors causing the last character to be different
-        testing.assert_equal(open(out_file).read()[:-1], open(out_file).read()[:-1])
+        # compare the values of both files, as the last digit can differ by rounding
+        restored, original = [
+            [line.split() for line in open(file).read().split('\n') if line.strip()]
+            for file in (out_file, self.spectra_file)
+        ]
+
+        self.assertEqual(len(restored), len(original))
+
+        for r, o in zip(restored, original):
+            testing.assert_allclose(np.array(r, dtype=float), np.array(o, dtype=float), rtol=1e-12)
 
     def test_parse_restore_polydfe_init_file(self):
         """
