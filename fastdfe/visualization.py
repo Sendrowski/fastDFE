@@ -899,6 +899,8 @@ class Visualization:
 
             return np.round(x, 4)
 
+        P = np.array(P, dtype=object)
+
         # determine values to display
         annotation = np.vectorize(lambda x: str(format_number(x)))(P)
         annotation[np.equal(P, None)] = '-'

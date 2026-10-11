@@ -2282,6 +2282,31 @@ class SmokeTestCase(TestCase):
                 inf.model, dict(row), row.n_div_neut, row.n_div_sel, n_sites_div_neut, n_sites_div_sel
             ))
 
+    def test_plot_nested_models_leaves_p_values_unchanged(self):
+        """
+        Plotting the nested models does not modify the p-values returned by ``compare_nested_models``. The
+        plot replaced the entries of pairs that are not nested by 1 and raised small p-values to 1e-10.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        # the plot requests the comparison with this argument, which the cache is keyed on
+        before = inf.compare_nested_models(do_bootstrap=False)[0].copy()
+
+        inf.plot_nested_models(show=False)
+
+        after = inf.compare_nested_models(do_bootstrap=False)[0]
+
+        self.assertTrue(np.equal(before, None).any())
+        np.testing.assert_array_equal(before, after)
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
