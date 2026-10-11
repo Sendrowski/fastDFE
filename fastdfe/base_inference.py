@@ -1899,7 +1899,8 @@ class BaseInference(AbstractInference):
         """
         Get alpha, the proportion of beneficial non-synonymous substitutions.
 
-        :param params: DFE Parameters to use for calculation.
+        :param params: Parameters to use for calculation, as in :attr:`params_mle`. The dominance coefficient
+            ``h`` is taken to be 0.5 if absent.
         :param use_divergence: Whether to estimate alpha from observed divergence counts using
             polyDFE's McDonald-Kreitman style estimator (see
             :meth:`~fastdfe.discretization.Discretization.get_alpha_divergence`), or from the DFE
@@ -1934,7 +1935,8 @@ class BaseInference(AbstractInference):
         """
         Get omega, the rate of non-synonymous over synonymous substitutions (dN/dS).
 
-        :param params: DFE Parameters to use for calculation.
+        :param params: Parameters to use for calculation, as in :attr:`params_mle`. The dominance coefficient
+            ``h`` is taken to be 0.5 if absent.
         :param use_divergence: Whether to estimate omega from observed divergence counts using
             polyDFE's McDonald-Kreitman style estimator (see
             :meth:`~fastdfe.discretization.Discretization.get_omega_divergence`), or from the DFE
@@ -1970,7 +1972,8 @@ class BaseInference(AbstractInference):
         Get omega_a, the rate of adaptive non-synonymous over synonymous substitutions
         (adaptive dN/dS), which equals ``alpha * omega``.
 
-        :param params: DFE Parameters to use for calculation.
+        :param params: Parameters to use for calculation, as in :attr:`params_mle`. The dominance coefficient
+            ``h`` is taken to be 0.5 if absent.
         :param use_divergence: Whether to estimate omega_a from observed divergence counts using
             polyDFE's McDonald-Kreitman style estimator (see
             :meth:`~fastdfe.discretization.Discretization.get_omega_a_divergence`), or from the DFE
