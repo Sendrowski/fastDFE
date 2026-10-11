@@ -205,9 +205,9 @@ class Config:
         """
         fixed_params, x0 = parse_init_file(_from_string(self.data['model']).param_names, file, id)
 
-        # merge with existing config
+        # merge with existing config, polyDFE being semidominant
         self.data['fixed_params'] = merge_dicts(
-            self.data['fixed_params'] if isinstance(self.data['fixed_params'], dict) else {},
+            merge_dicts(dict(all=dict(h=0.5)), self.data['fixed_params'] or {}),
             dict(all=fixed_params)
         )
         self.data['x0'] = self.data['x0'] | {type: x0}

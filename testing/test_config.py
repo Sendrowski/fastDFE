@@ -145,6 +145,17 @@ class ConfigTestCase(TestCase):
         # the recreated config holds the model object
         self.assertEqual(type(config2.data['model']).__name__, config.data['model'])
 
+    def test_polydfe_init_file_fixes_dominance(self):
+        """
+        A config parsed from a polyDFE init file fixes ``h`` at 0.5 unless given otherwise, as polyDFE is
+        semidominant. ``h`` was left free, so an inference from such a config estimated dominance.
+        """
+        self.assertEqual(Config(polydfe_init_file=self.init_file).data['fixed_params']['all']['h'], 0.5)
+
+        config = Config(polydfe_init_file=self.init_file, fixed_params=dict(all=dict(h=0.3)))
+
+        self.assertEqual(config.data['fixed_params']['all']['h'], 0.3)
+
     def test_create_polydfe_init_file_writes_fixed_values(self):
         """
         A polyDFE init file holds a fixed parameter at its fixed value. The initial value was written, so
