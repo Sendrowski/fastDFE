@@ -1129,6 +1129,25 @@ class FastJointInferenceTestCase(TestCase):
             sorted(inf.get_optimized_param_names()), ['a.S_d', 'a:b.b', 'b.S_d', 'c.S_d', 'c.b']
         )
 
+    def test_covariate_on_parameter_shared_among_some_types(self):
+        """
+        A covariate on a parameter that is shared among some of the types shares it among all types only.
+        The partial sharing was kept beside it, which left an optimized parameter without any effect.
+        """
+        types = ['a', 'b', 'c']
+
+        inf = fd.JointInference(
+            sfs_neut=fd.Spectra({t: list(self.sfs_neut) for t in types}),
+            sfs_sel=fd.Spectra({t: list(self.sfs_sel) for t in types}),
+            shared_params=[fd.SharedParams(params=['S_d', 'b'], types=['a', 'b'])],
+            covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6, c=0.9))],
+            do_bootstrap=False
+        )
+
+        self.assertEqual([(s.params, s.types) for s in inf.shared_params], [(['b'], ['a', 'b']), (['S_d'], types)])
+
+        self.assertEqual(sorted(inf.get_optimized_param_names()), ['a:b.b', 'a:b:c.S_d', 'a:b:c.c0', 'c.b'])
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

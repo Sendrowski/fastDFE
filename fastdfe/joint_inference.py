@@ -490,7 +490,12 @@ class JointInference(BaseInference):
                               f'covariates and thus need to be shared. '
                               f'Adding them to shared parameters.')
 
-            # add to shared parameters
+            # share them among all types only
+            self.shared_params = [
+                SharedParams(params=params, types=s.types) for s in self.shared_params
+                if (params := [p for p in s.params if p not in cov_but_not_shared])
+            ]
+
             self.shared_params.append(SharedParams(params=cov_but_not_shared, types=self.types))
 
     def _determine_unshared_covariates(self, covariates):
