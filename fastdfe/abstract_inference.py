@@ -303,8 +303,8 @@ class Inference:
 
             values[label] = list(inf.get_bootstrap_params()[k] for k in param_names)
 
-            # whether to compute errors
-            if confidence_intervals and inf.bootstraps is not None:
+            # the point estimate is taken from the bootstraps if there are any
+            if inf.bootstraps is not None:
 
                 # compute errors
                 center[label], errors[label], _ = Bootstrap.get_errors(
@@ -314,6 +314,9 @@ class Inference:
                     ci_level=ci_level,
                     point_estimate=point_estimate,
                 )
+
+                if not confidence_intervals:
+                    errors[label] = None
             else:
                 center[label] = np.array(values[label])
                 errors[label] = None
@@ -347,8 +350,8 @@ class Inference:
 
         for label, inf in zip(labels, inferences):
 
-            if confidence_intervals and inf.bootstraps is not None:
-                # get bootstraps and errors if specified
+            # the point estimate is taken from the bootstraps if there are any
+            if inf.bootstraps is not None:
                 values[label], errors[label], _ = Inference.get_stats_discretized(
                     params=inf.get_bootstrap_params(),
                     bootstraps=inf.bootstraps,
@@ -358,6 +361,9 @@ class Inference:
                     bootstrap_type=bootstrap_type,
                     point_estimate=point_estimate
                 )
+
+                if not confidence_intervals:
+                    errors[label] = None
             else:
                 # otherwise just get discretized values
                 values[label] = Inference.compute_histogram(

@@ -1108,10 +1108,10 @@ class DFE(Serializable):
         from .abstract_inference import Inference
 
         # no bootstraps -> plain histogram
-        if not confidence_intervals or self.bootstraps is None:
+        if self.bootstraps is None:
             return Inference.compute_histogram(self.model, self.params, bins, warn_mass=warn_mass), None
 
-        return Inference.get_stats_discretized(
+        values, errors, _ = Inference.get_stats_discretized(
             params=self.params,
             bootstraps=self.bootstraps,
             model=self.model,
@@ -1120,7 +1120,9 @@ class DFE(Serializable):
             bootstrap_type=bootstrap_type,
             point_estimate=point_estimate,
             warn_mass=warn_mass
-        )[:2]
+        )
+
+        return values, errors if confidence_intervals else None
 
     @staticmethod
     def plot_many(

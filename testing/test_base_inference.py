@@ -2729,6 +2729,54 @@ class SmokeTestCase(TestCase):
         for runs in inf.bootstraps.x0_runs:
             self.assertEqual([x0['all.b'] for x0 in runs], [0.3, 0.3, 0.3])
 
+    def test_point_estimate_is_independent_of_confidence_intervals(self):
+        """
+        The point estimate of the discretized DFE and of the parameters follows ``point_estimate`` whether or
+        not confidence intervals are requested. Without them the original estimate was returned, so switching
+        off the error bars of a plot changed its values.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=True,
+            n_bootstraps=4,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        for point_estimate in ['mean', 'original']:
+            with_cis, errors = inf.get_discretized(point_estimate=point_estimate)
+            without_cis, no_errors = inf.get_discretized(point_estimate=point_estimate, confidence_intervals=False)
+
+            np.testing.assert_array_equal(with_cis, without_cis)
+            self.assertIsNotNone(errors)
+            self.assertIsNone(no_errors)
+
+            bins = np.array([-np.inf, -100, -1, 0, np.inf])
+
+            np.testing.assert_array_equal(
+                inf.get_dfe().discretize(bins, point_estimate=point_estimate)[0],
+                inf.get_dfe().discretize(bins, point_estimate=point_estimate, confidence_intervals=False)[0]
+            )
+
+        mean, original = [
+            inf.get_discretized(point_estimate=p, confidence_intervals=False)[0] for p in ['mean', 'original']
+        ]
+
+        self.assertFalse(np.allclose(mean, original))
+
+        heights = [
+            [bar.get_height() for bar in inf.plot_inferred_parameters(
+                show=False, confidence_intervals=confidence_intervals, scale='lin'
+            ).patches]
+            for confidence_intervals in [True, False]
+        ]
+
+        np.testing.assert_allclose(heights[0], heights[1])
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
