@@ -383,6 +383,28 @@ fixed_params:
         with self.assertRaises(NotImplementedError):
             Config(model='DiscreteParametrization').create_polydfe_init_file('scratch/model_d_init.txt', n=5)
 
+    def test_polydfe_bootstrap_config_keeps_divergence(self):
+        """
+        The config of a polyDFE bootstrap keeps the divergence counts and target sizes of the original one.
+        The spectra were written without them, so bootstraps of a run with divergence were fitted without.
+        """
+        import shutil
+        from types import SimpleNamespace
+        from fastdfe.polydfe import PolyDFE
+
+        polydfe = PolyDFE(Config(polydfe_spectra_config="resources/polydfe/example_1/spectra/sfs.txt"))
+
+        # stand-in for the resampling of polyDFE's postprocessing script, which returns the data unchanged
+        wrapper = SimpleNamespace(bootstrapData=lambda file, rep: shutil.copy(file, file + '_1'))
+        polydfe.summary = SimpleNamespace(get_postprocessing_wrapper=lambda: wrapper, data=dict(params_mle={}))
+
+        config = polydfe.create_bootstrap()
+
+        self.assertEqual(config.data['n_sites_div_sel'], polydfe.config.data['n_sites_div_sel'])
+        self.assertEqual(config.data['n_sites_div_neut'], polydfe.config.data['n_sites_div_neut'])
+        self.assertEqual(config.data['sfs_sel'].all.n_div, polydfe.config.data['sfs_sel'].all.n_div)
+        self.assertGreater(config.data['sfs_sel'].all.n_div, 0)
+
     def test_restore_covariates(self):
         """
         Test whether covariates can be properly restored from file.

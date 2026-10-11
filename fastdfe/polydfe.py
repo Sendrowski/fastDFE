@@ -22,7 +22,7 @@ from typing_extensions import Self
 from .abstract_inference import AbstractInference, Inference
 from .config import Config
 from .parametrization import _from_string, Parametrization, DiscreteParametrization
-from .polydfe_utils import create_sfs_config, models
+from .polydfe_utils import models
 
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
@@ -294,11 +294,7 @@ class PolyDFE(AbstractInference):
 
         # create temporary SFS config file
         with tempfile.NamedTemporaryFile() as tmp:
-            create_sfs_config(
-                file=tmp.name,
-                sfs_neut=self.config.data['sfs_neut']['all'],
-                sfs_sel=self.config.data['sfs_sel']['all']
-            )
+            self.config.create_polydfe_sfs_config(tmp.name)
 
             # create bootstrap SFS config
             ps.bootstrapData(tmp.name, rep=1)
