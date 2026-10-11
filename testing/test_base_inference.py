@@ -2371,6 +2371,31 @@ class SmokeTestCase(TestCase):
             fd.BaseInference(sfs_neut=fd.Spectrum(neutral), folded=True, **kwargs)
             fd.BaseInference(sfs_neut=self.sfs_neut, **kwargs)
 
+    def test_bootstrap_on_inference_not_run_bootstraps_once(self):
+        """
+        Bootstrapping an inference that was not run yet performs one bootstrap. The run it triggers ended with
+        a bootstrap of its own, which was discarded.
+        """
+        from unittest import mock
+
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=True,
+            n_bootstraps=4,
+            n_runs=1,
+            parallelize=False
+        )
+
+        with mock.patch.object(inf, '_get_run_bootstrap_sample', wraps=inf._get_run_bootstrap_sample) as sampler:
+            inf.bootstrap(n_samples=2)
+
+        self.assertEqual(sampler.call_count, 1)
+        self.assertEqual(len(inf.bootstraps), 2)
+        self.assertTrue(inf.do_bootstrap)
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

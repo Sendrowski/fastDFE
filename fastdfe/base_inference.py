@@ -542,13 +542,30 @@ class BaseInference(AbstractInference):
         # check if locked
         self.raise_if_locked()
 
-        # starting time of inference
-        start_time = time.time()
-
         # update properties
         self.update_properties(
             do_bootstrap=do_bootstrap
         )
+
+        self._fit(pbar=pbar)
+
+        # perform bootstrap if configured
+        if self.do_bootstrap:
+            self.bootstrap()
+
+        return self.sfs_mle
+
+    def _fit(self, pbar: bool = None):
+        """
+        Perform the numerical optimization.
+
+        :param pbar: Whether to show a progress bar.
+        """
+        # check if locked
+        self.raise_if_locked()
+
+        # starting time of inference
+        start_time = time.time()
 
         # perform MLE
         self._logger.debug(f'Starting numerical optimization of {self.n_runs} '
@@ -587,12 +604,6 @@ class BaseInference(AbstractInference):
 
         # add execution time
         self.execution_time += time.time() - start_time
-
-        # perform bootstrap if configured
-        if self.do_bootstrap:
-            self.bootstrap()
-
-        return self.sfs_mle
 
     def get_counts(self) -> dict:
         """
@@ -831,7 +842,8 @@ class BaseInference(AbstractInference):
         self.raise_if_locked()
 
         # perform inference first if not done yet
-        self.run_if_required()
+        if self.execution_time == 0:
+            self._fit()
 
         # precompute discretization if not done yet
         self.discretization.precompute(fixed=self._use_divergence)
