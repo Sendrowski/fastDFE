@@ -555,6 +555,24 @@ class OptimizationTestCase(TestCase):
                 self.assertGreaterEqual(perturbed_params[key], bounds[key][0])
                 self.assertLessEqual(perturbed_params[key], bounds[key][1])
 
+    def test_bounds_admitting_a_single_value(self):
+        """
+        Equal lower and upper bounds give that value as a sample and are not reported as a bound being
+        reached. Sampling failed on the log scale, and the report divided by zero.
+        """
+        from fastdfe.optimization import Optimization, check_bounds
+
+        self.assertEqual(Optimization.sample_value((0.3, 0.3), 'log', random_state=0), 0.3)
+        self.assertEqual(Optimization.sample_value((-2, -2), 'log', random_state=0), -2)
+        self.assertEqual(Optimization.sample_value((0.3, 0.3), 'lin', random_state=0), 0.3)
+
+        with np.errstate(all='raise'):
+            near_lower, near_upper = check_bounds(
+                params={'all.b': 0.3}, bounds=dict(b=(0.3, 0.3)), fixed_params={}, scale='lin'
+            )
+
+        self.assertEqual((near_lower, near_upper), ({}, {}))
+
     def test_collapse_fixed_to_mean(self):
         """
         Test the collapse_fixed_to_mean function.

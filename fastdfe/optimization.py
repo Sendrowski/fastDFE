@@ -733,7 +733,7 @@ def check_bounds(
         _upper = transform(upper, scale)
         _value = transform(value, scale)
 
-        if key not in fixed_params:
+        if key not in fixed_params and _upper != _lower:
             if _lower is not None and (_value - _lower) / (_upper - _lower) <= percentile / 100:
                 near_lower[key] = (lower, value, upper)
 
@@ -1301,6 +1301,10 @@ class Optimization:
         # raise an error if bounds are negative and scale is 'symlog'
         if bounds[0] < 0 and scale == 'symlog':
             raise ValueError(f"Symlog scale not possible for negative bounds.")
+
+        # bounds that admit a single value
+        if bounds[0] == bounds[1] and scale != 'symlog':
+            return bounds[0]
 
         # flip bounds if they are negative
         flipped = bounds[0] < 0
