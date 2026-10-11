@@ -2566,6 +2566,22 @@ class SmokeTestCase(TestCase):
         self.assertEqual(inf.plot_continuous(show=False, scale='symlog').get_yscale(), 'log')
         self.assertEqual(inf.plot_continuous(show=False, scale='lin').get_yscale(), 'linear')
 
+    def test_divergence_target_sizes_without_divergence_counts_raise(self):
+        """
+        Divergence target sizes for spectra without divergence counts raise an error. The divergence term
+        was silently inactive, and alpha and omega were undefined.
+        """
+        kwargs = dict(n_sites_div_neut=1e5, n_sites_div_sel=1e5, do_bootstrap=False)
+
+        with self.assertRaises(ValueError):
+            fd.BaseInference(sfs_neut=self.sfs_neut.fold(), sfs_sel=self.sfs_sel.fold(), **kwargs)
+
+        with self.assertRaises(ValueError):
+            fd.BaseInference(sfs_neut=self.sfs_neut, sfs_sel=fd.Spectrum(list(self.sfs_sel)[:-1] + [0]), **kwargs)
+
+        fd.BaseInference(sfs_neut=self.sfs_neut, sfs_sel=self.sfs_sel, **kwargs)
+        fd.BaseInference(sfs_neut=self.sfs_neut.fold(), sfs_sel=self.sfs_sel.fold(), do_bootstrap=False)
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

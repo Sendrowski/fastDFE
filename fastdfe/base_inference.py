@@ -271,6 +271,10 @@ class BaseInference(AbstractInference):
             include_divergence and n_sites_div_neut is not None and n_sites_div_sel is not None
         )
 
+        if self._use_divergence and (self.sfs_neut.n_div == 0 or self.sfs_sel.n_div == 0):
+            raise ValueError('Divergence target sizes were given, but some of the provided SFS have no divergence '
+                             'counts, which are their last entry. Note that folding a spectrum removes them.')
+
         if self._use_divergence:
             self._logger.info('Using divergence counts in the likelihood.')
         elif include_divergence:
