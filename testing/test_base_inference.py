@@ -2525,6 +2525,20 @@ class SmokeTestCase(TestCase):
         with self.assertRaises(ValueError):
             inf.get_stats_discretized()
 
+    def test_lrt_without_improvement_gives_p_value_of_one(self):
+        """
+        A likelihood ratio test gives a p-value of 1 if the complex model does not improve the likelihood,
+        also when all tested parameters lie on the boundary. It gave ``1 - 2 ** -m`` in that case.
+        """
+        inf = fd.BaseInference(sfs_neut=self.sfs_neut, sfs_sel=self.sfs_sel, do_bootstrap=False)
+
+        self.assertEqual(inf.lrt(-10, -10, df=1, m=1), 1)
+        self.assertEqual(inf.lrt(-10, -10.5, df=2, m=2), 1)
+        self.assertEqual(inf.lrt(-10, -10, df=2, m=1), 1)
+
+        # an improvement is tested against the mixture as before
+        self.assertAlmostEqual(inf.lrt(-10, -8, df=1, m=1), 0.5 * 0.04550026389635842, places=12)
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

@@ -1645,7 +1645,8 @@ class BaseInference(AbstractInference):
         weights = np.array([comb(m, j - (df - m)) / (2 ** m) for j in range(df - m, df + 1)])
 
         # zero degrees of freedom is point mass at 0
-        components = np.array([(0 if j == 0 else chi2.sf(lr, j)) for j in range(df - m, df + 1)])
+        # the component without degrees of freedom is a point mass at zero
+        components = np.array([(float(lr <= 0) if j == 0 else chi2.sf(lr, j)) for j in range(df - m, df + 1)])
         df = np.array([j for j in range(df - m, df + 1)])
 
         self._logger.debug(
