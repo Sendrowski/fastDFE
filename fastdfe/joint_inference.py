@@ -1173,12 +1173,16 @@ class JointInference(BaseInference):
         if 'modelled' in sfs_types:
             self.run_if_required()
 
-        mapping = dict(
-            observed='sfs_sel',
-            selected='sfs_sel',
-            modelled='sfs_mle',
-            neutral='sfs_neut'
-        )
+        def get_spectra(inf: BaseInference) -> Dict[str, Spectrum]:
+            """
+            Get the spectra of an inference by SFS type, the observed ones as they enter the likelihood.
+
+            :param inf: Inference
+            :return: Spectra indexed by SFS type
+            """
+            observed = inf._get_observed_spectra()
+
+            return dict(observed=observed['selected'], modelled=inf.sfs_mle) | observed
 
         inferences = self.get_inferences(types=types)
 
@@ -1196,7 +1200,7 @@ class JointInference(BaseInference):
             return '.'.join([subtypes[0]] + [sfs_type] + subtypes[1:])
 
         # get spectra
-        spectra = {get_label(t, sfs): getattr(inf, mapping[sfs]) for t, inf in inferences.items() for sfs in sfs_types}
+        spectra = {get_label(t, sfs): get_spectra(inf)[sfs] for t, inf in inferences.items() for sfs in sfs_types}
 
         return Visualization.plot_spectra(
             spectra=[list(v) for v in spectra.values()],
@@ -1548,7 +1552,9 @@ class JointInference(BaseInference):
             concatenated over types.
         """
         counts_mle = np.array([inf.sfs_mle.polymorphic for inf in self.joint_inferences.values()]).flatten()
-        counts_sel = np.array([inf.sfs_sel.polymorphic for inf in self.joint_inferences.values()]).flatten()
+        counts_sel = np.array([
+            inf._get_observed_spectra()['selected'].polymorphic for inf in self.joint_inferences.values()
+        ]).flatten()
 
         return norm(counts_mle - counts_sel, k)
 

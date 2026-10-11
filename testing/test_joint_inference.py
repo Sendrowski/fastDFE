@@ -986,6 +986,27 @@ class FastJointInferenceTestCase(TestCase):
             with self.assertRaises(ValueError):
                 self._make(n_sites_div_neut=dict(a=1e5, b=1e5), n_sites_div_sel=sizes)
 
+    def test_folded_inference_on_unfolded_spectra_compares_folded_spectra(self):
+        """
+        With ``folded=True`` on unfolded spectra, the residual and the SFS comparison plot use the folded
+        observed SFS. They used the unfolded one against the folded modelled SFS, which inflated the residual.
+        """
+        inf = self._make(folded=True)
+        inf.run()
+
+        modelled = np.concatenate([i.sfs_mle.polymorphic for i in inf.joint_inferences.values()])
+        observed = np.concatenate([i.sfs_sel.fold().polymorphic for i in inf.joint_inferences.values()])
+
+        self.assertAlmostEqual(inf.get_residual(2), np.linalg.norm(modelled - observed), places=8)
+
+        ax = inf.plot_sfs_comparison(show=False, sfs_types=['observed', 'modelled'], types=['a'])
+        heights = np.array([bar.get_height() for bar in ax.patches])
+
+        # observed and modelled SFS of the marginal and the joint inference, nine polymorphic classes each,
+        # of which the upper four are empty
+        self.assertEqual(len(heights), 36)
+        self.assertEqual(np.count_nonzero(heights), 20)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
