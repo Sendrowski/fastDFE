@@ -181,6 +181,26 @@ def test_polydfe_result_requires_postprocessing_source(tmp_path):
         PolyDFEResult(output_file=str(tmp_path / 'out.txt'))
 
 
+def test_plot_continuous_band_has_colour_of_its_line():
+    """
+    The confidence band of a DFE has the colour of its line. The bands followed a colour cycle of their own,
+    so a DFE without errors shifted the colours of all later bands.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import to_rgba
+    from fastdfe.visualization import Visualization
+
+    bins = np.array([-100.0, -10.0, -1.0, 1.0])
+    values = [np.array([0.2, 0.3, 0.5]), np.array([0.5, 0.3, 0.2])]
+    errors = [None, np.full((2, 3), 0.05)]
+
+    _, ax = plt.subplots()
+    Visualization.plot_continuous(ax=ax, bins=bins, values=values, errors=errors, show=False)
+
+    assert len(ax.collections) == 1
+    np.testing.assert_allclose(ax.collections[0].get_facecolor()[0][:3], to_rgba(ax.lines[1].get_color())[:3])
+    plt.close('all')
+
 def test_plot_scatter_symlog_scale():
     """
     ``plot_scatter`` uses a symmetric log axis for both ``log`` and ``symlog``, and a linear one for ``lin``.

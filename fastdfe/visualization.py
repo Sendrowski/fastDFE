@@ -276,9 +276,9 @@ class Visualization:
             x = np.arange(n_bins)
 
             # plot DFE
-            ax.plot(x,
-                    values[i] if scale_density else values[i] / interval_sizes,
-                    label=labels[i] if labels is not None else None)
+            line, = ax.plot(x,
+                            values[i] if scale_density else values[i] / interval_sizes,
+                            label=labels[i] if labels is not None else None)
 
             # visualize errors
             if errors is not None and errors[i] is not None:
@@ -286,6 +286,7 @@ class Visualization:
                     x=x,
                     y1=(values[i] - errors[i][0]) if scale_density else (values[i] - errors[i][0]) / interval_sizes,
                     y2=(values[i] + errors[i][1]) if scale_density else (values[i] + errors[i][1]) / interval_sizes,
+                    color=line.get_color(),
                     alpha=0.2
                 )
 
