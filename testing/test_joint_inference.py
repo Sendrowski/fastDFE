@@ -1033,6 +1033,18 @@ class FastJointInferenceTestCase(TestCase):
 
             self.assertIsNotNone(inf.params_mle)
 
+    def test_type_named_all_raises(self):
+        """
+        A type named ``all`` raises an error, as the name denotes the pooled spectra. Such an inference was
+        constructed and then failed during the run.
+        """
+        with self.assertRaises(ValueError):
+            fd.JointInference(
+                sfs_neut=fd.Spectra(dict(all=list(self.sfs_neut), b=list(self.sfs_neut))),
+                sfs_sel=fd.Spectra(dict(all=list(self.sfs_sel), b=list(self.sfs_sel))),
+                do_bootstrap=False
+            )
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

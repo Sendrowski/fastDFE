@@ -184,11 +184,15 @@ class JointInference(BaseInference):
         :param optimization: Optimization instance. Mainly intended for internal use.
         :param locked: Whether running the inference from this object is disallowed. Used internally.
         :param kwargs: Additional keyword arguments which are ignored.
-        :raises ValueError: If ``x0`` contains a key that is neither ``all`` nor a type.
+        :raises ValueError: If ``x0`` contains a key that is neither ``all`` nor a type, or if a type is
+            named ``all``.
         """
         if sfs_neut.has_dots() or sfs_sel.has_dots():
             raise ValueError('Type names cannot contain dots are not allowed as they are used internally.'
                              'You can use the `replace_dots` method to replace dots with another character.')
+
+        if 'all' in sfs_neut.types or 'all' in sfs_sel.types:
+            raise ValueError("The type name 'all' is reserved for the spectra pooled over all types.")
 
         # check whether types are equal
         if set(sfs_neut.types) != set(sfs_sel.types):
