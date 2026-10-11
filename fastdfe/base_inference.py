@@ -1673,7 +1673,8 @@ class BaseInference(AbstractInference):
     def _is_nested(self, complex: 'BaseInference') -> bool:
         """
         Check if the current model is nested within the given, more complex model.
-        The given model's fixed parameters need to be a proper subset of this model's fixed parameters.
+        The given model's fixed parameters need to be a proper subset of this model's fixed parameters,
+        and fixed at the same values.
 
         :param complex: More complex model.
         :return: Whether the models are nested.
@@ -1682,10 +1683,10 @@ class BaseInference(AbstractInference):
             return False
 
         # optimization holds the flattened dictionary
-        fixed_complex = set(complex.optimization.fixed_params.keys())
-        fixed_simple = set(self.optimization.fixed_params.keys())
+        fixed_complex = complex.optimization.fixed_params
+        fixed_simple = self.optimization.fixed_params
 
-        return fixed_complex < fixed_simple
+        return set(fixed_complex) < set(fixed_simple) and all(fixed_simple[k] == v for k, v in fixed_complex.items())
 
     def _get_df_nested(self, complex: 'BaseInference') -> Tuple[int, int]:
         """

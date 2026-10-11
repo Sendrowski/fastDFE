@@ -2539,6 +2539,18 @@ class SmokeTestCase(TestCase):
         # an improvement is tested against the mixture as before
         self.assertAlmostEqual(inf.lrt(-10, -8, df=1, m=1), 0.5 * 0.04550026389635842, places=12)
 
+    def test_models_fixing_a_parameter_at_different_values_are_not_nested(self):
+        """
+        Two models are nested only if the parameters both of them fix have the same values. Only the names
+        were compared, so such models were tested against each other.
+        """
+        kwargs = dict(sfs_neut=self.sfs_neut, sfs_sel=self.sfs_sel, do_bootstrap=False)
+
+        simple = fd.BaseInference(fixed_params=dict(all=dict(h=0.5, eps=0, p_b=0, S_b=1)), **kwargs)
+
+        self.assertTrue(simple._is_nested(fd.BaseInference(fixed_params=dict(all=dict(h=0.5, eps=0)), **kwargs)))
+        self.assertFalse(simple._is_nested(fd.BaseInference(fixed_params=dict(all=dict(h=0.5, eps=0.1)), **kwargs)))
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
