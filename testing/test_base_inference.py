@@ -2427,6 +2427,40 @@ class SmokeTestCase(TestCase):
 
             self.assertIsNotNone(inf.params_mle)
 
+    def test_bootstrap_without_successful_run_keeps_run_of_highest_likelihood(self):
+        """
+        If no optimization run of a bootstrap sample terminates normally, the run of highest likelihood is
+        kept. The first run was kept irrespective of the likelihoods.
+        """
+        from types import SimpleNamespace
+        from unittest import mock
+        from fastdfe import optimization
+
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        def run(likelihood: float, success: bool) -> tuple:
+            return SimpleNamespace(fun=-likelihood, success=success), dict(all=inf.params_mle), dict(all={}), {}
+
+        # no successful run in the first sample, one in the second
+        results = np.empty((2, 2, 4), dtype=object)
+        results[0] = [run(-50, False), run(-40, False)]
+        results[1] = [run(-50, True), run(-40, False)]
+
+        with mock.patch.object(optimization, 'parallelize', return_value=results):
+            inf.bootstrap(n_samples=2, n_retries=2)
+
+        self.assertEqual(list(inf.bootstraps.i_best_run), [1, 0])
+        self.assertEqual(list(inf.bootstraps.likelihood), [-40, -50])
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

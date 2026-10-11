@@ -883,8 +883,11 @@ class BaseInference(AbstractInference):
             desc=f'{self.__class__.__name__}>{pbar_title} ({self.n_bootstrap_retries} runs each)'
         )
 
-        # select best result for each bootstrap sample
-        i_best = [np.argmax([-r[0].fun if r[0].success else -np.inf for r in res]) for res in results]
+        # select the run of highest likelihood for each bootstrap sample, among the successful ones if there are any
+        i_best = [
+            np.argmax([-r[0].fun if r[0].success or not any(q[0].success for q in res) else -np.inf for r in res])
+            for res in results
+        ]
 
         # get best results
         result = results[np.arange(n_bootstraps), i_best]
