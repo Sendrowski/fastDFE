@@ -40,6 +40,14 @@ class CustomEncoderTestCase(TestCase):
         self.assertEqual(42, result)
         self.assertIsInstance(result, int)
 
+    def test_encode_numpy_scalars(self):
+        """NumPy scalars of any type are encoded. Types other than ``int64`` and ``float64`` raised an error."""
+        values = dict(a=np.bool_(True), b=np.int32(3), c=np.uint32(4), d=np.float32(0.5), e=np.int64(5))
+
+        self.assertEqual(
+            json.loads(json.dumps(values, cls=CustomEncoder)), dict(a=True, b=3, c=4, d=0.5, e=5)
+        )
+
     def test_encode_parametrization(self):
         """A Parametrization encodes to its class name."""
         self.assertEqual('GammaExpParametrization',

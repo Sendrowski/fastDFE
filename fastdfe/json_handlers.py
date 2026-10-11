@@ -48,8 +48,8 @@ class CustomEncoder(json.JSONEncoder):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
 
-        if isinstance(obj, np.int64):
-            return int(obj)
+        if isinstance(obj, np.generic):
+            return obj.item()
 
         if isinstance(obj, Parametrization):
             settings = {}
