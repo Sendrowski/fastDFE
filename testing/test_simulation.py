@@ -125,14 +125,19 @@ class SLiMTestCase(TestCase):
         """
         self._compare_against_slim([f for f in self.configs_slim if self._dominance(f) == h and '/n=100/' in f])
 
-    def test_compare_against_slim_recessive_and_dominance_function(self):
+    def test_compare_against_slim_recessive(self):
         """
-        Test the modelled SFS against SLiM simulations with fully recessive mutations and with dominance
-        depending on the selection coefficient.
+        Test the modelled SFS against SLiM simulations with fully recessive mutations.
         """
-        self._compare_against_slim(
-            [f for f in self.configs_slim if self._dominance(f) == 0 or 'dominance_function_' in f]
-        )
+        self._compare_against_slim([f for f in self.configs_slim if self._dominance(f) == 0])
+
+    def test_compare_against_slim_dominance_function(self):
+        """
+        Test the modelled SFS against SLiM simulations with dominance depending on the selection coefficient,
+        modelled by the same dominance function. The spectra were compared against the semidominant model,
+        which the tolerance of 0.16 let pass.
+        """
+        self._compare_against_slim([f for f in self.configs_slim if 'dominance_function_' in f], tol=0.04)
 
     def _compare_against_slim(self, configs, tol: float = 0.16):
         """
@@ -162,11 +167,19 @@ class SLiMTestCase(TestCase):
             params['S_b'] = 4 * Ne * params['s_b']
             params['S_d'] = -4 * Ne * params['s_d']
 
+            # dominance function of the SLiM simulations
+            h_callback = None
+            if match := re.search(r"dominance_function_([\d.]+)/", file_path):
+                h_callback = lambda h, S, k=float(match.group(1)), Ne=Ne: np.maximum(
+                    0.4 * np.exp(-k * abs(S / (4 * Ne))), 0.1
+                )
+
             model = fd.GammaExpParametrization()
             model.bounds['S_b'] = (1e-10, 100)
 
             sim = fd.Simulation(
                 params=params,
+                h_callback=h_callback,
                 sfs_neut=spectra['neutral'],
                 model=model,
                 intervals_del=(-1.0e+8, -1.0e-5, 100),
