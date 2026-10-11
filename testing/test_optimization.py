@@ -573,6 +573,21 @@ class OptimizationTestCase(TestCase):
 
         self.assertEqual((near_lower, near_upper), ({}, {}))
 
+    def test_expand_fixed_type_takes_precedence_over_all(self):
+        """
+        A fixed value given for a type takes precedence over the one given for 'all', in either order of
+        the dictionary. The later entry won, so 'all' listed last replaced the value of the type.
+        """
+        from fastdfe.optimization import expand_fixed
+
+        expected = dict(a=dict(b=0.3, h=0.5), c=dict(b=0.1, h=0.5))
+
+        for fixed_params in [
+            dict(all=dict(b=0.1, h=0.5), a=dict(b=0.3)),
+            dict(a=dict(b=0.3), all=dict(b=0.1, h=0.5))
+        ]:
+            self.assertEqual(expand_fixed(fixed_params, ['a', 'c']), expected)
+
     def test_collapse_fixed_to_mean(self):
         """
         Test the collapse_fixed_to_mean function.

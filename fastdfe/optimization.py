@@ -246,7 +246,7 @@ def expand_fixed(
         types: List[str]
 ) -> Dict[str, Dict[str, float]]:
     """
-    Expand 'all' type for fixed parameters.
+    Expand 'all' type for fixed parameters. The values given for a type take precedence over those for 'all'.
 
     :param fixed_params: Dictionary of fixed parameters indexed by type and parameter
     :param types: List of types
@@ -254,8 +254,8 @@ def expand_fixed(
     """
     expanded = {}
 
-    # loop through fixed parameters
-    for key_type, params in fixed_params.items():
+    # loop through fixed parameters, 'all' first
+    for key_type, params in sorted(fixed_params.items(), key=lambda item: item[0] != 'all'):
         # expand 'all' type
         key_types = types if key_type == 'all' else [key_type]
 
