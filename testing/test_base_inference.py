@@ -2609,6 +2609,26 @@ class SmokeTestCase(TestCase):
         self.assertEqual(fd.BaseInference(**kwargs | dict(bounds=dict(h=(0.3, 0.5)))).bounds['h'], (0.3, 0.5))
         self.assertEqual(fd.BaseInference(**kwargs | dict(fixed_params=dict(all=dict(h=0.5)))).bounds['h'], (0, 1))
 
+    def test_fixed_parameters_are_returned_exactly(self):
+        """
+        Fixed parameters are returned at their fixed values. A value on the log scale came back changed in
+        the last digit by its conversion to the scale and back.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            fixed_params=dict(all=dict(b=0.3, S_d=-1234.5, h=0.5, eps=0, p_b=0.1)),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=2,
+            parallelize=False
+        )
+        inf.run()
+
+        self.assertEqual((inf.params_mle['b'], inf.params_mle['S_d']), (0.3, -1234.5))
+        self.assertEqual(set(inf.runs['all.b']), {0.3})
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

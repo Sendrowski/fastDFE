@@ -1082,12 +1082,24 @@ class Optimization:
         # parallelize MLE for different initializations
         results = parallelize(optimize, initial_params, self.parallelize, pbar=pbar, desc=desc)
 
+        # fixed parameters among the optimized ones
+        fixed = {k: v for k, v in self.fixed_params.items() if k in flattened}
+
+        def get_params(x: np.ndarray) -> Dict[str, Dict[str, float]]:
+            """
+            Convert an optimized array into parameters, with the fixed ones at their exact values.
+
+            :param x: Array of scaled parameters
+            :return: Dictionary of parameters in the form ``{type: {param: value}}``
+            """
+            params = unscale_values(unpack_params(x, self.x0), self.bounds, self.scales)
+
+            return unflatten_dict(flatten_dict(params) | fixed)
+
         # build a pandas DataFrame of all runs
         records = []
         for i, res in enumerate(results):
-            params = unpack_params(res.x, self.x0)
-            params = unscale_values(params, self.bounds, self.scales)
-            flat = flatten_dict(params)
+            flat = flatten_dict(get_params(res.x))
             flat['likelihood'] = -res.fun
             flat['success'] = res.success
             flat['result'] = str(res)
@@ -1100,11 +1112,8 @@ class Optimization:
         # get result with the highest likelihood
         result = results[np.argmax(self.runs.likelihood)]
 
-        # unpack MLE params array into a dictionary
-        params_mle = unpack_params(result.x, self.x0)
-
-        # unscale parameters
-        params_mle = unscale_values(params_mle, self.bounds, self.scales)
+        # MLE parameters
+        params_mle = get_params(result.x)
 
         # check if the MLE reached one of the bounds
         if print_info:
