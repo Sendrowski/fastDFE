@@ -262,7 +262,7 @@ class Inference:
         # get sorted list of parameter names
         param_names = sorted(list(inferences[0].get_bootstrap_param_names()))
 
-        if inferences[0].bootstraps is None:
+        if any(inf.bootstraps is None for inf in inferences):
             raise ValueError('No bootstraps found.')
 
         # create dict of dataframes

@@ -2680,6 +2680,30 @@ class SmokeTestCase(TestCase):
 
             self.assertAlmostEqual(symlog.likelihood, lin.likelihood, places=4)
 
+    def test_boxplot_requires_bootstraps_of_every_inference(self):
+        """
+        The boxplot of inferred parameters raises a ``ValueError`` if any of the inferences has no bootstraps.
+        Only the first one was checked, so a later one failed with a ``TypeError``.
+        """
+        kwargs = dict(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            n_bootstraps=2,
+            n_runs=1,
+            parallelize=False
+        )
+
+        with_bootstraps = fd.BaseInference(do_bootstrap=True, **kwargs)
+        without = fd.BaseInference(do_bootstrap=False, **kwargs)
+
+        with_bootstraps.run()
+        without.run()
+
+        with self.assertRaises(ValueError):
+            fd.Inference.plot_inferred_parameters_boxplot([with_bootstraps, without], labels=['a', 'b'], show=False)
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
