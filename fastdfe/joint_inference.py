@@ -237,8 +237,21 @@ class JointInference(BaseInference):
         #: original MLE parameters before adding covariates and unpacked shared
         self.params_mle_raw: Optional[Dict[str, Dict[str, float]]] = None
 
-        #: Shared parameters with expanded 'all' type
-        self.shared_params = expand_shared(shared_params, self.types, self.optimization.param_names)
+        if fixed_params is None:
+            fixed_params = {'all': {'eps': 0, 'h': 0.5} | self.model.submodels['dele']}
+
+        fixed_params = {'all': {}} | fixed_params
+
+        #: fixed parameters with expanded 'all' type
+        self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, self.types)
+
+        #: Shared parameters with expanded 'all' type, all parameters being those that are not fixed
+        self.shared_params = [
+            SharedParams(types=s.types, params=[
+                p for p in s.params if given.params != 'all' or not any(p in self.fixed_params[t] for t in s.types)
+            ])
+            for given, s in zip(shared_params, expand_shared(shared_params, self.types, self.optimization.param_names))
+        ]
 
         # add covariates as shared parameters
         self._add_covariates_as_shared(covariates)
@@ -275,14 +288,6 @@ class JointInference(BaseInference):
 
         # use linear scale for covariates
         scales_cov = dict((k, cov.bounds_scale) for k, cov in self.covariates.items())
-
-        if fixed_params is None:
-            fixed_params = {'all': {'eps': 0, 'h': 0.5} | self.model.submodels['dele']}
-
-        fixed_params = {'all': {}} | fixed_params
-
-        #: fixed parameters with expanded 'all' type
-        self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, self.types)
 
         if discretization is None:
             # create discretization instance

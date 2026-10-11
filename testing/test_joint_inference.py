@@ -1148,6 +1148,19 @@ class FastJointInferenceTestCase(TestCase):
 
         self.assertEqual(sorted(inf.get_optimized_param_names()), ['a:b.b', 'a:b:c.S_d', 'a:b:c.c0', 'c.b'])
 
+    def test_sharing_all_parameters_shares_those_not_fixed(self):
+        """
+        ``SharedParams(params='all')`` shares the parameters that are not fixed. It included the fixed ones,
+        which raised an error for the default fixed parameters.
+        """
+        inf = self._make(shared_params=[fd.SharedParams()])
+
+        self.assertEqual([(s.params, s.types) for s in inf.shared_params], [(['S_d', 'b'], ['a', 'b'])])
+
+        # a fixed parameter that is listed explicitly raises as before
+        with self.assertRaises(ValueError):
+            self._make(shared_params=[fd.SharedParams(params=['S_d', 'eps'])])
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
