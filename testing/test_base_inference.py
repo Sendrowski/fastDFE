@@ -2629,6 +2629,29 @@ class SmokeTestCase(TestCase):
         self.assertEqual((inf.params_mle['b'], inf.params_mle['S_d']), (0.3, -1234.5))
         self.assertEqual(set(inf.runs['all.b']), {0.3})
 
+    def test_estimate_at_bound_lies_within_bounds(self):
+        """
+        An estimate at a bound on the log scale equals the bound. It could lie outside by the rounding of
+        the conversion to the scale and back, and was then rejected as a fixed value of a further inference.
+        """
+        kwargs = dict(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            bounds=dict(b=(0.3, 10)),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        inf = fd.BaseInference(**kwargs)
+        inf.run()
+
+        self.assertEqual(inf.params_mle['b'], 0.3)
+
+        fd.BaseInference(fixed_params=dict(all=inf.params_mle), **kwargs)
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

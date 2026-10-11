@@ -1087,14 +1087,15 @@ class Optimization:
 
         def get_params(x: np.ndarray) -> Dict[str, Dict[str, float]]:
             """
-            Convert an optimized array into parameters, with the fixed ones at their exact values.
+            Convert an optimized array into parameters, within their bounds and with the fixed ones at their
+            exact values.
 
             :param x: Array of scaled parameters
             :return: Dictionary of parameters in the form ``{type: {param: value}}``
             """
-            params = unscale_values(unpack_params(x, self.x0), self.bounds, self.scales)
+            params = flatten_dict(unscale_values(unpack_params(x, self.x0), self.bounds, self.scales))
 
-            return unflatten_dict(flatten_dict(params) | fixed)
+            return unflatten_dict(correct_values(params, self.bounds, self.scales) | fixed)
 
         # build a pandas DataFrame of all runs
         records = []
