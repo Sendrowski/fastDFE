@@ -540,10 +540,10 @@ class Visualization:
         :return: Color string
         """
         # determine unique groups
-        groups = np.unique(np.array([get_group(l) for l in labels]))
+        groups = np.unique(np.array([get_group(str(l)) for l in labels]))
 
         # determine group of current label
-        group = get_group(label)
+        group = get_group(str(label))
 
         # determine index of group
         i = np.where(groups == group)[0][0] if sum(groups == group) > 0 else 0
@@ -560,6 +560,9 @@ class Visualization:
         :param i: Index
         :return: Hatch style
         """
+
+        if labels is not None:
+            labels = [str(label) for label in labels]
 
         # determine whether hatch style should be used
         if labels is None or len(labels) < 1 or '.' not in labels[i]:

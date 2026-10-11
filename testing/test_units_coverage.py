@@ -231,6 +231,21 @@ def test_boxplot_of_a_single_parameter():
     Visualization.plot_inferred_parameters_boxplot(values=values, param_names=['b'], show=False)
     plt.close('all')
 
+def test_plots_accept_labels_that_are_not_strings():
+    """Labels that are not strings, such as numbers, can be passed to the bar plots. They raised an error."""
+    import matplotlib.pyplot as plt
+    from fastdfe.visualization import Visualization
+
+    assert Visualization.get_hatch(0, [1, 2]) is None
+    assert Visualization.get_color(2, [1, 2]) != Visualization.get_color(1, [1, 2])
+
+    _, ax = plt.subplots()
+    Visualization.plot_discretized(
+        ax=ax, values=[np.array([0.5, 0.5]), np.array([0.3, 0.7])], labels=[2020, 2021],
+        intervals=np.array([-np.inf, 0, np.inf]), show=False
+    )
+    plt.close('all')
+
 def test_plot_scatter_symlog_scale():
     """
     ``plot_scatter`` uses a symmetric log axis for both ``log`` and ``symlog``, and a linear one for ``lin``.
