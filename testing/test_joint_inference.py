@@ -1217,6 +1217,22 @@ class FastJointInferenceTestCase(TestCase):
         with self.assertNoLogs('fastdfe', level='WARNING'):
             self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6))]).to_json()
 
+    def test_evaluate_likelihood_at_mle_with_covariate(self):
+        """
+        The likelihood evaluated at the MLE parameters of a joint inference with a covariate equals the
+        likelihood of the fit. The parameters include the effect of the covariate, which was applied again.
+        """
+        inf = self._make(
+            covariates=[fd.Covariate(param='S_d', values=dict(a=-1000, b=-5000), x0=1)],
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)),
+            n_runs=3
+        )
+        inf.run()
+
+        self.assertNotAlmostEqual(inf.params_mle['a']['c0'], 0, places=3)
+        self.assertAlmostEqual(inf.evaluate_likelihood(inf.params_mle), inf.likelihood, places=6)
+        self.assertAlmostEqual(inf.evaluate_likelihood(inf.params_mle_raw), inf.likelihood, places=6)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

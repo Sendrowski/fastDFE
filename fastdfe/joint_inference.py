@@ -728,6 +728,26 @@ class JointInference(BaseInference):
         """
         return len(self.types) >= 2 and len(self.shared_params) != 0
 
+    def evaluate_likelihood(self, params: Dict[str, Dict[str, float]]) -> float:
+        """
+        Evaluate likelihood function at given parameters.
+
+        :param params: Parameters indexed by type and parameter name. Parameters given for each type, as in
+            :attr:`params_mle`, include the effect of the covariates. Parameters given with the shared ones
+            packed, as in :attr:`params_mle_raw`, have the covariates applied to them.
+        :return: The log-likelihood, or the negative L2 residual if the loss type is ``L2``.
+        """
+        if set(params) != set(self.types):
+            return super().evaluate_likelihood(params)
+
+        # evaluate without the covariates, whose effect the parameters include
+        covariates, self.covariates = self.covariates, {}
+
+        try:
+            return super().evaluate_likelihood(params)
+        finally:
+            self.covariates = covariates
+
     def get_counts(self) -> dict:
         """
         Get callback functions for modelling SFS counts from given parameters.
