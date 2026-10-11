@@ -539,11 +539,22 @@ class JointInference(BaseInference):
         """
         self.update_properties(do_bootstrap=do_bootstrap)
 
-        # run marginal optimization
-        self._run_marginal(pbar=pbar)
+        self._fit(pbar=pbar)
 
-        # run joint optimization
-        return self._run_joint(pbar=pbar)
+        # perform bootstrap if configured
+        if self.do_bootstrap:
+            self.bootstrap(pbar=pbar is not False)
+
+        return self.sfs_mle
+
+    def _fit(self, pbar: bool = None):
+        """
+        Perform the marginal and the joint optimization.
+
+        :param pbar: Whether to show a progress bar.
+        """
+        self._run_marginal(pbar=pbar)
+        self._run_joint(pbar=pbar)
 
     def _run_marginal(self, pbar: bool = None):
         """
@@ -691,10 +702,6 @@ class JointInference(BaseInference):
 
         # add execution time
         self.execution_time += time.time() - start_time
-
-        # perform bootstrap if configured
-        if self.do_bootstrap:
-            self.bootstrap(pbar=pbar is not False)
 
         return self.sfs_mle
 
@@ -956,6 +963,10 @@ class JointInference(BaseInference):
             parallelize=parallelize,
             n_bootstrap_retries=n_retries
         )
+
+        # perform inference first if not done yet
+        if self.execution_time == 0:
+            self._fit()
 
         # bootstrap marginal inferences
         for t, inf in self.marginal_inferences.items():

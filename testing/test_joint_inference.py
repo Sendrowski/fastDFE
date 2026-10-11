@@ -1071,6 +1071,30 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(inf.n_bootstraps, 2)
         self.assertEqual(len(inf.bootstrap()), 2)
 
+    def test_bootstrap_on_inference_not_run_runs_it_first(self):
+        """
+        Bootstrapping a joint inference that was not run yet runs it first. The marginal inferences were
+        fitted by their own bootstrap instead, before a run had given them their initial values.
+        """
+        from unittest import mock
+
+        inf = self._make(do_bootstrap=True, n_bootstraps=2, x0=dict(a=dict(b=0.3)))
+        marginal = inf.marginal_inferences['a']
+
+        run, started_from = fd.BaseInference.run, []
+
+        def record(self, *args, **kwargs):
+            if self is marginal:
+                started_from.append(self.x0['all']['b'])
+
+            return run(self, *args, **kwargs)
+
+        with mock.patch.object(fd.BaseInference, 'run', record):
+            inf.bootstrap()
+
+        self.assertEqual(started_from, [0.3])
+        self.assertEqual(len(inf.bootstraps), 2)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
