@@ -2551,6 +2551,21 @@ class SmokeTestCase(TestCase):
         self.assertTrue(simple._is_nested(fd.BaseInference(fixed_params=dict(all=dict(h=0.5, eps=0)), **kwargs)))
         self.assertFalse(simple._is_nested(fd.BaseInference(fixed_params=dict(all=dict(h=0.5, eps=0.1)), **kwargs)))
 
+    def test_plot_continuous_symlog_scale_is_logarithmic(self):
+        """``scale='symlog'`` gives a logarithmic density axis. It was ignored, which left the axis linear."""
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        self.assertEqual(inf.plot_continuous(show=False, scale='symlog').get_yscale(), 'log')
+        self.assertEqual(inf.plot_continuous(show=False, scale='lin').get_yscale(), 'linear')
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

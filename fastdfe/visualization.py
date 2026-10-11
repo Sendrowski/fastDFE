@@ -234,7 +234,7 @@ class Visualization:
             file: str = None,
             show: bool = True,
             title: str = 'continuous DFE',
-            scale: Literal['lin', 'log'] = 'lin',
+            scale: Literal['lin', 'log', 'symlog'] = 'lin',
             ylim: float = 1e-2,
             scale_density: bool = False,
             kwargs_legend: dict = dict(prop=dict(size=8)),
@@ -293,7 +293,7 @@ class Visualization:
         Visualization.adjust_ticks_show_s(bins, ax)
 
         # use log scale if specified
-        if scale == 'log':
+        if scale in ('log', 'symlog'):
             ax.set_yscale('log')
             ax.set_ylim(bottom=ylim)
 
