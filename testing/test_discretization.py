@@ -144,6 +144,39 @@ class DiscretizationTestCase(TestCase):
         Discretization(h=1.0, **kwargs)
         Discretization(h=None, intervals_h=(0, 1, 3), h_callback=lambda h, S: np.where(S < 0, h, 0.5), **kwargs)
 
+    def test_dominance_kernel_resolves_highest_frequency_class(self):
+        """
+        The numerical kernel for general dominance agrees with the closed form under semidominance in the
+        highest frequency class. Its grid was coarse near a frequency of 1, which lost up to 18% of that
+        class for a sample size of 100.
+        """
+        S = np.array([1.0, 10.0, 100.0, 1e3, 1e4])
+
+        for n in [20, 100]:
+            d = Discretization(n=n, h=0.5, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5))
+
+            observed = Discretization._get_counts_dominant(n, n - 1, 0.5, S)
+            expected = np.array([d.get_counts_semidominant_regularized(float(s), n - 1) for s in S])
+
+            np.testing.assert_allclose(observed, expected, rtol=1e-2)
+
+    def test_dominance_kernel_resolves_deleterious_inner_integral(self):
+        """
+        The numerical kernel for general dominance agrees with the closed form under semidominance for
+        strongly deleterious mutations. Its inner integral used equally spaced nodes, which do not resolve the
+        peak of the integrand at a frequency of 1 and lost up to 4% of the counts.
+        """
+        S = np.array([-3000.0, -300.0, -30.0])
+
+        for n in [20, 100]:
+            d = Discretization(n=n, h=0.5, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5))
+            k = np.arange(1, n)
+
+            observed = Discretization._get_counts_dominant(n, k, 0.5, S)
+            expected = np.array([[d.get_counts_semidominant_regularized(float(s), int(i)) for s in S] for i in k])
+
+            np.testing.assert_allclose(observed, expected, rtol=1e-3)
+
     def test_dfe_to_sfs_linearization_midpoint_vs_quad(self):
         """
         Check for discrepancies between the linearized DFE to SFS

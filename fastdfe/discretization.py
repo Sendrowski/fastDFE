@@ -433,7 +433,7 @@ class Discretization:
         :param S: Selection coefficients.
         :param n_outer: Grid size for outer integral over allele frequencies for binomial sampling.
         :param n_inner: Grid size for inner integrals over allele frequencies.
-        :param pow_cluster: Power for clustering grid points towards 0.
+        :param pow_cluster: Power for clustering grid points towards the ends of the unit interval.
 
         :return: Array of allele counts of shape (len(S),) for a single allele count, else (len(k), len(S)).
         """
@@ -441,8 +441,9 @@ class Discretization:
         h = np.full_like(S, h) if np.isscalar(h) else np.asarray(h)
         K = [int(i) for i in np.atleast_1d(k)]
 
-        # x-grid
-        x = np.linspace(0, 1, n_outer) ** pow_cluster  # (n_outer,)
+        # x-grid, clustered towards 0 and 1
+        u = np.linspace(0, 1, n_outer) ** pow_cluster
+        x = u / (u + (1 - np.linspace(0, 1, n_outer)) ** pow_cluster)  # (n_outer,)
 
         # binomial term, the only factor that depends on the allele count
         binom = [comb(n, i) * x ** (i - 1) * (1 - x) ** (n - i - 1) for i in K]  # (K, n_outer)
@@ -455,7 +456,8 @@ class Discretization:
             S_neg = S[is_deleterious]  # (P1,)
             h_neg = h[is_deleterious]  # (P1,)
 
-            t = np.linspace(0, 1, n_inner)  # (n_inner,)
+            # clustered towards 1, where the integrand peaks
+            t = 1 - np.linspace(1, 0, n_inner) ** 5  # (n_inner,)
 
             # q-grid from x to 1
             xx = x[:, None, None] + (1 - x)[:, None, None] * t[None, None, :]  # (n_outer, 1, n_inner)
