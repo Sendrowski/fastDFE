@@ -285,6 +285,9 @@ class Config:
         if self.data.get('h_callback') is not None:
             logger.warning("The dominance callback 'h_callback' cannot be serialized and is omitted.")
 
+        if any(cov.callback is not None for cov in self.data.get('covariates') or []):
+            logger.warning("The callbacks of covariates cannot be serialized and are omitted.")
+
         return json.dumps(self.to_dict(), indent=4, cls=CustomEncoder)
 
     def to_yaml(self) -> str:

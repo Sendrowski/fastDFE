@@ -319,6 +319,21 @@ class ConfigTestCase(TestCase):
                 self.assertEqual(restored.data['model'].scales, model.scales)
                 self.assertEqual(restored.data['model'].x0, model.x0)
 
+    def test_serializing_covariate_callback_warns(self):
+        """
+        Serializing a config with a covariate callback logs a warning, as for the dominance callback. The
+        callback was omitted without notice, so the restored covariate was the default linear one.
+        """
+        config = Config(covariates=[Covariate(param='S_d', values=dict(a=1, b=2), callback=lambda cov, **kwargs: cov)])
+
+        with self.assertLogs('fastdfe', level='WARNING') as logs:
+            config.to_json()
+
+        self.assertTrue(any('covariates' in message for message in logs.output))
+
+        with self.assertNoLogs('fastdfe', level='WARNING'):
+            Config(covariates=[Covariate(param='S_d', values=dict(a=1, b=2))]).to_json()
+
     def test_restore_covariates(self):
         """
         Test whether covariates can be properly restored from file.
