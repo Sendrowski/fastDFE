@@ -192,16 +192,22 @@ class SLiMTestCase(TestCase):
             else:
                 cached[sim.discretization] = sim.discretization
 
-            sfs_sel = sim.run()
-            comp = fd.Spectra(dict(slim=spectra['selected'], fastdfe=sfs_sel))
+            def get_diff(sfs_sel: fd.Spectrum) -> float:
+                """
+                Root mean squared relative difference of a modelled SFS to the SLiM result.
 
-            diff_rel = (comp['slim'].data[:-1] - comp['fastdfe'].data[:-1]) / comp['slim'].data[:-1]
+                :param sfs_sel: Modelled selected SFS
+                :return: Root mean squared relative difference
+                """
+                slim = spectra['selected'].data[:-1]
+                diff_rel = (slim - sfs_sel.data[:-1]) / slim
 
-            # exclude bins with few counts due to large variance
-            diff_rel[comp['slim'].data[:-1] < 20] = 0
+                # exclude bins with few counts due to large variance
+                diff_rel[slim < 20] = 0
 
-            # compute root mean squared error
-            diff = np.sqrt((diff_rel ** 2).mean())
+                return np.sqrt((diff_rel ** 2).mean())
+
+            diff = get_diff(sim.run())
 
             if diff < tol:
                 fd.logger.info(f"{diff:.3f} < {tol} for {params}")
@@ -209,6 +215,18 @@ class SLiMTestCase(TestCase):
                 fd.logger.fatal(f"{diff:.3f} >= {tol} for {params}")
 
             self.assertLess(diff, tol)
+
+            # a dominance coefficient far from 0.5 fits better than semidominance, which the tolerance alone lets pass
+            if abs(params.get('h', 0.5) - 0.5) >= 0.2:
+                semidominant = fd.Simulation(
+                    params=params | dict(h=0.5),
+                    sfs_neut=spectra['neutral'],
+                    model=model,
+                    intervals_del=(-1.0e+8, -1.0e-5, 100),
+                    intervals_ben=(1.0e-5, 1.0e4, 100)
+                )
+
+                self.assertLess(diff, get_diff(semidominant.run()))
 
     # SLiM configs carrying beneficial mutations (p_b > 0), whose fixed (n-)class therefore contains
     # a non-trivial amount of selected divergence
