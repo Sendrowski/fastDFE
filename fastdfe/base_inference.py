@@ -2131,6 +2131,13 @@ class BaseInference(AbstractInference):
 
         :return: JSON string
         """
+        callback = self.discretization.h_callback
+
+        # only functions defined at module level are restored
+        if callback is not None and '<' in callback.__qualname__:
+            self._logger.warning("The dominance callback 'h_callback' is a lambda or local function, "
+                                 "which cannot be serialized, and is omitted.")
+
         # using make_ref=True resulted in weird behaviour when unserializing.
         return jsonpickle.encode(self, indent=4, warn=True, make_refs=False)
 

@@ -2325,6 +2325,33 @@ class SmokeTestCase(TestCase):
 
         self.assertEqual(fixed_params, dict(all=dict(eps=0, h=0.5)))
 
+    def test_serializing_lambda_h_callback_warns(self):
+        """
+        Serializing an inference whose dominance callback is a lambda logs a warning, as the callback is
+        not restored. It was dropped without notice, so the restored inference used a constant ``h``.
+        """
+        kwargs = dict(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            intervals_h=(0, 1, 3),
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1)),
+            do_bootstrap=False,
+            parallelize=False
+        )
+
+        inf = fd.BaseInference(h_callback=lambda h, S: np.where(S < 0, h, 0.5), **kwargs)
+
+        with self.assertLogs('fastdfe', level='WARNING') as logs:
+            restored = fd.BaseInference.from_json(inf.to_json())
+
+        self.assertTrue(any('h_callback' in message for message in logs.output))
+        self.assertIsNone(restored.discretization.h_callback)
+
+        with self.assertNoLogs('fastdfe', level='WARNING'):
+            fd.BaseInference(**kwargs).to_json()
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

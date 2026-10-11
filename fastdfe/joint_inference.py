@@ -13,7 +13,6 @@ import re
 import time
 from typing import List, Dict, Tuple, Literal, Optional, cast, Callable, TYPE_CHECKING
 
-import jsonpickle
 import multiprocess as mp
 import numpy as np
 import pandas as pd
@@ -1442,8 +1441,7 @@ class JointInference(BaseInference):
 
         :return: JSON string
         """
-        # using make_ref=True resulted in weird behaviour when unserializing.
-        return jsonpickle.encode(self, indent=4, warn=True, make_refs=False)
+        return BaseInference.to_json(self)
 
     def get_dfe(self) -> Dict[str, DFE]:
         """
