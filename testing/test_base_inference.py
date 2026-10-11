@@ -2704,6 +2704,31 @@ class SmokeTestCase(TestCase):
         with self.assertRaises(ValueError):
             fd.Inference.plot_inferred_parameters_boxplot([with_bootstraps, without], labels=['a', 'b'], show=False)
 
+    def test_recorded_initial_values_hold_fixed_parameters_at_their_values(self):
+        """
+        The initial values recorded for the runs and the bootstraps show fixed parameters at their fixed
+        values, at which the optimization holds them. They showed default or sampled values instead.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            fixed_params=dict(all=dict(b=0.3, h=0.5, eps=0, p_b=0, S_b=1)),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=True,
+            n_bootstraps=2,
+            n_bootstrap_retries=3,
+            n_runs=3,
+            parallelize=False
+        )
+        inf.run()
+
+        for x0 in inf.runs.x0:
+            self.assertIn("'all.b': 0.3,", x0)
+
+        for runs in inf.bootstraps.x0_runs:
+            self.assertEqual([x0['all.b'] for x0 in runs], [0.3, 0.3, 0.3])
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

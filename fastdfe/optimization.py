@@ -1031,8 +1031,11 @@ class Optimization:
                 logger.warning(f'A large number of parameters is optimized jointly. '
                                f'Please be aware that this makes it harder to find a good optimum.')
 
-        # correct initial values to be within bounds
-        self.x0 = unflatten_dict(correct_values(flattened, self.bounds, warn=True, scales=self.scales))
+        # correct initial values to be within bounds, fixed parameters starting at their values
+        self.x0 = unflatten_dict(
+            correct_values(flattened, self.bounds, warn=True, scales=self.scales) |
+            {k: v for k, v in self.fixed_params.items() if k in flattened}
+        )
 
         # determine parameter bounds
         bounds = self.get_bounds(flatten_dict(self.x0))
@@ -1231,6 +1234,12 @@ class Optimization:
                 sample[key] = self.sample_x0(value, random_state)
             elif key in self.bounds and key in self.scales:
                 sample[key] = self.sample_value(self.bounds[key], self.scales[key], random_state)
+
+        # fixed parameters keep their values, which are keyed by type and parameter
+        if any(isinstance(value, dict) for value in sample.values()):
+            flat = flatten_dict(sample)
+
+            return unflatten_dict(flat | {k: v for k, v in self.fixed_params.items() if k in flat})
 
         return sample
 
