@@ -1120,7 +1120,7 @@ class BaseInferenceTestCase(InferenceTestCase):
         inf_params_mle = np.array(list((inf.params_mle | {'h': 0.5}).values()))
         inf2_params_mle = np.array(list(inf2.params_mle.values()))
 
-        diff = np.abs(inf_params_mle - inf2_params_mle) / (inf_params_mle + 1e-10)
+        diff = np.abs(inf_params_mle - inf2_params_mle) / (np.abs(inf_params_mle) + 1e-10)
 
         # compare MLE parameters
         self.assertLess(diff.max(), 1e-3)
