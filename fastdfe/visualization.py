@@ -272,6 +272,9 @@ class Visualization:
         # get interval sizes
         _, interval_sizes = Discretization.get_midpoints_and_spacing(bins)
 
+        # the density of an unbounded interval is not defined and left out
+        interval_sizes = np.where(np.isfinite(interval_sizes), interval_sizes, np.nan)
+
         for i in range(n_dfes):
             x = np.arange(n_bins)
 

@@ -201,6 +201,26 @@ def test_plot_continuous_band_has_colour_of_its_line():
     np.testing.assert_allclose(ax.collections[0].get_facecolor()[0][:3], to_rgba(ax.lines[1].get_color())[:3])
     plt.close('all')
 
+def test_plot_continuous_leaves_out_unbounded_intervals():
+    """
+    The density plot leaves out intervals with an infinite bound, whose density is not defined. They were
+    drawn at a density of zero, whatever mass they held.
+    """
+    import matplotlib.pyplot as plt
+    from fastdfe.visualization import Visualization
+
+    bins = np.array([-np.inf, -10.0, -1.0, 1.0, np.inf])
+    values = [np.array([0.4, 0.2, 0.1, 0.3])]
+
+    _, ax = plt.subplots()
+    Visualization.plot_continuous(ax=ax, bins=bins, values=values, show=False)
+
+    density = ax.lines[0].get_ydata()
+
+    assert np.isnan(density[[0, 3]]).all()
+    np.testing.assert_allclose(density[1:3], [0.2 / 9, 0.1 / 2])
+    plt.close('all')
+
 def test_plot_scatter_symlog_scale():
     """
     ``plot_scatter`` uses a symmetric log axis for both ``log`` and ``symlog``, and a linear one for ``lin``.
