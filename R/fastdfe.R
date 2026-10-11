@@ -220,7 +220,16 @@ install_fastdfe <- function(version = NULL, extras = c("vcf"), force = FALSE, si
 
   spec <- py_requirement(version, extras)
 
-  reticulate::py_require(spec, python_version = python_version)
+  # replace the requirement and the Python version declared before
+  declared <- reticulate::py_require()$packages
+  declared <- declared[grepl("^fastdfe(\\[|=|$)", declared)]
+
+  if (length(declared) > 0) {
+    reticulate::py_require(declared, action = "remove")
+  }
+
+  reticulate::py_require(spec)
+  reticulate::py_require(python_version = python_version, action = "set")
 
   if (!silent) {
     message("Declared Python requirement '", spec, "' on Python ", python_version, ".")
