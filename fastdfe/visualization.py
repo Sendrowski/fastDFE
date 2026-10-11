@@ -7,6 +7,7 @@ __contact__ = "sendrowski.janek@gmail.com"
 __date__ = "2023-02-26"
 
 import functools
+import inspect
 import logging
 from typing import Callable, List, Literal, Dict, Sequence
 
@@ -61,22 +62,25 @@ class Visualization:
             :return: Axes
             """
 
+            # arguments by name, however they were passed
+            bound = inspect.signature(func).bind_partial(*args, **kwargs)
+
             # add axes if not given
-            if 'ax' not in kwargs or ('ax' in kwargs and kwargs['ax'] is None):
+            if bound.arguments.get('ax') is None:
                 # clear current figure
                 plt.close()
 
-                kwargs['ax'] = plt.gca()
+                bound.arguments['ax'] = plt.gca()
 
             # execute function
-            func(*args, **kwargs)
+            func(*bound.args, **bound.kwargs)
 
             # show or save
             # show by default here
             return Visualization.show_and_save(
-                file=kwargs['file'] if 'file' in kwargs else None,
-                show=kwargs['show'] if 'show' in kwargs else True,
-                ax=kwargs['ax']
+                file=bound.arguments.get('file'),
+                show=bound.arguments.get('show', True),
+                ax=bound.arguments['ax']
             )
 
         return wrapper

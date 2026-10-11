@@ -246,6 +246,22 @@ def test_plots_accept_labels_that_are_not_strings():
     )
     plt.close('all')
 
+def test_plot_helpers_accept_positional_axes_file_and_show(tmp_path):
+    """
+    The plot helpers treat the axes, file and ``show`` alike whether they are passed by position or by
+    keyword. Passed by position, the axes raised a ``TypeError`` and the file was not written.
+    """
+    import matplotlib.pyplot as plt
+    from fastdfe.visualization import Visualization
+
+    file = str(tmp_path / 'scatter.png')
+
+    _, ax = plt.subplots()
+
+    assert Visualization.plot_scatter([1.0, 2.0, 3.0], file, False, ax) is ax
+    assert (tmp_path / 'scatter.png').exists()
+    plt.close('all')
+
 def test_plot_scatter_symlog_scale():
     """
     ``plot_scatter`` uses a symmetric log axis for both ``log`` and ``symlog``, and a linear one for ``lin``.
