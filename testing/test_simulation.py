@@ -139,13 +139,17 @@ class SLiMTestCase(TestCase):
         """
         self._compare_against_slim([f for f in self.configs_slim if 'dominance_function_' in f], tol=0.04)
 
-    def _compare_against_slim(self, configs, tol: float = 0.16):
+    def _compare_against_slim(self, configs, tol: float = 0.08):
         """
         Compare the modelled selected SFS against the SLiM result of each of the given configurations.
 
         :param configs: Paths to the SLiM spectra
-        :param tol: Largest accepted root mean squared relative difference
+        :param tol: Largest accepted root mean squared relative difference. Over the configurations with a
+            dominance coefficient, the largest difference is 0.059, apart from those given ``tol_strong``.
         """
+        # Strongly beneficial mutations (``s_b=1e-2``) that are dominant differ from SLiM by 0.077 to 0.124, which
+        # grows with the dominance coefficient and is not an error of the quadrature.
+        tol_strong = 0.16
         self.assertGreater(len(configs), 0)
 
         cached = {}
@@ -209,12 +213,10 @@ class SLiMTestCase(TestCase):
 
             diff = get_diff(sim.run())
 
-            if diff < tol:
-                fd.logger.info(f"{diff:.3f} < {tol} for {params}")
+            if params['s_b'] == 1e-2 and params.get('h', 0.5) >= 0.8:
+                self.assertLess(diff, tol_strong, params)
             else:
-                fd.logger.fatal(f"{diff:.3f} >= {tol} for {params}")
-
-            self.assertLess(diff, tol)
+                self.assertLess(diff, tol, params)
 
             # a dominance coefficient far from 0.5 fits better than semidominance, which the tolerance alone lets pass
             if abs(params.get('h', 0.5) - 0.5) >= 0.2:
