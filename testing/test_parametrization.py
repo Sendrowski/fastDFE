@@ -702,6 +702,18 @@ class FastParametrizationTestCase(TestCase):
                 model._normalize(dict(params))
                 self.assertIsInstance(model.freeze(params), fd.DFE)
 
+    def test_dfe_accepts_list_of_boundaries(self):
+        """
+        A DFE is discretized and evaluated for boundaries given as a list, as its plots are. A list raised a
+        ``TypeError`` from inside the parametrization.
+        """
+        dfe = fd.DFE(dict(S_d=-300., b=0.3, p_b=0.05, S_b=2.))
+        intervals = [-np.inf, -1, 0, np.inf]
+
+        np.testing.assert_array_equal(dfe.discretize(intervals)[0], dfe.discretize(np.array(intervals))[0])
+        np.testing.assert_array_equal(dfe.cdf([-1, 1]), dfe.cdf(np.array([-1., 1.])))
+        np.testing.assert_array_equal(dfe.pdf([-1, 1]), dfe.pdf(np.array([-1., 1.])))
+
     def test_plot_discretized(self):
         """The discretized-DFE plot renders for one model (covers the plotting path)."""
         model = fd.GammaExpParametrization()

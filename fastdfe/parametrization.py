@@ -164,7 +164,7 @@ class Parametrization(Serializable, ABC):
         :param warn_mass: Whether to warn if the total mass is not near 1.
         :return: Histogram
         """
-        x = self.get_cdf(**params)(bins)
+        x = self.get_cdf(**params)(np.asarray(bins, dtype=float))
 
         # issue warning if values at bounds are outside [0, 1]
         if warn_mass and (not -1e-5 < x[0] < 1e-5 or not 1 - 1e-5 < x[-1] < 1 + 1e-5):
@@ -1076,7 +1076,7 @@ class DFE(Serializable):
         :param S: Selection coefficient(s)
         :return: Probability density
         """
-        return self.model.get_pdf(**self.params)(S)
+        return self.model.get_pdf(**self.params)(np.asarray(S, dtype=float))
 
     def cdf(self, S: np.ndarray | float) -> np.ndarray | float:
         """
@@ -1085,7 +1085,7 @@ class DFE(Serializable):
         :param S: Selection coefficient(s)
         :return: Cumulative probability
         """
-        return self.model.get_cdf(**self.params)(S)
+        return self.model.get_cdf(**self.params)(np.asarray(S, dtype=float))
 
     def discretize(
             self,
