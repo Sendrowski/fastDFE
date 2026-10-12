@@ -417,9 +417,10 @@ class BaseInference(AbstractInference):
         # warn if folded is true, and we estimate the full DFE
         if self.folded:
             fixed_dele = set(self.model.submodels['dele'].keys()) if 'dele' in self.model.submodels else set()
-            fixed = set(self.fixed_params['all'].keys()) if 'all' in self.fixed_params else set()
+            fixed_all = set(self.fixed_params.get('all', {}))
+            fixed = [fixed_all | set(v) for t, v in self.fixed_params.items() if t != 'all'] or [fixed_all]
 
-            if not fixed_dele.issubset(fixed):
+            if not all(fixed_dele.issubset(f) for f in fixed):
                 self._logger.warning("You are estimating the full DFE, but the SFS are folded. "
                                      "This is not recommended as the folded SFS contains little information "
                                      "on beneficial mutations.")

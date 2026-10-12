@@ -1,5 +1,6 @@
 import functools
 import json
+import logging
 import os
 import subprocess
 import sys
@@ -1350,6 +1351,34 @@ class FastJointInferenceTestCase(TestCase):
         source = textwrap.dedent(fd.SharedParams.__doc__.split('::')[1])
 
         exec(source.replace('inf.run()', ''), {})
+
+    def test_folded_joint_inference_with_fixed_parameters_by_type(self):
+        """
+        A folded joint inference whose beneficial parameters are fixed for each type does not warn about
+        estimating the full DFE. Only the parameters fixed for ``all`` were considered, so the warning was
+        logged for an inference restored from its own config.
+        """
+        fixed = dict(eps=0, h=0.5, p_b=0, S_b=1)
+        spectra = dict(
+            sfs_neut=fd.Spectra(dict(a=list(self.sfs_neut.fold()), b=list(self.sfs_neut.fold()))),
+            sfs_sel=fd.Spectra(dict(a=list(self.sfs_sel.fold()), b=list(self.sfs_sel.fold())))
+        )
+
+        def warnings(**kwargs) -> list:
+            """
+            Warnings on the full DFE logged when constructing the inference.
+            """
+            with self.assertLogs('fastdfe', level='WARNING') as logs:
+                logging.getLogger('fastdfe').warning('sentinel')
+                fd.JointInference(
+                    intervals_del=(-1.0e+8, -1.0e-5, 20), intervals_ben=(1.0e-5, 1.0e4, 20), parallelize=False,
+                    **spectra, **kwargs
+                )
+
+            return [m for m in logs.output if 'full DFE' in m]
+
+        self.assertEqual(warnings(fixed_params=dict(a=fixed, b=fixed)), [])
+        self.assertNotEqual(warnings(fixed_params=dict(a=fixed, b=dict(eps=0, h=0.5))), [])
 
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
