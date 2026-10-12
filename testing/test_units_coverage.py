@@ -346,6 +346,30 @@ def test_interval_labels_keep_fractional_boundaries():
     assert '-0.5' in labels[0] and '0.25' in labels[0]
     assert '-100' in labels[1] and '1000000' in labels[1] and '.' not in labels[1]
 
+def test_plot_spectra_accepts_array_of_colors():
+    """
+    ``plot_spectra`` takes its colours as a numpy array, with and without subplots. The array was tested for
+    truth, which raised a ``ValueError``.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import to_rgba
+    from fastdfe.visualization import Visualization
+
+    spectra = [[100, 10, 5, 2, 20], [100, 12, 4, 3, 20]]
+
+    for use_subplots in [False, True]:
+        Visualization.plot_spectra(
+            spectra=spectra, labels=['a', 'b'], colors=np.array(['C3', 'C4']), use_subplots=use_subplots, show=False,
+            file=None, ax=None
+        )
+
+        # the bars of the two spectra take the two colours
+        colors = {patch.get_facecolor() for ax in plt.gcf().axes for patch in ax.patches}
+
+        assert colors == {to_rgba('C3'), to_rgba('C4')}
+
+        plt.close('all')
+
 def test_plot_scatter_symlog_scale():
     """
     ``plot_scatter`` uses a symmetric log axis for both ``log`` and ``symlog``, and a linear one for ``lin``.

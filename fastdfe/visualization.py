@@ -633,7 +633,7 @@ class Visualization:
                 Visualization.plot_spectra(
                     spectra=[spectra[i]],
                     labels=[labels[i]] if len(labels) else [],
-                    colors=[colors[i]] if colors else None,
+                    colors=[colors[i]] if colors is not None and len(colors) else None,
                     ax=axes[i],
                     n_ticks=15 // min(2, n_cols),
                     log_scale=log_scale,
@@ -668,7 +668,7 @@ class Visualization:
                 height=sfs if show_monomorphic else sfs[1:-1],
                 width=width,
                 label=labels[i] if len(labels) else None,
-                color=colors[i] if colors else None,
+                color=colors[i] if colors is not None and len(colors) else None,
                 linewidth=0,
                 hatch=Visualization.get_hatch(i, labels)
             )
