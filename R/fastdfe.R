@@ -556,7 +556,7 @@ load_fastdfe <- function(install = FALSE) {
     # bottom of the axis
     if (log_scale) {
       df <- df[df$y > 0, ]
-      df$ymin <- 10^(ceiling(log10(min(df$y))) - 1)
+      df$ymin <- if (nrow(df)) 10^(ceiling(log10(min(df$y))) - 1) else numeric(0)
     } else {
       df$ymin <- 0
     }

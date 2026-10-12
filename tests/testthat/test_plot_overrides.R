@@ -11,6 +11,12 @@ test_that("log-scale spectrum bars have a positive height for a smallest count t
   expect_true(all(bars$ymax > bars$ymin))
 })
 
+test_that("a log-scale spectrum plot without a positive count is an empty plot", {
+  p <- viz$plot_spectra(list(c(100, 0, 0, 0, 10)), log_scale = TRUE, show = FALSE)
+
+  expect_equal(nrow(ggplot2::layer_data(p)), 0)
+})
+
 test_that("the scatter plot uses a symmetric log axis for 'symlog' as for 'log'", {
   scale_of <- function(scale) {
     p <- viz$plot_scatter(values = c(-1, 2, 3), scale = scale, show = FALSE)
