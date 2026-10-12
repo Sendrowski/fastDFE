@@ -70,7 +70,7 @@ class Visualization:
                 # clear current figure
                 plt.close()
 
-                bound.arguments['ax'] = plt.gca()
+                bound.arguments['ax'] = plt.figure().gca()
 
             # execute function
             func(*bound.args, **bound.kwargs)

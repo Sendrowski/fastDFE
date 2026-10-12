@@ -314,6 +314,26 @@ def test_inference_restored_without_logger_has_one():
 
     assert object.__new__(PolyDFE)._logger.name.startswith('fastdfe')
 
+def test_plot_without_axes_leaves_other_figures_untouched():
+    """
+    A plot called without axes draws onto a figure of its own. With several figures open it closed the latest
+    one and drew onto the axes of the one before.
+    """
+    import matplotlib.pyplot as plt
+    from fastdfe.visualization import Visualization
+
+    plt.close('all')
+
+    _, other = plt.subplots()
+    plt.figure()
+
+    ax = Visualization.plot_scatter(values=[1, 2, 3], file=None, show=False)
+
+    assert ax is not other
+    assert len(other.lines) + len(other.collections) == 0
+
+    plt.close('all')
+
 def test_plot_scatter_symlog_scale():
     """
     ``plot_scatter`` uses a symmetric log axis for both ``log`` and ``symlog``, and a linear one for ``lin``.
