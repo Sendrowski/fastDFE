@@ -1451,6 +1451,21 @@ class FastJointInferenceTestCase(TestCase):
                          'strength of selection')
         self.assertEqual(inf.plot_covariate(show=False).get_ylabel(), '$S_d$')
 
+    def test_evaluate_likelihood_of_type_with_covariate(self):
+        """
+        The inference of a type evaluates the likelihood at its own estimates when the joint inference has a
+        covariate. The estimates hold the parameter of the covariate, which raised a ``KeyError``.
+        """
+        inf = self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=1, b=5))])
+        inf.run()
+
+        per_type = [
+            inf.joint_inferences[t].evaluate_likelihood(dict(all=inf.joint_inferences[t].params_mle))
+            for t in inf.types
+        ]
+
+        self.assertAlmostEqual(sum(per_type), inf.likelihood, places=6)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

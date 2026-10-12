@@ -653,9 +653,12 @@ class BaseInference(AbstractInference):
         """
         Evaluate likelihood function at given parameters.
 
-        :param params: Parameters indexed by type and parameter name.
+        :param params: Parameters indexed by type and parameter name. Parameters the inference does not
+            optimize are ignored.
         :return: The log-likelihood, or the negative L2 residual if the loss type is ``L2``.
         """
+        params = {t: {k: v for k, v in p.items() if k in self.optimization.param_names} for t, p in params.items()}
+
         x0_cached = self.optimization.x0
         self.optimization.x0 = params
 
