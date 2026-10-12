@@ -1053,7 +1053,7 @@ class Visualization:
             )
 
         # set labels
-        ax.set(xlabel=xlabel, ylabel=Visualization.name_to_label(ylabel))
+        ax.set(xlabel=xlabel, ylabel=ylabel)
 
         # set title
         ax.set_title(title)

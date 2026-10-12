@@ -1484,7 +1484,7 @@ class JointInference(BaseInference):
             show=show,
             title=title,
             xlabel=xlabel,
-            ylabel=ylabel or cov.param,
+            ylabel=ylabel or Visualization.name_to_label(cov.param),
             labels=self.types if show_types else None,
             ax=ax
         )

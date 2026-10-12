@@ -1436,6 +1436,19 @@ class FastJointInferenceTestCase(TestCase):
             covariate.perform_lrt_covariates(), chi2.sf(2 * (covariate.likelihood - simple.likelihood), 1)
         )
 
+    def test_plot_covariate_shows_given_label_as_text(self):
+        """
+        A y-axis label given to ``plot_covariate`` is shown as given, and the default is the parameter in
+        math mode. Every label was set in math mode, which dropped the spaces of a given one.
+        """
+        inf = self._make(
+            covariates=[fd.Covariate(param='S_d', values=dict(a=1, b=5))], do_bootstrap=True, n_bootstraps=2
+        )
+
+        self.assertEqual(inf.plot_covariate(show=False, ylabel='strength of selection').get_ylabel(),
+                         'strength of selection')
+        self.assertEqual(inf.plot_covariate(show=False).get_ylabel(), '$S_d$')
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
