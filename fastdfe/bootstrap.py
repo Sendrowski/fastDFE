@@ -66,7 +66,7 @@ class Bootstrap:
         Get the bias-corrected confidence interval spanning the a to 1 - a quantiles, i.e. the BCa interval with
         the acceleration set to zero, cf. An Introduction to the Bootstrap, Bradley Efron, Robert J. Tibshirani,
         section 14.3. The bias correction is the standard normal quantile of the fraction of bootstraps below the
-        original value.
+        original value, counting ties as one half.
 
         :param bootstraps: List of bootstraps
         :param original: Original value
@@ -83,7 +83,8 @@ class Bootstrap:
 
         # keep the fraction within (0, 1), where the quantile is finite
         eps = np.finfo(float).eps
-        z0_hat = normal.ppf(np.clip(sum(data < original) / n, eps, 1 - eps))
+        below = (np.sum(data < original) + 0.5 * np.sum(data == original)) / n
+        z0_hat = normal.ppf(np.clip(below, eps, 1 - eps))
         z_a = normal.ppf(a)
 
         a1 = normal.cdf(2 * z0_hat + z_a)

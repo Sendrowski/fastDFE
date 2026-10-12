@@ -214,6 +214,21 @@ class FastBootstrapTestCase(TestCase):
             list(Bootstrap.get_ci_percentile(bs, 0.05))
         )
 
+    def test_bca_ci_with_bootstraps_tied_with_original(self):
+        """
+        Bootstraps equal to the original value count half below and half above it in the bias correction, so
+        the interval of the negated data is the negated interval. Ties counted as above, which collapsed the
+        interval onto a lower bound shared by the original value and part of the bootstraps.
+        """
+        bs = np.concatenate([np.zeros(60), np.linspace(0.01, 0.3, 40)])
+
+        lower, upper = Bootstrap.get_ci_bca(bs, 0.0, 0.05)
+        mirrored = Bootstrap.get_ci_bca(-bs, 0.0, 0.05)
+
+        self.assertEqual(lower, 0)
+        self.assertGreater(upper, 0.05)
+        self.assertEqual((-mirrored[1], -mirrored[0]), (lower, upper))
+
     def test_bca_ci(self):
         """BCa CI brackets."""
         lo, hi = Bootstrap.get_ci_bca(self.bs, original=0.0, a=0.05)
