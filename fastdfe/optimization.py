@@ -1207,6 +1207,8 @@ class Optimization:
         if random_state is None:
             random_state = self.rng
 
+        random_state = np.random.default_rng(random_state)
+
         sample = {}
 
         for key, value in example.items():

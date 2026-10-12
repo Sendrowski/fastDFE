@@ -528,6 +528,21 @@ class OptimizationTestCase(TestCase):
         ]:
             self.assertEqual(expand_fixed(fixed_params, ['a', 'c']), expected)
 
+    def test_sample_x0_with_integer_seed_draws_parameters_independently(self):
+        """
+        Initial values sampled with an integer seed are independent draws. Each parameter was drawn from a
+        generator newly created from the seed, so all took the same quantile of their bounds.
+        """
+        names = ['a', 'b', 'c']
+        opt = Optimization(
+            bounds={k: (1e-3, 1e3) for k in names}, scales={k: 'log' for k in names}, param_names=names
+        )
+
+        sample = opt.sample_x0(dict(all=dict(a=1, b=1, c=1)), random_state=5)['all']
+
+        self.assertEqual(len(set(sample.values())), 3)
+        self.assertEqual(sample, opt.sample_x0(dict(all=dict(a=1, b=1, c=1)), random_state=5)['all'])
+
     def test_collapse_fixed_to_mean(self):
         """
         Test the collapse_fixed_to_mean function.
