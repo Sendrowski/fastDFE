@@ -2121,6 +2121,42 @@ class SmokeTestCase(TestCase):
 
         plt.close(fig)
 
+    def test_folded_inference_on_unfolded_spectra_matches_folded_input(self):
+        """
+        ``folded=True`` on unfolded spectra gives the likelihood of the same spectra passed folded, whatever
+        the polarization of the input. The demographic correction used one ratio per allele count unless the
+        neutral spectrum itself was folded, so the likelihood changed with the polarization although the
+        folded data did not.
+        """
+        kwargs = dict(
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)),
+            do_bootstrap=False,
+            parallelize=False
+        )
+        params = dict(S_d=-1000, b=0.3, p_b=0, S_b=1, eps=0, h=0.5)
+
+        def flip(sfs: fd.Spectrum, e: float) -> fd.Spectrum:
+            """
+            Exchange a fraction of the derived and ancestral alleles, which leaves the folded spectrum as is.
+            """
+            data = sfs.data.copy()
+            data[1:-1] = (1 - e) * sfs.polymorphic + e * sfs.polymorphic[::-1]
+
+            return fd.Spectrum(data)
+
+        expected = fd.BaseInference(
+            sfs_neut=self.sfs_neut.fold(), sfs_sel=self.sfs_sel.fold(), **kwargs
+        ).evaluate_likelihood(dict(all=params))
+
+        for e in [0, 0.2]:
+            observed = fd.BaseInference(
+                sfs_neut=flip(self.sfs_neut, e), sfs_sel=flip(self.sfs_sel, e), folded=True, **kwargs
+            ).evaluate_likelihood(dict(all=params))
+
+            self.assertAlmostEqual(observed, expected, places=6)
+
     def test_folded_inference_on_unfolded_spectra_compares_folded_spectra(self):
         """
         With ``folded=True`` on unfolded spectra, the residual and the SFS comparison plot use the folded

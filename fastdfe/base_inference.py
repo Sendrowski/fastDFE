@@ -1119,7 +1119,7 @@ class BaseInference(AbstractInference):
         counts_modelled *= sfs_neut.theta * sfs_sel.n_sites
 
         # add contribution of demography and adjust polarization error
-        counts_modelled = cls._add_demography(sfs_neut, counts_modelled, eps=params['eps'])
+        counts_modelled = cls._add_demography(sfs_neut, counts_modelled, eps=params['eps'], folded=folded)
 
         # fold if necessary
         if folded:
@@ -1217,7 +1217,8 @@ class BaseInference(AbstractInference):
             cls,
             sfs_neut: Spectrum,
             counts_sel: np.ndarray,
-            eps: float
+            eps: float,
+            folded: bool = False
     ) -> np.ndarray:
         """
         Add the effect of demography to counts_sel by considering
@@ -1227,6 +1228,7 @@ class BaseInference(AbstractInference):
         :param sfs_neut: Observed spectrum of neutral sites.
         :param counts_sel: Modelled counts of selected sites.
         :param eps: Rate of ancestral misidentification.
+        :param folded: Whether the SFS are compared folded.
         :return: Adjusted counts of selected sites.
         """
         # normalized counts of the standard coalescent
@@ -1248,7 +1250,7 @@ class BaseInference(AbstractInference):
         # Note that the nuisance parameters naturally are sensitive to a large
         # sampling variance in the neutral SFS.
         # However, DFE inference on `wiggly` spectra is not advisable anyway.
-        if cls._is_folded(sfs_neut):
+        if folded or cls._is_folded(sfs_neut):
             # the distortion of two allele counts folded together is not identifiable,
             # so both take the ratio of their summed counts
             neutral_observed = neutral_observed + neutral_observed[::-1]
