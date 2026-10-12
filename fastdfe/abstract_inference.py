@@ -158,7 +158,8 @@ class Inference:
         # plot DFEs
         return Visualization.plot_continuous(
             bins=intervals,
-            **locals()
+            **{k: v for k, v in locals().items() if k != 'kwargs'},
+            **kwargs
         )
 
     @staticmethod

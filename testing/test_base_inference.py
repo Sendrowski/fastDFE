@@ -2568,6 +2568,25 @@ class SmokeTestCase(TestCase):
         with self.assertRaisesRegex(ValueError, 'loss_type'):
             inf.compare_nested_models()
 
+    def test_plot_continuous_passes_on_keyword_arguments(self):
+        """
+        The static ``Inference.plot_continuous`` passes its additional keyword arguments on to the plot, such
+        as the lower limit of the y-axis. They arrived as one argument named ``kwargs`` and were ignored.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        ax = fd.Inference.plot_continuous([inf], show=False, scale='log', confidence_intervals=False, ylim=1e-7)
+
+        self.assertAlmostEqual(ax.get_ylim()[0], 1e-7)
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty
