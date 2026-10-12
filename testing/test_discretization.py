@@ -164,6 +164,26 @@ class DiscretizationTestCase(TestCase):
         with self.assertRaises(ValueError):
             Discretization(intervals_h=(0, 1.5, 3), h_callback=lambda h, S: np.full_like(S, 0.5), **kwargs)
 
+    def test_dominance_coefficient_a_rounding_error_outside_grid(self):
+        """
+        A dominance coefficient that leaves the precomputed grid by a rounding error is taken at the boundary
+        of the grid. With ``h`` on the log scale the lower bound 0.05 is recovered as ``10 ** log10(0.05)``,
+        which is slightly smaller and raised a ``ValueError`` that aborted the fit.
+        """
+        d = Discretization(
+            n=6, h=None, intervals_h=(0.05, 1, 3), intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5)
+        )
+
+        self.assertLess(10 ** np.log10(0.05), 0.05)
+
+        i, w = d.get_interpolation_weights(10 ** np.log10(0.05))
+
+        np.testing.assert_array_equal(i, 0)
+        np.testing.assert_array_equal(w, 1)
+
+        with self.assertRaises(ValueError):
+            d.get_interpolation_weights(0.0499)
+
     def test_dominance_kernel_resolves_highest_frequency_class(self):
         """
         The numerical kernel for general dominance agrees with the closed form under semidominance in the

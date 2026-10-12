@@ -612,6 +612,10 @@ class Discretization:
         """
         hs = self.map_h(h, self.s)
 
+        # values a rounding error outside the precomputed range are moved onto its boundary
+        clipped = np.clip(hs, self.grid_h.min(), self.grid_h.max())
+        hs = np.where(np.isclose(hs, clipped, rtol=1e-12, atol=1e-12), clipped, hs)
+
         # require h within precomputed range
         if hs.min() < self.grid_h.min():
             raise ValueError(f'Dominance coefficient {hs.min()} smaller than precomputed minimum {self.grid_h.min()}.')
