@@ -965,7 +965,7 @@ class BaseInference(AbstractInference):
 
         # assign average likelihood of successful runs
         if update_likelihood:
-            self.likelihood = np.mean([-res.fun for res in result[:, 0] if res.success] + [self.likelihood])
+            self.likelihood = np.mean([-res.fun for res in result[:, 0] if res.success] + [-self.result.fun])
 
         return self.bootstraps
 

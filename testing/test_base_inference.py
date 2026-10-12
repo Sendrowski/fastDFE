@@ -2476,6 +2476,34 @@ class SmokeTestCase(TestCase):
         self.assertEqual(inf.params_mle, params)
         self.assertAlmostEqual(inf.likelihood, inf.evaluate_likelihood(dict(all=params)))
 
+    def test_repeated_bootstrap_updates_likelihood_from_mle(self):
+        """
+        With ``update_likelihood=True`` the likelihood is the mean over the bootstrap samples and the
+        likelihood of the fit. A second bootstrap averaged with the mean of the first one.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_bootstraps=3,
+            n_runs=1,
+            parallelize=False,
+            seed=0
+        )
+        inf.run()
+
+        original = inf.likelihood
+
+        for _ in range(2):
+            inf.bootstrap(update_likelihood=True)
+
+            self.assertAlmostEqual(
+                inf.likelihood,
+                np.mean(list(inf.bootstraps.likelihood[inf.bootstraps.success]) + [original])
+            )
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty
