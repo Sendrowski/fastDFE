@@ -455,6 +455,18 @@ fixed_params:
             self.assertEqual(x0['S_d'], S_d)
             self.assertEqual(fixed_params['p_b'], 0)
 
+    def test_configs_do_not_share_default_lists(self):
+        """
+        Each config holds its own lists of shared parameters and covariates. Configs created without these
+        arguments held the same two lists, so appending to one changed all.
+        """
+        config = Config()
+        config.data['covariates'].append(Covariate(param='S_d', values=dict(a=1, b=2)))
+        config.data['shared_params'].append(SharedParams())
+
+        self.assertEqual(Config().data['covariates'], [])
+        self.assertEqual(Config().data['shared_params'], [])
+
     def test_restore_covariates(self):
         """
         Test whether covariates can be properly restored from file.
