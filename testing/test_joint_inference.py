@@ -1015,7 +1015,9 @@ class FastJointInferenceTestCase(TestCase):
         from unittest import mock
         from fastdfe import optimization
 
-        inf = self._make(shared_params=[fd.SharedParams(params=['S_d'])], do_bootstrap=True, n_bootstraps=2)
+        inf = self._make(
+            shared_params=[fd.SharedParams(params=['S_d'])], do_bootstrap=True, n_bootstraps=2, n_runs=2
+        )
 
         with mock.patch.object(optimization, 'tqdm', wraps=optimization.tqdm) as tqdm:
             inf.run(pbar=False)
