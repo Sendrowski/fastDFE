@@ -15,7 +15,7 @@ from scipy.stats import chi2
 
 import fastdfe as fd
 from fastdfe import JointInference, Config, SharedParams, Covariate, Spectra
-from fastdfe.optimization import flatten_dict
+from fastdfe.optimization import ParamDict
 from testing import TestCase
 from testing.test_base_inference import InferenceTestCase
 
@@ -311,12 +311,12 @@ class JointInferenceTestCase(InferenceTestCase):
             'pubescens': {'eps': 0.123, 'h': 0.5},
         }
 
-        assert inf.marginal_inferences['all'].optimization.fixed_params == flatten_dict(dict(all=fixed['all']))
+        assert inf.marginal_inferences['all'].optimization.fixed_params == ParamDict.flatten(dict(all=fixed['all']))
 
         # check that eps is fixed for all types
         for t in inf.types:
-            assert inf.marginal_inferences[t].optimization.fixed_params == flatten_dict(dict(all=fixed[t]))
-            assert inf.joint_inferences[t].optimization.fixed_params == flatten_dict(dict(all=fixed[t]))
+            assert inf.marginal_inferences[t].optimization.fixed_params == ParamDict.flatten(dict(all=fixed[t]))
+            assert inf.joint_inferences[t].optimization.fixed_params == ParamDict.flatten(dict(all=fixed[t]))
             assert params_mle[t]['eps'] == config.data['fixed_params']['all']['eps']
 
         # check that b is fixed for example_1 and example_2, but not for the others

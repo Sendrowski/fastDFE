@@ -24,9 +24,7 @@ from .base_inference import BaseInference, InferenceResult
 from .bootstrap import Bootstrap
 from .config import Config
 from .discretization import Discretization
-from .optimization import Optimization, SharedParams, pack_shared, expand_shared, \
-    Covariate, flatten_dict, merge_dicts, correct_values, parallelize as parallelize_func, expand_fixed, \
-    collapse_fixed_to_mean, unpack_shared, collapse_fixed
+from .optimization import Optimization, SharedParams, Covariate, ParamDict, parallelize as parallelize_func
 from .parametrization import Parametrization, DFE
 from sfsutils import Settings
 from sfsutils.spectrum import Spectrum, Spectra
@@ -249,7 +247,7 @@ class JointInference(BaseInference):
         fixed_params = {'all': {}} | fixed_params
 
         #: fixed parameters with expanded 'all' type
-        self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, self.types)
+        self.fixed_params: Dict[str, Dict[str, float]] = ParamDict.expand_fixed(fixed_params, self.types)
 
         self._shared_params_given = list(shared_params)
 
@@ -288,7 +286,7 @@ class JointInference(BaseInference):
             #: Discretization instance
             self.discretization: Discretization = Discretization(
                 n=self.n,
-                h=collapse_fixed(self.fixed_params, self.types)['all'].get('h', None),
+                h=ParamDict.collapse_fixed(self.fixed_params, self.types)['all'].get('h', None),
                 intervals_del=intervals_del,
                 intervals_ben=intervals_ben,
                 intervals_h=intervals_h,
@@ -303,7 +301,7 @@ class JointInference(BaseInference):
             self.discretization: Discretization = discretization
 
         # collapse fixed parameters
-        fixed_collapsed = collapse_fixed_to_mean(self.fixed_params, self.types)
+        fixed_collapsed = ParamDict.collapse_fixed_to_mean(self.fixed_params, self.types)
 
         # a seed of its own for the marginal inference of each type, whose bootstraps are thus independent
         seeds = {}
@@ -506,7 +504,7 @@ class JointInference(BaseInference):
             ])
             for given, s in zip(
                 self._shared_params_given,
-                expand_shared(self._shared_params_given, self.types, self.param_names)
+                SharedParams.expand(self._shared_params_given, self.types, self.param_names)
             )
         ]
 
@@ -695,7 +693,7 @@ class JointInference(BaseInference):
         self.params_mle_raw = copy.deepcopy(params_mle)
 
         # unpack shared parameters
-        params_mle = unpack_shared(params_mle)
+        params_mle = SharedParams.unpack(params_mle)
 
         # normalize parameters for each type
         for t in self.types:
@@ -706,7 +704,7 @@ class JointInference(BaseInference):
 
         # assign optimization result and MLE parameters for each type
         for t, inf in self.joint_inferences.items():
-            params_mle[t] = correct_values(
+            params_mle[t] = Optimization.correct_values(
                 params=Covariate._apply(self.covariates, params_mle[t], t),
                 bounds=self.bounds,
                 scales=self.scales
@@ -784,7 +782,7 @@ class JointInference(BaseInference):
         return dict((t, (lambda params, t=t: inf._model_sfs(
             discretization=self.discretization,
             model=self.model,
-            params=correct_values(Covariate._apply(self.covariates, params, t), self.bounds, self.scales),
+            params=Optimization.correct_values(Covariate._apply(self.covariates, params, t), self.bounds, self.scales),
             sfs_neut=self.joint_inferences[t].sfs_neut,
             sfs_sel=self.joint_inferences[t].sfs_sel,
             folded=self.folded,
@@ -957,7 +955,9 @@ class JointInference(BaseInference):
                     get_counts=dict((t, lambda params, t=t: BaseInference._model_sfs(
                         discretization=discretization,
                         model=model,
-                        params=correct_values(Covariate._apply(covariates, params, t), bounds_default, scales_default),
+                        params=Optimization.correct_values(
+                            Covariate._apply(covariates, params, t), bounds_default, scales_default
+                        ),
                         sfs_neut=spectra[t]['neut'],
                         sfs_sel=spectra[t]['sel'],
                         folded=folded,
@@ -968,14 +968,14 @@ class JointInference(BaseInference):
                 )
 
                 # unpack shared parameters
-                params_mle = unpack_shared(params_mle)
+                params_mle = SharedParams.unpack(params_mle)
 
                 for t in types:
                     # normalize parameters for each type
                     params_mle[t] = model._normalize(params_mle[t])
 
                     # add covariates for each type
-                    params_mle[t] = correct_values(
+                    params_mle[t] = Optimization.correct_values(
                         params=Covariate._apply(covariates, params_mle[t], t),
                         bounds=bounds_default,
                         scales=scales_default
@@ -1097,10 +1097,10 @@ class JointInference(BaseInference):
                 shared[':'.join(s.types) + '.' + p] = cast(float, np.mean([x0[t][p] for t in s.types]))
 
         # pack shared parameters
-        packed = pack_shared(x0, self.shared_params, shared)
+        packed = SharedParams.pack(x0, self.shared_params, shared)
 
         # add parameters for covariates and return
-        return merge_dicts(packed, {':'.join(self.types): self._x0_cov})
+        return ParamDict.merge(packed, {':'.join(self.types): self._x0_cov})
 
     @BaseInference._run_if_required_wrapper
     def perform_lrt_shared(self, do_bootstrap: bool = False) -> float:
@@ -1123,7 +1123,7 @@ class JointInference(BaseInference):
 
         # determine number of parameters, fixed parameters cancel out
         n_marginal = np.sum([len(inf.params_mle) for inf in self.marginals_without_all().values()])
-        n_joint = len(flatten_dict(self.get_x0()))
+        n_joint = len(ParamDict.flatten(self.get_x0()))
 
         if n_marginal <= n_joint:
             self._logger.warning(
@@ -1558,7 +1558,7 @@ class JointInference(BaseInference):
 
         :return: Bootstrap parameters
         """
-        return flatten_dict(dict((t, self.joint_inferences[t].get_bootstrap_params()) for t in self.types))
+        return ParamDict.flatten(dict((t, self.joint_inferences[t].get_bootstrap_params()) for t in self.types))
 
     def to_json(self) -> str:
         """
@@ -1646,10 +1646,12 @@ class JointInference(BaseInference):
         :param params: Fixed parameters
         """
         # expand types
-        self.fixed_params = expand_fixed(params, self.types)
+        self.fixed_params = ParamDict.expand_fixed(params, self.types)
 
         # set for 'all' type
-        self.marginal_inferences['all']._set_fixed_params(collapse_fixed_to_mean(self.fixed_params, self.types))
+        self.marginal_inferences['all']._set_fixed_params(
+            ParamDict.collapse_fixed_to_mean(self.fixed_params, self.types)
+        )
 
         for cov in self.covariates.values():
             if any(cov.param in self.fixed_params[t] for t in self.types):

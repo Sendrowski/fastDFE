@@ -76,8 +76,8 @@ def test_dfe_bootstrap_dfes_and_discretize():
     ('symlog', (1.0, 100.0), 50.0),
 ])
 def test_scale_unscale_roundtrip(scale, bounds, value):
-    scaled = opt.scale_value(value, bounds, scale)
-    back = opt.unscale_value(scaled, bounds, scale)
+    scaled = opt.Optimization.scale_value(value, bounds, scale)
+    back = opt.Optimization.unscale_value(scaled, bounds, scale)
     assert np.isclose(back, value, rtol=1e-6)
 
 
@@ -87,7 +87,7 @@ def test_scale_unscale_roundtrip(scale, bounds, value):
     ('symlog', (1.0, 100.0)),
 ])
 def test_unscale_bound(scale, bounds):
-    lo, hi = opt.unscale_bound(bounds, scale)
+    lo, hi = opt.Optimization.unscale_bound(bounds, scale)
     assert lo < hi
 
 
@@ -398,7 +398,7 @@ def test_loss_function_follows_changing_observed_counts():
     )
     optimization = inf.optimization
     optimization.x0 = inf.x0
-    x = opt.pack_params(opt.scale_values(optimization.x0, optimization.bounds, optimization.scales))
+    x = opt.ParamDict.pack(optimization.scale_values(optimization.x0))
 
     modelled = np.array([4.0, 3.0, 2.5])
     observed = [np.array([5.0, 3.0, 2.0]), np.array([7.0, 1.0, 4.0])]

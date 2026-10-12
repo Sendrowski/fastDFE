@@ -67,361 +67,6 @@ def parallelize(
     return list(iterator)
 
 
-def flatten_dict(d: dict, separator='.', prefix=''):
-    """
-    Flatten dictionary.
-
-    :param d: The nested dictionary
-    :param separator: The separator character to use in the flattened dictionary keys
-    :param prefix: The prefix to use in the flattened dictionary keys
-    :return: The flattened dictionary
-    """
-    res = {}
-
-    for key, value in d.items():
-        if isinstance(value, dict):
-            # recursive call
-            res.update(flatten_dict(value, separator, prefix + key + separator))
-        else:
-            res[prefix + key] = value
-
-    return res
-
-
-def unflatten_dict(d: dict, separator='.'):
-    """
-    Unflatten dictionary.
-
-    :param d: The flattened dictionary
-    :param separator: The separator character used in the flattened dictionary keys
-    :return: The original nested dictionary
-    """
-    res = {}
-
-    for key, value in d.items():
-        subkeys = key.split(separator)
-        subdict = res
-
-        # recursively create nested dictionaries for each subkey
-        for subkey in subkeys[:-1]:
-            subdict = subdict.setdefault(subkey, {})
-
-        # assign value to the final subkey
-        subdict[subkeys[-1]] = value if not isinstance(value, dict) else unflatten_dict(value, separator)
-
-    return res
-
-
-def unpack_params(x: np.ndarray, original: Dict[str, dict | tuple | float]) -> Dict[str, dict | tuple | float]:
-    """
-    Unpack params from numpy array. This is the inverse of pack_params and is used
-    as :func:`scipy.optimize.minimize` only accepts numpy arrays as parameters.
-
-    :param x: Numpy array
-    :param original: Original dictionary
-    :return: Unpacked dictionary
-    """
-    keys = flatten_dict(original).keys()
-
-    return unflatten_dict(dict(zip(keys, x)))
-
-
-def pack_params(params: Dict[str, dict | tuple | float]) -> np.ndarray:
-    """
-    Pack params into numpy array. This is used as :func:`scipy.optimize.minimize` only accepts
-    numpy arrays as parameters. This is the inverse of unpack_params.
-
-    :param params: Dictionary to pack
-    :return: numpy array
-    """
-    flattened = flatten_dict(params)
-
-    return np.array(list(flattened.values()))
-
-
-def filter_dict(d, keys):
-    """
-    Recursively filter a dictionary by a list of given keys at the deepest level.
-
-    :param d: The dictionary to filter
-    :param keys: The list of keys to keep in the filtered dictionary
-    :return: The filtered dictionary
-    """
-    filtered = {}
-
-    for key, value in d.items():
-        if isinstance(value, dict):
-            filtered_sub = filter_dict(value, keys)
-            if filtered_sub:
-                filtered[key] = filtered_sub
-        else:
-            if key in keys:
-                filtered[key] = value
-
-    return filtered
-
-
-def pack_shared(
-        params: Dict[str, Dict[str, float]],
-        shared: List['SharedParams'],
-        shared_values: Dict[str, float]
-) -> Dict[str, Dict[str, float]]:
-    """
-    Pack shared parameters. Here we extract shared parameters from
-    type-specific keys and instead create entries with joint-types
-    holding the shared parameters.
-    Note that we only delete parameters from marginal types but in some
-    cases we would have to delete them from compound types as well if
-    a more general shared parameter were to be specified later on.
-    We instead rely on the user not to do this.
-
-    :param params: Dictionary of parameters indexed by type
-    :param shared: List of shared parameters
-    :param shared_values: Dictionary of parameters indexed by joint-type and parameter name, i.e. 'type1:type2.p1'
-    :return: Packed dictionary
-    """
-    packed = copy.deepcopy(params)
-
-    # iterator through shared parameter
-    for s in shared:
-
-        # remove shared keys
-        for t in s.types:
-            for p in s.params:
-                if p in packed[t]:
-                    packed[t].pop(p)
-
-        # create joint type string
-        type_string = ':'.join(s.types)
-
-        # create shared type with appropriate parameters
-        packed = merge_dicts(packed, {type_string: dict((p, shared_values[type_string + '.' + p]) for p in s.params)})
-
-    return packed
-
-
-def unpack_shared(params: dict) -> dict:
-    """
-    Unpack shared parameters. Here we extract shared parameters from joint-type keys
-    and add them to the targeted types.
-
-    :param params: Dictionary of parameters
-    :return: Unpacked dictionary
-    """
-    unpacked = {}
-
-    for t, v in params.items():
-        if ':' in t:
-            unpacked = merge_dicts(unpacked, dict((s, v) for s in t.split(':')))
-        else:
-            unpacked[t] = v
-
-    return unpacked
-
-
-def expand_shared(params: List['SharedParams'], types: List[str], names: List[str]) -> List['SharedParams']:
-    """
-    Expand 'all' type for shared parameters.
-
-    :param params: List of shared parameters
-    :param types: List of types
-    :param names: List of parameter names
-    :return: Expanded list of shared parameters
-    """
-    expanded = []
-
-    for x in params:
-        # expand 'all' type
-        # noinspection PyTypeChecker
-        expanded.append(SharedParams(
-            types=types if x.types == 'all' else x.types,
-            params=names if x.params == 'all' else x.params
-        ))
-
-    return expanded
-
-
-def expand_fixed(
-        fixed_params: Dict[str, Dict[str, float]],
-        types: List[str]
-) -> Dict[str, Dict[str, float]]:
-    """
-    Expand 'all' type for fixed parameters. The values given for a type take precedence over those for 'all'.
-
-    :param fixed_params: Dictionary of fixed parameters indexed by type and parameter
-    :param types: List of types
-    :return: Expanded dictionary of fixed parameters
-    """
-    expanded = {}
-
-    # loop through fixed parameters, 'all' first
-    for key_type, params in sorted(fixed_params.items(), key=lambda item: item[0] != 'all'):
-        # expand 'all' type
-        key_types = types if key_type == 'all' else [key_type]
-
-        # loop through types
-        for t in key_types:
-            if t not in expanded:
-                expanded[t] = {}
-
-            if isinstance(params, dict):
-                for param, value in params.items():
-                    expanded[t][param] = value
-
-    return expanded
-
-
-def collapse_fixed_to_mean(
-        expanded_params: Dict[str, Dict[str, float]],
-        types: List[str]
-) -> Dict[str, Dict[str, float]]:
-    """
-    Collapse expanded fixed parameters to 'all' type if all types have the same fixed parameter.
-    Take the mean of the fixed parameters.
-
-    :param expanded_params: Expanded dictionary of fixed parameters
-    :param types: List of types
-    :return: Collapsed dictionary of fixed parameters
-    """
-    out = {"all": dict(expanded_params.get("all", {}))}
-
-    # collect params appearing in any type, in order of appearance
-    params = dict.fromkeys(p for t in types for p in expanded_params.get(t, {}))
-
-    for p in params:
-        vals = [expanded_params[t][p] for t in types if p in expanded_params.get(t, {})]
-        if len(vals) == len(types):
-            out["all"][p] = float(np.mean(vals))
-
-    return out
-
-def collapse_fixed(
-        expanded_params: Dict[str, Dict[str, float]],
-        types: List[str]
-) -> Dict[str, Dict[str, float]]:
-    """
-    Collapse expanded fixed parameters to 'all' type if all types have the same fixed parameter.
-
-    :param expanded_params: Expanded dictionary of fixed parameters
-    :param types: List of types
-    :return: Collapsed dictionary of fixed parameters
-    """
-    # copy first
-    out = {k: dict(v) for k, v in expanded_params.items()}
-    out.setdefault("all", {})
-
-    # find params present in *every* type with identical value, in the order of the first type
-    common = [p for p in expanded_params.get(types[0], {}) if all(p in expanded_params.get(t, {}) for t in types)] \
-        if types else []
-
-    if not common:
-        return out
-
-    for p in common:
-        vals = [expanded_params[t][p] for t in types]
-        if all(v == vals[0] for v in vals):
-            out["all"][p] = vals[0]
-            for t in types:
-                out[t].pop(p, None)
-
-    return out
-
-
-
-def merge_dicts(dict1: dict, dict2: dict) -> dict:
-    """
-    Merge two dictionaries recursively.
-
-    :param dict1: First dictionary
-    :param dict2: Second dictionary
-    :return: Merged dictionary
-    """
-    # make a copy of the first dictionary
-    result = dict(dict1)
-
-    # loop through the items in the second dictionary
-    for key, value in dict2.items():
-
-        # Check if the key already exists in the result dictionary and both the
-        # value in the result and dict2 dictionaries are dictionaries.
-        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
-
-            # recursively merge the two dictionaries
-            result[key] = merge_dicts(result[key], value)
-        else:
-            # simply assign the value from dict2 to the result dictionary
-            result[key] = value
-
-    return result
-
-
-def correct_values(
-        params: Dict[str, float],
-        bounds: Dict[str, Tuple[float, float]],
-        scales: Dict[str, Literal['lin', 'log', 'symlog']],
-        warn: bool = False,
-        threshold: float = 1e-6
-) -> Dict[str, float]:
-    """
-    Correct initial values so that they are within the specified bounds.
-
-    :param bounds: Dictionary of bounds
-    :param params: Flattened dictionary of parameters
-    :param scales: Dictionary of scales
-    :param warn: Whether to warn if values are corrected
-    :param threshold: Threshold for the error to trigger a warning
-    :return: Corrected dictionary
-    """
-    # create a copy of params
-    corrected = params.copy()
-
-    for key, value in params.items():
-        # get base name
-        name = key.split('.')[-1]
-
-        # get real bounds
-        bound = get_real_bounds(bounds[name], scale=scales[name])
-
-        # correct value if outside bounds
-        if value < bound[0]:
-            corrected[key] = bound[0]
-        elif value > bound[1]:
-            corrected[key] = bound[1]
-
-    # differences between the original and corrected dictionaries
-    differences = {key: (params[key], corrected[key]) for key in params if params[key] != corrected[key]}
-
-    # warn if there are differences that exceed the threshold
-    exceeded_threshold = {}
-    for key, (old_val, new_val) in differences.items():
-
-        # calculate relative error
-        err = np.abs(new_val - old_val)
-
-        # add if it exceeds the relative error
-        if err > threshold:
-            exceeded_threshold[key] = f"{old_val} -> {new_val}"
-
-    if exceeded_threshold and warn:
-        logger.warning(f'Given initial values outside bounds. Adjusting {exceeded_threshold}.')
-
-    return corrected
-
-
-def get_real_bounds(bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']) -> Tuple[float, float]:
-    """
-    Get real bounds from the given bounds.
-
-    :param bounds: Bounds of the parameter
-    :param scale: Scale of the parameter
-    :return:
-    """
-    if scale == 'symlog':
-        return -bounds[1], bounds[1]
-
-    return bounds
-
-
 def evaluate_counts(get_counts: dict, params: dict):
     """
     Evaluate counts using the given parameters.
@@ -435,7 +80,7 @@ def evaluate_counts(get_counts: dict, params: dict):
     counts = {}
 
     # unpack shared parameters
-    unpacked = unpack_shared(params)
+    unpacked = SharedParams.unpack(params)
 
     # evaluate counts for each type
     for key in get_counts.keys():
@@ -444,283 +89,228 @@ def evaluate_counts(get_counts: dict, params: dict):
     return counts
 
 
-def to_symlog(x: float, linthresh: float = 1e-5) -> float:
+class ParamDict:
     """
-    Convert a value to the symlog scale, which is linear within ``[-linthresh, linthresh]``, where it maps to
-    ``[-1, 1]``, and logarithmic outside. The transformation is continuous and strictly increasing.
-
-    :param x: The input value on the original scale.
-    :param linthresh: The positive value that determines the range within which the
-        symlog scale is linear. Must be greater than 0.
-    :return: The value on the symlog scale.
+    Conversions between the nested, flattened and packed forms of parameter dictionaries.
     """
-    ratio = np.abs(x) / linthresh
 
-    return np.sign(x) * (ratio if ratio <= 1 else 1 + np.log10(ratio))
-
-
-def from_symlog(y: float, linthresh: float = 1e-5) -> float:
-    """
-    Convert a value from the symlog scale back to the original scale.
-
-    :param y: The input value on the symlog scale.
-    :param linthresh: The positive value that determines the range within which the
-        symlog scale is linear. Must be greater than 0.
-    :return: The value on the original scale.
-    """
-    abs_y = np.abs(y)
-
-    return np.sign(y) * linthresh * (abs_y if abs_y <= 1 else np.power(10, abs_y - 1))
-
-
-def scale_bound(bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']):
-    """
-    Convert a bound to the specified scale. For symlog scale we assume the symmetric bounds,
-    so that the upper bound denotes the boundaries and the lower bound the linear threshold.
-
-    :param bounds: The bound to convert
-    :param scale: The scale to convert to
-    :return: The converted bound
-    :raises ValueError: if the scale is unknown, if the bounds span zero on the log scale,
-        or if a bound is not positive on the symlog scale
-    """
-    if scale == 'lin':
-        return bounds
-
-    if scale == 'log':
-        if bounds[1] < 0:
-            return -np.log10(-bounds[0]), -np.log10(-bounds[1])
-
-        if bounds[0] > 0:
-            return np.log10(bounds[0]), np.log10(bounds[1])
-
-        raise ValueError('Bounds must not span zero for log scale.')
-
-    if scale == 'symlog':
-
-        if bounds[0] <= 0 or bounds[1] <= 0:
-            raise ValueError('Both bounds must be positive for symlog scale.')
-
-        return to_symlog(-bounds[1], linthresh=bounds[0]), to_symlog(bounds[1], linthresh=bounds[0])
-
-    raise ValueError(f'Unknown scale {scale}.')
-
-
-def unscale_bound(
-        scaled_bounds: Tuple[float, float],
-        scale: Literal['lin', 'log', 'symlog'],
-        linthresh: float = 1e-5
-) -> Tuple[float, float]:
-    """
-    Convert a bound from the specified scale back to the original scale. For symlog scale,
-    we assume symmetric bounds, so that the upper bound denotes the boundaries and
-    the lower bound the linear threshold, i.e. ``bounds = (-bounds[1], bounds[1])`` and ``linthresh = bounds[0]``.
-    Note that we cannot reliably recover negative bounds that were log scaled.
-
-    :param linthresh:
-    :param scaled_bounds: The bound to convert
-    :param scale: The scale to convert from
-    :return: The converted bound
-    :raises ValueError: if the scale is unknown
-    """
-    if scale == 'lin':
-        return scaled_bounds
-
-    if scale == 'log':
-        return np.power(10, scaled_bounds[0]), np.power(10, scaled_bounds[1])
-
-    if scale == 'symlog':
-        upper_bound = from_symlog(scaled_bounds[1], linthresh=linthresh)
-
-        return linthresh, upper_bound
-
-    raise ValueError(f'Unknown scale {scale}.')
-
-
-def scale_bounds(
-        bounds: Dict[str, Tuple[float, float]],
-        scales: Dict[str, Literal['lin', 'log', 'symlog']]
-) -> Dict[str, Tuple[float, float]]:
-    """
-    Convert bounds to the specified scale. For symlog scale we assume the symmetric bounds,
-    so that the upper bound denotes the boundaries and the lower bound the linear threshold.
-
-    :param bounds: Flattened dictionary of bounds to convert index by type and parameter
-    :param scales: Dictionary of scales indexed by parameter
-    :return: The converted bounds
-    :raises ValueError: if the scale is unknown, if the bounds span zero on the log scale,
-        or if a bound is not positive on the symlog scale
-    """
-    scaled_bounds = {}
-
-    for key, value in bounds.items():
-        scaled_bounds[key] = scale_bound(value, scale=scales[get_basename(key)])
-
-    return scaled_bounds
-
-
-def scale_value(value: float, bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']) -> float:
-    """
-    Convert a value to the specified scale. For symlog scale, the untransformed bounds are needed,
-    so that the upper bound denotes the boundaries and the lower bound the linear threshold.
-
-    :param value: The value to convert.
-    :param bounds: The untransformed bounds for the symlog scale.
-    :param scale: The scale to convert to.
-    :return: The converted value.
-    :raises ValueError: if the scale is unknown.
-    """
-    if scale == 'lin':
-        return value
-
-    if scale == 'log':
-
-        if value < 0:
-            return -np.log10(-value)
-
-        return np.log10(value)
-
-    if scale == 'symlog':
-        return to_symlog(value, linthresh=bounds[0])
-
-    raise ValueError(f'Unknown scale {scale}.')
-
-
-def unscale_value(scaled_value: float, bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']) -> float:
-    """
-    Convert a value from the specified scale back to the original scale. For symlog scale,
-    the untransformed bounds are needed, so that the upper bound denotes the boundaries
-    and the lower bound the linear threshold.
-
-    :param scaled_value: The value to convert.
-    :param bounds: The untransformed bounds for the symlog scale.
-    :param scale: The scale to convert from.
-    :return: The converted value.
-    :raises ValueError: if the scale is unknown.
-    """
-    if scale == 'lin':
-        return scaled_value
-
-    if scale == 'log':
-
-        if bounds[1] < 0:
-            return -np.power(10, -scaled_value)
-
-        return np.power(10, scaled_value)
-
-    if scale == 'symlog':
-        return from_symlog(scaled_value, linthresh=bounds[0])
-
-    raise ValueError(f'Unknown scale {scale}.')
-
-
-def scale_values(
-        params: Dict[str, Dict[str, float]],
-        bounds: Dict[str, Tuple[float, float]],
-        scales: Dict[str, Literal['lin', 'log', 'symlog']]
-) -> Dict[str, Dict[str, float]]:
-    """
-    Scale values according to the given scales.
-
-    :param params: Nested dictionary of parameters indexed by type and parameter
-    :param scales: Dictionary of scales indexed by parameter name
-    :param bounds: Dictionary of bounds indexed by parameter name
-    :return: Nested dictionary of scaled parameters indexed by type and parameter
-    """
-    scaled = {}
-
-    for key, value in flatten_dict(params).items():
-        # scale value
-        scaled[key] = scale_value(value, bounds[get_basename(key)], scales[get_basename(key)])
-
-    return unflatten_dict(scaled)
-
-
-def unscale_values(
-        params: Dict[str, Dict[str, float]],
-        bounds: Dict[str, Tuple[float, float]],
-        scales: Dict[str, Literal['lin', 'log', 'symlog']]
-) -> Dict[str, Dict[str, float]]:
-    """
-    Unscale values according to the given scales.
-
-    :param params: Nested dictionary of parameters indexed by type and parameter
-    :param scales: Dictionary of scales indexed by parameter name
-    :param bounds: Dictionary of bounds indexed by parameter name
-    :return: Nested dictionary of unscaled parameters indexed by type and parameter
-    """
-    unscaled = {}
-
-    for key, value in flatten_dict(params).items():
-        # unscale value
-        unscaled[key] = unscale_value(value, bounds[get_basename(key)], scales[get_basename(key)])
-
-    return unflatten_dict(unscaled)
-
-
-def get_basename(name: str) -> str:
-    """
-    Get the basename of parameter string, i.e. type.param -> param.
-
-    :param name: The string to get the basename from.
-    :return: The basename.
-    """
-    return name.split('.')[-1]
-
-
-def check_bounds(
-        bounds: Dict[str, Tuple[float, float]],
-        params: Dict[str, float],
-        fixed_params: Dict[str, float] = {},
-        percentile: float = 1,
-        scale: Literal['lin', 'log'] = 'lin'
-) -> Tuple[Dict[str, Tuple[float, float, float]], Dict[str, Tuple[float, float, float]]]:
-    """
-    Determine which parameters are close to the specified bounds.
-
-    :param bounds: The bounds to check against.
-    :param params: The parameters to check.
-    :param fixed_params: The fixed parameters.
-    :param percentile: The percentile threshold to consider a parameter close to the bounds.
-    :param scale: Scale type: 'lin' for linear and 'log' for logarithmic.
-    :return: Tuple of dictionaries of parameters close to the lower and upper bounds, i.e. (lower, value, upper).
-    """
-    near_lower = {}
-    near_upper = {}
-
-    def transform(value: float, to_scale: Literal['lin', 'log']) -> float:
+    @staticmethod
+    def flatten(d: dict, separator='.', prefix=''):
         """
-        Transform a value to the specified scale.
+        Flatten dictionary.
 
-        :param value: The value to transform.
-        :param to_scale: The scale to transform to.
-        :return: The transformed value.
+        :param d: The nested dictionary
+        :param separator: The separator character to use in the flattened dictionary keys
+        :param prefix: The prefix to use in the flattened dictionary keys
+        :return: The flattened dictionary
         """
-        if to_scale == 'log':
-            return math.log(value) if value > 0 else -float('inf')
+        res = {}
 
-        return value
+        for key, value in d.items():
+            if isinstance(value, dict):
+                # recursive call
+                res.update(ParamDict.flatten(value, separator, prefix + key + separator))
+            else:
+                res[prefix + key] = value
 
-    for key, value in params.items():
-        # get base name
-        name = key.split('.')[-1]
+        return res
 
-        # get bounds
-        lower, upper = bounds[name]
+    @staticmethod
+    def unflatten(d: dict, separator='.'):
+        """
+        Unflatten dictionary.
 
-        # transform values
-        _lower = transform(lower, scale)
-        _upper = transform(upper, scale)
-        _value = transform(value, scale)
+        :param d: The flattened dictionary
+        :param separator: The separator character used in the flattened dictionary keys
+        :return: The original nested dictionary
+        """
+        res = {}
 
-        if key not in fixed_params and _upper != _lower:
-            if _lower is not None and (_value - _lower) / (_upper - _lower) <= percentile / 100:
-                near_lower[key] = (lower, value, upper)
+        for key, value in d.items():
+            subkeys = key.split(separator)
+            subdict = res
 
-            if _upper is not None and (_upper - _value) / (_upper - _lower) <= percentile / 100:
-                near_upper[key] = (lower, value, upper)
+            # recursively create nested dictionaries for each subkey
+            for subkey in subkeys[:-1]:
+                subdict = subdict.setdefault(subkey, {})
 
-    return near_lower, near_upper
+            # assign value to the final subkey
+            subdict[subkeys[-1]] = value if not isinstance(value, dict) else ParamDict.unflatten(value, separator)
+
+        return res
+
+    @staticmethod
+    def unpack(x: np.ndarray, original: Dict[str, dict | tuple | float]) -> Dict[str, dict | tuple | float]:
+        """
+        Unpack params from numpy array. This is the inverse of ParamDict.pack and is used
+        as :func:`scipy.optimize.minimize` only accepts numpy arrays as parameters.
+
+        :param x: Numpy array
+        :param original: Original dictionary
+        :return: Unpacked dictionary
+        """
+        keys = ParamDict.flatten(original).keys()
+
+        return ParamDict.unflatten(dict(zip(keys, x)))
+
+    @staticmethod
+    def pack(params: Dict[str, dict | tuple | float]) -> np.ndarray:
+        """
+        Pack params into numpy array. This is used as :func:`scipy.optimize.minimize` only accepts
+        numpy arrays as parameters. This is the inverse of ParamDict.unpack.
+
+        :param params: Dictionary to pack
+        :return: numpy array
+        """
+        flattened = ParamDict.flatten(params)
+
+        return np.array(list(flattened.values()))
+
+    @staticmethod
+    def filter(d, keys):
+        """
+        Recursively filter a dictionary by a list of given keys at the deepest level.
+
+        :param d: The dictionary to filter
+        :param keys: The list of keys to keep in the filtered dictionary
+        :return: The filtered dictionary
+        """
+        filtered = {}
+
+        for key, value in d.items():
+            if isinstance(value, dict):
+                filtered_sub = ParamDict.filter(value, keys)
+                if filtered_sub:
+                    filtered[key] = filtered_sub
+            else:
+                if key in keys:
+                    filtered[key] = value
+
+        return filtered
+
+    @staticmethod
+    def merge(dict1: dict, dict2: dict) -> dict:
+        """
+        Merge two dictionaries recursively.
+
+        :param dict1: First dictionary
+        :param dict2: Second dictionary
+        :return: Merged dictionary
+        """
+        # make a copy of the first dictionary
+        result = dict(dict1)
+
+        # loop through the items in the second dictionary
+        for key, value in dict2.items():
+
+            # Check if the key already exists in the result dictionary and both the
+            # value in the result and dict2 dictionaries are dictionaries.
+            if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+
+                # recursively merge the two dictionaries
+                result[key] = ParamDict.merge(result[key], value)
+            else:
+                # simply assign the value from dict2 to the result dictionary
+                result[key] = value
+
+        return result
+
+    @staticmethod
+    def get_basename(name: str) -> str:
+        """
+        Get the basename of parameter string, i.e. type.param -> param.
+
+        :param name: The string to get the basename from.
+        :return: The basename.
+        """
+        return name.split('.')[-1]
+
+    @staticmethod
+    def expand_fixed(
+            fixed_params: Dict[str, Dict[str, float]],
+            types: List[str]
+    ) -> Dict[str, Dict[str, float]]:
+        """
+        Expand 'all' type for fixed parameters. The values given for a type take precedence over those for 'all'.
+
+        :param fixed_params: Dictionary of fixed parameters indexed by type and parameter
+        :param types: List of types
+        :return: Expanded dictionary of fixed parameters
+        """
+        expanded = {}
+
+        # loop through fixed parameters, 'all' first
+        for key_type, params in sorted(fixed_params.items(), key=lambda item: item[0] != 'all'):
+            # expand 'all' type
+            key_types = types if key_type == 'all' else [key_type]
+
+            # loop through types
+            for t in key_types:
+                if t not in expanded:
+                    expanded[t] = {}
+
+                if isinstance(params, dict):
+                    for param, value in params.items():
+                        expanded[t][param] = value
+
+        return expanded
+
+    @staticmethod
+    def collapse_fixed_to_mean(
+            expanded_params: Dict[str, Dict[str, float]],
+            types: List[str]
+    ) -> Dict[str, Dict[str, float]]:
+        """
+        Collapse expanded fixed parameters to 'all' type if all types have the same fixed parameter.
+        Take the mean of the fixed parameters.
+
+        :param expanded_params: Expanded dictionary of fixed parameters
+        :param types: List of types
+        :return: Collapsed dictionary of fixed parameters
+        """
+        out = {"all": dict(expanded_params.get("all", {}))}
+
+        # collect params appearing in any type, in order of appearance
+        params = dict.fromkeys(p for t in types for p in expanded_params.get(t, {}))
+
+        for p in params:
+            vals = [expanded_params[t][p] for t in types if p in expanded_params.get(t, {})]
+            if len(vals) == len(types):
+                out["all"][p] = float(np.mean(vals))
+
+        return out
+
+    @staticmethod
+    def collapse_fixed(
+            expanded_params: Dict[str, Dict[str, float]],
+            types: List[str]
+    ) -> Dict[str, Dict[str, float]]:
+        """
+        Collapse expanded fixed parameters to 'all' type if all types have the same fixed parameter.
+
+        :param expanded_params: Expanded dictionary of fixed parameters
+        :param types: List of types
+        :return: Collapsed dictionary of fixed parameters
+        """
+        # copy first
+        out = {k: dict(v) for k, v in expanded_params.items()}
+        out.setdefault("all", {})
+
+        # find params present in *every* type with identical value, in the order of the first type
+        common = [p for p in expanded_params.get(types[0], {}) if all(p in expanded_params.get(t, {}) for t in types)] \
+            if types else []
+
+        if not common:
+            return out
+
+        for p in common:
+            vals = [expanded_params[t][p] for t in types]
+            if all(v == vals[0] for v in vals):
+                out["all"][p] = vals[0]
+                for t in types:
+                    out[t].pop(p, None)
+
+        return out
 
 
 @dataclass
@@ -765,6 +355,88 @@ class SharedParams:
     #: The types to share
     types: List[str] | Literal['all'] = 'all'
 
+    @staticmethod
+    def pack(
+            params: Dict[str, Dict[str, float]],
+            shared: List['SharedParams'],
+            shared_values: Dict[str, float]
+    ) -> Dict[str, Dict[str, float]]:
+        """
+        Pack shared parameters. Here we extract shared parameters from
+        type-specific keys and instead create entries with joint-types
+        holding the shared parameters.
+        Note that we only delete parameters from marginal types but in some
+        cases we would have to delete them from compound types as well if
+        a more general shared parameter were to be specified later on.
+        We instead rely on the user not to do this.
+
+        :param params: Dictionary of parameters indexed by type
+        :param shared: List of shared parameters
+        :param shared_values: Dictionary of parameters indexed by joint-type and parameter name, i.e. 'type1:type2.p1'
+        :return: Packed dictionary
+        """
+        packed = copy.deepcopy(params)
+
+        # iterator through shared parameter
+        for s in shared:
+
+            # remove shared keys
+            for t in s.types:
+                for p in s.params:
+                    if p in packed[t]:
+                        packed[t].pop(p)
+
+            # create joint type string
+            type_string = ':'.join(s.types)
+
+            # create shared type with appropriate parameters
+            packed = ParamDict.merge(
+                packed, {type_string: dict((p, shared_values[type_string + '.' + p]) for p in s.params)}
+            )
+
+        return packed
+
+    @staticmethod
+    def unpack(params: dict) -> dict:
+        """
+        Unpack shared parameters. Here we extract shared parameters from joint-type keys
+        and add them to the targeted types.
+
+        :param params: Dictionary of parameters
+        :return: Unpacked dictionary
+        """
+        unpacked = {}
+
+        for t, v in params.items():
+            if ':' in t:
+                unpacked = ParamDict.merge(unpacked, dict((s, v) for s in t.split(':')))
+            else:
+                unpacked[t] = v
+
+        return unpacked
+
+    @staticmethod
+    def expand(params: List['SharedParams'], types: List[str], names: List[str]) -> List['SharedParams']:
+        """
+        Expand 'all' type for shared parameters.
+
+        :param params: List of shared parameters
+        :param types: List of types
+        :param names: List of parameter names
+        :return: Expanded list of shared parameters
+        """
+        expanded = []
+
+        for x in params:
+            # expand 'all' type
+            # noinspection PyTypeChecker
+            expanded.append(SharedParams(
+                types=types if x.types == 'all' else x.types,
+                params=names if x.params == 'all' else x.params
+            ))
+
+        return expanded
+
 
 @dataclass
 class Covariate:
@@ -805,7 +477,7 @@ class Covariate:
     #: The initial value of the covariate
     x0: float = 0
 
-    #: The scale of the bounds. See :func:`scale_value` for details
+    #: The scale of the bounds. See :func:`Optimization.scale_value` for details
     bounds_scale: Literal['lin', 'log', 'symlog'] = 'symlog'
 
     def __post_init__(self):
@@ -916,10 +588,10 @@ class Optimization:
         self.loss_type: str = loss_type
 
         #: Fixed parameters
-        self.fixed_params: Dict[str, Dict[str, float]] = flatten_dict(fixed_params)
+        self.fixed_params: Dict[str, Dict[str, float]] = ParamDict.flatten(fixed_params)
 
         # check if fixed parameters are within the specified bounds
-        if correct_values(self.fixed_params, self.bounds, warn=False, scales=scales) != self.fixed_params:
+        if Optimization.correct_values(self.fixed_params, self.bounds, warn=False, scales=scales) != self.fixed_params:
             raise ValueError('Fixed parameters are outside the specified bounds. '
                              f'Fixed params: {self.fixed_params}, bounds: {self.bounds}.')
 
@@ -991,10 +663,10 @@ class Optimization:
 
         # filter out unneeded values
         # this also holds the fixed parameters
-        self.x0 = filter_dict(x0, self.param_names)
+        self.x0 = ParamDict.filter(x0, self.param_names)
 
         # flatten initial values
-        flattened = flatten_dict(self.x0)
+        flattened = ParamDict.flatten(self.x0)
 
         # determine parameter names of parameters to be optimized
         optimized_param_names = [name for name in flattened if name not in self.fixed_params]
@@ -1012,13 +684,13 @@ class Optimization:
                                f'Please be aware that this makes it harder to find a good optimum.')
 
         # correct initial values to be within bounds, fixed parameters starting at their values
-        self.x0 = unflatten_dict(
-            correct_values(flattened, self.bounds, warn=True, scales=self.scales) |
+        self.x0 = ParamDict.unflatten(
+            Optimization.correct_values(flattened, self.bounds, warn=True, scales=self.scales) |
             {k: v for k, v in self.fixed_params.items() if k in flattened}
         )
 
         # determine parameter bounds
-        bounds = self.get_bounds(flatten_dict(self.x0))
+        bounds = self.get_bounds(ParamDict.flatten(self.x0))
 
         def optimize(x0: Dict[str, Dict[str, float]]) -> OptimizeResult:
             """
@@ -1031,15 +703,15 @@ class Optimization:
 
             # scale the bounds, a fixed parameter being held at its scaled value
             bounds_scaled = {
-                key: (scale_value(bound[0], self.bounds[get_basename(key)], self.scales[get_basename(key)]),) * 2
-                if key in self.fixed_params else scale_bound(bound, self.scales[get_basename(key)])
-                for key, bound in bounds.items()
+                key: (Optimization.scale_value(bound[0], self.bounds[name], self.scales[name]),) * 2
+                if key in self.fixed_params else Optimization.scale_bound(bound, self.scales[name])
+                for key, bound in bounds.items() for name in [ParamDict.get_basename(key)]
             }
 
             # pack bounds and clip x0 into them: scaling/rounding can push a value marginally
-            bounds_packed = pack_params(bounds_scaled)
+            bounds_packed = ParamDict.pack(bounds_scaled)
             x0_packed = np.clip(
-                pack_params(self.scale_values(x0)),
+                ParamDict.pack(self.scale_values(x0)),
                 bounds_packed[:, 0],
                 bounds_packed[:, 1]
             )
@@ -1083,18 +755,18 @@ class Optimization:
             :param x: Array of scaled parameters
             :return: Dictionary of parameters in the form ``{type: {param: value}}``
             """
-            params = flatten_dict(unscale_values(unpack_params(x, self.x0), self.bounds, self.scales))
+            params = ParamDict.flatten(self.unscale_values(ParamDict.unpack(x, self.x0)))
 
-            return unflatten_dict(correct_values(params, self.bounds, self.scales) | fixed)
+            return ParamDict.unflatten(Optimization.correct_values(params, self.bounds, self.scales) | fixed)
 
         # build a pandas DataFrame of all runs
         records = []
         for i, res in enumerate(results):
-            flat = flatten_dict(get_params(res.x))
+            flat = ParamDict.flatten(get_params(res.x))
             flat['likelihood'] = -res.fun
             flat['success'] = res.success
             flat['result'] = str(res)
-            flat['x0'] = str(flatten_dict(initial_params[i]))
+            flat['x0'] = str(ParamDict.flatten(initial_params[i]))
             records.append(flat)
 
         # store runs as DataFrame
@@ -1108,7 +780,7 @@ class Optimization:
 
         # check if the MLE reached one of the bounds
         if print_info:
-            self.check_bounds(flatten_dict(params_mle))
+            self.check_bounds(ParamDict.flatten(params_mle))
 
         return result, params_mle
 
@@ -1119,7 +791,26 @@ class Optimization:
         :param values: Dictionary of initial values in the form ``{type: {param: value}}``
         :return: Dictionary of scaled initial values
         """
-        return scale_values(values, self.bounds, self.scales)
+        return ParamDict.unflatten({
+            key: Optimization.scale_value(
+                value, self.bounds[ParamDict.get_basename(key)], self.scales[ParamDict.get_basename(key)]
+            )
+            for key, value in ParamDict.flatten(values).items()
+        })
+
+    def unscale_values(self, values: Dict[str, Dict[str, float]]) -> Dict[str, Dict[str, float]]:
+        """
+        Unscale the values of the parameters.
+
+        :param values: Dictionary of scaled values in the form ``{type: {param: value}}``
+        :return: Dictionary of unscaled values
+        """
+        return ParamDict.unflatten({
+            key: Optimization.unscale_value(
+                value, self.bounds[ParamDict.get_basename(key)], self.scales[ParamDict.get_basename(key)]
+            )
+            for key, value in ParamDict.flatten(values).items()
+        })
 
     def get_loss_function(
             self,
@@ -1134,8 +825,9 @@ class Optimization:
         :return: The loss function
         """
         # flattened keys of self.x0 with the bounds and scale of each parameter
-        keys = list(flatten_dict(self.x0).keys())
-        conversions = [(self.bounds[get_basename(key)], self.scales[get_basename(key)]) for key in keys]
+        keys = list(ParamDict.flatten(self.x0).keys())
+        names = [ParamDict.get_basename(key) for key in keys]
+        conversions = [(self.bounds[name], self.scales[name]) for name in names]
 
         # observed counts of the previous evaluation and the logarithm of their factorial
         cached = dict(counts_observed=None, log_factorial=None)
@@ -1148,8 +840,9 @@ class Optimization:
             :return: The loss
             """
             # unscale parameters and unpack them into a dictionary with the structure of self.x0
-            params = unflatten_dict({
-                key: unscale_value(value, bounds, scale) for key, value, (bounds, scale) in zip(keys, x, conversions)
+            params = ParamDict.unflatten({
+                key: Optimization.unscale_value(value, bounds, scale)
+                for key, value, (bounds, scale) in zip(keys, x, conversions)
             })
 
             # Model SFS from parameters.
@@ -1189,7 +882,7 @@ class Optimization:
 
                 # log variables
                 if log_iteration:
-                    logger.debug(flatten_dict(params) | dict(likelihood=ll, L2=L2))
+                    logger.debug(ParamDict.flatten(params) | dict(likelihood=ll, L2=L2))
 
             # return appropriate loss
             return dict(L2=L2, likelihood=-ll)[self.loss_type]
@@ -1219,9 +912,9 @@ class Optimization:
 
         # fixed parameters keep their values, which are keyed by type and parameter
         if any(isinstance(value, dict) for value in sample.values()):
-            flat = flatten_dict(sample)
+            flat = ParamDict.flatten(sample)
 
-            return unflatten_dict(flat | {k: v for k, v in self.fixed_params.items() if k in flat})
+            return ParamDict.unflatten(flat | {k: v for k, v in self.fixed_params.items() if k in flat})
 
         return sample
 
@@ -1324,11 +1017,11 @@ class Optimization:
             a parameter is reported
         """
         # we scale the bounds to obtain more sensible warnings
-        bounds = scale_bounds({p: self.bounds[p] for p in self.param_names}, self.scales)
-        params_scaled = flatten_dict(self.scale_values(unflatten_dict(params)))
+        bounds = {p: Optimization.scale_bound(self.bounds[p], self.scales[p]) for p in self.param_names}
+        params_scaled = ParamDict.flatten(self.scale_values(ParamDict.unflatten(params)))
 
         # get parameters close to the bounds
-        near_lower, near_upper = check_bounds(
+        near_lower, near_upper = Optimization.get_near_bounds(
             params=params_scaled,
             bounds=bounds,
             fixed_params=self.fixed_params,
@@ -1349,9 +1042,9 @@ class Optimization:
 
                 for key in keys:
                     unscaled[key] = (
-                        "{:g}".format(self.bounds[get_basename(key)][0]),
+                        "{:g}".format(self.bounds[ParamDict.get_basename(key)][0]),
                         "{:.8g}".format(params[key]),
-                        "{:g}".format(self.bounds[get_basename(key)][1])
+                        "{:g}".format(self.bounds[ParamDict.get_basename(key)][1])
                     )
 
                 return unscaled
@@ -1394,4 +1087,279 @@ class Optimization:
 
         :param fixed_params: Dictionary of fixed parameters
         """
-        self.fixed_params = flatten_dict(fixed_params)
+        self.fixed_params = ParamDict.flatten(fixed_params)
+
+    @staticmethod
+    def correct_values(
+            params: Dict[str, float],
+            bounds: Dict[str, Tuple[float, float]],
+            scales: Dict[str, Literal['lin', 'log', 'symlog']],
+            warn: bool = False,
+            threshold: float = 1e-6
+    ) -> Dict[str, float]:
+        """
+        Correct initial values so that they are within the specified bounds.
+
+        :param bounds: Dictionary of bounds
+        :param params: Flattened dictionary of parameters
+        :param scales: Dictionary of scales
+        :param warn: Whether to warn if values are corrected
+        :param threshold: Threshold for the error to trigger a warning
+        :return: Corrected dictionary
+        """
+        # create a copy of params
+        corrected = params.copy()
+
+        for key, value in params.items():
+            # get base name
+            name = key.split('.')[-1]
+
+            # get real bounds
+            bound = Optimization.get_real_bounds(bounds[name], scale=scales[name])
+
+            # correct value if outside bounds
+            if value < bound[0]:
+                corrected[key] = bound[0]
+            elif value > bound[1]:
+                corrected[key] = bound[1]
+
+        # differences between the original and corrected dictionaries
+        differences = {key: (params[key], corrected[key]) for key in params if params[key] != corrected[key]}
+
+        # warn if there are differences that exceed the threshold
+        exceeded_threshold = {}
+        for key, (old_val, new_val) in differences.items():
+
+            # calculate relative error
+            err = np.abs(new_val - old_val)
+
+            # add if it exceeds the relative error
+            if err > threshold:
+                exceeded_threshold[key] = f"{old_val} -> {new_val}"
+
+        if exceeded_threshold and warn:
+            logger.warning(f'Given initial values outside bounds. Adjusting {exceeded_threshold}.')
+
+        return corrected
+
+    @staticmethod
+    def get_real_bounds(bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']) -> Tuple[float, float]:
+        """
+        Get real bounds from the given bounds.
+
+        :param bounds: Bounds of the parameter
+        :param scale: Scale of the parameter
+        :return:
+        """
+        if scale == 'symlog':
+            return -bounds[1], bounds[1]
+
+        return bounds
+
+    @staticmethod
+    def to_symlog(x: float, linthresh: float = 1e-5) -> float:
+        """
+        Convert a value to the symlog scale, which is linear within ``[-linthresh, linthresh]``, where it maps to
+        ``[-1, 1]``, and logarithmic outside. The transformation is continuous and strictly increasing.
+
+        :param x: The input value on the original scale.
+        :param linthresh: The positive value that determines the range within which the
+            symlog scale is linear. Must be greater than 0.
+        :return: The value on the symlog scale.
+        """
+        ratio = np.abs(x) / linthresh
+
+        return np.sign(x) * (ratio if ratio <= 1 else 1 + np.log10(ratio))
+
+    @staticmethod
+    def from_symlog(y: float, linthresh: float = 1e-5) -> float:
+        """
+        Convert a value from the symlog scale back to the original scale.
+
+        :param y: The input value on the symlog scale.
+        :param linthresh: The positive value that determines the range within which the
+            symlog scale is linear. Must be greater than 0.
+        :return: The value on the original scale.
+        """
+        abs_y = np.abs(y)
+
+        return np.sign(y) * linthresh * (abs_y if abs_y <= 1 else np.power(10, abs_y - 1))
+
+    @staticmethod
+    def scale_bound(bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']):
+        """
+        Convert a bound to the specified scale. For symlog scale we assume the symmetric bounds,
+        so that the upper bound denotes the boundaries and the lower bound the linear threshold.
+
+        :param bounds: The bound to convert
+        :param scale: The scale to convert to
+        :return: The converted bound
+        :raises ValueError: if the scale is unknown, if the bounds span zero on the log scale,
+            or if a bound is not positive on the symlog scale
+        """
+        if scale == 'lin':
+            return bounds
+
+        if scale == 'log':
+            if bounds[1] < 0:
+                return -np.log10(-bounds[0]), -np.log10(-bounds[1])
+
+            if bounds[0] > 0:
+                return np.log10(bounds[0]), np.log10(bounds[1])
+
+            raise ValueError('Bounds must not span zero for log scale.')
+
+        if scale == 'symlog':
+
+            if bounds[0] <= 0 or bounds[1] <= 0:
+                raise ValueError('Both bounds must be positive for symlog scale.')
+
+            return (
+                Optimization.to_symlog(-bounds[1], linthresh=bounds[0]),
+                Optimization.to_symlog(bounds[1], linthresh=bounds[0])
+            )
+
+        raise ValueError(f'Unknown scale {scale}.')
+
+    @staticmethod
+    def unscale_bound(
+            scaled_bounds: Tuple[float, float],
+            scale: Literal['lin', 'log', 'symlog'],
+            linthresh: float = 1e-5
+    ) -> Tuple[float, float]:
+        """
+        Convert a bound from the specified scale back to the original scale. For symlog scale,
+        we assume symmetric bounds, so that the upper bound denotes the boundaries and
+        the lower bound the linear threshold, i.e. ``bounds = (-bounds[1], bounds[1])`` and ``linthresh = bounds[0]``.
+        Note that we cannot reliably recover negative bounds that were log scaled.
+
+        :param linthresh:
+        :param scaled_bounds: The bound to convert
+        :param scale: The scale to convert from
+        :return: The converted bound
+        :raises ValueError: if the scale is unknown
+        """
+        if scale == 'lin':
+            return scaled_bounds
+
+        if scale == 'log':
+            return np.power(10, scaled_bounds[0]), np.power(10, scaled_bounds[1])
+
+        if scale == 'symlog':
+            upper_bound = Optimization.from_symlog(scaled_bounds[1], linthresh=linthresh)
+
+            return linthresh, upper_bound
+
+        raise ValueError(f'Unknown scale {scale}.')
+
+    @staticmethod
+    def scale_value(value: float, bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']) -> float:
+        """
+        Convert a value to the specified scale. For symlog scale, the untransformed bounds are needed,
+        so that the upper bound denotes the boundaries and the lower bound the linear threshold.
+
+        :param value: The value to convert.
+        :param bounds: The untransformed bounds for the symlog scale.
+        :param scale: The scale to convert to.
+        :return: The converted value.
+        :raises ValueError: if the scale is unknown.
+        """
+        if scale == 'lin':
+            return value
+
+        if scale == 'log':
+
+            if value < 0:
+                return -np.log10(-value)
+
+            return np.log10(value)
+
+        if scale == 'symlog':
+            return Optimization.to_symlog(value, linthresh=bounds[0])
+
+        raise ValueError(f'Unknown scale {scale}.')
+
+    @staticmethod
+    def unscale_value(
+            scaled_value: float, bounds: Tuple[float, float], scale: Literal['lin', 'log', 'symlog']
+    ) -> float:
+        """
+        Convert a value from the specified scale back to the original scale. For symlog scale,
+        the untransformed bounds are needed, so that the upper bound denotes the boundaries
+        and the lower bound the linear threshold.
+
+        :param scaled_value: The value to convert.
+        :param bounds: The untransformed bounds for the symlog scale.
+        :param scale: The scale to convert from.
+        :return: The converted value.
+        :raises ValueError: if the scale is unknown.
+        """
+        if scale == 'lin':
+            return scaled_value
+
+        if scale == 'log':
+
+            if bounds[1] < 0:
+                return -np.power(10, -scaled_value)
+
+            return np.power(10, scaled_value)
+
+        if scale == 'symlog':
+            return Optimization.from_symlog(scaled_value, linthresh=bounds[0])
+
+        raise ValueError(f'Unknown scale {scale}.')
+
+    @staticmethod
+    def get_near_bounds(
+            bounds: Dict[str, Tuple[float, float]],
+            params: Dict[str, float],
+            fixed_params: Dict[str, float] = {},
+            percentile: float = 1,
+            scale: Literal['lin', 'log'] = 'lin'
+    ) -> Tuple[Dict[str, Tuple[float, float, float]], Dict[str, Tuple[float, float, float]]]:
+        """
+        Determine which parameters are close to the specified bounds.
+
+        :param bounds: The bounds to check against.
+        :param params: The parameters to check.
+        :param fixed_params: The fixed parameters.
+        :param percentile: The percentile threshold to consider a parameter close to the bounds.
+        :param scale: Scale type: 'lin' for linear and 'log' for logarithmic.
+        :return: Tuple of dictionaries of parameters close to the lower and upper bounds, i.e. (lower, value, upper).
+        """
+        near_lower = {}
+        near_upper = {}
+
+        def transform(value: float, to_scale: Literal['lin', 'log']) -> float:
+            """
+            Transform a value to the specified scale.
+
+            :param value: The value to transform.
+            :param to_scale: The scale to transform to.
+            :return: The transformed value.
+            """
+            if to_scale == 'log':
+                return math.log(value) if value > 0 else -float('inf')
+
+            return value
+
+        for key, value in params.items():
+            # get base name
+            name = key.split('.')[-1]
+
+            # get bounds
+            lower, upper = bounds[name]
+
+            # transform values
+            _lower = transform(lower, scale)
+            _upper = transform(upper, scale)
+            _value = transform(value, scale)
+
+            if key not in fixed_params and _upper != _lower:
+                if _lower is not None and (_value - _lower) / (_upper - _lower) <= percentile / 100:
+                    near_lower[key] = (lower, value, upper)
+
+                if _upper is not None and (_upper - _value) / (_upper - _lower) <= percentile / 100:
+                    near_upper[key] = (lower, value, upper)
+
+        return near_lower, near_upper

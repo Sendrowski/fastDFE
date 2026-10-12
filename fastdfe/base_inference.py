@@ -27,8 +27,7 @@ from . import parametrization
 from .abstract_inference import AbstractInference, Inference
 from .config import Config
 from .discretization import Discretization
-from .optimization import Optimization, flatten_dict, pack_params, expand_fixed, unpack_shared, \
-    collapse_fixed_to_mean
+from .optimization import Optimization, ParamDict, SharedParams
 from .parametrization import Parametrization, _from_string, DFE
 from sfsutils.spectrum import Spectrum, Spectra
 from sfsutils.spectrum import standard_kingman
@@ -322,7 +321,7 @@ class BaseInference(AbstractInference):
 
         # expand 'all' type
         #: Fixed parameters
-        self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, ['all'])
+        self.fixed_params: Dict[str, Dict[str, float]] = ParamDict.expand_fixed(fixed_params, ['all'])
 
         # check that the fixed parameters are valid
         self.check_fixed_params_exist()
@@ -617,7 +616,7 @@ class BaseInference(AbstractInference):
         self.likelihoods = self.runs.likelihood.to_list()
 
         # unpack shared parameters
-        params_mle = unpack_shared(params_mle)
+        params_mle = SharedParams.unpack(params_mle)
 
         # normalize parameters
         params_mle['all'] = self.model._normalize(params_mle['all'])
@@ -663,7 +662,7 @@ class BaseInference(AbstractInference):
         self.optimization.x0 = params
 
         # prepare parameters
-        params = pack_params(self.optimization.scale_values(flatten_dict(params)))
+        params = ParamDict.pack(self.optimization.scale_values(ParamDict.flatten(params)))
 
         lk = -self.optimization.get_loss_function(self.get_counts())(params)
 
@@ -775,8 +774,8 @@ class BaseInference(AbstractInference):
         :param std: Dictionary of standard deviations.
         :return: Formatted string.
         """
-        mean = flatten_dict(mean)
-        std = flatten_dict(std)
+        mean = ParamDict.flatten(mean)
+        std = ParamDict.flatten(std)
 
         return str({
             k: f"{mean[k]:.4g} ± {std.get(k, 0):.2g}"
@@ -925,18 +924,18 @@ class BaseInference(AbstractInference):
         n_success = np.sum([res.success for res in result[:, 0]])
 
         # dataframe of MLE estimates
-        self.bootstraps = pd.DataFrame([flatten_dict(r) for r in result[:, 1]])
+        self.bootstraps = pd.DataFrame([ParamDict.flatten(r) for r in result[:, 1]])
 
         # assign additional info to bootstraps
         self.bootstraps['likelihood'] = [-r.fun for r in result[:, 0]]
         self.bootstraps['success'] = [r.success for r in result[:, 0]]
         self.bootstraps['result'] = [str(r) for r in result[:, 0]]
-        self.bootstraps['x0'] = [flatten_dict(r) for r in result[:, 2]]
+        self.bootstraps['x0'] = [ParamDict.flatten(r) for r in result[:, 2]]
         self.bootstraps['i_best_run'] = i_best
         self.bootstraps['likelihoods_runs'] = [[-r[0].fun for r in res] for res in results]
         self.bootstraps['likelihoods_std'] = self.bootstraps['likelihoods_runs'].apply(np.std)
         self.bootstraps['results_runs'] = [[str(r[0]) for r in res] for res in results]
-        self.bootstraps['x0_runs'] = [[flatten_dict(r[2]) for r in res] for res in results]
+        self.bootstraps['x0_runs'] = [[ParamDict.flatten(r[2]) for r in res] for res in results]
 
         # assign bootstrap results
         self.bootstrap_results = list(result[:, 0])
@@ -951,7 +950,7 @@ class BaseInference(AbstractInference):
 
         # divergence counts of each sample
         if self._use_divergence:
-            self.bootstraps = self.bootstraps.join(pd.DataFrame([flatten_dict(r) for r in result[:, 3]]))
+            self.bootstraps = self.bootstraps.join(pd.DataFrame([ParamDict.flatten(r) for r in result[:, 3]]))
 
         # issue warning if some runs did not finish successfully
         if n_success < n_bootstraps:
@@ -1065,7 +1064,7 @@ class BaseInference(AbstractInference):
                 )
 
                 # unpack shared + normalize
-                params_mle = unpack_shared(params_mle)
+                params_mle = SharedParams.unpack(params_mle)
 
                 # normalize MLE estimates
                 params_mle['all'] = model._normalize(params_mle['all'])
@@ -2086,9 +2085,9 @@ class BaseInference(AbstractInference):
 
         :return: List of parameter names.
         """
-        fixed = flatten_dict(self.fixed_params)
+        fixed = ParamDict.flatten(self.fixed_params)
 
-        return [name for name in flatten_dict(self.get_x0()) if name not in fixed]
+        return [name for name in ParamDict.flatten(self.get_x0()) if name not in fixed]
 
     def get_n_optimized(self) -> int:
         """
@@ -2154,7 +2153,9 @@ class BaseInference(AbstractInference):
         # parameters fixed for every type are fixed at their mean, and the initial values of the types are dropped
         if set(data.get('fixed_params') or {}) - {'all'}:
             types = data['sfs_neut'].types
-            data['fixed_params'] = collapse_fixed_to_mean(expand_fixed(data['fixed_params'], types), types)
+            data['fixed_params'] = ParamDict.collapse_fixed_to_mean(
+                ParamDict.expand_fixed(data['fixed_params'], types), types
+            )
 
         if data.get('x0'):
             data['x0'] = {k: v for k, v in data['x0'].items() if k == 'all'}
@@ -2213,7 +2214,7 @@ class BaseInference(AbstractInference):
 
         :param params: Fixed parameters.
         """
-        self.fixed_params = expand_fixed(params, ['all'])
+        self.fixed_params = ParamDict.expand_fixed(params, ['all'])
 
         self.optimization.set_fixed_params(self.fixed_params)
 

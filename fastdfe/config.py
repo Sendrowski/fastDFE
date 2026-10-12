@@ -17,7 +17,7 @@ from .discretization import Discretization
 from sfsutils.io_handlers import download_if_url
 from .json_handlers import CustomEncoder
 from .optimization import Covariate
-from .optimization import SharedParams, merge_dicts
+from .optimization import SharedParams, ParamDict
 from . import parametrization
 from .parametrization import Parametrization, _from_string, _to_string
 from .polydfe_utils import create_sfs_config, parse_init_file, create_init_file, models
@@ -211,8 +211,8 @@ class Config:
         fixed_params, x0 = parse_init_file(_from_string(self.data['model']).param_names, file, id)
 
         # merge with existing config, polyDFE being semidominant
-        self.data['fixed_params'] = merge_dicts(
-            merge_dicts(dict(all=dict(h=0.5)), self.data['fixed_params'] or {}),
+        self.data['fixed_params'] = ParamDict.merge(
+            ParamDict.merge(dict(all=dict(h=0.5)), self.data['fixed_params'] or {}),
             dict(all=fixed_params)
         )
         self.data['x0'] = self.data['x0'] | {type: x0}
