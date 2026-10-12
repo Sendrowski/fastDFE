@@ -1322,7 +1322,7 @@ class Optimization:
             a parameter is reported
         """
         # we scale the bounds to obtain more sensible warnings
-        bounds = scale_bounds(self.bounds, self.scales)
+        bounds = scale_bounds({p: self.bounds[p] for p in self.param_names}, self.scales)
         params_scaled = flatten_dict(self.scale_values(unflatten_dict(params)))
 
         # get parameters close to the bounds

@@ -1110,6 +1110,22 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(inf.bounds['c0'], (-5, 5))
         self.assertEqual(inf.scales['c0'], 'lin')
 
+    def test_run_with_bounds_given_for_covariate(self):
+        """
+        A joint inference runs with bounds given for a covariate and no scale, the covariate staying within
+        the range the symmetric log scale spans, from minus to plus the upper bound. The inferences of the
+        types receive the bounds too but have no scale for a covariate, which raised a ``KeyError`` when their
+        estimates were compared with the bounds.
+        """
+        inf = self._make(
+            covariates=[fd.Covariate(param='S_d', values=dict(a=1, b=5))],
+            bounds=dict(c0=(1e-3, 10))
+        )
+        inf.run()
+
+        self.assertEqual(inf.optimization.bounds['c0'], (1e-3, 10))
+        self.assertTrue(-10 <= inf.params_mle['a']['c0'] <= 10)
+
     def test_initial_values_before_run_keep_parameters_of_other_types(self):
         """
         Before the run, the initial values of a type keep the parameters that other types share among
