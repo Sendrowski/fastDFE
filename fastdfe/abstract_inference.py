@@ -446,6 +446,9 @@ class AbstractInference(Serializable, ABC):
     Base class for main Inference and polyDFE wrapper.
     """
 
+    #: Logger. Static for backward compatibility.
+    _logger: logging.Logger = logger
+
     def __init__(self, **kwargs):
         """
         Initialize the inference.

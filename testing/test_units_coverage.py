@@ -305,6 +305,15 @@ def test_parameter_plot_labels_do_not_depend_on_order_of_types():
     assert labels[0] == labels[1]
     assert [label.startswith('$-') for label in labels[0]] == [True, False, True]
 
+def test_inference_restored_without_logger_has_one():
+    """
+    An inference restored from a payload that predates the ``_logger`` attribute falls back to the logger
+    of the class. The polyDFE wrapper restored from such a payload raised an ``AttributeError`` when run.
+    """
+    from fastdfe.polydfe import PolyDFE
+
+    assert object.__new__(PolyDFE)._logger.name.startswith('fastdfe')
+
 def test_plot_scatter_symlog_scale():
     """
     ``plot_scatter`` uses a symmetric log axis for both ``log`` and ``symlog``, and a linear one for ``lin``.
