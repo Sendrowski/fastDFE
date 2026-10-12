@@ -1,4 +1,5 @@
 import copy
+import functools
 import logging
 import os
 import resource
@@ -18,6 +19,13 @@ import fastdfe as fd
 from fastdfe.discretization import Discretization
 from fastdfe.polydfe import PolyDFE
 from testing import TestCase
+
+
+def _scaled_dominance(h: float, S: np.ndarray, k: float) -> np.ndarray:
+    """
+    Dominance coefficient h * k for every selection coefficient.
+    """
+    return np.full_like(S, h * k)
 
 
 class InferenceTestCase(TestCase, ABC):
@@ -2387,6 +2395,36 @@ class SmokeTestCase(TestCase):
 
         with self.assertNoLogs('fastdfe', level='WARNING'):
             fd.BaseInference(**kwargs).to_json()
+
+    def test_serializing_partial_h_callback(self):
+        """
+        An inference whose dominance callback is a ``functools.partial`` of a module-level function is
+        serialized and restored with it, and one of a lambda logs the warning for lambdas. Reading the
+        qualified name of the callback raised an ``AttributeError``.
+        """
+        kwargs = dict(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            intervals_h=(0, 1, 3),
+            do_bootstrap=False,
+            parallelize=False
+        )
+
+        inf = fd.BaseInference(h_callback=functools.partial(_scaled_dominance, k=0.5), **kwargs)
+
+        with self.assertNoLogs('fastdfe', level='WARNING'):
+            restored = fd.BaseInference.from_json(inf.to_json())
+
+        np.testing.assert_array_equal(restored.discretization.h_callback(0.4, np.zeros(2)), [0.2, 0.2])
+
+        with self.assertLogs('fastdfe', level='WARNING') as logs:
+            fd.BaseInference(
+                h_callback=functools.partial(lambda h, S, k: np.full_like(S, h * k), k=1), **kwargs
+            ).to_json()
+
+        self.assertTrue(any('h_callback' in message for message in logs.output))
 
     def test_empty_neutral_frequency_class_warns(self):
         """

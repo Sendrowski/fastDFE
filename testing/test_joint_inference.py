@@ -1,3 +1,4 @@
+import functools
 import json
 import os
 import subprocess
@@ -1216,6 +1217,21 @@ class FastJointInferenceTestCase(TestCase):
 
         with self.assertNoLogs('fastdfe', level='WARNING'):
             self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6))]).to_json()
+
+    def test_serializing_partial_covariate_callback(self):
+        """
+        A joint inference whose covariate callback is a ``functools.partial`` of a module-level function is
+        serialized and restored with it. Reading the qualified name of the callback raised an
+        ``AttributeError``.
+        """
+        callback = functools.partial(fd.Covariate.apply_default)
+
+        inf = self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=0.3, b=0.6), callback=callback)])
+
+        with self.assertNoLogs('fastdfe', level='WARNING'):
+            restored = fd.JointInference.from_json(inf.to_json())
+
+        self.assertIs(restored.covariates['c0'].callback.func, fd.Covariate.apply_default)
 
     def test_evaluate_likelihood_at_mle_with_covariate(self):
         """

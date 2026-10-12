@@ -2185,10 +2185,11 @@ class BaseInference(AbstractInference):
 
         :return: JSON string
         """
-        callback = self.discretization.h_callback
+        # the function wrapped by a partial
+        callback = getattr(self.discretization.h_callback, 'func', self.discretization.h_callback)
 
         # only functions defined at module level are restored
-        if callback is not None and '<' in callback.__qualname__:
+        if callback is not None and '<' in getattr(callback, '__qualname__', ''):
             self._logger.warning("The dominance callback 'h_callback' is a lambda or local function, "
                                  "which cannot be serialized, and is omitted.")
 
