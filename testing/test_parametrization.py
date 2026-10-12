@@ -714,6 +714,23 @@ class FastParametrizationTestCase(TestCase):
         np.testing.assert_array_equal(dfe.cdf([-1, 1]), dfe.cdf(np.array([-1., 1.])))
         np.testing.assert_array_equal(dfe.pdf([-1, 1]), dfe.pdf(np.array([-1., 1.])))
 
+    def test_parametrization_owns_its_bounds_scales_and_initial_values(self):
+        """
+        A parametrization holds its own bounds, scales and initial values. Without custom arguments it held
+        the dictionaries of the class, so changing one in place changed every other parametrization.
+        """
+        model = GammaExpParametrization()
+
+        model.bounds['S_b'] = (1e-10, 100)
+        model.scales['b'] = 'lin'
+        model.x0['b'] = 1
+
+        other = GammaExpParametrization()
+
+        self.assertNotEqual(other.bounds['S_b'], (1e-10, 100))
+        self.assertNotEqual(other.scales['b'], 'lin')
+        self.assertNotEqual(other.x0['b'], 1)
+
     def test_plot_discretized(self):
         """The discretized-DFE plot renders for one model (covers the plotting path)."""
         model = fd.GammaExpParametrization()

@@ -94,14 +94,9 @@ class Parametrization(Serializable, ABC):
         self._logger = logger.getChild(self.__class__.__name__)
 
         # merge custom settings
-        if bounds is not None:
-            self.bounds = self.bounds | bounds
-
-        if scales is not None:
-            self.scales = self.scales | scales
-
-        if x0 is not None:
-            self.x0 = self.x0 | x0
+        self.bounds = self.bounds | (bounds or {})
+        self.scales = self.scales | (scales or {})
+        self.x0 = self.x0 | (x0 or {})
 
         #: argument names
         self.param_names: List = list(self.x0.keys())
