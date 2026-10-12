@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import pytest
 from scipy import stats
@@ -239,9 +241,17 @@ class FastBootstrapTestCase(TestCase):
                 Bootstrap.get_ci_bca(np.arange(100.), 50, a)
 
     def test_bca_ci(self):
-        """BCa CI brackets."""
-        lo, hi = Bootstrap.get_ci_bca(self.bs, original=0.0, a=0.05)
-        self.assertLessEqual(lo, hi)
+        """
+        The bias-corrected interval takes the bootstraps at the quantiles shifted by twice the bias correction.
+        """
+        n = len(self.bs)
+        z0 = stats.norm.ppf(np.sum(self.bs < 0.3) / n)
+        a1, a2 = stats.norm.cdf(2 * z0 + stats.norm.ppf([0.05, 0.95]))
+
+        self.assertEqual(
+            tuple(Bootstrap.get_ci_bca(self.bs, original=0.3, a=0.05)),
+            (self.bs[math.floor(a1 * n + 0.5)], self.bs[math.ceil(a2 * n - 0.5) - 1])
+        )
 
     def test_bounds_from_quantile_nan(self):
         """NaN quantiles short-circuit to [None, None]."""
@@ -260,8 +270,15 @@ class FastBootstrapTestCase(TestCase):
                 center, errors, cis = Bootstrap.get_errors(
                     values, bs2d, bootstrap_type=bootstrap_type, point_estimate=point_estimate
                 )
-                self.assertEqual(len(center), 3)
-                self.assertTrue(np.all(errors >= 0))
+                expected = dict(original=np.array(values), mean=bs2d.mean(axis=0), median=np.median(bs2d, axis=0))
+
+                np.testing.assert_array_equal(center, expected[point_estimate])
+                np.testing.assert_array_equal(errors, np.clip([center - cis[0], cis[1] - center], 0, None))
+                self.assertTrue((errors > 0).all())
+
+        _, errors, _ = Bootstrap.get_errors([50.0], np.arange(100.)[:, None], ci_level=0.05)
+
+        np.testing.assert_array_equal(errors, [[45], [44]])
 
         with self.assertRaises(NotImplementedError):
             Bootstrap.get_errors(values, bs2d, bootstrap_type='nope')
