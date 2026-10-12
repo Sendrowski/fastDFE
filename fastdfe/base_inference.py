@@ -1900,6 +1900,7 @@ class BaseInference(AbstractInference):
     def plot_discretized(self, *args, **kwargs):
         return super().plot_discretized(*args, **kwargs)
 
+    @_run_if_required_wrapper
     def get_dfe(self) -> DFE:
         """
         Return a frozen DFE object containing the inferred parameters and (if available) the bootstrap samples.
@@ -1907,8 +1908,6 @@ class BaseInference(AbstractInference):
         :return: DFE object
         """
         # ensure inference is run
-        self.run_if_required()
-
         return DFE(
             model=self.model,
             params=self.params_mle,
@@ -1920,14 +1919,13 @@ class BaseInference(AbstractInference):
     def get_discretized(self, *args, **kwargs):
         return super().get_discretized(*args, **kwargs)
 
+    @_run_if_required_wrapper
     def get_spectra(self) -> Spectra:
         """
         Return a Spectra object containing the neutral, selected and modelled SFS.
 
         :return: Spectra object with types ``neutral``, ``selected``, and ``modelled``, folded if the inference is.
         """
-        self.run_if_required()
-
         return Spectra.from_spectra(self._get_observed_spectra() | dict(modelled=self.sfs_mle))
 
     def get_alpha(self, params: dict = None, use_divergence: bool = None) -> float:
@@ -2061,14 +2059,13 @@ class BaseInference(AbstractInference):
         """
         return self.get_omega_a()
 
+    @_run_if_required_wrapper
     def get_bootstrap_params(self) -> Dict[str, float]:
         """
         Get the parameters to be included in the bootstraps.
 
         :return: Parameters to be included in the bootstraps.
         """
-        self.run_if_required()
-
         # bootstraps restored from a version that did not store omega
         if self.bootstraps is not None and not {'omega', 'omega_a'} <= set(self.bootstraps.columns):
             self._add_alpha_to_bootstraps()

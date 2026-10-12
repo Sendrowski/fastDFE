@@ -1489,6 +1489,7 @@ class JointInference(BaseInference):
             ax=ax
         )
 
+    @BaseInference._run_if_required_wrapper
     def get_discretized(
             self,
             intervals: np.ndarray = np.array([-np.inf, -100, -10, -1, 0, 1, np.inf]),
@@ -1508,8 +1509,6 @@ class JointInference(BaseInference):
         :return: Dictionary of values and dictionary of errors, both indexed by inference label
             (``marginal.<type>`` and ``joint.<type>``).
         """
-        self.run_if_required()
-
         return Inference.get_discretized(
             inferences=list(self.get_inferences().values()),
             labels=list(self.get_inferences().keys()),
@@ -1579,38 +1578,35 @@ class JointInference(BaseInference):
 
         return BaseInference.to_json(self)
 
+    @BaseInference._run_if_required_wrapper
     def get_dfe(self) -> Dict[str, DFE]:
         """
         Return the inferred DFE of each type.
 
         :return: Dictionary of frozen DFE objects indexed by type.
         """
-        self.run_if_required()
-
         return dict((t, inf.get_dfe()) for t, inf in self.joint_inferences.items())
 
+    @BaseInference._run_if_required_wrapper
     def get_spectra(self) -> Spectra:
         """
         Return the neutral, selected and modelled SFS of each type.
 
         :return: Spectra object with types ``<type>.neutral``, ``<type>.selected`` and ``<type>.modelled``.
         """
-        self.run_if_required()
-
         spectra = dict((t, inf.get_spectra()) for t, inf in self.joint_inferences.items())
 
         return Spectra.from_spectra(dict(
             (f'{t}.{name}', sfs[name]) for t, sfs in spectra.items() for name in sfs.types
         ))
 
+    @BaseInference._run_if_required_wrapper
     def get_summary(self) -> Dict[str, InferenceResult]:
         """
         Get the summary of each type.
 
         :return: Dictionary of inference results indexed by type.
         """
-        self.run_if_required()
-
         return dict((t, inf.get_summary()) for t, inf in self.joint_inferences.items())
 
     @functools.cached_property
