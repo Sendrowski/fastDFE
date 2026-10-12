@@ -1100,8 +1100,9 @@ class DFE(Serializable):
         :param ci_level: Tail probability per side, so 0.05 yields a 90% interval.
         :param bootstrap_type: Type of bootstrap confidence intervals ('percentile' or 'bca').
         :param point_estimate: Whether to use 'original' MLE values, 'mean' or 'median' of bootstraps as point estimate.
-        :return: Center values and (optionally) errors for each bin. The center values sum to 1, except for the
-            median of the bootstraps, which is taken for each bin.
+        :return: Center values and (optionally) errors for each bin. The center values are the mass of the DFE
+            in each bin, which sums to 1 for bins that cover its support, except for the median of the bootstraps,
+            which is taken for each bin.
         """
         from .abstract_inference import Inference
 

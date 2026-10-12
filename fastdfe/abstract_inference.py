@@ -432,13 +432,9 @@ class Inference:
         :param params: Parameters of the model
         :param intervals: Array of interval boundaries yielding ``intervals.shape[0] - 1`` bins.
         :param warn_mass: Whether to warn if the CDF does not evaluate to 0 and 1 at the outer interval boundaries.
-        :return: Discretized DFE, normalized to sum to 1
+        :return: Mass of the DFE in each interval, summing to 1 for intervals that cover its support
         """
-        # discrete DFE
-        y = _from_string(model)._discretize(params, intervals, warn_mass=warn_mass)
-
-        # return normalized histogram
-        return y / y.sum()
+        return _from_string(model)._discretize(params, intervals, warn_mass=warn_mass)
 
 
 class AbstractInference(Serializable, ABC):

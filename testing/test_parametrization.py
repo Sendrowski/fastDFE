@@ -648,10 +648,11 @@ class FastParametrizationTestCase(TestCase):
 
             np.testing.assert_array_equal(GammaExpParametrization.get_cdf(S_d=S_d, b=b, p_b=p_b, S_b=S_b)(S), expected)
 
-    def test_dfe_discretize_normalizes_and_honours_warn_mass(self):
+    def test_dfe_discretize_returns_mass_and_honours_warn_mass(self):
         """
-        ``DFE.discretize`` returns a histogram summing to 1 and honours ``warn_mass`` with and without bootstraps.
-        Without bootstraps the histogram was not normalized, and with bootstraps ``warn_mass=False`` was ignored.
+        ``DFE.discretize`` returns the mass of the DFE in each bin and honours ``warn_mass`` with and without
+        bootstraps. The histogram was scaled to sum to 1, which inflated the density ``plot_continuous`` shows
+        for bins that leave out part of the DFE, and with bootstraps ``warn_mass=False`` was ignored.
         """
         import pandas as pd
 
@@ -666,10 +667,29 @@ class FastParametrizationTestCase(TestCase):
             with self.assertNoLogs('fastdfe', level='WARNING'):
                 values, _ = dfe.discretize(bins, warn_mass=False)
 
-            self.assertAlmostEqual(values.sum(), 1)
+            if dfe.bootstraps is None:
+                np.testing.assert_allclose(values, np.diff(dfe.cdf(bins)))
+
+            self.assertLess(values.sum(), 0.6)
 
             with self.assertLogs('fastdfe', level='WARNING'):
                 dfe.discretize(bins, warn_mass=True)
+
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        ax = inf.plot_continuous(intervals=bins, show=False)
+
+        np.testing.assert_allclose(
+            ax.lines[0].get_ydata(), np.diff(inf.get_dfe().cdf(bins)) / np.diff(bins), rtol=1e-10
+        )
 
     @staticmethod
     def _models():
