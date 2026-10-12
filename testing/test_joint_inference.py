@@ -1751,14 +1751,17 @@ class FastJointInferenceTestCase(TestCase):
         """``_set_fixed_params`` expands over types and propagates to every sub-inference."""
         inf = self._make()
 
-        inf._set_fixed_params(dict(all=dict(eps=0)))
+        inf._set_fixed_params(dict(all=dict(eps=0.01)))
 
         # expanded to every concrete type
         self.assertEqual(set(inf.fixed_params), set(inf.types))
         for t in inf.types:
-            self.assertEqual(0, inf.fixed_params[t]['eps'])
-            self.assertEqual(0, inf.marginal_inferences[t].fixed_params['all']['eps'])
-            self.assertEqual(0, inf.joint_inferences[t].fixed_params['all']['eps'])
+            self.assertEqual(dict(eps=0.01), inf.fixed_params[t])
+            self.assertEqual(dict(all=dict(eps=0.01)), inf.marginal_inferences[t].fixed_params)
+            self.assertEqual(dict(all=dict(eps=0.01)), inf.joint_inferences[t].fixed_params)
+
+        self.assertEqual(dict(all=dict(eps=0.01)), inf.marginal_inferences['all'].fixed_params)
+        self.assertEqual({'a.eps': 0.01, 'b.eps': 0.01}, inf.optimization.fixed_params)
 
     #: Script running a seeded covariate joint inference and printing its run table, bootstraps and MLE
     covariate_script = textwrap.dedent("""
