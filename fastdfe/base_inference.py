@@ -27,7 +27,8 @@ from . import parametrization
 from .abstract_inference import AbstractInference, Inference
 from .config import Config
 from .discretization import Discretization
-from .optimization import Optimization, flatten_dict, pack_params, expand_fixed, unpack_shared
+from .optimization import Optimization, flatten_dict, pack_params, expand_fixed, unpack_shared, \
+    collapse_fixed_to_mean
 from .parametrization import Parametrization, _from_string, DFE
 from sfsutils.spectrum import Spectrum, Spectra
 from sfsutils.spectrum import standard_kingman
@@ -2142,6 +2143,14 @@ class BaseInference(AbstractInference):
             value = data.get(key)
             if isinstance(value, dict):
                 data[key] = sum(value.values()) if value else None
+
+        # parameters fixed for every type are fixed at their mean, and the initial values of the types are dropped
+        if set(data.get('fixed_params') or {}) - {'all'}:
+            types = data['sfs_neut'].types
+            data['fixed_params'] = collapse_fixed_to_mean(expand_fixed(data['fixed_params'], types), types)
+
+        if data.get('x0'):
+            data['x0'] = {k: v for k, v in data['x0'].items() if k == 'all'}
 
         return cls(**data)
 

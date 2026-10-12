@@ -1313,6 +1313,19 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(restored.bounds['c0'], (1e-2, 1))
         self.assertEqual(restored.scales['c0'], 'lin')
 
+    def test_base_inference_from_config_of_joint_inference(self):
+        """
+        A ``BaseInference`` can be created from the config of a joint inference, for the spectra pooled over
+        the types. The config holds the fixed parameters and initial values by type, which raised a
+        ``ValueError``.
+        """
+        config = self._make(x0=dict(a=dict(S_d=-777.0))).create_config()
+
+        inf = fd.BaseInference.from_config(config)
+
+        self.assertEqual(inf.fixed_params, dict(all=dict(eps=0, h=0.5, p_b=0, S_b=1)))
+        np.testing.assert_array_equal(inf.sfs_sel.data, 2 * np.array(list(self.sfs_sel)))
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
