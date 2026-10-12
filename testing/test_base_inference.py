@@ -2000,6 +2000,25 @@ class SmokeTestCase(TestCase):
 
         self.assertEqual(inf.n_bootstraps, 7)
 
+    def test_bootstrap_without_samples_at_construction_raises(self):
+        """
+        A number of bootstraps below one given to the constructor raises the same ``ValueError`` as one given
+        to ``bootstrap``. Only the argument was checked, so the bootstrap failed with an ``IndexError``.
+        """
+        for n_bootstraps in [0, -1]:
+            inf = fd.BaseInference(
+                sfs_neut=self.sfs_neut,
+                sfs_sel=self.sfs_sel,
+                intervals_del=(-1.0e+8, -1.0e-5, 20),
+                intervals_ben=(1.0e-5, 1.0e4, 20),
+                n_bootstraps=n_bootstraps,
+                n_runs=1,
+                parallelize=False
+            )
+
+            with self.assertRaisesRegex(ValueError, 'must be positive'):
+                inf.run()
+
     def test_plot_inferred_parameters_takes_point_estimate(self):
         """
         ``BaseInference.plot_inferred_parameters`` plots the requested point estimate. The argument was

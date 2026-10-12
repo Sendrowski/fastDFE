@@ -873,8 +873,10 @@ class BaseInference(AbstractInference):
         # precompute discretization if not done yet
         self.discretization.precompute(fixed=self._use_divergence)
 
-        if n_samples is not None and n_samples < 1:
-            raise ValueError(f'The number of bootstrap samples must be positive, got {n_samples}.')
+        n_bootstraps = int(self.n_bootstraps if n_samples is None else n_samples)
+
+        if n_bootstraps < 1:
+            raise ValueError(f'The number of bootstrap samples must be positive, got {n_bootstraps}.')
 
         # update properties
         self.update_properties(
@@ -882,8 +884,6 @@ class BaseInference(AbstractInference):
             parallelize=parallelize,
             n_bootstrap_retries=n_retries,
         )
-
-        n_bootstraps = int(self.n_bootstraps)
 
         start_time = time.time()
 
