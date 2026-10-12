@@ -1252,6 +1252,24 @@ class FastJointInferenceTestCase(TestCase):
 
         np.testing.assert_array_equal(again.marginal_inferences['a'].bootstraps.likelihood, a.bootstraps.likelihood)
 
+    def test_nested_models_share_all_free_parameters(self):
+        """
+        ``SharedParams(params='all')`` shares every parameter a nested model leaves free. The parameters
+        were resolved once against the fixed parameters of the constructor, so with the default fixed
+        parameters the full nested models estimated ``p_b``, ``S_b`` and ``eps`` once per type.
+        """
+        inf = self._make(shared_params=[fd.SharedParams(types='all', params='all')])
+
+        self.assertEqual(set(inf.shared_params[0].params), {'S_d', 'b'})
+
+        _, inferences = inf.compare_nested_models()
+
+        self.assertEqual(set(inferences['full.anc'].shared_params[0].params), {'S_d', 'b', 'p_b', 'S_b', 'eps'})
+        self.assertEqual(inferences['full.anc'].get_n_optimized(), 5)
+        self.assertEqual(inferences['full.no_anc'].get_n_optimized(), 4)
+        self.assertEqual(inferences['dele.anc'].get_n_optimized(), 3)
+        self.assertEqual(inferences['dele.no_anc'].get_n_optimized(), 2)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

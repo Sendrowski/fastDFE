@@ -79,6 +79,9 @@ class JointInference(BaseInference):
     _n_sites_div_neut_types: Optional[Dict[str, float]] = None
     _n_sites_div_sel_types: Optional[Dict[str, float]] = None
 
+    #: Shared parameters as passed to the constructor. Static for backward compatibility.
+    _shared_params_given: Optional[List[SharedParams]] = None
+
     def __init__(
             self,
             sfs_neut: Spectra,
@@ -245,13 +248,10 @@ class JointInference(BaseInference):
         #: fixed parameters with expanded 'all' type
         self.fixed_params: Dict[str, Dict[str, float]] = expand_fixed(fixed_params, self.types)
 
+        self._shared_params_given = list(shared_params)
+
         #: Shared parameters with expanded 'all' type, all parameters being those that are not fixed
-        self.shared_params = [
-            SharedParams(types=s.types, params=[
-                p for p in s.params if given.params != 'all' or not any(p in self.fixed_params[t] for t in s.types)
-            ])
-            for given, s in zip(shared_params, expand_shared(shared_params, self.types, self.optimization.param_names))
-        ]
+        self.shared_params = self._expand_shared_params()
 
         # add covariates as shared parameters
         self._add_covariates_as_shared(covariates)
@@ -490,6 +490,22 @@ class JointInference(BaseInference):
             shared += p.params
 
         return cast(List[str], np.unique(shared).tolist())
+
+    def _expand_shared_params(self) -> List[SharedParams]:
+        """
+        Expand the 'all' type and the 'all' parameters of the shared parameters passed to the constructor.
+
+        :return: Shared parameters, all parameters being those that are not fixed.
+        """
+        return [
+            SharedParams(types=s.types, params=[
+                p for p in s.params if given.params != 'all' or not any(p in self.fixed_params[t] for t in s.types)
+            ])
+            for given, s in zip(
+                self._shared_params_given,
+                expand_shared(self._shared_params_given, self.types, self.param_names)
+            )
+        ]
 
     def _add_covariates_as_shared(self, covariates: List[Covariate]):
         """
@@ -1633,6 +1649,10 @@ class JointInference(BaseInference):
         for cov in self.covariates.values():
             if any(cov.param in self.fixed_params[t] for t in self.types):
                 raise ValueError(f"Parameter '{cov.param}' has a covariate and cannot be held fixed.")
+
+        if self._shared_params_given is not None:
+            self.shared_params = self._expand_shared_params()
+            self._add_covariates_as_shared(list(self.covariates.values()))
 
         # a parameter that is held fixed is not shared
         self.shared_params = [
