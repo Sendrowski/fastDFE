@@ -798,6 +798,25 @@ class SimulationSmokeTestCase(TestCase):
 
         self.assertEqual([spectra[t].data[0] for t in ('neutral', 'selected')], [0, 0])
 
+    def test_dominance_parameter_of_callback_is_not_restricted_to_unit_interval(self):
+        """
+        With a dominance callback the parameter ``h`` is an argument of the callback and may lie outside
+        [0, 1], the mapped coefficients being checked by the discretization. It was rejected, so the estimates
+        of an inference with such a callback could not be simulated.
+        """
+        sim = self._make(
+            params=dict(S_d=-300, b=0.3, p_b=0.05, S_b=1, h=3),
+            h_callback=lambda k, S: np.full_like(S, k / 10)
+        )
+
+        # the callback maps the parameter 3 to a dominance coefficient of 0.3 throughout
+        expected = self._make(params=dict(S_d=-300, b=0.3, p_b=0.05, S_b=1, h=0.3))
+
+        np.testing.assert_allclose(sim.run().data, expected.run().data, rtol=1e-8)
+
+        with self.assertRaises(ValueError):
+            self._make(params=dict(S_d=-300, b=0.3, p_b=0.05, S_b=1, h=3))
+
     def test_divergence_roundtrip_recovers_truth(self):
         """
         Feeding the simulated (clean, matched-model) divergence back into the divergence-based

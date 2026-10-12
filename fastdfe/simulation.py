@@ -113,6 +113,9 @@ class Simulation:
         if 'h' not in self.params:
             self.params['h'] = 0.5
 
+        #: Function mapping the parameter ``h`` and the selection coefficients to dominance coefficients
+        self.h_callback: Optional[Callable[[float, np.ndarray], np.ndarray]] = h_callback
+
         # check if parameters are within bounds
         self._check_bounds()
 
@@ -208,7 +211,7 @@ class Simulation:
         if not 0 <= self.params['eps'] <= 1:
             raise ValueError(f"Ancestral misidentification parameter eps={self.params['eps']} is out of bounds [0, 1].")
 
-        if not 0 <= self.params['h'] <= 1:
+        if self.h_callback is None and not 0 <= self.params['h'] <= 1:
             raise ValueError(f"Dominance parameter h={self.params['h']} is out of bounds [0, 1].")
 
     def get_spectra(self) -> Spectra:
