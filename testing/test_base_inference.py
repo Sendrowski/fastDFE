@@ -2455,6 +2455,27 @@ class SmokeTestCase(TestCase):
         self.assertEqual(restored.bounds['S_d'], (-1e5, -1))
         self.assertEqual(restored.scales['b'], 'lin')
 
+    def test_run_with_all_parameters_fixed(self):
+        """
+        An inference with every parameter fixed returns the likelihood at the fixed values. The optimizer
+        then reports no number of iterations, and reading it raised an ``AttributeError``.
+        """
+        params = dict(S_d=-1000, b=0.3, p_b=0, S_b=1, eps=0, h=0.5)
+
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            fixed_params=dict(all=params),
+            do_bootstrap=False,
+            parallelize=False
+        )
+        inf.run()
+
+        self.assertEqual(inf.params_mle, params)
+        self.assertAlmostEqual(inf.likelihood, inf.evaluate_likelihood(dict(all=params)))
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty

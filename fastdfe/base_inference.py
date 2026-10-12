@@ -745,7 +745,7 @@ class BaseInference(AbstractInference):
         """
         # report on optimization result
         if result.success:
-            self._logger.debug(f"Successfully finished optimization after {result.nit} iterations "
+            self._logger.debug(f"Successfully finished optimization after {result.get('nit', 0)} iterations "
                               f"and {result.nfev} function evaluations, obtaining a log-likelihood "
                               f"of -{result.fun:.4g}")
         else:
