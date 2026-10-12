@@ -1286,6 +1286,18 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(inferences['dele.anc'].get_n_optimized(), 3)
         self.assertEqual(inferences['dele.no_anc'].get_n_optimized(), 2)
 
+    def test_getters_run_joint_inference_if_required(self):
+        """
+        The discretized statistics and the bootstrap parameters of a joint inference that was not run yet
+        trigger the fit. They went to the inferences of the types directly, which refuse to be run on their own.
+        """
+        self.assertEqual(
+            set(self._make(do_bootstrap=True, n_bootstraps=2).get_stats_discretized()),
+            {'marginal.all', 'marginal.a', 'marginal.b', 'joint.a', 'joint.b'}
+        )
+        self.assertIn('a.S_d', self._make().get_bootstrap_params())
+        self.assertIn('a.S_d', self._make().get_bootstrap_param_names())
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

@@ -1516,6 +1516,7 @@ class JointInference(BaseInference):
             point_estimate=point_estimate
         )
 
+    @BaseInference._run_if_required_wrapper
     def get_stats_discretized(
             self,
             ci_level: float = 0.05,
@@ -1547,6 +1548,7 @@ class JointInference(BaseInference):
         raise NotImplementedError("The bucket sizes can be plotted for one inference, such as "
                                   "``marginal_inferences['all']``.")
 
+    @BaseInference._run_if_required_wrapper
     def get_bootstrap_params(self) -> Dict[str, float]:
         """
         Get bootstrap parameters.
