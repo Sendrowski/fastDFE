@@ -1342,6 +1342,15 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(inf.fixed_params, dict(all=dict(eps=0, h=0.5, p_b=0, S_b=1)))
         np.testing.assert_array_equal(inf.sfs_sel.data, 2 * np.array(list(self.sfs_sel)))
 
+    def test_shared_params_docstring_example(self):
+        """
+        The usage example of ``SharedParams`` constructs. It shared ``eps``, which is fixed by default, and
+        raised a ``ValueError``.
+        """
+        source = textwrap.dedent(fd.SharedParams.__doc__.split('::')[1])
+
+        exec(source.replace('inf.run()', ''), {})
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

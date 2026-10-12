@@ -16,7 +16,7 @@ sfs_sel = fd.Spectra(dict(
 inf = fd.JointInference(
     sfs_neut=sfs_neut,
     sfs_sel=sfs_sel,
-    shared_params=[fd.SharedParams(types=["pendula", "pubescens"], params=["eps", "S_d"])],
+    shared_params=[fd.SharedParams(types=["pendula", "pubescens"], params=["S_d"])],
     do_bootstrap=True
 )
 
