@@ -1380,6 +1380,19 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(warnings(fixed_params=dict(a=fixed, b=fixed)), [])
         self.assertNotEqual(warnings(fixed_params=dict(a=fixed, b=dict(eps=0, h=0.5))), [])
 
+    def test_joint_inferences_of_types_hold_likelihoods_of_runs(self):
+        """
+        The inferences of the types hold the likelihoods of the runs of the joint fit, so they can be plotted.
+        They held none, and ``plot_likelihoods`` raised a ``TypeError``.
+        """
+        inf = self._make(shared_params=[fd.SharedParams(types='all', params=['S_d'])], n_runs=2)
+        inf.run()
+
+        for t in inf.types:
+            self.assertEqual(inf.joint_inferences[t].likelihoods, inf.likelihoods)
+
+            inf.joint_inferences[t].plot_likelihoods(show=False)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

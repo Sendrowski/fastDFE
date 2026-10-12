@@ -714,6 +714,7 @@ class JointInference(BaseInference):
 
             # remove effect of covariates and assign result
             inf._assign_result(self.result, params_mle[t])
+            inf.likelihoods = self.likelihoods
 
             # assign execution time
             inf.execution_time = time.time() - start_time
