@@ -232,6 +232,9 @@ class JointInference(BaseInference):
         n_sites_div_neut = sum(n_sites_div_neut.values()) if n_sites_div_neut is not None else None
         n_sites_div_sel = sum(n_sites_div_sel.values()) if n_sites_div_sel is not None else None
 
+        #: Covariates indexed by parameter name
+        self.covariates: Dict[str, Covariate] = {f"c{i}": cov for i, cov in enumerate(covariates)}
+
         # initialize parent
         # the `self.folded` property will generalize nicely as we
         # evaluate ``sfs_sel.all.is_folded and sfs_neut.all.is_folded``
@@ -268,9 +271,6 @@ class JointInference(BaseInference):
         # issue notice
         self._logger.info(f'Using shared parameters {self.shared_params}.')
 
-        #: Covariates indexed by parameter name
-        self.covariates: Dict[str, Covariate] = {f"c{i}": cov for i, cov in enumerate(covariates)}
-
         # only show param and values
         cov_repr = dict((k, dict(param=v.param, values=v.values)) for k, v in self.covariates.items())
 
@@ -280,14 +280,8 @@ class JointInference(BaseInference):
         # parameter names for covariates
         args_cov = list(self.covariates.keys())
 
-        # bounds for covariates
-        bounds_cov = dict((k, cov.bounds) for k, cov in self.covariates.items())
-
         #: Initial values for covariates
         self._x0_cov = dict((k, cov.x0) for k, cov in self.covariates.items())
-
-        # use linear scale for covariates
-        scales_cov = dict((k, cov.bounds_scale) for k, cov in self.covariates.items())
 
         if discretization is None:
             # create discretization instance
@@ -357,17 +351,10 @@ class JointInference(BaseInference):
         self._use_divergence: bool = self.marginal_inferences['all']._use_divergence
 
         #: parameter scales
-        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = \
-            self.model.scales | self._default_scales | scales_cov | scales
-
-        # the dominance coefficient stays within its precomputed grid unless a callback maps it
-        bounds_h = {}
-        if self.discretization.h is None and self.discretization.h_callback is None:
-            bounds_h = dict(h=tuple(sorted(self.discretization.intervals_h[:2])))
+        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = self._get_default_scales() | scales
 
         #: parameter bounds
-        self.bounds: Dict[str, Tuple[float, float]] = \
-            self.model.bounds | self._default_bounds | bounds_h | bounds_cov | bounds
+        self.bounds: Dict[str, Tuple[float, float]] = self._get_default_bounds() | bounds
 
         # create optimization instance for joint inference
         # take initial values and bounds from marginal inferences
@@ -490,6 +477,22 @@ class JointInference(BaseInference):
             shared += p.params
 
         return cast(List[str], np.unique(shared).tolist())
+
+    def _get_default_bounds(self) -> Dict[str, Tuple[float, float]]:
+        """
+        Get the parameter bounds that apply unless others are given.
+
+        :return: Bounds of the model, of ``eps`` and ``h``, and of the covariates.
+        """
+        return super()._get_default_bounds() | {k: cov.bounds for k, cov in self.covariates.items()}
+
+    def _get_default_scales(self) -> Dict[str, Literal['lin', 'log', 'symlog']]:
+        """
+        Get the parameter scales that apply unless others are given.
+
+        :return: Scales of the model, of ``eps`` and ``h``, and of the covariates.
+        """
+        return super()._get_default_scales() | {k: cov.bounds_scale for k, cov in self.covariates.items()}
 
     def _expand_shared_params(self) -> List[SharedParams]:
         """
@@ -840,8 +843,8 @@ class JointInference(BaseInference):
             opts_mle=self.optimization.opts_mle,
             method_mle=self.optimization.method_mle,
             x0=self.x0 | (self._x0_types or {}),
-            bounds=self.bounds,
-            scales=self.scales,
+            bounds={k: v for k, v in self.bounds.items() if self._get_default_bounds().get(k) != v},
+            scales={k: v for k, v in self.scales.items() if self._get_default_scales().get(k) != v},
             loss_type=self.optimization.loss_type,
             fixed_params=self.fixed_params,
             covariates=[c for c in self.covariates.values()],

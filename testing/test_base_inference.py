@@ -2426,6 +2426,35 @@ class SmokeTestCase(TestCase):
 
         self.assertTrue(any('h_callback' in message for message in logs.output))
 
+    def test_config_holds_bounds_and_scales_as_given(self):
+        """
+        The config of an inference holds the bounds and scales passed to the constructor, so those derived
+        from other arguments are derived again. The merged bounds were stored, and the bounds of ``h`` taken
+        from ``intervals_h`` then overrode those of a config updated with another grid.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            intervals_h=(0, 1, 3),
+            bounds=dict(S_d=(-1e5, -1)),
+            scales=dict(b='lin'),
+            fixed_params=dict(all=dict(eps=0)),
+            parallelize=False
+        )
+
+        config = inf.create_config()
+
+        self.assertEqual(config.data['bounds'], dict(S_d=(-1e5, -1)))
+        self.assertEqual(config.data['scales'], dict(b='lin'))
+
+        restored = fd.BaseInference.from_config(config.update(intervals_h=(0.2, 0.8, 3)))
+
+        self.assertEqual(restored.bounds['h'], (0.2, 0.8))
+        self.assertEqual(restored.bounds['S_d'], (-1e5, -1))
+        self.assertEqual(restored.scales['b'], 'lin')
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty

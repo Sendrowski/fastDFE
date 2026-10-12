@@ -389,17 +389,10 @@ class BaseInference(AbstractInference):
         self.parallelize: bool = parallelize
 
         #: Parameter scales
-        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = \
-            self.model.scales | self._default_scales | scales
-
-        # the dominance coefficient stays within its precomputed grid unless a callback maps it
-        bounds_h = {}
-        if self.discretization.h is None and self.discretization.h_callback is None:
-            bounds_h = dict(h=tuple(sorted(self.discretization.intervals_h[:2])))
+        self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = self._get_default_scales() | scales
 
         #: Parameter bounds
-        self.bounds: Dict[str, Tuple[float, float]] = \
-            self.model.bounds | self._default_bounds | bounds_h | bounds
+        self.bounds: Dict[str, Tuple[float, float]] = self._get_default_bounds() | bounds
 
         if optimization is None:
             # create optimization instance
@@ -470,6 +463,28 @@ class BaseInference(AbstractInference):
             fixed += list(p.keys())
 
         return cast(List[str], np.unique(fixed).tolist())
+
+    def _get_default_bounds(self) -> Dict[str, Tuple[float, float]]:
+        """
+        Get the parameter bounds that apply unless others are given.
+
+        :return: Bounds of the model and of ``eps`` and ``h``, the latter being the range of its precomputed
+            grid unless a callback maps it.
+        """
+        bounds = self.model.bounds | self._default_bounds
+
+        if self.discretization.h is None and self.discretization.h_callback is None:
+            bounds |= dict(h=tuple(sorted(self.discretization.intervals_h[:2])))
+
+        return bounds
+
+    def _get_default_scales(self) -> Dict[str, Literal['lin', 'log', 'symlog']]:
+        """
+        Get the parameter scales that apply unless others are given.
+
+        :return: Scales of the model and of ``eps`` and ``h``.
+        """
+        return self.model.scales | self._default_scales
 
     def check_fixed_params_exist(self):
         """
@@ -2096,8 +2111,8 @@ class BaseInference(AbstractInference):
             model=self.model,
             seed=self.seed,
             x0=self.x0,
-            bounds=self.bounds,
-            scales=self.scales,
+            bounds={k: v for k, v in self.bounds.items() if self._get_default_bounds().get(k) != v},
+            scales={k: v for k, v in self.scales.items() if self._get_default_scales().get(k) != v},
             loss_type=self.optimization.loss_type,
             opts_mle=self.optimization.opts_mle,
             method_mle=self.optimization.method_mle,

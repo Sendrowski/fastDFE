@@ -1298,6 +1298,21 @@ class FastJointInferenceTestCase(TestCase):
         self.assertIn('a.S_d', self._make().get_bootstrap_params())
         self.assertIn('a.S_d', self._make().get_bootstrap_param_names())
 
+    def test_config_leaves_covariate_bounds_to_the_covariate(self):
+        """
+        An inference restored from the config of a joint inference takes the bounds and scale of a covariate
+        from the covariate. The config stored them among the bounds and scales, where they overrode those of
+        a covariate the config was updated with.
+        """
+        inf = self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=1, b=2))])
+
+        covariate = fd.Covariate(param='b', values=dict(a=1, b=2), bounds=(1e-2, 1), bounds_scale='lin', x0=0.5)
+
+        restored = fd.JointInference.from_config(inf.create_config().update(covariates=[covariate]))
+
+        self.assertEqual(restored.bounds['c0'], (1e-2, 1))
+        self.assertEqual(restored.scales['c0'], 'lin')
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
