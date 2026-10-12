@@ -334,6 +334,18 @@ def test_plot_without_axes_leaves_other_figures_untouched():
 
     plt.close('all')
 
+def test_interval_labels_keep_fractional_boundaries():
+    """
+    The labels of intervals show fractional boundaries. Boundaries were rounded to integers, which labelled
+    the interval from -0.5 to 0.5 as ``[-0, 0)``.
+    """
+    from fastdfe.visualization import Visualization
+
+    labels = Visualization.interval_to_string(-0.5, 0.25), Visualization.interval_to_string(-100, 1000000)
+
+    assert '-0.5' in labels[0] and '0.25' in labels[0]
+    assert '-100' in labels[1] and '1000000' in labels[1] and '.' not in labels[1]
+
 def test_plot_scatter_symlog_scale():
     """
     ``plot_scatter`` uses a symmetric log axis for both ``log`` and ``symlog``, and a linear one for ``lin``.

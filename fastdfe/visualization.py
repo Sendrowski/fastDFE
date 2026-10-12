@@ -138,7 +138,7 @@ class Visualization:
             if n == np.inf:
                 return '∞'
 
-            return '{:0.0f}'.format(n)
+            return np.format_float_positional(n + 0.0, trim='-')
 
         return bracket_left + format_number(left) + ', ' + format_number(right) + bracket_right
 
