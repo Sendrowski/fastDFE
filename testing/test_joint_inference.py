@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from pandas._testing import assert_frame_equal
+from scipy.stats import chi2
 
 import fastdfe as fd
 from fastdfe import JointInference, Config, SharedParams, Covariate, Spectra
@@ -1392,6 +1393,48 @@ class FastJointInferenceTestCase(TestCase):
             self.assertEqual(inf.joint_inferences[t].likelihoods, inf.likelihoods)
 
             inf.joint_inferences[t].plot_likelihoods(show=False)
+
+    def test_lrt_p_values_of_sharing_and_covariates(self):
+        """
+        The p-values of the tests of sharing and of covariates are the chi-square tail probabilities of
+        twice the difference in log-likelihood, with one degree of freedom for one shared parameter over two
+        types and for one covariate.
+        """
+        kwargs = dict(
+            sfs_neut=fd.Spectra(dict(
+                a=[177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652],
+                b=[172528, 3612, 1359, 790, 584, 427, 325, 234, 166, 76, 31]
+            )),
+            sfs_sel=fd.Spectra(dict(
+                a=[797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794],
+                b=[791106, 5326, 1741, 1005, 756, 546, 416, 294, 177, 104, 41]
+            )),
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)),
+            do_bootstrap=False,
+            parallelize=False,
+            n_runs=3,
+            seed=0
+        )
+
+        shared = fd.JointInference(shared_params=[fd.SharedParams(types='all', params=['S_d'])], **kwargs)
+        shared.run()
+
+        ll_marginal = sum(inf.likelihood for inf in shared.marginals_without_all().values())
+
+        self.assertGreater(ll_marginal - shared.likelihood, 0.01)
+        self.assertAlmostEqual(shared.perform_lrt_shared(), chi2.sf(2 * (ll_marginal - shared.likelihood), 1))
+
+        covariate = fd.JointInference(covariates=[fd.Covariate(param='b', values=dict(a=1, b=5))], **kwargs)
+        covariate.run()
+
+        simple = covariate.run_joint_without_covariates(do_bootstrap=False)
+
+        self.assertGreater(covariate.likelihood - simple.likelihood, 0.01)
+        self.assertAlmostEqual(
+            covariate.perform_lrt_covariates(), chi2.sf(2 * (covariate.likelihood - simple.likelihood), 1)
+        )
 
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
