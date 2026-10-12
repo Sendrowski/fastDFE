@@ -435,6 +435,26 @@ fixed_params:
         self.assertEqual(tuple(config.data['model'].bounds['S_d']), (-1e4, -1e-2))
         self.assertEqual(config.data['model'].x0['b'], 0.1)
 
+    def test_parse_polydfe_init_file_with_rows_of_different_length(self):
+        """
+        A polyDFE init file whose rows hold different numbers of ``r`` values is parsed. The file was read as
+        a rectangular table, which raised a ``ParserError`` when a later row was longer than the first.
+        """
+        from fastdfe.polydfe_utils import parse_init_file
+
+        out_file = "scratch/test_parse_polydfe_init_file_with_rows_of_different_length.txt"
+
+        with open(out_file, 'w') as fh:
+            fh.write("# comment\n")
+            fh.write("1  2 0.05  1 0.00  0 0.005  0 0.001  0 2  0 -20000  0 0.2  1 0  1 1  0  1 1 1\n")
+            fh.write("2  2 0.05  1 0.00  0 0.005  0 0.001  0 2  0 -300  0 0.4  1 0  1 1  0  1 1 1 1 1 1\n")
+
+        for id, S_d in [(1, -20000), (2, -300)]:
+            fixed_params, x0 = parse_init_file(['S_d', 'b', 'p_b', 'S_b'], out_file, id=id)
+
+            self.assertEqual(x0['S_d'], S_d)
+            self.assertEqual(fixed_params['p_b'], 0)
+
     def test_restore_covariates(self):
         """
         Test whether covariates can be properly restored from file.

@@ -127,7 +127,12 @@ def parse_init_file(
     cols = columns + list(dfe_params)
 
     # load init file into dataframe
-    df = pd.read_csv(file, delimiter=r"\s+", comment='#', header=None, index_col=0)
+    with open(file) as fh:
+        rows = [line.split('#')[0].split() for line in fh]
+
+    # rows may hold different numbers of r values
+    df = pd.DataFrame([row for row in rows if row]).astype(float).set_index(0)
+    df.index = df.index.astype(int)
 
     # check if id is present
     if id not in df.index:
