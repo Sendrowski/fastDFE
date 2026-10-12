@@ -1,11 +1,12 @@
 # VCF parsing
-``fastdfe`` infers a DFE from a site-frequency spectrum, and everything that turns a VCF into one lives in
-[``sfsutils``](https://sfsutils.readthedocs.io), the standalone package ``fastdfe`` depends on and re-exports. Every
-class below is therefore available under both names, and resolves to the same ``sfsutils`` class.
+``fastdfe`` infers a DFE from site-frequency spectra. The classes that compute these spectra from a VCF file, which
+are the parser and its stratifications, annotations and filtrations, are provided by
+[``sfsutils``](https://sfsutils.readthedocs.io), a separate package installed with ``fastdfe``. ``fastdfe`` re-exports
+them, so that ``fastdfe.Parser`` and ``sfsutils.Parser`` are the same class.
 
 ```{note}
-As of ``fastdfe`` 1.4.0, code written against earlier releases remains valid without modification. See the
-{ref}`changelog <modules.changelog>` for the details of the separation.
+These classes were part of ``fastdfe`` itself before version 1.4.0. Existing imports such as ``fastdfe.Parser`` and
+``fastdfe.parser.Parser`` continue to work.
 ```
 
 ```{code-cell} python
