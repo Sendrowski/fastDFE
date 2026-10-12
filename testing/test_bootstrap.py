@@ -229,6 +229,15 @@ class FastBootstrapTestCase(TestCase):
         self.assertGreater(upper, 0.05)
         self.assertEqual((-mirrored[1], -mirrored[0]), (lower, upper))
 
+    def test_bca_ci_rejects_tail_probability_above_one_half(self):
+        """
+        The bias-corrected interval rejects a tail probability outside [0, 0.5], as the percentile interval
+        does. It returned an interval of zero width.
+        """
+        for a in [0.9, -0.1, 1.5]:
+            with self.assertRaises(ValueError):
+                Bootstrap.get_ci_bca(np.arange(100.), 50, a)
+
     def test_bca_ci(self):
         """BCa CI brackets."""
         lo, hi = Bootstrap.get_ci_bca(self.bs, original=0.0, a=0.05)

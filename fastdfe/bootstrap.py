@@ -73,7 +73,11 @@ class Bootstrap:
         :param a: Tail probability per side, so 0.05 yields a 90% interval.
         :return: lower bound and upper bound, ``[None, None]`` if no bootstraps are given or the adjusted
             quantiles are NaN
+        :raises ValueError: If ``a`` is outside ``[0, 0.5]``.
         """
+        if not 0 <= a <= 0.5:
+            raise ValueError('Tail probability must be between 0 and 0.5.')
+
         n = len(bootstraps)
 
         if n == 0:
