@@ -2063,6 +2063,10 @@ class BaseInference(AbstractInference):
         """
         self.run_if_required()
 
+        # bootstraps restored from a version that did not store omega
+        if self.bootstraps is not None and not {'omega', 'omega_a'} <= set(self.bootstraps.columns):
+            self._add_alpha_to_bootstraps()
+
         return self.params_mle | dict(alpha=self.alpha, omega=self.omega, omega_a=self.omega_a)
 
     def get_bootstrap_param_names(self) -> List[str]:

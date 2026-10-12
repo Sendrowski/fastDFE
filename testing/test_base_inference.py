@@ -2523,6 +2523,32 @@ class SmokeTestCase(TestCase):
                 np.mean(list(inf.bootstraps.likelihood[inf.bootstraps.success]) + [original])
             )
 
+    def test_plot_parameters_of_bootstraps_without_omega(self):
+        """
+        The parameters of an inference whose bootstraps lack ``omega`` and ``omega_a`` can be plotted, the
+        two being computed from the bootstrapped parameters. Inferences serialized by versions up to 1.2.2
+        hold such bootstraps, and plotting raised a ``KeyError``.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            n_bootstraps=3,
+            n_runs=1,
+            parallelize=False,
+            seed=0
+        )
+        inf.run()
+
+        expected = inf.bootstraps[['omega', 'omega_a']].copy()
+        inf.bootstraps = inf.bootstraps.drop(columns=['omega', 'omega_a'])
+
+        inf.plot_inferred_parameters(show=False)
+        inf.plot_inferred_parameters_boxplot(show=False)
+
+        assert_frame_equal(inf.bootstraps[['omega', 'omega_a']], expected)
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty
