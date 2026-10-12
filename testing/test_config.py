@@ -412,6 +412,29 @@ fixed_params:
         self.assertEqual(config.data['sfs_sel'].all.n_div, polydfe.config.data['sfs_sel'].all.n_div)
         self.assertGreater(config.data['sfs_sel'].all.n_div, 0)
 
+    def test_yaml_numbers_read_as_strings_are_cast(self):
+        """
+        Numbers that YAML reads as strings, such as ``1e5``, are cast in the divergence target sizes, the
+        options of the optimizer, the covariates and the bounds of a model given by name. Only the top-level
+        bounds, initial values and fixed parameters were cast, and the others raised a ``TypeError`` later.
+        """
+        config = Config.from_dict(dict(
+            n_sites_div_neut=dict(all='1e5'),
+            n_sites_div_sel=dict(all='4e5'),
+            opts_mle=dict(ftol='1e-10', method='L-BFGS-B'),
+            covariates=[dict(param='S_d', values=dict(a='1e-1', b=2), bounds=['1e-4', '1e4'], x0='1e-1')],
+            model=dict(name='GammaExpParametrization', bounds=dict(S_d=['-1e4', '-1e-2']), x0=dict(b='1e-1'))
+        ))
+
+        self.assertEqual(config.data['n_sites_div_neut'], dict(all=1e5))
+        self.assertEqual(config.data['n_sites_div_sel'], dict(all=4e5))
+        self.assertEqual(config.data['opts_mle'], dict(ftol=1e-10, method='L-BFGS-B'))
+        self.assertEqual(config.data['covariates'][0].values, dict(a=0.1, b=2))
+        self.assertEqual(tuple(config.data['covariates'][0].bounds), (1e-4, 1e4))
+        self.assertEqual(config.data['covariates'][0].x0, 0.1)
+        self.assertEqual(tuple(config.data['model'].bounds['S_d']), (-1e4, -1e-2))
+        self.assertEqual(config.data['model'].x0['b'], 0.1)
+
     def test_restore_covariates(self):
         """
         Test whether covariates can be properly restored from file.

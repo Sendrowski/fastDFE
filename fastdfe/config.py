@@ -332,9 +332,36 @@ class Config:
             if sfs in data and data[sfs] is not None and not isinstance(data[sfs], Spectra):
                 data[sfs] = Spectra.from_dict(data=data[sfs])
 
+        def number(value):
+            """
+            Cast a number that YAML read as a string, such as ``1e-2``.
+
+            :param value: Value
+            :return: The value, as a float if it was a string holding a number
+            """
+            try:
+                return float(value) if isinstance(value, str) else value
+            except ValueError:
+                return value
+
+        def numbers(values):
+            """
+            Cast the numbers that YAML read as strings in a nested structure.
+
+            :param values: Dictionary, list or value
+            :return: The structure with its strings holding numbers cast to float
+            """
+            if isinstance(values, dict):
+                return {k: numbers(v) for k, v in values.items()}
+
+            if isinstance(values, (list, tuple)):
+                return tuple(numbers(v) for v in values)
+
+            return number(values)
+
         # recreate a parametrization stored with its intervals
         if isinstance(data.get('model'), dict):
-            model = dict(data['model'])
+            model = {k: numbers(v) if k in ['bounds', 'x0'] else v for k, v in data['model'].items()}
             data['model'] = getattr(parametrization, model.pop('name'))(**model)
 
         # recreate SharedParams objects
@@ -345,7 +372,12 @@ class Config:
 
         # recreate Covariate objects
         if 'covariates' in data and data['covariates'] is not None:
-            data['covariates'] = [c if isinstance(c, Covariate) else Covariate(**c) for c in data['covariates']]
+            data['covariates'] = [
+                c if isinstance(c, Covariate) else Covariate(**{
+                    k: numbers(v) if k in ['values', 'bounds', 'x0'] else v for k, v in c.items()
+                })
+                for c in data['covariates']
+            ]
 
         # cast to tuple of (float, float, int)
         # useful when restoring from YAML file
@@ -353,21 +385,16 @@ class Config:
             if key in data:
                 data[key] = (float(data[key][0]), float(data[key][1]), int(data[key][2]))
 
-        def number(value):
-            """
-            Cast a number that YAML read as a string, such as ``1e-2``.
-
-            :param value: Value
-            :return: The value, as a float if it was a string
-            """
-            return float(value) if isinstance(value, str) else value
-
         if data.get('bounds'):
             data['bounds'] = {k: tuple(number(b) for b in v) for k, v in data['bounds'].items()}
 
         for key in ['x0', 'fixed_params']:
             if data.get(key):
                 data[key] = {t: {p: number(v) for p, v in params.items()} for t, params in data[key].items()}
+
+        for key in ['n_sites_div_neut', 'n_sites_div_sel', 'opts_mle']:
+            if data.get(key):
+                data[key] = numbers(data[key])
 
         return Config(**data)
 
