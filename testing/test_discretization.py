@@ -184,6 +184,20 @@ class DiscretizationTestCase(TestCase):
         with self.assertRaises(ValueError):
             d.get_interpolation_weights(0.0499)
 
+    def test_bin_containing_zero_is_not_adaptive_on_asymmetric_grid(self):
+        """
+        The bin containing ``S = 0`` counts as non-adaptive whatever the two boundaries next to zero. It was
+        classified by the sign of its midpoint, which is positive when the beneficial boundary is the larger
+        one, so a DFE without beneficial mutations had a positive alpha.
+        """
+        d = Discretization(
+            n=10, h=0.5, intervals_del=(-1e8, -1e-5, 20), intervals_ben=(1e-3, 1e4, 20), parallelize=False
+        )
+        params = dict(S_d=-1000, b=0.15, p_b=0, S_b=1)
+
+        self.assertEqual(d.get_alpha(GammaExpParametrization(), params), 0)
+        self.assertEqual(d.get_omega_a(GammaExpParametrization(), params), 0)
+
     def test_dominance_kernel_resolves_highest_frequency_class(self):
         """
         The numerical kernel for general dominance agrees with the closed form under semidominance in the

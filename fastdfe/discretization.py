@@ -933,7 +933,7 @@ class Discretization:
         total = np.sum(y)
 
         # no substitutions at all are taken to be non-adaptive
-        return float(np.sum(y[self.s > 0]) / total) if total > 0 else 0.0
+        return float(np.sum(y[self.bins[:-1] > 0]) / total) if total > 0 else 0.0
 
     def get_divergence_flux(self, model: Parametrization, params: dict) -> float:
         """
@@ -979,7 +979,7 @@ class Discretization:
         y = model._discretize(params, self.bins) * self.get_counts_fixed(params.get('h', 0.5))
 
         # expected deleterious (and neutral) divergence relative to the neutral baseline
-        div_del = np.sum(y[self.s <= 0])
+        div_del = np.sum(y[self.bins[:-1] < 0])
 
         return float(1 - (n_sites_div_sel / n_sites_div_neut) *
                      (n_div_neut / n_div_sel) * div_del)
@@ -1013,7 +1013,7 @@ class Discretization:
         """
         y = model._discretize(params, self.bins) * self.get_counts_fixed(params.get('h', 0.5))
 
-        return float(np.sum(y[self.s > 0]))
+        return float(np.sum(y[self.bins[:-1] > 0]))
 
     def get_omega_divergence(
             self,
