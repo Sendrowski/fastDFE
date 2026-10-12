@@ -154,7 +154,7 @@ class Discretization:
             self.grid_h: Optional[np.ndarray] = None
 
         # dominance coefficients the counts are computed for
-        h_used = np.array([self.map_h(g, self.bins) for g in self.grid_h]) if h is None else self.h_mapped
+        h_used = self.grid_h if h is None else self.h_mapped
 
         if (h_used < 0).any() or (h_used > 1).any():
             raise ValueError(f'The dominance coefficients need to lie within [0, 1], but range from '

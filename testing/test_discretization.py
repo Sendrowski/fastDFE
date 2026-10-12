@@ -144,6 +144,26 @@ class DiscretizationTestCase(TestCase):
         Discretization(h=1.0, **kwargs)
         Discretization(h=None, intervals_h=(0, 1, 3), h_callback=lambda h, S: np.where(S < 0, h, 0.5), **kwargs)
 
+    def test_dominance_grid_is_validated_as_coefficients(self):
+        """
+        The grid of ``intervals_h`` holds the dominance coefficients the counts are precomputed at, and is
+        checked as such when a callback is given. Its values were passed through the callback first, which
+        rejected a callback whose parameter is not itself a dominance coefficient and accepted a grid outside
+        [0, 1].
+        """
+        kwargs = dict(n=6, h=None, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5))
+
+        d = Discretization(
+            intervals_h=(0, 1, 3), h_callback=lambda k, S: 0.5 + k * np.tanh(np.asarray(S) / 10), **kwargs
+        )
+
+        _, w = d.get_interpolation_weights(-0.5)
+
+        self.assertTrue(((0 <= w) & (w <= 1)).all())
+
+        with self.assertRaises(ValueError):
+            Discretization(intervals_h=(0, 1.5, 3), h_callback=lambda h, S: np.full_like(S, 0.5), **kwargs)
+
     def test_dominance_kernel_resolves_highest_frequency_class(self):
         """
         The numerical kernel for general dominance agrees with the closed form under semidominance in the
