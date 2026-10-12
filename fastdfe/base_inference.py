@@ -1692,7 +1692,12 @@ class BaseInference(AbstractInference):
         :param df: Total number of parameters being tested.
         :param m: Number of parameters at the boundary.
         :return: p-value
+        :raises ValueError: If the loss function of the inference is not the likelihood.
         """
+        if self.optimization.loss_type != 'likelihood':
+            raise ValueError("A likelihood ratio test requires loss_type='likelihood', "
+                             f"but the inference uses '{self.optimization.loss_type}'.")
+
         weights, components, _ = self._lrt_components(ll_simple, ll_complex, df, m)
 
         return np.sum(weights * components)
@@ -1820,10 +1825,7 @@ class BaseInference(AbstractInference):
         # create likelihood ratio matrix
         P = []
         for i in inputs:
-            try:
-                P.append(i[0][1].compare_nested(i[1][1]))
-            except ValueError:
-                P.append(None)
+            P.append(i[0][1].compare_nested(i[1][1]) if i[0][1]._is_nested(i[1][1]) else None)
 
         P = np.reshape(P, (n, n))
 

@@ -2549,6 +2549,25 @@ class SmokeTestCase(TestCase):
 
         assert_frame_equal(inf.bootstraps[['omega', 'omega_a']], expected)
 
+    def test_likelihood_ratio_test_requires_likelihood_loss(self):
+        """
+        Comparing nested models raises a ``ValueError`` for an inference fitted with the L2 loss, whose
+        ``likelihood`` is the negative norm of the residuals. p-values were computed from these norms.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            loss_type='L2',
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        with self.assertRaisesRegex(ValueError, 'loss_type'):
+            inf.compare_nested_models()
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty
