@@ -1539,6 +1539,16 @@ class FastJointInferenceTestCase(TestCase):
                 parallelize=False
             )
 
+    def test_residual_of_joint_inference_that_was_not_run(self):
+        """
+        The residual of a joint inference that was not run yet triggers the fit, as for a single inference.
+        It raised an ``AttributeError``.
+        """
+        inf = self._make()
+
+        self.assertEqual(inf.get_residual(2), inf.L2_residual)
+        self.assertGreater(inf.get_residual(2), 0)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

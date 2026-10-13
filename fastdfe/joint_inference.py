@@ -1694,6 +1694,9 @@ class JointInference(BaseInference):
         :return: Norm of order ``k`` of the difference between modelled and observed polymorphic counts,
             concatenated over types.
         """
+        if self.sfs_mle is None:
+            self.run_if_required()
+
         counts_mle = np.array([inf.sfs_mle.polymorphic for inf in self.joint_inferences.values()]).flatten()
         counts_sel = np.array([
             inf._get_observed_spectra()['selected'].polymorphic for inf in self.joint_inferences.values()
