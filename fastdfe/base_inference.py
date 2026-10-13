@@ -326,12 +326,19 @@ class BaseInference(AbstractInference):
         # check that the fixed parameters are valid
         self.check_fixed_params_exist()
 
+        # dominance coefficient fixed for all, or at the same value for every type of a joint inference
+        fixed_h = self.fixed_params['all'].get('h', None)
+        if fixed_h is None and types[1:]:
+            fixed_h = ParamDict.collapse_fixed(
+                ParamDict.expand_fixed(fixed_params, types[1:]), types[1:]
+            )['all'].get('h', None)
+
         if discretization is None:
             # create discretization instance
             #: Discretization instance
             self.discretization: Discretization = Discretization(
                 n=self.n,
-                h=self.fixed_params.get('all', {}).get('h', None),
+                h=fixed_h,
                 h_callback=h_callback,
                 intervals_del=intervals_del,
                 intervals_ben=intervals_ben,

@@ -1507,6 +1507,19 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(inferences['full.anc'].get_n_optimized(), 5)
         self.assertEqual(inferences['full.no_anc'].get_n_optimized(), 4)
 
+    def test_fixed_dominance_by_type_outside_grid_of_h(self):
+        """
+        A joint inference whose dominance coefficient is fixed for each type, as in its own config, is
+        created for a grid of ``h`` that does not contain the fixed value, since the grid is not used. The
+        bounds of ``h`` were taken from the grid, and the fixed value was rejected as lying outside them.
+        """
+        inf = self._make(intervals_h=(0.0, 0.4, 3))
+
+        restored = fd.JointInference.from_config(inf.create_config())
+
+        self.assertEqual(restored.fixed_params['a']['h'], 0.5)
+        self.assertEqual(restored.bounds['h'], inf.bounds['h'])
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
