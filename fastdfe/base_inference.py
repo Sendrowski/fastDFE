@@ -2160,13 +2160,6 @@ class BaseInference(AbstractInference):
         if data.get('x0'):
             data['x0'] = {k: v for k, v in data['x0'].items() if k == 'all'}
 
-        # parameters of polyDFE without a counterpart, which an init file may fix
-        if data.get('fixed_params'):
-            data['fixed_params'] = {
-                t: {k: v for k, v in params.items() if k not in ('lambda', 'theta_bar', 'a')}
-                for t, params in data['fixed_params'].items()
-            }
-
         return cls(**data)
 
     @classmethod

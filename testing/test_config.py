@@ -467,31 +467,6 @@ fixed_params:
         self.assertEqual(Config().data['covariates'], [])
         self.assertEqual(Config().data['shared_params'], [])
 
-    def test_inference_from_polydfe_init_file_fixing_theta(self):
-        """
-        An inference is created from a polyDFE init file that fixes ``lambda``, ``theta_bar`` or ``a``, which
-        have no counterpart and are left out. They were passed on as fixed parameters and raised a
-        ``ValueError``, while the config keeps them for polyDFE itself.
-        """
-        from fastdfe import Spectrum
-
-        out_file = "scratch/test_inference_from_polydfe_init_file_fixing_theta.txt"
-
-        with open(out_file, 'w') as fh:
-            fh.write("1  0 0.01  1 0  1 0.005  1 0.001  1 -1  0 -400  0 0.4  1 0  1 1  0 1 1 1 1 1 1 1 1 1\n")
-
-        config = Config(
-            sfs_neut=Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
-            sfs_sel=Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
-            polydfe_init_file=out_file,
-            intervals_del=(-1.0e+8, -1.0e-5, 20),
-            intervals_ben=(1.0e-5, 1.0e4, 20),
-            parallelize=False
-        )
-
-        self.assertEqual(config.data['fixed_params']['all']['theta_bar'], 0.001)
-        self.assertEqual(BaseInference.from_config(config).fixed_params, dict(all=dict(p_b=0, S_b=1, h=0.5)))
-
     def test_restore_covariates(self):
         """
         Test whether covariates can be properly restored from file.
