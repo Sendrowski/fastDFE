@@ -437,9 +437,12 @@ class BaseInference(AbstractInference):
             raise ValueError(f"Initial values need to be of the form {{'all': {{param: value}}}}, "
                              f"but found the keys {sorted(x0)}.")
 
+        # the dominance coefficient starts within its bounds
+        x0_h = dict(h=float(np.clip(self._default_x0['h'], *self.bounds['h'])))
+
         #: Initial values
         self.x0: Dict[str, Dict[str, float]] = dict(
-            all=self.model.x0 | self._default_x0 | (x0['all'] if 'all' in x0 else {})
+            all=self.model.x0 | self._default_x0 | x0_h | (x0['all'] if 'all' in x0 else {})
         )
 
         #: Bootstrapped MLE parameter estimates

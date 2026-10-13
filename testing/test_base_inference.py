@@ -2746,6 +2746,31 @@ class SmokeTestCase(TestCase):
             inf.plot_continuous(intervals=np.array(intervals, dtype=float), show=False).lines[0].get_ydata()
         )
 
+    def test_default_initial_dominance_lies_within_grid(self):
+        """
+        Without a given initial value, the dominance coefficient starts within its bounds, which follow the
+        grid of ``h``. It started at 0.5 also for a grid that excludes it, and the fit logged a warning about
+        initial values outside the bounds.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            intervals_h=(0.6, 1, 3),
+            fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1)),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        self.assertEqual(inf.x0['all']['h'], 0.6)
+
+        with self.assertLogs('fastdfe', level='DEBUG') as logs:
+            inf.run()
+
+        self.assertFalse(any('outside bounds' in message for message in logs.output))
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty
