@@ -352,7 +352,8 @@ class JointInference(BaseInference):
         self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = self._get_default_scales() | scales
 
         #: parameter bounds
-        self.bounds: Dict[str, Tuple[float, float]] = self._get_default_bounds() | bounds
+        self.bounds: Dict[str, Tuple[float, float]] = \
+            self._get_default_bounds() | {k: tuple(v) for k, v in bounds.items()}
 
         # create optimization instance for joint inference
         # take initial values and bounds from marginal inferences

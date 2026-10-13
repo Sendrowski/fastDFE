@@ -94,7 +94,7 @@ class Parametrization(Serializable, ABC):
         self._logger = logger.getChild(self.__class__.__name__)
 
         # merge custom settings
-        self.bounds = self.bounds | (bounds or {})
+        self.bounds = self.bounds | {k: tuple(v) for k, v in (bounds or {}).items()}
         self.scales = self.scales | (scales or {})
         self.x0 = self.x0 | (x0 or {})
 
@@ -702,7 +702,9 @@ class DiscreteParametrization(Parametrization):
         self.x0: Dict[str, float] = dict((p, 1 / (self.k - 2)) for p in self.param_names) | (x0 or {})
 
         #: Default parameter bounds
-        self.bounds: Dict[str, Tuple[float, float]] = dict((p, (0, 1)) for p in self.param_names) | (bounds or {})
+        self.bounds: Dict[str, Tuple[float, float]] = dict((p, (0, 1)) for p in self.param_names) | {
+            k: tuple(v) for k, v in (bounds or {}).items()
+        }
 
         #: Scales
         # noinspection all
@@ -874,7 +876,9 @@ class DiscreteFractionalParametrization(Parametrization):
                     x0 or {})
 
         #: Default parameter bounds
-        self.bounds: Dict[str, Tuple[float, float]] = dict((p, (0, 1)) for p in self.param_names) | (bounds or {})
+        self.bounds: Dict[str, Tuple[float, float]] = dict((p, (0, 1)) for p in self.param_names) | {
+            k: tuple(v) for k, v in (bounds or {}).items()
+        }
 
         #: Scales
         # noinspection all

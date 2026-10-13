@@ -2587,6 +2587,27 @@ class SmokeTestCase(TestCase):
 
         self.assertAlmostEqual(ax.get_ylim()[0], 1e-7)
 
+    def test_bounds_given_as_arrays(self):
+        """
+        Bounds given as numpy arrays, to the inference or to its parametrization, are stored as tuples, so
+        the config and the serialized parametrization can be created. Comparing an array with the default
+        bounds raised a ``ValueError`` there.
+        """
+        model = fd.GammaExpParametrization(bounds=dict(b=np.array([0.05, 5])))
+
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            model=model,
+            bounds=dict(S_d=np.array([-1e5, -1])),
+            parallelize=False
+        )
+
+        self.assertEqual(inf.create_config().data['bounds'], dict(S_d=(-1e5, -1)))
+        self.assertEqual(fd.Config.from_json(inf.create_config().to_json()).data['model'].bounds['b'], (0.05, 5))
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty

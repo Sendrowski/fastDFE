@@ -399,7 +399,8 @@ class BaseInference(AbstractInference):
         self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = self._get_default_scales() | scales
 
         #: Parameter bounds
-        self.bounds: Dict[str, Tuple[float, float]] = self._get_default_bounds() | bounds
+        self.bounds: Dict[str, Tuple[float, float]] = \
+            self._get_default_bounds() | {k: tuple(v) for k, v in bounds.items()}
 
         if optimization is None:
             # create optimization instance
