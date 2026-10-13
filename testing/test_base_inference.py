@@ -2670,6 +2670,33 @@ class SmokeTestCase(TestCase):
         self.assertEqual(inf.get_residual(2), inf.L2_residual)
         self.assertGreater(inf.get_residual(2), 0)
 
+    def test_divergence_based_statistics_require_divergence_counts(self):
+        """
+        The divergence-based alpha, omega and omega_a raise a ``ValueError`` naming the spectrum that holds
+        no divergence count. They returned NaN or infinity, or an alpha of 1 for a neutral spectrum without
+        divergence.
+        """
+        neutral = fd.Spectrum(list(self.sfs_neut)[:-1] + [0])
+
+        inf = fd.BaseInference(
+            sfs_neut=neutral,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            include_divergence=False,
+            n_sites_div_neut=neutral.n_sites,
+            n_sites_div_sel=self.sfs_sel.n_sites,
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        for statistic in [inf.get_alpha, inf.get_omega, inf.get_omega_a]:
+            with self.assertRaisesRegex(ValueError, 'the neutral spectrum holds no divergence count'):
+                statistic(use_divergence=True)
+
+        self.assertTrue(np.isfinite(inf.get_alpha(use_divergence=False)))
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty

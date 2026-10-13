@@ -1947,6 +1947,27 @@ class BaseInference(AbstractInference):
         """
         return Spectra.from_spectra(self._get_observed_spectra() | dict(modelled=self.sfs_mle))
 
+    def _require_divergence(self, statistic: str):
+        """
+        Check that the divergence-based statistics can be computed.
+
+        :param statistic: Name of the statistic, used in the error message.
+        :raises ValueError: If a divergence target size is missing or a spectrum holds no divergence count.
+        """
+        if self.n_sites_div_neut is None or self.n_sites_div_sel is None:
+            raise ValueError(
+                f"Cannot compute divergence-based {statistic} without divergence counts and a "
+                f"separate divergence target size for both spectra."
+            )
+
+        for name, sfs in dict(neutral=self.sfs_neut, selected=self.sfs_sel).items():
+            if sfs.n_div == 0:
+                raise ValueError(
+                    f"Cannot compute divergence-based {statistic}: the {name} spectrum holds no divergence "
+                    f"count, its last entry being 0. Pass spectra whose last entry is the number of fixed "
+                    f"differences, or use use_divergence=False for the estimate from the DFE alone."
+                )
+
     def get_alpha(self, params: dict = None, use_divergence: bool = None) -> float:
         """
         Get alpha, the proportion of beneficial non-synonymous substitutions.
@@ -1961,7 +1982,7 @@ class BaseInference(AbstractInference):
             the likelihood). Passing ``False`` explicitly always yields the polymorphism-only
             estimate, which is useful for comparison.
         :return: Estimate of alpha.
-        :raises ValueError: If ``use_divergence`` is ``True`` and no divergence target sizes were specified.
+        :raises ValueError: If ``use_divergence`` is ``True`` without divergence target sizes or divergence counts.
         """
         if params is None:
             self.run_if_required()
@@ -1971,11 +1992,7 @@ class BaseInference(AbstractInference):
             use_divergence = self._use_divergence
 
         if use_divergence:
-            if self.n_sites_div_neut is None or self.n_sites_div_sel is None:
-                raise ValueError(
-                    "Cannot compute divergence-based alpha without divergence counts and a "
-                    "separate divergence target size for both spectra."
-                )
+            self._require_divergence('alpha')
 
             return self.discretization.get_alpha_divergence(
                 self.model, params, self.sfs_neut.n_div, self.sfs_sel.n_div,
@@ -1997,7 +2014,7 @@ class BaseInference(AbstractInference):
             the likelihood). Passing ``False`` explicitly always yields the polymorphism-only
             estimate, which is useful for comparison.
         :return: Estimate of omega.
-        :raises ValueError: If ``use_divergence`` is ``True`` and no divergence target sizes were specified.
+        :raises ValueError: If ``use_divergence`` is ``True`` without divergence target sizes or divergence counts.
         """
         if params is None:
             self.run_if_required()
@@ -2007,11 +2024,7 @@ class BaseInference(AbstractInference):
             use_divergence = self._use_divergence
 
         if use_divergence:
-            if self.n_sites_div_neut is None or self.n_sites_div_sel is None:
-                raise ValueError(
-                    "Cannot compute divergence-based omega without divergence counts and a "
-                    "separate divergence target size for both spectra."
-                )
+            self._require_divergence('omega')
 
             return self.discretization.get_omega_divergence(
                 self.model, params, self.sfs_neut.n_div, self.sfs_sel.n_div,
@@ -2034,7 +2047,7 @@ class BaseInference(AbstractInference):
             the likelihood). Passing ``False`` explicitly always yields the polymorphism-only
             estimate, which is useful for comparison.
         :return: Estimate of omega_a.
-        :raises ValueError: If ``use_divergence`` is ``True`` and no divergence target sizes were specified.
+        :raises ValueError: If ``use_divergence`` is ``True`` without divergence target sizes or divergence counts.
         """
         if params is None:
             self.run_if_required()
@@ -2044,11 +2057,7 @@ class BaseInference(AbstractInference):
             use_divergence = self._use_divergence
 
         if use_divergence:
-            if self.n_sites_div_neut is None or self.n_sites_div_sel is None:
-                raise ValueError(
-                    "Cannot compute divergence-based omega_a without divergence counts and a "
-                    "separate divergence target size for both spectra."
-                )
+            self._require_divergence('omega_a')
 
             return self.discretization.get_omega_a_divergence(
                 self.model, params, self.sfs_neut.n_div, self.sfs_sel.n_div,
