@@ -164,7 +164,8 @@ class JointInference(BaseInference):
         :param scales: Scales for the optimization in the form ``{param: scale}``
         :param loss_type: Loss type
         :param opts_mle: Options for the optimization
-        :param method_mle: Method to use for optimization. See :func:`scipy.optimize.minimize` for available methods.
+        :param method_mle: Method to use for optimization, which needs to support bounds. See
+            :func:`scipy.optimize.minimize` for available methods.
         :param n_runs: Number of independent optimization runs out of which the best one is chosen. The first run
             will use the initial values if specified. Consider increasing this number if the optimization does not
             produce good results.

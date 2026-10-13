@@ -26,6 +26,9 @@ from sfsutils import Settings
 # get logger
 logger = logging.getLogger('fastdfe').getChild('Optimization')
 
+#: Methods of :func:`scipy.optimize.minimize` that honour bounds, on which fixed parameters rely
+METHODS_WITH_BOUNDS = ('nelder-mead', 'powell', 'l-bfgs-b', 'tnc', 'slsqp', 'trust-constr', 'cobyla', 'cobyqa')
+
 
 def parallelize(
         func: Callable,
@@ -565,12 +568,13 @@ class Optimization:
         :param parallelize: Whether to parallelize the optimization
         :param bounds: Dictionary of bounds
         :param opts_mle: Dictionary of options for the optimizer
-        :param method_mle: Optimization method to use
+        :param method_mle: Optimization method to use, which needs to support bounds
         :param loss_type: Type of loss function to use
         :param fixed_params: Dictionary of fixed parameters
         :param scales: Dictionary of scales
         :param param_names: List of parameter names
         :param seed: Seed for the random number generator used to sample initial values
+        :raises ValueError: If the optimization method does not support bounds.
         """
         #: Parameter bounds
         self.bounds: Dict[str, Tuple[float, float]] = bounds
@@ -580,6 +584,11 @@ class Optimization:
 
         #: additional options for the optimizer
         self.opts_mle: dict = opts_mle
+
+        if str(method_mle).lower() not in METHODS_WITH_BOUNDS:
+            raise ValueError(f"The optimization method '{method_mle}' does not support bounds, which hold the "
+                             f"parameters within their bounds and at their fixed values. "
+                             f"Supported methods are {', '.join(METHODS_WITH_BOUNDS)}.")
 
         #: Optimization method to use
         self.method_mle: str = method_mle

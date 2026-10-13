@@ -547,6 +547,21 @@ class OptimizationTestCase(TestCase):
         self.assertEqual(len(set(sample.values())), 3)
         self.assertEqual(sample, opt.sample_x0(dict(all=dict(a=1, b=1, c=1)), random_state=5)['all'])
 
+    def test_methods_without_bounds_are_rejected(self):
+        """
+        An optimization method that does not support bounds raises a ``ValueError``. Such a method lets fixed
+        parameters drift, and the returned parameters, which are set back to their fixed values, then had a
+        likelihood far below the reported one.
+        """
+        kwargs = dict(bounds=dict(a=(0, 1)), scales=dict(a='lin'), param_names=['a'])
+
+        for method in ['BFGS', 'CG']:
+            with self.assertRaisesRegex(ValueError, 'does not support bounds'):
+                Optimization(method_mle=method, **kwargs)
+
+        for method in ['L-BFGS-B', 'Powell', 'TNC', 'Nelder-Mead']:
+            self.assertEqual(Optimization(method_mle=method, **kwargs).method_mle, method)
+
     def test_collapse_fixed_to_mean(self):
         """
         Test the ParamDict.collapse_fixed_to_mean function.
