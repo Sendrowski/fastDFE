@@ -2629,6 +2629,29 @@ class SmokeTestCase(TestCase):
         with self.assertRaisesRegex(ValueError, 'No likelihoods'):
             inf.plot_likelihoods(show=False)
 
+    def test_static_helpers_run_inferences_with_bootstraps(self):
+        """
+        The static ``Inference.get_discretized`` and ``Inference.plot_inferred_parameters_boxplot`` run
+        every inference they are given, including its bootstraps. The first tested for bootstraps before
+        running and returned no errors, and the second ran only the first inference of the list.
+        """
+        def make() -> fd.BaseInference:
+            return fd.BaseInference(
+                sfs_neut=self.sfs_neut,
+                sfs_sel=self.sfs_sel,
+                intervals_del=(-1.0e+8, -1.0e-5, 20),
+                intervals_ben=(1.0e-5, 1.0e4, 20),
+                n_bootstraps=3,
+                n_runs=1,
+                parallelize=False
+            )
+
+        _, errors = fd.Inference.get_discretized([make()], labels=['a'])
+
+        self.assertIsNotNone(errors['a'])
+
+        fd.Inference.plot_inferred_parameters_boxplot([make(), make()], labels=['a', 'b'], show=False)
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty

@@ -260,6 +260,9 @@ class Inference:
         if len(inferences) == 0:
             raise ValueError('No inference objects given.')
 
+        for inf in inferences:
+            inf.run_if_required()
+
         # get sorted list of parameter names
         param_names = sorted(list(inferences[0].get_bootstrap_param_names()))
 
@@ -350,6 +353,7 @@ class Inference:
         errors = {}
 
         for label, inf in zip(labels, inferences):
+            inf.run_if_required()
 
             # the point estimate is taken from the bootstraps if there are any
             if inf.bootstraps is not None:
@@ -456,6 +460,15 @@ class AbstractInference(Serializable, ABC):
         self.bootstraps: Optional[pd.DataFrame] = None
         self.params_mle: Optional[dict] = None
         self.model: Optional[Parametrization] = None
+
+    def run_if_required(self, *args, **kwargs):
+        """
+        Run the inference if it was not run yet. Does nothing for an inference that is run explicitly.
+
+        :param args: Arguments.
+        :param kwargs: Keyword arguments.
+        """
+        pass
 
     @abstractmethod
     def get_bootstrap_params(self) -> Dict[str, float]:
