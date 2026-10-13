@@ -31,6 +31,8 @@ except NameError:
     out_spectra = "scratch/spectra.png"
     out_params = "scratch/params.png"
 
+import jsonpickle
+
 from fastdfe import JointInference
 
 # create from config
@@ -42,8 +44,9 @@ inference.run()
 # save object in serialized form
 inference.to_file(out_serialized)
 
-# save summary
-inference.get_summary().to_file(out_summary)
+# save the summaries of the types
+with open(out_summary, 'w') as fh:
+    fh.write(jsonpickle.encode(inference.get_summary(), indent=4))
 
 # plot results
 inference.plot_inferred_parameters(file=out_params, show=testing)

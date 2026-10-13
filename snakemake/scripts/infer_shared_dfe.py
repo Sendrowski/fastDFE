@@ -24,6 +24,7 @@ except NameError:
     out_summary = "scratch/summary.json"
     out_serialized = "scratch/serialized_shared.json"
 
+import jsonpickle
 import logging
 
 from fastdfe import Config, JointInference
@@ -56,8 +57,9 @@ inference.run()
 # save object in serialized form
 inference.to_file(out_serialized)
 
-# save summary
-inference.get_summary().to_file(out_summary)
+# save the summaries of the types
+with open(out_summary, 'w') as fh:
+    fh.write(jsonpickle.encode(inference.get_summary(), indent=4))
 
 if testing:
     inference.plot_discretized()

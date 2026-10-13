@@ -37,6 +37,8 @@ except NameError:
     out_spectra = "scratch/spectra.png"
     out_params = "scratch/params.png"
 
+import jsonpickle
+
 import fastdfe as fd
 
 # create from config
@@ -48,8 +50,9 @@ inf.run()
 # save object in serialized form
 inf.to_file(out_serialized)
 
-# save summary
-inf.get_summary().to_file(out_summary)
+# save the summaries of the types
+with open(out_summary, 'w') as fh:
+    fh.write(jsonpickle.encode(inf.get_summary(), indent=4))
 
 p = f"p: {inf.perform_lrt_covariates():.2e}"
 c0 = f"c0: ({inf.bootstraps.mean()[inf.types[0] + '.c0']:.2e}, {inf.bootstraps.var()[inf.types[0] + '.c0']:.2e})"
