@@ -2608,6 +2608,27 @@ class SmokeTestCase(TestCase):
         self.assertEqual(inf.create_config().data['bounds'], dict(S_d=(-1e5, -1)))
         self.assertEqual(fd.Config.from_json(inf.create_config().to_json()).data['model'].bounds['b'], (0.05, 5))
 
+    def test_plot_likelihoods_without_stored_likelihoods(self):
+        """
+        Plotting the likelihoods of the runs raises a ``ValueError`` naming the cause when the inference holds
+        none, as the inferences of the types of a joint inference restored from an earlier version do. It
+        raised a ``TypeError`` from inside the plot.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+        inf.likelihoods = None
+
+        with self.assertRaisesRegex(ValueError, 'No likelihoods'):
+            inf.plot_likelihoods(show=False)
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty

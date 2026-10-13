@@ -1638,8 +1638,12 @@ class BaseInference(AbstractInference):
         :param ax: Axes to plot on. Only for Python visualization backend.
         :param ylabel: Label for the y-axis.
         :return: Axes object
+        :raises ValueError: If the inference holds no likelihoods of its optimization runs.
         """
         from .visualization import Visualization
+
+        if self.likelihoods is None:
+            raise ValueError('No likelihoods of the optimization runs are available.')
 
         return Visualization.plot_scatter(
             values=self.likelihoods,
