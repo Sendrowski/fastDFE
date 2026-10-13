@@ -724,6 +724,9 @@ class BaseInference(AbstractInference):
         :return: Norm of order ``k`` of the difference between the modelled and observed polymorphic counts,
             both folded if the inference is.
         """
+        if self.sfs_mle is None:
+            self.run_if_required()
+
         return norm(self.sfs_mle.polymorphic - self._get_observed_spectra()['selected'].polymorphic, k)
 
     def _get_observed_spectra(self) -> Dict[str, Spectrum]:

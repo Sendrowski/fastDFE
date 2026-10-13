@@ -2652,6 +2652,24 @@ class SmokeTestCase(TestCase):
 
         fd.Inference.plot_inferred_parameters_boxplot([make(), make()], labels=['a', 'b'], show=False)
 
+    def test_residual_of_inference_that_was_not_run(self):
+        """
+        The residual of an inference that was not run yet triggers the fit, as the other accessors do. It
+        raised an ``AttributeError``.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        self.assertEqual(inf.get_residual(2), inf.L2_residual)
+        self.assertGreater(inf.get_residual(2), 0)
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty
