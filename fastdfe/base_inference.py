@@ -1790,7 +1790,11 @@ class BaseInference(AbstractInference):
         )
         # the fixed parameters of each type that the nested models do not set themselves
         toggled = set().union(*submodels_dfe.values(), *submodels_outer.values())
-        kept = {t: {k: v for k, v in fixed.items() if k not in toggled} for t, fixed in self.fixed_params.items()}
+        fixed_h = {} if self.discretization.h is None else dict(h=self.discretization.h)
+        kept = {
+            t: fixed_h | {k: v for k, v in self.fixed_params.get(t, {}).items() if k not in toggled}
+            for t in getattr(self, 'types', ['all'])
+        }
 
         # take outer product to get fixed parameters for each model
         inferences: Dict[str, BaseInference] = {}

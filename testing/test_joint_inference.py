@@ -1466,6 +1466,30 @@ class FastJointInferenceTestCase(TestCase):
 
         self.assertAlmostEqual(sum(per_type), inf.likelihood, places=6)
 
+    def test_nested_models_of_inference_without_stored_fixed_parameters(self):
+        """
+        The nested models are constrained for every type of an inference whose stored fixed parameters are
+        empty, as in inferences saved by versions before 1.2.0, and keep the dominance coefficient of the
+        discretization fixed. The constraints were built from the stored keys, so none applied: the marginal
+        inference fitted the full model four times, and the joint one raised a ``KeyError``.
+        """
+        joint = self._make()
+        joint.fixed_params = {}
+        marginal = self._make().marginal_inferences['all']
+        marginal.fixed_params = {}
+
+        P, inferences = marginal.compare_nested_models()
+
+        self.assertEqual(inferences['dele.no_anc'].fixed_params, dict(all=dict(h=0.5, p_b=0, S_b=1, eps=0)))
+        self.assertEqual(inferences['full.anc'].fixed_params, dict(all=dict(h=0.5)))
+        self.assertIsNotNone(P[2, 1])
+
+        _, inferences = joint.compare_nested_models()
+
+        for t in joint.types:
+            self.assertEqual(inferences['dele.no_anc'].fixed_params[t], dict(h=0.5, p_b=0, S_b=1, eps=0))
+            self.assertEqual(inferences['full.anc'].fixed_params[t], dict(h=0.5))
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
