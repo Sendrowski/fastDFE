@@ -1490,6 +1490,23 @@ class FastJointInferenceTestCase(TestCase):
             self.assertEqual(inferences['dele.no_anc'].fixed_params[t], dict(h=0.5, p_b=0, S_b=1, eps=0))
             self.assertEqual(inferences['full.anc'].fixed_params[t], dict(h=0.5))
 
+    def test_config_keeps_sharing_of_all_parameters(self):
+        """
+        The config of a joint inference holds the shared parameters as given, so an inference created from it
+        shares all free parameters in its nested models too. The config held the parameters that were free at
+        construction, and the nested models of the restored inference estimated the others once per type.
+        """
+        inf = self._make(shared_params=[fd.SharedParams(types='all', params='all')])
+
+        self.assertEqual(inf.create_config().data['shared_params'], [fd.SharedParams(types='all', params='all')])
+
+        restored = fd.JointInference.from_config(inf.create_config())
+
+        _, inferences = restored.compare_nested_models()
+
+        self.assertEqual(inferences['full.anc'].get_n_optimized(), 5)
+        self.assertEqual(inferences['full.no_anc'].get_n_optimized(), 4)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

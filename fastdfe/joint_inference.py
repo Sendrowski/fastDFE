@@ -847,7 +847,7 @@ class JointInference(BaseInference):
             loss_type=self.optimization.loss_type,
             fixed_params=self.fixed_params,
             covariates=[c for c in self.covariates.values()],
-            shared_params=self.shared_params,
+            shared_params=self.shared_params if self._shared_params_given is None else self._shared_params_given,
             do_bootstrap=self.do_bootstrap,
             n_bootstraps=self.n_bootstraps,
             parallelize=self.parallelize,
