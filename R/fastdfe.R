@@ -36,15 +36,28 @@ if (getRversion() >= "2.15.1") utils::globalVariables(c(".data"))
   match(groups, sort(unique(groups), method = "radix"))
 }
 
+# ggplot2 alpha scale telling apart labels of the same group by their prefix (a single word before the first
+# '.', as in 'marginal.type'), in place of the hatching of Visualization.get_hatch of the Python package.
+# Prefixes are numbered in order of first appearance, the last one and labels without a prefix being opaque.
+.scale_alpha_prefix <- function(labels, breaks = labels) {
+  has_prefix <- grepl("^[[:alnum:]_]+\\.", labels)
+  prefixes <- sub("\\..*", "", labels)
+  unique_prefixes <- unique(prefixes[has_prefix])
+  index <- ifelse(has_prefix, length(unique_prefixes) - match(prefixes, unique_prefixes) + 1L, 1L)
+
+  ggplot2::scale_alpha_manual(values = stats::setNames(c(1, 0.55, 0.35, 0.2)[(index - 1) %% 4 + 1], breaks),
+                              labels = labels)
+}
+
 # ggplot2 theme of the plots: no grid lines and a centred title
 .plot_theme <- function() {
   ggplot2::theme(panel.grid = ggplot2::element_blank(), plot.title = ggplot2::element_text(hjust = 0.5))
 }
 
-# error bars from the 'ymin' and 'ymax' columns, placed over dodged bars
+# opaque error bars from the 'ymin' and 'ymax' columns, placed over dodged bars and left out of the legend
 .error_bars <- function() {
-  ggplot2::geom_errorbar(ggplot2::aes(ymin = .data$ymin, ymax = .data$ymax), width = 0.2,
-                         position = ggplot2::position_dodge(0.9))
+  ggplot2::geom_errorbar(ggplot2::aes(ymin = .data$ymin, ymax = .data$ymax), width = 0.2, alpha = 1,
+                         position = ggplot2::position_dodge(0.9), show.legend = FALSE)
 }
 
 # print the plot if 'show' is TRUE, save it to 'file' if one is given, and return it
@@ -338,12 +351,14 @@ load_fastdfe <- function(install = FALSE) {
         viz$interval_to_string(intervals[i], intervals[i + 1]), character(1))
     }
 
-    p <- ggplot2::ggplot(df, ggplot2::aes(x = factor(.data$x), y = .data$y, fill = .data$group)) +
+    p <- ggplot2::ggplot(df, ggplot2::aes(x = factor(.data$x), y = .data$y, fill = .data$group,
+                                          alpha = .data$group)) +
       ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge(), show.legend = n_dfes > 1) +
       ggplot2::scale_fill_manual(
         values = stats::setNames(.tab10[(.group_index(labels) - 1) %% length(.tab10) + 1], seq_len(n_dfes)),
         labels = labels
       ) +
+      .scale_alpha_prefix(labels, seq_len(n_dfes)) +
       ggplot2::scale_x_discrete(labels = interval_labels, expand = ggplot2::expansion(mult = c(0, 0))) +
       ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.05))) +
       ggplot2::labs(x = "S", y = "fraction", title = title) +
@@ -423,9 +438,11 @@ load_fastdfe <- function(install = FALSE) {
       df$ymax <- unlist(lapply(bounds, function(b) b[2, ]))
     }
 
-    p <- ggplot2::ggplot(df, ggplot2::aes(x = factor(.data$x), y = .data$y, fill = .data$group)) +
+    p <- ggplot2::ggplot(df, ggplot2::aes(x = factor(.data$x), y = .data$y, fill = .data$group,
+                                          alpha = .data$group)) +
       ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge(), show.legend = n_types > 1) +
       .scale_fill_tab10(labels, .group_index(labels)) +
+      .scale_alpha_prefix(labels) +
       ggplot2::scale_x_discrete(labels = .param_labels(param_names), expand = ggplot2::expansion(mult = c(0, 0))) +
       ggplot2::labs(x = "Parameters", y = "Values", title = title) +
       .plot_theme()

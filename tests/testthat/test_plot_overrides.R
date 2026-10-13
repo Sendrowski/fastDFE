@@ -47,6 +47,50 @@ test_that("discretized DFEs with the same label are drawn side by side", {
   expect_equal(length(unique(bars$xmin)), 4)
 })
 
+test_that("bars of the same group differ in opacity by the prefix of their label", {
+  labels <- c("marginal.a", "marginal.b", "joint.a", "joint.b")
+
+  params <- stats::setNames(list(list(S_d = -10), list(S_d = -20), list(S_d = -12), list(S_d = -18)), labels)
+  bars <- ggplot2::layer_data(viz$plot_inferred_parameters(params, labels = labels, param_names = "S_d", show = FALSE))
+
+  # the marginal and the joint bar of a type share the colour, the joint one being opaque
+  expect_equal(bars$fill[c(1, 2)], bars$fill[c(3, 4)])
+  expect_equal(bars$alpha[c(3, 4)], c(1, 1))
+  expect_true(all(bars$alpha[c(1, 2)] < 1))
+
+  values <- list(c(0.5, 0.5), c(0.3, 0.7), c(0.4, 0.6), c(0.2, 0.8))
+  bars <- ggplot2::layer_data(viz$plot_discretized(values, labels = labels, intervals = c(-Inf, 0, Inf), show = FALSE))
+
+  expect_equal(nrow(unique(bars[, c("fill", "alpha")])), 4)
+
+  plain <- ggplot2::layer_data(viz$plot_discretized(values[1:2], labels = c("a", "b"), intervals = c(-Inf, 0, Inf),
+                                                    show = FALSE))
+
+  expect_true(all(plain$alpha == 1))
+
+  # a dot within a label that has no single-word prefix does not count
+  dotted <- ggplot2::layer_data(viz$plot_discretized(values[1:2], labels = c("True DFE (h=0.3)", "Inferred DFE (h=0.5)"),
+                                                     intervals = c(-Inf, 0, Inf), show = FALSE))
+
+  expect_true(all(dotted$alpha == 1))
+})
+
+test_that("error bars are opaque and stay out of the legend", {
+  values <- list(c(0.5, 0.5), c(0.3, 0.7))
+  errors <- list(matrix(0.05, nrow = 2, ncol = 2), matrix(0.05, nrow = 2, ncol = 2))
+
+  p <- viz$plot_discretized(values, errors = errors, labels = c("marginal.a", "joint.a"),
+                            intervals = c(-Inf, 0, Inf), show = FALSE)
+
+  expect_false(p$layers[[2]]$show.legend)
+  expect_true(all(ggplot2::layer_data(p, 2)$alpha == 1))
+
+  # a single DFE has no legend
+  single <- viz$plot_discretized(values[1], errors = errors[1], intervals = c(-Inf, 0, Inf), show = FALSE)
+
+  expect_false(any(vapply(single$layers, function(layer) isTRUE(layer$show.legend), logical(1))))
+})
+
 test_that("the parameter plot accepts a parameter that is not a number", {
   values <- list(a = list(S_d = -10, b = NaN), b = list(S_d = -20, b = 0.3))
 
