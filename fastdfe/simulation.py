@@ -114,7 +114,8 @@ class Simulation:
             self.params['h'] = 0.5
 
         #: Function mapping the parameter ``h`` and the selection coefficients to dominance coefficients
-        self.h_callback: Optional[Callable[[float, np.ndarray], np.ndarray]] = h_callback
+        self.h_callback: Optional[Callable[[float, np.ndarray], np.ndarray]] = \
+            h_callback if discretization is None else discretization.h_callback
 
         # check if parameters are within bounds
         self._check_bounds()

@@ -817,6 +817,11 @@ class SimulationSmokeTestCase(TestCase):
         with self.assertRaises(ValueError):
             self._make(params=dict(S_d=-300, b=0.3, p_b=0.05, S_b=1, h=3))
 
+        # the callback of a given discretization counts as well
+        given = self._make(params=dict(S_d=-300, b=0.3, p_b=0.05, S_b=1, h=3), discretization=sim.discretization)
+
+        np.testing.assert_allclose(given.run().data, expected.run().data, rtol=1e-8)
+
     def test_divergence_roundtrip_recovers_truth(self):
         """
         Feeding the simulated (clean, matched-model) divergence back into the divergence-based
