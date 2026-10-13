@@ -1764,7 +1764,7 @@ class BaseInference(AbstractInference):
         m = 0
         for name in fixed:
             types, param = name.split('.')
-            m += self.optimization.fixed_params[f"{types.split(':')[0]}.{param}"] in self.optimization.bounds[param]
+            m += self.optimization.fixed_params[f"{types.split(':')[0]}.{param}"] in complex.optimization.bounds[param]
 
         # degrees of freedom
         df = len(fixed)

@@ -2796,6 +2796,29 @@ class SmokeTestCase(TestCase):
             self.assertEqual(result.fun, original.fun)
             self.assertIn('fun', repr(result))
 
+    def test_boundary_of_nested_test_follows_bounds_of_complex_model(self):
+        """
+        A parameter counts as fixed at a boundary if its value is a bound of the complex model, in which it
+        is estimated. The bounds of the simple model were used, which for a fixed ``h`` are (0, 1) whatever
+        the grid, so ``h`` fixed at the edge of a narrowed grid was not counted and the p-value was doubled.
+        """
+        kwargs = dict(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            intervals_h=(0, 0.5, 3),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+
+        simple = fd.BaseInference(fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)), **kwargs)
+        complex = fd.BaseInference(fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1)), **kwargs)
+
+        self.assertEqual(complex.bounds['h'], (0, 0.5))
+        self.assertEqual(simple._get_df_nested(complex), (1, 1))
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty
