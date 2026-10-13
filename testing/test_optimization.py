@@ -572,6 +572,16 @@ class OptimizationTestCase(TestCase):
         self.assertNotEqual(float(np.mean([0.01] * 11)), 0.01)
         self.assertEqual(ParamDict.collapse_fixed_to_mean({t: dict(b=0.01) for t in types}, types)['all']['b'], 0.01)
 
+    def test_unpack_shared_is_independent_of_key_order(self):
+        """
+        Unpacking shared parameters gives the same result whatever the order of the keys. A type listed after
+        a key shared with it replaced the shared parameters of that type.
+        """
+        expected = dict(a=dict(S_d=-10, b=0.3), b=dict(S_d=-10, b=0.5))
+
+        self.assertEqual(SharedParams.unpack({'a': dict(b=0.3), 'b': dict(b=0.5), 'a:b': dict(S_d=-10)}), expected)
+        self.assertEqual(SharedParams.unpack({'a:b': dict(S_d=-10), 'a': dict(b=0.3), 'b': dict(b=0.5)}), expected)
+
     def test_collapse_fixed_to_mean(self):
         """
         Test the ParamDict.collapse_fixed_to_mean function.

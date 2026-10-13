@@ -414,7 +414,7 @@ class SharedParams:
             if ':' in t:
                 unpacked = ParamDict.merge(unpacked, dict((s, v) for s in t.split(':')))
             else:
-                unpacked[t] = v
+                unpacked = ParamDict.merge(unpacked, {t: v})
 
         return unpacked
 
