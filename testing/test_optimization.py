@@ -562,6 +562,16 @@ class OptimizationTestCase(TestCase):
         for method in ['L-BFGS-B', 'Powell', 'TNC', 'Nelder-Mead']:
             self.assertEqual(Optimization(method_mle=method, **kwargs).method_mle, method)
 
+    def test_collapse_fixed_to_mean_keeps_identical_values(self):
+        """
+        A parameter fixed at the same value in every type is collapsed to that value. The mean of identical
+        values can differ from them by a rounding error, which moved a value fixed at a bound outside it.
+        """
+        types = [str(i) for i in range(11)]
+
+        self.assertNotEqual(float(np.mean([0.01] * 11)), 0.01)
+        self.assertEqual(ParamDict.collapse_fixed_to_mean({t: dict(b=0.01) for t in types}, types)['all']['b'], 0.01)
+
     def test_collapse_fixed_to_mean(self):
         """
         Test the ParamDict.collapse_fixed_to_mean function.

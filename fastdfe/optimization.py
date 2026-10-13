@@ -279,7 +279,7 @@ class ParamDict:
         for p in params:
             vals = [expanded_params[t][p] for t in types if p in expanded_params.get(t, {})]
             if len(vals) == len(types):
-                out["all"][p] = float(np.mean(vals))
+                out["all"][p] = vals[0] if len(set(vals)) == 1 else float(np.mean(vals))
 
         return out
 
