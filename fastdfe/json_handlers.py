@@ -14,7 +14,9 @@ import inspect
 import json
 import logging
 
+import jsonpickle
 import numpy as np
+from scipy.optimize import OptimizeResult
 
 from sfsutils.spectrum import Spectrum, Spectra
 
@@ -91,3 +93,35 @@ class CustomEncoder(json.JSONEncoder):
             return None
 
         return json.JSONEncoder.default(self, obj)
+
+
+class OptimizeResultHandler(jsonpickle.handlers.BaseHandler):
+    """
+    Serialize an optimization result of scipy by its items.
+    """
+
+    def flatten(self, obj: OptimizeResult, data: dict) -> dict:
+        """
+        Flatten the result.
+
+        :param obj: Optimization result
+        :param data: Dictionary to add the items to
+        :return: Dictionary
+        """
+        data.update(self.context.flatten(dict(obj), reset=False))
+
+        return data
+
+    def restore(self, data: dict) -> OptimizeResult:
+        """
+        Restore the result.
+
+        :param data: Dictionary holding the items
+        :return: Optimization result
+        """
+        items = {k: v for k, v in data.items() if k not in ('py/object', '__dict__')}
+
+        return OptimizeResult(self.context.restore(items, reset=False))
+
+
+jsonpickle.handlers.register(OptimizeResult, OptimizeResultHandler)

@@ -2771,6 +2771,31 @@ class SmokeTestCase(TestCase):
 
         self.assertFalse(any('outside bounds' in message for message in logs.output))
 
+    def test_restored_optimization_result_is_printable(self):
+        """
+        The optimization results of a restored inference hold the items of the original ones and can be
+        printed. They held an additional empty item, on which their representation raised a ``ValueError``.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            n_bootstraps=2,
+            n_runs=1,
+            parallelize=False
+        )
+        inf.run()
+
+        restored = fd.BaseInference.from_json(inf.to_json())
+
+        results = [(inf.result, restored.result), (inf.bootstrap_results[0], restored.bootstrap_results[0])]
+
+        for original, result in results:
+            self.assertEqual(set(result), set(original))
+            self.assertEqual(result.fun, original.fun)
+            self.assertIn('fun', repr(result))
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty
