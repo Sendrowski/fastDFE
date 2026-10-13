@@ -362,7 +362,7 @@ class Config:
 
         # recreate a parametrization stored with its intervals
         if isinstance(data.get('model'), dict):
-            model = {k: numbers(v) if k in ['bounds', 'x0'] else v for k, v in data['model'].items()}
+            model = {k: numbers(v) if k in ['bounds', 'x0', 'intervals'] else v for k, v in data['model'].items()}
             data['model'] = getattr(parametrization, model.pop('name'))(**model)
 
         # recreate SharedParams objects

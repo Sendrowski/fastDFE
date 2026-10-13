@@ -435,6 +435,12 @@ fixed_params:
         self.assertEqual(tuple(config.data['model'].bounds['S_d']), (-1e4, -1e-2))
         self.assertEqual(config.data['model'].x0['b'], 0.1)
 
+        model = Config.from_dict(dict(
+            model=dict(name='DiscreteFractionalParametrization', intervals=['-1e5', -100, -1, 0, 1, '1e3'])
+        )).data['model']
+
+        np.testing.assert_array_equal(model.intervals[1:-1], [-1e5, -100, -1, 0, 1, 1e3])
+
     def test_parse_polydfe_init_file_with_rows_of_different_length(self):
         """
         A polyDFE init file whose rows hold different numbers of ``r`` values is parsed. The file was read as
