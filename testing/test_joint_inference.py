@@ -1393,6 +1393,7 @@ class FastJointInferenceTestCase(TestCase):
 
         for t in inf.types:
             self.assertEqual(inf.joint_inferences[t].likelihoods, inf.likelihoods)
+            assert_frame_equal(inf.get_summary()[t].runs, inf.runs)
 
             inf.joint_inferences[t].plot_likelihoods(show=False)
 
