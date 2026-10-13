@@ -276,9 +276,26 @@ class FastBootstrapTestCase(TestCase):
                 np.testing.assert_array_equal(errors, np.clip([center - cis[0], cis[1] - center], 0, None))
                 self.assertTrue((errors > 0).all())
 
-        _, errors, _ = Bootstrap.get_errors([50.0], np.arange(100.)[:, None], ci_level=0.05)
+        bs = np.arange(100.)[:, None]
+
+        _, errors, _ = Bootstrap.get_errors([50.0], bs, ci_level=0.05)
 
         np.testing.assert_array_equal(errors, [[45], [44]])
+
+        # the tail probability sets the bounds
+        np.testing.assert_array_equal(Bootstrap.get_errors([50.0], bs, ci_level=0.1)[2], [[10], [89]])
+
+        # the bias-corrected interval is built around the original value, whatever the point estimate
+        z0 = stats.norm.ppf(0.71)
+        a1, a2 = stats.norm.cdf(2 * z0 + stats.norm.ppf([0.05, 0.95]))
+        expected = [[math.floor(a1 * 100 + 0.5)], [math.ceil(a2 * 100 - 0.5) - 1]]
+
+        for point_estimate in ('original', 'mean', 'median'):
+            _, _, cis = Bootstrap.get_errors([70.5], bs, bootstrap_type='bca', point_estimate=point_estimate)
+
+            np.testing.assert_array_equal(cis, expected)
+
+        self.assertNotEqual(expected, [[5], [94]])
 
         with self.assertRaises(NotImplementedError):
             Bootstrap.get_errors(values, bs2d, bootstrap_type='nope')
