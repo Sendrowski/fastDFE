@@ -1336,14 +1336,19 @@ class FastJointInferenceTestCase(TestCase):
     def test_base_inference_from_config_of_joint_inference(self):
         """
         A ``BaseInference`` can be created from the config of a joint inference, for the spectra pooled over
-        the types. The config holds the fixed parameters and initial values by type, which raised a
+        the types, with parameters fixed in every type held at the mean of their values and the initial values
+        given for all types. The config holds the fixed parameters and initial values by type, which raised a
         ``ValueError``.
         """
-        config = self._make(x0=dict(a=dict(S_d=-777.0))).create_config()
+        config = self._make(
+            fixed_params=dict(a=dict(eps=0, h=0.5, p_b=0, S_b=1), b=dict(eps=0.02, h=0.5, p_b=0, S_b=1)),
+            x0=dict(all=dict(S_d=-555.0), a=dict(S_d=-777.0))
+        ).create_config()
 
         inf = fd.BaseInference.from_config(config)
 
-        self.assertEqual(inf.fixed_params, dict(all=dict(eps=0, h=0.5, p_b=0, S_b=1)))
+        self.assertEqual(inf.fixed_params, dict(all=dict(eps=0.01, h=0.5, p_b=0, S_b=1)))
+        self.assertEqual(inf.x0['all']['S_d'], -555.0)
         np.testing.assert_array_equal(inf.sfs_sel.data, 2 * np.array(list(self.sfs_sel)))
 
     def test_shared_params_docstring_example(self):
