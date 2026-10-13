@@ -1520,6 +1520,19 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(restored.fixed_params['a']['h'], 0.5)
         self.assertEqual(restored.bounds['h'], inf.bounds['h'])
 
+    def test_covariate_with_single_type_is_rejected(self):
+        """
+        A covariate with a single type raises a ``ValueError``, since its effect is not identifiable. Such an
+        inference was fitted, and the likelihood evaluated at its packed estimates left out the covariate.
+        """
+        with self.assertRaisesRegex(ValueError, 'at least two types'):
+            fd.JointInference(
+                sfs_neut=fd.Spectra(dict(a=list(self.sfs_neut))),
+                sfs_sel=fd.Spectra(dict(a=list(self.sfs_sel))),
+                covariates=[fd.Covariate(param='S_d', values=dict(a=1))],
+                parallelize=False
+            )
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

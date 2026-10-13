@@ -186,8 +186,8 @@ class JointInference(BaseInference):
         :param optimization: Optimization instance. Mainly intended for internal use.
         :param locked: Whether running the inference from this object is disallowed. Used internally.
         :param kwargs: Additional keyword arguments which are ignored.
-        :raises ValueError: If ``x0`` contains a key that is neither ``all`` nor a type, or if a type is
-            named ``all`` or contains a dot or colon.
+        :raises ValueError: If ``x0`` contains a key that is neither ``all`` nor a type, if a type is
+            named ``all`` or contains a dot or colon, or if covariates are given for a single type.
         """
         if sfs_neut.has_dots() or sfs_sel.has_dots():
             raise ValueError('Type names cannot contain dots are not allowed as they are used internally.'
@@ -205,6 +205,10 @@ class JointInference(BaseInference):
 
         #: SFS types
         self.types: List[str] = sfs_neut.types
+
+        if covariates and len(self.types) < 2:
+            raise ValueError('Covariates require at least two types, as the effect of a covariate '
+                             'is estimated from the differences among types.')
 
         if set(x0) - set(self.types) - {'all'}:
             raise ValueError(f"Unknown types in x0: {sorted(set(x0) - set(self.types) - {'all'})}. "
