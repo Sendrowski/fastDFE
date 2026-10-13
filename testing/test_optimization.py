@@ -555,7 +555,7 @@ class OptimizationTestCase(TestCase):
         """
         kwargs = dict(bounds=dict(a=(0, 1)), scales=dict(a='lin'), param_names=['a'])
 
-        for method in ['BFGS', 'CG']:
+        for method in ['BFGS', 'CG', 'trust-constr', 'COBYLA']:
             with self.assertRaisesRegex(ValueError, 'does not support bounds'):
                 Optimization(method_mle=method, **kwargs)
 

@@ -26,8 +26,8 @@ from sfsutils import Settings
 # get logger
 logger = logging.getLogger('fastdfe').getChild('Optimization')
 
-#: Methods of :func:`scipy.optimize.minimize` that honour bounds, on which fixed parameters rely
-METHODS_WITH_BOUNDS = ('nelder-mead', 'powell', 'l-bfgs-b', 'tnc', 'slsqp', 'trust-constr', 'cobyla', 'cobyqa')
+#: Methods of :func:`scipy.optimize.minimize` that evaluate within bounds only, on which fixed parameters rely
+METHODS_WITH_BOUNDS = ('nelder-mead', 'powell', 'l-bfgs-b', 'tnc', 'slsqp', 'cobyqa')
 
 
 def parallelize(
