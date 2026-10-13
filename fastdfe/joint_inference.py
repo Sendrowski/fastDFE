@@ -358,7 +358,7 @@ class JointInference(BaseInference):
 
         #: parameter bounds
         self.bounds: Dict[str, Tuple[float, float]] = \
-            self._get_default_bounds() | {k: tuple(v) for k, v in bounds.items()}
+            self._get_default_bounds(bounds) | {k: tuple(v) for k, v in bounds.items()}
 
         # create optimization instance for joint inference
         # take initial values and bounds from marginal inferences
@@ -482,13 +482,22 @@ class JointInference(BaseInference):
 
         return cast(List[str], np.unique(shared).tolist())
 
-    def _get_default_bounds(self) -> Dict[str, Tuple[float, float]]:
+    def _get_default_bounds(
+            self,
+            bounds: Optional[Dict[str, Tuple[float, float]]] = None
+    ) -> Dict[str, Tuple[float, float]]:
         """
         Get the parameter bounds that apply unless others are given.
 
+        :param bounds: Given bounds, from which those of the covariates are derived.
         :return: Bounds of the model, of ``eps`` and ``h``, and of the covariates.
         """
-        return super()._get_default_bounds() | {k: cov.bounds for k, cov in self.covariates.items()}
+        default = super()._get_default_bounds()
+        merged = default | (bounds or {})
+
+        return default | {
+            k: cov._get_covariate_bounds(merged.get(cov.param, (1, 1))) for k, cov in self.covariates.items()
+        }
 
     def _get_default_scales(self) -> Dict[str, Literal['lin', 'log', 'symlog']]:
         """
@@ -849,7 +858,7 @@ class JointInference(BaseInference):
             opts_mle=self.optimization.opts_mle,
             method_mle=self.optimization.method_mle,
             x0=self.x0 | (self._x0_types or {}),
-            bounds={k: v for k, v in self.bounds.items() if self._get_default_bounds().get(k) != v},
+            bounds={k: v for k, v in self.bounds.items() if self._get_default_bounds(self.bounds).get(k) != v},
             scales={k: v for k, v in self.scales.items() if self._get_default_scales().get(k) != v},
             loss_type=self.optimization.loss_type,
             fixed_params=self.fixed_params,

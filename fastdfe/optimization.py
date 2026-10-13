@@ -474,8 +474,10 @@ class Covariate:
     #: The callback function to modify the parameters
     callback: Optional[Callable] = None
 
-    #: The bounds of the covariate parameter to be estimated
-    bounds: tuple = (1e-4, 1e4)
+    #: The bounds of the covariate parameter to be estimated. By default, on the symmetric log scale, the upper
+    #: bound is the largest absolute bound of the modified parameter divided by the largest absolute covariate
+    #: value, and the linear threshold a thousandth of it.
+    bounds: Optional[tuple] = None
 
     #: The initial value of the covariate
     x0: float = 0
@@ -487,7 +489,25 @@ class Covariate:
         """
         Cast bounds to tuple.
         """
-        self.bounds = tuple(self.bounds)
+        if self.bounds is not None:
+            self.bounds = tuple(self.bounds)
+
+    def _get_covariate_bounds(self, bounds_modified: Tuple[float, float]) -> Tuple[float, float]:
+        """
+        Get the bounds of the covariate parameter to be estimated.
+
+        :param bounds_modified: Bounds of :attr:`param`, the parameter the covariate modifies.
+        :return: :attr:`bounds` if given, otherwise bounds on the scale of the modified parameter.
+        """
+        if self.bounds is not None:
+            return self.bounds
+
+        if self.bounds_scale != 'symlog' or self.callback is not None:
+            return 1e-4, 1e4
+
+        span = max(abs(b) for b in bounds_modified) / (max(abs(v) for v in self.values.values()) or 1)
+
+        return 1e-3 * span, span
 
     def apply(self, covariate: float, type: str, params: Dict[str, float]) -> Dict[str, float]:
         """

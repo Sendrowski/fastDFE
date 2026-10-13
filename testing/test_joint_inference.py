@@ -1549,6 +1549,52 @@ class FastJointInferenceTestCase(TestCase):
         self.assertEqual(inf.get_residual(2), inf.L2_residual)
         self.assertGreater(inf.get_residual(2), 0)
 
+    def test_covariate_on_parameter_of_large_magnitude_is_estimated(self):
+        """
+        A covariate on ``S_d`` is estimated from the first optimization run, its default bounds being on the
+        scale of ``S_d``. With a linear threshold of 1e-4 a step of the optimizer changed the covariate by too
+        little to affect the likelihood, so the run stayed at the initial value of 0.
+        """
+        values = dict(a=1, b=2, c=3, d=4)
+        neutral = fd.Simulation.get_neutral_sfs(n=12, n_sites=1e7, theta=1e-3)
+        kwargs = dict(intervals_del=(-1.0e+8, -1.0e-5, 40), intervals_ben=(1.0e-5, 1.0e4, 40), parallelize=False)
+
+        selected = {
+            t: fd.Simulation(sfs_neut=neutral, params=dict(S_d=-2000 + 400 * v, b=0.3, p_b=0, S_b=1), **kwargs).run()
+            for t, v in values.items()
+        }
+
+        inf = fd.JointInference(
+            sfs_neut=fd.Spectra.from_spectra({t: neutral for t in values}),
+            sfs_sel=fd.Spectra.from_spectra(selected),
+            covariates=[fd.Covariate(param='S_d', values=values)],
+            n_runs=1,
+            do_bootstrap=False,
+            **kwargs
+        )
+        inf.run()
+
+        self.assertEqual(inf.bounds['c0'], (25, 25000))
+        self.assertAlmostEqual(inf.params_mle['a']['c0'], 400, delta=1)
+        self.assertLess(inf.perform_lrt_covariates(), 1e-3)
+
+        # given bounds are kept
+        given = fd.Covariate(param='S_d', values=values, bounds=(1e-4, 1e4))
+
+        self.assertEqual(given._get_covariate_bounds((-1e5, -1e-2)), (1e-4, 1e4))
+
+        # given bounds of the modified parameter are followed, also after restoring from the config
+        wide = fd.JointInference(
+            sfs_neut=fd.Spectra.from_spectra({t: neutral for t in values}),
+            sfs_sel=fd.Spectra.from_spectra(selected),
+            covariates=[fd.Covariate(param='S_d', values=values)],
+            bounds=dict(S_d=(-1e9, -1e-2)),
+            **kwargs
+        )
+
+        self.assertEqual(wide.bounds['c0'], (2.5e5, 2.5e8))
+        self.assertEqual(fd.JointInference.from_config(wide.create_config()).bounds['c0'], (2.5e5, 2.5e8))
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
