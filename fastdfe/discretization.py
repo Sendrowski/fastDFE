@@ -891,7 +891,7 @@ class Discretization:
             counts_modelled = self.get_counts(params.get('h', 0.5)) @ dfe
         else:
 
-            if params.get('h', 0.5) != 0.5:
+            if not np.all(self.map_h(params.get('h', 0.5), self.bins) == 0.5):
                 raise NotImplementedError('Non-linearized integral currently only implemented for h = 0.5.')
 
             dfe_pdf = model.get_pdf(**params)

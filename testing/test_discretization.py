@@ -198,6 +198,22 @@ class DiscretizationTestCase(TestCase):
         self.assertEqual(d.get_alpha(GammaExpParametrization(), params), 0)
         self.assertEqual(d.get_omega_a(GammaExpParametrization(), params), 0)
 
+    def test_non_linearized_integral_rejects_dominance_callback(self):
+        """
+        The non-linearized integral raises a ``NotImplementedError`` for a callback that maps the parameter
+        0.5 to other dominance coefficients. Only the parameter was tested, so the callback was ignored and
+        the spectrum modelled as semidominant.
+        """
+        kwargs = dict(n=6, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5), linearized=False)
+        params = dict(S_d=-10, b=0.3, p_b=0, S_b=1, h=0.5)
+
+        d = Discretization(h=0.5, h_callback=lambda h, S: np.full_like(S, 0.2), **kwargs)
+
+        with self.assertRaises(NotImplementedError):
+            d.model_selection_sfs(GammaExpParametrization(), params)
+
+        self.assertEqual(len(Discretization(h=0.5, **kwargs).model_selection_sfs(GammaExpParametrization(), params)), 5)
+
     def test_dominance_kernel_resolves_highest_frequency_class(self):
         """
         The numerical kernel for general dominance agrees with the closed form under semidominance in the
