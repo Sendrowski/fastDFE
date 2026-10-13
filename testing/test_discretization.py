@@ -144,93 +144,6 @@ class DiscretizationTestCase(TestCase):
         Discretization(h=1.0, **kwargs)
         Discretization(h=None, intervals_h=(0, 1, 3), h_callback=lambda h, S: np.where(S < 0, h, 0.5), **kwargs)
 
-    def test_dominance_grid_is_validated_as_coefficients(self):
-        """
-        The grid of ``intervals_h`` holds the dominance coefficients the counts are precomputed at, and is
-        checked as such when a callback is given. Its values were passed through the callback first, which
-        rejected a callback whose parameter is not itself a dominance coefficient and accepted a grid outside
-        [0, 1].
-        """
-        kwargs = dict(n=6, h=None, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5))
-
-        d = Discretization(
-            intervals_h=(0, 1, 3), h_callback=lambda k, S: 0.5 + k * np.tanh(np.asarray(S) / 10), **kwargs
-        )
-
-        _, w = d.get_interpolation_weights(-0.5)
-
-        self.assertTrue(((0 <= w) & (w <= 1)).all())
-
-        with self.assertRaises(ValueError):
-            Discretization(intervals_h=(0, 1.5, 3), h_callback=lambda h, S: np.full_like(S, 0.5), **kwargs)
-
-    def test_dominance_coefficient_a_rounding_error_outside_grid(self):
-        """
-        A dominance coefficient that leaves the precomputed grid by a rounding error is taken at the boundary
-        of the grid. With ``h`` on the log scale the lower bound 0.05 is recovered as ``10 ** log10(0.05)``,
-        which is slightly smaller and raised a ``ValueError`` that aborted the fit.
-        """
-        d = Discretization(
-            n=6, h=None, intervals_h=(0.05, 1, 3), intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5)
-        )
-
-        self.assertLess(10 ** np.log10(0.05), 0.05)
-
-        i, w = d.get_interpolation_weights(10 ** np.log10(0.05))
-
-        np.testing.assert_array_equal(i, 0)
-        np.testing.assert_array_equal(w, 1)
-
-        with self.assertRaises(ValueError):
-            d.get_interpolation_weights(0.0499)
-
-    def test_bin_containing_zero_is_not_adaptive_on_asymmetric_grid(self):
-        """
-        The bin containing ``S = 0`` counts as non-adaptive whatever the two boundaries next to zero. It was
-        classified by the sign of its midpoint, which is positive when the beneficial boundary is the larger
-        one, so a DFE without beneficial mutations had a positive alpha.
-        """
-        d = Discretization(
-            n=10, h=0.5, intervals_del=(-1e8, -1e-5, 20), intervals_ben=(1e-3, 1e4, 20), parallelize=False
-        )
-        params = dict(S_d=-1000, b=0.15, p_b=0, S_b=1)
-
-        self.assertEqual(d.get_alpha(GammaExpParametrization(), params), 0)
-        self.assertEqual(d.get_omega_a(GammaExpParametrization(), params), 0)
-
-    def test_non_linearized_integral_rejects_dominance_callback(self):
-        """
-        The non-linearized integral raises a ``NotImplementedError`` for a callback that maps the parameter
-        0.5 to other dominance coefficients. Only the parameter was tested, so the callback was ignored and
-        the spectrum modelled as semidominant.
-        """
-        kwargs = dict(n=6, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5), linearized=False)
-        params = dict(S_d=-10, b=0.3, p_b=0, S_b=1, h=0.5)
-
-        d = Discretization(h=0.5, h_callback=lambda h, S: np.full_like(S, 0.2), **kwargs)
-
-        with self.assertRaises(NotImplementedError):
-            d.model_selection_sfs(GammaExpParametrization(), params)
-
-        self.assertEqual(len(Discretization(h=0.5, **kwargs).model_selection_sfs(GammaExpParametrization(), params)), 5)
-
-    def test_forced_precompute_renews_fixed_counts(self):
-        """
-        A forced precomputation renews the fixed counts along with the counts of the polymorphic classes.
-        They were kept, so after a change of the dominance callback the divergence was that of the old one.
-        """
-        d = Discretization(n=6, h=0.5, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5))
-
-        before = d.get_counts_fixed(0.5).copy()
-
-        d.h_callback = lambda h, S: np.full_like(S, 0.9)
-        d.precompute(force=True)
-
-        expected = Discretization(n=6, h=0.9, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5))
-
-        np.testing.assert_allclose(d.get_counts_fixed(0.5), expected.get_counts_fixed(0.9))
-        self.assertFalse(np.allclose(d.get_counts_fixed(0.5), before))
-
     def test_dominance_kernel_resolves_highest_frequency_class(self):
         """
         The numerical kernel for general dominance agrees with the closed form under semidominance in the
@@ -1116,3 +1029,90 @@ class FastDiscretizationTestCase(TestCase):
             d.precompute(fixed=True)
             self.assertIsNotNone(d._counts_fixed)
             self.assertEqual(d._counts_fixed.shape, (n_h, d.n_intervals))
+
+    def test_dominance_grid_is_validated_as_coefficients(self):
+        """
+        The grid of ``intervals_h`` holds the dominance coefficients the counts are precomputed at, and is
+        checked as such when a callback is given. Its values were passed through the callback first, which
+        rejected a callback whose parameter is not itself a dominance coefficient and accepted a grid outside
+        [0, 1].
+        """
+        kwargs = dict(n=6, h=None, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5))
+
+        d = Discretization(
+            intervals_h=(0, 1, 3), h_callback=lambda k, S: 0.5 + k * np.tanh(np.asarray(S) / 10), **kwargs
+        )
+
+        _, w = d.get_interpolation_weights(-0.5)
+
+        self.assertTrue(((0 <= w) & (w <= 1)).all())
+
+        with self.assertRaises(ValueError):
+            Discretization(intervals_h=(0, 1.5, 3), h_callback=lambda h, S: np.full_like(S, 0.5), **kwargs)
+
+    def test_dominance_coefficient_a_rounding_error_outside_grid(self):
+        """
+        A dominance coefficient that leaves the precomputed grid by a rounding error is taken at the boundary
+        of the grid. With ``h`` on the log scale the lower bound 0.05 is recovered as ``10 ** log10(0.05)``,
+        which is slightly smaller and raised a ``ValueError`` that aborted the fit.
+        """
+        d = Discretization(
+            n=6, h=None, intervals_h=(0.05, 1, 3), intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5)
+        )
+
+        self.assertLess(10 ** np.log10(0.05), 0.05)
+
+        i, w = d.get_interpolation_weights(10 ** np.log10(0.05))
+
+        np.testing.assert_array_equal(i, 0)
+        np.testing.assert_array_equal(w, 1)
+
+        with self.assertRaises(ValueError):
+            d.get_interpolation_weights(0.0499)
+
+    def test_bin_containing_zero_is_not_adaptive_on_asymmetric_grid(self):
+        """
+        The bin containing ``S = 0`` counts as non-adaptive whatever the two boundaries next to zero. It was
+        classified by the sign of its midpoint, which is positive when the beneficial boundary is the larger
+        one, so a DFE without beneficial mutations had a positive alpha.
+        """
+        d = Discretization(
+            n=10, h=0.5, intervals_del=(-1e8, -1e-5, 20), intervals_ben=(1e-3, 1e4, 20), parallelize=False
+        )
+        params = dict(S_d=-1000, b=0.15, p_b=0, S_b=1)
+
+        self.assertEqual(d.get_alpha(GammaExpParametrization(), params), 0)
+        self.assertEqual(d.get_omega_a(GammaExpParametrization(), params), 0)
+
+    def test_non_linearized_integral_rejects_dominance_callback(self):
+        """
+        The non-linearized integral raises a ``NotImplementedError`` for a callback that maps the parameter
+        0.5 to other dominance coefficients. Only the parameter was tested, so the callback was ignored and
+        the spectrum modelled as semidominant.
+        """
+        kwargs = dict(n=6, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5), linearized=False)
+        params = dict(S_d=-10, b=0.3, p_b=0, S_b=1, h=0.5)
+
+        d = Discretization(h=0.5, h_callback=lambda h, S: np.full_like(S, 0.2), **kwargs)
+
+        with self.assertRaises(NotImplementedError):
+            d.model_selection_sfs(GammaExpParametrization(), params)
+
+        self.assertEqual(len(Discretization(h=0.5, **kwargs).model_selection_sfs(GammaExpParametrization(), params)), 5)
+
+    def test_forced_precompute_renews_fixed_counts(self):
+        """
+        A forced precomputation renews the fixed counts along with the counts of the polymorphic classes.
+        They were kept, so after a change of the dominance callback the divergence was that of the old one.
+        """
+        d = Discretization(n=6, h=0.5, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5))
+
+        before = d.get_counts_fixed(0.5).copy()
+
+        d.h_callback = lambda h, S: np.full_like(S, 0.9)
+        d.precompute(force=True)
+
+        expected = Discretization(n=6, h=0.9, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5))
+
+        np.testing.assert_allclose(d.get_counts_fixed(0.5), expected.get_counts_fixed(0.9))
+        self.assertFalse(np.allclose(d.get_counts_fixed(0.5), before))
