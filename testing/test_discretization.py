@@ -214,6 +214,23 @@ class DiscretizationTestCase(TestCase):
 
         self.assertEqual(len(Discretization(h=0.5, **kwargs).model_selection_sfs(GammaExpParametrization(), params)), 5)
 
+    def test_forced_precompute_renews_fixed_counts(self):
+        """
+        A forced precomputation renews the fixed counts along with the counts of the polymorphic classes.
+        They were kept, so after a change of the dominance callback the divergence was that of the old one.
+        """
+        d = Discretization(n=6, h=0.5, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5))
+
+        before = d.get_counts_fixed(0.5).copy()
+
+        d.h_callback = lambda h, S: np.full_like(S, 0.9)
+        d.precompute(force=True)
+
+        expected = Discretization(n=6, h=0.9, intervals_del=(-1e2, -1e-2, 5), intervals_ben=(1e-2, 1e2, 5))
+
+        np.testing.assert_allclose(d.get_counts_fixed(0.5), expected.get_counts_fixed(0.9))
+        self.assertFalse(np.allclose(d.get_counts_fixed(0.5), before))
+
     def test_dominance_kernel_resolves_highest_frequency_class(self):
         """
         The numerical kernel for general dominance agrees with the closed form under semidominance in the

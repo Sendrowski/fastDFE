@@ -548,6 +548,9 @@ class Discretization:
         if force and self.h is not None:
             self.h_mapped = self.map_h(self.h, self.bins)
 
+        if force:
+            self._counts_fixed = None
+
         # build fixed counts (divergence flux) when requested, independently of the _cache guard
         if fixed:
             self.precompute_fixed(force=force)
