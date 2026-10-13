@@ -2725,6 +2725,27 @@ class SmokeTestCase(TestCase):
 
         self.assertEqual(inf.likelihood, original)
 
+    def test_plot_continuous_accepts_list_of_intervals(self):
+        """
+        plot_continuous takes its intervals as a list, as the other methods on discretized DFEs do. A list
+        raised a TypeError when the interval sizes were computed.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_runs=1,
+            parallelize=False
+        )
+        intervals = [-100, -10, -1, 0, 1]
+
+        np.testing.assert_array_equal(
+            inf.plot_continuous(intervals=intervals, show=False).lines[0].get_ydata(),
+            inf.plot_continuous(intervals=np.array(intervals, dtype=float), show=False).lines[0].get_ydata()
+        )
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty

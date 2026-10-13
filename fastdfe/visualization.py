@@ -270,6 +270,8 @@ class Visualization:
         """
         from .discretization import Discretization
 
+        bins = np.asarray(bins, dtype=float)
+
         n_bins = len(bins) - 1
         n_dfes = len(values)
 
