@@ -84,8 +84,8 @@ class Config:
         :param intervals_ben: Same as ``intervals_del`` but for positive selection coefficients. Decreasing the number
             of intervals to ``100`` provides nearly identical results while increasing speed, especially when
             precomputing across dominance coefficients.
-        :param intervals_h: ``(start, stop, n_interval)`` for dominance coefficients which are linearly spaced.
-            This is only used when inferring dominance coefficients. Values of ``h`` between the edges will be
+        :param intervals_h: ``(start, stop, n_points)`` for the linearly spaced grid of dominance coefficients.
+            This is only used when inferring dominance coefficients. Values of ``h`` between the grid points will be
             interpolated linearly.
         :param h_callback: A function mapping the scalar parameter ``h`` and the array of selection
             coefficients ``S`` to dominance coefficients of the same shape, allowing models where ``h``
