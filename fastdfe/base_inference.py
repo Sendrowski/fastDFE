@@ -978,6 +978,8 @@ class BaseInference(AbstractInference):
         # add execution time
         self.execution_time += time.time() - start_time
 
+        self.likelihood = -self.result.fun
+
         # assign average likelihood of successful runs
         if update_likelihood:
             self.likelihood = np.mean([-res.fun for res in result[:, 0] if res.success] + [-self.result.fun])

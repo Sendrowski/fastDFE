@@ -2697,6 +2697,34 @@ class SmokeTestCase(TestCase):
 
         self.assertTrue(np.isfinite(inf.get_alpha(use_divergence=False)))
 
+    def test_bootstrap_resets_updated_likelihood(self):
+        """
+        A bootstrap without ``update_likelihood`` leaves the likelihood at that of the fit. After an earlier
+        bootstrap with the flag it stayed at the average over the bootstraps that were replaced.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=self.sfs_neut,
+            sfs_sel=self.sfs_sel,
+            intervals_del=(-1.0e+8, -1.0e-5, 20),
+            intervals_ben=(1.0e-5, 1.0e4, 20),
+            do_bootstrap=False,
+            n_bootstraps=3,
+            n_runs=1,
+            parallelize=False,
+            seed=0
+        )
+        inf.run()
+
+        original = inf.likelihood
+
+        inf.bootstrap(update_likelihood=True)
+
+        self.assertNotEqual(inf.likelihood, original)
+
+        inf.bootstrap()
+
+        self.assertEqual(inf.likelihood, original)
+
     def test_empty_neutral_frequency_class_warns(self):
         """
         A neutral SFS with an empty frequency class logs a warning. For a folded inference a class is empty
