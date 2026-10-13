@@ -1050,11 +1050,10 @@ class Optimization:
                 unscaled = {}
 
                 for key in keys:
-                    unscaled[key] = (
-                        "{:g}".format(self.bounds[ParamDict.get_basename(key)][0]),
-                        "{:.8g}".format(params[key]),
-                        "{:g}".format(self.bounds[ParamDict.get_basename(key)][1])
-                    )
+                    name = ParamDict.get_basename(key)
+                    lower, upper = Optimization.get_real_bounds(self.bounds[name], self.scales[name])
+
+                    unscaled[key] = ("{:g}".format(lower), "{:.8g}".format(params[key]), "{:g}".format(upper))
 
                 return unscaled
 

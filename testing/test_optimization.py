@@ -582,6 +582,18 @@ class OptimizationTestCase(TestCase):
         self.assertEqual(SharedParams.unpack({'a': dict(b=0.3), 'b': dict(b=0.5), 'a:b': dict(S_d=-10)}), expected)
         self.assertEqual(SharedParams.unpack({'a:b': dict(S_d=-10), 'a': dict(b=0.3), 'b': dict(b=0.5)}), expected)
 
+    def test_bound_warning_shows_range_of_symlog_parameter(self):
+        """
+        The warning on estimates close to a bound shows the range of a parameter on the symmetric log scale,
+        which extends from minus to plus the upper bound. It showed the linear threshold as the lower bound.
+        """
+        opt = Optimization(bounds=dict(c=(1e-4, 1e4)), scales=dict(c='symlog'), param_names=['c'])
+
+        with self.assertLogs('fastdfe', level='WARNING') as logs:
+            opt.check_bounds({'all.c': -1e4})
+
+        self.assertIn('(-10000, -10000, 10000)', logs.output[0])
+
     def test_collapse_fixed_to_mean(self):
         """
         Test the ParamDict.collapse_fixed_to_mean function.
