@@ -4,7 +4,6 @@ Discretization>Precomputing: 100%|██████████| 201/201 [--:--
 INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
 BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
 WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
-WARNING:BaseInference: The L1 residual comparing the modelled and observed SFS is rather large: `norm(sfs_modelled - sfs_observed, 1) / sfs_observed` = 0.159. This may indicate that the model does not fit the data well.
-INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 0, all.b: 0.1411 ± 1.1e-09, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0 ± 0, likelihood: -75.43 ± 6.4e-13} (best_run ± std_across_runs)
+INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 7.5e+03, all.b: 0.1234 ± 0.001, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0 ± 0, likelihood: -36.96 ± 0.14} (best_run ± std_across_runs)
 BaseInference>Bootstrapping (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
-INFO:BaseInference: Bootstrap summary: {all.S_d: -1e+05 ± 0, all.b: 0.1404 ± 0.0035, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0 ± 0, likelihood: -82.36 ± 15, i_best_run: 0.59 ± 0.49, likelihoods_std: 0.1047 ± 0.74} (mean ± std)
+INFO:BaseInference: Bootstrap summary: {all.S_d: -9.481e+04 ± 1.6e+04, all.b: 0.124 ± 0.0056, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0 ± 0, likelihood: -44.75 ± 6.3, i_best_run: 0.42 ± 0.5, likelihoods_std: 0.1978 ± 1.8} (mean ± std)

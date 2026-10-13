@@ -358,7 +358,7 @@ inf = fd.BaseInference(
     sfs_neut=sfs_neut,
     sfs_sel=sfs_sel,
     fixed_params=dict(all=dict(eps=0, h=0, p_b=0, S_b=1)),
-    h_callback=lambda h, S: 0.4 * np.exp(-0.1 * abs(S))
+    h_callback=lambda h, S: 0.4 * np.exp(-0.001 * abs(S))
 )
 
 inf.run();
@@ -369,7 +369,7 @@ inf <- fd$BaseInference(
   sfs_neut = sfs_neut,
   sfs_sel = sfs_sel,
   fixed_params = list(all = list(eps = 0, h = 0, p_b = 0, S_b = 1)),
-  h_callback = function(h, S) 0.4 * exp(-0.1 * abs(S))
+  h_callback = function(h, S) 0.4 * exp(-0.001 * abs(S))
 )
 
 sfs_modelled <- inf$run()

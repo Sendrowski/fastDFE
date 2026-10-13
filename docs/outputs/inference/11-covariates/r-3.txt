@@ -23,22 +23,22 @@ INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
 BaseInference>Performing inference: 100%|██████████| 50/50 [--:--<--:--, --it/s]
 WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
 WARNING:BaseInference: The L1 residual comparing the modelled and observed SFS is rather large: `norm(sfs_modelled - sfs_observed, 1) / sfs_observed` = 0.200. This may indicate that the model does not fit the data well.
-INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 6.8e+03, all.b: 0.0857 ± 0.00052, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -22.72 ± 0.013} (best_run ± std_across_runs)
+INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 6.2e+03, all.b: 0.0857 ± 0.00066, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -22.72 ± 0.0077} (best_run ± std_across_runs)
 INFO:JointInference: Running marginal inference for type 'C'.
 INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
 BaseInference>Performing inference: 100%|██████████| 50/50 [--:--<--:--, --it/s]
 WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
-INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 3.4e+03, all.b: 0.1219 ± 0.00044, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -19.47 ± 0.00013} (best_run ± std_across_runs)
+INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 1.6e+04, all.b: 0.1219 ± 0.025, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -19.47 ± 0.35} (best_run ± std_across_runs)
 INFO:JointInference: Running marginal inference for type 'G'.
 INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
 BaseInference>Performing inference: 100%|██████████| 50/50 [--:--<--:--, --it/s]
 WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
-INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 1.7e+04, all.b: 0.1221 ± 0.024, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -18.88 ± 0.43} (best_run ± std_across_runs)
+INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 5.8e+03, all.b: 0.1221 ± 0.0009, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -18.88 ± 0.0047} (best_run ± std_across_runs)
 INFO:JointInference: Running marginal inference for type 'T'.
 INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
 BaseInference>Performing inference: 100%|██████████| 50/50 [--:--<--:--, --it/s]
 WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
-INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 0, all.b: 0.1079 ± 5.2e-09, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -18.44 ± 1.5e-12} (best_run ± std_across_runs)
+INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 2.1e+04, all.b: 0.1079 ± 0.029, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -18.44 ± 0.37} (best_run ± std_across_runs)
 INFO:JointInference: Running joint inference for types ['A', 'C', 'G', 'T'].
 INFO:Optimization: Optimizing 6 parameters: [A.b, C.b, G.b, T.b, A:C:G:T.S_d, A:C:G:T.c0].
 JointInference>Performing joint inference: 100%|██████████| 50/50 [--:--<--:--, --it/s]
@@ -51,15 +51,15 @@ BaseInference>Bootstrapping 'all' (2 runs each): 100%|████████�
 INFO:BaseInference: Bootstrap summary: {all.S_d: -7.899e+04 ± 3.9e+04, all.b: 0.1188 ± 0.028, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -36.03 ± 5.6, i_best_run: 0.45 ± 0.5, likelihoods_std: 0.03251 ± 0.28} (mean ± std)
 INFO:JointInference: Bootstrapping type 'A'.
 BaseInference>Bootstrapping 'A' (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
-INFO:BaseInference: Bootstrap summary: {all.S_d: -7.713e+04 ± 4e+04, all.b: 0.1128 ± 0.086, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -98.49 ± 1.8e+02, i_best_run: 0.52 ± 0.5, likelihoods_std: 0.0005835 ± 0.0058} (mean ± std)
+INFO:BaseInference: Bootstrap summary: {all.S_d: -7.322e+04 ± 4.2e+04, all.b: 0.1101 ± 0.058, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -121.2 ± 2.9e+02, i_best_run: 0.49 ± 0.5, likelihoods_std: 0.002149 ± 0.021} (mean ± std)
 INFO:JointInference: Bootstrapping type 'C'.
 BaseInference>Bootstrapping 'C' (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
-INFO:BaseInference: Bootstrap summary: {all.S_d: -5.364e+04 ± 4.8e+04, all.b: 0.1898 ± 0.11, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -116.1 ± 2.4e+02, i_best_run: 0.43 ± 0.5, likelihoods_std: 0.03989 ± 0.27} (mean ± std)
+INFO:BaseInference: Bootstrap summary: {all.S_d: -5.248e+04 ± 4.7e+04, all.b: 0.1781 ± 0.081, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -92.81 ± 1.7e+02, i_best_run: 0.46 ± 0.5, likelihoods_std: 0.14 ± 1.3} (mean ± std)
 INFO:JointInference: Bootstrapping type 'G'.
 BaseInference>Bootstrapping 'G' (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
-INFO:BaseInference: Bootstrap summary: {all.S_d: -5.512e+04 ± 4.8e+04, all.b: 0.179 ± 0.089, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -144.2 ± 2.2e+02, i_best_run: 0.56 ± 0.5, likelihoods_std: 0.02015 ± 0.14} (mean ± std)
+INFO:BaseInference: Bootstrap summary: {all.S_d: -6.65e+04 ± 4.6e+04, all.b: 0.1641 ± 0.078, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -139.7 ± 2.4e+02, i_best_run: 0.47 ± 0.5, likelihoods_std: 0.01739 ± 0.13} (mean ± std)
 INFO:JointInference: Bootstrapping type 'T'.
 BaseInference>Bootstrapping 'T' (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
-INFO:BaseInference: Bootstrap summary: {all.S_d: -5.836e+04 ± 4.7e+04, all.b: 0.1507 ± 0.071, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -50.79 ± 1e+02, i_best_run: 0.45 ± 0.5, likelihoods_std: 0.002552 ± 0.021} (mean ± std)
+INFO:BaseInference: Bootstrap summary: {all.S_d: -6.422e+04 ± 4.7e+04, all.b: 0.1547 ± 0.084, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -65.58 ± 1.3e+02, i_best_run: 0.47 ± 0.5, likelihoods_std: 0.03526 ± 0.2} (mean ± std)
 JointInference>Bootstrapping joint inference (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
 INFO:JointInference: Bootstrap summary: {A.b: 0.09966 ± 0.024, A.p_b: 0 ± 0, A.S_b: 1 ± 0, A.eps: 0 ± 0, A.h: 0.5 ± 0, A.S_d: -6.759e+04 ± 4.3e+04, A.c0: -240.8 ± 1.4e+03, C.b: 0.1421 ± 0.033, C.p_b: 0 ± 0, C.S_b: 1 ± 0, C.eps: 0 ± 0, C.h: 0.5 ± 0, C.S_d: -6.763e+04 ± 4.3e+04, C.c0: -240.8 ± 1.4e+03, G.b: 0.14 ± 0.034, G.p_b: 0 ± 0, G.S_b: 1 ± 0, G.eps: 0 ± 0, G.h: 0.5 ± 0, G.S_d: -6.77e+04 ± 4.3e+04, G.c0: -240.8 ± 1.4e+03, T.b: 0.1245 ± 0.032, T.p_b: 0 ± 0, T.S_b: 1 ± 0, T.eps: 0 ± 0, T.h: 0.5 ± 0, T.S_d: -6.767e+04 ± 4.3e+04, T.c0: -240.8 ± 1.4e+03, likelihood: -446.7 ± 4.6e+02, i_best_run: 0.19 ± 0.39, likelihoods_std: 178.2 ± 2.1e+02} (mean ± std)

@@ -3,6 +3,6 @@ INFO:Discretization: Precomputing DFE-SFS transformation across dominance coeffi
 Discretization>Precomputing: 100%|██████████| 441/441 [--:--<--:--, --it/s]
 INFO:Optimization: Optimizing 3 parameters: [all.S_d, all.b, all.h].
 BaseInference>Performing inference: 100%|██████████| 10/10 [--:--<--:--, --it/s]
-INFO:BaseInference: Inference results: {all.S_d: -298.5 ± 0.051, all.b: 0.3005 ± 7.3e-06, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.3015 ± 4e-05, likelihood: -70.56 ± 7.2e-08} (best_run ± std_across_runs)
+INFO:BaseInference: Inference results: {all.S_d: -298.5 ± 0.034, all.b: 0.3005 ± 4.3e-06, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.3016 ± 2.8e-05, likelihood: -70.56 ± 2.3e-08} (best_run ± std_across_runs)
 BaseInference>Bootstrapping (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
-INFO:BaseInference: Bootstrap summary: {all.S_d: -2460 ± 9.9e+03, all.b: 0.2864 ± 0.044, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.2839 ± 0.19, likelihood: -79.97 ± 3.2, i_best_run: 0.57 ± 0.5, likelihoods_std: 0.02012 ± 0.1} (mean ± std)
+INFO:BaseInference: Bootstrap summary: {all.S_d: -2360 ± 9e+03, all.b: 0.2851 ± 0.044, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.2797 ± 0.19, likelihood: -80 ± 3.2, i_best_run: 0.52 ± 0.5, likelihoods_std: 0.02458 ± 0.11} (mean ± std)
