@@ -238,6 +238,8 @@ class JointInference(BaseInference):
         #: Covariates indexed by parameter name
         self.covariates: Dict[str, Covariate] = {f"c{i}": cov for i, cov in enumerate(covariates)}
 
+        seed = int(seed) if seed is not None else None
+
         # initialize parent
         # the `self.folded` property will generalize nicely as we
         # evaluate ``sfs_sel.all.is_folded and sfs_neut.all.is_folded``

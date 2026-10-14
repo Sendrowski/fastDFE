@@ -3271,6 +3271,36 @@ class SmokeTestCase(TestCase):
                 model=model
             )
 
+    def test_whole_valued_float_seed_is_accepted(self):
+        """
+        A seed given as a whole-valued float, as R passes numbers, gives the same inference as the integer seed.
+        It raised a TypeError.
+        """
+        kwargs = dict(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            intervals_del=(-1e8, -1e-5, 20),
+            intervals_ben=(1e-5, 1e4, 20),
+            n_runs=1,
+            do_bootstrap=False,
+            parallelize=False
+        )
+
+        a = fd.BaseInference(seed=42.0, **kwargs)
+        b = fd.BaseInference(seed=42, **kwargs)
+        a.run()
+        b.run()
+
+        self.assertEqual(a.params_mle, b.params_mle)
+
+        spectra = dict(
+            sfs_neut=fd.Spectra.from_spectra(dict(x=kwargs['sfs_neut'], y=kwargs['sfs_neut'])),
+            sfs_sel=fd.Spectra.from_spectra(dict(x=kwargs['sfs_sel'], y=kwargs['sfs_sel']))
+        )
+        seeds = [fd.JointInference(seed=s, **spectra).marginal_inferences['x'].seed for s in (42.0, 42)]
+
+        self.assertEqual(seeds[0], seeds[1])
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
