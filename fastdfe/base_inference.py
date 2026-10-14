@@ -1035,7 +1035,7 @@ class BaseInference(AbstractInference):
         folded = self.folded
         scales = self.scales
         bounds = self.bounds
-        n_retries = self.n_bootstrap_retries
+        n_retries = int(self.n_bootstrap_retries)
         sfs_sel = self.sfs_sel
         sfs_neut = self.sfs_neut
         use_divergence = self._use_divergence

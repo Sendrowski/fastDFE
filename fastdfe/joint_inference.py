@@ -923,7 +923,7 @@ class JointInference(BaseInference):
         bounds = self.bounds
         scales_default = self.scales
         bounds_default = self.bounds
-        n_retries = self.n_bootstrap_retries
+        n_retries = int(self.n_bootstrap_retries)
         use_divergence = self._use_divergence
         sfs_neut = dict((t, self.marginal_inferences[t].sfs_neut) for t in self.types)
         sfs_sel = dict((t, self.marginal_inferences[t].sfs_sel) for t in self.types)

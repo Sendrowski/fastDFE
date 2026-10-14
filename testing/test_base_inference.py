@@ -3301,6 +3301,36 @@ class SmokeTestCase(TestCase):
 
         self.assertEqual(seeds[0], seeds[1])
 
+    def test_whole_valued_float_bootstrap_retries_are_accepted(self):
+        """
+        A number of bootstrap retries given as a whole-valued float, as R passes numbers, gives the same
+        bootstraps as the integer. It raised a TypeError after the fit.
+        """
+        sfs_neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+        sfs_sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+        kwargs = dict(
+            intervals_del=(-1e8, -1e-5, 20),
+            intervals_ben=(1e-5, 1e4, 20),
+            n_runs=1,
+            n_bootstraps=2,
+            parallelize=False,
+            seed=0
+        )
+
+        for cls, spectra in [
+            (fd.BaseInference, dict(sfs_neut=sfs_neut, sfs_sel=sfs_sel)),
+            (fd.JointInference, dict(
+                sfs_neut=fd.Spectra.from_spectra(dict(x=sfs_neut, y=sfs_neut)),
+                sfs_sel=fd.Spectra.from_spectra(dict(x=sfs_sel, y=sfs_sel))
+            ))
+        ]:
+            a = cls(n_bootstrap_retries=2.0, **spectra, **kwargs)
+            b = cls(n_bootstrap_retries=2, **spectra, **kwargs)
+            a.run()
+            b.run()
+
+            assert_frame_equal(a.bootstraps, b.bootstraps)
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
