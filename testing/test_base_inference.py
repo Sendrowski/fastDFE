@@ -14,6 +14,7 @@ import pytest
 from numpy.random._generator import Generator
 from pandas.testing import assert_frame_equal
 from scipy.optimize import OptimizeResult
+from sfsutils.spectrum import standard_kingman
 
 import fastdfe as fd
 from fastdfe.discretization import Discretization
@@ -3243,6 +3244,18 @@ class SmokeTestCase(TestCase):
         ]
 
         np.testing.assert_allclose(heights[0], heights[1])
+
+    def test_unfolded_inference_corrects_demography_per_frequency_class(self):
+        """
+        An unfolded inference whose neutral SFS has no counts above n / 2 corrects each frequency class by its
+        own ratio. The ratios were folded, so that adding a tiny count to one upper class changed the model.
+        """
+        sfs_neut = fd.Spectrum([4000, 12, 5, 3, 2, 0, 0, 0, 7])
+        counts = np.arange(1., 8.)
+
+        r = sfs_neut.polymorphic / (standard_kingman(8).polymorphic * sfs_neut.theta * sfs_neut.n_sites)
+
+        np.testing.assert_allclose(fd.BaseInference._add_demography(sfs_neut, counts, eps=0), r * counts)
 
     def test_nested_models_keep_other_fixed_parameters(self):
         """

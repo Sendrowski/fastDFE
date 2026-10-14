@@ -179,7 +179,9 @@ class Simulation:
         counts_modelled *= self.theta * self.n_sites
 
         # add contribution of demography and adjust polarization error
-        counts_modelled = BaseInference._add_demography(self.sfs_neut, counts_modelled, eps=self.params['eps'])
+        counts_modelled = BaseInference._add_demography(
+            self.sfs_neut, counts_modelled, eps=self.params['eps'], folded=BaseInference._is_folded(self.sfs_neut)
+        )
 
         # a folded neutral SFS yields a folded selected SFS
         if BaseInference._is_folded(self.sfs_neut):
