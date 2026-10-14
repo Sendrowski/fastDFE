@@ -130,8 +130,24 @@ class ColoredFormatter(logging.Formatter):
         return f"{color}{formatted}{self.reset}"
 
 
+class Logger(logging.Logger):
+    """
+    Logger of fastdfe, whose level also applies to the classes provided by sfsutils.
+    """
+
+    def setLevel(self, level: int | str):
+        """
+        Set the level of this logger and of the sfsutils logger.
+
+        :param level: Logging level
+        """
+        super().setLevel(level)
+        logging.getLogger('sfsutils').setLevel(level)
+
+
 # configure logger
 logger = logging.getLogger('fastdfe')
+logger.__class__ = Logger
 
 # don't propagate to the root logger
 logger.propagate = False

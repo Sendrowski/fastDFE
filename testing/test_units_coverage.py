@@ -158,6 +158,21 @@ def test_colored_formatter_strips_package_and_wraps_color():
     assert 'parser:hi' in out and out.startswith(fmt.colors['WARNING']) and out.endswith(fmt.reset)
 
 
+def test_logger_level_applies_to_sfsutils_classes():
+    """
+    Setting the level of the fastdfe logger also sets it for the classes provided by sfsutils, such as the
+    parser. Their output was not silenced.
+    """
+    import logging
+
+    try:
+        fd.logger.setLevel('WARNING')
+
+        assert logging.getLogger('sfsutils').level == logging.WARNING
+    finally:
+        fd.logger.setLevel('INFO')
+
+
 def test_name_to_label_keeps_mapped_label_for_negative_values():
     """
     A negative value prefixes the mapped label with a minus sign. The raw parameter name was returned,
