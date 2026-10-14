@@ -503,7 +503,8 @@ class DisplacedGammaParametrization(Parametrization):
 
 class GammaDiscreteParametrization(Parametrization):
     r"""
-    Parametrization for a mixture of a gamma and discrete distribution. This corresponds to polyDFE's model B.
+    Parametrization for a mixture of a gamma distribution for :math:`S < 0` and a uniform distribution for
+    :math:`S \geq 0`.
 
     We have the following probability density function:
 
