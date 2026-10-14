@@ -284,6 +284,9 @@ class BaseInference(AbstractInference):
         #: The DFE parametrization
         self.model: Parametrization = parametrization._from_string(model)
 
+        if reserved := {'alpha', 'omega', 'omega_a'} & set(self.model.param_names):
+            raise ValueError(f'The parameter names {sorted(reserved)} of the model are reserved for statistics.')
+
         if folded is None:
             #: Whether the SFS are folded
             self.folded: bool = self._is_folded(self.sfs_sel) and self._is_folded(self.sfs_neut)

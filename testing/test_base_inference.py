@@ -3257,6 +3257,20 @@ class SmokeTestCase(TestCase):
 
         np.testing.assert_allclose(fd.BaseInference._add_demography(sfs_neut, counts, eps=0), r * counts)
 
+    def test_model_parameter_named_as_statistic_raises(self):
+        """
+        A model parameter named like a statistic is rejected, as the statistic overwrote it in the bootstraps.
+        """
+        model = fd.GammaExpParametrization()
+        model.param_names = ['alpha', 'b', 'p_b', 'S_b']
+
+        with self.assertRaisesRegex(ValueError, 'alpha'):
+            fd.BaseInference(
+                sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+                sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+                model=model
+            )
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
