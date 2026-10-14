@@ -855,6 +855,16 @@ class FastDiscretizationTestCase(TestCase):
 
         self.assertTrue(np.all(np.isfinite(d.get_counts(h=0.4))))
 
+    def test_h_callback_returning_list(self):
+        """
+        An h callback that returns a list, as an R vector without dimensions arrives, gives the same counts as one
+        returning an array. It raised a TypeError on construction.
+        """
+        d_list = self._disc(h=0.4, h_callback=lambda h, S: [0.3 + h / 10] * len(S))
+        d_array = self._disc(h=0.4, h_callback=lambda h, S: np.full_like(S, 0.3 + h / 10))
+
+        np.testing.assert_array_equal(d_list.get_counts(h=0.4), d_array.get_counts(h=0.4))
+
     def test_static_counts_accept_integer_selection_coefficients(self):
         """
         The static count functions return the same values for integer and float selection coefficients. The

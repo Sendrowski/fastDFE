@@ -530,7 +530,7 @@ class Discretization:
         :return: Mapped dominance coefficients
         """
         if self.h_callback is not None:
-            return self.h_callback(h, S)
+            return np.asarray(self.h_callback(h, S), dtype=float)
 
         return self.default_h_callback(h, S)
 
