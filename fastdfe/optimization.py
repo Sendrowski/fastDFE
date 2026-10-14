@@ -492,17 +492,22 @@ class Covariate:
         if self.bounds is not None:
             self.bounds = tuple(self.bounds)
 
-    def _get_covariate_bounds(self, bounds_modified: Tuple[float, float]) -> Tuple[float, float]:
+    def _get_covariate_bounds(
+            self,
+            bounds_modified: Tuple[float, float],
+            scale: Literal['lin', 'log', 'symlog']
+    ) -> Tuple[float, float]:
         """
         Get the bounds of the covariate parameter to be estimated.
 
         :param bounds_modified: Bounds of :attr:`param`, the parameter the covariate modifies.
+        :param scale: Scale on which the covariate parameter is optimized.
         :return: :attr:`bounds` if given, otherwise bounds on the scale of the modified parameter.
         """
         if self.bounds is not None:
             return self.bounds
 
-        if self.bounds_scale != 'symlog' or self.callback is not None:
+        if scale != 'symlog' or self.callback is not None:
             return 1e-4, 1e4
 
         span = max(abs(b) for b in bounds_modified) / (max(abs(v) for v in self.values.values()) or 1)

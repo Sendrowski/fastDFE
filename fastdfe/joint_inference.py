@@ -496,7 +496,8 @@ class JointInference(BaseInference):
         merged = default | (bounds or {})
 
         return default | {
-            k: cov._get_covariate_bounds(merged.get(cov.param, (1, 1))) for k, cov in self.covariates.items()
+            k: cov._get_covariate_bounds(merged.get(cov.param, (1, 1)), self.scales[k])
+            for k, cov in self.covariates.items()
         }
 
     def _get_default_scales(self) -> Dict[str, Literal['lin', 'log', 'symlog']]:

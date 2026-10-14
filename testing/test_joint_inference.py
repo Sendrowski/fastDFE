@@ -1581,7 +1581,7 @@ class FastJointInferenceTestCase(TestCase):
         # given bounds are kept
         given = fd.Covariate(param='S_d', values=values, bounds=(1e-4, 1e4))
 
-        self.assertEqual(given._get_covariate_bounds((-1e5, -1e-2)), (1e-4, 1e4))
+        self.assertEqual(given._get_covariate_bounds((-1e5, -1e-2), 'symlog'), (1e-4, 1e4))
 
         # given bounds of the modified parameter are followed, also after restoring from the config
         wide = fd.JointInference(
@@ -1594,6 +1594,17 @@ class FastJointInferenceTestCase(TestCase):
 
         self.assertEqual(wide.bounds['c0'], (2.5e5, 2.5e8))
         self.assertEqual(fd.JointInference.from_config(wide.create_config()).bounds['c0'], (2.5e5, 2.5e8))
+
+        # a scale given to the inference takes precedence over the scale of the covariate
+        linear = fd.JointInference(
+            sfs_neut=fd.Spectra.from_spectra({t: neutral for t in values}),
+            sfs_sel=fd.Spectra.from_spectra(selected),
+            covariates=[fd.Covariate(param='S_d', values=values)],
+            scales=dict(c0='lin'),
+            **kwargs
+        )
+
+        self.assertEqual(linear.bounds['c0'], (1e-4, 1e4))
 
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
