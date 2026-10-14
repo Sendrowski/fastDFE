@@ -170,6 +170,20 @@ def test_name_to_label_keeps_mapped_label_for_negative_values():
     assert Visualization.name_to_label('S_d', ['S_d'], [-10]) == '$-S_d$'
 
 
+def test_name_to_label_renders_names_with_several_underscores():
+    """
+    A parameter name with several underscores gives valid mathtext. It raised a 'Double subscript' error.
+    """
+    import io
+    from matplotlib import mathtext
+    from fastdfe.visualization import Visualization
+
+    label = Visualization.name_to_label('S_d_mean')
+
+    assert label == r'$S_{d\_mean}$'
+    mathtext.math_to_image(label, io.BytesIO(), format='png')
+
+
 def test_polydfe_result_requires_postprocessing_source(tmp_path):
     """
     Parsing polyDFE output without the path to polyDFE's R postprocessing script raises an error naming the

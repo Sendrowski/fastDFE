@@ -357,6 +357,11 @@ class Visualization:
         # map to new name
         label = label_mapping[key] if key in label_mapping else key
 
+        # keep the part after the first underscore in one subscript
+        if label.count('_') > 1:
+            head, tail = label.split('_', 1)
+            label = head + '_{' + tail.replace('_', r'\_') + '}'
+
         # wrap in math mode tags
         if param_names is None:
             return '$' + label + '$'
