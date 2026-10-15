@@ -3382,6 +3382,32 @@ class SmokeTestCase(TestCase):
 
         self.assertNotIn('initial values outside bounds', '\n'.join(logs.output))
 
+    def test_residual_warning_allows_for_poisson_noise(self):
+        """
+        The warning on a large L1 residual allows for the residual expected from Poisson sampling. Spectra drawn
+        from the model itself with about 1000 selected polymorphic sites at n = 40 exceeded the fixed threshold.
+        """
+        kwargs = dict(intervals_del=(-1e8, -1e-5, 20), intervals_ben=(1e-5, 1e4, 20), parallelize=False)
+        neutral = fd.Simulation.get_neutral_sfs(n=40, n_sites=8e5, theta=1e-3)
+        selected = fd.Simulation(
+            sfs_neut=neutral, params=dict(S_d=-300, b=0.3, p_b=0, S_b=1, eps=0), **kwargs
+        ).run()
+
+        rng = np.random.default_rng(0)
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum(rng.poisson(neutral.data)),
+            sfs_sel=fd.Spectrum(rng.poisson(selected.data)),
+            n_runs=1,
+            do_bootstrap=False,
+            **kwargs
+        )
+
+        with self.assertLogs(level="INFO", logger=logging.getLogger('fastdfe')) as logs:
+            inf.run()
+
+        self.assertGreater(inf.get_residual(1) / inf.sfs_sel.n_polymorphic, 0.1)
+        self.assertNotIn('rather large', '\n'.join(logs.output))
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a

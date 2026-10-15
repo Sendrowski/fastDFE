@@ -748,11 +748,17 @@ class BaseInference(AbstractInference):
 
     def _check_L2_residual(self):
         """
-        Warn if the L1 residual relative to the number of polymorphic selected sites exceeds 0.1.
+        Warn if the L1 residual relative to the number of polymorphic selected sites exceeds 0.1 plus the L1
+        residual expected from Poisson sampling alone, :math:`\\sum_i \\sqrt{2 \\lambda_i / \\pi}`, relative to the same
+        number, where :math:`\\lambda_i` is the modelled count of polymorphic frequency class :math:`i`, of every
+        type in a joint inference.
         """
-        ratio = self.get_residual(1) / self.sfs_sel.n_polymorphic
+        n_polymorphic = self.sfs_sel.n_polymorphic
+        ratio = self.get_residual(1) / n_polymorphic
+        modelled = np.maximum(np.asarray(self.sfs_mle.polymorphic, dtype=float), 0)
+        noise = np.sum(np.sqrt(2 * modelled / np.pi)) / n_polymorphic
 
-        if ratio > 0.1:
+        if ratio > 0.1 + noise:
             self._logger.warning("The L1 residual comparing the modelled and observed SFS is rather large: "
                                  f"`norm(sfs_modelled - sfs_observed, 1) / sfs_observed` = {ratio:.3f}. "
                                  "This may indicate that the model does not fit the data well.")
