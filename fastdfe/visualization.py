@@ -239,7 +239,7 @@ class Visualization:
             show: bool = True,
             title: str = 'continuous DFE',
             scale: Literal['lin', 'log', 'symlog'] = 'lin',
-            ylim: float = 1e-2,
+            ylim: float = None,
             scale_density: bool = False,
             kwargs_legend: dict = dict(prop=dict(size=8)),
             **kwargs
@@ -253,7 +253,7 @@ class Visualization:
         disadvantage that the density now changes for x, so that even a constant
         density will look warped.
 
-        :param ylim: y-axis limit
+        :param ylim: Lower limit of the y-axis on a logarithmic scale
         :param scale: Scale of y-axis
         :param bins: Array of bin boundaries
         :param title: Title of the plot
@@ -305,7 +305,9 @@ class Visualization:
         # use log scale if specified
         if scale in ('log', 'symlog'):
             ax.set_yscale('log')
-            ax.set_ylim(bottom=ylim)
+
+            if ylim is not None:
+                ax.set_ylim(bottom=ylim)
 
         # show legend if labels were given
         if labels is not None:

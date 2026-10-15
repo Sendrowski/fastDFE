@@ -230,6 +230,23 @@ def test_plot_continuous_band_has_colour_of_its_line():
     np.testing.assert_allclose(ax.collections[0].get_facecolor()[0][:3], to_rgba(ax.lines[1].get_color())[:3])
     plt.close('all')
 
+def test_plot_continuous_on_log_scale_shows_small_densities():
+    """
+    The density plot on a logarithmic scale shows densities below 1e-2. Its lower limit was fixed at 1e-2,
+    which hid most bins of a DFE on a fine grid.
+    """
+    import matplotlib.pyplot as plt
+    from fastdfe.visualization import Visualization
+
+    bins = np.array([-1e4, -1e3, -1e2, -10.0, -1.0])
+    values = [np.array([0.7, 0.2, 0.07, 0.03])]
+
+    _, ax = plt.subplots()
+    Visualization.plot_continuous(ax=ax, bins=bins, values=values, scale='log', show=False)
+
+    assert ax.get_ylim()[0] <= np.min(values[0] / np.diff(bins))
+    plt.close('all')
+
 def test_plot_continuous_leaves_out_unbounded_intervals():
     """
     The density plot leaves out intervals with an infinite bound, whose density is not defined. They were
