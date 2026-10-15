@@ -1769,7 +1769,8 @@ class BaseInference(AbstractInference):
         Check if the current model is nested within the given, more complex model.
         The given model's fixed parameters need to be a proper subset of this model's fixed parameters,
         and fixed at the same values, and this model's optimized parameters need to be optimized in the given
-        model as well, shared across the same types.
+        model as well, shared across the same types. A parameter the given model shares across types needs
+        to be fixed at one value across these types.
 
         :param complex: More complex model.
         :return: Whether the models are nested.
@@ -1781,10 +1782,15 @@ class BaseInference(AbstractInference):
         fixed_complex = complex.optimization.fixed_params
         fixed_simple = self.optimization.fixed_params
 
+        # parameters optimized in the complex model only, a shared parameter being named 'type1:type2.param'
+        fixed = set(complex.get_optimized_param_names()) - set(self.get_optimized_param_names())
+
         return (
             set(fixed_complex) < set(fixed_simple)
             and all(fixed_simple[k] == v for k, v in fixed_complex.items())
             and set(self.get_optimized_param_names()) <= set(complex.get_optimized_param_names())
+            and all(len({fixed_simple[f'{t}.{p}'] for t in types.split(':')}) == 1
+                    for types, p in (name.split('.') for name in fixed))
         )
 
     def _get_df_nested(self, complex: 'BaseInference') -> Tuple[int, int]:

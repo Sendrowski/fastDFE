@@ -1714,6 +1714,20 @@ class FastJointInferenceTestCase(TestCase):
             with self.assertRaises(ValueError):
                 self._make(covariates=[fd.Covariate(param='S_d', values=values)])
 
+    def test_compare_nested_rejects_differing_values_of_a_parameter_shared_in_complex_model(self):
+        """
+        A model that fixes a parameter at different values for types across which the complex model shares it
+        is not nested. It was accepted, and the test took the boundary count from the first type only.
+        """
+        complex = self._make(
+            fixed_params=dict(all=dict(h=0.5, p_b=0, S_b=1)),
+            shared_params=[fd.SharedParams(params=['eps'], types='all')]
+        )
+        simple = self._make(fixed_params=dict(all=dict(h=0.5, p_b=0, S_b=1), a=dict(eps=0.1), b=dict(eps=0)))
+
+        with self.assertRaises(ValueError):
+            simple.compare_nested(complex)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
