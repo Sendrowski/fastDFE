@@ -56,7 +56,7 @@ stopifnot(sd(inf$runs[["all.S_d"]]) < 0.01 * abs(inf$params_mle$S_d))
 ``fastdfe`` uses maximum likelihood estimation (MLE) to find the DFE. By default, 10 local optimization runs are carried out to make sure a reasonably good global optimum has been found. The DFE furthermore needs to be parametrized, where {class}`~fastdfe.parametrization.GammaExpParametrization` is used by default. The standard deviation across optimization runs is also reported to give an idea of the reliability of the estimates. In this case, the standard deviations are low, indicating that the estimates are stable.
 
 +++
-We can now plot the inferred DFE in discretized form (cf. {func}`~fastdfe.base_inference.BaseInference.plot_discretized`).
+We can now plot the inferred DFE in discretized form (cf. {func}`BaseInference.plot_discretized() <fastdfe.base_inference.BaseInference.plot_discretized>`).
 
 ```{code-cell} python
 inf.plot_discretized();
@@ -67,7 +67,7 @@ p <- inf$plot_discretized()
 ```
 
 +++
-We can also plot a comparison of the `selected` modelled and observed SFS (cf. {func}`~fastdfe.base_inference.BaseInference.plot_sfs_comparison`).
+We can also plot a comparison of the `selected` modelled and observed SFS (cf. {func}`BaseInference.plot_sfs_comparison() <fastdfe.base_inference.BaseInference.plot_sfs_comparison>`).
 
 ```{code-cell} python
 inf.plot_sfs_comparison();
@@ -80,7 +80,7 @@ p <- inf$plot_sfs_comparison()
 +++
 ## Bootstrapping
 
-To quantify uncertainty, we can perform parametric bootstrapping (cf. {func}`~fastdfe.base_inference.BaseInference.bootstrap`).
+To quantify uncertainty, we can perform parametric bootstrapping (cf. {func}`BaseInference.bootstrap() <fastdfe.base_inference.BaseInference.bootstrap>`).
 
 ```{code-cell} python
 inf.bootstrap(n_samples=100)

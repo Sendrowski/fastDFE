@@ -2030,11 +2030,11 @@ class BaseInference(AbstractInference):
             ``h`` is taken to be 0.5 if absent.
         :param use_divergence: Whether to estimate alpha from observed divergence counts using
             polyDFE's McDonald-Kreitman style estimator (see
-            :meth:`~fastdfe.discretization.Discretization.get_alpha_divergence`), or from the DFE
-            alone (see :meth:`~fastdfe.discretization.Discretization.get_alpha`). When ``None``
-            (the default), this follows the inference mode (whether divergence counts are used in
-            the likelihood). Passing ``False`` explicitly always yields the polymorphism-only
-            estimate, which is useful for comparison.
+            :meth:`Discretization.get_alpha_divergence() <fastdfe.discretization.Discretization.get_alpha_divergence>`),
+            or from the DFE alone (see
+            :meth:`Discretization.get_alpha() <fastdfe.discretization.Discretization.get_alpha>`). When ``None`` (the
+            default), this follows the inference mode (whether divergence counts are used in the likelihood). Passing
+            ``False`` explicitly always yields the polymorphism-only estimate, which is useful for comparison.
         :return: Estimate of alpha.
         :raises ValueError: If ``use_divergence`` is ``True`` without divergence target sizes or divergence counts.
         """
@@ -2062,11 +2062,11 @@ class BaseInference(AbstractInference):
             ``h`` is taken to be 0.5 if absent.
         :param use_divergence: Whether to estimate omega from observed divergence counts using
             polyDFE's McDonald-Kreitman style estimator (see
-            :meth:`~fastdfe.discretization.Discretization.get_omega_divergence`), or from the DFE
-            alone (see :meth:`~fastdfe.discretization.Discretization.get_omega`). When ``None``
-            (the default), this follows the inference mode (whether divergence counts are used in
-            the likelihood). Passing ``False`` explicitly always yields the polymorphism-only
-            estimate, which is useful for comparison.
+            :meth:`Discretization.get_omega_divergence() <fastdfe.discretization.Discretization.get_omega_divergence>`),
+            or from the DFE alone (see
+            :meth:`Discretization.get_omega() <fastdfe.discretization.Discretization.get_omega>`). When ``None`` (the
+            default), this follows the inference mode (whether divergence counts are used in the likelihood). Passing
+            ``False`` explicitly always yields the polymorphism-only estimate, which is useful for comparison.
         :return: Estimate of omega.
         :raises ValueError: If ``use_divergence`` is ``True`` without divergence target sizes or divergence counts.
         """
@@ -2095,11 +2095,12 @@ class BaseInference(AbstractInference):
             ``h`` is taken to be 0.5 if absent.
         :param use_divergence: Whether to estimate omega_a from observed divergence counts using
             polyDFE's McDonald-Kreitman style estimator (see
-            :meth:`~fastdfe.discretization.Discretization.get_omega_a_divergence`), or from the DFE
-            alone (see :meth:`~fastdfe.discretization.Discretization.get_omega_a`). When ``None``
-            (the default), this follows the inference mode (whether divergence counts are used in
-            the likelihood). Passing ``False`` explicitly always yields the polymorphism-only
-            estimate, which is useful for comparison.
+            :meth:`Discretization.get_omega_a_divergence()
+            <fastdfe.discretization.Discretization.get_omega_a_divergence>`),
+            or from the DFE alone (see
+            :meth:`Discretization.get_omega_a() <fastdfe.discretization.Discretization.get_omega_a>`). When ``None``
+            (the default), this follows the inference mode (whether divergence counts are used in the likelihood).
+            Passing ``False`` explicitly always yields the polymorphism-only estimate, which is useful for comparison.
         :return: Estimate of omega_a.
         :raises ValueError: If ``use_divergence`` is ``True`` without divergence target sizes or divergence counts.
         """

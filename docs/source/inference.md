@@ -173,7 +173,7 @@ p <- inf$plot_discretized()
 ```
 
 +++
-The inferred full DFE shows substantial uncertainty, which is expected with a small sample and few SNPs. This is most pronounced for the [-1, 0] and [0, 1] bins, in which mutations are effectively neutral and provide little signal. Adjusting the discretization intervals can help reveal the structure more clearly (cf. {func}`~fastdfe.base_inference.BaseInference.plot_discretized`).
+The inferred full DFE shows substantial uncertainty, which is expected with a small sample and few SNPs. This is most pronounced for the [-1, 0] and [0, 1] bins, in which mutations are effectively neutral and provide little signal. Adjusting the discretization intervals can help reveal the structure more clearly (cf. {func}`BaseInference.plot_discretized() <fastdfe.base_inference.BaseInference.plot_discretized>`).
 
 ```{code-cell} python
 inf.plot_discretized(intervals=[-np.inf, -100, -10, -1, 1, np.inf]);
@@ -230,7 +230,7 @@ p <- inf$plot_discretized()
 ```
 
 +++
-The estimator used by {func}`~fastdfe.base_inference.BaseInference.get_alpha` follows the inference mode, but can be switched explicitly via its `use_divergence` argument, which allows {math}`\alpha` estimated from divergence to be compared with {math}`\alpha` estimated from polymorphism alone. {func}`~fastdfe.base_inference.BaseInference.get_omega` returns {math}`\omega`, the ratio of non-synonymous to synonymous substitution rates ({math}`d_N/d_S`), and {func}`~fastdfe.base_inference.BaseInference.get_omega_a` returns its adaptive component {math}`\omega_a = \alpha\,\omega`.
+The estimator used by {func}`BaseInference.get_alpha() <fastdfe.base_inference.BaseInference.get_alpha>` follows the inference mode, but can be switched explicitly via its `use_divergence` argument, which allows {math}`\alpha` estimated from divergence to be compared with {math}`\alpha` estimated from polymorphism alone. {func}`BaseInference.get_omega() <fastdfe.base_inference.BaseInference.get_omega>` returns {math}`\omega`, the ratio of non-synonymous to synonymous substitution rates ({math}`d_N/d_S`), and {func}`BaseInference.get_omega_a() <fastdfe.base_inference.BaseInference.get_omega_a>` returns its adaptive component {math}`\omega_a = \alpha\,\omega`.
 
 ```{code-cell} python
 print(f'alpha (with divergence):   {inf.get_alpha():.7g}')
@@ -258,7 +258,7 @@ stopifnot(inf$get_alpha() > 0, inf$get_alpha() < 1)
 
 +++
 ## Ancestral-allele misidentification
-We can also adjust for ancestral-allele misidentification by letting parameter `eps` vary. `eps` is the probability that an allele is misidentified as derived when it is actually ancestral, and vice versa (cf. {meth}`~sfsutils.spectrum.Spectrum.misidentify`). This can correct biases to the SFS caused by mis-polarization, but `eps` is somewhat difficult to interpret because it is applied simultaneously to both the neutral and selected SFS. In addition, `eps` assumes the fraction of ancestral misidentification to be constant across site classes, whereas in practice errors may differ across classes. Nevertheless, below, we infer the full DFE while allowing `eps` to vary.
+We can also adjust for ancestral-allele misidentification by letting parameter `eps` vary. `eps` is the probability that an allele is misidentified as derived when it is actually ancestral, and vice versa (cf. {meth}`Spectrum.misidentify() <sfsutils.spectrum.Spectrum.misidentify>`). This can correct biases to the SFS caused by mis-polarization, but `eps` is somewhat difficult to interpret because it is applied simultaneously to both the neutral and selected SFS. In addition, `eps` assumes the fraction of ancestral misidentification to be constant across site classes, whereas in practice errors may differ across classes. Nevertheless, below, we infer the full DFE while allowing `eps` to vary.
 
 ```{code-cell} python
 inf = fd.BaseInference(
@@ -313,7 +313,7 @@ options(repr.plot.width = 4.8, repr.plot.height = 3.3)
 
 +++
 ## Nested model comparison
-The significance of including ancestral-allele misidentification and beneficial mutations can be assessed with likelihood ratio tests, using {func}`~fastdfe.base_inference.BaseInference.plot_nested_models`. The LRTs compare the likelihood of the inferred DFE to the likelihood of a nested model where some parameters are held fixed. Alternatively, {func}`~fastdfe.base_inference.BaseInference.compare_nested` directly compares two nested models.
+The significance of including ancestral-allele misidentification and beneficial mutations can be assessed with likelihood ratio tests, using {func}`BaseInference.plot_nested_models() <fastdfe.base_inference.BaseInference.plot_nested_models>`. The LRTs compare the likelihood of the inferred DFE to the likelihood of a nested model where some parameters are held fixed. Alternatively, {func}`BaseInference.compare_nested() <fastdfe.base_inference.BaseInference.compare_nested>` directly compares two nested models.
 
 ```{code-cell} python
 # set logging level to warning to avoid cluttering
@@ -469,7 +469,7 @@ options(repr.plot.width = 4.8, repr.plot.height = 3.3)
 
 +++
 ## Serialization
-Inference objects can be serialized to JSON files for later use (cf. {func}`~fastdfe.base_inference.BaseInference.to_file`).
+Inference objects can be serialized to JSON files for later use (cf. {func}`BaseInference.to_file() <fastdfe.base_inference.BaseInference.to_file>`).
 
 ```{code-cell} python
 # save the inference object to a file, which BaseInference.from_file restores
@@ -581,7 +581,7 @@ p <- inf$plot_discretized()
 
 +++
 ### Model comparison
-We can obtain information about the goodness of fit achieved by sharing the parameter by performing a likelihood ratio test (cf. {func}`~fastdfe.joint_inference.JointInference.perform_lrt_shared`). This compares the likelihood of the joint inference with the product of the marginal likelihoods.
+We can obtain information about the goodness of fit achieved by sharing the parameter by performing a likelihood ratio test (cf. {func}`JointInference.perform_lrt_shared() <fastdfe.joint_inference.JointInference.perform_lrt_shared>`). This compares the likelihood of the joint inference with the product of the marginal likelihoods.
 
 ```{code-cell} python
 inf.perform_lrt_shared()
@@ -697,7 +697,7 @@ stopifnot(abs(median(inf$bootstraps[["A.c0"]])) < 0.1)
 
 +++
 ### Model comparison
-We can perform a likelihood ratio test to see whether including the covariates produces a significantly better fit than simply sharing the parameter in question among the types (cf. {func}`~fastdfe.joint_inference.JointInference.perform_lrt_covariates`).
+We can perform a likelihood ratio test to see whether including the covariates produces a significantly better fit than simply sharing the parameter in question among the types (cf. {func}`JointInference.perform_lrt_covariates() <fastdfe.joint_inference.JointInference.perform_lrt_covariates>`).
 
 ```{code-cell} python
 inf.perform_lrt_covariates()

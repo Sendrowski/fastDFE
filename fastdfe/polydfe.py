@@ -398,11 +398,10 @@ class PolyDFE(AbstractInference):
         Get alpha from observed divergence counts using polyDFE's McDonald-Kreitman style
         ``estimateAlpha`` (the ``div`` branch), i.e. ``1 - (L_sel/L_neut)*(D_neut/D_sel)*divDel``.
 
-        The divergence counts are taken from the config's spectra and the divergence target sizes
-        from the config entries ``n_sites_div_neut`` / ``n_sites_div_sel``, summed over types.
-        This requires polyDFE to have been run and an R environment with the postprocessing script,
-        and is the reference for validating :meth:`~fastdfe.base_inference.BaseInference.get_alpha`
-        with ``use_divergence=True``.
+        The divergence counts are taken from the config's spectra and the divergence target sizes from the config
+        entries ``n_sites_div_neut`` / ``n_sites_div_sel``, summed over types. This requires polyDFE to have been run
+        and an R environment with the postprocessing script, and is the reference for validating
+        :meth:`BaseInference.get_alpha() <fastdfe.base_inference.BaseInference.get_alpha>` with ``use_divergence=True``.
 
         :return: Estimate for alpha based on divergence counts
         :raises ValueError: If either divergence target size is missing from the config
