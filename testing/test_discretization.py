@@ -1094,6 +1094,12 @@ class FastDiscretizationTestCase(TestCase):
         self.assertEqual(d.get_alpha(GammaExpParametrization(), params), 0)
         self.assertEqual(d.get_omega_a(GammaExpParametrization(), params), 0)
 
+        # observed divergence equal to the expected flux leaves no adaptive substitutions
+        n_div_sel = 1000 * d.get_divergence_flux(GammaExpParametrization(), params)
+        alpha = d.get_alpha_divergence(GammaExpParametrization(), params, 1000, n_div_sel, 1, 1)
+
+        self.assertAlmostEqual(alpha, 0, delta=1e-12)
+
     def test_non_linearized_integral_rejects_dominance_callback(self):
         """
         The non-linearized integral raises a ``NotImplementedError`` for a callback that maps the parameter
