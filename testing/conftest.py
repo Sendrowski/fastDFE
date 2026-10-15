@@ -9,6 +9,9 @@ collect_ignore = ["test_polydfe_wrapper.py"]
 #: ``pytest.mark.timeout`` keeps that limit.
 TIMEOUTS = dict(fast=10, inference=60, slow=60)
 
+#: Factor applied to the time limits on CI runners, which run the suite about ten times slower
+TIMEOUT_FACTOR_CI = 5
+
 # When running under pytest-xdist, each worker is a separate process and xdist already
 # parallelizes across cores. Disable fastdfe's own multiprocessing (Settings.parallelize)
 # so the inference/bootstrap pools don't oversubscribe cores on top of the xdist workers.
@@ -27,4 +30,4 @@ def pytest_collection_modifyitems(items):
 
         tier = next((t for t in ('slow', 'inference') if item.get_closest_marker(t) is not None), 'fast')
 
-        item.add_marker(pytest.mark.timeout(TIMEOUTS[tier]))
+        item.add_marker(pytest.mark.timeout(TIMEOUTS[tier] * (TIMEOUT_FACTOR_CI if os.environ.get('CI') else 1)))
