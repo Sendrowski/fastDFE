@@ -1606,6 +1606,19 @@ class FastJointInferenceTestCase(TestCase):
 
         self.assertEqual(linear.bounds['c0'], (1e-4, 1e4))
 
+    def test_lrt_shared_warning_counts_free_parameters(self):
+        """
+        The warning on a test of sharing without degrees of freedom gives the numbers of free parameters. It
+        counted the fixed parameters as well.
+        """
+        inf = self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=1, b=2))])
+        inf.run()
+
+        with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')) as logs:
+            self.assertTrue(np.isnan(inf.perform_lrt_shared(do_bootstrap=False)))
+
+        self.assertIn('4 free parameters and the marginal models 4', '\n'.join(logs.output))
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

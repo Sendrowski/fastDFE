@@ -1140,9 +1140,9 @@ class JointInference(BaseInference):
         # determine likelihood of marginal inferences
         ll_marginal = sum([inf.likelihood for inf in self.marginals_without_all().values()])
 
-        # determine number of parameters, fixed parameters cancel out
-        n_marginal = np.sum([len(inf.params_mle) for inf in self.marginals_without_all().values()])
-        n_joint = len(ParamDict.flatten(self.get_x0()))
+        # determine number of free parameters
+        n_marginal = sum(inf.get_n_optimized() for inf in self.marginals_without_all().values())
+        n_joint = self.get_n_optimized()
 
         if n_marginal <= n_joint:
             self._logger.warning(
