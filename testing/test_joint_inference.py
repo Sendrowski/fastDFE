@@ -1737,6 +1737,21 @@ class FastJointInferenceTestCase(TestCase):
             with self.assertRaisesRegex(ValueError, "linear threshold"):
                 self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=1, b=2), bounds=bounds)], n_runs=2)
 
+    def test_plot_inferred_parameters_keeps_positional_order(self):
+        """
+        The arguments of ``plot_inferred_parameters`` keep the positional order of 1.4.1, ``point_estimate``
+        coming last as in the single inference. It was inserted before ``ci_level``, so a positional call bound
+        every later argument to the wrong parameter without an error.
+        """
+        import inspect
+
+        names = list(inspect.signature(fd.JointInference.plot_inferred_parameters).parameters)
+
+        self.assertEqual(names[:11], [
+            'self', 'file', 'confidence_intervals', 'bootstrap_type', 'ci_level', 'show', 'title', 'labels', 'ax',
+            'scale', 'kwargs_legend'
+        ])
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

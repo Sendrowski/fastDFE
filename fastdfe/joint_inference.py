@@ -1392,7 +1392,6 @@ class JointInference(BaseInference):
             file: str = None,
             confidence_intervals: bool = True,
             bootstrap_type: Literal['percentile', 'bca'] = 'percentile',
-            point_estimate: Literal['original', 'mean', 'median'] = 'mean',
             ci_level: float = 0.05,
             show: bool = True,
             title: str = 'inferred parameters',
@@ -1400,6 +1399,7 @@ class JointInference(BaseInference):
             ax: 'plt.Axes' = None,
             scale: Literal['lin', 'log', 'symlog'] = 'log',
             kwargs_legend: dict = dict(prop=dict(size=8), loc='upper right'),
+            point_estimate: Literal['original', 'mean', 'median'] = 'mean',
             **kwargs: List[str]
     ) -> 'plt.Axes':
         """
