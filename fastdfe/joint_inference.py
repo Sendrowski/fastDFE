@@ -580,7 +580,7 @@ class JointInference(BaseInference):
     @classmethod
     def from_config(cls, config: 'Config') -> 'JointInference':
         """
-        Load from config object. Unlike :meth:`BaseInference.from_config`, the per-type divergence
+        Load from config object. Unlike :meth:`BaseInference.from_config() <fastdfe.base_inference.BaseInference.from_config>`, the per-type divergence
         target sizes are passed through unchanged (JointInference expects them keyed by type).
 
         :param config: Config object.
@@ -1741,7 +1741,7 @@ class JointInference(BaseInference):
         :param params: DFE parameters to use for calculation of format `{type: {param: value}}`.
         :param use_divergence: Whether to estimate alpha from observed divergence counts using
             polyDFE's McDonald-Kreitman style estimator, or from the DFE alone. When ``None`` (the
-            default), this follows the inference mode. See :meth:`BaseInference.get_alpha`.
+            default), this follows the inference mode. See :meth:`BaseInference.get_alpha() <fastdfe.base_inference.BaseInference.get_alpha>`.
         :return: Dictionary of alpha indexed by type.
         """
         if params is None:
@@ -1765,7 +1765,7 @@ class JointInference(BaseInference):
         :param params: DFE parameters to use for calculation of format `{type: {param: value}}`.
         :param use_divergence: Whether to estimate omega from observed divergence counts using
             polyDFE's McDonald-Kreitman style estimator, or from the DFE alone. When ``None`` (the
-            default), this follows the inference mode. See :meth:`BaseInference.get_omega`.
+            default), this follows the inference mode. See :meth:`BaseInference.get_omega() <fastdfe.base_inference.BaseInference.get_omega>`.
         :return: Dictionary of omega indexed by type.
         """
         if params is None:
@@ -1790,7 +1790,7 @@ class JointInference(BaseInference):
         :param params: DFE parameters to use for calculation of format `{type: {param: value}}`.
         :param use_divergence: Whether to estimate omega_a from observed divergence counts using
             polyDFE's McDonald-Kreitman style estimator, or from the DFE alone. When ``None`` (the
-            default), this follows the inference mode. See :meth:`BaseInference.get_omega_a`.
+            default), this follows the inference mode. See :meth:`BaseInference.get_omega_a() <fastdfe.base_inference.BaseInference.get_omega_a>`.
         :return: Dictionary of omega_a indexed by type.
         """
         if params is None:

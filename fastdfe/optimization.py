@@ -489,7 +489,8 @@ class Covariate:
     #: The initial value of the covariate, by default 0 or the bound nearest to it
     x0: Optional[float] = None
 
-    #: The scale of the bounds. See :func:`Optimization.scale_value` for details
+    #: The scale of the bounds, on which the covariate parameter is optimized. Symlog bounds ``(a, b)`` span the
+    #: range from ``-b`` to ``b`` with linear threshold ``a``.
     bounds_scale: Literal['lin', 'log', 'symlog'] = 'symlog'
 
     def __post_init__(self):

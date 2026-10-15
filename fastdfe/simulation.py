@@ -92,11 +92,10 @@ class Simulation:
         :param n_sites_div: Number of mutational target sites over which divergence is counted. When
             given, the simulated SFS carry an expected fixed-derived (divergence) class -- the expected number of
             substitutions ``theta * n_sites_div * flux`` (``flux = 1`` for neutral, the selected-relative substitution
-            rate otherwise; cf.
-            :meth:`Discretization.get_divergence_flux() <fastdfe.discretization.Discretization.get_divergence_flux>`).
+            rate otherwise).
             When ``None`` (the default) the fixed-derived class is zero. Note that this is the *true* (population-level)
             divergence; it does not model finite-sample misattributed polymorphism.
-        :param discretization: Precomputed :class:`~fastdfe.discretization.Discretization` instance. When given,
+        :param discretization: Precomputed ``Discretization`` instance. When given,
             ``intervals_del``, ``intervals_ben``, ``h_callback``, ``integration_mode``, ``linearized`` and
             ``parallelize`` are ignored.
         :param parallelize: Whether to parallelize computations
