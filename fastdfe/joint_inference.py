@@ -238,12 +238,16 @@ class JointInference(BaseInference):
         #: Covariates indexed by parameter name
         self.covariates: Dict[str, Covariate] = {f"c{i}": cov for i, cov in enumerate(covariates)}
 
+        parallelize = self._get_parallelize(parallelize, [c.callback for c in self.covariates.values()])
+
         seed = int(seed) if seed is not None else None
 
         # initialize parent
         # the `self.folded` property will generalize nicely as we
         # evaluate ``sfs_sel.all.is_folded and sfs_neut.all.is_folded``
         BaseInference.__init__(**locals())
+
+        parallelize = self.parallelize
 
         #: original MLE parameters before adding covariates and unpacked shared
         self.params_mle_raw: Optional[Dict[str, Dict[str, float]]] = None

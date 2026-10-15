@@ -1669,6 +1669,37 @@ class FastJointInferenceTestCase(TestCase):
 
             self.assertAlmostEqual(inf.params_mle['t0']['c0'], -1000, delta=1)
 
+    def test_callbacks_defined_in_r_run_sequentially(self):
+        """
+        Callbacks defined in R run sequentially, as they cannot be called in worker processes. In parallel, every
+        worker raised an error that escaped into R, and the R session hung.
+        """
+        def callback(covariate, type, params):
+            return fd.Covariate.apply_default(cov, covariate, type, params)
+
+        def h_callback(h, S):
+            return np.full_like(S, h)
+
+        callback.__module__ = h_callback.__module__ = 'rpytools.call'
+        cov = fd.Covariate(param='S_d', values=dict(a=1, b=2), callback=callback)
+
+        with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')) as logs:
+            inf = self._make(covariates=[cov], parallelize=True)
+
+        self.assertIn('Callbacks defined in R', '\n'.join(logs.output))
+        self.assertFalse(inf.parallelize or inf.discretization.parallelize)
+        self.assertFalse(any(m.parallelize for m in inf.marginal_inferences.values()))
+
+        kwargs = dict(sfs_neut=self.sfs_neut, sfs_sel=self.sfs_sel, h_callback=h_callback, parallelize=True)
+
+        with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')):
+            free_h = fd.BaseInference(fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1)), **kwargs)
+
+        self.assertFalse(free_h.parallelize or free_h.discretization.parallelize)
+
+        # a dominance callback for a fixed h is called in the main process only
+        self.assertTrue(fd.BaseInference(**kwargs).parallelize)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

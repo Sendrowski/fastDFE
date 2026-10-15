@@ -337,6 +337,9 @@ class BaseInference(AbstractInference):
                 ParamDict.expand_fixed(fixed_params, types[1:]), types[1:]
             )['all'].get('h', None)
 
+        # a dominance callback is called in the workers only when h is optimized
+        parallelize = self._get_parallelize(parallelize, [h_callback] if fixed_h is None else [])
+
         if discretization is None:
             # create discretization instance
             #: Discretization instance
@@ -1240,6 +1243,23 @@ class BaseInference(AbstractInference):
         :return: Adjusted SFS counts.
         """
         return (1 - eps) * counts + eps * counts[::-1]
+
+    def _get_parallelize(self, parallelize: bool, callbacks: List[Optional[Callable]]) -> bool:
+        """
+        Get whether to parallelize computations, which is not possible with callbacks defined in R, as these
+        cannot be called in worker processes.
+
+        :param parallelize: Whether parallelization was requested.
+        :param callbacks: User-defined callbacks.
+        :return: Whether to parallelize computations.
+        """
+        if parallelize and any(getattr(f, '__module__', None) == 'rpytools.call' for f in callbacks):
+            self._logger.warning('Callbacks defined in R cannot be called in worker processes, '
+                                 'so computations run sequentially.')
+
+            return False
+
+        return parallelize
 
     @staticmethod
     def _fold(sfs: Spectrum) -> Spectrum:
