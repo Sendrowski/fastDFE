@@ -21,7 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from notebook_outputs import displayed_outputs, mask_text, tags
+from notebook_outputs import displayed_outputs, tags
 
 ROOT = Path(__file__).parent.parent
 
@@ -49,6 +49,21 @@ TRAILING_SPACE = re.compile(r"[ \t]+$", re.MULTILINE)
 # creation and modification dates and file identifier of a PDF
 PDF_DATE = re.compile(rb"D:\d{14}")
 PDF_ID = re.compile(rb"(/ID\s*\[\s*<)([0-9a-fA-F]+)(>\s*<)([0-9a-fA-F]+)(>)")
+
+
+def mask_text(text: str) -> str:
+    """
+    Plain-text output with the parts that differ between runs of the same code replaced: ANSI colour codes, trailing
+    spaces of redrawn progress bars, progress-bar timings and rates, and the paths of temporary files.
+
+    :param text: The text of an output.
+    :return: The text with run-specific parts masked.
+    """
+    text = TRAILING_SPACE.sub("", ANSI_ESCAPE.sub("", text))
+    text = TEMP_FILE.sub("tmp--------", TEMP_DIR.sub("<tmp>", text))
+    text = PROGRESS_TIME.sub(lambda m: re.sub(r"[\d?]+", "--", m[0]), text)
+
+    return PROGRESS_RATE.sub(lambda m: f" --{m[1] or m[2]}/s", text)
 
 
 def slug(title: str) -> str:
