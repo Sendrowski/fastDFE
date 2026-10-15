@@ -10,7 +10,7 @@ Roxygen: list(markdown = TRUE)
 Imports:
     scales,
     cowplot,
-    ggplot2,
+    ggplot2 (>= 3.5.0),
     reticulate (>= 1.41.0),
     grDevices
 Suggests:
