@@ -1630,6 +1630,17 @@ class FastJointInferenceTestCase(TestCase):
         self.assertIn('Joint inference does not make sense', '\n'.join(logs.output))
         self.assertTrue(self._make(shared_params=[fd.SharedParams(params=['S_d'], types='all')]).joint_inference_makes_sense())
 
+    def test_compare_nested_rejects_models_that_share_parameters_differently(self):
+        """
+        Two joint inferences that share a parameter across different types are not nested. The comparison
+        raised a ``KeyError`` when counting the degrees of freedom.
+        """
+        complex = self._make(fixed_params=dict(all=dict(eps=0, h=0.5)))
+        simple = self._make(shared_params=[fd.SharedParams(params=['S_d'], types='all')])
+
+        with self.assertRaises(ValueError):
+            simple.compare_nested(complex)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(
