@@ -247,6 +247,19 @@ def test_plot_continuous_on_log_scale_shows_small_densities():
     assert ax.get_ylim()[0] <= np.min(values[0] / np.diff(bins))
     plt.close('all')
 
+def test_colors_of_more_than_ten_groups_are_distinct():
+    """
+    Labels of more than ten groups get distinct colours. The colour cycle wrapped after ten groups, so the
+    first and the eleventh group were drawn alike.
+    """
+    from matplotlib.colors import to_hex
+    from fastdfe.visualization import Visualization
+
+    labels = [f'marginal.t{i:02d}' for i in range(12)]
+
+    assert len({to_hex(Visualization.get_color(label, labels)) for label in labels}) == 12
+    assert Visualization.get_color('marginal.t01', labels[:10]) == 'C1'
+
 def test_plot_continuous_leaves_out_unbounded_intervals():
     """
     The density plot leaves out intervals with an infinite bound, whose density is not defined. They were

@@ -22,6 +22,17 @@ if (getRversion() >= "2.15.1") utils::globalVariables(c(".data"))
 .tab10 <- c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
             "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf")
 
+# matplotlib's 'tab20' colour map
+.tab20 <- c("#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd",
+            "#c5b0d5", "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d",
+            "#17becf", "#9edae5")
+
+# colour of each group index, from matplotlib's cycle for up to 10 groups and from 'tab20' for more,
+# as in Visualization.get_color of the Python package
+.group_colours <- function(index) {
+  if (max(index) <= length(.tab10)) .tab10[index] else .tab20[(index - 1) %% length(.tab20) + 1]
+}
+
 # ggplot2 fill scale colouring each label with the colour of matplotlib's cycle at its index
 .scale_fill_tab10 <- function(labels, index) {
   values <- .tab10[(index - 1) %% length(.tab10) + 1]
@@ -355,7 +366,7 @@ load_fastdfe <- function(install = FALSE) {
                                           alpha = .data$group)) +
       ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge(), show.legend = n_dfes > 1) +
       ggplot2::scale_fill_manual(
-        values = stats::setNames(.tab10[(.group_index(labels) - 1) %% length(.tab10) + 1], seq_len(n_dfes)),
+        values = stats::setNames(.group_colours(.group_index(labels)), seq_len(n_dfes)),
         labels = labels
       ) +
       .scale_alpha_prefix(labels, seq_len(n_dfes)) +
@@ -441,7 +452,7 @@ load_fastdfe <- function(install = FALSE) {
     p <- ggplot2::ggplot(df, ggplot2::aes(x = factor(.data$x), y = .data$y, fill = .data$group,
                                           alpha = .data$group)) +
       ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge(), show.legend = n_types > 1) +
-      .scale_fill_tab10(labels, .group_index(labels)) +
+      ggplot2::scale_fill_manual(values = stats::setNames(.group_colours(.group_index(labels)), labels)) +
       .scale_alpha_prefix(labels) +
       ggplot2::scale_x_discrete(labels = .param_labels(param_names), expand = ggplot2::expansion(mult = c(0, 0))) +
       ggplot2::labs(x = "Parameters", y = "Values", title = title) +

@@ -543,7 +543,8 @@ class Visualization:
             get_group: Callable = lambda x: x.split('.')[-1]
     ) -> str:
         """
-        Get color for specified label.
+        Get color for specified label, from matplotlib's colour cycle for up to 10 groups and from the
+        ``tab20`` colour map for more.
 
         :param label: Label to get color for
         :param labels: List of labels
@@ -559,7 +560,9 @@ class Visualization:
         # determine index of group
         i = np.where(groups == group)[0][0] if sum(groups == group) > 0 else 0
 
-        # return color
+        if len(groups) > 10:
+            return mcolors.to_hex(plt.get_cmap('tab20')(i % 20))
+
         return f'C{i}'
 
     @staticmethod
