@@ -1574,7 +1574,7 @@ class FastJointInferenceTestCase(TestCase):
         )
         inf.run()
 
-        self.assertEqual(inf.bounds['c0'], (25, 25000))
+        self.assertEqual(inf.bounds['c0'], (1e2 / 1.5, 1e5 / 1.5))
         self.assertAlmostEqual(inf.params_mle['a']['c0'], 400, delta=1)
         self.assertLess(inf.perform_lrt_covariates(), 1e-3)
 
@@ -1592,8 +1592,8 @@ class FastJointInferenceTestCase(TestCase):
             **kwargs
         )
 
-        self.assertEqual(wide.bounds['c0'], (2.5e5, 2.5e8))
-        self.assertEqual(fd.JointInference.from_config(wide.create_config()).bounds['c0'], (2.5e5, 2.5e8))
+        self.assertEqual(wide.bounds['c0'], (1e6 / 1.5, 1e9 / 1.5))
+        self.assertEqual(fd.JointInference.from_config(wide.create_config()).bounds['c0'], (1e6 / 1.5, 1e9 / 1.5))
 
         # a scale given to the inference takes precedence over the scale of the covariate
         linear = fd.JointInference(
@@ -1640,6 +1640,34 @@ class FastJointInferenceTestCase(TestCase):
 
         with self.assertRaises(ValueError):
             simple.compare_nested(complex)
+
+    def test_covariate_estimate_does_not_depend_on_origin_of_covariate(self):
+        """
+        The estimated covariate parameter does not depend on where the covariate is zero. The shared parameter
+        was the value at a covariate of zero, which was confined to the bounds of ``S_d``, so the slope was
+        attenuated whenever the trend crossed zero before reaching a covariate of zero.
+        """
+        kwargs = dict(intervals_del=(-1e8, -1e-5, 20), intervals_ben=(1e-5, 1e4, 20), parallelize=False)
+        neutral = fd.Simulation.get_neutral_sfs(n=10, n_sites=1e7, theta=1e-3)
+
+        selected = {
+            f't{i}': fd.Simulation(sfs_neut=neutral, params=dict(S_d=-100 - 1000 * i, b=0.4, p_b=0, S_b=1), **kwargs).run()
+            for i in range(4)
+        }
+
+        for offset in [0, 1, 2.5]:
+            inf = fd.JointInference(
+                sfs_neut=fd.Spectra.from_spectra({t: neutral for t in selected}),
+                sfs_sel=fd.Spectra.from_spectra(selected),
+                covariates=[fd.Covariate(param='S_d', values={f't{i}': i + offset for i in range(4)})],
+                fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1, h=0.5)),
+                n_runs=3,
+                do_bootstrap=False,
+                **kwargs
+            )
+            inf.run()
+
+            self.assertAlmostEqual(inf.params_mle['t0']['c0'], -1000, delta=1)
 
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""

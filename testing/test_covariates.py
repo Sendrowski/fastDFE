@@ -23,11 +23,11 @@ class CovariateTestCase(TestCase):
         return modified
 
     def test_default_callbacks(self):
-        covariate = Covariate(param="a", values={"all": 2})
+        covariate = Covariate(param="a", values={"x": 2, "y": 4})
         params = {"a": 1, "b": 3}
 
-        modified_params = covariate.apply(covariate=2, type="all", params=params)
-        self.assertEqual(modified_params, {"a": 5, "b": 3})
+        modified_params = covariate.apply(covariate=2, type="x", params=params)
+        self.assertEqual(modified_params, {"a": -1, "b": 3})
 
     def test_custom_callbacks(self):
         covariate = Covariate(

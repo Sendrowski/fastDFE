@@ -447,7 +447,14 @@ class Covariate:
     Class defining a covariate which induces a relationship
     with one or many parameters. The relationship is defined
     by a callback function which modifies the parameters. The
-    default callback introduces a linear relationship.
+    default callback introduces a linear relationship
+
+    .. math::
+        \\phi_t = \\phi + c (v_t - \\bar{v}),
+
+    where :math:`\\phi_t` is the parameter of type :math:`t`, :math:`\\phi` the parameter
+    shared by all types, :math:`c` the estimated covariate parameter, :math:`v_t` the covariate value
+    of type :math:`t`, and :math:`\\bar{v}` the mean of the covariate values over all types.
 
     Below an example of introducing linear covariates for ``S_d``, the for mean strength of deleterious
     mutations (cf. :class:`~fastdfe.parametrization.GammaExpParametrization`). Each
@@ -475,8 +482,8 @@ class Covariate:
     callback: Optional[Callable] = None
 
     #: The bounds of the covariate parameter to be estimated. By default, on the symmetric log scale, the upper
-    #: bound is the largest absolute bound of the modified parameter divided by the largest absolute covariate
-    #: value, and the linear threshold a thousandth of it.
+    #: bound is the largest absolute bound of the modified parameter divided by the largest absolute deviation
+    #: of a covariate value from their mean, and the linear threshold a thousandth of it.
     bounds: Optional[tuple] = None
 
     #: The initial value of the covariate
@@ -510,7 +517,8 @@ class Covariate:
         if scale != 'symlog' or self.callback is not None:
             return 1e-4, 1e4
 
-        span = max(abs(b) for b in bounds_modified) / (max(abs(v) for v in self.values.values()) or 1)
+        mean = np.mean(list(self.values.values()))
+        span = max(abs(b) for b in bounds_modified) / (max(abs(v - mean) for v in self.values.values()) or 1)
 
         return 1e-3 * span, span
 
@@ -531,7 +539,7 @@ class Covariate:
     def apply_default(self, covariate: float, type: str, params: Dict[str, float]) -> Dict[str, float]:
         """
         Modify the given parameters introducing a linear relationship
-        with the given covariate.
+        with the given covariate, centred at the mean covariate value.
 
         :param covariate: The value of the covariate.
         :param type: The SFS type whose covariate value is used.
@@ -543,7 +551,7 @@ class Covariate:
 
         # introduce linear relationship
         if self.param in params:
-            modified[self.param] += covariate * self.values[type]
+            modified[self.param] += covariate * (self.values[type] - np.mean(list(self.values.values())))
 
         return modified
 
