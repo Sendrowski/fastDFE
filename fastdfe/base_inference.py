@@ -740,10 +740,11 @@ class BaseInference(AbstractInference):
         """
         Get the observed spectra as they enter the likelihood.
 
-        :return: Neutral and selected SFS indexed by ``neutral`` and ``selected``, folded if the inference is.
+        :return: Neutral and selected SFS indexed by ``neutral`` and ``selected``, folded if the inference is,
+            with the monomorphic and divergence counts kept.
         """
         if self.folded:
-            return dict(neutral=self.sfs_neut.fold(), selected=self.sfs_sel.fold())
+            return dict(neutral=self._fold(self.sfs_neut), selected=self._fold(self.sfs_sel))
 
         return dict(neutral=self.sfs_neut, selected=self.sfs_sel)
 
@@ -1241,6 +1242,16 @@ class BaseInference(AbstractInference):
         :return: Adjusted SFS counts.
         """
         return (1 - eps) * counts + eps * counts[::-1]
+
+    @staticmethod
+    def _fold(sfs: Spectrum) -> Spectrum:
+        """
+        Fold the polymorphic counts of a spectrum, keeping its monomorphic and divergence counts.
+
+        :param sfs: Spectrum to fold.
+        :return: Folded spectrum.
+        """
+        return Spectrum(np.r_[sfs.data[0], sfs.fold().data[1:-1], sfs.n_div])
 
     @staticmethod
     def _is_folded(sfs: Spectrum) -> bool:

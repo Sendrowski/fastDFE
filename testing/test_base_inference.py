@@ -2976,7 +2976,9 @@ class SmokeTestCase(TestCase):
         for t in ['neutral', 'selected', 'modelled']:
             self.assertEqual(np.count_nonzero(spectra[t].polymorphic[5:]), 0)
 
-        np.testing.assert_array_equal(spectra['selected'].data, self.sfs_sel.fold().data)
+        np.testing.assert_array_equal(
+            spectra['selected'].data, np.r_[self.sfs_sel.data[0], self.sfs_sel.fold().data[1:-1], self.sfs_sel.n_div]
+        )
 
     def test_get_stats_discretized_without_bootstraps_raises(self):
         """Without bootstraps, the statistics of the discretized DFE raise a ``ValueError``."""
@@ -3330,6 +3332,21 @@ class SmokeTestCase(TestCase):
             b.run()
 
             assert_frame_equal(a.bootstraps, b.bootstraps)
+
+    def test_get_spectra_of_folded_inference_keeps_divergence_counts(self):
+        """
+        The observed spectra of a folded inference keep their divergence and monomorphic counts. Folding moved the
+        divergence count into the monomorphic class, although the likelihood uses it.
+        """
+        neut = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652])
+        sel = fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794])
+
+        spectra = fd.BaseInference(sfs_neut=neut, sfs_sel=sel, folded=True).get_spectra()
+
+        for name, sfs in dict(neutral=neut, selected=sel).items():
+            self.assertEqual(spectra[name].n_div, sfs.n_div)
+            self.assertEqual(spectra[name].data[0], sfs.data[0])
+            np.testing.assert_array_equal(spectra[name].polymorphic, sfs.fold().polymorphic)
 
     def test_nested_models_keep_other_fixed_parameters(self):
         """
