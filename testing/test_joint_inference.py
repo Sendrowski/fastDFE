@@ -1705,6 +1705,15 @@ class FastJointInferenceTestCase(TestCase):
         # a dominance callback for a fixed h is called in the main process only
         self.assertTrue(fd.BaseInference(**kwargs).parallelize)
 
+    def test_covariate_values_must_match_types(self):
+        """
+        A covariate needs a value for each type and for no other. Values of absent types entered the mean the
+        covariate is centred at and its default bounds, and a missing type raised a bare ``KeyError``.
+        """
+        for values in [dict(a=1, b=2, c=10), dict(a=1)]:
+            with self.assertRaises(ValueError):
+                self._make(covariates=[fd.Covariate(param='S_d', values=values)])
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

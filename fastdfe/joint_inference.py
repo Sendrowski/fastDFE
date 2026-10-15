@@ -219,6 +219,11 @@ class JointInference(BaseInference):
                 raise ValueError(f"{name} needs a value for each of the types {self.types}, "
                                  f"but found the keys {sorted(sizes)}.")
 
+        for cov in covariates:
+            if set(cov.values) != set(self.types):
+                raise ValueError(f"The covariate on '{cov.param}' needs a value for each of the types {self.types}, "
+                                 f"but found the keys {sorted(cov.values)}.")
+
         #: Initial values of the marginal inferences keyed by type
         self._x0_types: Optional[Dict[str, Dict[str, float]]] = {t: v for t, v in x0.items() if t != 'all'}
 
