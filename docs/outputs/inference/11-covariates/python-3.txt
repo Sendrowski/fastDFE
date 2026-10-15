@@ -22,7 +22,6 @@ INFO:JointInference: Running marginal inference for type 'A'.
 INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
 BaseInference>Performing inference: 100%|██████████| 50/50 [--:--<--:--, --it/s]
 WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {all.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
-WARNING:BaseInference: The L1 residual comparing the modelled and observed SFS is rather large: `norm(sfs_modelled - sfs_observed, 1) / sfs_observed` = 0.200. This may indicate that the model does not fit the data well.
 INFO:BaseInference: Inference results: {all.S_d: -1e+05 ± 6.2e+03, all.b: 0.0857 ± 0.00066, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -22.72 ± 0.0077} (best_run ± std_across_runs)
 INFO:JointInference: Running marginal inference for type 'C'.
 INFO:Optimization: Optimizing 2 parameters: [all.S_d, all.b].
@@ -45,7 +44,6 @@ JointInference>Performing joint inference: 100%|██████████| 
 WARNING:Optimization: The MLE estimate is close to the upper bound for {} and lower bound for {A:C:G:T.S_d: (-100000, -100000, -0.01)} [(lower, value, upper)], but this might be nothing to worry about.
 WARNING:JointInference: Numerical optimization did not terminate normally, so the result might be unreliable. Consider adjusting the optimization parameters (increasing `gtol` or `n_runs`) or decreasing the number of optimized parameters.
 INFO:JointInference: Inference results: {A.b: 0.0857 ± 2.2, A.p_b: 0 ± 0, A.S_b: 1 ± 0, A.eps: 0 ± 0, A.h: 0.5 ± 0, C.b: 0.1219 ± 2.7, C.p_b: 0 ± 0, C.S_b: 1 ± 0, C.eps: 0 ± 0, C.h: 0.5 ± 0, G.b: 0.1221 ± 1.7, G.p_b: 0 ± 0, G.S_b: 1 ± 0, G.eps: 0 ± 0, G.h: 0.5 ± 0, T.b: 0.1079 ± 1.7, T.p_b: 0 ± 0, T.S_b: 1 ± 0, T.eps: 0 ± 0, T.h: 0.5 ± 0, A:C:G:T.S_d: -1e+05 ± 4.1e+04, A:C:G:T.c0: 0 ± 6e+04, likelihood: -79.5 ± 1.8e+02} (best_run ± std_across_runs)
-WARNING:BaseInference: The L1 residual comparing the modelled and observed SFS is rather large: `norm(sfs_modelled - sfs_observed, 1) / sfs_observed` = 0.200. This may indicate that the model does not fit the data well.
 INFO:JointInference: Bootstrapping type 'all'.
 BaseInference>Bootstrapping 'all' (2 runs each): 100%|██████████| 100/100 [--:--<--:--, --it/s]
 INFO:BaseInference: Bootstrap summary: {all.S_d: -7.899e+04 ± 3.9e+04, all.b: 0.1188 ± 0.028, all.p_b: 0 ± 0, all.S_b: 1 ± 0, all.eps: 0 ± 0, all.h: 0.5 ± 0, likelihood: -36.03 ± 5.6, i_best_run: 0.45 ± 0.5, likelihoods_std: 0.03251 ± 0.28} (mean ± std)
