@@ -42,6 +42,8 @@ autosummary_generate = False
 bibtex_bibfiles = ['refs.bib']
 
 typehints_use_signature = True
+typehints_use_signature_return = True
+typehints_document_rtype = False
 typehints_fully_qualified = False
 
 # Resolve cross-references to the standalone sfsutils package (VCF parsing, spectra,
