@@ -433,7 +433,7 @@ class BaseInference(AbstractInference):
             fixed_all = set(self.fixed_params.get('all', {}))
             fixed = [fixed_all | set(v) for t, v in self.fixed_params.items() if t != 'all'] or [fixed_all]
 
-            if not all(fixed_dele.issubset(f) for f in fixed):
+            if not fixed_dele or not all(fixed_dele.issubset(f) for f in fixed):
                 self._logger.warning("You are estimating the full DFE, but the SFS are folded. "
                                      "This is not recommended as the folded SFS contains little information "
                                      "on beneficial mutations.")

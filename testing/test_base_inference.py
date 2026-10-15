@@ -3348,6 +3348,19 @@ class SmokeTestCase(TestCase):
             self.assertEqual(spectra[name].data[0], sfs.data[0])
             np.testing.assert_array_equal(spectra[name].polymorphic, sfs.fold().polymorphic)
 
+    def test_folded_full_dfe_warning_for_model_without_deleterious_submodel(self):
+        """
+        A folded inference with a model that has no purely deleterious submodel warns that it estimates the full
+        DFE. The empty set of parameters fixed by that submodel was a subset of any fixed parameters, so the
+        warning never fired.
+        """
+        sfs = fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]).fold()
+
+        with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')) as logs:
+            fd.BaseInference(sfs_neut=sfs, sfs_sel=sfs, model=fd.DisplacedGammaParametrization())
+
+        self.assertTrue(any('the SFS are folded' in m for m in logs.output))
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
