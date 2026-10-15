@@ -1728,6 +1728,15 @@ class FastJointInferenceTestCase(TestCase):
         with self.assertRaises(ValueError):
             simple.compare_nested(complex)
 
+    def test_symlog_bounds_with_threshold_not_below_upper_bound_are_rejected(self):
+        """
+        Symlog bounds whose linear threshold is not below the upper bound have no logarithmic part and are
+        rejected. They were accepted, and drawing the initial values of the second run raised a domain error.
+        """
+        for bounds in [(5, 5), (10, 5)]:
+            with self.assertRaisesRegex(ValueError, "linear threshold"):
+                self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=1, b=2), bounds=bounds)], n_runs=2)
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

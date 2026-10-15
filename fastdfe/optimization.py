@@ -607,7 +607,8 @@ class Optimization:
         :param scales: Dictionary of scales
         :param param_names: List of parameter names
         :param seed: Seed for the random number generator used to sample initial values
-        :raises ValueError: If the optimization method does not support bounds.
+        :raises ValueError: If the optimization method does not support bounds, or if the linear threshold of
+            symlog bounds is not below their upper bound.
         """
         #: Parameter bounds
         self.bounds: Dict[str, Tuple[float, float]] = bounds
@@ -622,6 +623,12 @@ class Optimization:
             raise ValueError(f"The optimization method '{method_mle}' does not support bounds, which hold the "
                              f"parameters within their bounds and at their fixed values. "
                              f"Supported methods are {', '.join(METHODS_WITH_BOUNDS)}.")
+
+        for name, (threshold, upper) in bounds.items():
+            if scales.get(name) == 'symlog' and threshold >= upper:
+                raise ValueError(f"The linear threshold {threshold:g} of the symlog bounds of '{name}' must be below "
+                                 f"the upper bound {upper:g}. Use the scale 'lin' with bounds ({-upper:g}, {upper:g}) "
+                                 f"for a linear range.")
 
         #: Optimization method to use
         self.method_mle: str = method_mle
