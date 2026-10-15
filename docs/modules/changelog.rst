@@ -3,6 +3,14 @@
 Changelog
 =========
 
+[1.5.0] - 2026-10-15
+^^^^^^^^^^^^^^^^^^^^
+- Minor improvements to the demographic correction of folded SFS, dominance, divergence-based statistics, bootstrapping, joint inference, covariates, nested-model comparisons, seeding, configuration files and plotting.
+- Sped up the precomputation by an order of magnitude, the likelihood evaluation, the gamma-exponential CDF and parallel bootstrapping of joint inferences.
+- Some results change slightly. The divergence-based :meth:`BaseInference.get_alpha() <fastdfe.base_inference.BaseInference.get_alpha>` now counts the bin around zero as non-adaptive, fits to folded SFS are more accurate, and the default :class:`~fastdfe.optimization.Covariate` in joint inference is centred at the mean covariate value.
+- Deprecated :class:`~fastdfe.parametrization.DiscreteParametrization` (use :class:`~fastdfe.parametrization.DiscreteFractionalParametrization` instead) and ``linearized=False``, and switched ``install_fastdfe()`` in R to ``reticulate::py_require()``.
+- Improved input validation, so input that was silently misread or produced a cryptic error now raises a descriptive error.
+
 [1.4.1] - 2026-07-24
 ^^^^^^^^^^^^^^^^^^^^
 - Fixed :mod:`sfsutils` being declared only under the ``vcf`` extra in 1.4.0, which left a plain ``pip install fastdfe`` unimportable. It is now an unconditional dependency, and the ``vcf`` extra requires ``cyvcf2`` directly.
