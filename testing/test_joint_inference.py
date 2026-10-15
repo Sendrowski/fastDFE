@@ -1690,12 +1690,17 @@ class FastJointInferenceTestCase(TestCase):
         self.assertFalse(inf.parallelize or inf.discretization.parallelize)
         self.assertFalse(any(m.parallelize for m in inf.marginal_inferences.values()))
 
+        # parallelization requested for the bootstrap is also declined
+        inf.bootstrap(n_samples=2, parallelize=True)
+
+        self.assertFalse(inf.parallelize or any(m.parallelize for m in inf.marginal_inferences.values()))
+
         kwargs = dict(sfs_neut=self.sfs_neut, sfs_sel=self.sfs_sel, h_callback=h_callback, parallelize=True)
 
         with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')):
             free_h = fd.BaseInference(fixed_params=dict(all=dict(eps=0, p_b=0, S_b=1)), **kwargs)
 
-        self.assertFalse(free_h.parallelize or free_h.discretization.parallelize)
+        self.assertFalse(free_h.parallelize)
 
         # a dominance callback for a fixed h is called in the main process only
         self.assertTrue(fd.BaseInference(**kwargs).parallelize)

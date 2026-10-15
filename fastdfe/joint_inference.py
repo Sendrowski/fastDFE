@@ -238,8 +238,6 @@ class JointInference(BaseInference):
         #: Covariates indexed by parameter name
         self.covariates: Dict[str, Covariate] = {f"c{i}": cov for i, cov in enumerate(covariates)}
 
-        parallelize = self._get_parallelize(parallelize, [c.callback for c in self.covariates.values()])
-
         seed = int(seed) if seed is not None else None
 
         # initialize parent
@@ -766,6 +764,14 @@ class JointInference(BaseInference):
 
         return self.sfs_mle
 
+    def _get_worker_callbacks(self) -> List[Optional[Callable]]:
+        """
+        Get the user-defined callbacks that are called in worker processes, the covariate callbacks included.
+
+        :return: Callbacks.
+        """
+        return super()._get_worker_callbacks() + [c.callback for c in self.covariates.values()]
+
     def joint_inference_makes_sense(self) -> bool:
         """
         Check if joint inference makes sense.
@@ -1043,7 +1049,7 @@ class JointInference(BaseInference):
         # update properties
         self.update_properties(
             n_bootstraps=n_samples,
-            parallelize=parallelize,
+            parallelize=None if parallelize is None else self._get_parallelize(parallelize),
             n_bootstrap_retries=n_retries
         )
 

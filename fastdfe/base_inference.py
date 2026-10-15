@@ -337,9 +337,6 @@ class BaseInference(AbstractInference):
                 ParamDict.expand_fixed(fixed_params, types[1:]), types[1:]
             )['all'].get('h', None)
 
-        # a dominance callback is called in the workers only when h is optimized
-        parallelize = self._get_parallelize(parallelize, [h_callback] if fixed_h is None else [])
-
         if discretization is None:
             # create discretization instance
             #: Discretization instance
@@ -400,7 +397,7 @@ class BaseInference(AbstractInference):
         self.n_bootstrap_retries: int = n_bootstrap_retries
 
         #: Whether to parallelize computations
-        self.parallelize: bool = parallelize
+        self.parallelize: bool = self._get_parallelize(parallelize)
 
         #: Parameter scales
         self.scales: Dict[str, Literal['lin', 'log', 'symlog']] = self._get_default_scales() | scales
@@ -905,7 +902,7 @@ class BaseInference(AbstractInference):
         # update properties
         self.update_properties(
             n_bootstraps=n_samples,
-            parallelize=parallelize,
+            parallelize=None if parallelize is None else self._get_parallelize(parallelize),
             n_bootstrap_retries=n_retries,
         )
 
@@ -1244,16 +1241,24 @@ class BaseInference(AbstractInference):
         """
         return (1 - eps) * counts + eps * counts[::-1]
 
-    def _get_parallelize(self, parallelize: bool, callbacks: List[Optional[Callable]]) -> bool:
+    def _get_worker_callbacks(self) -> List[Optional[Callable]]:
+        """
+        Get the user-defined callbacks that are called in worker processes. The dominance callback is called
+        there only when h is optimized.
+
+        :return: Callbacks.
+        """
+        return [self.discretization.h_callback] if self.discretization.h is None else []
+
+    def _get_parallelize(self, parallelize: bool) -> bool:
         """
         Get whether to parallelize computations, which is not possible with callbacks defined in R, as these
         cannot be called in worker processes.
 
         :param parallelize: Whether parallelization was requested.
-        :param callbacks: User-defined callbacks.
         :return: Whether to parallelize computations.
         """
-        if parallelize and any(getattr(f, '__module__', None) == 'rpytools.call' for f in callbacks):
+        if parallelize and any(getattr(f, '__module__', None) == 'rpytools.call' for f in self._get_worker_callbacks()):
             self._logger.warning('Callbacks defined in R cannot be called in worker processes, '
                                  'so computations run sequentially.')
 
