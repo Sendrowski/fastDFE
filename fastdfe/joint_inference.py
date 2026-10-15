@@ -1279,7 +1279,7 @@ class JointInference(BaseInference):
         :param types: Types to plot
         :param file: File to save plot to
         :param labels: Labels, one per plotted spectrum, i.e. one per inference and entry of ``sfs_types``.
-        :param colors: Colors for types. Only for Python visualization backend.
+        :param colors: Colors, one per plotted spectrum, as for ``labels``. Only for Python visualization backend.
         :param sfs_types: Types of SFS to plot
         :param show: Whether to show plot
         :param ax: Axes to plot on. Only for Python visualization backend and if ``use_subplots`` is ``False``.
