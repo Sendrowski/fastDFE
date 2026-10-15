@@ -3361,6 +3361,27 @@ class SmokeTestCase(TestCase):
 
         self.assertTrue(any('the SFS are folded' in m for m in logs.output))
 
+    def test_default_initial_values_start_within_narrowed_bounds_without_warning(self):
+        """
+        Default initial values outside bounds narrowed by the user start at the nearest bound without a warning.
+        The warning about given initial values outside bounds fired for values the user never gave.
+        """
+        inf = fd.BaseInference(
+            sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
+            sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
+            bounds=dict(b=(0.5, 2), S_d=(-1e5, -1e4)),
+            n_runs=1,
+            do_bootstrap=False,
+            parallelize=False
+        )
+
+        self.assertEqual((inf.x0['all']['b'], inf.x0['all']['S_d']), (0.5, -1e4))
+
+        with self.assertLogs(level="INFO", logger=logging.getLogger('fastdfe')) as logs:
+            inf.run()
+
+        self.assertNotIn('initial values outside bounds', '\n'.join(logs.output))
+
     def test_nested_models_keep_other_fixed_parameters(self):
         """
         The nested models keep the fixed parameters they do not set themselves. Only ``h`` was kept, so a
