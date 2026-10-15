@@ -1752,6 +1752,20 @@ class FastJointInferenceTestCase(TestCase):
             'scale', 'kwargs_legend'
         ])
 
+    def test_default_covariate_initial_value_starts_within_bounds_without_warning(self):
+        """
+        The default initial value of a covariate whose bounds exclude 0 starts at the nearest bound without a
+        warning. The warning about given initial values outside bounds fired for a value the user never gave.
+        """
+        inf = self._make(covariates=[fd.Covariate(param='S_d', values=dict(a=1, b=2), bounds_scale='lin')])
+
+        self.assertEqual(inf._x0_cov['c0'], inf.bounds['c0'][0])
+
+        with self.assertLogs(level="INFO", logger=logging.getLogger('fastdfe')) as logs:
+            inf.run()
+
+        self.assertNotIn('initial values outside bounds', '\n'.join(logs.output))
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

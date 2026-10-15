@@ -486,8 +486,8 @@ class Covariate:
     #: of a covariate value from their mean, and the linear threshold a thousandth of it.
     bounds: Optional[tuple] = None
 
-    #: The initial value of the covariate
-    x0: float = 0
+    #: The initial value of the covariate, by default 0 or the bound nearest to it
+    x0: Optional[float] = None
 
     #: The scale of the bounds. See :func:`Optimization.scale_value` for details
     bounds_scale: Literal['lin', 'log', 'symlog'] = 'symlog'

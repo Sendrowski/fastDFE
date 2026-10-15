@@ -293,7 +293,10 @@ class JointInference(BaseInference):
         args_cov = list(self.covariates.keys())
 
         #: Initial values for covariates
-        self._x0_cov = dict((k, cov.x0) for k, cov in self.covariates.items())
+        self._x0_cov = {
+            k: cov.x0 if cov.x0 is not None else Optimization.correct_values({k: 0}, self.bounds, self.scales)[k]
+            for k, cov in self.covariates.items()
+        }
 
         if discretization is None:
             # create discretization instance
