@@ -1619,6 +1619,17 @@ class FastJointInferenceTestCase(TestCase):
 
         self.assertIn('4 free parameters and the marginal models 4', '\n'.join(logs.output))
 
+    def test_sharing_within_one_type_warns_that_joint_inference_does_not_make_sense(self):
+        """
+        Shared parameters that span a single type leave nothing shared across types, so the joint inference
+        warns that it does not make sense. Any shared parameters suppressed the warning.
+        """
+        with self.assertLogs(level="WARNING", logger=logging.getLogger('fastdfe')) as logs:
+            self._make(shared_params=[fd.SharedParams(params=['S_d'], types=['a'])])
+
+        self.assertIn('Joint inference does not make sense', '\n'.join(logs.output))
+        self.assertTrue(self._make(shared_params=[fd.SharedParams(params=['S_d'], types='all')]).joint_inference_makes_sense())
+
     def test_nested_models_reject_fixed_covariate_parameter(self):
         """A nested model cannot hold a parameter fixed that has a covariate."""
         inf = self._make(

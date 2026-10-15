@@ -768,7 +768,7 @@ class JointInference(BaseInference):
 
         :return: Whether joint inference makes sense.
         """
-        return len(self.types) >= 2 and len(self.shared_params) != 0
+        return len(self.types) >= 2 and any(len(p.types) >= 2 and len(p.params) > 0 for p in self.shared_params)
 
     def evaluate_likelihood(self, params: Dict[str, Dict[str, float]]) -> float:
         """
