@@ -22,3 +22,8 @@ test_that("install_fastdfe replaces the declared requirement and Python version"
 
   expect_equal(declared(), "fastdfe[vcf]")
 })
+
+test_that("install_fastdfe rejects extras that are not character", {
+  # a positional TRUE meant for 'force' binds to 'extras', which used to declare 'fastdfe[TRUE]'
+  expect_error(install_fastdfe(NULL, TRUE, silent = TRUE), "must be a character vector")
+})

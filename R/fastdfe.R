@@ -242,6 +242,11 @@ install_fastdfe <- function(version = NULL, extras = c("vcf"), force = FALSE, si
     warning("'force' has no effect.", call. = FALSE)
   }
 
+  if (!is.null(extras) && !is.character(extras)) {
+    stop("'extras' must be a character vector of package extras such as \"vcf\", ",
+         "and 'force' must be passed by name.", call. = FALSE)
+  }
+
   spec <- py_requirement(version, extras)
 
   # replace the requirement and the Python version declared before
