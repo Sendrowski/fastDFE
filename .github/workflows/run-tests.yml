@@ -14,6 +14,11 @@ on:
 permissions:
   contents: read
 
+env:
+  # one BLAS thread per xdist worker, so the workers do not oversubscribe the runner's cores
+  OPENBLAS_NUM_THREADS: 1
+  OMP_NUM_THREADS: 1
+
 jobs:
   test:
     name: run tests on ${{ matrix.os }}
