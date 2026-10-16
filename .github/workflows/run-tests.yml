@@ -1,4 +1,4 @@
-# Run the fast (unit) test suite with coverage on every push to master.
+# Run the fast (unit) test suite on Linux, macOS and Windows on every push to master, or manually.
 # The unit tier is the pytest.ini default marker filter (-m "not inference and not slow");
 # the inference/slow tiers depend on local resources (genomes, SLiM, polyDFE) and are run
 # locally, not on CI. Dependencies are installed with uv (no conda).
@@ -9,14 +9,19 @@ on:
   push:
     branches: [master]
     paths-ignore: ['docs/**', '**.md', '**.rst']
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   test:
-    name: run tests on ubuntu
-    runs-on: ubuntu-latest
+    name: run tests on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
