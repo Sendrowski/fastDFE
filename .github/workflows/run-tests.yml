@@ -1,7 +1,6 @@
-# Run the fast (unit) test suite on Linux, macOS and Windows on every push to master, or manually.
-# The unit tier is the pytest.ini default marker filter (-m "not inference and not slow");
-# the inference/slow tiers depend on local resources (genomes, SLiM, polyDFE) and are run
-# locally, not on CI. Dependencies are installed with uv (no conda).
+# Run the fast and inference tiers (-m "not slow") on Linux, macOS and Windows on every push to
+# master, or manually. The slow tier (live polyDFE runs, large-data comparisons) runs locally.
+# Dependencies are installed with uv (no conda).
 
 name: tests
 
@@ -38,4 +37,4 @@ jobs:
       - name: Install fastdfe + test deps
         run: uv pip install --system -e ".[vcf]" pytest pytest-xdist pytest-timeout pytest-sugar dadi
       - name: Run tests
-        run: pytest -n auto testing/
+        run: pytest -n auto -m "not slow" testing/
