@@ -18,7 +18,7 @@ Installation
 
          pip install fastdfe
 
-      ``fastdfe`` is compatible with Python 3.11 through 3.13.
+      ``fastdfe`` is compatible with Python 3.11 through 3.14.
 
       The SFS parsing is provided by the :mod:`sfsutils` package, whose input backends are optional extras that ``fastdfe`` exposes under the same names: ``vcf`` (the :class:`cyvcf2 <cyvcf2.cyvcf2.VCF>` dependency, for VCF files), ``zarr`` (the :mod:`zarr` dependency, for VCF-Zarr stores) and ``arg`` (the :mod:`tskit` dependency, for tree sequences). All of them are installed with:
 
@@ -89,7 +89,7 @@ Installation
 
          fd <- load_fastdfe()
 
-      ``fastdfe`` is compatible with Python 3.11 through 3.13.
+      ``fastdfe`` is compatible with Python 3.11 through 3.14.
 
       The input backends are optional extras: ``vcf`` for VCF files, ``zarr`` for VCF-Zarr stores and ``arg`` for tree sequences. Only ``vcf`` is declared by default. Additional backends are declared by calling ``install_fastdfe()`` before the module is loaded:
 

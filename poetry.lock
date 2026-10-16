@@ -2997,14 +2997,14 @@ stats = ["scipy (>=1.7)", "statsmodels (>=0.12)"]
 
 [[package]]
 name = "sfsutils-popgen"
-version = "1.0.0"
+version = "1.1.2"
 description = "SFS parsing with site filtration and annotation, from VCF, Zarr, or tree sequences"
 optional = false
-python-versions = "<3.14,>=3.11"
+python-versions = "<3.15,>=3.11"
 groups = ["main"]
 files = [
-    {file = "sfsutils_popgen-1.0.0-py3-none-any.whl", hash = "sha256:ff4c932979401c5b4c4b3cec2ed7e39ad67c0694051a9f9b55b5baf7c0044d18"},
-    {file = "sfsutils_popgen-1.0.0.tar.gz", hash = "sha256:0b4e18b7f1d77ea0cf21739f22f17f322d1dd309d0fe969db1fa4e8b75200c8f"},
+    {file = "sfsutils_popgen-1.1.2-py3-none-any.whl", hash = "sha256:faea71ad45ed05a688084c18c3bf80bb7fc3c5478fc70b78b972171ac746e9aa"},
+    {file = "sfsutils_popgen-1.1.2.tar.gz", hash = "sha256:6a5cd2b24faa3c33424d776588467e11c294246b2b7e535bf1e8dc4de5c37185"},
 ]
 
 [package.dependencies]
@@ -3021,7 +3021,7 @@ tqdm = ">=4.60,<5"
 
 [package.extras]
 arg = ["tskit (>=0.5)"]
-vcf = ["cyvcf2 (>=0.31,<1)"]
+vcf = ["cyvcf2 (>=0.31,<1) ; sys_platform != \"win32\""]
 zarr = ["zarr (>=3.1)"]
 
 [[package]]
@@ -3682,5 +3682,5 @@ zarr = ["zarr"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.11,<3.14"
-content-hash = "8a62a614a9b096073581a0910608dce7cfa1f810ba47d347a523dd39317a3f15"
+python-versions = ">=3.11,<3.15"
+content-hash = "44d39dff272597d5f207a9e37f707022bcad007fe78f2836492e9d4bbd12934b"

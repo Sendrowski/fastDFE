@@ -3,6 +3,10 @@
 Changelog
 =========
 
+[Unreleased]
+^^^^^^^^^^^^
+- Support Python 3.14.
+
 [1.5.0] - 2026-10-15
 ^^^^^^^^^^^^^^^^^^^^
 - Minor improvements to the demographic correction of folded SFS, dominance, divergence-based statistics, bootstrapping, joint inference, covariates, nested-model comparisons, seeding, configuration files and plotting.
