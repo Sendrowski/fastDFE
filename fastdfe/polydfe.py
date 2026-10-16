@@ -9,6 +9,7 @@ __date__ = "2023-02-26"
 import copy
 import json
 import logging
+import os
 import subprocess
 import tempfile
 import time
@@ -293,14 +294,15 @@ class PolyDFE(AbstractInference):
         ps = self.summary.get_postprocessing_wrapper()
 
         # create temporary SFS config file
-        with tempfile.NamedTemporaryFile() as tmp:
-            self.config.create_polydfe_sfs_config(tmp.name)
+        with tempfile.TemporaryDirectory() as tmp:
+            sfs_file = os.path.join(tmp, 'sfs.txt')
+            self.config.create_polydfe_sfs_config(sfs_file)
 
             # create bootstrap SFS config
-            ps.bootstrapData(tmp.name, rep=1)
+            ps.bootstrapData(sfs_file, rep=1)
 
             # file name of resampled SFS config
-            sfs_config_file = tmp.name + '_1'
+            sfs_config_file = sfs_file + '_1'
 
             # use existing config as template and load init and SFS file
             config = copy.deepcopy(self.config)

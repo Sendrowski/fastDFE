@@ -2,7 +2,6 @@ import copy
 import functools
 import logging
 import os
-import resource
 import time
 from abc import ABC
 from unittest import mock
@@ -1683,6 +1682,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Make sure memory consumption is low for fixed dominance coefficients.
         """
+        import resource
+
         for h in [0, 0.5, 1]:
             inf = fd.BaseInference(
                 sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
@@ -1709,6 +1710,8 @@ class BaseInferenceTestCase(InferenceTestCase):
         """
         Test inference of h parameter.
         """
+        import resource
+
         inf = fd.BaseInference(
             sfs_neut=fd.Spectrum([177130, 997, 441, 228, 156, 117, 114, 83, 105, 109, 652]),
             sfs_sel=fd.Spectrum([797939, 1329, 499, 265, 162, 104, 117, 90, 94, 119, 794]),
