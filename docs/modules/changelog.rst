@@ -5,7 +5,7 @@ Changelog
 
 [Unreleased]
 ^^^^^^^^^^^^
-- Support Python 3.14.
+- Support Python 3.14, pandas 3 and jsonpickle 4.
 
 [1.5.0] - 2026-10-15
 ^^^^^^^^^^^^^^^^^^^^

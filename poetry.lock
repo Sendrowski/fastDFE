@@ -3683,4 +3683,4 @@ zarr = ["zarr"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.15"
-content-hash = "44d39dff272597d5f207a9e37f707022bcad007fe78f2836492e9d4bbd12934b"
+content-hash = "9b87a6bd21393221e7d689631e7e2f6da307730b76eed35320a4f7ccccf70345"
